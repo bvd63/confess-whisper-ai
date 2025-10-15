@@ -121,6 +121,47 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          comment_content: string | null
+          confession_id: string
+          created_at: string
+          id: string
+          is_read: boolean
+          triggered_by: string | null
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Insert: {
+          comment_content?: string | null
+          confession_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          triggered_by?: string | null
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Update: {
+          comment_content?: string | null
+          confession_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          triggered_by?: string | null
+          type?: Database["public"]["Enums"]["notification_type"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "confessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_history: {
         Row: {
           amount: number
@@ -260,7 +301,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      notification_type: "like" | "comment" | "deep_insight"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -387,6 +428,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      notification_type: ["like", "comment", "deep_insight"],
+    },
   },
 } as const

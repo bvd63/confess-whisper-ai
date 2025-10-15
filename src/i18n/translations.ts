@@ -355,6 +355,14 @@ type Translations = {
   comments_none: string;
   comments_show: string;
   comments_hide: string;
+  
+  // Notifications
+  notifications_title: string;
+  notifications_mark_read: string;
+  notifications_none: string;
+  notification_like: string;
+  notification_comment: string;
+  notification_new: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -469,6 +477,14 @@ export const translations: Record<Language, Translations> = {
     comments_none: "No comments yet",
     comments_show: "Show comments",
     comments_hide: "Hide comments",
+    
+    // Notifications
+    notifications_title: "Notifications",
+    notifications_mark_read: "Mark all as read",
+    notifications_none: "No notifications",
+    notification_like: "liked your confession",
+    notification_comment: "commented on your confession",
+    notification_new: "New",
     
     achievements_title: "Achievements",
     achievements_unlocked: "unlocked",
@@ -805,6 +821,14 @@ export const translations: Record<Language, Translations> = {
     comments_show: "Mostrar comentarios",
     comments_hide: "Ocultar comentarios",
     
+    // Notifications
+    notifications_title: "Notificaciones",
+    notifications_mark_read: "Marcar todas como leídas",
+    notifications_none: "Sin notificaciones",
+    notification_like: "le gustó tu confesión",
+    notification_comment: "comentó en tu confesión",
+    notification_new: "Nueva",
+    
     achievements_title: "Logros",
     achievements_unlocked: "desbloqueados",
     achievement_first_confession: "Primera Confesión",
@@ -1139,6 +1163,14 @@ export const translations: Record<Language, Translations> = {
     comments_none: "Noch keine Kommentare",
     comments_show: "Kommentare anzeigen",
     comments_hide: "Kommentare ausblenden",
+    
+    // Notifications
+    notifications_title: "Benachrichtigungen",
+    notifications_mark_read: "Alle als gelesen markieren",
+    notifications_none: "Keine Benachrichtigungen",
+    notification_like: "hat dein Geständnis geliked",
+    notification_comment: "hat dein Geständnis kommentiert",
+    notification_new: "Neu",
     
     achievements_title: "Errungenschaften",
     achievements_unlocked: "freigeschaltet",

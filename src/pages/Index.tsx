@@ -16,6 +16,7 @@ import HelpButton from "@/components/HelpButton";
 import FeatureHighlight from "@/components/FeatureHighlight";
 import ThemeToggle from "@/components/ThemeToggle";
 import EmptyState from "@/components/EmptyState";
+import NotificationsDropdown from "@/components/NotificationsDropdown";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
@@ -284,6 +285,7 @@ const Index = () => {
                   <PlusCircle className="w-4 h-4 mr-2" />
                   {t.new_confession}
                 </Button>
+                <NotificationsDropdown />
                 <Button
                   variant="ghost"
                   size="icon"
