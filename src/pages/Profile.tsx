@@ -5,11 +5,14 @@ import { Card } from "@/components/ui/card";
 import { ArrowLeft, Heart, MessageCircle, Sparkles, Crown, Calendar, Settings, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import PremiumDialog from "@/components/PremiumDialog";
+import ReferralCard from "@/components/ReferralCard";
 
 const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { trackEvent } = useAnalytics();
   const [user, setUser] = useState<any>(null);
   const [isPremium, setIsPremium] = useState(false);
   const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
@@ -312,6 +315,11 @@ const Profile = () => {
               </p>
             </div>
           </Card>
+        )}
+
+        {/* Referral Program */}
+        {user && (
+          <ReferralCard />
         )}
       </main>
 

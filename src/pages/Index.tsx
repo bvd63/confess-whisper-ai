@@ -10,6 +10,7 @@ import ConfessionSkeleton from "@/components/ConfessionSkeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface Confession {
   id: string;
@@ -21,6 +22,7 @@ interface Confession {
 
 const Index = () => {
   const navigate = useNavigate();
+  const { trackEvent } = useAnalytics();
   const [confessions, setConfessions] = useState<Confession[]>([]);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
@@ -35,10 +37,20 @@ const Index = () => {
     checkUser();
     loadConfessions();
     
+    // Track page view
+    trackEvent('page_view', { page: 'index' });
+    
     // Check if user is new (show onboarding)
     const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
     if (!hasSeenOnboarding) {
       setTimeout(() => setShowOnboarding(true), 1000);
+    }
+    
+    // Check for referral code
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get('ref');
+    if (refCode) {
+      localStorage.setItem('referralCode', refCode);
     }
     
     // Set up real-time subscription
