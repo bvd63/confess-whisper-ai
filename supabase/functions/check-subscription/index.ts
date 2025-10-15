@@ -1,6 +1,6 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@14.21.0";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.75.0";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import Stripe from "https://esm.sh/stripe@18.5.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -19,8 +19,7 @@ serve(async (req) => {
 
   const supabaseClient = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-    { auth: { persistSession: false } }
+    Deno.env.get("SUPABASE_ANON_KEY") ?? ""
   );
 
   try {
@@ -43,28 +42,23 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
+    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     
     if (customers.data.length === 0) {
-      logStep("No customer found, user is not subscribed");
+      logStep("No customer found, updating unsubscribed state");
       
       // Update profile to reflect free status
       await supabaseClient
         .from('profiles')
-        .update({
+        .update({ 
           is_premium: false,
           subscription_status: 'free',
-          stripe_customer_id: null,
-          stripe_subscription_id: null,
+          stripe_subscription_id: null
         })
         .eq('user_id', user.id);
-
-      return new Response(JSON.stringify({ 
-        subscribed: false,
-        product_id: null,
-        subscription_end: null,
-      }), {
+      
+      return new Response(JSON.stringify({ subscribed: false }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });
@@ -78,47 +72,40 @@ serve(async (req) => {
       status: "active",
       limit: 1,
     });
-    
     const hasActiveSub = subscriptions.data.length > 0;
-    let productId = null;
     let subscriptionEnd = null;
-    let subscriptionId = null;
 
     if (hasActiveSub) {
       const subscription = subscriptions.data[0];
-      subscriptionId = subscription.id;
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
       logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
-      productId = subscription.items.data[0].price.product as string;
-      logStep("Determined subscription tier", { productId });
-
-      // Update profile with active subscription
+      
+      // Update profile with subscription details
       await supabaseClient
         .from('profiles')
-        .update({
+        .update({ 
           is_premium: true,
           subscription_status: 'active',
           stripe_customer_id: customerId,
-          stripe_subscription_id: subscriptionId,
+          stripe_subscription_id: subscription.id
         })
         .eq('user_id', user.id);
     } else {
       logStep("No active subscription found");
-
+      
       // Update profile to free
       await supabaseClient
         .from('profiles')
-        .update({
+        .update({ 
           is_premium: false,
           subscription_status: 'free',
-          stripe_subscription_id: null,
+          stripe_subscription_id: null
         })
         .eq('user_id', user.id);
     }
 
     return new Response(JSON.stringify({
       subscribed: hasActiveSub,
-      product_id: productId,
       subscription_end: subscriptionEnd
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

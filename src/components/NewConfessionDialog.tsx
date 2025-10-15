@@ -5,6 +5,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Send, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
+
+const confessionSchema = z.object({
+  content: z.string()
+    .trim()
+    .min(10, { message: "Confesiunea trebuie să aibă cel puțin 10 caractere" })
+    .max(2000, { message: "Confesiunea nu poate depăși 2000 de caractere" })
+});
 
 interface NewConfessionDialogProps {
   open: boolean;
@@ -19,10 +27,12 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
   const { toast } = useToast();
 
   const handleSubmit = async () => {
-    if (!content.trim()) {
+    // Validate input
+    const validation = confessionSchema.safeParse({ content });
+    if (!validation.success) {
       toast({
-        title: "Confesiunea este goală",
-        description: "Te rugăm să scrii ceva înainte de a trimite.",
+        title: "Validare eșuată",
+        description: validation.error.errors[0].message,
         variant: "destructive",
       });
       return;
