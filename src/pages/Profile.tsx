@@ -11,6 +11,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import PremiumDialog from "@/components/PremiumDialog";
 import ReferralCard from "@/components/ReferralCard";
+import AchievementBadges from "@/components/AchievementBadges";
+import UserConfessionsList from "@/components/UserConfessionsList";
+import SettingsDialog from "@/components/SettingsDialog";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -19,6 +22,7 @@ const Profile = () => {
   const [user, setUser] = useState<any>(null);
   const [isPremium, setIsPremium] = useState(false);
   const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(false);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
   const [stats, setStats] = useState({
@@ -177,7 +181,17 @@ const Profile = () => {
             </h1>
           </div>
           
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsSettingsOpen(true)}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <Settings className="w-5 h-5" />
+            </Button>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
@@ -324,12 +338,30 @@ const Profile = () => {
         {user && (
           <ReferralCard />
         )}
+
+        {/* Achievement Badges */}
+        <AchievementBadges 
+          totalConfessions={stats.totalConfessions}
+          deepInsightsUsed={stats.deepInsightsUsed}
+          isPremium={isPremium}
+        />
+
+        {/* User Confessions List */}
+        <div className="animate-fade-in" style={{ animationDelay: '400ms' }}>
+          <h2 className="text-xl font-semibold mb-4 text-foreground">Confesiunile mele</h2>
+          <UserConfessionsList />
+        </div>
       </main>
 
       <PremiumDialog
         open={isPremiumDialogOpen}
         onOpenChange={setIsPremiumDialogOpen}
         onUpgrade={() => {}}
+      />
+
+      <SettingsDialog
+        open={isSettingsOpen}
+        onOpenChange={setIsSettingsOpen}
       />
     </div>
   );
