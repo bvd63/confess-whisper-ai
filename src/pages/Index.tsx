@@ -9,6 +9,9 @@ import OnboardingDialog from "@/components/OnboardingDialog";
 import ConfessionSkeleton from "@/components/ConfessionSkeleton";
 import SocialProofStats from "@/components/SocialProofStats";
 import TrustBadges from "@/components/TrustBadges";
+import FAQ from "@/components/FAQ";
+import HelpButton from "@/components/HelpButton";
+import FeatureHighlight from "@/components/FeatureHighlight";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -289,6 +292,9 @@ const Index = () => {
         {/* Social Proof Stats */}
         <SocialProofStats stats={{}} />
 
+        {/* Feature Highlights */}
+        <FeatureHighlight />
+
         {/* Filter Tabs */}
         {confessions.length > 0 && (
           <div className="flex justify-center mb-6 animate-fade-in">
@@ -363,6 +369,11 @@ const Index = () => {
         }}
       />
       
+      {/* FAQ Section */}
+      <div id="faq-section" className="mt-16">
+        <FAQ />
+      </div>
+
       {/* Footer with trust badges */}
       <footer className="mt-16">
         <TrustBadges />
@@ -387,6 +398,9 @@ const Index = () => {
           </p>
         </div>
       </footer>
+
+      {/* Floating Help Button */}
+      <HelpButton />
     </div>
   );
 };
