@@ -229,6 +229,85 @@ type Translations = {
   // Common
   common_back: string;
   common_error: string;
+  
+  // FAQ
+  faq_title: string;
+  faq_q1: string;
+  faq_a1: string;
+  faq_q2: string;
+  faq_a2: string;
+  faq_q3: string;
+  faq_a3: string;
+  faq_q4: string;
+  faq_a4: string;
+  faq_q5: string;
+  faq_a5: string;
+  faq_q6: string;
+  faq_a6: string;
+  faq_q7: string;
+  faq_a7: string;
+  faq_q8: string;
+  faq_a8: string;
+  
+  // Settings
+  settings_title: string;
+  settings_manage: string;
+  settings_export_data: string;
+  settings_export_desc: string;
+  settings_privacy_view: string;
+  settings_delete_warning: string;
+  settings_data_exported: string;
+  settings_export_error: string;
+  
+  // Profile Page
+  profile_verifying: string;
+  profile_my_confessions: string;
+  
+  // Privacy Policy
+  privacy_title: string;
+  privacy_section_1: string;
+  privacy_section_1_text: string;
+  privacy_section_1_list: string;
+  privacy_section_2: string;
+  privacy_section_2_text: string;
+  privacy_section_3: string;
+  privacy_section_3_text: string;
+  privacy_section_4: string;
+  privacy_section_4_text: string;
+  privacy_section_5: string;
+  privacy_section_5_text: string;
+  privacy_section_5_list: string;
+  privacy_section_6: string;
+  privacy_section_6_text: string;
+  privacy_section_7: string;
+  privacy_section_7_text: string;
+  privacy_last_updated: string;
+  
+  // Terms of Service
+  terms_title: string;
+  terms_section_1: string;
+  terms_section_1_text: string;
+  terms_section_2: string;
+  terms_section_2_text: string;
+  terms_section_2_list: string;
+  terms_section_3: string;
+  terms_section_3_text: string;
+  terms_section_3_list: string;
+  terms_section_4: string;
+  terms_section_4_text: string;
+  terms_section_5: string;
+  terms_section_5_text: string;
+  terms_section_6: string;
+  terms_section_6_text: string;
+  terms_section_7: string;
+  terms_section_7_text: string;
+  terms_section_8: string;
+  terms_section_8_text: string;
+  terms_last_updated: string;
+  
+  // Index Page
+  index_no_confessions_title: string;
+  index_no_confessions_desc: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -448,6 +527,79 @@ export const translations: Record<Language, Translations> = {
     
     common_back: "Back",
     common_error: "Error",
+    
+    faq_title: "Frequently Asked Questions",
+    faq_q1: "Is it really anonymous?",
+    faq_a1: "Yes! Your confessions are completely anonymous. Your name never appears publicly and can't be linked to your confessions by other users. We only store the data necessary for the platform to function.",
+    faq_q2: "How does the AI work?",
+    faq_a2: "Our AI analyzes your confession and generates an empathetic, understanding response. We use advanced language models trained to be empathic and non-judgmental. Responses aren't pre-written; they're generated uniquely for each confession.",
+    faq_q3: "What is Deep Insight?",
+    faq_a3: "Deep Insight is a premium feature that provides deeper psychological analysis of your confession. It includes extra perspectives, practical advice, and reflective questions to help you better understand your situation.",
+    faq_q4: "Can I delete my confessions?",
+    faq_a4: "Yes, you can edit or delete your confessions anytime from the profile page. Once deleted, they are permanently removed from the database.",
+    faq_q5: "What does the Premium subscription offer?",
+    faq_a5: "Premium gives you unlimited AI Deep Insights, more detailed responses, an ad-free experience, and priority AI processing. You also support the development of the platform!",
+    faq_q6: "How does the referral program work?",
+    faq_a6: "You get a unique referral code you can share with friends. When someone signs up using your code, both of you get benefits. See full details on the profile page.",
+    faq_q7: "Is my data secure?",
+    faq_a7: "Yes! All data is encrypted and stored securely. We use best-in-class security practices and comply with GDPR. We do not sell or share your data with third parties.",
+    faq_q8: "Can I use the platform for professional counseling?",
+    faq_a8: "No. Confess+ does not replace professional counseling. If you're facing serious mental health issues, please contact a specialist. Our platform is for emotional support and personal reflection.",
+    
+    settings_title: "Settings",
+    settings_manage: "Manage your account and privacy",
+    settings_export_data: "Export Data",
+    settings_export_desc: "Download all your data in JSON format",
+    settings_privacy_view: "View Privacy Policy",
+    settings_delete_warning: "This action is permanent and cannot be undone",
+    settings_data_exported: "Data Exported",
+    settings_export_error: "Could not export data",
+    
+    profile_verifying: "Verifying...",
+    profile_my_confessions: "My Confessions",
+    
+    privacy_title: "Privacy Policy",
+    privacy_section_1: "1. Data Collection",
+    privacy_section_1_text: "Confess.AI collects only the data strictly necessary for platform operation:",
+    privacy_section_1_list: "Email address (for authentication) • Your confessions (stored anonymously) • Usage statistics (for service improvement)",
+    privacy_section_2: "2. Anonymity",
+    privacy_section_2_text: "Your confessions are completely anonymous. Your name never appears publicly and cannot be associated with your confessions by other users.",
+    privacy_section_3: "3. AI Usage",
+    privacy_section_3_text: "Your confessions are processed by AI models to generate empathetic responses. This data is not used for model training and remains confidential.",
+    privacy_section_4: "4. Data Security",
+    privacy_section_4_text: "All data is encrypted and stored securely. We use best security practices to protect your information.",
+    privacy_section_5: "5. Your Rights",
+    privacy_section_5_text: "You have the right to:",
+    privacy_section_5_list: "Access your personal data • Delete your account and all associated data • Request export of your data • Withdraw consent for data processing",
+    privacy_section_6: "6. Cookies",
+    privacy_section_6_text: "We only use essential cookies for platform functionality (authentication and preferences). We do not use tracking or advertising cookies.",
+    privacy_section_7: "7. Contact",
+    privacy_section_7_text: "For any privacy questions, you can contact us at: privacy@confess.ai",
+    privacy_last_updated: "Last updated: October 2025",
+    
+    terms_title: "Terms and Conditions",
+    terms_section_1: "1. Acceptance of Terms",
+    terms_section_1_text: "By using Confess.AI, you agree to these terms and conditions. If you do not agree, please do not use the platform.",
+    terms_section_2: "2. Service Usage",
+    terms_section_2_text: "Confess.AI is a platform for anonymous sharing of thoughts and receiving empathetic AI responses. You commit to:",
+    terms_section_2_list: "Use the platform responsibly • Not post illegal, offensive or harmful content • Respect community rules • Not attempt to identify other users",
+    terms_section_3: "3. Content",
+    terms_section_3_text: "You are responsible for the content you post. We reserve the right to moderate and delete content that:",
+    terms_section_3_list: "Violates applicable laws • Is threatening or harassing • Contains false or misleading information • Violates others' rights",
+    terms_section_4: "4. Premium and Payments",
+    terms_section_4_text: "Premium subscription offers additional features. Payments are processed securely through Stripe. You can cancel your subscription anytime from account settings.",
+    terms_section_5: "5. Limitation of Liability",
+    terms_section_5_text: "Confess.AI does not provide professional counseling services. AI responses are generated automatically and do not replace professional help. For serious mental health issues, please contact a specialist.",
+    terms_section_6: "6. Changes to Terms",
+    terms_section_6_text: "We reserve the right to modify these terms. Changes will be communicated through the platform and by email.",
+    terms_section_7: "7. Applicable Law",
+    terms_section_7_text: "These terms are governed by the laws of Romania. Any dispute will be resolved in the competent courts of Bucharest.",
+    terms_section_8: "8. Contact",
+    terms_section_8_text: "For questions about terms and conditions: legal@confess.ai",
+    terms_last_updated: "Last updated: October 2025",
+    
+    index_no_confessions_title: "No confessions yet",
+    index_no_confessions_desc: "Be the first to share your thoughts. You'll instantly get an empathetic AI response.",
   },
   es: {
     app_name: "Confess+",
@@ -665,6 +817,79 @@ export const translations: Record<Language, Translations> = {
     
     common_back: "Atrás",
     common_error: "Error",
+    
+    faq_title: "Preguntas Frecuentes",
+    faq_q1: "¿Es realmente anónimo?",
+    faq_a1: "¡Sí! Tus confesiones son completamente anónimas. Tu nombre nunca aparece públicamente y no puede ser vinculado a tus confesiones por otros usuarios. Solo almacenamos los datos necesarios para que la plataforma funcione.",
+    faq_q2: "¿Cómo funciona la IA?",
+    faq_a2: "Nuestra IA analiza tu confesión y genera una respuesta empática y comprensiva. Usamos modelos de lenguaje avanzados entrenados para ser empáticos y sin juicios. Las respuestas no están pre-escritas; se generan únicamente para cada confesión.",
+    faq_q3: "¿Qué es Deep Insight?",
+    faq_a3: "Deep Insight es una función premium que proporciona un análisis psicológico más profundo de tu confesión. Incluye perspectivas adicionales, consejos prácticos y preguntas reflexivas para ayudarte a comprender mejor tu situación.",
+    faq_q4: "¿Puedo eliminar mis confesiones?",
+    faq_a4: "Sí, puedes editar o eliminar tus confesiones en cualquier momento desde la página de perfil. Una vez eliminadas, se eliminan permanentemente de la base de datos.",
+    faq_q5: "¿Qué ofrece la suscripción Premium?",
+    faq_a5: "Premium te da Deep Insights IA ilimitados, respuestas más detalladas, una experiencia sin anuncios y procesamiento de IA prioritario. ¡También apoyas el desarrollo de la plataforma!",
+    faq_q6: "¿Cómo funciona el programa de referidos?",
+    faq_a6: "Obtienes un código de referido único que puedes compartir con amigos. Cuando alguien se registra usando tu código, ambos obtienen beneficios. Ver detalles completos en la página de perfil.",
+    faq_q7: "¿Mis datos están seguros?",
+    faq_a7: "¡Sí! Todos los datos están encriptados y almacenados de forma segura. Usamos las mejores prácticas de seguridad y cumplimos con el GDPR. No vendemos ni compartimos tus datos con terceros.",
+    faq_q8: "¿Puedo usar la plataforma para asesoramiento profesional?",
+    faq_a8: "No. Confess+ no reemplaza el asesoramiento profesional. Si enfrentas problemas graves de salud mental, por favor contacta a un especialista. Nuestra plataforma es para apoyo emocional y reflexión personal.",
+    
+    settings_title: "Configuración",
+    settings_manage: "Gestiona tu cuenta y privacidad",
+    settings_export_data: "Exportar Datos",
+    settings_export_desc: "Descarga todos tus datos en formato JSON",
+    settings_privacy_view: "Ver Política de Privacidad",
+    settings_delete_warning: "Esta acción es permanente y no se puede deshacer",
+    settings_data_exported: "Datos Exportados",
+    settings_export_error: "No se pudieron exportar los datos",
+    
+    profile_verifying: "Verificando...",
+    profile_my_confessions: "Mis Confesiones",
+    
+    privacy_title: "Política de Privacidad",
+    privacy_section_1: "1. Recopilación de Datos",
+    privacy_section_1_text: "Confess.AI recopila solo los datos estrictamente necesarios para el funcionamiento de la plataforma:",
+    privacy_section_1_list: "Dirección de correo electrónico (para autenticación) • Tus confesiones (almacenadas de forma anónima) • Estadísticas de uso (para mejorar el servicio)",
+    privacy_section_2: "2. Anonimato",
+    privacy_section_2_text: "Tus confesiones son completamente anónimas. Tu nombre nunca aparece públicamente y no puede ser asociado con tus confesiones por otros usuarios.",
+    privacy_section_3: "3. Uso de IA",
+    privacy_section_3_text: "Tus confesiones son procesadas por modelos de IA para generar respuestas empáticas. Estos datos no se usan para entrenar modelos y permanecen confidenciales.",
+    privacy_section_4: "4. Seguridad de Datos",
+    privacy_section_4_text: "Todos los datos están encriptados y almacenados de forma segura. Usamos las mejores prácticas de seguridad para proteger tu información.",
+    privacy_section_5: "5. Tus Derechos",
+    privacy_section_5_text: "Tienes derecho a:",
+    privacy_section_5_list: "Acceder a tus datos personales • Eliminar tu cuenta y todos los datos asociados • Solicitar la exportación de tus datos • Retirar el consentimiento para el procesamiento de datos",
+    privacy_section_6: "6. Cookies",
+    privacy_section_6_text: "Solo usamos cookies esenciales para la funcionalidad de la plataforma (autenticación y preferencias). No usamos cookies de seguimiento o publicidad.",
+    privacy_section_7: "7. Contacto",
+    privacy_section_7_text: "Para cualquier pregunta sobre privacidad, puedes contactarnos en: privacy@confess.ai",
+    privacy_last_updated: "Última actualización: Octubre 2025",
+    
+    terms_title: "Términos y Condiciones",
+    terms_section_1: "1. Aceptación de Términos",
+    terms_section_1_text: "Al usar Confess.AI, aceptas estos términos y condiciones. Si no estás de acuerdo, por favor no uses la plataforma.",
+    terms_section_2: "2. Uso del Servicio",
+    terms_section_2_text: "Confess.AI es una plataforma para compartir anónimamente pensamientos y recibir respuestas empáticas de IA. Te comprometes a:",
+    terms_section_2_list: "Usar la plataforma de manera responsable • No publicar contenido ilegal, ofensivo o dañino • Respetar las reglas de la comunidad • No intentar identificar a otros usuarios",
+    terms_section_3: "3. Contenido",
+    terms_section_3_text: "Eres responsable del contenido que publicas. Nos reservamos el derecho de moderar y eliminar contenido que:",
+    terms_section_3_list: "Viole las leyes aplicables • Sea amenazante o acosador • Contenga información falsa o engañosa • Viole los derechos de otros",
+    terms_section_4: "4. Premium y Pagos",
+    terms_section_4_text: "La suscripción Premium ofrece funciones adicionales. Los pagos se procesan de forma segura a través de Stripe. Puedes cancelar tu suscripción en cualquier momento desde la configuración de la cuenta.",
+    terms_section_5: "5. Limitación de Responsabilidad",
+    terms_section_5_text: "Confess.AI no ofrece servicios de asesoramiento profesional. Las respuestas de IA se generan automáticamente y no reemplazan la ayuda profesional. Para problemas graves de salud mental, por favor contacta a un especialista.",
+    terms_section_6: "6. Cambios en los Términos",
+    terms_section_6_text: "Nos reservamos el derecho de modificar estos términos. Los cambios se comunicarán a través de la plataforma y por correo electrónico.",
+    terms_section_7: "7. Ley Aplicable",
+    terms_section_7_text: "Estos términos se rigen por las leyes de Rumania. Cualquier disputa se resolverá en los tribunales competentes de Bucarest.",
+    terms_section_8: "8. Contacto",
+    terms_section_8_text: "Para preguntas sobre términos y condiciones: legal@confess.ai",
+    terms_last_updated: "Última actualización: Octubre 2025",
+    
+    index_no_confessions_title: "Aún no hay confesiones",
+    index_no_confessions_desc: "Sé el primero en compartir tus pensamientos. Recibirás instantáneamente una respuesta empática de IA.",
   },
   de: {
     app_name: "Confess+",
@@ -882,5 +1107,78 @@ export const translations: Record<Language, Translations> = {
     
     common_back: "Zurück",
     common_error: "Fehler",
+    
+    faq_title: "Häufig gestellte Fragen",
+    faq_q1: "Ist es wirklich anonym?",
+    faq_a1: "Ja! Deine Geständnisse sind vollständig anonym. Dein Name erscheint nie öffentlich und kann von anderen Nutzern nicht mit deinen Geständnissen verknüpft werden. Wir speichern nur die Daten, die für den Betrieb der Plattform erforderlich sind.",
+    faq_q2: "Wie funktioniert die KI?",
+    faq_a2: "Unsere KI analysiert dein Geständnis und generiert eine empathische, verständnisvolle Antwort. Wir verwenden fortschrittliche Sprachmodelle, die darauf trainiert sind, einfühlsam und nicht wertend zu sein. Die Antworten sind nicht vorgeschrieben; sie werden einzigartig für jedes Geständnis generiert.",
+    faq_q3: "Was ist Deep Insight?",
+    faq_a3: "Deep Insight ist eine Premium-Funktion, die eine tiefere psychologische Analyse deines Geständnisses bietet. Es umfasst zusätzliche Perspektiven, praktische Ratschläge und reflektierende Fragen, um dir zu helfen, deine Situation besser zu verstehen.",
+    faq_q4: "Kann ich meine Geständnisse löschen?",
+    faq_a4: "Ja, du kannst deine Geständnisse jederzeit von der Profilseite aus bearbeiten oder löschen. Einmal gelöscht, werden sie dauerhaft aus der Datenbank entfernt.",
+    faq_q5: "Was bietet das Premium-Abonnement?",
+    faq_a5: "Premium gibt dir unbegrenzte KI Deep Insights, detailliertere Antworten, ein werbefreies Erlebnis und prioritäre KI-Verarbeitung. Du unterstützt auch die Entwicklung der Plattform!",
+    faq_q6: "Wie funktioniert das Empfehlungsprogramm?",
+    faq_a6: "Du erhältst einen eindeutigen Empfehlungscode, den du mit Freunden teilen kannst. Wenn sich jemand mit deinem Code anmeldet, profitieren beide von Vorteilen. Vollständige Details findest du auf der Profilseite.",
+    faq_q7: "Sind meine Daten sicher?",
+    faq_a7: "Ja! Alle Daten sind verschlüsselt und sicher gespeichert. Wir verwenden erstklassige Sicherheitspraktiken und entsprechen der DSGVO. Wir verkaufen oder teilen deine Daten nicht mit Dritten.",
+    faq_q8: "Kann ich die Plattform für professionelle Beratung nutzen?",
+    faq_a8: "Nein. Confess+ ersetzt keine professionelle Beratung. Wenn du mit ernsthaften psychischen Problemen konfrontiert bist, wende dich bitte an einen Spezialisten. Unsere Plattform dient der emotionalen Unterstützung und persönlichen Reflexion.",
+    
+    settings_title: "Einstellungen",
+    settings_manage: "Verwalte dein Konto und deine Privatsphäre",
+    settings_export_data: "Daten Exportieren",
+    settings_export_desc: "Lade alle deine Daten im JSON-Format herunter",
+    settings_privacy_view: "Datenschutzrichtlinie Ansehen",
+    settings_delete_warning: "Diese Aktion ist dauerhaft und kann nicht rückgängig gemacht werden",
+    settings_data_exported: "Daten Exportiert",
+    settings_export_error: "Daten konnten nicht exportiert werden",
+    
+    profile_verifying: "Überprüfung...",
+    profile_my_confessions: "Meine Geständnisse",
+    
+    privacy_title: "Datenschutzrichtlinie",
+    privacy_section_1: "1. Datenerfassung",
+    privacy_section_1_text: "Confess.AI erfasst nur die Daten, die für den Betrieb der Plattform unbedingt erforderlich sind:",
+    privacy_section_1_list: "E-Mail-Adresse (zur Authentifizierung) • Deine Geständnisse (anonym gespeichert) • Nutzungsstatistiken (zur Verbesserung des Dienstes)",
+    privacy_section_2: "2. Anonymität",
+    privacy_section_2_text: "Deine Geständnisse sind vollständig anonym. Dein Name erscheint nie öffentlich und kann von anderen Nutzern nicht mit deinen Geständnissen verknüpft werden.",
+    privacy_section_3: "3. KI-Nutzung",
+    privacy_section_3_text: "Deine Geständnisse werden von KI-Modellen verarbeitet, um empathische Antworten zu generieren. Diese Daten werden nicht für das Modelltraining verwendet und bleiben vertraulich.",
+    privacy_section_4: "4. Datensicherheit",
+    privacy_section_4_text: "Alle Daten sind verschlüsselt und sicher gespeichert. Wir verwenden die besten Sicherheitspraktiken, um deine Informationen zu schützen.",
+    privacy_section_5: "5. Deine Rechte",
+    privacy_section_5_text: "Du hast das Recht:",
+    privacy_section_5_list: "Auf deine persönlichen Daten zuzugreifen • Dein Konto und alle zugehörigen Daten zu löschen • Den Export deiner Daten anzufordern • Die Zustimmung zur Datenverarbeitung zu widerrufen",
+    privacy_section_6: "6. Cookies",
+    privacy_section_6_text: "Wir verwenden nur essenzielle Cookies für die Funktionalität der Plattform (Authentifizierung und Präferenzen). Wir verwenden keine Tracking- oder Werbe-Cookies.",
+    privacy_section_7: "7. Kontakt",
+    privacy_section_7_text: "Bei Fragen zum Datenschutz kannst du uns kontaktieren unter: privacy@confess.ai",
+    privacy_last_updated: "Zuletzt aktualisiert: Oktober 2025",
+    
+    terms_title: "Allgemeine Geschäftsbedingungen",
+    terms_section_1: "1. Annahme der Bedingungen",
+    terms_section_1_text: "Durch die Nutzung von Confess.AI stimmst du diesen Bedingungen zu. Wenn du nicht einverstanden bist, verwende die Plattform bitte nicht.",
+    terms_section_2: "2. Nutzung des Dienstes",
+    terms_section_2_text: "Confess.AI ist eine Plattform zum anonymen Teilen von Gedanken und zum Empfangen empathischer KI-Antworten. Du verpflichtest dich:",
+    terms_section_2_list: "Die Plattform verantwortungsvoll zu nutzen • Keine illegalen, beleidigenden oder schädlichen Inhalte zu posten • Die Community-Regeln zu respektieren • Nicht zu versuchen, andere Nutzer zu identifizieren",
+    terms_section_3: "3. Inhalte",
+    terms_section_3_text: "Du bist für die Inhalte verantwortlich, die du postest. Wir behalten uns das Recht vor, Inhalte zu moderieren und zu löschen, die:",
+    terms_section_3_list: "Gegen geltende Gesetze verstoßen • Bedrohlich oder belästigend sind • Falsche oder irreführende Informationen enthalten • Die Rechte anderer verletzen",
+    terms_section_4: "4. Premium und Zahlungen",
+    terms_section_4_text: "Das Premium-Abonnement bietet zusätzliche Funktionen. Zahlungen werden sicher über Stripe abgewickelt. Du kannst dein Abonnement jederzeit in den Kontoeinstellungen kündigen.",
+    terms_section_5: "5. Haftungsbeschränkung",
+    terms_section_5_text: "Confess.AI bietet keine professionellen Beratungsdienste. KI-Antworten werden automatisch generiert und ersetzen keine professionelle Hilfe. Bei ernsthaften psychischen Problemen wende dich bitte an einen Spezialisten.",
+    terms_section_6: "6. Änderungen der Bedingungen",
+    terms_section_6_text: "Wir behalten uns das Recht vor, diese Bedingungen zu ändern. Änderungen werden über die Plattform und per E-Mail kommuniziert.",
+    terms_section_7: "7. Anwendbares Recht",
+    terms_section_7_text: "Diese Bedingungen unterliegen den Gesetzen Rumäniens. Alle Streitigkeiten werden vor den zuständigen Gerichten in Bukarest beigelegt.",
+    terms_section_8: "8. Kontakt",
+    terms_section_8_text: "Für Fragen zu den Allgemeinen Geschäftsbedingungen: legal@confess.ai",
+    terms_last_updated: "Zuletzt aktualisiert: Oktober 2025",
+    
+    index_no_confessions_title: "Noch keine Geständnisse",
+    index_no_confessions_desc: "Sei der Erste, der seine Gedanken teilt. Du erhältst sofort eine empathische KI-Antwort.",
   },
 };

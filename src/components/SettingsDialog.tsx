@@ -78,14 +78,14 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
       URL.revokeObjectURL(url);
 
       toast({
-        title: "Date exportate",
-        description: "Datele tale au fost exportate cu succes.",
+        title: t.settings_data_exported,
+        description: t.settings_data_exported,
       });
     } catch (error) {
       console.error('Error exporting data:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut exporta datele.",
+        title: t.common_error,
+        description: t.settings_export_error,
         variant: "destructive",
       });
     } finally {
@@ -139,7 +139,7 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
               {t.settings}
             </DialogTitle>
             <DialogDescription>
-              {t.delete_account_description}
+              {t.settings_manage}
             </DialogDescription>
           </DialogHeader>
 
@@ -155,7 +155,7 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
                     {t.export_data}
                   </h3>
                   <p className="text-sm text-muted-foreground mb-3">
-                    {t.export_data}
+                    {t.settings_export_desc}
                   </p>
                   <Button
                     onClick={handleExportData}
@@ -190,7 +190,7 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
                     {t.privacy_policy}
                   </h3>
                   <p className="text-sm text-muted-foreground mb-3">
-                    {t.privacy_policy}
+                    {t.settings_privacy_view}
                   </p>
                   <Button
                     onClick={() => {

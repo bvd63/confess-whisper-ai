@@ -204,10 +204,10 @@ const Profile = () => {
         {/* Profile Header Card */}
         <Card className="p-6 bg-gradient-to-br from-card to-muted/30 border-primary/20 shadow-[var(--shadow-soft)] animate-fade-in">
           <div className="flex items-start justify-between mb-4">
-            <div>
-              <h2 className="text-2xl font-bold mb-1">Contul tău</h2>
-              <p className="text-sm text-muted-foreground">{user?.email}</p>
-            </div>
+          <div>
+            <h2 className="text-2xl font-bold mb-1">{t.profile_your_account}</h2>
+            <p className="text-sm text-muted-foreground">{user?.email}</p>
+          </div>
             {isPremium ? (
               <div className="space-y-2">
                 <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary/20 to-primary/10 rounded-full border border-primary/30">
@@ -244,7 +244,7 @@ const Profile = () => {
           {isPremium && subscriptionEnd && (
             <div className="mt-2 pt-2 border-t border-border/50">
               <p className="text-xs text-muted-foreground">
-                Abonament activ până la {new Date(subscriptionEnd).toLocaleDateString('ro-RO', {
+                {t.profile_subscription_active} {new Date(subscriptionEnd).toLocaleDateString('ro-RO', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
@@ -264,10 +264,10 @@ const Profile = () => {
               {isCheckingSubscription ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Verificare...
+                  {t.profile_verifying}
                 </>
               ) : (
-                'Reîmprospătează Status'
+                t.profile_refresh_status
               )}
             </Button>
           </div>
@@ -308,15 +308,15 @@ const Profile = () => {
                 <Crown className="w-6 h-6 text-primary" />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold mb-2">Descoperă Confess+ Premium</h3>
+                <h3 className="text-lg font-semibold mb-2">{t.profile_discover_premium}</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Obține acces nelimitat la Deep Insights AI, răspunsuri extinse și o experiență fără reclame.
+                  {t.profile_premium_description}
                 </p>
                 <Button
                   onClick={() => setIsPremiumDialogOpen(true)}
                   className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
                 >
-                  Vezi beneficiile Premium
+                  {t.premium_benefits}
                 </Button>
               </div>
             </div>
@@ -329,10 +329,10 @@ const Profile = () => {
             <div className="text-center">
               <div className="inline-flex items-center gap-2 mb-4">
                 <Sparkles className="w-6 h-6 text-primary" />
-                <h3 className="text-xl font-semibold">Ești membru Premium!</h3>
+                <h3 className="text-xl font-semibold">{t.profile_you_are_premium}</h3>
               </div>
               <p className="text-sm text-muted-foreground">
-                Te bucuri de toate beneficiile Confess+. Mulțumim pentru susținere! 💜
+                {t.profile_premium_thanks}
               </p>
             </div>
           </Card>
@@ -352,7 +352,7 @@ const Profile = () => {
 
         {/* User Confessions List */}
         <div className="animate-fade-in" style={{ animationDelay: '400ms' }}>
-          <h2 className="text-xl font-semibold mb-4 text-foreground">Confesiunile mele</h2>
+          <h2 className="text-xl font-semibold mb-4 text-foreground">{t.profile_my_confessions}</h2>
           <UserConfessionsList />
         </div>
       </main>

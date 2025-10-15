@@ -2,9 +2,11 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, FileText } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const TermsOfService = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
@@ -16,7 +18,7 @@ const TermsOfService = () => {
             className="gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            Înapoi
+            {t.common_back}
           </Button>
         </div>
       </header>
@@ -25,64 +27,62 @@ const TermsOfService = () => {
         <Card className="p-8 bg-card border-border/50 shadow-[var(--shadow-soft)]">
           <div className="flex items-center gap-3 mb-6">
             <FileText className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl font-bold">Termeni și Condiții</h1>
+            <h1 className="text-3xl font-bold">{t.terms_title}</h1>
           </div>
 
           <div className="space-y-6 text-muted-foreground">
             <section>
-              <h2 className="text-xl font-semibold text-foreground mb-3">1. Acceptarea Termenilor</h2>
-              <p>Prin utilizarea Confess.AI, ești de acord cu acești termeni și condiții. Dacă nu ești de acord, te rugăm să nu folosești platforma.</p>
+              <h2 className="text-xl font-semibold text-foreground mb-3">{t.terms_section_1}</h2>
+              <p>{t.terms_section_1_text}</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground mb-3">2. Utilizarea Serviciului</h2>
-              <p>Confess.AI este o platformă pentru partajarea anonimă de gânduri și primirea de răspunsuri empatice de la AI. Te angajezi să:</p>
+              <h2 className="text-xl font-semibold text-foreground mb-3">{t.terms_section_2}</h2>
+              <p>{t.terms_section_2_text}</p>
               <ul className="list-disc pl-6 mt-2 space-y-1">
-                <li>Folosești platforma în mod responsabil</li>
-                <li>Nu postezi conținut ilegal, ofensator sau dăunător</li>
-                <li>Respecți regulile comunității</li>
-                <li>Nu încerci să identifici alți utilizatori</li>
+                {t.terms_section_2_list.split(' • ').map((item, i) => (
+                  <li key={i}>{item}</li>
+                ))}
               </ul>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground mb-3">3. Conținut</h2>
-              <p>Ești responsabil pentru conținutul pe care îl postezi. Ne rezervăm dreptul de a modera și șterge conținut care:</p>
+              <h2 className="text-xl font-semibold text-foreground mb-3">{t.terms_section_3}</h2>
+              <p>{t.terms_section_3_text}</p>
               <ul className="list-disc pl-6 mt-2 space-y-1">
-                <li>Încalcă legile aplicabile</li>
-                <li>Este amenințător sau hărțuitor</li>
-                <li>Conține informații false sau înșelătoare</li>
-                <li>Încalcă drepturile altora</li>
+                {t.terms_section_3_list.split(' • ').map((item, i) => (
+                  <li key={i}>{item}</li>
+                ))}
               </ul>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground mb-3">4. Premium și Plăți</h2>
-              <p>Abonamentul Premium oferă funcții suplimentare. Plățile sunt procesate securizat prin Stripe. Poți anula oricând abonamentul din setările contului.</p>
+              <h2 className="text-xl font-semibold text-foreground mb-3">{t.terms_section_4}</h2>
+              <p>{t.terms_section_4_text}</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground mb-3">5. Limitarea Răspunderii</h2>
-              <p>Confess.AI nu oferă servicii de consiliere profesională. Răspunsurile AI sunt generate automat și nu înlocuiesc ajutorul profesional. Pentru probleme grave de sănătate mintală, te rugăm să contactezi un specialist.</p>
+              <h2 className="text-xl font-semibold text-foreground mb-3">{t.terms_section_5}</h2>
+              <p>{t.terms_section_5_text}</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground mb-3">6. Modificări ale Termenilor</h2>
-              <p>Ne rezervăm dreptul de a modifica acești termeni. Modificările vor fi comunicate prin platformă și prin email.</p>
+              <h2 className="text-xl font-semibold text-foreground mb-3">{t.terms_section_6}</h2>
+              <p>{t.terms_section_6_text}</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground mb-3">7. Legea Aplicabilă</h2>
-              <p>Acești termeni sunt guvernați de legile din România. Orice dispută va fi soluționată în instanțele competente din București.</p>
+              <h2 className="text-xl font-semibold text-foreground mb-3">{t.terms_section_7}</h2>
+              <p>{t.terms_section_7_text}</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground mb-3">8. Contact</h2>
-              <p>Pentru întrebări despre termeni și condiții: legal@confess.ai</p>
+              <h2 className="text-xl font-semibold text-foreground mb-3">{t.terms_section_8}</h2>
+              <p>{t.terms_section_8_text}</p>
             </section>
 
             <div className="pt-6 border-t border-border/50 text-sm">
-              <p>Ultima actualizare: Octombrie 2025</p>
+              <p>{t.terms_last_updated}</p>
             </div>
           </div>
         </Card>

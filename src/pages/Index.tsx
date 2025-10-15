@@ -334,8 +334,8 @@ const Index = () => {
         ) : confessions.length === 0 ? (
           <EmptyState
             icon={Heart}
-            title="No confessions yet"
-            description="Be the first to share your thoughts. You'll instantly get an empathetic AI response."
+            title={t.index_no_confessions_title}
+            description={t.index_no_confessions_desc}
             actionLabel={t.new_confession}
             onAction={handleNewConfession}
           />

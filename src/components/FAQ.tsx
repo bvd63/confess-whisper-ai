@@ -6,41 +6,20 @@ import {
 } from "@/components/ui/accordion";
 import { Card } from "@/components/ui/card";
 import { HelpCircle } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const FAQ = () => {
+  const { t } = useLanguage();
+  
   const faqs = [
-    {
-      question: "Is it really anonymous?",
-      answer: "Yes! Your confessions are completely anonymous. Your name never appears publicly and can't be linked to your confessions by other users. We only store the data necessary for the platform to function."
-    },
-    {
-      question: "How does the AI work?",
-      answer: "Our AI analyzes your confession and generates an empathetic, understanding response. We use advanced language models trained to be empathic and non-judgmental. Responses aren't pre-written; they’re generated uniquely for each confession."
-    },
-    {
-      question: "What is Deep Insight?",
-      answer: "Deep Insight is a premium feature that provides deeper psychological analysis of your confession. It includes extra perspectives, practical advice, and reflective questions to help you better understand your situation."
-    },
-    {
-      question: "Can I delete my confessions?",
-      answer: "Yes, you can edit or delete your confessions anytime from the profile page. Once deleted, they are permanently removed from the database."
-    },
-    {
-      question: "What does the Premium subscription offer?",
-      answer: "Premium gives you unlimited AI Deep Insights, more detailed responses, an ad-free experience, and priority AI processing. You also support the development of the platform!"
-    },
-    {
-      question: "How does the referral program work?",
-      answer: "You get a unique referral code you can share with friends. When someone signs up using your code, both of you get benefits. See full details on the profile page."
-    },
-    {
-      question: "Is my data secure?",
-      answer: "Yes! All data is encrypted and stored securely. We use best-in-class security practices and comply with GDPR. We do not sell or share your data with third parties."
-    },
-    {
-      question: "Can I use the platform for professional counseling?",
-      answer: "No. Confess+ does not replace professional counseling. If you’re facing serious mental health issues, please contact a specialist. Our platform is for emotional support and personal reflection."
-    }
+    { question: t.faq_q1, answer: t.faq_a1 },
+    { question: t.faq_q2, answer: t.faq_a2 },
+    { question: t.faq_q3, answer: t.faq_a3 },
+    { question: t.faq_q4, answer: t.faq_a4 },
+    { question: t.faq_q5, answer: t.faq_a5 },
+    { question: t.faq_q6, answer: t.faq_a6 },
+    { question: t.faq_q7, answer: t.faq_a7 },
+    { question: t.faq_q8, answer: t.faq_a8 },
   ];
 
   return (
@@ -49,7 +28,7 @@ const FAQ = () => {
         <div className="p-2 rounded-full bg-primary/10">
           <HelpCircle className="w-6 h-6 text-primary" />
         </div>
-        <h2 className="text-2xl font-bold">Frequently Asked Questions</h2>
+        <h2 className="text-2xl font-bold">{t.faq_title}</h2>
       </div>
 
       <Accordion type="single" collapsible className="space-y-2">
