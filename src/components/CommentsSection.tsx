@@ -16,10 +16,11 @@ interface Comment {
 interface CommentsSectionProps {
   confessionId: string;
   commentsCount: number;
+  confessionOwnerId: string;
   onCommentChange?: () => void;
 }
 
-const CommentsSection = ({ confessionId, commentsCount, onCommentChange }: CommentsSectionProps) => {
+const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCommentChange }: CommentsSectionProps) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -204,7 +205,7 @@ const CommentsSection = ({ confessionId, commentsCount, onCommentChange }: Comme
                       <span>•</span>
                       <span>{timeAgo(comment.created_at)}</span>
                     </div>
-                    {currentUserId === comment.user_id && (
+                    {(currentUserId === comment.user_id || currentUserId === confessionOwnerId) && (
                       <Button
                         variant="ghost"
                         size="sm"

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import { MessageCircle, AlertCircle, Sparkles, Heart, Share2, Tag, Bookmark } from "lucide-react";
+import { MessageCircle, AlertCircle, Sparkles, Heart, Share2, Tag, Bookmark, Trash2 } from "lucide-react";
 import DeepInsightDialog from "./DeepInsightDialog";
 import ShareDialog from "./ShareDialog";
 import CommentsSection from "./CommentsSection";
@@ -15,6 +15,7 @@ interface ConfessionCardProps {
     id: string;
     content: string;
     category: string;
+    user_id?: string | null;
     ai_response?: string | null;
     ai_deep_insight?: string | null;
     likes_count?: number;
@@ -39,8 +40,18 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked || false);
   const [likesCount, setLikesCount] = useState(confession.likes_count || 0);
   const [commentsCount, setCommentsCount] = useState(confession.comments_count || 0);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const { toast } = useToast();
   const { t } = useLanguage();
+
+  // Check current user on mount
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUserId(user?.id || null);
+    };
+    checkUser();
+  }, []);
   
   const getCategoryLabel = (category: string) => {
     const categoryMap: Record<string, string> = {
@@ -177,6 +188,34 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
     }
   };
 
+  const handleDeleteConfession = async () => {
+    if (!currentUserId || confession.user_id !== currentUserId) return;
+
+    try {
+      const { error } = await supabase
+        .from('confessions')
+        .delete()
+        .eq('id', confession.id);
+
+      if (error) throw error;
+
+      toast({
+        title: t.success_deleted,
+        description: "Confesiunea a fost ștearsă",
+      });
+
+      // Refresh the page or notify parent component
+      onLikeChange?.();
+    } catch (error) {
+      console.error('Error deleting confession:', error);
+      toast({
+        title: t.error_generic,
+        description: t.error_delete,
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Card className="p-5 mb-4 bg-gradient-to-br from-card to-muted/30 border-border/50 shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-glow)] transition-all duration-300 animate-fade-in">
       <div className="flex items-start justify-between mb-3">
@@ -188,16 +227,28 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
             {getCategoryLabel(confession.category)}
           </Badge>
         </div>
-        {onReport && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onReport(confession.id)}
-            className="h-8 px-2 text-muted-foreground hover:text-destructive"
-          >
-            <AlertCircle className="w-4 h-4" />
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {currentUserId === confession.user_id && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleDeleteConfession}
+              className="h-8 px-2 text-muted-foreground hover:text-destructive"
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          )}
+          {onReport && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onReport(confession.id)}
+              className="h-8 px-2 text-muted-foreground hover:text-destructive"
+            >
+              <AlertCircle className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
       </div>
 
       <p className="text-foreground leading-relaxed mb-4">
@@ -263,6 +314,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
       {/* Comments Section */}
       <CommentsSection
         confessionId={confession.id}
+        confessionOwnerId={confession.user_id || ''}
         commentsCount={commentsCount}
         onCommentChange={() => {
           setCommentsCount(prev => prev + 1);

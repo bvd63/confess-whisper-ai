@@ -327,7 +327,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_confession_owner: {
+        Args: { _confession_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       notification_type: "like" | "comment" | "deep_insight"
