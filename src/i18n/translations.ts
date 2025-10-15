@@ -510,6 +510,8 @@ export const translations: Record<Language, Translations> = {
     bookmarks_remove: "Remove",
     bookmarks_none: "No saved confessions",
     bookmarks_saved: "Saved to bookmarks",
+    bookmarks_empty_state: "No bookmarks yet",
+    bookmarks_empty_description: "Start bookmarking confessions to see them here",
     
     // Profile Analytics
     profile_title: "Profile",
@@ -742,17 +744,6 @@ export const translations: Record<Language, Translations> = {
     notfound_404: "404",
     notfound_title: "Oops! Page not found",
     notfound_return_home: "Return to Home",
-    
-    bookmarks_empty_state: "No bookmarks yet",
-    bookmarks_empty_description: "Start bookmarking confessions to see them here",
-    profile_title: "Profile",
-    profile_my_confessions: "My Confessions",
-    profile_statistics: "Statistics",
-    profile_total_confessions: "Total Confessions",
-    profile_total_likes: "Total Likes",
-    profile_total_comments: "Total Comments",
-    profile_empty_state: "No confessions yet",
-    profile_empty_description: "Start sharing your thoughts anonymously",
   },
   es: {
     app_name: "Confess+",
@@ -1055,7 +1046,6 @@ export const translations: Record<Language, Translations> = {
     settings_export_error: "No se pudieron exportar los datos",
     
     profile_verifying: "Verificando...",
-    profile_my_confessions: "Mis Confesiones",
     
     privacy_title: "Política de Privacidad",
     privacy_section_1: "1. Recopilación de Datos",
@@ -1103,6 +1093,17 @@ export const translations: Record<Language, Translations> = {
     notfound_404: "404",
     notfound_title: "¡Ups! Página no encontrada",
     notfound_return_home: "Volver al Inicio",
+    
+    bookmarks_empty_state: "Sin marcadores aún",
+    bookmarks_empty_description: "Empieza a marcar confesiones para verlas aquí",
+    profile_title: "Perfil",
+    profile_my_confessions: "Mis Confesiones",
+    profile_statistics: "Estadísticas",
+    profile_total_confessions: "Total de Confesiones",
+    profile_total_likes: "Total de Me Gusta",
+    profile_total_comments: "Total de Comentarios",
+    profile_empty_state: "Sin confesiones aún",
+    profile_empty_description: "Empieza a compartir tus pensamientos anónimamente",
   },
   de: {
     app_name: "Confess+",
@@ -1405,7 +1406,6 @@ export const translations: Record<Language, Translations> = {
     settings_export_error: "Daten konnten nicht exportiert werden",
     
     profile_verifying: "Überprüfung...",
-    profile_my_confessions: "Meine Geständnisse",
     
     privacy_title: "Datenschutzrichtlinie",
     privacy_section_1: "1. Datenerfassung",
@@ -1453,5 +1453,16 @@ export const translations: Record<Language, Translations> = {
     notfound_404: "404",
     notfound_title: "Hoppla! Seite nicht gefunden",
     notfound_return_home: "Zurück zur Startseite",
+    
+    bookmarks_empty_state: "Noch keine Lesezeichen",
+    bookmarks_empty_description: "Beginnen Sie, Geständnisse zu markieren, um sie hier zu sehen",
+    profile_title: "Profil",
+    profile_my_confessions: "Meine Geständnisse",
+    profile_statistics: "Statistiken",
+    profile_total_confessions: "Gesamt Geständnisse",
+    profile_total_likes: "Gesamt Likes",
+    profile_total_comments: "Gesamt Kommentare",
+    profile_empty_state: "Noch keine Geständnisse",
+    profile_empty_description: "Beginnen Sie, Ihre Gedanken anonym zu teilen",
   },
 };
