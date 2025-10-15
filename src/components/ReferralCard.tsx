@@ -167,7 +167,7 @@ const ReferralCard = () => {
             <div className="flex items-start gap-2 p-3 bg-primary/10 rounded-lg">
               <CheckCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
               <div className="text-sm">
-                <p className="font-medium text-primary">{t.referral_reward_message.replace('{days}', String(totalReferrals * 7))}</p>
+                <p className="font-medium text-primary">{t.referral_reward_message.replace('{days}', String(totalReferrals * 1))}</p>
                 <p className="text-xs text-muted-foreground mt-1">
                   {t.referral_continue_inviting}
                 </p>

@@ -93,7 +93,7 @@ serve(async (req) => {
       console.error('Error updating referral count:', countError);
     }
 
-    // TODO: Award 7 days premium to referrer
+    // TODO: Award 1 day premium to referrer
     // This would integrate with your Stripe subscription system
     // For now, we just track the referrals
 

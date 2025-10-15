@@ -403,7 +403,7 @@ export const translations: Record<Language, Translations> = {
     export_data: "Export Data",
     
     referral_title: "Invite Friends",
-    referral_description: "Earn 7 days Premium for each friend who signs up",
+    referral_description: "Earn 1 day Premium for each friend who signs up",
     referral_earned: "You earned {days} days of free Premium!",
     
     privacy_policy: "Privacy Policy",
@@ -708,7 +708,7 @@ export const translations: Record<Language, Translations> = {
     export_data: "Exportar Datos",
     
     referral_title: "Invitar Amigos",
-    referral_description: "Gana 7 días Premium por cada amigo que se registre",
+    referral_description: "Gana 1 día Premium por cada amigo que se registre",
     referral_earned: "¡Ganaste {days} días de Premium gratis!",
     
     privacy_policy: "Política de Privacidad",
@@ -1013,7 +1013,7 @@ export const translations: Record<Language, Translations> = {
     export_data: "Daten Exportieren",
     
     referral_title: "Freunde Einladen",
-    referral_description: "Verdiene 7 Tage Premium für jeden Freund, der sich registriert",
+    referral_description: "Verdiene 1 Tag Premium für jeden Freund, der sich registriert",
     referral_earned: "Du hast {days} Tage kostenloses Premium verdient!",
     
     privacy_policy: "Datenschutzrichtlinie",
