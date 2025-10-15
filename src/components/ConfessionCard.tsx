@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { MessageCircle, AlertCircle } from "lucide-react";
+import { MessageCircle, AlertCircle, Sparkles } from "lucide-react";
+import DeepInsightDialog from "./DeepInsightDialog";
 import { Button } from "@/components/ui/button";
 
 interface ConfessionCardProps {
@@ -7,12 +9,17 @@ interface ConfessionCardProps {
     id: string;
     content: string;
     ai_response?: string | null;
+    ai_deep_insight?: string | null;
     created_at: string;
   };
+  isPremium: boolean;
   onReport?: (id: string) => void;
+  onUpgradeClick: () => void;
+  onInsightGenerated: () => void;
 }
 
-const ConfessionCard = ({ confession, onReport }: ConfessionCardProps) => {
+const ConfessionCard = ({ confession, isPremium, onReport, onUpgradeClick, onInsightGenerated }: ConfessionCardProps) => {
+  const [isDeepInsightOpen, setIsDeepInsightOpen] = useState(false);
   const timeAgo = (date: string) => {
     const now = new Date();
     const confessionDate = new Date(date);
@@ -48,16 +55,37 @@ const ConfessionCard = ({ confession, onReport }: ConfessionCardProps) => {
       </p>
 
       {confession.ai_response && (
-        <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/10">
-          <div className="flex items-center gap-2 mb-2 text-primary text-sm font-medium">
-            <MessageCircle className="w-4 h-4" />
-            <span>Răspuns AI empatic</span>
+        <>
+          <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/10">
+            <div className="flex items-center gap-2 mb-2 text-primary text-sm font-medium">
+              <MessageCircle className="w-4 h-4" />
+              <span>Răspuns AI empatic</span>
+            </div>
+            <p className="text-sm text-foreground/90 leading-relaxed italic">
+              {confession.ai_response}
+            </p>
           </div>
-          <p className="text-sm text-foreground/90 leading-relaxed italic">
-            {confession.ai_response}
-          </p>
-        </div>
+
+          {/* Deep Insight Button */}
+          <Button
+            onClick={() => setIsDeepInsightOpen(true)}
+            variant="outline"
+            className="w-full mt-3 border-primary/30 hover:bg-primary/10 hover:border-primary/50 text-primary"
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            {confession.ai_deep_insight ? "Vezi Deep Insight" : "Generează Deep Insight"}
+          </Button>
+        </>
       )}
+
+      <DeepInsightDialog
+        open={isDeepInsightOpen}
+        onOpenChange={setIsDeepInsightOpen}
+        confession={confession}
+        isPremium={isPremium}
+        onUpgradeClick={onUpgradeClick}
+        onInsightGenerated={onInsightGenerated}
+      />
     </Card>
   );
 };

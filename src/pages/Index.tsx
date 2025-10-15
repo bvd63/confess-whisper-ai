@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Heart, PlusCircle, LogOut, Sparkles } from "lucide-react";
+import { Heart, PlusCircle, LogOut, Sparkles, Crown } from "lucide-react";
 import ConfessionCard from "@/components/ConfessionCard";
 import NewConfessionDialog from "@/components/NewConfessionDialog";
+import PremiumDialog from "@/components/PremiumDialog";
 import AuthDialog from "@/components/AuthDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -11,12 +12,15 @@ interface Confession {
   id: string;
   content: string;
   ai_response?: string | null;
+  ai_deep_insight?: string | null;
   created_at: string;
 }
 
 const Index = () => {
   const [confessions, setConfessions] = useState<Confession[]>([]);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
+  const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,9 +31,32 @@ const Index = () => {
     loadConfessions();
   }, []);
 
+  useEffect(() => {
+    if (user) {
+      checkPremiumStatus();
+    }
+  }, [user]);
+
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     setUser(user);
+  };
+
+  const checkPremiumStatus = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('is_premium')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error) throw error;
+      setIsPremium(data?.is_premium || false);
+    } catch (error) {
+      console.error('Error checking premium status:', error);
+    }
   };
 
   const loadConfessions = async () => {
@@ -77,10 +104,53 @@ const Index = () => {
   };
 
   const handleReport = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('confessions')
+        .update({ is_reported: true })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Raportare trimisă",
+        description: "Vom verifica această confesiune. Mulțumim!",
+      });
+    } catch (error) {
+      console.error('Error reporting confession:', error);
+      toast({
+        title: "Eroare",
+        description: "Nu am putut raporta confesiunea.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUpgradeToPremium = async () => {
+    // In a real app, this would integrate with Stripe
     toast({
-      title: "Raportare trimisă",
-      description: "Vom verifica această confesiune. Mulțumim!",
+      title: "Upgrade în curs... 💳",
+      description: "Redirecționare către sistem de plată (Demo)",
     });
+    
+    // Demo: simulate upgrade
+    setTimeout(async () => {
+      if (user) {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ is_premium: true })
+          .eq('user_id', user.id);
+
+        if (!error) {
+          setIsPremium(true);
+          setIsPremiumDialogOpen(false);
+          toast({
+            title: "Bun venit la Premium! 🎉",
+            description: "Acum ai acces la toate feature-urile premium.",
+          });
+        }
+      }
+    }, 1500);
   };
 
   return (
@@ -98,6 +168,12 @@ const Index = () => {
           <div className="flex items-center gap-2">
             {user ? (
               <>
+                {isPremium && (
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-primary/20 to-primary/10 rounded-full border border-primary/30">
+                    <Crown className="w-4 h-4 text-primary" />
+                    <span className="text-xs font-medium text-primary">Premium</span>
+                  </div>
+                )}
                 <Button
                   onClick={handleNewConfession}
                   className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-[var(--shadow-soft)]"
@@ -167,7 +243,10 @@ const Index = () => {
               <ConfessionCard
                 key={confession.id}
                 confession={confession}
+                isPremium={isPremium}
                 onReport={handleReport}
+                onUpgradeClick={() => setIsPremiumDialogOpen(true)}
+                onInsightGenerated={loadConfessions}
               />
             ))}
           </div>
@@ -184,6 +263,12 @@ const Index = () => {
       <AuthDialog
         open={isAuthOpen}
         onOpenChange={setIsAuthOpen}
+      />
+
+      <PremiumDialog
+        open={isPremiumDialogOpen}
+        onOpenChange={setIsPremiumDialogOpen}
+        onUpgrade={handleUpgradeToPremium}
       />
     </div>
   );
