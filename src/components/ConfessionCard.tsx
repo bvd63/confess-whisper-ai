@@ -20,15 +20,17 @@ interface ConfessionCardProps {
     created_at: string;
   };
   isPremium: boolean;
+  isLiked?: boolean;
   onReport?: (id: string) => void;
   onUpgradeClick: () => void;
   onInsightGenerated: () => void;
+  onLikeChange?: () => void;
 }
 
-const ConfessionCard = ({ confession, isPremium, onReport, onUpgradeClick, onInsightGenerated }: ConfessionCardProps) => {
+const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, onReport, onUpgradeClick, onInsightGenerated, onLikeChange }: ConfessionCardProps) => {
   const [isDeepInsightOpen, setIsDeepInsightOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
+  const [isLiked, setIsLiked] = useState(initialIsLiked || false);
   const [likesCount, setLikesCount] = useState(confession.likes_count || 0);
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -57,23 +59,53 @@ const ConfessionCard = ({ confession, isPremium, onReport, onUpgradeClick, onIns
   };
 
   const handleLike = async () => {
-    const newLiked = !isLiked;
-    const newCount = newLiked ? likesCount + 1 : likesCount - 1;
-    
-    setIsLiked(newLiked);
-    setLikesCount(newCount);
-
     try {
-      const { error } = await supabase
-        .from('confessions')
-        .update({ likes_count: newCount })
-        .eq('id', confession.id);
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: t.error_auth,
+          description: t.error_auth,
+          variant: "destructive",
+        });
+        return;
+      }
 
-      if (error) throw error;
+      const newLiked = !isLiked;
+      
+      if (newLiked) {
+        // Add like
+        const { error } = await supabase
+          .from('user_likes')
+          .insert({
+            user_id: user.id,
+            confession_id: confession.id,
+          });
+        
+        if (error) throw error;
+        setIsLiked(true);
+        setLikesCount(prev => prev + 1);
+      } else {
+        // Remove like
+        const { error } = await supabase
+          .from('user_likes')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('confession_id', confession.id);
+        
+        if (error) throw error;
+        setIsLiked(false);
+        setLikesCount(prev => Math.max(0, prev - 1));
+      }
+      
+      onLikeChange?.();
     } catch (error) {
-      console.error('Error updating likes:', error);
-      setIsLiked(!newLiked);
-      setLikesCount(likesCount);
+      console.error('Error updating like:', error);
+      toast({
+        title: t.error_generic,
+        description: t.error_generic,
+        variant: "destructive",
+      });
     }
   };
 

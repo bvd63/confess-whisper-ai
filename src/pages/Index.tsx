@@ -41,6 +41,7 @@ const Index = () => {
   const [isPremium, setIsPremium] = useState(false);
   const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [likedConfessions, setLikedConfessions] = useState<Set<string>>(new Set());
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -91,6 +92,9 @@ const Index = () => {
   useEffect(() => {
     if (user) {
       checkPremiumStatus();
+      loadUserLikes();
+    } else {
+      setLikedConfessions(new Set());
     }
   }, [user]);
 
@@ -117,6 +121,24 @@ const Index = () => {
       setIsPremium(data?.is_premium || false);
     } catch (error) {
       console.error('Error checking premium status:', error);
+    }
+  };
+
+  const loadUserLikes = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('user_likes')
+        .select('confession_id')
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      
+      const likedIds = new Set(data?.map(like => like.confession_id) || []);
+      setLikedConfessions(likedIds);
+    } catch (error) {
+      console.error('Error loading user likes:', error);
     }
   };
 
@@ -376,9 +398,11 @@ const Index = () => {
                 key={confession.id}
                 confession={confession}
                 isPremium={isPremium}
+                isLiked={likedConfessions.has(confession.id)}
                 onReport={handleReport}
                 onUpgradeClick={() => setIsPremiumDialogOpen(true)}
                 onInsightGenerated={loadConfessions}
+                onLikeChange={loadUserLikes}
               />
             ))}
           </div>

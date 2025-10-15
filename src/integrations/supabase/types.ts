@@ -185,6 +185,35 @@ export type Database = {
         }
         Relationships: []
       }
+      user_likes: {
+        Row: {
+          confession_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          confession_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          confession_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_likes_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "confessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
