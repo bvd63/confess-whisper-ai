@@ -1,6 +1,9 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Check, Crown } from "lucide-react";
+import { Sparkles, Check, Crown, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface PremiumDialogProps {
   open: boolean;
@@ -9,6 +12,49 @@ interface PremiumDialogProps {
 }
 
 const PremiumDialog = ({ open, onOpenChange, onUpgrade }: PremiumDialogProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleUpgrade = async () => {
+    setIsLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Eroare",
+          description: "Trebuie să fii autentificat pentru a face upgrade.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Get Stripe price ID from environment or create product first
+      const PRICE_ID = 'price_premium_monthly'; // Will be set after creating Stripe product
+      
+      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+        body: {
+          priceId: PRICE_ID,
+          userId: user.id,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      toast({
+        title: "Eroare",
+        description: "Nu am putut iniția procesul de upgrade. Încearcă din nou.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] bg-gradient-to-br from-card via-primary/5 to-card border-primary/30">
@@ -48,11 +94,21 @@ const PremiumDialog = ({ open, onOpenChange, onUpgrade }: PremiumDialogProps) =>
               <div className="text-sm text-muted-foreground">pe lună</div>
             </div>
             <Button
-              onClick={onUpgrade}
-              className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-[var(--shadow-glow)] animate-glow"
+              onClick={handleUpgrade}
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-[var(--shadow-glow)] animate-glow disabled:opacity-50"
             >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Upgrade la Premium
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Procesare...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Upgrade la Premium
+                </>
+              )}
             </Button>
           </div>
 
