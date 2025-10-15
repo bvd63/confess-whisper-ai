@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Heart, PlusCircle, LogOut, Sparkles, Crown, User } from "lucide-react";
+import { Heart, PlusCircle, LogOut, Sparkles, Crown, User, TrendingUp, Clock } from "lucide-react";
 import ConfessionCard from "@/components/ConfessionCard";
 import NewConfessionDialog from "@/components/NewConfessionDialog";
 import PremiumDialog from "@/components/PremiumDialog";
 import AuthDialog from "@/components/AuthDialog";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -24,6 +25,7 @@ const Index = () => {
   const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent');
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -31,6 +33,27 @@ const Index = () => {
   useEffect(() => {
     checkUser();
     loadConfessions();
+    
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('confessions-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'confessions'
+        },
+        () => {
+          // Reload confessions when new one is added
+          loadConfessions();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   useEffect(() => {
@@ -38,6 +61,10 @@ const Index = () => {
       checkPremiumStatus();
     }
   }, [user]);
+
+  useEffect(() => {
+    loadConfessions();
+  }, [sortBy]);
 
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -64,11 +91,19 @@ const Index = () => {
   const loadConfessions = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('confessions')
         .select('*')
-        .order('created_at', { ascending: false })
         .limit(20);
+
+      // Sort based on selected filter
+      if (sortBy === 'recent') {
+        query = query.order('created_at', { ascending: false });
+      } else {
+        query = query.order('likes_count', { ascending: false });
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       setConfessions(data || []);
@@ -228,6 +263,24 @@ const Index = () => {
             Un loc sigur unde poți fi tu însuți. Scrie anonim ce simți și primește răspunsuri empatice de la AI.
           </p>
         </div>
+
+        {/* Filter Tabs */}
+        {confessions.length > 0 && (
+          <div className="flex justify-center mb-6 animate-fade-in">
+            <Tabs value={sortBy} onValueChange={(value) => setSortBy(value as 'recent' | 'popular')} className="w-full max-w-md">
+              <TabsList className="grid w-full grid-cols-2 bg-muted/50">
+                <TabsTrigger value="recent" className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  Recent
+                </TabsTrigger>
+                <TabsTrigger value="popular" className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4" />
+                  Popular
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+        )}
 
         {/* Confessions Feed */}
         {isLoading ? (

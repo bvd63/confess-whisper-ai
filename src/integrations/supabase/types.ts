@@ -22,8 +22,11 @@ export type Database = {
           created_at: string
           id: string
           is_reported: boolean | null
+          likes_count: number | null
+          shared_count: number | null
           updated_at: string
           user_id: string | null
+          views_count: number | null
         }
         Insert: {
           ai_deep_insight?: string | null
@@ -32,8 +35,11 @@ export type Database = {
           created_at?: string
           id?: string
           is_reported?: boolean | null
+          likes_count?: number | null
+          shared_count?: number | null
           updated_at?: string
           user_id?: string | null
+          views_count?: number | null
         }
         Update: {
           ai_deep_insight?: string | null
@@ -42,8 +48,11 @@ export type Database = {
           created_at?: string
           id?: string
           is_reported?: boolean | null
+          likes_count?: number | null
+          shared_count?: number | null
           updated_at?: string
           user_id?: string | null
+          views_count?: number | null
         }
         Relationships: []
       }
