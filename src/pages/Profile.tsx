@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Heart, MessageCircle, Sparkles, Crown, Calendar } from "lucide-react";
+import { ArrowLeft, Heart, MessageCircle, Sparkles, Crown, Calendar, Settings, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import PremiumDialog from "@/components/PremiumDialog";
@@ -13,6 +13,8 @@ const Profile = () => {
   const [user, setUser] = useState<any>(null);
   const [isPremium, setIsPremium] = useState(false);
   const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
+  const [isCheckingSubscription, setIsCheckingSubscription] = useState(false);
+  const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
   const [stats, setStats] = useState({
     totalConfessions: 0,
     deepInsightsUsed: 0,
@@ -21,7 +23,22 @@ const Profile = () => {
 
   useEffect(() => {
     checkUser();
+    
+    // Check subscription on mount and after successful checkout
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('session_id')) {
+      setTimeout(() => checkSubscription(), 2000);
+    }
   }, []);
+
+  useEffect(() => {
+    // Auto-refresh subscription status every minute
+    const interval = setInterval(() => {
+      if (user) checkSubscription();
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [user]);
 
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -34,6 +51,52 @@ const Profile = () => {
     setUser(user);
     await loadProfile(user.id);
     await loadStats(user.id);
+    await checkSubscription();
+  };
+
+  const checkSubscription = async () => {
+    setIsCheckingSubscription(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('check-subscription');
+      
+      if (error) {
+        console.error('Error checking subscription:', error);
+        return;
+      }
+
+      if (data) {
+        setIsPremium(data.subscribed || false);
+        setSubscriptionEnd(data.subscription_end);
+        
+        // Reload profile to get updated database state
+        if (user) {
+          await loadProfile(user.id);
+        }
+      }
+    } catch (error) {
+      console.error('Error checking subscription:', error);
+    } finally {
+      setIsCheckingSubscription(false);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('customer-portal');
+      
+      if (error) throw error;
+
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      }
+    } catch (error) {
+      console.error('Error opening customer portal:', error);
+      toast({
+        title: "Eroare",
+        description: "Nu am putut deschide portalul de gestionare. Încearcă din nou.",
+        variant: "destructive",
+      });
+    }
   };
 
   const loadProfile = async (userId: string) => {
@@ -87,31 +150,6 @@ const Profile = () => {
     }
   };
 
-  const handleUpgradeToPremium = async () => {
-    toast({
-      title: "Upgrade în curs... 💳",
-      description: "Redirecționare către sistem de plată (Demo)",
-    });
-    
-    setTimeout(async () => {
-      if (user) {
-        const { error } = await supabase
-          .from('profiles')
-          .update({ is_premium: true })
-          .eq('user_id', user.id);
-
-        if (!error) {
-          setIsPremium(true);
-          setIsPremiumDialogOpen(false);
-          toast({
-            title: "Bun venit la Premium! 🎉",
-            description: "Acum ai acces la toate feature-urile premium.",
-          });
-        }
-      }
-    }, 1500);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
       {/* Header */}
@@ -147,9 +185,20 @@ const Profile = () => {
               <p className="text-sm text-muted-foreground">{user?.email}</p>
             </div>
             {isPremium ? (
-              <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary/20 to-primary/10 rounded-full border border-primary/30">
-                <Crown className="w-5 h-5 text-primary" />
-                <span className="text-sm font-medium text-primary">Premium</span>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary/20 to-primary/10 rounded-full border border-primary/30">
+                  <Crown className="w-5 h-5 text-primary" />
+                  <span className="text-sm font-medium text-primary">Premium</span>
+                </div>
+                <Button
+                  onClick={handleManageSubscription}
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  Gestionează Abonament
+                </Button>
               </div>
             ) : (
               <Button
@@ -166,6 +215,37 @@ const Profile = () => {
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Calendar className="w-4 h-4" />
             <span>Membru din {stats.joinedDate || 'N/A'}</span>
+          </div>
+
+          {isPremium && subscriptionEnd && (
+            <div className="mt-2 pt-2 border-t border-border/50">
+              <p className="text-xs text-muted-foreground">
+                Abonament activ până la {new Date(subscriptionEnd).toLocaleDateString('ro-RO', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </p>
+            </div>
+          )}
+
+          <div className="mt-4 flex gap-2">
+            <Button
+              onClick={checkSubscription}
+              disabled={isCheckingSubscription}
+              variant="outline"
+              size="sm"
+              className="flex-1"
+            >
+              {isCheckingSubscription ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Verificare...
+                </>
+              ) : (
+                'Reîmprospătează Status'
+              )}
+            </Button>
           </div>
         </Card>
 
@@ -238,7 +318,7 @@ const Profile = () => {
       <PremiumDialog
         open={isPremiumDialogOpen}
         onOpenChange={setIsPremiumDialogOpen}
-        onUpgrade={handleUpgradeToPremium}
+        onUpgrade={() => {}}
       />
     </div>
   );
