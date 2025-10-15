@@ -38,11 +38,47 @@ export type Database = {
         }
         Relationships: []
       }
+      comments: {
+        Row: {
+          confession_id: string
+          content: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          confession_id: string
+          content: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          confession_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "confessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       confessions: {
         Row: {
           ai_deep_insight: string | null
           ai_response: string | null
           category: string
+          comments_count: number
           content: string
           created_at: string
           id: string
@@ -57,6 +93,7 @@ export type Database = {
           ai_deep_insight?: string | null
           ai_response?: string | null
           category?: string
+          comments_count?: number
           content: string
           created_at?: string
           id?: string
@@ -71,6 +108,7 @@ export type Database = {
           ai_deep_insight?: string | null
           ai_response?: string | null
           category?: string
+          comments_count?: number
           content?: string
           created_at?: string
           id?: string

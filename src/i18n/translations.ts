@@ -344,6 +344,17 @@ type Translations = {
   analytics_most_popular: string;
   analytics_by_category: string;
   analytics_no_data: string;
+  
+  // Comments
+  comments_title: string;
+  comments_add: string;
+  comments_placeholder: string;
+  comments_submit: string;
+  comments_delete: string;
+  comments_edit: string;
+  comments_none: string;
+  comments_show: string;
+  comments_hide: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -447,6 +458,17 @@ export const translations: Record<Language, Translations> = {
     analytics_most_popular: "Most Popular",
     analytics_by_category: "By Category",
     analytics_no_data: "No data yet",
+    
+    // Comments
+    comments_title: "Comments",
+    comments_add: "Add a comment",
+    comments_placeholder: "Write your comment... (max 500 characters)",
+    comments_submit: "Post",
+    comments_delete: "Delete",
+    comments_edit: "Edit",
+    comments_none: "No comments yet",
+    comments_show: "Show comments",
+    comments_hide: "Hide comments",
     
     achievements_title: "Achievements",
     achievements_unlocked: "unlocked",
@@ -772,6 +794,17 @@ export const translations: Record<Language, Translations> = {
     analytics_by_category: "Por Categoría",
     analytics_no_data: "Sin datos aún",
     
+    // Comments
+    comments_title: "Comentarios",
+    comments_add: "Agregar un comentario",
+    comments_placeholder: "Escribe tu comentario... (máx 500 caracteres)",
+    comments_submit: "Publicar",
+    comments_delete: "Eliminar",
+    comments_edit: "Editar",
+    comments_none: "Sin comentarios aún",
+    comments_show: "Mostrar comentarios",
+    comments_hide: "Ocultar comentarios",
+    
     achievements_title: "Logros",
     achievements_unlocked: "desbloqueados",
     achievement_first_confession: "Primera Confesión",
@@ -1095,6 +1128,17 @@ export const translations: Record<Language, Translations> = {
     analytics_most_popular: "Am Beliebtesten",
     analytics_by_category: "Nach Kategorie",
     analytics_no_data: "Noch keine Daten",
+    
+    // Comments
+    comments_title: "Kommentare",
+    comments_add: "Kommentar hinzufügen",
+    comments_placeholder: "Schreibe deinen Kommentar... (max 500 Zeichen)",
+    comments_submit: "Veröffentlichen",
+    comments_delete: "Löschen",
+    comments_edit: "Bearbeiten",
+    comments_none: "Noch keine Kommentare",
+    comments_show: "Kommentare anzeigen",
+    comments_hide: "Kommentare ausblenden",
     
     achievements_title: "Errungenschaften",
     achievements_unlocked: "freigeschaltet",

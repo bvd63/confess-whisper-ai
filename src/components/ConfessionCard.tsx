@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { MessageCircle, AlertCircle, Sparkles, Heart, Share2, Tag } from "lucide-react";
 import DeepInsightDialog from "./DeepInsightDialog";
 import ShareDialog from "./ShareDialog";
+import CommentsSection from "./CommentsSection";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ interface ConfessionCardProps {
     ai_response?: string | null;
     ai_deep_insight?: string | null;
     likes_count?: number;
+    comments_count?: number;
     created_at: string;
   };
   isPremium: boolean;
@@ -25,13 +27,15 @@ interface ConfessionCardProps {
   onUpgradeClick: () => void;
   onInsightGenerated: () => void;
   onLikeChange?: () => void;
+  onCommentChange?: () => void;
 }
 
-const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, onReport, onUpgradeClick, onInsightGenerated, onLikeChange }: ConfessionCardProps) => {
+const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, onReport, onUpgradeClick, onInsightGenerated, onLikeChange, onCommentChange }: ConfessionCardProps) => {
   const [isDeepInsightOpen, setIsDeepInsightOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isLiked, setIsLiked] = useState(initialIsLiked || false);
   const [likesCount, setLikesCount] = useState(confession.likes_count || 0);
+  const [commentsCount, setCommentsCount] = useState(confession.comments_count || 0);
   const { toast } = useToast();
   const { t } = useLanguage();
   
@@ -186,6 +190,16 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, onRepo
           </Button>
         </>
       )}
+
+      {/* Comments Section */}
+      <CommentsSection
+        confessionId={confession.id}
+        commentsCount={commentsCount}
+        onCommentChange={() => {
+          setCommentsCount(prev => prev + 1);
+          onCommentChange?.();
+        }}
+      />
 
       <DeepInsightDialog
         open={isDeepInsightOpen}

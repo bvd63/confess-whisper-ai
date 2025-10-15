@@ -26,6 +26,7 @@ interface Confession {
   id: string;
   content: string;
   category: string;
+  comments_count?: number;
   ai_response?: string | null;
   ai_deep_insight?: string | null;
   created_at: string;
@@ -403,6 +404,7 @@ const Index = () => {
                 onUpgradeClick={() => setIsPremiumDialogOpen(true)}
                 onInsightGenerated={loadConfessions}
                 onLikeChange={loadUserLikes}
+                onCommentChange={loadConfessions}
               />
             ))}
           </div>
