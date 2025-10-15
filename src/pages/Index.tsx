@@ -366,6 +366,26 @@ const Index = () => {
       {/* Footer with trust badges */}
       <footer className="mt-16">
         <TrustBadges />
+        
+        <div className="text-center py-6 border-t border-border/50">
+          <div className="flex justify-center gap-6 text-sm text-muted-foreground">
+            <button
+              onClick={() => navigate('/privacy')}
+              className="hover:text-primary transition-colors"
+            >
+              Politica de Confidențialitate
+            </button>
+            <button
+              onClick={() => navigate('/terms')}
+              className="hover:text-primary transition-colors"
+            >
+              Termeni și Condiții
+            </button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-3">
+            © 2025 Confess.AI. Toate drepturile rezervate.
+          </p>
+        </div>
       </footer>
     </div>
   );

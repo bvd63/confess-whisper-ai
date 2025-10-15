@@ -107,6 +107,32 @@ export default {
           "50%": {
             boxShadow: "0 0 30px hsl(var(--primary-glow) / 0.5)"
           }
+        },
+        "bounce-subtle": {
+          "0%, 100%": {
+            transform: "translateY(0)"
+          },
+          "50%": {
+            transform: "translateY(-10px)"
+          }
+        },
+        "scale-in": {
+          "0%": {
+            transform: "scale(0.9)",
+            opacity: "0"
+          },
+          "100%": {
+            transform: "scale(1)",
+            opacity: "1"
+          }
+        },
+        "shimmer": {
+          "0%": {
+            backgroundPosition: "-1000px 0"
+          },
+          "100%": {
+            backgroundPosition: "1000px 0"
+          }
         }
       },
       animation: {
@@ -115,6 +141,9 @@ export default {
         "fade-in": "fade-in 0.5s ease-out",
         "slide-up": "slide-up 0.4s ease-out",
         "glow": "glow 2s ease-in-out infinite",
+        "bounce-subtle": "bounce-subtle 2s ease-in-out infinite",
+        "scale-in": "scale-in 0.3s ease-out",
+        "shimmer": "shimmer 2s linear infinite",
       },
     },
   },
