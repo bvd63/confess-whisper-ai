@@ -16,29 +16,29 @@ const HelpButton = () => {
   const helpOptions = [
     {
       icon: Book,
-      title: "Ghid de utilizare",
-      description: "Învață cum să folosești platforma",
+      title: "User Guide",
+      description: "Learn how to use the platform",
       action: () => window.scrollTo({ top: 0, behavior: "smooth" }),
-      buttonText: "Vezi ghidul"
+      buttonText: "View guide"
     },
     {
       icon: MessageCircle,
       title: "FAQ",
-      description: "Răspunsuri la întrebările frecvente",
+      description: "Answers to frequently asked questions",
       action: () => {
         setOpen(false);
         setTimeout(() => {
           document.getElementById("faq-section")?.scrollIntoView({ behavior: "smooth" });
         }, 300);
       },
-      buttonText: "Vezi FAQ"
+      buttonText: "View FAQ"
     },
     {
       icon: Mail,
-      title: "Contactează-ne",
-      description: "Trimite-ne un email pentru suport",
+      title: "Contact us",
+      description: "Send us an email for support",
       action: () => window.location.href = "mailto:support@confess.ai",
-      buttonText: "Trimite email"
+      buttonText: "Send email"
     }
   ];
 
@@ -49,7 +49,7 @@ const HelpButton = () => {
         size="icon"
         onClick={() => setOpen(true)}
         className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-[var(--shadow-glow)] animate-bounce-subtle z-50"
-        aria-label="Ajutor"
+        aria-label="Help"
       >
         <HelpCircle className="w-6 h-6" />
       </Button>
@@ -59,10 +59,10 @@ const HelpButton = () => {
           <DialogHeader>
             <DialogTitle className="text-2xl flex items-center gap-2">
               <HelpCircle className="w-6 h-6 text-primary" />
-              Cum te putem ajuta?
+              How can we help?
             </DialogTitle>
             <DialogDescription>
-              Alege una din opțiunile de mai jos pentru a primi ajutor
+              Choose one of the options below to get help
             </DialogDescription>
           </DialogHeader>
 
@@ -103,7 +103,7 @@ const HelpButton = () => {
 
           <div className="pt-4 border-t border-border/50 text-center">
             <p className="text-sm text-muted-foreground">
-              Răspundem de obicei în maxim 24 de ore
+            We usually reply within 24 hours
             </p>
           </div>
         </DialogContent>

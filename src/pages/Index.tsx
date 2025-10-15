@@ -199,8 +199,8 @@ const Index = () => {
   const handleUpgradeToPremium = async () => {
     // In a real app, this would integrate with Stripe
     toast({
-      title: "Upgrade în curs... 💳",
-      description: "Redirecționare către sistem de plată (Demo)",
+      title: "Upgrading... 💳",
+      description: "Redirecting to payment system (Demo)",
     });
     
     // Demo: simulate upgrade
@@ -215,8 +215,8 @@ const Index = () => {
           setIsPremium(true);
           setIsPremiumDialogOpen(false);
           toast({
-            title: "Bun venit la Premium! 🎉",
-            description: "Acum ai acces la toate feature-urile premium.",
+            title: "Welcome to Premium! 🎉",
+            description: "You now have access to all premium features.",
           });
         }
       }
@@ -290,13 +290,13 @@ const Index = () => {
         <div className="mb-8 text-center animate-fade-in">
           <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
             <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm text-primary font-medium">Spațiu sigur și anonim</span>
+            <span className="text-sm text-primary font-medium">{t.anonymous_secure}</span>
           </div>
           <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-            Împărtășește-ți gândurile
+            {t.home_title}
           </h2>
           <p className="text-muted-foreground max-w-lg mx-auto">
-            Un loc sigur unde poți fi tu însuți. Scrie anonim ce simți și primește răspunsuri empatice de la AI.
+            {t.welcome_description}
           </p>
         </div>
 
@@ -334,9 +334,9 @@ const Index = () => {
         ) : confessions.length === 0 ? (
           <EmptyState
             icon={Heart}
-            title="Nicio confesiune încă"
-            description="Fii primul care își împărtășește gândurile. Primești imediat un răspuns empatic de la AI."
-            actionLabel="Scrie prima confesiune"
+            title="No confessions yet"
+            description="Be the first to share your thoughts. You'll instantly get an empathetic AI response."
+            actionLabel={t.new_confession}
             onAction={handleNewConfession}
           />
         ) : (

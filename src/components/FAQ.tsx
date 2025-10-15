@@ -10,36 +10,36 @@ import { HelpCircle } from "lucide-react";
 const FAQ = () => {
   const faqs = [
     {
-      question: "Este cu adevărat anonim?",
-      answer: "Da! Confesiunile tale sunt complet anonime. Numele tău nu apare niciodată public și nu poate fi asociat cu confesiunile tale de către alți utilizatori. Stocăm doar datele necesare pentru funcționarea platformei."
+      question: "Is it really anonymous?",
+      answer: "Yes! Your confessions are completely anonymous. Your name never appears publicly and can't be linked to your confessions by other users. We only store the data necessary for the platform to function."
     },
     {
-      question: "Cum funcționează AI-ul?",
-      answer: "AI-ul nostru analizează confesiunea ta și generează un răspuns empatic și înțelegător. Folosim modele avansate de limbaj antrenate să fie empatice și non-judecătoare. Răspunsurile nu sunt pre-scrise, ci generate special pentru fiecare confesiune."
+      question: "How does the AI work?",
+      answer: "Our AI analyzes your confession and generates an empathetic, understanding response. We use advanced language models trained to be empathic and non-judgmental. Responses aren't pre-written; they’re generated uniquely for each confession."
     },
     {
-      question: "Ce este Deep Insight?",
-      answer: "Deep Insight este o funcție premium care oferă o analiză psihologică mai profundă a confesiunii tale. Include perspective suplimentare, sfaturi practice și întrebări de reflecție pentru a te ajuta să înțelegi mai bine situația ta."
+      question: "What is Deep Insight?",
+      answer: "Deep Insight is a premium feature that provides deeper psychological analysis of your confession. It includes extra perspectives, practical advice, and reflective questions to help you better understand your situation."
     },
     {
-      question: "Pot să-mi șterg confesiunile?",
-      answer: "Da, poți edita sau șterge confesiunile tale oricând din pagina de profil. Odată șterse, confesiunile sunt eliminate permanent din baza de date."
+      question: "Can I delete my confessions?",
+      answer: "Yes, you can edit or delete your confessions anytime from the profile page. Once deleted, they are permanently removed from the database."
     },
     {
-      question: "Ce face abonamentul Premium?",
-      answer: "Abonamentul Premium îți oferă acces nelimitat la Deep Insights AI, răspunsuri mai detaliate, experiență fără reclame și prioritate în procesarea AI. De asemenea, susții dezvoltarea platformei!"
+      question: "What does the Premium subscription offer?",
+      answer: "Premium gives you unlimited AI Deep Insights, more detailed responses, an ad-free experience, and priority AI processing. You also support the development of the platform!"
     },
     {
-      question: "Cum funcționează programul de referral?",
-      answer: "Primești un cod unic de referral pe care îl poți partaja cu prietenii. Când cineva se înregistrează folosind codul tău, amândoi primiți beneficii. Vezi detalii complete în pagina de profil."
+      question: "How does the referral program work?",
+      answer: "You get a unique referral code you can share with friends. When someone signs up using your code, both of you get benefits. See full details on the profile page."
     },
     {
-      question: "Datele mele sunt sigure?",
-      answer: "Da! Toate datele sunt criptate și stocate securizat. Folosim cele mai bune practici de securitate și respectăm GDPR. Nu vindem sau partajăm datele tale cu terțe părți."
+      question: "Is my data secure?",
+      answer: "Yes! All data is encrypted and stored securely. We use best-in-class security practices and comply with GDPR. We do not sell or share your data with third parties."
     },
     {
-      question: "Pot folosi platforma pentru consiliere profesională?",
-      answer: "Nu. Confess.AI nu înlocuiește consilierea profesională. Dacă ai probleme grave de sănătate mintală, te rugăm să contactezi un specialist. Platforma noastră este pentru suport emoțional și reflecție personală."
+      question: "Can I use the platform for professional counseling?",
+      answer: "No. Confess+ does not replace professional counseling. If you’re facing serious mental health issues, please contact a specialist. Our platform is for emotional support and personal reflection."
     }
   ];
 
@@ -49,7 +49,7 @@ const FAQ = () => {
         <div className="p-2 rounded-full bg-primary/10">
           <HelpCircle className="w-6 h-6 text-primary" />
         </div>
-        <h2 className="text-2xl font-bold">Întrebări Frecvente</h2>
+        <h2 className="text-2xl font-bold">Frequently Asked Questions</h2>
       </div>
 
       <Accordion type="single" collapsible className="space-y-2">

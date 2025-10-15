@@ -11,8 +11,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 const confessionSchema = z.object({
   content: z.string()
     .trim()
-    .min(10, { message: "Confesiunea trebuie să aibă cel puțin 10 caractere" })
-    .max(2000, { message: "Confesiunea nu poate depăși 2000 de caractere" })
+    .min(10, { message: "Confession must be at least 10 characters" })
+    .max(2000, { message: "Confession cannot exceed 2000 characters" })
 });
 
 interface NewConfessionDialogProps {
