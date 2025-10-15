@@ -5,6 +5,8 @@ import { Heart, PlusCircle, LogOut, Sparkles, Crown, User, TrendingUp, Clock, Lo
 import ConfessionCard from "@/components/ConfessionCard";
 import NewConfessionDialog from "@/components/NewConfessionDialog";
 import PremiumDialog from "@/components/PremiumDialog";
+import OnboardingDialog from "@/components/OnboardingDialog";
+import ConfessionSkeleton from "@/components/ConfessionSkeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -26,11 +28,18 @@ const Index = () => {
   const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent');
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     checkUser();
     loadConfessions();
+    
+    // Check if user is new (show onboarding)
+    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+    if (!hasSeenOnboarding) {
+      setTimeout(() => setShowOnboarding(true), 1000);
+    }
     
     // Set up real-time subscription
     const channel = supabase
@@ -283,9 +292,10 @@ const Index = () => {
 
         {/* Confessions Feed */}
         {isLoading ? (
-          <div className="text-center py-12">
-            <div className="inline-block w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-            <p className="mt-4 text-muted-foreground">Se încarcă confesiunile...</p>
+          <div className="space-y-6">
+            <ConfessionSkeleton />
+            <ConfessionSkeleton />
+            <ConfessionSkeleton />
           </div>
         ) : confessions.length === 0 ? (
           <div className="text-center py-12 animate-fade-in">
@@ -326,6 +336,14 @@ const Index = () => {
         open={isPremiumDialogOpen}
         onOpenChange={setIsPremiumDialogOpen}
         onUpgrade={handleUpgradeToPremium}
+      />
+
+      <OnboardingDialog
+        open={showOnboarding}
+        onComplete={() => {
+          setShowOnboarding(false);
+          localStorage.setItem('hasSeenOnboarding', 'true');
+        }}
       />
     </div>
   );
