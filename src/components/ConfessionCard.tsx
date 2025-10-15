@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { MessageCircle, AlertCircle, Sparkles, Heart, Share2 } from "lucide-react";
 import DeepInsightDialog from "./DeepInsightDialog";
+import ShareDialog from "./ShareDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ interface ConfessionCardProps {
 
 const ConfessionCard = ({ confession, isPremium, onReport, onUpgradeClick, onInsightGenerated }: ConfessionCardProps) => {
   const [isDeepInsightOpen, setIsDeepInsightOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(confession.likes_count || 0);
   const { toast } = useToast();
@@ -58,28 +60,8 @@ const ConfessionCard = ({ confession, isPremium, onReport, onUpgradeClick, onIns
     }
   };
 
-  const handleShare = async () => {
-    const shareUrl = `${window.location.origin}/?confession=${confession.id}`;
-    
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      toast({
-        title: "Link copiat! 📋",
-        description: "Link-ul confesiunii a fost copiat în clipboard.",
-      });
-
-      // Update share count
-      await supabase
-        .from('confessions')
-        .update({ shared_count: (confession as any).shared_count + 1 || 1 })
-        .eq('id', confession.id);
-    } catch (error) {
-      toast({
-        title: "Eroare",
-        description: "Nu am putut copia link-ul.",
-        variant: "destructive",
-      });
-    }
+  const handleShare = () => {
+    setIsShareOpen(true);
   };
 
   return (
@@ -159,6 +141,12 @@ const ConfessionCard = ({ confession, isPremium, onReport, onUpgradeClick, onIns
         isPremium={isPremium}
         onUpgradeClick={onUpgradeClick}
         onInsightGenerated={onInsightGenerated}
+      />
+
+      <ShareDialog
+        open={isShareOpen}
+        onOpenChange={setIsShareOpen}
+        confessionId={confession.id}
       />
     </Card>
   );

@@ -58,8 +58,8 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${origin}/profile?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/profile`,
+      success_url: `${origin}/payment-success`,
+      cancel_url: `${origin}/payment-canceled`,
     });
 
     logStep("Checkout session created", { sessionId: session.id });
