@@ -2,6 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Facebook, Twitter, Linkedin, Link2, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ShareDialogProps {
   open: boolean;
@@ -11,14 +12,15 @@ interface ShareDialogProps {
 
 const ShareDialog = ({ open, onOpenChange, confessionId }: ShareDialogProps) => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const shareUrl = `${window.location.origin}/?confession=${confessionId}`;
-  const shareText = "Descoperă această confesiune pe Confess+";
+  const shareText = t.share_text;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareUrl);
     toast({
-      title: "Link copiat!",
-      description: "Link-ul a fost copiat în clipboard.",
+      title: t.share_link_copied,
+      description: t.share_link_copied,
     });
   };
 
@@ -49,7 +51,7 @@ const ShareDialog = ({ open, onOpenChange, confessionId }: ShareDialogProps) => 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Distribuie Confesiunea</DialogTitle>
+          <DialogTitle>{t.share_title}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -95,7 +97,7 @@ const ShareDialog = ({ open, onOpenChange, confessionId }: ShareDialogProps) => 
               className="w-full gap-2"
             >
               <Link2 className="w-4 h-4" />
-              Copiază Link
+              {t.share_copy_link}
             </Button>
           </div>
         </div>

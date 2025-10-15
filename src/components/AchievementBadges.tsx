@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Award, Sparkles, Heart, MessageCircle, Crown, Flame, Star } from "lucide-react";
 import { LucideIcon } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Achievement {
   id: string;
@@ -19,19 +20,21 @@ interface AchievementBadgesProps {
 }
 
 const AchievementBadges = ({ totalConfessions, deepInsightsUsed, isPremium }: AchievementBadgesProps) => {
+  const { t } = useLanguage();
+  
   const achievements: Achievement[] = [
     {
       id: 'first_confession',
       icon: MessageCircle,
-      title: 'Prima Confesiune',
-      description: 'Ai postat prima ta confesiune',
+      title: t.achievement_first_confession,
+      description: t.achievement_first_confession_desc,
       unlocked: totalConfessions >= 1,
     },
     {
       id: 'frequent_user',
       icon: Flame,
-      title: 'Utilizator Activ',
-      description: 'Ai postat 10+ confesiuni',
+      title: t.achievement_active_user,
+      description: t.achievement_active_user_desc,
       unlocked: totalConfessions >= 10,
       progress: totalConfessions,
       target: 10,
@@ -39,8 +42,8 @@ const AchievementBadges = ({ totalConfessions, deepInsightsUsed, isPremium }: Ac
     {
       id: 'power_user',
       icon: Star,
-      title: 'Power User',
-      description: 'Ai postat 50+ confesiuni',
+      title: t.achievement_power_user,
+      description: t.achievement_power_user_desc,
       unlocked: totalConfessions >= 50,
       progress: Math.min(totalConfessions, 50),
       target: 50,
@@ -48,8 +51,8 @@ const AchievementBadges = ({ totalConfessions, deepInsightsUsed, isPremium }: Ac
     {
       id: 'deep_thinker',
       icon: Sparkles,
-      title: 'Gânditor Profund',
-      description: 'Ai generat 5+ Deep Insights',
+      title: t.achievement_deep_thinker,
+      description: t.achievement_deep_thinker_desc,
       unlocked: deepInsightsUsed >= 5,
       progress: deepInsightsUsed,
       target: 5,
@@ -57,15 +60,15 @@ const AchievementBadges = ({ totalConfessions, deepInsightsUsed, isPremium }: Ac
     {
       id: 'premium_member',
       icon: Crown,
-      title: 'Membru Premium',
-      description: 'Membru al comunității Premium',
+      title: t.achievement_premium_member,
+      description: t.achievement_premium_member_desc,
       unlocked: isPremium,
     },
     {
       id: 'supporter',
       icon: Heart,
-      title: 'Susținător',
-      description: 'Susții dezvoltarea platformei',
+      title: t.achievement_supporter,
+      description: t.achievement_supporter_desc,
       unlocked: isPremium,
     },
   ];
@@ -80,9 +83,9 @@ const AchievementBadges = ({ totalConfessions, deepInsightsUsed, isPremium }: Ac
             <Award className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h3 className="font-semibold text-foreground">Realizări</h3>
+            <h3 className="font-semibold text-foreground">{t.achievements_title}</h3>
             <p className="text-xs text-muted-foreground">
-              {unlockedCount} din {achievements.length} deblocate
+              {unlockedCount} {t.achievements_unlocked}
             </p>
           </div>
         </div>

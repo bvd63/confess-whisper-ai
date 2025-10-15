@@ -5,12 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Gift, Copy, Users, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const ReferralCard = () => {
   const [referralCode, setReferralCode] = useState<string>("");
   const [totalReferrals, setTotalReferrals] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadReferralData();
@@ -57,14 +59,14 @@ const ReferralCard = () => {
     navigator.clipboard.writeText(link);
     
     toast({
-      title: "Link copiat! 🎉",
-      description: "Distribuie link-ul cu prietenii tăi",
+      title: t.referral_link_copied,
+      description: t.referral_description,
     });
   };
 
   const shareOnSocial = (platform: 'facebook' | 'twitter' | 'whatsapp') => {
     const link = `${window.location.origin}/?ref=${referralCode}`;
-    const text = "Alătură-te mie pe Confess+ - un spațiu sigur pentru confesiuni anonime cu suport AI!";
+    const text = t.referral_share_message;
     
     let url = '';
     switch (platform) {
@@ -101,21 +103,21 @@ const ReferralCard = () => {
         
         <div className="flex-1 space-y-4">
           <div>
-            <h3 className="text-lg font-semibold mb-1">Invită prieteni</h3>
+            <h3 className="text-lg font-semibold mb-1">{t.referral_title}</h3>
             <p className="text-sm text-muted-foreground">
-              Câștigă 7 zile Premium pentru fiecare prieten care se înregistrează
+              {t.referral_description}
             </p>
           </div>
 
           {/* Stats */}
           <div className="flex items-center gap-2 text-sm">
             <Users className="w-4 h-4 text-primary" />
-            <span className="font-medium">{totalReferrals} prieteni invitați</span>
+            <span className="font-medium">{totalReferrals} {t.referral_friends_invited}</span>
           </div>
 
           {/* Referral Link */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Link-ul tău de recomandare:</label>
+            <label className="text-sm font-medium">{t.referral_link_label}</label>
             <div className="flex gap-2">
               <Input
                 value={`${window.location.origin}/?ref=${referralCode}`}
@@ -165,9 +167,9 @@ const ReferralCard = () => {
             <div className="flex items-start gap-2 p-3 bg-primary/10 rounded-lg">
               <CheckCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
               <div className="text-sm">
-                <p className="font-medium text-primary">Ai câștigat {totalReferrals * 7} zile Premium gratuit!</p>
+                <p className="font-medium text-primary">{t.referral_reward_message.replace('{days}', String(totalReferrals * 7))}</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Continuă să inviți prieteni pentru mai multe beneficii
+                  {t.referral_continue_inviting}
                 </p>
               </div>
             </div>

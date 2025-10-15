@@ -44,9 +44,9 @@ class ErrorBoundary extends Component<Props, State> {
             </div>
             
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold">Oops! Ceva nu a mers bine</h1>
+              <h1 className="text-2xl font-bold">Oops! Something went wrong</h1>
               <p className="text-muted-foreground">
-                Ne pare rău pentru acest inconvenient. Încearcă să reîncarci pagina sau să te întorci la pagina principală.
+                Sorry for the inconvenience. Try reloading the page or return to the homepage.
               </p>
             </div>
 
@@ -65,7 +65,7 @@ class ErrorBoundary extends Component<Props, State> {
                 variant="default"
               >
                 <RefreshCw className="w-4 h-4" />
-                Reîncarcă
+                Reload
               </Button>
               <Button
                 onClick={this.handleGoHome}
@@ -73,7 +73,7 @@ class ErrorBoundary extends Component<Props, State> {
                 variant="outline"
               >
                 <Home className="w-4 h-4" />
-                Acasă
+                Home
               </Button>
             </div>
           </Card>

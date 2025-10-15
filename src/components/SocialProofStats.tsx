@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { TrendingUp, Users, Heart, Sparkles } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface StatsData {
   totalUsers?: number;
@@ -13,32 +14,34 @@ interface StatsCardProps {
 }
 
 const SocialProofStats = ({ stats }: StatsCardProps) => {
+  const { t } = useLanguage();
+  
   const displayStats = [
     {
       icon: Users,
       value: stats.totalUsers || "1,200+",
-      label: "Utilizatori activi",
+      label: t.stats_active_users,
       color: "text-blue-500",
       bgColor: "bg-blue-500/10",
     },
     {
       icon: Heart,
       value: stats.totalConfessions || "5,800+",
-      label: "Confesiuni partajate",
+      label: t.stats_confessions_shared,
       color: "text-primary",
       bgColor: "bg-primary/10",
     },
     {
       icon: TrendingUp,
       value: stats.totalLikes || "12,400+",
-      label: "Reacții empatice",
+      label: t.stats_empathetic_reactions,
       color: "text-green-500",
       bgColor: "bg-green-500/10",
     },
     {
       icon: Sparkles,
       value: stats.premiumUsers || "280+",
-      label: "Membri Premium",
+      label: t.stats_premium_members,
       color: "text-purple-500",
       bgColor: "bg-purple-500/10",
     },

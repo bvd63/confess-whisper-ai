@@ -199,8 +199,8 @@ const Index = () => {
   const handleUpgradeToPremium = async () => {
     // In a real app, this would integrate with Stripe
     toast({
-      title: "Upgrading... 💳",
-      description: "Redirecting to payment system (Demo)",
+      title: t.ui_upgrading,
+      description: t.ui_payment_redirect,
     });
     
     // Demo: simulate upgrade
@@ -215,8 +215,8 @@ const Index = () => {
           setIsPremium(true);
           setIsPremiumDialogOpen(false);
           toast({
-            title: "Welcome to Premium! 🎉",
-            description: "You now have access to all premium features.",
+            title: t.ui_welcome_premium,
+            description: t.ui_premium_access,
           });
         }
       }
@@ -313,11 +313,11 @@ const Index = () => {
               <TabsList className="grid w-full grid-cols-2 bg-muted/50">
                 <TabsTrigger value="recent" className="flex items-center gap-2">
                   <Clock className="w-4 h-4" />
-                  Recent
+                  {t.ui_recent}
                 </TabsTrigger>
                 <TabsTrigger value="popular" className="flex items-center gap-2">
                   <TrendingUp className="w-4 h-4" />
-                  Popular
+                  {t.ui_popular}
                 </TabsTrigger>
               </TabsList>
             </Tabs>

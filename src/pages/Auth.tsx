@@ -7,18 +7,20 @@ import { Heart, Mail, Lock, Loader2, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
-
-const emailSchema = z.string().email("Email invalid");
-const passwordSchema = z.string().min(6, "Parola trebuie să aibă minim 6 caractere");
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({ email: "", password: "" });
+
+  const emailSchema = z.string().email(t.auth_invalid_email);
+  const passwordSchema = z.string().min(6, t.auth_password_min);
 
   useEffect(() => {
     checkUser();
@@ -70,14 +72,14 @@ const Auth = () => {
 
         if (error) {
           if (error.message.includes("Invalid login credentials")) {
-            throw new Error("Email sau parolă incorectă");
+            throw new Error(t.auth_invalid_credentials);
           }
           throw error;
         }
 
         toast({
-          title: "Bine ai revenit! 👋",
-          description: "Te-ai autentificat cu succes.",
+          title: t.auth_login_success,
+          description: t.auth_login_success,
         });
         navigate('/');
       } else {
@@ -91,7 +93,7 @@ const Auth = () => {
 
         if (error) {
           if (error.message.includes("already registered")) {
-            throw new Error("Acest email este deja înregistrat");
+            throw new Error(t.auth_email_exists);
           }
           throw error;
         }
@@ -111,15 +113,15 @@ const Auth = () => {
         }
 
         toast({
-          title: "Cont creat cu succes! 🎉",
-          description: "Bine ai venit în comunitatea Confess+",
+          title: t.auth_signup_success,
+          description: t.auth_welcome_message,
         });
         navigate('/');
       }
     } catch (error: any) {
       toast({
-        title: "Eroare",
-        description: error.message || "A apărut o eroare. Te rugăm să încerci din nou.",
+        title: t.auth_error,
+        description: error.message || t.auth_error_generic,
         variant: "destructive",
       });
     } finally {
@@ -139,7 +141,7 @@ const Auth = () => {
             Confess+
           </h1>
           <p className="text-sm text-muted-foreground">
-            {isLogin ? "Bine ai revenit" : "Creează-ți contul gratuit"}
+            {isLogin ? t.auth_welcome_back : t.auth_create_account}
           </p>
         </div>
 
@@ -150,7 +152,7 @@ const Auth = () => {
               <Mail className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
               <Input
                 type="email"
-                placeholder="Email"
+                placeholder={t.auth_email_placeholder}
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
@@ -170,7 +172,7 @@ const Auth = () => {
               <Lock className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
               <Input
                 type="password"
-                placeholder="Parolă"
+                placeholder={t.auth_password_placeholder}
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
@@ -193,12 +195,12 @@ const Auth = () => {
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                {isLogin ? "Autentificare..." : "Creare cont..."}
+                {isLogin ? t.auth_logging_in : t.auth_creating_account}
               </>
             ) : (
               <>
                 <Sparkles className="w-4 h-4 mr-2" />
-                {isLogin ? "Autentificare" : "Creează cont"}
+                {isLogin ? t.auth_login_button : t.auth_signup_button}
               </>
             )}
           </Button>
@@ -216,11 +218,11 @@ const Auth = () => {
           >
             {isLogin ? (
               <>
-                Nu ai cont? <span className="text-primary font-medium">Înregistrează-te</span>
+                {t.auth_no_account} <span className="text-primary font-medium">{t.auth_signup_link}</span>
               </>
             ) : (
               <>
-                Ai deja cont? <span className="text-primary font-medium">Autentifică-te</span>
+                {t.auth_have_account} <span className="text-primary font-medium">{t.auth_login_link}</span>
               </>
             )}
           </button>
@@ -230,20 +232,20 @@ const Auth = () => {
         {!isLogin && (
           <div className="mt-6 pt-6 border-t border-border/50">
             <p className="text-xs text-center text-muted-foreground mb-3">
-              Beneficii cont gratuit:
+              {t.auth_benefits_title}
             </p>
             <div className="space-y-2 text-xs text-muted-foreground">
               <div className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                <span>Confesiuni anonime nelimitate</span>
+                <span>{t.auth_benefit_unlimited}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                <span>Răspunsuri AI empatice</span>
+                <span>{t.auth_benefit_ai_responses}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                <span>Comunitate de suport</span>
+                <span>{t.auth_benefit_community}</span>
               </div>
             </div>
           </div>
