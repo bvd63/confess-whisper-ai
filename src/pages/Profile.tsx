@@ -4,11 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Heart, MessageCircle, Sparkles, Crown, Calendar, Settings, Loader2 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
+import { LanguageSelector } from "@/components/LanguageSelector";
 import EmptyState from "@/components/EmptyState";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useLanguage } from "@/contexts/LanguageContext";
 import PremiumDialog from "@/components/PremiumDialog";
 import ReferralCard from "@/components/ReferralCard";
 import AchievementBadges from "@/components/AchievementBadges";
@@ -19,6 +21,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { trackEvent } = useAnalytics();
+  const { t } = useLanguage();
   const [user, setUser] = useState<any>(null);
   const [isPremium, setIsPremium] = useState(false);
   const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
@@ -102,8 +105,8 @@ const Profile = () => {
     } catch (error) {
       console.error('Error opening customer portal:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut deschide portalul de gestionare. Încearcă din nou.",
+        title: t.error_generic,
+        description: t.error_generic,
         variant: "destructive",
       });
     }
@@ -171,17 +174,18 @@ const Profile = () => {
             className="text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Înapoi
+            {t.app_name}
           </Button>
           
           <div className="flex items-center gap-2">
             <Heart className="w-5 h-5 text-primary" fill="currentColor" />
             <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-              Profil
+              {t.profile}
             </h1>
           </div>
           
           <div className="flex items-center gap-2">
+            <LanguageSelector />
             <Button
               variant="ghost"
               size="icon"
@@ -208,7 +212,7 @@ const Profile = () => {
               <div className="space-y-2">
                 <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary/20 to-primary/10 rounded-full border border-primary/30">
                   <Crown className="w-5 h-5 text-primary" />
-                  <span className="text-sm font-medium text-primary">Premium</span>
+                  <span className="text-sm font-medium text-primary">{t.premium_member}</span>
                 </div>
                 <Button
                   onClick={handleManageSubscription}
@@ -217,7 +221,7 @@ const Profile = () => {
                   className="w-full"
                 >
                   <Settings className="w-4 h-4 mr-2" />
-                  Gestionează Abonament
+                  {t.settings}
                 </Button>
               </div>
             ) : (
@@ -227,14 +231,14 @@ const Profile = () => {
                 className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
               >
                 <Crown className="w-4 h-4 mr-2" />
-                Upgrade
+                {t.premium_upgrade}
               </Button>
             )}
           </div>
 
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Calendar className="w-4 h-4" />
-            <span>Membru din {stats.joinedDate || 'N/A'}</span>
+            <span>{t.member_since} {stats.joinedDate || 'N/A'}</span>
           </div>
 
           {isPremium && subscriptionEnd && (
@@ -278,7 +282,7 @@ const Profile = () => {
               </div>
               <div>
                 <div className="text-3xl font-bold text-primary">{stats.totalConfessions}</div>
-                <p className="text-sm text-muted-foreground">Confesiuni postate</p>
+                <p className="text-sm text-muted-foreground">{t.confessions_count}</p>
               </div>
             </div>
           </Card>
@@ -290,7 +294,7 @@ const Profile = () => {
               </div>
               <div>
                 <div className="text-3xl font-bold text-primary">{stats.deepInsightsUsed}</div>
-                <p className="text-sm text-muted-foreground">Deep Insights folosite</p>
+                <p className="text-sm text-muted-foreground">{t.insights_used}</p>
               </div>
             </div>
           </Card>

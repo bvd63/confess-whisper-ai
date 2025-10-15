@@ -6,6 +6,7 @@ import { MessageCircle, Trash2, Sparkles, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Confession {
   id: string;
@@ -21,6 +22,7 @@ const UserConfessionsList = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadUserConfessions();
@@ -43,8 +45,8 @@ const UserConfessionsList = () => {
     } catch (error) {
       console.error('Error loading confessions:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut încărca confesiunile.",
+        title: t.error_generic,
+        description: t.error_load,
         variant: "destructive",
       });
     } finally {
@@ -65,14 +67,14 @@ const UserConfessionsList = () => {
 
       setConfessions(confessions.filter(c => c.id !== deleteId));
       toast({
-        title: "Confesiune ștearsă",
-        description: "Confesiunea a fost ștearsă cu succes.",
+        title: t.success_deleted,
+        description: t.success_deleted,
       });
     } catch (error) {
       console.error('Error deleting confession:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut șterge confesiunea.",
+        title: t.error_generic,
+        description: t.error_delete,
         variant: "destructive",
       });
     } finally {
@@ -144,7 +146,7 @@ const UserConfessionsList = () => {
               <div className="p-3 bg-primary/5 rounded-lg border border-primary/10">
                 <div className="flex items-center gap-2 mb-2 text-primary text-xs font-medium">
                   <MessageCircle className="w-3 h-3" />
-                  <span>Răspuns AI</span>
+                  <span>{t.ai_reply_title}</span>
                 </div>
                 <p className="text-sm text-foreground/80 italic line-clamp-2">
                   {confession.ai_response}
@@ -155,13 +157,13 @@ const UserConfessionsList = () => {
             {confession.ai_deep_insight && (
               <div className="mt-2 flex items-center gap-2 text-xs text-primary">
                 <Sparkles className="w-3 h-3" />
-                <span>Deep Insight disponibil</span>
+                <span>{t.deep_insight_title}</span>
               </div>
             )}
 
             {confession.likes_count !== undefined && confession.likes_count > 0 && (
               <div className="mt-2 text-xs text-muted-foreground">
-                {confession.likes_count} aprecieri
+                {confession.likes_count} {t.confessions_count}
               </div>
             )}
           </Card>
@@ -171,15 +173,15 @@ const UserConfessionsList = () => {
       <AlertDialog open={deleteId !== null} onOpenChange={(open) => !open && setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Ești sigur?</AlertDialogTitle>
+            <AlertDialogTitle>{t.delete_confirm}</AlertDialogTitle>
             <AlertDialogDescription>
-              Această acțiune nu poate fi anulată. Confesiunea va fi ștearsă permanent.
+              {t.delete_warning}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Anulează</AlertDialogCancel>
+            <AlertDialogCancel>{t.skip}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
-              Șterge
+              {t.delete}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

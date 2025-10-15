@@ -6,6 +6,7 @@ import ShareDialog from "./ShareDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ConfessionCardProps {
   confession: {
@@ -28,6 +29,7 @@ const ConfessionCard = ({ confession, isPremium, onReport, onUpgradeClick, onIns
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(confession.likes_count || 0);
   const { toast } = useToast();
+  const { t } = useLanguage();
   const timeAgo = (date: string) => {
     const now = new Date();
     const confessionDate = new Date(date);
@@ -106,7 +108,7 @@ const ConfessionCard = ({ confession, isPremium, onReport, onUpgradeClick, onIns
           className="h-8 px-3 gap-2 text-muted-foreground hover:text-primary"
         >
           <Share2 className="w-4 h-4" />
-          <span className="text-sm">Distribuie</span>
+          <span className="text-sm">{t.share}</span>
         </Button>
       </div>
 
@@ -115,7 +117,7 @@ const ConfessionCard = ({ confession, isPremium, onReport, onUpgradeClick, onIns
           <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/10">
             <div className="flex items-center gap-2 mb-2 text-primary text-sm font-medium">
               <MessageCircle className="w-4 h-4" />
-              <span>Răspuns AI empatic</span>
+              <span>{t.ai_reply_title}</span>
             </div>
             <p className="text-sm text-foreground/90 leading-relaxed italic">
               {confession.ai_response}
@@ -129,7 +131,7 @@ const ConfessionCard = ({ confession, isPremium, onReport, onUpgradeClick, onIns
             className="w-full mt-3 border-primary/30 hover:bg-primary/10 hover:border-primary/50 text-primary"
           >
             <Sparkles className="w-4 h-4 mr-2" />
-            {confession.ai_deep_insight ? "Vezi Deep Insight" : "Generează Deep Insight"}
+            {confession.ai_deep_insight ? t.deep_insight_title : t.generate_insight}
           </Button>
         </>
       )}
