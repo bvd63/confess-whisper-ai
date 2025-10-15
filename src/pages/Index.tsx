@@ -12,6 +12,8 @@ import TrustBadges from "@/components/TrustBadges";
 import FAQ from "@/components/FAQ";
 import HelpButton from "@/components/HelpButton";
 import FeatureHighlight from "@/components/FeatureHighlight";
+import ThemeToggle from "@/components/ThemeToggle";
+import EmptyState from "@/components/EmptyState";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -152,6 +154,8 @@ const Index = () => {
       });
       return;
     }
+    
+    trackEvent('confession_create_clicked');
     setIsNewConfessionOpen(true);
   };
 
@@ -172,6 +176,8 @@ const Index = () => {
         .eq('id', id);
 
       if (error) throw error;
+
+      trackEvent('confession_reported', { confession_id: id });
 
       toast({
         title: "Raportare trimisă",
@@ -227,6 +233,7 @@ const Index = () => {
           </div>
           
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             {user ? (
               <>
                 {isPremium && (
@@ -321,17 +328,13 @@ const Index = () => {
             <ConfessionSkeleton />
           </div>
         ) : confessions.length === 0 ? (
-          <div className="text-center py-12 animate-fade-in">
-            <Heart className="w-16 h-16 mx-auto mb-4 text-primary/30" />
-            <p className="text-muted-foreground mb-4">Nicio confesiune încă. Fii primul!</p>
-            <Button
-              onClick={handleNewConfession}
-              className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
-            >
-              <PlusCircle className="w-4 h-4 mr-2" />
-              Scrie prima confesiune
-            </Button>
-          </div>
+          <EmptyState
+            icon={Heart}
+            title="Nicio confesiune încă"
+            description="Fii primul care își împărtășește gândurile. Primești imediat un răspuns empatic de la AI."
+            actionLabel="Scrie prima confesiune"
+            onAction={handleNewConfession}
+          />
         ) : (
           <div className="space-y-4">
             {confessions.map((confession) => (
@@ -352,7 +355,10 @@ const Index = () => {
       <NewConfessionDialog
         open={isNewConfessionOpen}
         onOpenChange={setIsNewConfessionOpen}
-        onConfessionCreated={loadConfessions}
+        onConfessionCreated={() => {
+          loadConfessions();
+          trackEvent('confession_created');
+        }}
       />
 
       <PremiumDialog

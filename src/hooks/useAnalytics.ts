@@ -4,8 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 export type AnalyticsEvent = 
   | 'page_view'
   | 'confession_created'
+  | 'confession_create_clicked'
   | 'confession_liked'
   | 'confession_shared'
+  | 'confession_reported'
   | 'deep_insight_generated'
   | 'premium_upgrade_clicked'
   | 'auth_signup'

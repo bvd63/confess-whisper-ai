@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Heart, MessageCircle, Sparkles, Crown, Calendar, Settings, Loader2 } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
+import EmptyState from "@/components/EmptyState";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
@@ -174,7 +177,7 @@ const Profile = () => {
             </h1>
           </div>
           
-          <div className="w-20" /> {/* Spacer for balance */}
+          <ThemeToggle />
         </div>
       </header>
 
