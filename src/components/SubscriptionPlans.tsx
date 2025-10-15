@@ -4,6 +4,7 @@ import { Sparkles, Check, Crown, Loader2, Zap } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SubscriptionPlansProps {
   open: boolean;
@@ -15,21 +16,18 @@ const PLANS = {
     priceId: 'price_1SIVcRR7kygIyYg9aPdkdzCD',
     productId: 'prod_TEzb0QzrMOVFe6',
     price: '$4.99',
-    interval: 'lună',
-    savings: null,
   },
   yearly: {
     priceId: 'price_1SIVcgR7kygIyYg9fvcIPq5R',
     productId: 'prod_TEzbwHO3zir2dE',
     price: '$39.99',
-    interval: 'an',
-    savings: 'Economisești 40%',
   },
 };
 
 const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleSubscribe = async (planKey: 'monthly' | 'yearly') => {
     setIsLoading(planKey);
@@ -37,8 +35,8 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast({
-          title: "Eroare",
-          description: "Trebuie să fii autentificat pentru a te abona.",
+          title: t.common_error,
+          description: t.subscription_auth_required,
           variant: "destructive",
         });
         return;
@@ -57,8 +55,8 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
     } catch (error) {
       console.error('Error creating checkout session:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut iniția procesul de abonare. Încearcă din nou.",
+        title: t.common_error,
+        description: t.subscription_error,
         variant: "destructive",
       });
     } finally {
@@ -67,11 +65,11 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
   };
 
   const benefits = [
-    "Deep Insight AI nelimitat - analize psihologice profunde",
-    "Răspunsuri AI extinse și mai detaliate",
-    "Fără reclame - experiență curată",
-    "Prioritate în procesare AI",
-    "Acces la funcții viitoare"
+    t.subscription_benefit_1,
+    t.subscription_benefit_2,
+    t.subscription_benefit_3,
+    t.subscription_benefit_4,
+    t.subscription_benefit_5
   ];
 
   return (
@@ -80,10 +78,10 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
         <DialogHeader>
           <DialogTitle className="text-3xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent flex items-center gap-2">
             <Crown className="w-7 h-7 text-primary" />
-            Confess+ Premium
+            {t.subscription_premium_title}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Alege planul care ți se potrivește cel mai bine
+            {t.subscription_choose_plan}
           </DialogDescription>
         </DialogHeader>
 
@@ -107,10 +105,10 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
               <div className="text-center mb-4">
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <Zap className="w-5 h-5 text-primary" />
-                  <h3 className="text-lg font-semibold">Lunar</h3>
+                  <h3 className="text-lg font-semibold">{t.subscription_monthly}</h3>
                 </div>
                 <div className="text-3xl font-bold text-primary mb-1">{PLANS.monthly.price}</div>
-                <div className="text-sm text-muted-foreground">pe {PLANS.monthly.interval}</div>
+                <div className="text-sm text-muted-foreground">{t.subscription_per_month}</div>
               </div>
               <Button
                 onClick={() => handleSubscribe('monthly')}
@@ -120,30 +118,29 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
                 {isLoading === 'monthly' ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Procesare...
+                    {t.subscription_processing}
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4 mr-2" />
-                    Abonează-te
+                    {t.subscription_subscribe}
                   </>
                 )}
               </Button>
             </div>
 
-            {/* Yearly Plan - Highlighted */}
             <div className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border-2 border-primary relative overflow-hidden">
               <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-bl-lg">
-                CEL MAI POPULAR
+                {t.subscription_most_popular}
               </div>
               <div className="text-center mb-4 mt-2">
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <Crown className="w-5 h-5 text-primary" />
-                  <h3 className="text-lg font-semibold">Anual</h3>
+                  <h3 className="text-lg font-semibold">{t.subscription_yearly}</h3>
                 </div>
                 <div className="text-3xl font-bold text-primary mb-1">{PLANS.yearly.price}</div>
-                <div className="text-sm text-muted-foreground mb-1">pe {PLANS.yearly.interval}</div>
-                <div className="text-xs font-semibold text-primary">{PLANS.yearly.savings}</div>
+                <div className="text-sm text-muted-foreground mb-1">{t.subscription_per_year}</div>
+                <div className="text-xs font-semibold text-primary">{t.subscription_save_percent}</div>
               </div>
               <Button
                 onClick={() => handleSubscribe('yearly')}
@@ -153,12 +150,12 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
                 {isLoading === 'yearly' ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Procesare...
+                    {t.subscription_processing}
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4 mr-2" />
-                    Abonează-te Anual
+                    {t.subscription_subscribe_yearly}
                   </>
                 )}
               </Button>
@@ -166,7 +163,7 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
           </div>
 
           <p className="text-xs text-center text-muted-foreground">
-            Poți anula oricând din setările contului. Fără obligații pe termen lung.
+            {t.subscription_cancel_anytime}
           </p>
         </div>
       </DialogContent>

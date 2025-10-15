@@ -1,26 +1,29 @@
 import { Shield, Lock, Eye, CheckCircle } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const TrustBadges = () => {
+  const { t } = useLanguage();
+  
   const badges = [
     {
       icon: Shield,
-      title: "100% Anonim",
-      description: "Identitatea ta rămâne confidențială",
+      title: t.trust_anonymous,
+      description: t.trust_anonymous_desc,
     },
     {
       icon: Lock,
-      title: "Securizat SSL",
-      description: "Toate datele sunt criptate",
+      title: t.trust_ssl,
+      description: t.trust_ssl_desc,
     },
     {
       icon: Eye,
-      title: "Moderare AI",
-      description: "Conținut verificat automat",
+      title: t.trust_moderation,
+      description: t.trust_moderation_desc,
     },
     {
       icon: CheckCircle,
-      title: "Comunitate Sigură",
-      description: "Spațiu fără judecată",
+      title: t.trust_safe_community,
+      description: t.trust_safe_community_desc,
     },
   ];
 

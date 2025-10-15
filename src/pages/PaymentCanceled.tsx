@@ -2,9 +2,11 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { XCircle, ArrowLeft, CreditCard } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const PaymentCanceled = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex items-center justify-center p-4">
@@ -16,11 +18,11 @@ const PaymentCanceled = () => {
         </div>
 
         <h1 className="text-3xl font-bold mb-3 text-foreground">
-          Plată Anulată
+          {t.payment_canceled_title}
         </h1>
 
         <p className="text-muted-foreground mb-8">
-          Procesul de plată a fost anulat. Nu ți-a fost reținută nicio sumă.
+          {t.payment_canceled_desc}
         </p>
 
         <div className="space-y-3">
@@ -30,7 +32,7 @@ const PaymentCanceled = () => {
             className="w-full gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            Înapoi la pagina principală
+            {t.payment_back_home}
           </Button>
 
           <Button
@@ -38,12 +40,12 @@ const PaymentCanceled = () => {
             className="w-full gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
           >
             <CreditCard className="w-4 h-4" />
-            Încearcă din nou
+            {t.payment_try_again}
           </Button>
         </div>
 
         <p className="text-xs text-muted-foreground mt-6">
-          Dacă ai întâmpinat probleme, te rugăm să ne contactezi.
+          {t.payment_contact_help}
         </p>
       </Card>
     </div>

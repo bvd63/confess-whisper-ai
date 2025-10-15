@@ -107,7 +107,7 @@ const UserConfessionsList = () => {
       <Card className="p-8 text-center bg-muted/30 border-border/50">
         <MessageCircle className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
         <p className="text-muted-foreground">
-          Nu ai postat încă nicio confesiune.
+          {t.ucl_no_confessions}
         </p>
       </Card>
     );

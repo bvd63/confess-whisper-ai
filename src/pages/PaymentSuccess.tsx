@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CheckCircle, Crown, Sparkles } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   useEffect(() => {
     // Auto-redirect after 5 seconds
@@ -26,25 +28,25 @@ const PaymentSuccess = () => {
         </div>
 
         <h1 className="text-3xl font-bold mb-3 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-          Plată Reușită!
+          {t.payment_success_title}
         </h1>
 
         <p className="text-muted-foreground mb-6">
-          Felicitări! Contul tău Premium a fost activat cu succes.
+          {t.payment_success_desc}
         </p>
 
         <div className="space-y-3 mb-8">
           <div className="flex items-center gap-3 p-3 bg-primary/10 rounded-lg border border-primary/20">
             <Crown className="w-5 h-5 text-primary" />
-            <span className="text-sm text-foreground">Acces la Deep Insights AI</span>
+            <span className="text-sm text-foreground">{t.payment_success_deep_insights}</span>
           </div>
           <div className="flex items-center gap-3 p-3 bg-primary/10 rounded-lg border border-primary/20">
             <Sparkles className="w-5 h-5 text-primary" />
-            <span className="text-sm text-foreground">Analize psihologice profunde</span>
+            <span className="text-sm text-foreground">{t.payment_success_analysis}</span>
           </div>
           <div className="flex items-center gap-3 p-3 bg-primary/10 rounded-lg border border-primary/20">
             <CheckCircle className="w-5 h-5 text-primary" />
-            <span className="text-sm text-foreground">Suport prioritar</span>
+            <span className="text-sm text-foreground">{t.payment_success_priority}</span>
           </div>
         </div>
 
@@ -52,11 +54,11 @@ const PaymentSuccess = () => {
           onClick={() => navigate("/")}
           className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
         >
-          Explorează Confess.AI
+          {t.payment_success_explore}
         </Button>
 
         <p className="text-xs text-muted-foreground mt-4">
-          Vei fi redirecționat automat în 5 secunde...
+          {t.payment_redirect_info}
         </p>
       </Card>
     </div>
