@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Heart, PlusCircle, LogOut, Sparkles, Crown, User, TrendingUp, Clock, LogIn, Filter, Bookmark } from "lucide-react";
+import { Heart, PlusCircle, LogOut, Sparkles, Crown, User, TrendingUp, Clock, LogIn, Filter, BookMarked } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ConfessionCard from "@/components/ConfessionCard";
@@ -313,7 +313,7 @@ const Index = () => {
                   onClick={() => navigate('/bookmarks')}
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  <Bookmark className="w-5 h-5" />
+                  <BookMarked className="w-5 h-5" />
                 </Button>
                 <Button
                   variant="ghost"

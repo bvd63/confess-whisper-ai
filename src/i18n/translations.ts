@@ -273,7 +273,6 @@ type Translations = {
   
   // Profile Page
   profile_verifying: string;
-  profile_my_confessions: string;
   
   // Privacy Policy
   privacy_title: string;
@@ -370,6 +369,18 @@ type Translations = {
   bookmarks_remove: string;
   bookmarks_none: string;
   bookmarks_saved: string;
+  bookmarks_empty_state: string;
+  bookmarks_empty_description: string;
+  
+  // Profile Analytics
+  profile_title: string;
+  profile_my_confessions: string;
+  profile_statistics: string;
+  profile_total_confessions: string;
+  profile_total_likes: string;
+  profile_total_comments: string;
+  profile_empty_state: string;
+  profile_empty_description: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -499,6 +510,16 @@ export const translations: Record<Language, Translations> = {
     bookmarks_remove: "Remove",
     bookmarks_none: "No saved confessions",
     bookmarks_saved: "Saved to bookmarks",
+    
+    // Profile Analytics
+    profile_title: "Profile",
+    profile_my_confessions: "My Confessions",
+    profile_statistics: "Statistics",
+    profile_total_confessions: "Total Confessions",
+    profile_total_likes: "Total Likes",
+    profile_total_comments: "Total Comments",
+    profile_empty_state: "No confessions yet",
+    profile_empty_description: "Start sharing your thoughts anonymously",
     
     achievements_title: "Achievements",
     achievements_unlocked: "unlocked",
@@ -674,7 +695,6 @@ export const translations: Record<Language, Translations> = {
     settings_export_error: "Could not export data",
     
     profile_verifying: "Verifying...",
-    profile_my_confessions: "My Confessions",
     
     privacy_title: "Privacy Policy",
     privacy_section_1: "1. Data Collection",
@@ -722,6 +742,17 @@ export const translations: Record<Language, Translations> = {
     notfound_404: "404",
     notfound_title: "Oops! Page not found",
     notfound_return_home: "Return to Home",
+    
+    bookmarks_empty_state: "No bookmarks yet",
+    bookmarks_empty_description: "Start bookmarking confessions to see them here",
+    profile_title: "Profile",
+    profile_my_confessions: "My Confessions",
+    profile_statistics: "Statistics",
+    profile_total_confessions: "Total Confessions",
+    profile_total_likes: "Total Likes",
+    profile_total_comments: "Total Comments",
+    profile_empty_state: "No confessions yet",
+    profile_empty_description: "Start sharing your thoughts anonymously",
   },
   es: {
     app_name: "Confess+",
