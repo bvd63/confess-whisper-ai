@@ -96,6 +96,20 @@ const Auth = () => {
           throw error;
         }
 
+        // Process referral code if exists
+        const referralCode = localStorage.getItem('referralCode');
+        if (referralCode) {
+          try {
+            await supabase.functions.invoke('process-referral', {
+              body: { referralCode },
+            });
+            localStorage.removeItem('referralCode');
+          } catch (refError) {
+            console.error('Error processing referral:', refError);
+            // Don't block signup if referral processing fails
+          }
+        }
+
         toast({
           title: "Cont creat cu succes! 🎉",
           description: "Bine ai venit în comunitatea Confess+",

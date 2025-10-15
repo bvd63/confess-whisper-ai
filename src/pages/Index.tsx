@@ -7,6 +7,8 @@ import NewConfessionDialog from "@/components/NewConfessionDialog";
 import PremiumDialog from "@/components/PremiumDialog";
 import OnboardingDialog from "@/components/OnboardingDialog";
 import ConfessionSkeleton from "@/components/ConfessionSkeleton";
+import SocialProofStats from "@/components/SocialProofStats";
+import TrustBadges from "@/components/TrustBadges";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -284,6 +286,9 @@ const Index = () => {
           </p>
         </div>
 
+        {/* Social Proof Stats */}
+        <SocialProofStats stats={{}} />
+
         {/* Filter Tabs */}
         {confessions.length > 0 && (
           <div className="flex justify-center mb-6 animate-fade-in">
@@ -357,6 +362,11 @@ const Index = () => {
           localStorage.setItem('hasSeenOnboarding', 'true');
         }}
       />
+      
+      {/* Footer with trust badges */}
+      <footer className="mt-16">
+        <TrustBadges />
+      </footer>
     </div>
   );
 };
