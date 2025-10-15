@@ -1,4 +1,4 @@
-export type Language = 'en' | 'es' | 'de' | 'ro';
+export type Language = 'en' | 'es' | 'de';
 
 type Translations = {
   app_name: string;
@@ -329,87 +329,5 @@ export const translations: Record<Language, Translations> = {
     privacy_policy: "Datenschutzrichtlinie",
     terms_of_service: "Nutzungsbedingungen",
     all_rights_reserved: "Alle Rechte vorbehalten.",
-  },
-  ro: {
-    app_name: "Confess+",
-    welcome_title: "Bine ai venit la Confess+",
-    welcome_description: "Un spațiu sigur unde poți împărtăși orice te apasă, în deplină anonimitate.",
-    anonymous_secure: "100% Anonim și Sigur",
-    anonymous_description: "Identitatea ta rămâne complet confidențială. Nu stocăm nicio informație personală.",
-    ai_support: "Suport AI Empatic",
-    ai_description: "Primești răspunsuri empatice generate de AI și, cu Premium, insights psihologice profunde.",
-    get_started: "Începe",
-    skip: "Skip",
-    next: "Următorul",
-    
-    home_title: "Confesiuni Anonime",
-    new_confession: "Confesiune Nouă",
-    premium_upgrade: "Upgrade la Premium",
-    
-    placeholder_confession: "Împărtășește ce ai pe suflet... (10-2000 caractere)",
-    submit: "Trimite Anonim",
-    submitting: "Se trimite...",
-    
-    ai_reply_title: "Răspuns AI",
-    deep_insight_title: "Insight Profund",
-    generate_insight: "Generează Insight Profund",
-    
-    toast_sent: "Confesiunea ta a fost trimisă anonim 💭",
-    toast_flagged: "Conținut nepermis. Te rog reformulează.",
-    error_generic: "Ceva nu a mers bine. Încearcă din nou.",
-    
-    report: "Raportează",
-    share: "Distribuie",
-    delete: "Șterge",
-    
-    language: "Limbă",
-    profile: "Profil",
-    settings: "Setări",
-    logout: "Deconectare",
-    login: "Autentificare",
-    signup: "Înregistrare",
-    
-    confessions_count: "confesiuni",
-    insights_used: "insights folosite",
-    member_since: "Membru din",
-    
-    crisis_hint: "Dacă ești în pericol imediat, contactează serviciile de urgență locale.",
-    
-    error_submit: "Nu am putut trimite confesiunea. Încearcă din nou.",
-    error_delete: "Nu am putut șterge confesiunea.",
-    error_load: "Nu am putut încărca confesiunile.",
-    error_auth: "Trebuie să fii autentificat pentru a posta.",
-    
-    success_sent: "Confesiunea ta a fost trimisă! 💜",
-    success_deleted: "Confesiune ștearsă cu succes.",
-    success_reported: "Raportare trimisă. Vom verifica această confesiune. Mulțumim!",
-    success_logout: "La revedere! 👋",
-    
-    validation_min: "Confesiunea trebuie să aibă cel puțin 10 caractere",
-    validation_max: "Confesiunea nu poate depăși 2000 de caractere",
-    
-    deep_insight_premium: "Deep Insight este disponibil doar pentru utilizatorii Premium.",
-    deep_insight_description: "Analiză psihologică profundă pentru înțelegere completă.",
-    deep_insight_success: "Deep Insight generat! ✨",
-    
-    premium_member: "Membru Premium",
-    premium_feature: "Feature Premium",
-    premium_benefits: "Deep Insights nelimitate, răspunsuri detaliate, fără reclame.",
-    upgrade_now: "Upgrade Acum",
-    
-    delete_account: "Șterge Contul",
-    delete_account_description: "Șterge permanent contul și toate datele asociate",
-    delete_confirm: "Șterge Definitiv",
-    delete_warning: "Această acțiune nu poate fi anulată. Acest lucru va șterge permanent contul și toate datele.",
-    deleting: "Se șterge...",
-    export_data: "Exportă Datele",
-    
-    referral_title: "Invită Prieteni",
-    referral_description: "Câștigă 7 zile Premium pentru fiecare prieten care se înregistrează",
-    referral_earned: "Ai câștigat {days} zile Premium gratuit!",
-    
-    privacy_policy: "Politica de Confidențialitate",
-    terms_of_service: "Termeni și Condiții",
-    all_rights_reserved: "Toate drepturile rezervate.",
   },
 };
