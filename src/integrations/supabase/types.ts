@@ -42,6 +42,7 @@ export type Database = {
         Row: {
           ai_deep_insight: string | null
           ai_response: string | null
+          category: string
           content: string
           created_at: string
           id: string
@@ -55,6 +56,7 @@ export type Database = {
         Insert: {
           ai_deep_insight?: string | null
           ai_response?: string | null
+          category?: string
           content: string
           created_at?: string
           id?: string
@@ -68,6 +70,7 @@ export type Database = {
         Update: {
           ai_deep_insight?: string | null
           ai_response?: string | null
+          category?: string
           content?: string
           created_at?: string
           id?: string

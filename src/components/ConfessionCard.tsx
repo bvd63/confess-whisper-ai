@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { MessageCircle, AlertCircle, Sparkles, Heart, Share2 } from "lucide-react";
+import { MessageCircle, AlertCircle, Sparkles, Heart, Share2, Tag } from "lucide-react";
 import DeepInsightDialog from "./DeepInsightDialog";
 import ShareDialog from "./ShareDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ConfessionCardProps {
   confession: {
     id: string;
     content: string;
+    category: string;
     ai_response?: string | null;
     ai_deep_insight?: string | null;
     likes_count?: number;
@@ -30,6 +32,19 @@ const ConfessionCard = ({ confession, isPremium, onReport, onUpgradeClick, onIns
   const [likesCount, setLikesCount] = useState(confession.likes_count || 0);
   const { toast } = useToast();
   const { t } = useLanguage();
+  
+  const getCategoryLabel = (category: string) => {
+    const categoryMap: Record<string, string> = {
+      relationships: t.category_relationships,
+      work: t.category_work,
+      family: t.category_family,
+      health: t.category_health,
+      money: t.category_money,
+      other: t.category_other,
+    };
+    return categoryMap[category] || t.category_other;
+  };
+  
   const timeAgo = (date: string) => {
     const now = new Date();
     const confessionDate = new Date(date);
@@ -69,9 +84,13 @@ const ConfessionCard = ({ confession, isPremium, onReport, onUpgradeClick, onIns
   return (
     <Card className="p-5 mb-4 bg-gradient-to-br from-card to-muted/30 border-border/50 shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-glow)] transition-all duration-300 animate-fade-in">
       <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-2 text-muted-foreground text-sm">
+        <div className="flex items-center gap-2 text-muted-foreground text-sm flex-wrap">
           <MessageCircle className="w-4 h-4" />
           <span>Anonim • {timeAgo(confession.created_at)}</span>
+          <Badge variant="secondary" className="text-xs gap-1 bg-primary/10 text-primary border-primary/20">
+            <Tag className="w-3 h-3" />
+            {getCategoryLabel(confession.category)}
+          </Badge>
         </div>
         {onReport && (
           <Button

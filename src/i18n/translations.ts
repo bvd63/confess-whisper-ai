@@ -325,6 +325,17 @@ type Translations = {
   notfound_404: string;
   notfound_title: string;
   notfound_return_home: string;
+  
+  // Categories
+  category_relationships: string;
+  category_work: string;
+  category_family: string;
+  category_health: string;
+  category_money: string;
+  category_other: string;
+  select_category: string;
+  filter_by_category: string;
+  all_categories: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -409,6 +420,17 @@ export const translations: Record<Language, Translations> = {
     privacy_policy: "Privacy Policy",
     terms_of_service: "Terms of Service",
     all_rights_reserved: "All rights reserved.",
+    
+    // Categories
+    category_relationships: "Relationships",
+    category_work: "Work",
+    category_family: "Family",
+    category_health: "Health",
+    category_money: "Money",
+    category_other: "Other",
+    select_category: "Select a category",
+    filter_by_category: "Filter by category",
+    all_categories: "All Categories",
     
     achievements_title: "Achievements",
     achievements_unlocked: "unlocked",
@@ -715,6 +737,17 @@ export const translations: Record<Language, Translations> = {
     terms_of_service: "Términos de Servicio",
     all_rights_reserved: "Todos los derechos reservados.",
     
+    // Categories
+    category_relationships: "Relaciones",
+    category_work: "Trabajo",
+    category_family: "Familia",
+    category_health: "Salud",
+    category_money: "Dinero",
+    category_other: "Otro",
+    select_category: "Selecciona una categoría",
+    filter_by_category: "Filtrar por categoría",
+    all_categories: "Todas las Categorías",
+    
     achievements_title: "Logros",
     achievements_unlocked: "desbloqueados",
     achievement_first_confession: "Primera Confesión",
@@ -1019,6 +1052,17 @@ export const translations: Record<Language, Translations> = {
     privacy_policy: "Datenschutzrichtlinie",
     terms_of_service: "Nutzungsbedingungen",
     all_rights_reserved: "Alle Rechte vorbehalten.",
+    
+    // Categories
+    category_relationships: "Beziehungen",
+    category_work: "Arbeit",
+    category_family: "Familie",
+    category_health: "Gesundheit",
+    category_money: "Geld",
+    category_other: "Sonstiges",
+    select_category: "Kategorie wählen",
+    filter_by_category: "Nach Kategorie filtern",
+    all_categories: "Alle Kategorien",
     
     achievements_title: "Errungenschaften",
     achievements_unlocked: "freigeschaltet",

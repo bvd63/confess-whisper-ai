@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Heart, PlusCircle, LogOut, Sparkles, Crown, User, TrendingUp, Clock, LogIn } from "lucide-react";
+import { Heart, PlusCircle, LogOut, Sparkles, Crown, User, TrendingUp, Clock, LogIn, Filter } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ConfessionCard from "@/components/ConfessionCard";
@@ -17,6 +17,7 @@ import FeatureHighlight from "@/components/FeatureHighlight";
 import ThemeToggle from "@/components/ThemeToggle";
 import EmptyState from "@/components/EmptyState";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
@@ -24,6 +25,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 interface Confession {
   id: string;
   content: string;
+  category: string;
   ai_response?: string | null;
   ai_deep_insight?: string | null;
   created_at: string;
@@ -38,6 +40,7 @@ const Index = () => {
   const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -93,7 +96,7 @@ const Index = () => {
 
   useEffect(() => {
     loadConfessions();
-  }, [sortBy]);
+  }, [sortBy, categoryFilter]);
 
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -124,6 +127,11 @@ const Index = () => {
         .from('confessions')
         .select('*')
         .limit(20);
+
+      // Filter by category if not 'all'
+      if (categoryFilter !== 'all') {
+        query = query.eq('category', categoryFilter);
+      }
 
       // Sort based on selected filter
       if (sortBy === 'recent') {
@@ -306,21 +314,43 @@ const Index = () => {
         {/* Feature Highlights */}
         <FeatureHighlight />
 
-        {/* Filter Tabs */}
+        {/* Filters */}
         {confessions.length > 0 && (
-          <div className="flex justify-center mb-6 animate-fade-in">
-            <Tabs value={sortBy} onValueChange={(value) => setSortBy(value as 'recent' | 'popular')} className="w-full max-w-md">
-              <TabsList className="grid w-full grid-cols-2 bg-muted/50">
-                <TabsTrigger value="recent" className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  {t.ui_recent}
-                </TabsTrigger>
-                <TabsTrigger value="popular" className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4" />
-                  {t.ui_popular}
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+          <div className="mb-6 space-y-4 animate-fade-in">
+            {/* Category Filter */}
+            <div className="flex items-center gap-3 justify-center">
+              <Filter className="w-4 h-4 text-muted-foreground" />
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="w-[200px] border-primary/20 focus:border-primary/40 bg-background/50">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t.all_categories}</SelectItem>
+                  <SelectItem value="relationships">{t.category_relationships}</SelectItem>
+                  <SelectItem value="work">{t.category_work}</SelectItem>
+                  <SelectItem value="family">{t.category_family}</SelectItem>
+                  <SelectItem value="health">{t.category_health}</SelectItem>
+                  <SelectItem value="money">{t.category_money}</SelectItem>
+                  <SelectItem value="other">{t.category_other}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Sort Tabs */}
+            <div className="flex justify-center">
+              <Tabs value={sortBy} onValueChange={(value) => setSortBy(value as 'recent' | 'popular')} className="w-full max-w-md">
+                <TabsList className="grid w-full grid-cols-2 bg-muted/50">
+                  <TabsTrigger value="recent" className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    {t.ui_recent}
+                  </TabsTrigger>
+                  <TabsTrigger value="popular" className="flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4" />
+                    {t.ui_popular}
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
           </div>
         )}
 

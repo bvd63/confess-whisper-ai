@@ -7,6 +7,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 const confessionSchema = z.object({
   content: z.string()
@@ -23,10 +25,20 @@ interface NewConfessionDialogProps {
 
 const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewConfessionDialogProps) => {
   const [content, setContent] = useState("");
+  const [category, setCategory] = useState("other");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const { toast } = useToast();
   const { language, t } = useLanguage();
+
+  const categories = [
+    { value: 'relationships', label: t.category_relationships },
+    { value: 'work', label: t.category_work },
+    { value: 'family', label: t.category_family },
+    { value: 'health', label: t.category_health },
+    { value: 'money', label: t.category_money },
+    { value: 'other', label: t.category_other },
+  ];
 
   const handleSubmit = async () => {
     // Validate input
@@ -91,6 +103,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
         .insert({
           content: content.trim(),
           ai_response: responseText,
+          category: category,
           user_id: user.id,
         });
 
@@ -106,6 +119,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
         onConfessionCreated();
         onOpenChange(false);
         setContent("");
+        setCategory("other");
         setAiResponse(null);
       }, 3000);
 
@@ -134,6 +148,24 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
         </DialogHeader>
 
         <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="category" className="text-sm font-medium">
+              {t.select_category}
+            </Label>
+            <Select value={category} onValueChange={setCategory} disabled={isSubmitting}>
+              <SelectTrigger className="border-primary/20 focus:border-primary/40 bg-background/50">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <Textarea
             placeholder={t.placeholder_confession}
             value={content}
