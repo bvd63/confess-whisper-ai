@@ -336,6 +336,14 @@ type Translations = {
   select_category: string;
   filter_by_category: string;
   all_categories: string;
+  
+  // Analytics
+  analytics_title: string;
+  analytics_total_confessions: string;
+  analytics_total_likes: string;
+  analytics_most_popular: string;
+  analytics_by_category: string;
+  analytics_no_data: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -431,6 +439,14 @@ export const translations: Record<Language, Translations> = {
     select_category: "Select a category",
     filter_by_category: "Filter by category",
     all_categories: "All Categories",
+    
+    // Analytics
+    analytics_title: "Your Stats",
+    analytics_total_confessions: "Total Confessions",
+    analytics_total_likes: "Likes Received",
+    analytics_most_popular: "Most Popular",
+    analytics_by_category: "By Category",
+    analytics_no_data: "No data yet",
     
     achievements_title: "Achievements",
     achievements_unlocked: "unlocked",
@@ -748,6 +764,14 @@ export const translations: Record<Language, Translations> = {
     filter_by_category: "Filtrar por categoría",
     all_categories: "Todas las Categorías",
     
+    // Analytics
+    analytics_title: "Tus Estadísticas",
+    analytics_total_confessions: "Total Confesiones",
+    analytics_total_likes: "Likes Recibidos",
+    analytics_most_popular: "Más Popular",
+    analytics_by_category: "Por Categoría",
+    analytics_no_data: "Sin datos aún",
+    
     achievements_title: "Logros",
     achievements_unlocked: "desbloqueados",
     achievement_first_confession: "Primera Confesión",
@@ -1063,6 +1087,14 @@ export const translations: Record<Language, Translations> = {
     select_category: "Kategorie wählen",
     filter_by_category: "Nach Kategorie filtern",
     all_categories: "Alle Kategorien",
+    
+    // Analytics
+    analytics_title: "Deine Statistiken",
+    analytics_total_confessions: "Gesamte Geständnisse",
+    analytics_total_likes: "Erhaltene Likes",
+    analytics_most_popular: "Am Beliebtesten",
+    analytics_by_category: "Nach Kategorie",
+    analytics_no_data: "Noch keine Daten",
     
     achievements_title: "Errungenschaften",
     achievements_unlocked: "freigeschaltet",

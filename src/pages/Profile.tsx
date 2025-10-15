@@ -15,6 +15,7 @@ import PremiumDialog from "@/components/PremiumDialog";
 import ReferralCard from "@/components/ReferralCard";
 import AchievementBadges from "@/components/AchievementBadges";
 import UserConfessionsList from "@/components/UserConfessionsList";
+import UserAnalytics from "@/components/UserAnalytics";
 import SettingsDialog from "@/components/SettingsDialog";
 
 const Profile = () => {
@@ -349,6 +350,13 @@ const Profile = () => {
           deepInsightsUsed={stats.deepInsightsUsed}
           isPremium={isPremium}
         />
+
+        {/* User Analytics */}
+        {user && (
+          <div className="animate-fade-in" style={{ animationDelay: '350ms' }}>
+            <UserAnalytics userId={user.id} />
+          </div>
+        )}
 
         {/* User Confessions List */}
         <div className="animate-fade-in" style={{ animationDelay: '400ms' }}>
