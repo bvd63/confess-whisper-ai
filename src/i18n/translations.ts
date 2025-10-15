@@ -320,6 +320,11 @@ type Translations = {
   // Index Page
   index_no_confessions_title: string;
   index_no_confessions_desc: string;
+  
+  // Not Found Page
+  notfound_404: string;
+  notfound_title: string;
+  notfound_return_home: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -623,6 +628,10 @@ export const translations: Record<Language, Translations> = {
     
     index_no_confessions_title: "No confessions yet",
     index_no_confessions_desc: "Be the first to share your thoughts. You'll instantly get an empathetic AI response.",
+    
+    notfound_404: "404",
+    notfound_title: "Oops! Page not found",
+    notfound_return_home: "Return to Home",
   },
   es: {
     app_name: "Confess+",
@@ -924,6 +933,10 @@ export const translations: Record<Language, Translations> = {
     
     index_no_confessions_title: "Aún no hay confesiones",
     index_no_confessions_desc: "Sé el primero en compartir tus pensamientos. Recibirás instantáneamente una respuesta empática de IA.",
+    
+    notfound_404: "404",
+    notfound_title: "¡Ups! Página no encontrada",
+    notfound_return_home: "Volver al Inicio",
   },
   de: {
     app_name: "Confess+",
@@ -1225,5 +1238,9 @@ export const translations: Record<Language, Translations> = {
     
     index_no_confessions_title: "Noch keine Geständnisse",
     index_no_confessions_desc: "Sei der Erste, der seine Gedanken teilt. Du erhältst sofort eine empathische KI-Antwort.",
+    
+    notfound_404: "404",
+    notfound_title: "Hoppla! Seite nicht gefunden",
+    notfound_return_home: "Zurück zur Startseite",
   },
 };
