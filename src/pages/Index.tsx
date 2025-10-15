@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Heart, PlusCircle, LogOut, Sparkles, Crown, User, TrendingUp, Clock } from "lucide-react";
+import { Heart, PlusCircle, LogOut, Sparkles, Crown, User, TrendingUp, Clock, LogIn } from "lucide-react";
 import ConfessionCard from "@/components/ConfessionCard";
 import NewConfessionDialog from "@/components/NewConfessionDialog";
 import PremiumDialog from "@/components/PremiumDialog";
-import AuthDialog from "@/components/AuthDialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -24,7 +23,6 @@ const Index = () => {
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent');
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -121,7 +119,7 @@ const Index = () => {
 
   const handleNewConfession = () => {
     if (!user) {
-      setIsAuthOpen(true);
+      navigate('/auth');
       toast({
         title: "Autentificare necesară",
         description: "Creează un cont pentru a posta confesiuni.",
@@ -237,10 +235,11 @@ const Index = () => {
               </>
             ) : (
               <Button
-                onClick={() => setIsAuthOpen(true)}
+                onClick={() => navigate('/auth')}
                 variant="outline"
                 className="border-primary/30 hover:bg-primary/10"
               >
+                <LogIn className="w-4 h-4 mr-2" />
                 Autentificare
               </Button>
             )}
@@ -321,11 +320,6 @@ const Index = () => {
         open={isNewConfessionOpen}
         onOpenChange={setIsNewConfessionOpen}
         onConfessionCreated={loadConfessions}
-      />
-      
-      <AuthDialog
-        open={isAuthOpen}
-        onOpenChange={setIsAuthOpen}
       />
 
       <PremiumDialog
