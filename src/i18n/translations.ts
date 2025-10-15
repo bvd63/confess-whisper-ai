@@ -239,6 +239,8 @@ type Translations = {
   // Common
   common_back: string;
   common_error: string;
+  common_help_aria: string;
+  common_theme_aria: string;
   
   // FAQ
   faq_title: string;
@@ -546,6 +548,8 @@ export const translations: Record<Language, Translations> = {
     
     common_back: "Back",
     common_error: "Error",
+    common_help_aria: "Help",
+    common_theme_aria: "Toggle theme",
     
     faq_title: "Frequently Asked Questions",
     faq_q1: "Is it really anonymous?",
@@ -845,6 +849,8 @@ export const translations: Record<Language, Translations> = {
     
     common_back: "Atrás",
     common_error: "Error",
+    common_help_aria: "Ayuda",
+    common_theme_aria: "Cambiar tema",
     
     faq_title: "Preguntas Frecuentes",
     faq_q1: "¿Es realmente anónimo?",
@@ -1144,6 +1150,8 @@ export const translations: Record<Language, Translations> = {
     
     common_back: "Zurück",
     common_error: "Fehler",
+    common_help_aria: "Hilfe",
+    common_theme_aria: "Design wechseln",
     
     faq_title: "Häufig gestellte Fragen",
     faq_q1: "Ist es wirklich anonym?",

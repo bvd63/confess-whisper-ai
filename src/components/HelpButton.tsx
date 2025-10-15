@@ -9,8 +9,10 @@ import {
 } from "@/components/ui/dialog";
 import { HelpCircle, MessageCircle, Mail, Book, ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const HelpButton = () => {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
 
   const helpOptions = [
@@ -49,7 +51,7 @@ const HelpButton = () => {
         size="icon"
         onClick={() => setOpen(true)}
         className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-[var(--shadow-glow)] animate-bounce-subtle z-50"
-        aria-label="Help"
+        aria-label={t.common_help_aria}
       >
         <HelpCircle className="w-6 h-6" />
       </Button>
