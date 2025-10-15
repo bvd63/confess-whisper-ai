@@ -31,7 +31,28 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
     setIsSubmitting(true);
 
     try {
-      // Get AI response first
+      // Step 1: Moderate content first
+      const { data: moderationData, error: moderationError } = await supabase.functions.invoke('ai-moderation', {
+        body: { content }
+      });
+
+      if (moderationError) {
+        console.error('Moderation error:', moderationError);
+        // Continue even if moderation fails
+      }
+
+      // Check if content is safe
+      if (moderationData && !moderationData.is_safe) {
+        toast({
+          title: "Conținut inadecvat detectat",
+          description: moderationData.reason || "Confesiunea ta conține conținut care nu respectă regulile comunității.",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Step 2: Get AI response
       const { data: aiData, error: aiError } = await supabase.functions.invoke('ai-confession-response', {
         body: { confession: content, type: 'basic' }
       });

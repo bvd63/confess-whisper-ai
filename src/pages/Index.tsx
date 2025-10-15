@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Heart, PlusCircle, LogOut, Sparkles, Crown } from "lucide-react";
+import { Heart, PlusCircle, LogOut, Sparkles, Crown, User } from "lucide-react";
 import ConfessionCard from "@/components/ConfessionCard";
 import NewConfessionDialog from "@/components/NewConfessionDialog";
 import PremiumDialog from "@/components/PremiumDialog";
@@ -17,6 +18,7 @@ interface Confession {
 }
 
 const Index = () => {
+  const navigate = useNavigate();
   const [confessions, setConfessions] = useState<Confession[]>([]);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
@@ -180,6 +182,14 @@ const Index = () => {
                 >
                   <PlusCircle className="w-4 h-4 mr-2" />
                   Confessionează
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate('/profile')}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <User className="w-4 h-4" />
                 </Button>
                 <Button
                   variant="ghost"
