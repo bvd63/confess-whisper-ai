@@ -1,0 +1,4 @@
+project_id = "fxwvlbopvnjjjrzshqvw"
+
+[functions.ai-confession-response]
+verify_jwt = false
