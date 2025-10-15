@@ -167,6 +167,68 @@ type Translations = {
   ui_help_question: string;
   ui_help_choose: string;
   ui_help_reply_time: string;
+  
+  // Subscription Plans
+  subscription_premium_title: string;
+  subscription_choose_plan: string;
+  subscription_monthly: string;
+  subscription_yearly: string;
+  subscription_per_month: string;
+  subscription_per_year: string;
+  subscription_save_percent: string;
+  subscription_most_popular: string;
+  subscription_subscribe: string;
+  subscription_subscribe_yearly: string;
+  subscription_processing: string;
+  subscription_cancel_anytime: string;
+  subscription_benefit_1: string;
+  subscription_benefit_2: string;
+  subscription_benefit_3: string;
+  subscription_benefit_4: string;
+  subscription_benefit_5: string;
+  subscription_auth_required: string;
+  subscription_error: string;
+  
+  // Trust Badges
+  trust_anonymous: string;
+  trust_anonymous_desc: string;
+  trust_ssl: string;
+  trust_ssl_desc: string;
+  trust_moderation: string;
+  trust_moderation_desc: string;
+  trust_safe_community: string;
+  trust_safe_community_desc: string;
+  
+  // Payment
+  payment_canceled_title: string;
+  payment_canceled_desc: string;
+  payment_back_home: string;
+  payment_try_again: string;
+  payment_contact_help: string;
+  payment_success_title: string;
+  payment_success_desc: string;
+  payment_success_deep_insights: string;
+  payment_success_analysis: string;
+  payment_success_priority: string;
+  payment_success_explore: string;
+  payment_redirect_info: string;
+  
+  // Profile
+  profile_your_account: string;
+  profile_subscription_active: string;
+  profile_refresh_status: string;
+  profile_discover_premium: string;
+  profile_premium_description: string;
+  profile_you_are_premium: string;
+  profile_premium_thanks: string;
+  profile_no_confessions: string;
+  
+  // User Confessions List
+  ucl_no_confessions: string;
+  
+  // Common
+  common_back: string;
+  common_error: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -330,6 +392,62 @@ export const translations: Record<Language, Translations> = {
     ui_help_question: "How can we help?",
     ui_help_choose: "Choose one of the options below to get help",
     ui_help_reply_time: "We usually reply within 24 hours",
+    
+    subscription_premium_title: "Confess+ Premium",
+    subscription_choose_plan: "Choose the plan that suits you best",
+    subscription_monthly: "Monthly",
+    subscription_yearly: "Yearly",
+    subscription_per_month: "per month",
+    subscription_per_year: "per year",
+    subscription_save_percent: "Save 40%",
+    subscription_most_popular: "MOST POPULAR",
+    subscription_subscribe: "Subscribe",
+    subscription_subscribe_yearly: "Subscribe Yearly",
+    subscription_processing: "Processing...",
+    subscription_cancel_anytime: "You can cancel anytime from account settings. No long-term commitments.",
+    subscription_benefit_1: "Unlimited Deep Insight AI - deep psychological analysis",
+    subscription_benefit_2: "Extended and more detailed AI responses",
+    subscription_benefit_3: "Ad-free - clean experience",
+    subscription_benefit_4: "Priority in AI processing",
+    subscription_benefit_5: "Access to future features",
+    subscription_auth_required: "You must be authenticated to subscribe.",
+    subscription_error: "Could not initiate subscription process. Try again.",
+    
+    trust_anonymous: "100% Anonymous",
+    trust_anonymous_desc: "Your identity remains confidential",
+    trust_ssl: "SSL Secure",
+    trust_ssl_desc: "All data is encrypted",
+    trust_moderation: "AI Moderation",
+    trust_moderation_desc: "Content automatically verified",
+    trust_safe_community: "Safe Community",
+    trust_safe_community_desc: "Judgment-free space",
+    
+    payment_canceled_title: "Payment Canceled",
+    payment_canceled_desc: "The payment process was canceled. No amount has been charged.",
+    payment_back_home: "Back to homepage",
+    payment_try_again: "Try again",
+    payment_contact_help: "If you encountered problems, please contact us.",
+    payment_success_title: "Payment Successful!",
+    payment_success_desc: "Congratulations! Your Premium account has been successfully activated.",
+    payment_success_deep_insights: "Access to Deep Insights AI",
+    payment_success_analysis: "Deep psychological analysis",
+    payment_success_priority: "Priority support",
+    payment_success_explore: "Explore Confess+",
+    payment_redirect_info: "You will be redirected automatically in 5 seconds...",
+    
+    profile_your_account: "Your Account",
+    profile_subscription_active: "Active subscription until",
+    profile_refresh_status: "Refresh Status",
+    profile_discover_premium: "Discover Confess+ Premium",
+    profile_premium_description: "Get unlimited access to Deep Insights AI, extended responses and an ad-free experience.",
+    profile_you_are_premium: "You are a Premium member!",
+    profile_premium_thanks: "You enjoy all Confess+ benefits. Thank you for your support! 💜",
+    profile_no_confessions: "You haven't posted any confessions yet.",
+    
+    ucl_no_confessions: "You haven't posted any confessions yet.",
+    
+    common_back: "Back",
+    common_error: "Error",
   },
   es: {
     app_name: "Confess+",
