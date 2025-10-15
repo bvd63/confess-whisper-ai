@@ -11,6 +11,7 @@ import { Settings, Download, Trash2, LogOut, Loader2, Shield } from "lucide-reac
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,6 +34,7 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const handleExportData = async () => {
     setIsExporting(true);
@@ -109,16 +111,16 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
       await supabase.auth.signOut();
       
       toast({
-        title: "Cont șters",
-        description: "Contul tău a fost șters permanent.",
+        title: t.success_deleted,
+        description: t.delete_account_description,
       });
 
       navigate('/');
     } catch (error) {
       console.error('Error deleting account:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut șterge contul. Te rugăm să ne contactezi.",
+        title: t.error_generic,
+        description: t.error_delete,
         variant: "destructive",
       });
     } finally {
@@ -134,10 +136,10 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
           <DialogHeader>
             <DialogTitle className="text-2xl flex items-center gap-2">
               <Settings className="w-6 h-6 text-primary" />
-              Setări Cont
+              {t.settings}
             </DialogTitle>
             <DialogDescription>
-              Gestionează datele și contul tău
+              {t.delete_account_description}
             </DialogDescription>
           </DialogHeader>
 
@@ -150,10 +152,10 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-foreground mb-1">
-                    Exportă datele tale
+                    {t.export_data}
                   </h3>
                   <p className="text-sm text-muted-foreground mb-3">
-                    Descarcă toate datele tale într-un fișier JSON (GDPR)
+                    {t.export_data}
                   </p>
                   <Button
                     onClick={handleExportData}
@@ -164,12 +166,12 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
                     {isExporting ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Exportare...
+                        {t.submitting}
                       </>
                     ) : (
                       <>
                         <Download className="w-4 h-4 mr-2" />
-                        Exportă date
+                        {t.export_data}
                       </>
                     )}
                   </Button>
@@ -185,10 +187,10 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-foreground mb-1">
-                    Confidențialitate
+                    {t.privacy_policy}
                   </h3>
                   <p className="text-sm text-muted-foreground mb-3">
-                    Vezi cum îți protejăm datele
+                    {t.privacy_policy}
                   </p>
                   <Button
                     onClick={() => {
@@ -198,7 +200,7 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
                     variant="outline"
                     size="sm"
                   >
-                    Politica de confidențialitate
+                    {t.privacy_policy}
                   </Button>
                 </div>
               </div>
@@ -212,10 +214,10 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-foreground mb-1">
-                    Șterge contul
+                    {t.delete_account}
                   </h3>
                   <p className="text-sm text-muted-foreground mb-3">
-                    Șterge permanent contul și toate datele asociate
+                    {t.delete_account_description}
                   </p>
                   <Button
                     onClick={() => setShowDeleteConfirm(true)}
@@ -223,7 +225,7 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
                     size="sm"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Șterge cont
+                    {t.delete_account}
                   </Button>
                 </div>
               </div>
@@ -235,14 +237,13 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Ești absolut sigur?</AlertDialogTitle>
+            <AlertDialogTitle>{t.delete_confirm}</AlertDialogTitle>
             <AlertDialogDescription>
-              Această acțiune nu poate fi anulată. Acest lucru va șterge permanent
-              contul tău și va elimina datele de pe serverele noastre.
+              {t.delete_warning}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Anulează</AlertDialogCancel>
+            <AlertDialogCancel>{t.skip}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteAccount}
               disabled={isDeleting}
@@ -251,10 +252,10 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
               {isDeleting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Ștergere...
+                  {t.deleting}
                 </>
               ) : (
-                'Șterge definitiv'
+                t.delete_confirm
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

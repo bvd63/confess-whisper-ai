@@ -33,7 +33,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
     const validation = confessionSchema.safeParse({ content });
     if (!validation.success) {
       toast({
-        title: "Validare eșuată",
+        title: t.error_generic,
         description: validation.error.errors[0].message,
         variant: "destructive",
       });
@@ -56,8 +56,8 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
       // Check if content is safe
       if (moderationData && !moderationData.is_safe) {
         toast({
-          title: "Conținut inadecvat detectat",
-          description: moderationData.reason || "Confesiunea ta conține conținut care nu respectă regulile comunității.",
+          title: t.toast_flagged,
+          description: moderationData.reason || t.toast_flagged,
           variant: "destructive",
         });
         setIsSubmitting(false);
@@ -79,8 +79,8 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
       
       if (!user) {
         toast({
-          title: "Eroare de autentificare",
-          description: "Trebuie să fii autentificat pentru a posta.",
+          title: t.error_auth,
+          description: t.error_auth,
           variant: "destructive",
         });
         return;
@@ -97,8 +97,8 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
       if (dbError) throw dbError;
 
       toast({
-        title: "Confesiune trimisă! 💜",
-        description: "Răspunsul AI a fost generat.",
+        title: t.success_sent,
+        description: t.ai_reply_title,
       });
 
       // Wait a bit to show the AI response
@@ -112,8 +112,8 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
     } catch (error) {
       console.error('Error submitting confession:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut trimite confesiunea. Încearcă din nou.",
+        title: t.error_generic,
+        description: t.error_submit,
         variant: "destructive",
       });
     } finally {

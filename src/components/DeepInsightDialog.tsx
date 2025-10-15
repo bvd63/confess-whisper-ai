@@ -58,8 +58,8 @@ const DeepInsightDialog = ({
       if (updateError) throw updateError;
 
       toast({
-        title: "Deep Insight generat! ✨",
-        description: "Analiza psihologică profundă este gata.",
+        title: t.deep_insight_success,
+        description: t.deep_insight_description,
       });
 
       onInsightGenerated();
@@ -67,8 +67,8 @@ const DeepInsightDialog = ({
     } catch (error) {
       console.error('Error generating deep insight:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut genera Deep Insight. Încearcă din nou.",
+        title: t.error_generic,
+        description: t.error_generic,
         variant: "destructive",
       });
     } finally {
@@ -82,10 +82,10 @@ const DeepInsightDialog = ({
         <DialogHeader>
           <DialogTitle className="text-2xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent flex items-center gap-2">
             <Sparkles className="w-6 h-6 text-primary" />
-            Deep Insight AI
+            {t.deep_insight_title}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Analiză psihologică profundă și perspectivă empatică extinsă.
+            {t.deep_insight_description}
           </DialogDescription>
         </DialogHeader>
 
@@ -103,7 +103,7 @@ const DeepInsightDialog = ({
             <div className="p-5 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg border border-primary/20 animate-slide-up">
               <div className="flex items-center gap-2 mb-3 text-primary">
                 <Sparkles className="w-5 h-5" />
-                <span className="font-medium">Analiză Profundă</span>
+                <span className="font-medium">{t.deep_insight_title}</span>
               </div>
               <p className="text-foreground/90 leading-relaxed whitespace-pre-line">
                 {insight}
@@ -115,17 +115,17 @@ const DeepInsightDialog = ({
                 <div className="space-y-4">
                   <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
                     <Crown className="w-4 h-4 text-primary" />
-                    <span className="text-sm text-primary font-medium">Feature Premium</span>
+                    <span className="text-sm text-primary font-medium">{t.premium_feature}</span>
                   </div>
                   <p className="text-muted-foreground text-sm">
-                    Deep Insight este disponibil doar pentru utilizatorii Premium.
+                    {t.deep_insight_premium}
                   </p>
                   <Button
                     onClick={onUpgradeClick}
                     className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
                   >
                     <Crown className="w-4 h-4 mr-2" />
-                    Upgrade la Premium
+                    {t.premium_upgrade}
                   </Button>
                 </div>
               ) : (
@@ -137,12 +137,12 @@ const DeepInsightDialog = ({
                   {isGenerating ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Se generează...
+                      {t.submitting}
                     </>
                   ) : (
                     <>
                       <Sparkles className="w-4 h-4 mr-2" />
-                      Generează Deep Insight
+                      {t.generate_insight}
                     </>
                   )}
                 </Button>

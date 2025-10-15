@@ -139,8 +139,8 @@ const Index = () => {
     } catch (error) {
       console.error('Error loading confessions:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut încărca confesiunile.",
+        title: t.error_generic,
+        description: t.error_load,
         variant: "destructive",
       });
     } finally {
@@ -152,8 +152,8 @@ const Index = () => {
     if (!user) {
       navigate('/auth');
       toast({
-        title: "Autentificare necesară",
-        description: "Creează un cont pentru a posta confesiuni.",
+        title: t.error_auth,
+        description: t.error_auth,
       });
       return;
     }
@@ -166,8 +166,8 @@ const Index = () => {
     await supabase.auth.signOut();
     setUser(null);
     toast({
-      title: "La revedere! 👋",
-      description: "Te-ai deconectat cu succes.",
+      title: t.success_logout,
+      description: t.success_logout,
     });
   };
 
@@ -183,14 +183,14 @@ const Index = () => {
       trackEvent('confession_reported', { confession_id: id });
 
       toast({
-        title: "Raportare trimisă",
-        description: "Vom verifica această confesiune. Mulțumim!",
+        title: t.success_reported,
+        description: t.success_reported,
       });
     } catch (error) {
       console.error('Error reporting confession:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut raporta confesiunea.",
+        title: t.error_generic,
+        description: t.error_generic,
         variant: "destructive",
       });
     }
@@ -240,10 +240,10 @@ const Index = () => {
             <ThemeToggle />
             {user ? (
               <>
-                {isPremium && (
+              {isPremium && (
                   <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-primary/20 to-primary/10 rounded-full border border-primary/30">
                     <Crown className="w-4 h-4 text-primary" />
-                    <span className="text-xs font-medium text-primary">Premium</span>
+                    <span className="text-xs font-medium text-primary">{t.premium_member}</span>
                   </div>
                 )}
                 <Button
@@ -394,17 +394,17 @@ const Index = () => {
               onClick={() => navigate('/privacy')}
               className="hover:text-primary transition-colors"
             >
-              Politica de Confidențialitate
+              {t.privacy_policy}
             </button>
             <button
               onClick={() => navigate('/terms')}
               className="hover:text-primary transition-colors"
             >
-              Termeni și Condiții
+              {t.terms_of_service}
             </button>
           </div>
           <p className="text-xs text-muted-foreground mt-3">
-            © 2025 Confess.AI. Toate drepturile rezervate.
+            © 2025 {t.app_name}. {t.all_rights_reserved}
           </p>
         </div>
       </footer>
