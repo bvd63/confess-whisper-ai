@@ -363,6 +363,13 @@ type Translations = {
   notification_like: string;
   notification_comment: string;
   notification_new: string;
+  
+  // Bookmarks
+  bookmarks_title: string;
+  bookmarks_add: string;
+  bookmarks_remove: string;
+  bookmarks_none: string;
+  bookmarks_saved: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -485,6 +492,13 @@ export const translations: Record<Language, Translations> = {
     notification_like: "liked your confession",
     notification_comment: "commented on your confession",
     notification_new: "New",
+    
+    // Bookmarks
+    bookmarks_title: "Saved",
+    bookmarks_add: "Save",
+    bookmarks_remove: "Remove",
+    bookmarks_none: "No saved confessions",
+    bookmarks_saved: "Saved to bookmarks",
     
     achievements_title: "Achievements",
     achievements_unlocked: "unlocked",
@@ -829,6 +843,13 @@ export const translations: Record<Language, Translations> = {
     notification_comment: "comentó en tu confesión",
     notification_new: "Nueva",
     
+    // Bookmarks
+    bookmarks_title: "Guardadas",
+    bookmarks_add: "Guardar",
+    bookmarks_remove: "Eliminar",
+    bookmarks_none: "Sin confesiones guardadas",
+    bookmarks_saved: "Guardado en marcadores",
+    
     achievements_title: "Logros",
     achievements_unlocked: "desbloqueados",
     achievement_first_confession: "Primera Confesión",
@@ -1171,6 +1192,13 @@ export const translations: Record<Language, Translations> = {
     notification_like: "hat dein Geständnis geliked",
     notification_comment: "hat dein Geständnis kommentiert",
     notification_new: "Neu",
+    
+    // Bookmarks
+    bookmarks_title: "Gespeichert",
+    bookmarks_add: "Speichern",
+    bookmarks_remove: "Entfernen",
+    bookmarks_none: "Keine gespeicherten Geständnisse",
+    bookmarks_saved: "In Lesezeichen gespeichert",
     
     achievements_title: "Errungenschaften",
     achievements_unlocked: "freigeschaltet",

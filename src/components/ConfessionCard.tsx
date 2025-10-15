@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { MessageCircle, AlertCircle, Sparkles, Heart, Share2, Tag } from "lucide-react";
+import { MessageCircle, AlertCircle, Sparkles, Heart, Share2, Tag, Bookmark } from "lucide-react";
 import DeepInsightDialog from "./DeepInsightDialog";
 import ShareDialog from "./ShareDialog";
 import CommentsSection from "./CommentsSection";
@@ -23,17 +23,20 @@ interface ConfessionCardProps {
   };
   isPremium: boolean;
   isLiked?: boolean;
+  isBookmarked?: boolean;
   onReport?: (id: string) => void;
   onUpgradeClick: () => void;
   onInsightGenerated: () => void;
   onLikeChange?: () => void;
   onCommentChange?: () => void;
+  onBookmarkChange?: () => void;
 }
 
-const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, onReport, onUpgradeClick, onInsightGenerated, onLikeChange, onCommentChange }: ConfessionCardProps) => {
+const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBookmarked: initialIsBookmarked, onReport, onUpgradeClick, onInsightGenerated, onLikeChange, onCommentChange, onBookmarkChange }: ConfessionCardProps) => {
   const [isDeepInsightOpen, setIsDeepInsightOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isLiked, setIsLiked] = useState(initialIsLiked || false);
+  const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked || false);
   const [likesCount, setLikesCount] = useState(confession.likes_count || 0);
   const [commentsCount, setCommentsCount] = useState(confession.comments_count || 0);
   const { toast } = useToast();
@@ -117,6 +120,63 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, onRepo
     setIsShareOpen(true);
   };
 
+  const handleBookmark = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: t.error_auth,
+          description: t.error_auth,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const newBookmarked = !isBookmarked;
+      
+      if (newBookmarked) {
+        // Add bookmark
+        const { error } = await supabase
+          .from('bookmarks')
+          .insert({
+            user_id: user.id,
+            confession_id: confession.id,
+          });
+        
+        if (error) throw error;
+        setIsBookmarked(true);
+        toast({
+          title: t.bookmarks_saved,
+          description: t.bookmarks_add,
+        });
+      } else {
+        // Remove bookmark
+        const { error } = await supabase
+          .from('bookmarks')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('confession_id', confession.id);
+        
+        if (error) throw error;
+        setIsBookmarked(false);
+        toast({
+          title: t.success_deleted,
+          description: t.bookmarks_remove,
+        });
+      }
+      
+      onBookmarkChange?.();
+    } catch (error) {
+      console.error('Error updating bookmark:', error);
+      toast({
+        title: t.error_generic,
+        description: t.error_generic,
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Card className="p-5 mb-4 bg-gradient-to-br from-card to-muted/30 border-border/50 shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-glow)] transition-all duration-300 animate-fade-in">
       <div className="flex items-start justify-between mb-3">
@@ -164,6 +224,15 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, onRepo
         >
           <Share2 className="w-4 h-4" />
           <span className="text-sm">{t.share}</span>
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleBookmark}
+          className={`h-8 px-3 gap-2 ${isBookmarked ? 'text-primary' : 'text-muted-foreground'} hover:text-primary`}
+        >
+          <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
         </Button>
       </div>
 

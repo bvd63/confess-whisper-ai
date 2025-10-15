@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Heart, PlusCircle, LogOut, Sparkles, Crown, User, TrendingUp, Clock, LogIn, Filter } from "lucide-react";
+import { Heart, PlusCircle, LogOut, Sparkles, Crown, User, TrendingUp, Clock, LogIn, Filter, Bookmark } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ConfessionCard from "@/components/ConfessionCard";
@@ -44,6 +44,7 @@ const Index = () => {
   const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [likedConfessions, setLikedConfessions] = useState<Set<string>>(new Set());
+  const [bookmarkedConfessions, setBookmarkedConfessions] = useState<Set<string>>(new Set());
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -95,8 +96,10 @@ const Index = () => {
     if (user) {
       checkPremiumStatus();
       loadUserLikes();
+      loadUserBookmarks();
     } else {
       setLikedConfessions(new Set());
+      setBookmarkedConfessions(new Set());
     }
   }, [user]);
 
@@ -141,6 +144,24 @@ const Index = () => {
       setLikedConfessions(likedIds);
     } catch (error) {
       console.error('Error loading user likes:', error);
+    }
+  };
+
+  const loadUserBookmarks = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('bookmarks')
+        .select('confession_id')
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      
+      const bookmarkedIds = new Set(data?.map(bookmark => bookmark.confession_id) || []);
+      setBookmarkedConfessions(bookmarkedIds);
+    } catch (error) {
+      console.error('Error loading user bookmarks:', error);
     }
   };
 
@@ -289,6 +310,14 @@ const Index = () => {
                 <Button
                   variant="ghost"
                   size="icon"
+                  onClick={() => navigate('/bookmarks')}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <Bookmark className="w-5 h-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={() => navigate('/profile')}
                   className="text-muted-foreground hover:text-foreground"
                 >
@@ -402,11 +431,13 @@ const Index = () => {
                 confession={confession}
                 isPremium={isPremium}
                 isLiked={likedConfessions.has(confession.id)}
+                isBookmarked={bookmarkedConfessions.has(confession.id)}
                 onReport={handleReport}
                 onUpgradeClick={() => setIsPremiumDialogOpen(true)}
                 onInsightGenerated={loadConfessions}
                 onLikeChange={loadUserLikes}
                 onCommentChange={loadConfessions}
+                onBookmarkChange={loadUserBookmarks}
               />
             ))}
           </div>
