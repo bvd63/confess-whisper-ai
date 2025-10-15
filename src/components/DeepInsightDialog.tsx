@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, Loader2, Crown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface DeepInsightDialogProps {
   open: boolean;
@@ -29,6 +30,7 @@ const DeepInsightDialog = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const [insight, setInsight] = useState(confession.ai_deep_insight || "");
   const { toast } = useToast();
+  const { language, t } = useLanguage();
 
   const generateDeepInsight = async () => {
     if (!isPremium) {
@@ -39,7 +41,7 @@ const DeepInsightDialog = ({
     setIsGenerating(true);
     try {
       const { data: aiData, error: aiError } = await supabase.functions.invoke('ai-confession-response', {
-        body: { confession: confession.content, type: 'deep' }
+        body: { confession: confession.content, type: 'deep', language }
       });
 
       if (aiError) throw aiError;

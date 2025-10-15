@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Heart, PlusCircle, LogOut, Sparkles, Crown, User, TrendingUp, Clock, LogIn } from "lucide-react";
+import { LanguageSelector } from "@/components/LanguageSelector";
+import { useLanguage } from "@/contexts/LanguageContext";
 import ConfessionCard from "@/components/ConfessionCard";
 import NewConfessionDialog from "@/components/NewConfessionDialog";
 import PremiumDialog from "@/components/PremiumDialog";
@@ -30,6 +32,7 @@ interface Confession {
 const Index = () => {
   const navigate = useNavigate();
   const { trackEvent } = useAnalytics();
+  const { t } = useLanguage();
   const [confessions, setConfessions] = useState<Confession[]>([]);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
@@ -228,11 +231,12 @@ const Index = () => {
           <div className="flex items-center gap-2">
             <Heart className="w-6 h-6 text-primary" fill="currentColor" />
             <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-              Confess.AI
+              {t.app_name}
             </h1>
           </div>
           
           <div className="flex items-center gap-2">
+            <LanguageSelector />
             <ThemeToggle />
             {user ? (
               <>
@@ -247,7 +251,7 @@ const Index = () => {
                   className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-[var(--shadow-soft)]"
                 >
                   <PlusCircle className="w-4 h-4 mr-2" />
-                  Confessionează
+                  {t.new_confession}
                 </Button>
                 <Button
                   variant="ghost"
@@ -273,7 +277,7 @@ const Index = () => {
                 className="border-primary/30 hover:bg-primary/10"
               >
                 <LogIn className="w-4 h-4 mr-2" />
-                Autentificare
+                {t.login}
               </Button>
             )}
           </div>

@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { content } = await req.json();
+    const { content, language = 'ro' } = await req.json();
     
     if (!content) {
       throw new Error('Content is required');
@@ -22,21 +22,30 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    console.log('Moderating content...');
+    console.log('Moderating content in language:', language);
 
-    const systemPrompt = `Tu ești un moderator AI care verifică dacă un text conține:
-- Conținut violent sau amenințător
-- Limbaj extrem de ofensator sau discriminatoriu
-- Incitare la vătămare de sine sau altora
-- Spam sau promovare comercială agresivă
+    const languageInstructions: Record<string, string> = {
+      en: 'Respond in English',
+      es: 'Responde en español',
+      de: 'Antworte auf Deutsch',
+      ro: 'Răspunde în română'
+    };
 
-Răspunde DOAR cu un JSON în următorul format:
+    const systemPrompt = `You are an AI moderator checking if text contains:
+- Violent or threatening content
+- Extremely offensive or discriminatory language
+- Incitement to self-harm or harm to others
+- Spam or aggressive commercial promotion
+
+${languageInstructions[language]}.
+
+Respond ONLY with JSON in this format:
 {
   "is_safe": true/false,
-  "reason": "scurtă explicație în română dacă e unsafe"
+  "reason": "brief explanation if unsafe"
 }
 
-IMPORTANT: Confesiunile pot conține emoții negative, frustrări sau tristețe - acestea sunt OK și normale. Marchează ca unsafe DOAR conținutul cu adevărat periculos.`;
+IMPORTANT: Confessions can contain negative emotions, frustrations or sadness - these are OK and normal. Mark as unsafe ONLY truly dangerous content.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',

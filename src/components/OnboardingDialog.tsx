@@ -2,6 +2,8 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Heart, Shield, Sparkles, ArrowRight } from "lucide-react";
 import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageSelector } from "@/components/LanguageSelector";
 
 interface OnboardingDialogProps {
   open: boolean;
@@ -10,24 +12,25 @@ interface OnboardingDialogProps {
 
 const OnboardingDialog = ({ open, onComplete }: OnboardingDialogProps) => {
   const [step, setStep] = useState(0);
+  const { t } = useLanguage();
 
   const steps = [
     {
       icon: Heart,
-      title: "Bine ai venit la Confess+",
-      description: "Un spațiu sigur unde poți împărtăși orice te apasă, în deplină anonimitate.",
+      title: t.welcome_title,
+      description: t.welcome_description,
       gradient: "from-primary/20 to-primary/10",
     },
     {
       icon: Shield,
-      title: "100% Anonim și Sigur",
-      description: "Identitatea ta rămâne complet confidențială. Nu stocăm nicio informație personală în confesiuni.",
+      title: t.anonymous_secure,
+      description: t.anonymous_description,
       gradient: "from-blue-500/20 to-blue-500/10",
     },
     {
       icon: Sparkles,
-      title: "Suport AI Empatic",
-      description: "Primești răspunsuri empatice generate de AI și, cu Premium, insights psihologice profunde.",
+      title: t.ai_support,
+      description: t.ai_description,
       gradient: "from-purple-500/20 to-purple-500/10",
     },
   ];
@@ -46,8 +49,10 @@ const OnboardingDialog = ({ open, onComplete }: OnboardingDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-md"
-      >
+      <DialogContent className="sm:max-w-md">
+        <div className="absolute top-4 right-4">
+          <LanguageSelector />
+        </div>
         <div className="py-6 space-y-6 text-center">
           {/* Icon */}
           <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br ${currentStep.gradient} animate-fade-in`}>
@@ -84,14 +89,14 @@ const OnboardingDialog = ({ open, onComplete }: OnboardingDialogProps) => {
                 variant="ghost"
                 className="flex-1"
               >
-                Skip
+                {t.skip}
               </Button>
             )}
             <Button
               onClick={handleNext}
               className={`${isLastStep ? 'flex-1' : 'flex-1'} bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 gap-2`}
             >
-              {isLastStep ? "Începe" : "Următorul"}
+              {isLastStep ? t.get_started : t.next}
               <ArrowRight className="w-4 h-4" />
             </Button>
           </div>

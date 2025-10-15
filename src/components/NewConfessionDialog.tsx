@@ -6,6 +6,7 @@ import { Loader2, Send, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const confessionSchema = z.object({
   content: z.string()
@@ -25,6 +26,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const { toast } = useToast();
+  const { language, t } = useLanguage();
 
   const handleSubmit = async () => {
     // Validate input
@@ -43,7 +45,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
     try {
       // Step 1: Moderate content first
       const { data: moderationData, error: moderationError } = await supabase.functions.invoke('ai-moderation', {
-        body: { content }
+        body: { content, language }
       });
 
       if (moderationError) {
@@ -64,7 +66,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
 
       // Step 2: Get AI response
       const { data: aiData, error: aiError } = await supabase.functions.invoke('ai-confession-response', {
-        body: { confession: content, type: 'basic' }
+        body: { confession: content, type: 'basic', language }
       });
 
       if (aiError) throw aiError;
@@ -124,16 +126,16 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
       <DialogContent className="sm:max-w-[500px] bg-gradient-to-br from-card to-background border-primary/20">
         <DialogHeader>
           <DialogTitle className="text-2xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-            Împărtășește-ți gândurile
+            {t.new_confession}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Scrie anonim ce simți. AI-ul îți va oferi un răspuns empatic.
+            {t.placeholder_confession}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <Textarea
-            placeholder="Scrie aici ce ai pe suflet..."
+            placeholder={t.placeholder_confession}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             className="min-h-[150px] resize-none border-primary/20 focus:border-primary/40 bg-background/50"
@@ -144,7 +146,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
             <div className="p-4 bg-primary/10 rounded-lg border border-primary/20 animate-slide-up">
               <div className="flex items-center gap-2 mb-2 text-primary">
                 <Sparkles className="w-4 h-4" />
-                <span className="text-sm font-medium">Răspuns AI</span>
+                <span className="text-sm font-medium">{t.ai_reply_title}</span>
               </div>
               <p className="text-sm text-foreground/90 leading-relaxed italic">
                 {aiResponse}
@@ -160,12 +162,12 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
             {isSubmitting ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Se procesează...
+                {t.submitting}
               </>
             ) : (
               <>
                 <Send className="w-4 h-4 mr-2" />
-                Trimite confesiunea
+                {t.submit}
               </>
             )}
           </Button>

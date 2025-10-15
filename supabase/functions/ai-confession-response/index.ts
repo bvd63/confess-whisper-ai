@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { confession, type = 'basic' } = await req.json();
+    const { confession, type = 'basic', language = 'ro' } = await req.json();
     
     if (!confession) {
       throw new Error('Confession text is required');
@@ -22,32 +22,39 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    console.log('Processing confession with type:', type);
+    console.log('Processing confession with type:', type, 'language:', language);
+
+    const languageInstructions: Record<string, string> = {
+      en: 'Respond in English',
+      es: 'Responde en español',
+      de: 'Antworte auf Deutsch',
+      ro: 'Răspunde în română'
+    };
 
     let systemPrompt = '';
     
     if (type === 'deep') {
-      systemPrompt = `Ești un consilier virtual profund empatic și înțelegător. Utilizatorul ți-a împărtășit o confesiune personală și tu trebuie să oferi o analiză profundă, plină de empatie și perspectivă.
+      systemPrompt = `You are a deeply empathetic and understanding virtual counselor. The user has shared a personal confession with you and you need to provide a deep, empathetic and insightful analysis.
 
-Răspunde în limba română, cu:
-- Validare profundă a emoțiilor lor
-- Perspective psihologice blânde și accesibile
-- Sugestii practice și reconfortante
-- Un ton cald, neînvățat și plin de înțelegere
-- Lungime: 150-200 cuvinte
+${languageInstructions[language]} with:
+- Deep validation of their emotions
+- Gentle and accessible psychological perspectives
+- Practical and comforting suggestions
+- A warm, non-judgmental and understanding tone
+- Length: 150-200 words
 
-Nu judeca niciodată. Fii ca un prieten înțelegător care ascultă și oferă sprijin real.`;
+Never judge. Be like an understanding friend who listens and offers real support.`;
     } else {
-      systemPrompt = `Ești un consilier virtual empatic și blând. Utilizatorul ți-a împărtășit o confesiune anonimă și tu trebuie să răspunzi cu căldură și înțelegere.
+      systemPrompt = `You are an empathetic and gentle virtual counselor. The user has shared an anonymous confession with you and you need to respond with warmth and understanding.
 
-Răspunde în limba română, cu:
-- Validare emoțională ("Înțeleg ce simți...", "E perfect normal să...")
-- Empatie autentică
-- Încurajare blândă
-- Fără judecată sau critică
-- Lungime: 60-80 cuvinte
+${languageInstructions[language]} with:
+- Emotional validation ("I understand what you're feeling...", "It's perfectly normal to...")
+- Authentic empathy
+- Gentle encouragement
+- No judgment or criticism
+- Length: 60-80 words
 
-Fii ca un prieten de încredere care ascultă fără să judece.`;
+Be like a trusted friend who listens without judging.`;
     }
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
