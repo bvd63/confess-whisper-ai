@@ -19,11 +19,13 @@ import FollowStats from "@/components/FollowStats";
 import StreakReminder from "@/components/StreakReminder";
 import AchievementToast from "@/components/AchievementToast";
 import AdvancedAnalytics from "@/components/AdvancedAnalytics";
+import ExportDataDialog from "@/components/ExportDataDialog";
 
 const Profile = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { user } = useCurrentUser();
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -100,9 +102,25 @@ const Profile = () => {
 
           <TabsContent value="settings" className="space-y-6">
             <UserPreferences userId={user.id} />
+            
+            <div className="pt-4">
+              <Button 
+                onClick={() => setExportDialogOpen(true)}
+                variant="outline"
+                className="w-full"
+              >
+                Exportă datele mele
+              </Button>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
+
+      <ExportDataDialog 
+        open={exportDialogOpen}
+        onOpenChange={setExportDialogOpen}
+        userId={user.id}
+      />
     </div>
   );
 };

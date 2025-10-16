@@ -13,6 +13,7 @@ import NotificationsDropdown from "@/components/NotificationsDropdown";
 import DailyPrompt from "@/components/DailyPrompt";
 import Leaderboard from "@/components/Leaderboard";
 import RecommendedConfessions from "@/components/RecommendedConfessions";
+import SearchBar from "@/components/SearchBar";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,6 +23,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useConfessions } from "@/hooks/useConfessions";
+import { useConfessionSearch } from "@/hooks/useConfessionSearch";
 import { useRateLimitHandler } from "@/components/RateLimitNotification";
 import { useDebounce } from "@/hooks/useDebounce";
 import SEOHead from "@/components/SEOHead";
@@ -45,6 +47,7 @@ const Index = () => {
   const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [viewMode, setViewMode] = useState<'feed' | 'search'>('feed');
   const { toast } = useToast();
   const { RateLimitUI } = useRateLimitHandler();
 
@@ -58,6 +61,9 @@ const Index = () => {
     categoryFilter: debouncedCategoryFilter,
     limit: 20,
   });
+
+  // Search hook
+  const { confessions: searchResults, loading: searchLoading, hasSearched, search, clear: clearSearch } = useConfessionSearch();
 
   useEffect(() => {
     // Track page view
@@ -246,8 +252,31 @@ const Index = () => {
           </p>
         </div>
 
+        {/* Search Bar */}
+        <div className="mb-6 animate-fade-in">
+          <SearchBar 
+            onSearch={(query, filters) => {
+              setViewMode('search');
+              search(query, filters);
+            }}
+          />
+          {hasSearched && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => {
+                setViewMode('feed');
+                clearSearch();
+              }}
+              className="mt-2"
+            >
+              Înapoi la feed
+            </Button>
+          )}
+        </div>
+
         {/* Daily Prompt */}
-        {user && <DailyPrompt />}
+        {user && viewMode === 'feed' && <DailyPrompt />}
 
         {/* Social Proof Stats */}
         <SocialProofStats stats={{}} />
@@ -270,8 +299,8 @@ const Index = () => {
           </div>
         )}
 
-        {/* Filters */}
-        {confessions.length > 0 && (
+        {/* Filters - Show only in feed mode */}
+        {viewMode === 'feed' && confessions.length > 0 && (
           <div className="mb-6 space-y-4 animate-fade-in">
             {/* Category Filter */}
             <div className="flex items-center gap-3 justify-center">
@@ -310,10 +339,10 @@ const Index = () => {
           </div>
         )}
 
-        {/* Confessions Feed */}
+        {/* Confessions Feed or Search Results */}
         <ConfessionFeed
-          confessions={confessions}
-          isLoading={isLoading}
+          confessions={viewMode === 'search' ? searchResults : confessions}
+          isLoading={viewMode === 'search' ? searchLoading : isLoading}
           isPremium={isPremium}
           likedConfessions={likedConfessions}
           bookmarkedConfessions={bookmarkedConfessions}
