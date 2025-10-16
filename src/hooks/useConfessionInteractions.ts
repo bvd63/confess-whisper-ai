@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface UseConfessionInteractionsProps {
@@ -10,17 +10,12 @@ export const useConfessionInteractions = ({ userId }: UseConfessionInteractionsP
   const [bookmarkedConfessions, setBookmarkedConfessions] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (userId) {
-      loadInteractions();
-    } else {
+  const loadInteractions = useCallback(async () => {
+    if (!userId) {
       setLikedConfessions(new Set());
       setBookmarkedConfessions(new Set());
+      return;
     }
-  }, [userId]);
-
-  const loadInteractions = async () => {
-    if (!userId) return;
     
     setIsLoading(true);
     try {
@@ -41,7 +36,11 @@ export const useConfessionInteractions = ({ userId }: UseConfessionInteractionsP
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    loadInteractions();
+  }, [loadInteractions]);
 
   return {
     likedConfessions,

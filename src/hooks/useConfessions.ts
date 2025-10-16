@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Confession {
@@ -27,10 +27,15 @@ export const useConfessions = ({
   const [confessions, setConfessions] = useState<Confession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const retryCountRef = useRef(0);
+  const maxRetries = 3;
 
-  const loadConfessions = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
+  const loadConfessions = useCallback(async (isRetry = false) => {
+    if (!isRetry) {
+      setIsLoading(true);
+      setError(null);
+      retryCountRef.current = 0;
+    }
     
     try {
       let query = supabase
@@ -54,11 +59,21 @@ export const useConfessions = ({
 
       if (queryError) throw queryError;
       setConfessions(data || []);
+      retryCountRef.current = 0; // Reset on success
     } catch (err) {
       console.error('Error loading confessions:', err);
       setError(err as Error);
+      
+      // Retry logic for network errors
+      if (retryCountRef.current < maxRetries) {
+        retryCountRef.current++;
+        console.log(`Retrying... (${retryCountRef.current}/${maxRetries})`);
+        setTimeout(() => loadConfessions(true), 1000 * retryCountRef.current);
+      }
     } finally {
-      setIsLoading(false);
+      if (!isRetry || retryCountRef.current >= maxRetries) {
+        setIsLoading(false);
+      }
     }
   }, [sortBy, categoryFilter, limit]);
 
