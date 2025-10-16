@@ -53,89 +53,97 @@ const AppHeader = ({ onNewConfession }: AppHeaderProps) => {
 
   return (
     <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-lg border-b border-border/50 shadow-[var(--shadow-soft)]">
-      <div className="w-full mx-auto px-4 py-4 flex items-center justify-between max-w-7xl">
-        <div className="flex items-center gap-2">
-          <Heart className="w-6 h-6 text-primary" fill="currentColor" />
+      <div className="w-full mx-auto px-4 py-4 grid grid-cols-3 items-center gap-4 max-w-7xl">
+        {/* Left section - Logo */}
+        <div className="flex items-center gap-2 justify-start">
+          <Heart className="w-6 h-6 text-primary flex-shrink-0" fill="currentColor" />
           <h1 
-            className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent cursor-pointer"
+            className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent cursor-pointer whitespace-nowrap"
             onClick={() => navigate('/')}
           >
             {t.app_name}
           </h1>
         </div>
         
-        <div className="flex items-center gap-2">
+        {/* Center section - Navigation (only if user logged in) */}
+        <div className="flex items-center justify-center">
+          {user && (
+            <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/')}
+                className={cn(
+                  "text-muted-foreground hover:text-foreground transition-colors",
+                  isActive('/') && "bg-accent text-foreground"
+                )}
+                title={t.home_title}
+              >
+                <Home className="w-5 h-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/bookmarks')}
+                className={cn(
+                  "text-muted-foreground hover:text-foreground transition-colors",
+                  isActive('/bookmarks') && "bg-accent text-foreground"
+                )}
+                title={t.bookmarks_title}
+              >
+                <BookMarked className="w-5 h-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/following')}
+                className={cn(
+                  "text-muted-foreground hover:text-foreground transition-colors",
+                  isActive('/following') && "bg-accent text-foreground"
+                )}
+                title={t.ui_following_feed}
+              >
+                <Users className="w-5 h-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/profile')}
+                className={cn(
+                  "text-muted-foreground hover:text-foreground transition-colors",
+                  isActive('/profile') && "bg-accent text-foreground"
+                )}
+                title={t.profile_title}
+              >
+                <User className="w-5 h-5" />
+              </Button>
+            </div>
+          )}
+        </div>
+        
+        {/* Right section - Actions */}
+        <div className="flex items-center gap-2 justify-end">
           <LanguageSelector />
           <ThemeToggle />
           
           {user ? (
             <>
-              <div className="flex items-center gap-1 ml-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate('/')}
-                  className={cn(
-                    "text-muted-foreground hover:text-foreground transition-colors",
-                    isActive('/') && "bg-accent text-foreground"
-                  )}
-                  title={t.home_title}
-                >
-                  <Home className="w-5 h-5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate('/bookmarks')}
-                  className={cn(
-                    "text-muted-foreground hover:text-foreground transition-colors",
-                    isActive('/bookmarks') && "bg-accent text-foreground"
-                  )}
-                  title={t.bookmarks_title}
-                >
-                  <BookMarked className="w-5 h-5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate('/following')}
-                  className={cn(
-                    "text-muted-foreground hover:text-foreground transition-colors",
-                    isActive('/following') && "bg-accent text-foreground"
-                  )}
-                  title={t.ui_following_feed}
-                >
-                  <Users className="w-5 h-5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate('/profile')}
-                  className={cn(
-                    "text-muted-foreground hover:text-foreground transition-colors",
-                    isActive('/profile') && "bg-accent text-foreground"
-                  )}
-                  title={t.profile_title}
-                >
-                  <User className="w-5 h-5" />
-                </Button>
-              </div>
-              
-              <div className="w-px h-6 bg-border mx-2" />
+              <div className="w-px h-6 bg-border" />
               
               {isPremium && (
-                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-primary/20 to-primary/10 rounded-full border border-primary/30">
-                  <Crown className="w-4 h-4 text-primary" />
-                  <span className="text-xs font-medium text-primary">{t.premium_member}</span>
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-primary/20 to-primary/10 rounded-full border border-primary/30 whitespace-nowrap">
+                  <Crown className="w-4 h-4 text-primary flex-shrink-0" />
+                  <span className="text-xs font-medium text-primary hidden lg:inline">{t.premium_member}</span>
                 </div>
               )}
               
               <Button
                 onClick={handleNewConfession}
-                className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-[var(--shadow-soft)]"
+                size="sm"
+                className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-[var(--shadow-soft)] whitespace-nowrap"
               >
-                <PlusCircle className="w-4 h-4 mr-2" />
-                {t.new_confession}
+                <PlusCircle className="w-4 h-4 lg:mr-2" />
+                <span className="hidden lg:inline">{t.new_confession}</span>
               </Button>
               
               <StreakCounter userId={user.id} variant="compact" />
@@ -146,7 +154,7 @@ const AppHeader = ({ onNewConfession }: AppHeaderProps) => {
                 variant="ghost"
                 size="icon"
                 onClick={handleSignOut}
-                className="text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground flex-shrink-0"
                 title={t.success_logout}
               >
                 <LogOut className="w-4 h-4" />
