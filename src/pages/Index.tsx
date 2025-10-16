@@ -162,23 +162,23 @@ const Index = () => {
       <AppLayout onNewConfession={handleNewConfession}>
 
       {/* Main Content */}
-      <main className="container max-w-2xl mx-auto px-4 py-8">
+      <main className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
         {/* Welcome Section */}
-        <div className="mb-8 text-center animate-fade-in">
-          <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm text-primary font-medium">{t.anonymous_secure}</span>
+        <div className="mb-6 sm:mb-8 text-center animate-fade-in">
+          <div className="inline-flex items-center gap-2 mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 rounded-full border border-primary/20">
+            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
+            <span className="text-xs sm:text-sm text-primary font-medium">{t.anonymous_secure}</span>
           </div>
-          <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent px-4">
             {t.home_title}
           </h2>
-          <p className="text-muted-foreground max-w-lg mx-auto">
+          <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-4">
             {t.welcome_description}
           </p>
         </div>
 
         {/* Search Bar */}
-        <div className="mb-6 animate-fade-in">
+        <div className="mb-4 sm:mb-6 animate-fade-in">
           <SearchBar 
             onSearch={(query, filters) => {
               setViewMode('search');
@@ -205,25 +205,29 @@ const Index = () => {
 
         {/* Follow Stats */}
         {user && viewMode === 'feed' && (
-          <div className="mb-6">
+          <div className="mb-4 sm:mb-6">
             <FollowStats userId={user.id} />
           </div>
         )}
 
         {/* Social Proof Stats */}
-        <SocialProofStats stats={{}} />
+        <div className="hidden sm:block">
+          <SocialProofStats stats={{}} />
+        </div>
 
         {/* Leaderboard */}
-        <div className="my-6">
+        <div className="my-4 sm:my-6">
           <Leaderboard />
         </div>
 
         {/* Feature Highlights */}
-        <FeatureHighlight />
+        <div className="hidden sm:block">
+          <FeatureHighlight />
+        </div>
 
         {/* Recommended Confessions */}
         {user && (
-          <div className="my-6">
+          <div className="my-4 sm:my-6">
             <RecommendedConfessions 
               userId={user.id} 
               currentCategory={categoryFilter !== 'all' ? categoryFilter : undefined}
@@ -233,15 +237,15 @@ const Index = () => {
 
         {/* Filters - Show only in feed mode */}
         {viewMode === 'feed' && confessions.length > 0 && (
-          <div className="mb-6 space-y-4 animate-fade-in">
+          <div className="mb-4 sm:mb-6 space-y-3 sm:space-y-4 animate-fade-in">
             {/* Category Filter */}
-            <div className="flex items-center gap-3 justify-center">
-              <Filter className="w-4 h-4 text-muted-foreground" />
+            <div className="flex items-center gap-2 sm:gap-3 justify-center px-2">
+              <Filter className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground flex-shrink-0" />
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-[200px] border-primary/20 focus:border-primary/40 bg-background/50">
+                <SelectTrigger className="w-full sm:w-[200px] border-primary/20 focus:border-primary/40 bg-background/50 h-9 text-sm">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-50 bg-background">
                   <SelectItem value="all">{t.all_categories}</SelectItem>
                   <SelectItem value="relationships">{t.category_relationships}</SelectItem>
                   <SelectItem value="work">{t.category_work}</SelectItem>
@@ -254,16 +258,16 @@ const Index = () => {
             </div>
             
             {/* Sort Tabs */}
-            <div className="flex justify-center">
+            <div className="flex justify-center px-2">
               <Tabs value={sortBy} onValueChange={(value) => setSortBy(value as 'recent' | 'popular')} className="w-full max-w-md">
-                <TabsList className="grid w-full grid-cols-2 bg-muted/50">
-                  <TabsTrigger value="recent" className="flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    {t.ui_recent}
+                <TabsList className="grid w-full grid-cols-2 bg-muted/50 h-9">
+                  <TabsTrigger value="recent" className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+                    <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden xs:inline">{t.ui_recent}</span>
                   </TabsTrigger>
-                  <TabsTrigger value="popular" className="flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4" />
-                    {t.ui_popular}
+                  <TabsTrigger value="popular" className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+                    <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden xs:inline">{t.ui_popular}</span>
                   </TabsTrigger>
                 </TabsList>
               </Tabs>

@@ -76,22 +76,22 @@ const Profile = () => {
     <AppLayout>
       <AchievementToast userId={user.id} />
       
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="flex items-center gap-3 mb-8">
-          <User className="h-8 w-8 text-primary" />
-          <h1 className="text-4xl font-bold">{t.profile_title}</h1>
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-4xl">
+        <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
+          <User className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">{t.profile_title}</h1>
         </div>
 
         <StreakReminder userId={user.id} />
 
-        <Tabs defaultValue="statistics" className="space-y-6 mt-6">
-          <TabsList className={`grid w-full ${isModerator ? 'grid-cols-6' : 'grid-cols-5'}`}>
-            <TabsTrigger value="statistics">{t.profile_statistics}</TabsTrigger>
-            <TabsTrigger value="confessions">{t.profile_my_confessions}</TabsTrigger>
-            <TabsTrigger value="achievements">{t.profile_achievements}</TabsTrigger>
-            <TabsTrigger value="mood">{t.profile_moods}</TabsTrigger>
-            <TabsTrigger value="settings">{t.profile_settings}</TabsTrigger>
-            {isModerator && <TabsTrigger value="moderation">{t.profile_moderation}</TabsTrigger>}
+        <Tabs defaultValue="statistics" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+          <TabsList className={`grid w-full ${isModerator ? 'grid-cols-3 sm:grid-cols-6' : 'grid-cols-2 sm:grid-cols-5'} h-auto`}>
+            <TabsTrigger value="statistics" className="text-xs sm:text-sm py-2">{t.profile_statistics}</TabsTrigger>
+            <TabsTrigger value="confessions" className="text-xs sm:text-sm py-2">{t.profile_my_confessions}</TabsTrigger>
+            <TabsTrigger value="achievements" className="text-xs sm:text-sm py-2">{t.profile_achievements}</TabsTrigger>
+            <TabsTrigger value="mood" className="text-xs sm:text-sm py-2">{t.profile_moods}</TabsTrigger>
+            <TabsTrigger value="settings" className="text-xs sm:text-sm py-2">{t.profile_settings}</TabsTrigger>
+            {isModerator && <TabsTrigger value="moderation" className="text-xs sm:text-sm py-2">{t.profile_moderation}</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="statistics" className="space-y-6">
