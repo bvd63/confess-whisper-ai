@@ -25,12 +25,15 @@ const SubscriptionCard = ({
   onSubscribe,
   loading 
 }: SubscriptionCardProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const isCurrentPlan = currentTier === plan.name.toLowerCase();
   const isPremium = plan.name === "Premium";
   const isVIP = plan.name === "VIP";
   
   const price = billingCycle === "monthly" ? plan.price_monthly : plan.price_yearly;
+  const locale = language === 'es' ? 'es-ES' : language === 'de' ? 'de-DE' : 'en-US';
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat(locale, { style: 'currency', currency: 'RON', maximumFractionDigits: 0 }).format(amount);
   const displayPrice = billingCycle === "monthly" 
     ? (price / 100).toFixed(0)
     : (price / 100 / 12).toFixed(0);
@@ -62,7 +65,7 @@ const SubscriptionCard = ({
           </div>
           {billingCycle === "yearly" && (
             <p className="text-sm text-muted-foreground mt-1">
-              {t.subscription_billed_yearly} ({(price / 100).toFixed(0)} RON/an)
+              {t.subscription_billed_yearly} ({formatCurrency(price / 100)} {t.subscription_per_year})
             </p>
           )}
         </div>

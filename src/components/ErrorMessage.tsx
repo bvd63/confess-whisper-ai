@@ -8,12 +8,9 @@ interface ErrorMessageProps {
   onRetry?: () => void;
 }
 
-const ErrorMessage = ({ 
-  title = "Oops! Ceva nu a mers bine", 
-  message,
-  onRetry 
-}: ErrorMessageProps) => {
+const ErrorMessage = ({ title, message, onRetry }: ErrorMessageProps) => {
   const { t } = useLanguage();
+  const resolvedTitle = title ?? t.error_something_wrong;
   
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-12 px-4">
@@ -22,7 +19,7 @@ const ErrorMessage = ({
       </div>
       
       <div className="text-center space-y-2 max-w-md">
-        <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+        <h3 className="text-lg font-semibold text-foreground">{resolvedTitle}</h3>
         <p className="text-sm text-muted-foreground">{message}</p>
       </div>
 
