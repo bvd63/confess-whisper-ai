@@ -20,12 +20,15 @@ import StreakReminder from "@/components/StreakReminder";
 import AchievementToast from "@/components/AchievementToast";
 import AdvancedAnalytics from "@/components/AdvancedAnalytics";
 import ExportDataDialog from "@/components/ExportDataDialog";
+import ModerationPanel from "@/components/ModerationPanel";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const Profile = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { user } = useCurrentUser();
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const { isModerator } = useUserRole(user?.id);
 
   useEffect(() => {
     checkAuth();
@@ -69,12 +72,13 @@ const Profile = () => {
         <StreakReminder userId={user.id} />
 
         <Tabs defaultValue="statistics" className="space-y-6 mt-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className={`grid w-full ${isModerator ? 'grid-cols-6' : 'grid-cols-5'}`}>
             <TabsTrigger value="statistics">{t.profile_statistics}</TabsTrigger>
             <TabsTrigger value="confessions">{t.profile_my_confessions}</TabsTrigger>
             <TabsTrigger value="achievements">Realizări</TabsTrigger>
             <TabsTrigger value="mood">Stări</TabsTrigger>
             <TabsTrigger value="settings">Setări</TabsTrigger>
+            {isModerator && <TabsTrigger value="moderation">Moderare</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="statistics" className="space-y-6">
@@ -113,6 +117,12 @@ const Profile = () => {
               </Button>
             </div>
           </TabsContent>
+
+          {isModerator && (
+            <TabsContent value="moderation" className="space-y-6">
+              <ModerationPanel userId={user.id} />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
 

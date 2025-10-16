@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import MoodTracker from "@/components/MoodTracker";
 import ImageUpload from "@/components/ImageUpload";
+import DraftManager from "@/components/DraftManager";
 
 const confessionSchema = z.object({
   content: z.string()
@@ -33,9 +34,55 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [aiResponse, setAiResponse] = useState<string | null>(null);
+  const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
   const { user } = useCurrentUser();
   const { toast } = useToast();
   const { language, t } = useLanguage();
+
+  // Auto-save draft every 5 seconds
+  useEffect(() => {
+    if (!user || !content.trim() || content.length < 10) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        if (currentDraftId) {
+          // Update existing draft
+          await supabase
+            .from('confession_drafts')
+            .update({
+              content: content.trim(),
+              category,
+              mood: mood?.mood,
+              mood_intensity: mood?.intensity,
+              image_url: imageUrl,
+            })
+            .eq('id', currentDraftId);
+        } else {
+          // Create new draft
+          const { data } = await supabase
+            .from('confession_drafts')
+            .insert({
+              user_id: user.id,
+              content: content.trim(),
+              category,
+              mood: mood?.mood,
+              mood_intensity: mood?.intensity,
+              image_url: imageUrl,
+            })
+            .select()
+            .single();
+
+          if (data) {
+            setCurrentDraftId(data.id);
+          }
+        }
+      } catch (error) {
+        console.error('Error auto-saving draft:', error);
+      }
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [content, category, mood, imageUrl, user, currentDraftId]);
 
   const categories = [
     { value: 'relationships', label: t.category_relationships },
@@ -130,6 +177,14 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
         description: t.ai_reply_title,
       });
 
+      // Delete draft if it exists
+      if (currentDraftId) {
+        await supabase
+          .from('confession_drafts')
+          .delete()
+          .eq('id', currentDraftId);
+      }
+
       // Wait a bit to show the AI response
       setTimeout(() => {
         onConfessionCreated();
@@ -138,6 +193,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
         setCategory("other");
         setImageUrl(null);
         setAiResponse(null);
+        setCurrentDraftId(null);
       }, 3000);
 
     } catch (error) {
@@ -165,6 +221,23 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
         </DialogHeader>
 
         <div className="space-y-4 py-4">
+          {user && (
+            <DraftManager
+              userId={user.id}
+              onSelectDraft={(draft) => {
+                setContent(draft.content);
+                setCategory(draft.category);
+                setCurrentDraftId(draft.id);
+                if (draft.mood_intensity) {
+                  setMood({ mood: draft.mood || 'neutral', intensity: draft.mood_intensity });
+                }
+                if (draft.image_url) {
+                  setImageUrl(draft.image_url);
+                }
+              }}
+            />
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="category" className="text-sm font-medium">
               {t.select_category}

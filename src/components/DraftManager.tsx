@@ -11,6 +11,9 @@ interface Draft {
   id: string;
   content: string;
   category: string;
+  mood?: string | null;
+  mood_intensity?: number | null;
+  image_url?: string | null;
   created_at: string;
   updated_at: string;
 }

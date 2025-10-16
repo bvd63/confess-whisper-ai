@@ -14,11 +14,12 @@ import { useNavigate } from "react-router-dom";
 
 interface Notification {
   id: string;
-  type: 'like' | 'comment' | 'deep_insight';
+  type: 'like' | 'comment' | 'deep_insight' | 'follow' | 'badge_earned' | 'streak_milestone';
   confession_id: string;
   comment_content?: string;
   is_read: boolean;
   created_at: string;
+  triggered_by?: string;
 }
 
 const NotificationsDropdown = () => {
@@ -140,6 +141,12 @@ const NotificationsDropdown = () => {
         return t.notification_like;
       case 'comment':
         return t.notification_comment;
+      case 'follow':
+        return 'a început să te urmărească';
+      case 'badge_earned':
+        return 'ai câștigat un badge nou!';
+      case 'streak_milestone':
+        return 'ai atins un nou milestone!';
       default:
         return '';
     }

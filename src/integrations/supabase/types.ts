@@ -236,6 +236,9 @@ export type Database = {
           is_private: boolean | null
           is_reported: boolean | null
           likes_count: number | null
+          moderated_at: string | null
+          moderated_by: string | null
+          moderation_status: string | null
           shared_count: number | null
           updated_at: string
           user_id: string | null
@@ -255,6 +258,9 @@ export type Database = {
           is_private?: boolean | null
           is_reported?: boolean | null
           likes_count?: number | null
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_status?: string | null
           shared_count?: number | null
           updated_at?: string
           user_id?: string | null
@@ -274,6 +280,9 @@ export type Database = {
           is_private?: boolean | null
           is_reported?: boolean | null
           likes_count?: number | null
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_status?: string | null
           shared_count?: number | null
           updated_at?: string
           user_id?: string | null
@@ -304,6 +313,48 @@ export type Database = {
           prompt_text?: string
         }
         Relationships: []
+      }
+      moderation_logs: {
+        Row: {
+          action: string
+          confession_id: string | null
+          created_at: string
+          id: string
+          moderator_id: string
+          reason: string | null
+        }
+        Insert: {
+          action: string
+          confession_id?: string | null
+          created_at?: string
+          id?: string
+          moderator_id: string
+          reason?: string | null
+        }
+        Update: {
+          action?: string
+          confession_id?: string | null
+          created_at?: string
+          id?: string
+          moderator_id?: string
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moderation_logs_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "confessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moderation_logs_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "trending_confessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       mood_entries: {
         Row: {
@@ -616,6 +667,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_streaks: {
         Row: {
           created_at: string | null
@@ -723,6 +795,13 @@ export type Database = {
         }
         Returns: number
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       increment_share_count: {
         Args: { confession_id: string }
         Returns: undefined
@@ -733,7 +812,14 @@ export type Database = {
       }
     }
     Enums: {
-      notification_type: "like" | "comment" | "deep_insight"
+      app_role: "admin" | "moderator" | "user"
+      notification_type:
+        | "like"
+        | "comment"
+        | "deep_insight"
+        | "follow"
+        | "badge_earned"
+        | "streak_milestone"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -861,7 +947,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      notification_type: ["like", "comment", "deep_insight"],
+      app_role: ["admin", "moderator", "user"],
+      notification_type: [
+        "like",
+        "comment",
+        "deep_insight",
+        "follow",
+        "badge_earned",
+        "streak_milestone",
+      ],
     },
   },
 } as const
