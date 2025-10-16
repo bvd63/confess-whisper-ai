@@ -1,14 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { MessageCircle, AlertCircle, Sparkles, Heart, Share2, Tag, Bookmark, Trash2 } from "lucide-react";
+import { MessageCircle, Sparkles, Tag } from "lucide-react";
 import DeepInsightDialog from "./DeepInsightDialog";
 import ShareDialog from "./ShareDialog";
 import CommentsSection from "./CommentsSection";
+import ConfessionActions from "./ConfessionActions";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 interface ConfessionCardProps {
   confession: {
@@ -36,22 +38,10 @@ interface ConfessionCardProps {
 const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBookmarked: initialIsBookmarked, onReport, onUpgradeClick, onInsightGenerated, onLikeChange, onCommentChange, onBookmarkChange }: ConfessionCardProps) => {
   const [isDeepInsightOpen, setIsDeepInsightOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
-  const [isLiked, setIsLiked] = useState(initialIsLiked || false);
-  const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked || false);
-  const [likesCount, setLikesCount] = useState(confession.likes_count || 0);
   const [commentsCount, setCommentsCount] = useState(confession.comments_count || 0);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const { user } = useCurrentUser();
   const { toast } = useToast();
   const { t } = useLanguage();
-
-  // Check current user on mount
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setCurrentUserId(user?.id || null);
-    };
-    checkUser();
-  }, []);
   
   const getCategoryLabel = (category: string) => {
     const categoryMap: Record<string, string> = {
@@ -76,120 +66,8 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
     return `${Math.floor(diffInMinutes / 1440)}z`;
   };
 
-  const handleLike = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast({
-          title: t.error_auth,
-          description: t.error_auth,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const newLiked = !isLiked;
-      
-      if (newLiked) {
-        // Add like
-        const { error } = await supabase
-          .from('user_likes')
-          .insert({
-            user_id: user.id,
-            confession_id: confession.id,
-          });
-        
-        if (error) throw error;
-        setIsLiked(true);
-        setLikesCount(prev => prev + 1);
-      } else {
-        // Remove like
-        const { error } = await supabase
-          .from('user_likes')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('confession_id', confession.id);
-        
-        if (error) throw error;
-        setIsLiked(false);
-        setLikesCount(prev => Math.max(0, prev - 1));
-      }
-      
-      onLikeChange?.();
-    } catch (error) {
-      console.error('Error updating like:', error);
-      toast({
-        title: t.error_generic,
-        description: t.error_generic,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleShare = () => {
-    setIsShareOpen(true);
-  };
-
-  const handleBookmark = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast({
-          title: t.error_auth,
-          description: t.error_auth,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const newBookmarked = !isBookmarked;
-      
-      if (newBookmarked) {
-        // Add bookmark
-        const { error } = await supabase
-          .from('bookmarks')
-          .insert({
-            user_id: user.id,
-            confession_id: confession.id,
-          });
-        
-        if (error) throw error;
-        setIsBookmarked(true);
-        toast({
-          title: t.bookmarks_saved,
-          description: t.bookmarks_add,
-        });
-      } else {
-        // Remove bookmark
-        const { error } = await supabase
-          .from('bookmarks')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('confession_id', confession.id);
-        
-        if (error) throw error;
-        setIsBookmarked(false);
-        toast({
-          title: t.success_deleted,
-          description: t.bookmarks_remove,
-        });
-      }
-      
-      onBookmarkChange?.();
-    } catch (error) {
-      console.error('Error updating bookmark:', error);
-      toast({
-        title: t.error_generic,
-        description: t.error_generic,
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleDeleteConfession = async () => {
-    if (!currentUserId || confession.user_id !== currentUserId) return;
+    if (!user || confession.user_id !== user.id) return;
 
     try {
       const { error } = await supabase
@@ -227,28 +105,6 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
             {getCategoryLabel(confession.category)}
           </Badge>
         </div>
-        <div className="flex items-center gap-2">
-          {currentUserId === confession.user_id && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleDeleteConfession}
-              className="h-8 px-2 text-muted-foreground hover:text-destructive"
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          )}
-          {onReport && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onReport(confession.id)}
-              className="h-8 px-2 text-muted-foreground hover:text-destructive"
-            >
-              <AlertCircle className="w-4 h-4" />
-            </Button>
-          )}
-        </div>
       </div>
 
       <p className="text-foreground leading-relaxed mb-4">
@@ -256,36 +112,19 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
       </p>
 
       {/* Interaction Buttons */}
-      <div className="flex items-center gap-3 mb-3">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleLike}
-          className={`h-8 px-3 gap-2 ${isLiked ? 'text-primary' : 'text-muted-foreground'} hover:text-primary`}
-        >
-          <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
-          <span className="text-sm">{likesCount}</span>
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleShare}
-          className="h-8 px-3 gap-2 text-muted-foreground hover:text-primary"
-        >
-          <Share2 className="w-4 h-4" />
-          <span className="text-sm">{t.share}</span>
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleBookmark}
-          className={`h-8 px-3 gap-2 ${isBookmarked ? 'text-primary' : 'text-muted-foreground'} hover:text-primary`}
-        >
-          <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
-        </Button>
-      </div>
+      <ConfessionActions
+        confessionId={confession.id}
+        confessionUserId={confession.user_id}
+        currentUserId={user?.id || null}
+        likesCount={confession.likes_count || 0}
+        isLiked={initialIsLiked || false}
+        isBookmarked={initialIsBookmarked || false}
+        onLikeChange={onLikeChange || (() => {})}
+        onBookmarkChange={onBookmarkChange || (() => {})}
+        onShare={() => setIsShareOpen(true)}
+        onReport={onReport}
+        onDelete={handleDeleteConfession}
+      />
 
       {confession.ai_response && (
         <>
