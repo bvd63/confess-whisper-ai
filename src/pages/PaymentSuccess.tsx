@@ -4,19 +4,37 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CheckCircle, Crown, Sparkles } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { toast } = useToast();
 
   useEffect(() => {
+    // Check subscription status immediately after successful payment
+    const checkSubscription = async () => {
+      try {
+        await supabase.functions.invoke('check-subscription');
+        toast({
+          title: "Abonament activat!",
+          description: "Beneficiile tale Premium sunt acum active",
+        });
+      } catch (error) {
+        console.error('Error checking subscription:', error);
+      }
+    };
+
+    checkSubscription();
+
     // Auto-redirect after 5 seconds
     const timer = setTimeout(() => {
-      navigate("/");
+      navigate("/profile");
     }, 5000);
 
     return () => clearTimeout(timer);
-  }, [navigate]);
+  }, [navigate, toast]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-background flex items-center justify-center p-4">
@@ -51,14 +69,14 @@ const PaymentSuccess = () => {
         </div>
 
         <Button
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/profile")}
           className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
         >
-          {t.payment_success_explore}
+          Vezi profilul tău Premium
         </Button>
 
         <p className="text-xs text-muted-foreground mt-4">
-          {t.payment_redirect_info}
+          Vei fi redirecționat automat în câteva secunde...
         </p>
       </Card>
     </div>
