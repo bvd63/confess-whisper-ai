@@ -130,7 +130,7 @@ const ImageUpload = ({ onImageUploaded, onImageRemoved, currentImage, disabled }
         <div className="relative rounded-lg overflow-hidden border border-primary/20">
           <img
             src={preview}
-            alt="Preview"
+            alt={t.ui_image_preview}
             className="w-full h-48 object-cover"
           />
           <Button

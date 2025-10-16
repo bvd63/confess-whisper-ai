@@ -19,7 +19,7 @@ interface StreakData {
 const StreakCounter = ({ userId, variant = "compact" }: StreakCounterProps) => {
   const [streak, setStreak] = useState<StreakData | null>(null);
   const [loading, setLoading] = useState(true);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     loadStreak();
@@ -79,7 +79,9 @@ const StreakCounter = ({ userId, variant = "compact" }: StreakCounterProps) => {
 
       {streak.last_confession_date && (
         <p className="text-xs text-muted-foreground text-center mt-4">
-          {t.streak_last_confession} {new Date(streak.last_confession_date).toLocaleDateString()}
+          {t.streak_last_confession} {new Date(streak.last_confession_date).toLocaleDateString(
+            language === 'es' ? 'es-ES' : language === 'de' ? 'de-DE' : 'en-US'
+          )}
         </p>
       )}
     </Card>

@@ -97,7 +97,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         <div className="mb-4 rounded-lg overflow-hidden">
           <img
             src={confession.image_url}
-            alt="Confession attachment"
+            alt={t.ui_confession_image}
             className={`w-full max-h-[400px] object-cover ${confession.image_blurred ? 'blur-lg' : ''}`}
           />
         </div>

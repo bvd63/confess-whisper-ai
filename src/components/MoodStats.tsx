@@ -34,7 +34,7 @@ const moodIcons: Record<string, any> = {
 };
 
 const MoodStats = ({ userId }: MoodStatsProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [moodData, setMoodData] = useState<MoodData[]>([]);
   const [timelineData, setTimelineData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -82,8 +82,9 @@ const MoodStats = ({ userId }: MoodStatsProps) => {
       .order('created_at', { ascending: true });
 
     if (timeline) {
+      const locale = language === 'es' ? 'es-ES' : language === 'de' ? 'de-DE' : 'en-US';
       const dailyMood = timeline.map(entry => ({
-        date: new Date(entry.created_at).toLocaleDateString(undefined, { 
+        date: new Date(entry.created_at).toLocaleDateString(locale, { 
           month: 'short', 
           day: 'numeric' 
         }),

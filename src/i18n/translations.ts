@@ -698,6 +698,12 @@ type Translations = {
   error_try_again_desc: string;
   error_reload_page: string;
   error_retry: string;
+  ui_previous: string;
+  ui_next: string;
+  ui_toggle_sidebar: string;
+  ui_image_preview: string;
+  ui_confession_image: string;
+  ui_following_feed: string;
   follow_connections: string;
   follow_following: string;
   follow_followers: string;
@@ -1352,6 +1358,12 @@ export const translations: Record<Language, Translations> = {
     error_try_again_desc: "Try again",
     error_reload_page: "Reload Page",
     error_retry: "Try Again",
+    ui_previous: "Previous",
+    ui_next: "Next",
+    ui_toggle_sidebar: "Toggle Sidebar",
+    ui_image_preview: "Image preview",
+    ui_confession_image: "Confession image",
+    ui_following_feed: "Following Feed",
     follow_connections: "Connections",
     follow_following: "Following",
     follow_followers: "Followers",
@@ -2006,6 +2018,12 @@ export const translations: Record<Language, Translations> = {
     error_try_again_desc: "Intentar nuevamente",
     error_reload_page: "Recargar Página",
     error_retry: "Intentar Nuevamente",
+    ui_previous: "Anterior",
+    ui_next: "Siguiente",
+    ui_toggle_sidebar: "Alternar barra lateral",
+    ui_image_preview: "Vista previa de imagen",
+    ui_confession_image: "Imagen de confesión",
+    ui_following_feed: "Feed de seguidos",
     follow_connections: "Conexiones",
     follow_following: "Siguiendo",
     follow_followers: "Seguidores",
@@ -2660,6 +2678,12 @@ export const translations: Record<Language, Translations> = {
     error_try_again_desc: "Erneut versuchen",
     error_reload_page: "Seite Neu Laden",
     error_retry: "Erneut Versuchen",
+    ui_previous: "Zurück",
+    ui_next: "Weiter",
+    ui_toggle_sidebar: "Seitenleiste umschalten",
+    ui_image_preview: "Bildvorschau",
+    ui_confession_image: "Geständnisbild",
+    ui_following_feed: "Verfolgte Feed",
     follow_connections: "Verbindungen",
     follow_following: "Folge ich",
     follow_followers: "Follower",

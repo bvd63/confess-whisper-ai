@@ -33,7 +33,7 @@ const CommentThread = ({
   const [replyContent, setReplyContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const handleReply = async () => {
     if (!currentUserId) {
@@ -89,7 +89,9 @@ const CommentThread = ({
             <div key={reply.id} className="text-sm">
               <p className="text-muted-foreground">{reply.content}</p>
               <span className="text-xs text-muted-foreground">
-                {new Date(reply.created_at).toLocaleDateString()}
+                {new Date(reply.created_at).toLocaleDateString(
+                  language === 'es' ? 'es-ES' : language === 'de' ? 'de-DE' : 'en-US'
+                )}
               </span>
             </div>
           ))}

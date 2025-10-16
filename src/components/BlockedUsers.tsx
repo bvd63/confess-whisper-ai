@@ -20,7 +20,7 @@ const BlockedUsers = ({ userId }: BlockedUsersProps) => {
   const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     loadBlockedUsers();
@@ -99,7 +99,9 @@ const BlockedUsers = ({ userId }: BlockedUsersProps) => {
               <div>
                 <p className="text-sm font-medium">{t.blocked_users_anonymous}</p>
                 <p className="text-xs text-muted-foreground">
-                  {t.blocked_on} {new Date(block.created_at).toLocaleDateString()}
+                  {t.blocked_on} {new Date(block.created_at).toLocaleDateString(
+                    language === 'es' ? 'es-ES' : language === 'de' ? 'de-DE' : 'en-US'
+                  )}
                 </p>
               </div>
             </div>

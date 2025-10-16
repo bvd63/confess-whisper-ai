@@ -10,7 +10,7 @@ interface AdvancedAnalyticsProps {
 }
 
 const AdvancedAnalytics = ({ userId }: AdvancedAnalyticsProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [categoryData, setCategoryData] = useState<any[]>([]);
   const [timelineData, setTimelineData] = useState<any[]>([]);
   const [engagementData, setEngagementData] = useState<any[]>([]);
@@ -54,10 +54,12 @@ const AdvancedAnalytics = ({ userId }: AdvancedAnalyticsProps) => {
           return confDate === dateStr;
         }).length;
 
-        last7Days.push({
-          date: date.toLocaleDateString(undefined, { weekday: 'short' }),
-          [t.analytics_confessions]: count,
-        });
+      const locale = language === 'es' ? 'es-ES' : language === 'de' ? 'de-DE' : 'en-US';
+      
+      last7Days.push({
+        date: date.toLocaleDateString(locale, { weekday: 'short' }),
+        [t.analytics_confessions]: count,
+      });
       }
       setTimelineData(last7Days);
 

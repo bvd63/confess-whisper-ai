@@ -39,7 +39,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
   const [selectedConfession, setSelectedConfession] = useState<Confession | null>(null);
   const [moderationReason, setModerationReason] = useState("");
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     checkUserRole();
@@ -222,7 +222,9 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
                         <div className="flex items-center gap-4 text-xs text-muted-foreground">
                           <span>{t.moderation_category_label}: {confession.category}</span>
                           <span>
-                            {new Date(confession.created_at).toLocaleDateString()}
+                            {new Date(confession.created_at).toLocaleDateString(
+                              language === 'es' ? 'es-ES' : language === 'de' ? 'de-DE' : 'en-US'
+                            )}
                           </span>
                         </div>
                       </div>

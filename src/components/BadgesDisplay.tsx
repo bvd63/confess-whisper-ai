@@ -34,7 +34,7 @@ interface UserBadge {
 
 const BadgesDisplay = ({ userId, variant = "compact" }: BadgesDisplayProps) => {
   const [badges, setBadges] = useState<UserBadge[]>([]);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -111,7 +111,9 @@ const BadgesDisplay = ({ userId, variant = "compact" }: BadgesDisplayProps) => {
               <p className="font-semibold text-sm">{userBadge.badges.name}</p>
               <p className="text-xs text-muted-foreground">{userBadge.badges.description}</p>
               <p className="text-xs text-muted-foreground mt-1">
-                {t.badges_earned_on} {new Date(userBadge.earned_at).toLocaleDateString()}
+                {t.badges_earned_on} {new Date(userBadge.earned_at).toLocaleDateString(
+                  language === 'es' ? 'es-ES' : language === 'de' ? 'de-DE' : 'en-US'
+                )}
               </p>
             </div>
           </div>

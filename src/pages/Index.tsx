@@ -208,7 +208,7 @@ const Index = () => {
                   size="icon"
                   onClick={() => navigate('/following')}
                   className="text-muted-foreground hover:text-foreground"
-                  title="Feed personalizat"
+                  title={t.ui_following_feed}
                 >
                   <Users className="w-5 h-5" />
                 </Button>
