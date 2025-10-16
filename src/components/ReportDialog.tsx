@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ReportDialogProps {
   open: boolean;
@@ -15,28 +16,29 @@ interface ReportDialogProps {
   userId: string | null;
 }
 
-const reportReasons = [
-  { value: 'spam', label: 'Spam sau publicitate' },
-  { value: 'harassment', label: 'Hărțuire sau bullying' },
-  { value: 'hate_speech', label: 'Discurs de ură' },
-  { value: 'violence', label: 'Violență sau amenințări' },
-  { value: 'adult_content', label: 'Conținut pentru adulți' },
-  { value: 'misinformation', label: 'Dezinformare' },
-  { value: 'personal_info', label: 'Informații personale' },
-  { value: 'other', label: 'Altceva' },
-];
-
 const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialogProps) => {
+  const { t } = useLanguage();
   const [selectedReason, setSelectedReason] = useState("");
   const [details, setDetails] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
+  
+  const reportReasons = [
+    { value: 'spam', label: 'Spam or advertising' },
+    { value: 'harassment', label: 'Harassment or bullying' },
+    { value: 'hate_speech', label: 'Hate speech' },
+    { value: 'violence', label: 'Violence or threats' },
+    { value: 'adult_content', label: 'Adult content' },
+    { value: 'misinformation', label: 'Misinformation' },
+    { value: 'personal_info', label: 'Personal information' },
+    { value: 'other', label: 'Other' },
+  ];
 
   const handleSubmit = async () => {
     if (!userId) {
       toast({
-        title: "Autentificare necesară",
-        description: "Trebuie să fii autentificat pentru a raporta",
+        title: t.auth_error,
+        description: t.auth_error_generic,
         variant: "destructive",
       });
       return;
@@ -44,8 +46,8 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
 
     if (!selectedReason) {
       toast({
-        title: "Selectează un motiv",
-        description: "Te rog selectează motivul raportării",
+        title: t.common_error,
+        description: "Please select a reason",
         variant: "destructive",
       });
       return;
@@ -64,8 +66,8 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
 
       if (existing) {
         toast({
-          title: "Deja raportat",
-          description: "Ai raportat deja această confesiune",
+          title: "Already reported",
+          description: "You already reported this confession",
           variant: "destructive",
         });
         setSubmitting(false);
@@ -93,8 +95,8 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
       if (updateError) throw updateError;
 
       toast({
-        title: "Raport trimis",
-        description: "Mulțumim pentru raport. Echipa noastră va investiga.",
+        title: t.success_reported,
+        description: "Thank you for your report. Our team will investigate.",
       });
 
       onOpenChange(false);
@@ -103,8 +105,8 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
     } catch (error) {
       console.error('Error submitting report:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut trimite raportul",
+        title: t.common_error,
+        description: "Could not submit report",
         variant: "destructive",
       });
     } finally {
@@ -118,16 +120,16 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-destructive" />
-            Raportează confesiunea
+            {t.report_title}
           </DialogTitle>
           <DialogDescription>
-            Ajută-ne să menținem comunitatea sigură. Raportul tău este anonim.
+            {t.report_description}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-3">
-            <Label className="text-sm font-semibold">Motivul raportării</Label>
+            <Label className="text-sm font-semibold">{t.report_reason_label}</Label>
             <RadioGroup value={selectedReason} onValueChange={setSelectedReason}>
               {reportReasons.map((reason) => (
                 <div key={reason.value} className="flex items-center space-x-2">
@@ -145,11 +147,11 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
 
           <div className="space-y-2">
             <Label htmlFor="details" className="text-sm font-semibold">
-              Detalii adiționale (opțional)
+              Additional details (optional)
             </Label>
             <Textarea
               id="details"
-              placeholder="Oferă mai multe detalii despre problema raportată..."
+              placeholder="Provide more details about the issue..."
               value={details}
               onChange={(e) => setDetails(e.target.value)}
               className="min-h-[100px]"
@@ -164,7 +166,7 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
               disabled={submitting}
               className="flex-1"
             >
-              Anulează
+              Cancel
             </Button>
             <Button
               onClick={handleSubmit}
@@ -175,10 +177,10 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
               {submitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Se trimite...
+                  Submitting...
                 </>
               ) : (
-                'Trimite raportul'
+                'Submit report'
               )}
             </Button>
           </div>

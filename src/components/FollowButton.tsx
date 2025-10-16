@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { UserPlus, UserMinus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
 interface FollowButtonProps {
@@ -14,6 +15,7 @@ const FollowButton = ({ targetUserId, currentUserId }: FollowButtonProps) => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     checkFollowStatus();
@@ -35,8 +37,8 @@ const FollowButton = ({ targetUserId, currentUserId }: FollowButtonProps) => {
   const toggleFollow = async () => {
     if (!currentUserId) {
       toast({
-        title: "Autentificare necesară",
-        description: "Trebuie să fii autentificat pentru a urmări utilizatori",
+        title: t.auth_error,
+        description: t.auth_error_generic,
         variant: "destructive",
       });
       return;
@@ -44,8 +46,8 @@ const FollowButton = ({ targetUserId, currentUserId }: FollowButtonProps) => {
 
     if (currentUserId === targetUserId) {
       toast({
-        title: "Acțiune invalidă",
-        description: "Nu te poți urmări pe tine însuți",
+        title: t.common_error,
+        description: "You cannot follow yourself",
         variant: "destructive",
       });
       return;
@@ -66,8 +68,8 @@ const FollowButton = ({ targetUserId, currentUserId }: FollowButtonProps) => {
 
         setIsFollowing(false);
         toast({
-          title: "Nu mai urmărești",
-          description: "Ai încetat să urmărești acest utilizator",
+          title: "Unfollowed",
+          description: "You stopped following this user",
         });
       } else {
         // Follow
@@ -82,15 +84,15 @@ const FollowButton = ({ targetUserId, currentUserId }: FollowButtonProps) => {
 
         setIsFollowing(true);
         toast({
-          title: "Urmărești acum",
-          description: "Vei vedea confesiunile acestui utilizator în feed",
+          title: t.follow_now_following,
+          description: t.follow_now_following_desc,
         });
       }
     } catch (error) {
       console.error('Error toggling follow:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut finaliza acțiunea",
+        title: t.follow_error,
+        description: t.follow_error_desc,
         variant: "destructive",
       });
     } finally {
@@ -114,12 +116,12 @@ const FollowButton = ({ targetUserId, currentUserId }: FollowButtonProps) => {
       {isFollowing ? (
         <>
           <UserMinus className="w-4 h-4" />
-          Urmărești
+          Following
         </>
       ) : (
         <>
           <UserPlus className="w-4 h-4" />
-          Urmărește
+          Follow
         </>
       )}
     </Button>

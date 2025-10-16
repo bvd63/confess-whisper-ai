@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Flame, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface StreakReminderProps {
   userId: string;
@@ -13,6 +14,7 @@ const StreakReminder = ({ userId }: StreakReminderProps) => {
   const [showReminder, setShowReminder] = useState(false);
   const [streak, setStreak] = useState(0);
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   useEffect(() => {
     checkStreakStatus();
@@ -47,9 +49,9 @@ const StreakReminder = ({ userId }: StreakReminderProps) => {
         </div>
 
         <div className="flex-1">
-          <h4 className="font-semibold mb-1">Menține-ți streak-ul! 🔥</h4>
+          <h4 className="font-semibold mb-1">Keep your streak! 🔥</h4>
           <p className="text-sm text-muted-foreground mb-3">
-            Ai un streak de {streak} zile! Postează o confesiune astăzi pentru a-l păstra.
+            {t.streak_reminder_text.replace('{count}', streak.toString())}
           </p>
 
           <Button 
@@ -57,7 +59,7 @@ const StreakReminder = ({ userId }: StreakReminderProps) => {
             onClick={() => navigate('/')}
             className="bg-orange-500 hover:bg-orange-600"
           >
-            Postează acum
+            {t.streak_post_now}
           </Button>
         </div>
 

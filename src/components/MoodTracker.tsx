@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Smile, Frown, Meh, Angry, Heart, Sparkles } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
 interface MoodTrackerProps {
@@ -8,18 +9,19 @@ interface MoodTrackerProps {
   selectedMood?: string;
 }
 
-const moods = [
-  { value: 'happy', icon: Smile, label: 'Fericit', color: 'text-green-500' },
-  { value: 'sad', icon: Frown, label: 'Trist', color: 'text-blue-500' },
-  { value: 'anxious', icon: Meh, label: 'Anxios', color: 'text-yellow-500' },
-  { value: 'angry', icon: Angry, label: 'Supărat', color: 'text-red-500' },
-  { value: 'neutral', icon: Meh, label: 'Neutru', color: 'text-gray-500' },
-  { value: 'hopeful', icon: Sparkles, label: 'Plin de speranță', color: 'text-purple-500' },
-];
-
 const MoodTracker = ({ onMoodSelect, selectedMood }: MoodTrackerProps) => {
+  const { t } = useLanguage();
   const [mood, setMood] = useState<string | null>(selectedMood || null);
   const [intensity, setIntensity] = useState(3);
+  
+  const moods = [
+    { value: 'happy', icon: Smile, label: 'Happy', color: 'text-green-500' },
+    { value: 'sad', icon: Frown, label: 'Sad', color: 'text-blue-500' },
+    { value: 'anxious', icon: Meh, label: 'Anxious', color: 'text-yellow-500' },
+    { value: 'angry', icon: Angry, label: 'Angry', color: 'text-red-500' },
+    { value: 'neutral', icon: Meh, label: 'Neutral', color: 'text-gray-500' },
+    { value: 'hopeful', icon: Sparkles, label: 'Hopeful', color: 'text-purple-500' },
+  ];
 
   const handleMoodSelect = (moodValue: string) => {
     setMood(moodValue);
@@ -29,7 +31,7 @@ const MoodTracker = ({ onMoodSelect, selectedMood }: MoodTrackerProps) => {
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium">Cum te simți acum?</label>
+        <label className="text-sm font-medium">{t.mood_how_feeling}</label>
         <div className="grid grid-cols-3 gap-2">
           {moods.map(({ value, icon: Icon, label, color }) => (
             <Button
@@ -50,7 +52,7 @@ const MoodTracker = ({ onMoodSelect, selectedMood }: MoodTrackerProps) => {
 
       {mood && (
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium">Intensitate (1-5)</label>
+          <label className="text-sm font-medium">{t.mood_intensity} (1-5)</label>
           <div className="flex gap-2">
             {[1, 2, 3, 4, 5].map((level) => (
               <Button
