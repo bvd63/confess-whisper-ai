@@ -505,6 +505,20 @@ type Translations = {
   badge_perfect_month_desc: string;
   badge_anniversary: string;
   badge_anniversary_desc: string;
+  badge_active_commenter: string;
+  badge_active_commenter_desc: string;
+  badge_sharer: string;
+  badge_sharer_desc: string;
+  badge_avid_reader: string;
+  badge_avid_reader_desc: string;
+  badge_collector: string;
+  badge_collector_desc: string;
+  badge_night_owl: string;
+  badge_night_owl_desc: string;
+  badge_social_butterfly: string;
+  badge_social_butterfly_desc: string;
+  badge_viral_confession: string;
+  badge_viral_confession_desc: string;
   
   // Report Dialog
   report_title: string;
@@ -1025,6 +1039,20 @@ export const translations: Record<Language, Translations> = {
     badge_perfect_month_desc: "You posted 30 consecutive days",
     badge_anniversary: "Anniversary",
     badge_anniversary_desc: "One year on the platform",
+    badge_active_commenter: "Active Commenter",
+    badge_active_commenter_desc: "Posted 50 comments",
+    badge_sharer: "Sharer",
+    badge_sharer_desc: "Shared 25 confessions",
+    badge_avid_reader: "Avid Reader",
+    badge_avid_reader_desc: "Viewed 200 confessions",
+    badge_collector: "Collector",
+    badge_collector_desc: "Saved 30 bookmarks",
+    badge_night_owl: "Night Owl",
+    badge_night_owl_desc: "Posted 20 confessions between 10 PM-6 AM",
+    badge_social_butterfly: "Social Butterfly",
+    badge_social_butterfly_desc: "Has 20 followers",
+    badge_viral_confession: "Viral Confession",
+    badge_viral_confession_desc: "Has a confession with 100+ likes",
     
     report_title: "Report confession",
     report_description: "Help us keep the community safe. Your report is anonymous.",
@@ -1937,6 +1965,20 @@ export const translations: Record<Language, Translations> = {
     badge_perfect_month_desc: "Publicaste 30 días consecutivos",
     badge_anniversary: "Aniversario",
     badge_anniversary_desc: "Un año en la plataforma",
+    badge_active_commenter: "Comentarista Activo",
+    badge_active_commenter_desc: "Publicó 50 comentarios",
+    badge_sharer: "Compartidor",
+    badge_sharer_desc: "Compartió 25 confesiones",
+    badge_avid_reader: "Lector Ávido",
+    badge_avid_reader_desc: "Vio 200 confesiones",
+    badge_collector: "Coleccionista",
+    badge_collector_desc: "Guardó 30 marcadores",
+    badge_night_owl: "Noctámbulo",
+    badge_night_owl_desc: "Publicó 20 confesiones entre las 22:00-6:00",
+    badge_social_butterfly: "Mariposa Social",
+    badge_social_butterfly_desc: "Tiene 20 seguidores",
+    badge_viral_confession: "Confesión Viral",
+    badge_viral_confession_desc: "Tiene una confesión con más de 100 likes",
     
     report_title: "Reportar confesión",
     report_description: "Ayúdanos a mantener la comunidad segura. Tu reporte es anónimo.",
@@ -2630,6 +2672,20 @@ export const translations: Record<Language, Translations> = {
     badge_perfect_month_desc: "Du hast 30 aufeinanderfolgende Tage gepostet",
     badge_anniversary: "Jubiläum",
     badge_anniversary_desc: "Ein Jahr auf der Plattform",
+    badge_active_commenter: "Aktiver Kommentator",
+    badge_active_commenter_desc: "50 Kommentare veröffentlicht",
+    badge_sharer: "Teiler",
+    badge_sharer_desc: "25 Geständnisse geteilt",
+    badge_avid_reader: "Eifriger Leser",
+    badge_avid_reader_desc: "200 Geständnisse angesehen",
+    badge_collector: "Sammler",
+    badge_collector_desc: "30 Lesezeichen gespeichert",
+    badge_night_owl: "Nachteule",
+    badge_night_owl_desc: "20 Geständnisse zwischen 22:00-6:00 Uhr veröffentlicht",
+    badge_social_butterfly: "Geselliger Schmetterling",
+    badge_social_butterfly_desc: "Hat 20 Follower",
+    badge_viral_confession: "Virales Geständnis",
+    badge_viral_confession_desc: "Hat ein Geständnis mit über 100 Likes",
     
     report_title: "Geständnis melden",
     report_description: "Hilf uns, die Community sicher zu halten. Deine Meldung ist anonym.",

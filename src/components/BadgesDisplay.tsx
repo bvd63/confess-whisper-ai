@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { MessageSquare, MessageSquarePlus, Award, Heart, Star, Flame, Trophy, Cake, Lock } from "lucide-react";
+import { MessageSquare, MessageSquarePlus, Award, Heart, Star, Flame, Trophy, Cake, Lock, Share2, Eye, Bookmark, Moon, Users, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -20,6 +20,12 @@ const iconMap: Record<string, any> = {
   Flame,
   Trophy,
   Cake,
+  Share: Share2,
+  Eye,
+  Bookmark,
+  Moon,
+  Users,
+  TrendingUp,
 };
 
 interface BadgeData {
@@ -46,6 +52,13 @@ const badgeTranslationMap: Record<string, { name: string; desc: string }> = {
   'Săptămâna de Foc': { name: 'badge_fire_week', desc: 'badge_fire_week_desc' },
   'Luna Perfectă': { name: 'badge_perfect_month', desc: 'badge_perfect_month_desc' },
   'Aniversare': { name: 'badge_anniversary', desc: 'badge_anniversary_desc' },
+  'Comentator Activ': { name: 'badge_active_commenter', desc: 'badge_active_commenter_desc' },
+  'Împărtășitor': { name: 'badge_sharer', desc: 'badge_sharer_desc' },
+  'Cititor Avid': { name: 'badge_avid_reader', desc: 'badge_avid_reader_desc' },
+  'Colecționar': { name: 'badge_collector', desc: 'badge_collector_desc' },
+  'Nocturn': { name: 'badge_night_owl', desc: 'badge_night_owl_desc' },
+  'Social Butterfly': { name: 'badge_social_butterfly', desc: 'badge_social_butterfly_desc' },
+  'Confesiune Virală': { name: 'badge_viral_confession', desc: 'badge_viral_confession_desc' },
 };
 
 const BadgesDisplay = ({ userId, variant = "compact" }: BadgesDisplayProps) => {
