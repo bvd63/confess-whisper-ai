@@ -61,6 +61,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
 
   const loadConfessions = async () => {
     try {
+      // Get confessions that need moderation (pending status OR reported)
       const { data, error } = await supabase
         .from('confessions')
         .select('*')
@@ -69,7 +70,27 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
         .limit(50);
 
       if (error) throw error;
-      setConfessions(data || []);
+
+      // Get report counts for reported confessions
+      const reportedIds = data?.filter(c => c.is_reported).map(c => c.id) || [];
+      
+      if (reportedIds.length > 0) {
+        const { data: reports } = await supabase
+          .from('confession_reports')
+          .select('confession_id, reason, details, reporter_id')
+          .in('confession_id', reportedIds)
+          .eq('status', 'pending');
+
+        // Add report info to confessions
+        const confessionsWithReports = data?.map(c => {
+          const confessionReports = reports?.filter(r => r.confession_id === c.id) || [];
+          return { ...c, reports: confessionReports };
+        });
+
+        setConfessions(confessionsWithReports || []);
+      } else {
+        setConfessions(data || []);
+      }
     } catch (error) {
       console.error('Error loading confessions:', error);
     } finally {
@@ -90,10 +111,24 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
           moderation_status: action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : 'flagged',
           moderated_by: userId,
           moderated_at: new Date().toISOString(),
+          is_reported: false, // Clear reported flag
         })
         .eq('id', confessionId);
 
       if (updateError) throw updateError;
+
+      // Update all related reports
+      const { error: reportsError } = await supabase
+        .from('confession_reports')
+        .update({
+          status: action === 'approve' ? 'dismissed' : 'resolved',
+          reviewed_by: userId,
+          reviewed_at: new Date().toISOString(),
+        })
+        .eq('confession_id', confessionId)
+        .eq('status', 'pending');
+
+      if (reportsError) throw reportsError;
 
       // Log moderation action
       const { error: logError } = await supabase
@@ -223,7 +258,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
                 Nu există confesiuni raportate
               </p>
             ) : (
-              reportedConfessions.map((confession) => (
+              reportedConfessions.map((confession: any) => (
                 <Card key={confession.id} className="p-4 border-destructive/50">
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-4">
@@ -231,11 +266,32 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
                         <div className="flex items-center gap-2 mb-2">
                           <AlertTriangle className="w-4 h-4 text-destructive" />
                           <span className="text-sm font-semibold text-destructive">
-                            Raportată
+                            Raportată {confession.reports?.length ? `(${confession.reports.length} rapoarte)` : ''}
                           </span>
                         </div>
                         <p className="text-sm mb-2">{confession.content}</p>
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        
+                        {/* Show reports */}
+                        {confession.reports && confession.reports.length > 0 && (
+                          <div className="mt-3 space-y-2">
+                            <p className="text-xs font-semibold text-muted-foreground">Motive:</p>
+                            {confession.reports.slice(0, 3).map((report: any, idx: number) => (
+                              <div key={idx} className="text-xs bg-destructive/10 p-2 rounded">
+                                <p className="font-medium">{report.reason}</p>
+                                {report.details && (
+                                  <p className="text-muted-foreground mt-1">{report.details}</p>
+                                )}
+                              </div>
+                            ))}
+                            {confession.reports.length > 3 && (
+                              <p className="text-xs text-muted-foreground">
+                                +{confession.reports.length - 3} mai multe rapoarte
+                              </p>
+                            )}
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground mt-2">
                           <span>👍 {confession.likes_count}</span>
                           <span>💬 {confession.comments_count}</span>
                         </div>

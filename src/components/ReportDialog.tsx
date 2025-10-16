@@ -1,0 +1,191 @@
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { AlertTriangle, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+
+interface ReportDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  confessionId: string;
+  userId: string | null;
+}
+
+const reportReasons = [
+  { value: 'spam', label: 'Spam sau publicitate' },
+  { value: 'harassment', label: 'Hărțuire sau bullying' },
+  { value: 'hate_speech', label: 'Discurs de ură' },
+  { value: 'violence', label: 'Violență sau amenințări' },
+  { value: 'adult_content', label: 'Conținut pentru adulți' },
+  { value: 'misinformation', label: 'Dezinformare' },
+  { value: 'personal_info', label: 'Informații personale' },
+  { value: 'other', label: 'Altceva' },
+];
+
+const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialogProps) => {
+  const [selectedReason, setSelectedReason] = useState("");
+  const [details, setDetails] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubmit = async () => {
+    if (!userId) {
+      toast({
+        title: "Autentificare necesară",
+        description: "Trebuie să fii autentificat pentru a raporta",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!selectedReason) {
+      toast({
+        title: "Selectează un motiv",
+        description: "Te rog selectează motivul raportării",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      // Check if already reported
+      const { data: existing } = await supabase
+        .from('confession_reports')
+        .select('id')
+        .eq('confession_id', confessionId)
+        .eq('reporter_id', userId)
+        .maybeSingle();
+
+      if (existing) {
+        toast({
+          title: "Deja raportat",
+          description: "Ai raportat deja această confesiune",
+          variant: "destructive",
+        });
+        setSubmitting(false);
+        return;
+      }
+
+      // Create report
+      const { error: reportError } = await supabase
+        .from('confession_reports')
+        .insert({
+          confession_id: confessionId,
+          reporter_id: userId,
+          reason: selectedReason,
+          details: details.trim() || null,
+        });
+
+      if (reportError) throw reportError;
+
+      // Mark confession as reported
+      const { error: updateError } = await supabase
+        .from('confessions')
+        .update({ is_reported: true })
+        .eq('id', confessionId);
+
+      if (updateError) throw updateError;
+
+      toast({
+        title: "Raport trimis",
+        description: "Mulțumim pentru raport. Echipa noastră va investiga.",
+      });
+
+      onOpenChange(false);
+      setSelectedReason("");
+      setDetails("");
+    } catch (error) {
+      console.error('Error submitting report:', error);
+      toast({
+        title: "Eroare",
+        description: "Nu am putut trimite raportul",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-destructive" />
+            Raportează confesiunea
+          </DialogTitle>
+          <DialogDescription>
+            Ajută-ne să menținem comunitatea sigură. Raportul tău este anonim.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-4">
+          <div className="space-y-3">
+            <Label className="text-sm font-semibold">Motivul raportării</Label>
+            <RadioGroup value={selectedReason} onValueChange={setSelectedReason}>
+              {reportReasons.map((reason) => (
+                <div key={reason.value} className="flex items-center space-x-2">
+                  <RadioGroupItem value={reason.value} id={reason.value} />
+                  <Label
+                    htmlFor={reason.value}
+                    className="text-sm font-normal cursor-pointer"
+                  >
+                    {reason.label}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="details" className="text-sm font-semibold">
+              Detalii adiționale (opțional)
+            </Label>
+            <Textarea
+              id="details"
+              placeholder="Oferă mai multe detalii despre problema raportată..."
+              value={details}
+              onChange={(e) => setDetails(e.target.value)}
+              className="min-h-[100px]"
+              disabled={submitting}
+            />
+          </div>
+
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={submitting}
+              className="flex-1"
+            >
+              Anulează
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              disabled={submitting || !selectedReason}
+              variant="destructive"
+              className="flex-1"
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Se trimite...
+                </>
+              ) : (
+                'Trimite raportul'
+              )}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default ReportDialog;

@@ -14,6 +14,7 @@ import DailyPrompt from "@/components/DailyPrompt";
 import Leaderboard from "@/components/Leaderboard";
 import RecommendedConfessions from "@/components/RecommendedConfessions";
 import SearchBar from "@/components/SearchBar";
+import CoinsDisplay from "@/components/CoinsDisplay";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
@@ -180,15 +181,16 @@ const Index = () => {
                     <span className="text-xs font-medium text-primary">{t.premium_member}</span>
                   </div>
                 )}
-                <Button
-                  onClick={handleNewConfession}
-                  className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-[var(--shadow-soft)]"
-                >
-                  <PlusCircle className="w-4 h-4 mr-2" />
-                  {t.new_confession}
-                </Button>
-                <NotificationsDropdown />
-                <Button
+                  <Button
+                    onClick={handleNewConfession}
+                    className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-[var(--shadow-soft)]"
+                  >
+                    <PlusCircle className="w-4 h-4 mr-2" />
+                    {t.new_confession}
+                  </Button>
+                  <CoinsDisplay userId={user.id} variant="compact" />
+                  <NotificationsDropdown />
+                  <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => navigate('/bookmarks')}

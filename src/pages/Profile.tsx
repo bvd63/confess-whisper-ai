@@ -21,6 +21,8 @@ import AchievementToast from "@/components/AchievementToast";
 import AdvancedAnalytics from "@/components/AdvancedAnalytics";
 import ExportDataDialog from "@/components/ExportDataDialog";
 import ModerationPanel from "@/components/ModerationPanel";
+import CoinsDisplay from "@/components/CoinsDisplay";
+import BlockedUsers from "@/components/BlockedUsers";
 import { useUserRole } from "@/hooks/useUserRole";
 
 const Profile = () => {
@@ -83,6 +85,7 @@ const Profile = () => {
 
           <TabsContent value="statistics" className="space-y-6">
             <StreakCounter userId={user.id} variant="full" />
+            <CoinsDisplay userId={user.id} variant="full" />
             <FollowStats userId={user.id} />
             <UserAnalytics />
             <AdvancedAnalytics userId={user.id} />
@@ -106,6 +109,7 @@ const Profile = () => {
 
           <TabsContent value="settings" className="space-y-6">
             <UserPreferences userId={user.id} />
+            <BlockedUsers userId={user.id} />
             
             <div className="pt-4">
               <Button 

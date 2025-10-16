@@ -15,7 +15,7 @@ interface ConfessionActionsProps {
   onLikeChange: () => void;
   onBookmarkChange: () => void;
   onShare: () => void;
-  onReport?: (id: string) => void;
+  onReport?: () => void;
   onDelete?: () => void;
 }
 
@@ -203,7 +203,7 @@ const ConfessionActions = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onReport(confessionId)}
+            onClick={onReport}
             className="h-8 px-2 text-muted-foreground hover:text-destructive transition-colors"
           >
             <AlertCircle className="w-4 h-4" />

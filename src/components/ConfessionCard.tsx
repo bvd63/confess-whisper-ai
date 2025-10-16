@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { MessageCircle, Sparkles } from "lucide-react";
 import DeepInsightDialog from "./DeepInsightDialog";
 import ShareDialog from "./ShareDialog";
+import ReportDialog from "./ReportDialog";
 import CommentsSection from "./CommentsSection";
 import ConfessionActions from "./ConfessionActions";
 import ConfessionHeader from "./ConfessionHeader";
@@ -44,6 +45,7 @@ interface ConfessionCardProps {
 const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBookmarked: initialIsBookmarked, onReport, onUpgradeClick, onInsightGenerated, onLikeChange, onCommentChange, onBookmarkChange }: ConfessionCardProps) => {
   const [isDeepInsightOpen, setIsDeepInsightOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
   const [commentsCount, setCommentsCount] = useState(confession.comments_count || 0);
   const { user } = useCurrentUser();
   const { toast } = useToast();
@@ -131,7 +133,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         onLikeChange={onLikeChange || (() => {})}
         onBookmarkChange={onBookmarkChange || (() => {})}
         onShare={() => setIsShareOpen(true)}
-        onReport={onReport}
+        onReport={() => setIsReportOpen(true)}
         onDelete={handleDeleteConfession}
       />
 
@@ -183,6 +185,13 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         open={isShareOpen}
         onOpenChange={setIsShareOpen}
         confessionId={confession.id}
+      />
+
+      <ReportDialog
+        open={isReportOpen}
+        onOpenChange={setIsReportOpen}
+        confessionId={confession.id}
+        userId={user?.id || null}
       />
     </Card>
   );
