@@ -5,6 +5,8 @@ import { Users } from "lucide-react";
 import ConfessionCard from "./ConfessionCard";
 import LoadingSpinner from "./LoadingSpinner";
 import ErrorMessage from "./ErrorMessage";
+import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
+import { useToast } from "@/hooks/use-toast";
 
 interface FollowingFeedProps {
   userId: string;
@@ -16,6 +18,8 @@ const FollowingFeed = ({ userId, isPremium, onUpgradeClick }: FollowingFeedProps
   const [confessions, setConfessions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { likedConfessions, bookmarkedConfessions, reloadLikes, reloadBookmarks } = useConfessionInteractions({ userId });
+  const { toast } = useToast();
 
   useEffect(() => {
     loadFollowingConfessions();
@@ -98,11 +102,41 @@ const FollowingFeed = ({ userId, isPremium, onUpgradeClick }: FollowingFeedProps
           key={confession.id}
           confession={confession}
           isPremium={isPremium}
+          isLiked={likedConfessions.has(confession.id)}
+          isBookmarked={bookmarkedConfessions.has(confession.id)}
           onUpgradeClick={onUpgradeClick}
           onInsightGenerated={loadFollowingConfessions}
-          onLikeChange={loadFollowingConfessions}
+          onLikeChange={() => {
+            reloadLikes();
+            loadFollowingConfessions();
+          }}
           onCommentChange={loadFollowingConfessions}
-          onBookmarkChange={loadFollowingConfessions}
+          onBookmarkChange={() => {
+            reloadBookmarks();
+            loadFollowingConfessions();
+          }}
+          onReport={async (id: string) => {
+            try {
+              const { error } = await supabase
+                .from('confessions')
+                .update({ is_reported: true })
+                .eq('id', id);
+
+              if (error) throw error;
+
+              toast({
+                title: "Raportat cu succes",
+                description: "Confesiunea a fost raportată",
+              });
+            } catch (error) {
+              console.error('Error reporting:', error);
+              toast({
+                title: "Eroare",
+                description: "Nu am putut raporta confesiunea",
+                variant: "destructive",
+              });
+            }
+          }}
         />
       ))}
     </div>

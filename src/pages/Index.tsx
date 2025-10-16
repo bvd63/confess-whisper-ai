@@ -15,6 +15,8 @@ import Leaderboard from "@/components/Leaderboard";
 import RecommendedConfessions from "@/components/RecommendedConfessions";
 import SearchBar from "@/components/SearchBar";
 import CoinsDisplay from "@/components/CoinsDisplay";
+import StreakCounter from "@/components/StreakCounter";
+import FollowStats from "@/components/FollowStats";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
@@ -188,6 +190,7 @@ const Index = () => {
                     <PlusCircle className="w-4 h-4 mr-2" />
                     {t.new_confession}
                   </Button>
+                  <StreakCounter userId={user.id} variant="compact" />
                   <CoinsDisplay userId={user.id} variant="compact" />
                   <NotificationsDropdown />
                   <Button
@@ -279,6 +282,13 @@ const Index = () => {
 
         {/* Daily Prompt */}
         {user && viewMode === 'feed' && <DailyPrompt />}
+
+        {/* Follow Stats */}
+        {user && viewMode === 'feed' && (
+          <div className="mb-6">
+            <FollowStats userId={user.id} />
+          </div>
+        )}
 
         {/* Social Proof Stats */}
         <SocialProofStats stats={{}} />
