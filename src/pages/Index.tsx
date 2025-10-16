@@ -10,6 +10,8 @@ import SocialProofStats from "@/components/SocialProofStats";
 import FeatureHighlight from "@/components/FeatureHighlight";
 import ThemeToggle from "@/components/ThemeToggle";
 import NotificationsDropdown from "@/components/NotificationsDropdown";
+import DailyPrompt from "@/components/DailyPrompt";
+import Leaderboard from "@/components/Leaderboard";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
@@ -234,8 +236,16 @@ const Index = () => {
           </p>
         </div>
 
+        {/* Daily Prompt */}
+        {user && <DailyPrompt />}
+
         {/* Social Proof Stats */}
         <SocialProofStats stats={{}} />
+
+        {/* Leaderboard */}
+        <div className="my-6">
+          <Leaderboard />
+        </div>
 
         {/* Feature Highlights */}
         <FeatureHighlight />

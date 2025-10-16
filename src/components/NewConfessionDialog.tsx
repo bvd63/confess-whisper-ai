@@ -10,6 +10,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import MoodTracker from "@/components/MoodTracker";
 
 const confessionSchema = z.object({
   content: z.string()
@@ -27,6 +28,7 @@ interface NewConfessionDialogProps {
 const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewConfessionDialogProps) => {
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("other");
+  const [mood, setMood] = useState<{ mood: string; intensity: number } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const { user } = useCurrentUser();
@@ -97,16 +99,28 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
         return;
       }
 
-      const { error: dbError } = await supabase
+      const { data: confessionData, error: dbError } = await supabase
         .from('confessions')
         .insert({
           content: content.trim(),
           ai_response: responseText,
           category: category,
           user_id: user.id,
-        });
+        })
+        .select()
+        .single();
 
       if (dbError) throw dbError;
+
+      // Save mood if provided
+      if (mood && confessionData) {
+        await supabase.from('mood_entries').insert({
+          user_id: user.id,
+          confession_id: confessionData.id,
+          mood: mood.mood,
+          intensity: mood.intensity,
+        });
+      }
 
       toast({
         title: t.success_sent,
@@ -172,6 +186,12 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
             className="min-h-[150px] resize-none border-primary/20 focus:border-primary/40 bg-background/50"
             disabled={isSubmitting}
           />
+
+          <div className="pt-2">
+            <MoodTracker 
+              onMoodSelect={(moodValue, intensity) => setMood({ mood: moodValue, intensity })}
+            />
+          </div>
 
           {aiResponse && (
             <div className="p-4 bg-primary/10 rounded-lg border border-primary/20 animate-slide-up">

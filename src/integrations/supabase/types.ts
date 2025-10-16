@@ -38,6 +38,36 @@ export type Database = {
         }
         Relationships: []
       }
+      badges: {
+        Row: {
+          created_at: string | null
+          description: string
+          icon: string
+          id: string
+          name: string
+          requirement_type: string
+          requirement_value: number
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          icon: string
+          id?: string
+          name: string
+          requirement_type: string
+          requirement_value: number
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          icon?: string
+          id?: string
+          name?: string
+          requirement_type?: string
+          requirement_value?: number
+        }
+        Relationships: []
+      }
       bookmarks: {
         Row: {
           confession_id: string
@@ -102,6 +132,38 @@ export type Database = {
           },
         ]
       }
+      confession_reactions: {
+        Row: {
+          confession_id: string
+          created_at: string | null
+          id: string
+          reaction_type: string
+          user_id: string
+        }
+        Insert: {
+          confession_id: string
+          created_at?: string | null
+          id?: string
+          reaction_type: string
+          user_id: string
+        }
+        Update: {
+          confession_id?: string
+          created_at?: string | null
+          id?: string
+          reaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "confession_reactions_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "confessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       confessions: {
         Row: {
           ai_deep_insight: string | null
@@ -111,6 +173,8 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          image_blurred: boolean | null
+          image_url: string | null
           is_reported: boolean | null
           likes_count: number | null
           shared_count: number | null
@@ -126,6 +190,8 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          image_blurred?: boolean | null
+          image_url?: string | null
           is_reported?: boolean | null
           likes_count?: number | null
           shared_count?: number | null
@@ -141,6 +207,8 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          image_blurred?: boolean | null
+          image_url?: string | null
           is_reported?: boolean | null
           likes_count?: number | null
           shared_count?: number | null
@@ -149,6 +217,65 @@ export type Database = {
           views_count?: number | null
         }
         Relationships: []
+      }
+      daily_prompts: {
+        Row: {
+          active_date: string
+          category: string
+          created_at: string | null
+          id: string
+          prompt_text: string
+        }
+        Insert: {
+          active_date: string
+          category: string
+          created_at?: string | null
+          id?: string
+          prompt_text: string
+        }
+        Update: {
+          active_date?: string
+          category?: string
+          created_at?: string | null
+          id?: string
+          prompt_text?: string
+        }
+        Relationships: []
+      }
+      mood_entries: {
+        Row: {
+          confession_id: string | null
+          created_at: string | null
+          id: string
+          intensity: number | null
+          mood: string
+          user_id: string
+        }
+        Insert: {
+          confession_id?: string | null
+          created_at?: string | null
+          id?: string
+          intensity?: number | null
+          mood: string
+          user_id: string
+        }
+        Update: {
+          confession_id?: string | null
+          created_at?: string | null
+          id?: string
+          intensity?: number | null
+          mood?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mood_entries_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "confessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {
@@ -293,6 +420,56 @@ export type Database = {
         }
         Relationships: []
       }
+      user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_follows: {
+        Row: {
+          created_at: string | null
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string | null
+          follower_id?: string
+          following_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
       user_likes: {
         Row: {
           confession_id: string
@@ -321,6 +498,69 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_preferences: {
+        Row: {
+          avatar_seed: string | null
+          created_at: string | null
+          custom_color: string | null
+          font_size: string | null
+          id: string
+          theme: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avatar_seed?: string | null
+          created_at?: string | null
+          custom_color?: string | null
+          font_size?: string | null
+          id?: string
+          theme?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avatar_seed?: string | null
+          created_at?: string | null
+          custom_color?: string | null
+          font_size?: string | null
+          id?: string
+          theme?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_streaks: {
+        Row: {
+          created_at: string | null
+          current_streak: number | null
+          id: string
+          last_confession_date: string | null
+          longest_streak: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_streak?: number | null
+          id?: string
+          last_confession_date?: string | null
+          longest_streak?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_streak?: number | null
+          id?: string
+          last_confession_date?: string | null
+          longest_streak?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {

@@ -7,12 +7,17 @@ import { LanguageSelector } from "@/components/LanguageSelector";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import UserConfessionsList from "@/components/UserConfessionsList";
 import UserAnalytics from "@/components/UserAnalytics";
+import BadgesDisplay from "@/components/BadgesDisplay";
+import StreakCounter from "@/components/StreakCounter";
+import UserPreferences from "@/components/UserPreferences";
 
 const Profile = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { user } = useCurrentUser();
 
   useEffect(() => {
     checkAuth();
@@ -24,6 +29,8 @@ const Profile = () => {
       navigate('/auth');
     }
   };
+
+  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -50,17 +57,31 @@ const Profile = () => {
         </div>
 
         <Tabs defaultValue="statistics" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="statistics">{t.profile_statistics}</TabsTrigger>
             <TabsTrigger value="confessions">{t.profile_my_confessions}</TabsTrigger>
+            <TabsTrigger value="achievements">Realizări</TabsTrigger>
+            <TabsTrigger value="settings">Setări</TabsTrigger>
           </TabsList>
 
           <TabsContent value="statistics" className="space-y-6">
+            <StreakCounter userId={user.id} variant="full" />
             <UserAnalytics />
           </TabsContent>
 
           <TabsContent value="confessions" className="space-y-6">
             <UserConfessionsList />
+          </TabsContent>
+
+          <TabsContent value="achievements" className="space-y-6">
+            <div className="space-y-4">
+              <h2 className="text-2xl font-bold">Badge-urile tale</h2>
+              <BadgesDisplay userId={user.id} variant="full" />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-6">
+            <UserPreferences userId={user.id} />
           </TabsContent>
         </Tabs>
       </div>

@@ -6,6 +6,8 @@ import ShareDialog from "./ShareDialog";
 import CommentsSection from "./CommentsSection";
 import ConfessionActions from "./ConfessionActions";
 import ConfessionHeader from "./ConfessionHeader";
+import ReactionPicker from "./ReactionPicker";
+import BadgesDisplay from "./BadgesDisplay";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -83,6 +85,18 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
       <p className="text-foreground leading-relaxed mb-4">
         {confession.content}
       </p>
+
+      {/* Show user badges if available */}
+      {confession.user_id && (
+        <div className="mb-3">
+          <BadgesDisplay userId={confession.user_id} variant="compact" />
+        </div>
+      )}
+
+      {/* Reactions */}
+      <div className="mb-3">
+        <ReactionPicker confessionId={confession.id} userId={user?.id} />
+      </div>
 
       {/* Interaction Buttons */}
       <ConfessionActions
