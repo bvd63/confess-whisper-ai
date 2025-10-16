@@ -167,7 +167,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
       <Card className="p-6 text-center">
         <Shield className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
         <p className="text-muted-foreground">
-          Nu ai permisiuni de moderare
+          {t.moderation_no_permissions}
         </p>
       </Card>
     );
@@ -176,7 +176,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
   if (loading) {
     return (
       <Card className="p-6 text-center">
-        <p className="text-muted-foreground">Se încarcă...</p>
+        <p className="text-muted-foreground">{t.moderation_loading}</p>
       </Card>
     );
   }
@@ -210,7 +210,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
           <TabsContent value="pending" className="space-y-4 mt-4">
             {pendingConfessions.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">
-                Nu există confesiuni în așteptare
+                {t.moderation_no_pending}
               </p>
             ) : (
               pendingConfessions.map((confession) => (
@@ -257,7 +257,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
           <TabsContent value="reported" className="space-y-4 mt-4">
             {reportedConfessions.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">
-                Nu există confesiuni raportate
+                {t.moderation_no_reported}
               </p>
             ) : (
               reportedConfessions.map((confession: any) => (
@@ -331,9 +331,9 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
       <Dialog open={!!selectedConfession} onOpenChange={() => setSelectedConfession(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Respinge confesiunea</DialogTitle>
+            <DialogTitle>{t.moderation_reject_title}</DialogTitle>
             <DialogDescription>
-              Oferă un motiv pentru respingerea acestei confesiuni
+              {t.moderation_reject_desc}
             </DialogDescription>
           </DialogHeader>
 

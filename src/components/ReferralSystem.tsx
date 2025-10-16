@@ -101,13 +101,13 @@ const ReferralSystem = ({ userId }: ReferralSystemProps) => {
         <div className="text-center p-4 bg-yellow-500/10 rounded-lg">
           <Coins className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
           <p className="text-2xl font-bold text-yellow-600">{totalRewards}</p>
-          <p className="text-xs text-muted-foreground">Monede câștigate</p>
+          <p className="text-xs text-muted-foreground">{t.referral_coins_earned}</p>
         </div>
       </div>
 
       {/* Referral Code */}
       <div className="space-y-3">
-        <label className="text-sm font-medium">Codul tău de recomandare</label>
+        <label className="text-sm font-medium">{t.referral_your_code}</label>
         <div className="flex gap-2">
           <Input
             value={referralCode}

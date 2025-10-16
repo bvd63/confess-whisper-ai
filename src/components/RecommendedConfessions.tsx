@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface RecommendedConfessionsProps {
   userId: string;
@@ -22,6 +23,7 @@ const RecommendedConfessions = ({ userId, currentCategory }: RecommendedConfessi
   const [recommendations, setRecommendations] = useState<Confession[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadRecommendations();
@@ -85,7 +87,7 @@ const RecommendedConfessions = ({ userId, currentCategory }: RecommendedConfessi
     <Card className="p-6 bg-gradient-to-br from-primary/5 to-purple-500/5 border-primary/10">
       <div className="flex items-center gap-2 mb-4">
         <Sparkles className="w-5 h-5 text-primary" />
-        <h3 className="text-lg font-semibold">Recomandări pentru tine</h3>
+        <h3 className="text-lg font-semibold">{t.recommended_for_you}</h3>
       </div>
 
       <div className="space-y-3">
@@ -103,10 +105,10 @@ const RecommendedConfessions = ({ userId, currentCategory }: RecommendedConfessi
             </p>
             <div className="flex items-center justify-between mt-2">
               <span className="text-xs text-muted-foreground">
-                {confession.likes_count} reacții
+                {confession.likes_count} {t.leaderboard_reactions}
               </span>
               <Button variant="ghost" size="sm" className="gap-1">
-                <span className="text-xs">Citește</span>
+                <span className="text-xs">{t.recommended_read}</span>
                 <ArrowRight className="w-3 h-3" />
               </Button>
             </div>

@@ -142,11 +142,11 @@ const NotificationsDropdown = () => {
       case 'comment':
         return t.notification_comment;
       case 'follow':
-        return 'a început să te urmărească';
+        return t.notification_followed;
       case 'badge_earned':
-        return 'ai câștigat un badge nou!';
+        return t.notification_badge_earned;
       case 'streak_milestone':
-        return 'ai atins un nou milestone!';
+        return t.notification_streak_milestone;
       default:
         return '';
     }

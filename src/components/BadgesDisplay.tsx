@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { MessageSquare, MessageSquarePlus, Award, Heart, Star, Flame, Trophy, Cake } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface BadgesDisplayProps {
   userId: string;
@@ -33,6 +34,7 @@ interface UserBadge {
 
 const BadgesDisplay = ({ userId, variant = "compact" }: BadgesDisplayProps) => {
   const [badges, setBadges] = useState<UserBadge[]>([]);
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -109,7 +111,7 @@ const BadgesDisplay = ({ userId, variant = "compact" }: BadgesDisplayProps) => {
               <p className="font-semibold text-sm">{userBadge.badges.name}</p>
               <p className="text-xs text-muted-foreground">{userBadge.badges.description}</p>
               <p className="text-xs text-muted-foreground mt-1">
-                {new Date(userBadge.earned_at).toLocaleDateString('ro-RO')}
+                {t.badges_earned_on} {new Date(userBadge.earned_at).toLocaleDateString()}
               </p>
             </div>
           </div>

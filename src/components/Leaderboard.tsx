@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Trophy, TrendingUp } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface LeaderboardEntry {
   user_id: string;
@@ -14,6 +15,7 @@ interface LeaderboardEntry {
 const Leaderboard = () => {
   const [leaders, setLeaders] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadLeaderboard();
@@ -65,7 +67,7 @@ const Leaderboard = () => {
     <Card className="p-6">
       <div className="flex items-center gap-2 mb-4">
         <Trophy className="w-5 h-5 text-yellow-500" />
-        <h3 className="text-lg font-semibold">Top această săptămână</h3>
+        <h3 className="text-lg font-semibold">{t.leaderboard_top_this_week}</h3>
         <TrendingUp className="w-4 h-4 text-muted-foreground ml-auto" />
       </div>
 
@@ -86,9 +88,9 @@ const Leaderboard = () => {
             </Avatar>
 
             <div className="flex-1">
-              <p className="text-sm font-medium">Utilizator #{leader.user_id.substring(0, 8)}</p>
+              <p className="text-sm font-medium">{t.anonymous_user} #{leader.user_id.substring(0, 8)}</p>
               <p className="text-xs text-muted-foreground">
-                {leader.confessions_count} confesiuni • {leader.total_likes} reacții
+                {leader.confessions_count} {t.leaderboard_confessions} • {leader.total_likes} {t.leaderboard_reactions}
               </p>
             </div>
           </div>

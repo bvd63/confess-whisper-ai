@@ -626,6 +626,27 @@ type Translations = {
   
   // Export
   export_my_data: string;
+  
+  // Moderation extras
+  moderation_reject_desc: string;
+  
+  // Notifications extras
+  notification_followed: string;
+  notification_badge_earned: string;
+  notification_streak_milestone: string;
+  
+  // Recommended
+  recommended_read: string;
+  
+  // Referral extras
+  referral_coins_earned: string;
+  referral_your_code: string;
+  
+  // Various
+  anonymous_user: string;
+  leaderboard_top_this_week: string;
+  recommended_for_you: string;
+  badges_earned_on: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -1189,6 +1210,18 @@ export const translations: Record<Language, Translations> = {
     reaction_thinking: "Interesting",
     reaction_auth_required: "Authentication required",
     reaction_auth_required_desc: "You must be authenticated to react",
+    
+    moderation_reject_desc: "Provide a reason for rejecting this confession",
+    notification_followed: "started following you",
+    notification_badge_earned: "you earned a new badge!",
+    notification_streak_milestone: "you reached a new milestone!",
+    recommended_read: "Read",
+    referral_coins_earned: "Coins Earned",
+    referral_your_code: "Your Referral Code",
+    anonymous_user: "User",
+    leaderboard_top_this_week: "Top This Week",
+    recommended_for_you: "Recommended for You",
+    badges_earned_on: "Earned on",
   },
   es: {
     app_name: "Confess+",
@@ -1752,6 +1785,18 @@ export const translations: Record<Language, Translations> = {
     badges_your_badges: "Tus Insignias",
     
     export_my_data: "Exportar mis datos",
+    
+    moderation_reject_desc: "Proporciona una razón para rechazar esta confesión",
+    notification_followed: "empezó a seguirte",
+    notification_badge_earned: "¡has ganado una nueva insignia!",
+    notification_streak_milestone: "¡has alcanzado un nuevo hito!",
+    recommended_read: "Leer",
+    referral_coins_earned: "Monedas Ganadas",
+    referral_your_code: "Tu Código de Referido",
+    anonymous_user: "Usuario",
+    leaderboard_top_this_week: "Top Esta Semana",
+    recommended_for_you: "Recomendado para Ti",
+    badges_earned_on: "Obtenido el",
   },
   de: {
     app_name: "Confess+",
@@ -2315,5 +2360,17 @@ export const translations: Record<Language, Translations> = {
     badges_your_badges: "Deine Auszeichnungen",
     
     export_my_data: "Meine Daten exportieren",
+    
+    moderation_reject_desc: "Gib einen Grund für die Ablehnung dieses Geständnisses an",
+    notification_followed: "hat begonnen, dir zu folgen",
+    notification_badge_earned: "du hast eine neue Auszeichnung verdient!",
+    notification_streak_milestone: "du hast einen neuen Meilenstein erreicht!",
+    recommended_read: "Lesen",
+    referral_coins_earned: "Verdiente Münzen",
+    referral_your_code: "Dein Empfehlungscode",
+    anonymous_user: "Benutzer",
+    leaderboard_top_this_week: "Top Diese Woche",
+    recommended_for_you: "Empfohlen für Dich",
+    badges_earned_on: "Erworben am",
   },
 };
