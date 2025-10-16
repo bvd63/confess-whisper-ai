@@ -80,25 +80,27 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   };
 
   return (
-    <Card className="p-5 mb-4 bg-gradient-to-br from-card to-muted/30 border-border/50 shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-glow)] transition-all duration-300 animate-fade-in">
-      <div className="mb-3">
+    <Card className="p-3 sm:p-4 md:p-5 mb-3 sm:mb-4 bg-gradient-to-br from-card to-muted/30 border-border/50 shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-glow)] transition-all duration-300 animate-fade-in">
+      <div className="mb-2 sm:mb-3">
         <ConfessionHeader 
           category={confession.category} 
           createdAt={confession.created_at}
         />
       </div>
 
-      <p className="text-foreground leading-relaxed mb-4">
+      <p className="text-sm sm:text-base text-foreground leading-relaxed mb-3 sm:mb-4 break-words">
         {confession.content}
       </p>
 
       {/* Display image if available */}
       {confession.image_url && (
-        <div className="mb-4 rounded-lg overflow-hidden">
+        <div className="mb-3 sm:mb-4 rounded-lg overflow-hidden">
           <img
             src={confession.image_url}
             alt={t.ui_confession_image}
-            className={`w-full max-h-[400px] object-cover ${confession.image_blurred ? 'blur-lg' : ''}`}
+            className={`w-full h-auto object-cover max-h-[300px] sm:max-h-[400px] ${
+              confession.image_blurred ? 'blur-lg' : ''
+            }`}
           />
         </div>
       )}

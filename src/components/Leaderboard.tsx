@@ -64,14 +64,14 @@ const Leaderboard = () => {
   if (leaders.length === 0) return null;
 
   return (
-    <Card className="p-6">
+    <Card className="p-4 sm:p-5 md:p-6">
       <div className="flex items-center gap-2 mb-4">
         <Trophy className="w-5 h-5 text-yellow-500" />
-        <h3 className="text-lg font-semibold">{t.leaderboard_top_this_week}</h3>
+        <h3 className="text-base sm:text-lg font-semibold">{t.leaderboard_top_this_week}</h3>
         <TrendingUp className="w-4 h-4 text-muted-foreground ml-auto" />
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2 sm:space-y-3">
         {leaders.map((leader) => (
           <div
             key={leader.user_id}

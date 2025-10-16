@@ -57,17 +57,17 @@ const DailyPrompt = ({ onOpenNewConfession }: DailyPromptProps) => {
   };
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-primary/10 to-purple-500/10 border-primary/20 px-[15px] py-[4px] mx-0 my-[26px]">
-      <div className="flex items-start gap-4">
+    <Card className="p-4 sm:p-5 md:p-6 bg-gradient-to-br from-primary/10 to-purple-500/10 border-primary/20 mb-4 sm:mb-6">
+      <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
         <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
           <Sparkles className="w-5 h-5 text-primary" />
         </div>
         
-        <div className="flex-1">
-          <h3 className="font-semibold text-lg mb-2">{t.daily_prompt_title}</h3>
-          <p className="text-muted-foreground mb-4">{getPromptText()}</p>
+        <div className="flex-1 w-full sm:w-auto">
+          <h3 className="font-semibold text-base sm:text-lg mb-2">{t.daily_prompt_title}</h3>
+          <p className="text-sm sm:text-base text-muted-foreground mb-3 sm:mb-4">{getPromptText()}</p>
           
-          <Button onClick={onOpenNewConfession} variant="default" size="sm">
+          <Button onClick={onOpenNewConfession} variant="default" size="sm" className="w-full sm:w-auto">
             {t.daily_prompt_share}
           </Button>
         </div>

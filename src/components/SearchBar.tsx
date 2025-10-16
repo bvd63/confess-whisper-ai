@@ -67,41 +67,42 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
   const hasFilters = query || filters.category || filters.timeRange !== 'all';
 
   return (
-    <div className="space-y-3">
-      <div className="flex gap-2">
+    <div className="space-y-2 sm:space-y-3">
+      <div className="flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder={t.search_placeholder}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            className="pl-10 pr-10"
+            className="pl-8 sm:pl-10 pr-8 sm:pr-10 h-9 sm:h-10 text-sm"
           />
           {query && (
             <button
               onClick={() => setQuery("")}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
             >
               <X className="w-4 h-4" />
             </button>
           )}
         </div>
 
-        <Button onClick={handleSearch}>
-          <Search className="w-4 h-4 mr-2" />
-          {t.search_button}
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleSearch} className="flex-1 sm:flex-initial h-9 sm:h-10" size="sm">
+            <Search className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">{t.search_button}</span>
+          </Button>
 
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" size="icon">
-              <SlidersHorizontal className="w-4 h-4" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80" align="end">
-            <div className="space-y-4">
-              <div className="space-y-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="icon" className="h-9 w-9 sm:h-10 sm:w-10">
+                <SlidersHorizontal className="w-4 h-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[calc(100vw-2rem)] sm:w-80 max-w-md" align="end">
+              <div className="space-y-4">
+                <div className="space-y-2">
                 <Label>{t.search_category_label}</Label>
                 <Select
                   value={filters.category || 'all'}
@@ -109,10 +110,10 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
                     setFilters({ ...filters, category: value === 'all' ? undefined : value })
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-50 bg-background">
                     {categories.map((cat) => (
                       <SelectItem key={cat.value} value={cat.value}>
                         {cat.label}
@@ -128,10 +129,10 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
                   value={filters.sortBy}
                   onValueChange={(value: any) => setFilters({ ...filters, sortBy: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-50 bg-background">
                     {sortOptions.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value}>
                         {opt.label}
@@ -149,10 +150,10 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
                     setFilters({ ...filters, timeRange: value === 'all' ? undefined : value })
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-50 bg-background">
                     {timeRanges.map((range) => (
                       <SelectItem key={range.value} value={range.value}>
                         {range.label}
@@ -165,9 +166,10 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
           </PopoverContent>
         </Popover>
       </div>
+    </div>
 
       {hasFilters && (
-        <Button variant="ghost" size="sm" onClick={handleClear} className="h-8">
+        <Button variant="ghost" size="sm" onClick={handleClear} className="h-7 sm:h-8 text-xs sm:text-sm">
           <X className="w-3 h-3 mr-1" />
           {t.search_clear_filters}
         </Button>
