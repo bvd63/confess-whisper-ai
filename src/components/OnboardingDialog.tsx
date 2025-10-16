@@ -1,4 +1,4 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/translated-dialog";
 import { Button } from "@/components/ui/button";
 import { Heart, Shield, Sparkles, ArrowRight } from "lucide-react";
 import { useState } from "react";

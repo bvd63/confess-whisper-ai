@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog";
+} from "@/components/ui/translated-dialog";
 import { Button } from "@/components/ui/button";
 import { Settings, Download, Trash2, LogOut, Loader2, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";

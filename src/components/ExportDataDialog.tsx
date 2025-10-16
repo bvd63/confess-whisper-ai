@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/translated-dialog";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2, FileJson, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";

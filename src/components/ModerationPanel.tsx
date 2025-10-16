@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog";
+} from "@/components/ui/translated-dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Confession {

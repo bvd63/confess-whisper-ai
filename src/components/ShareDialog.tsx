@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/translated-dialog";
 import { Button } from "@/components/ui/button";
 import { Facebook, Twitter, Linkedin, Link2, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
