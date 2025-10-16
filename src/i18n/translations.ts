@@ -451,6 +451,73 @@ type Translations = {
   streak_reminder_text: string;
   streak_post_now: string;
   
+  // Draft Manager
+  draft_deleted: string;
+  draft_deleted_desc: string;
+  draft_delete_error_desc: string;
+  drafts_saved: string;
+  
+  // Export Data
+  export_title: string;
+  export_description: string;
+  export_format: string;
+  export_what: string;
+  export_my_comments: string;
+  export_my_likes: string;
+  export_my_bookmarks: string;
+  export_download: string;
+  export_downloading: string;
+  export_success: string;
+  export_success_desc: string;
+  
+  // Coins Display
+  coins_title: string;
+  coins_current_balance: string;
+  coins_total_earned: string;
+  coins_history: string;
+  coins_how_to_earn: string;
+  coins_per_confession_detail: string;
+  coins_per_comment_detail: string;
+  coins_per_like_detail: string;
+  coins_no_transactions: string;
+  coins_all_transactions: string;
+  
+  // Following Feed
+  following_feed_loading: string;
+  following_feed_start: string;
+  
+  // Image Upload
+  image_invalid_file: string;
+  image_invalid_file_desc: string;
+  image_too_large: string;
+  image_uploading: string;
+  image_add_optional: string;
+  
+  // Moderation Panel
+  moderation_no_permissions: string;
+  moderation_loading: string;
+  moderation_keep: string;
+  moderation_delete: string;
+  moderation_cancel: string;
+  
+  // User Preferences
+  preferences_saving: string;
+  preferences_save: string;
+  
+  // Subscription
+  subscription_active_plan: string;
+  subscription_choose: string;
+  subscription_title: string;
+  subscription_description: string;
+  
+  // Payment
+  payment_view_profile: string;
+  payment_redirecting: string;
+  
+  // Profile
+  profile_portal_error: string;
+  profile_portal_error_desc: string;
+  
   // Moderation
   moderation_reject_title: string;
   moderation_reject_description: string;
@@ -980,6 +1047,63 @@ export const translations: Record<Language, Translations> = {
     notfound_404: "404",
     notfound_title: "Oops! Page not found",
     notfound_return_home: "Return to Home",
+    
+    draft_deleted: "Draft deleted",
+    draft_deleted_desc: "The draft was successfully deleted",
+    draft_delete_error_desc: "Could not delete the draft",
+    drafts_saved: "Saved Drafts",
+    
+    export_title: "Export Your Data",
+    export_description: "Download a copy of your data in JSON or CSV format",
+    export_format: "Format",
+    export_what: "What do you want to export?",
+    export_my_comments: "My Comments",
+    export_my_likes: "My Likes",
+    export_my_bookmarks: "My Bookmarks",
+    export_download: "Download Data",
+    export_downloading: "Exporting...",
+    export_success: "Export Successful",
+    export_success_desc: "Your data has been exported successfully",
+    
+    coins_title: "Coins",
+    coins_current_balance: "Current Balance",
+    coins_total_earned: "Total Earned",
+    coins_history: "View History",
+    coins_how_to_earn: "How to earn coins:",
+    coins_per_confession_detail: "• 10 coins for each confession",
+    coins_per_comment_detail: "• 5 coins for each comment",
+    coins_per_like_detail: "• 2 coins when you receive a like",
+    coins_no_transactions: "No transactions yet",
+    coins_all_transactions: "All your coin transactions",
+    
+    following_feed_loading: "Loading feed...",
+    following_feed_start: "Start following users to see their confessions here",
+    
+    image_invalid_file: "Invalid File",
+    image_invalid_file_desc: "Please select an image (JPEG, PNG, GIF or WebP)",
+    image_too_large: "File Too Large",
+    image_uploading: "Uploading...",
+    image_add_optional: "Add image (optional)",
+    
+    moderation_no_permissions: "You don't have moderation permissions",
+    moderation_loading: "Loading...",
+    moderation_keep: "Keep",
+    moderation_delete: "Delete",
+    moderation_cancel: "Cancel",
+    
+    preferences_saving: "Saving...",
+    preferences_save: "Save Preferences",
+    
+    subscription_active_plan: "Active Plan",
+    subscription_choose: "Choose",
+    subscription_title: "Choose Your Premium Plan",
+    subscription_description: "Unlock all features and get a superior experience",
+    
+    payment_view_profile: "View Your Premium Profile",
+    payment_redirecting: "You will be redirected automatically in a few seconds...",
+    
+    profile_portal_error: "Error",
+    profile_portal_error_desc: "Could not open subscription portal",
   },
   es: {
     app_name: "Confess+",
@@ -1445,6 +1569,63 @@ export const translations: Record<Language, Translations> = {
     preferences_save_error: "No se pudieron guardar las preferencias",
     
     comment_reply_error: "No se pudo enviar la respuesta",
+    
+    draft_deleted: "Borrador eliminado",
+    draft_deleted_desc: "El borrador fue eliminado exitosamente",
+    draft_delete_error_desc: "No se pudo eliminar el borrador",
+    drafts_saved: "Borradores Guardados",
+    
+    export_title: "Exportar Tus Datos",
+    export_description: "Descarga una copia de tus datos en formato JSON o CSV",
+    export_format: "Formato",
+    export_what: "¿Qué quieres exportar?",
+    export_my_comments: "Mis Comentarios",
+    export_my_likes: "Mis Me Gusta",
+    export_my_bookmarks: "Mis Marcadores",
+    export_download: "Descargar Datos",
+    export_downloading: "Exportando...",
+    export_success: "Exportación Exitosa",
+    export_success_desc: "Tus datos han sido exportados exitosamente",
+    
+    coins_title: "Monedas",
+    coins_current_balance: "Saldo Actual",
+    coins_total_earned: "Total Ganado",
+    coins_history: "Ver Historial",
+    coins_how_to_earn: "Cómo ganar monedas:",
+    coins_per_confession_detail: "• 10 monedas por cada confesión",
+    coins_per_comment_detail: "• 5 monedas por cada comentario",
+    coins_per_like_detail: "• 2 monedas cuando recibes un me gusta",
+    coins_no_transactions: "Aún no hay transacciones",
+    coins_all_transactions: "Todas tus transacciones de monedas",
+    
+    following_feed_loading: "Cargando feed...",
+    following_feed_start: "Comienza a seguir usuarios para ver sus confesiones aquí",
+    
+    image_invalid_file: "Archivo Inválido",
+    image_invalid_file_desc: "Por favor selecciona una imagen (JPEG, PNG, GIF o WebP)",
+    image_too_large: "Archivo Demasiado Grande",
+    image_uploading: "Subiendo...",
+    image_add_optional: "Agregar imagen (opcional)",
+    
+    moderation_no_permissions: "No tienes permisos de moderación",
+    moderation_loading: "Cargando...",
+    moderation_keep: "Mantener",
+    moderation_delete: "Eliminar",
+    moderation_cancel: "Cancelar",
+    
+    preferences_saving: "Guardando...",
+    preferences_save: "Guardar Preferencias",
+    
+    subscription_active_plan: "Plan Activo",
+    subscription_choose: "Elegir",
+    subscription_title: "Elige Tu Plan Premium",
+    subscription_description: "Desbloquea todas las funciones y obtén una experiencia superior",
+    
+    payment_view_profile: "Ver Tu Perfil Premium",
+    payment_redirecting: "Serás redirigido automáticamente en unos segundos...",
+    
+    profile_portal_error: "Error",
+    profile_portal_error_desc: "No se pudo abrir el portal de suscripción",
   },
   de: {
     app_name: "Confess+",
@@ -1910,5 +2091,62 @@ export const translations: Record<Language, Translations> = {
     preferences_save_error: "Die Einstellungen konnten nicht gespeichert werden",
     
     comment_reply_error: "Die Antwort konnte nicht gesendet werden",
+    
+    draft_deleted: "Entwurf gelöscht",
+    draft_deleted_desc: "Der Entwurf wurde erfolgreich gelöscht",
+    draft_delete_error_desc: "Der Entwurf konnte nicht gelöscht werden",
+    drafts_saved: "Gespeicherte Entwürfe",
+    
+    export_title: "Deine Daten Exportieren",
+    export_description: "Lade eine Kopie deiner Daten im JSON- oder CSV-Format herunter",
+    export_format: "Format",
+    export_what: "Was möchtest du exportieren?",
+    export_my_comments: "Meine Kommentare",
+    export_my_likes: "Meine Likes",
+    export_my_bookmarks: "Meine Lesezeichen",
+    export_download: "Daten Herunterladen",
+    export_downloading: "Exportiere...",
+    export_success: "Export Erfolgreich",
+    export_success_desc: "Deine Daten wurden erfolgreich exportiert",
+    
+    coins_title: "Münzen",
+    coins_current_balance: "Aktueller Saldo",
+    coins_total_earned: "Gesamt Verdient",
+    coins_history: "Verlauf Anzeigen",
+    coins_how_to_earn: "Wie man Münzen verdient:",
+    coins_per_confession_detail: "• 10 Münzen für jedes Geständnis",
+    coins_per_comment_detail: "• 5 Münzen für jeden Kommentar",
+    coins_per_like_detail: "• 2 Münzen wenn du ein Like erhältst",
+    coins_no_transactions: "Noch keine Transaktionen",
+    coins_all_transactions: "Alle deine Münztransaktionen",
+    
+    following_feed_loading: "Lade Feed...",
+    following_feed_start: "Beginne Benutzern zu folgen, um ihre Geständnisse hier zu sehen",
+    
+    image_invalid_file: "Ungültige Datei",
+    image_invalid_file_desc: "Bitte wähle ein Bild (JPEG, PNG, GIF oder WebP)",
+    image_too_large: "Datei Zu Groß",
+    image_uploading: "Wird hochgeladen...",
+    image_add_optional: "Bild hinzufügen (optional)",
+    
+    moderation_no_permissions: "Du hast keine Moderationsrechte",
+    moderation_loading: "Laden...",
+    moderation_keep: "Behalten",
+    moderation_delete: "Löschen",
+    moderation_cancel: "Abbrechen",
+    
+    preferences_saving: "Speichern...",
+    preferences_save: "Einstellungen Speichern",
+    
+    subscription_active_plan: "Aktiver Plan",
+    subscription_choose: "Wählen",
+    subscription_title: "Wähle Deinen Premium-Plan",
+    subscription_description: "Schalte alle Funktionen frei und erhalte ein überlegenes Erlebnis",
+    
+    payment_view_profile: "Dein Premium-Profil Anzeigen",
+    payment_redirecting: "Du wirst in wenigen Sekunden automatisch weitergeleitet...",
+    
+    profile_portal_error: "Fehler",
+    profile_portal_error_desc: "Das Abonnementportal konnte nicht geöffnet werden",
   },
 };

@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ExportDataDialogProps {
   open: boolean;
@@ -21,6 +22,7 @@ const ExportDataDialog = ({ open, onOpenChange, userId }: ExportDataDialogProps)
   const [includeLikes, setIncludeLikes] = useState(false);
   const [includeBookmarks, setIncludeBookmarks] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const exportData = async () => {
     setExporting(true);

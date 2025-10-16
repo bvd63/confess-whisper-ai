@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
-import { ro } from "date-fns/locale";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface CoinsData {
   balance: number;
@@ -37,6 +37,7 @@ const CoinsDisplay = ({ userId, variant = "compact" }: CoinsDisplayProps) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadCoins();
@@ -112,7 +113,7 @@ const CoinsDisplay = ({ userId, variant = "compact" }: CoinsDisplayProps) => {
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-4">
           <Coins className="w-6 h-6 text-yellow-500" />
-          <h3 className="text-lg font-semibold">Monede</h3>
+          <h3 className="text-lg font-semibold">{t.coins_title}</h3>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -121,13 +122,13 @@ const CoinsDisplay = ({ userId, variant = "compact" }: CoinsDisplayProps) => {
             <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
               {coins.balance}
             </p>
-            <p className="text-sm text-muted-foreground">Balanță actuală</p>
+            <p className="text-sm text-muted-foreground">{t.coins_current_balance}</p>
           </div>
 
           <div className="text-center p-4 bg-primary/10 rounded-lg border border-primary/20">
             <TrendingUp className="w-6 h-6 text-primary mx-auto mb-2" />
             <p className="text-3xl font-bold text-primary">{coins.lifetime_earned}</p>
-            <p className="text-sm text-muted-foreground">Total câștigate</p>
+            <p className="text-sm text-muted-foreground">{t.coins_total_earned}</p>
           </div>
         </div>
 
@@ -136,17 +137,17 @@ const CoinsDisplay = ({ userId, variant = "compact" }: CoinsDisplayProps) => {
           variant="outline"
           className="w-full mt-4"
         >
-          Vezi istoricul
+          {t.coins_history}
         </Button>
 
         <div className="mt-4 p-3 bg-muted/50 rounded-lg">
           <p className="text-xs text-muted-foreground font-semibold mb-2">
-            Cum câștigi monede:
+            {t.coins_how_to_earn}
           </p>
           <ul className="text-xs text-muted-foreground space-y-1">
-            <li>• 10 monede pentru fiecare confesiune</li>
-            <li>• 5 monede pentru fiecare comentariu</li>
-            <li>• 2 monede când primești un like</li>
+            <li>{t.coins_per_confession_detail}</li>
+            <li>{t.coins_per_comment_detail}</li>
+            <li>{t.coins_per_like_detail}</li>
           </ul>
         </div>
       </Card>
@@ -156,17 +157,17 @@ const CoinsDisplay = ({ userId, variant = "compact" }: CoinsDisplayProps) => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Coins className="w-5 h-5 text-yellow-500" />
-              Istoric monede
+              {t.coins_history}
             </DialogTitle>
             <DialogDescription>
-              Toate tranzacțiile tale cu monede
+              {t.coins_all_transactions}
             </DialogDescription>
           </DialogHeader>
 
           <ScrollArea className="h-[400px] pr-4">
             {transactions.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">
-                Nu ai încă tranzacții
+                {t.coins_no_transactions}
               </p>
             ) : (
               <div className="space-y-2">
@@ -182,7 +183,6 @@ const CoinsDisplay = ({ userId, variant = "compact" }: CoinsDisplayProps) => {
                       <p className="text-xs text-muted-foreground">
                         {formatDistanceToNow(new Date(transaction.created_at), {
                           addSuffix: true,
-                          locale: ro,
                         })}
                       </p>
                     </div>

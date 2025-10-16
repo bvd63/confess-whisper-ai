@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { FileEdit, Trash2, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
-import { ro } from "date-fns/locale";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Draft {
   id: string;
@@ -27,6 +27,7 @@ const DraftManager = ({ userId, onSelectDraft }: DraftManagerProps) => {
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadDrafts();
@@ -60,14 +61,14 @@ const DraftManager = ({ userId, onSelectDraft }: DraftManagerProps) => {
 
       setDrafts(drafts.filter(d => d.id !== draftId));
       toast({
-        title: "Draft șters",
-        description: "Draft-ul a fost șters cu succes",
+        title: t.draft_deleted,
+        description: t.draft_deleted_desc,
       });
     } catch (error) {
       console.error('Error deleting draft:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut șterge draft-ul",
+        title: t.common_error,
+        description: t.draft_delete_error_desc,
         variant: "destructive",
       });
     }
@@ -80,7 +81,7 @@ const DraftManager = ({ userId, onSelectDraft }: DraftManagerProps) => {
     <Card className="p-4">
       <div className="flex items-center gap-2 mb-3">
         <FileEdit className="w-4 h-4 text-primary" />
-        <h3 className="font-semibold">Draft-uri salvate</h3>
+        <h3 className="font-semibold">{t.drafts_saved}</h3>
         <span className="text-xs text-muted-foreground ml-auto">{drafts.length}</span>
       </div>
 
@@ -97,7 +98,6 @@ const DraftManager = ({ userId, onSelectDraft }: DraftManagerProps) => {
                   <Clock className="w-3 h-3" />
                   {formatDistanceToNow(new Date(draft.updated_at), {
                     addSuffix: true,
-                    locale: ro,
                   })}
                 </div>
               </div>
