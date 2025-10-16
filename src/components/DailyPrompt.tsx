@@ -3,7 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface DailyPromptData {
@@ -15,10 +14,13 @@ interface DailyPromptData {
   active_date: string;
 }
 
-const DailyPrompt = () => {
+interface DailyPromptProps {
+  onOpenNewConfession?: () => void;
+}
+
+const DailyPrompt = ({ onOpenNewConfession }: DailyPromptProps) => {
   const [prompt, setPrompt] = useState<DailyPromptData | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
   const { t, language } = useLanguage();
 
   useEffect(() => {
@@ -65,7 +67,7 @@ const DailyPrompt = () => {
           <h3 className="font-semibold text-lg mb-2">{t.daily_prompt_title}</h3>
           <p className="text-muted-foreground mb-4">{getPromptText()}</p>
           
-          <Button onClick={() => navigate('/')} variant="default" size="sm">
+          <Button onClick={onOpenNewConfession} variant="default" size="sm">
             {t.daily_prompt_share}
           </Button>
         </div>

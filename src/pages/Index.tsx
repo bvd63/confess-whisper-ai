@@ -283,7 +283,7 @@ const Index = () => {
         </div>
 
         {/* Daily Prompt */}
-        {user && viewMode === 'feed' && <DailyPrompt />}
+        {user && viewMode === 'feed' && <DailyPrompt onOpenNewConfession={handleNewConfession} />}
 
         {/* Follow Stats */}
         {user && viewMode === 'feed' && (
