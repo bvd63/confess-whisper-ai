@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
-
 interface EmptyStateProps {
   icon: LucideIcon;
   title: string;
@@ -9,10 +8,14 @@ interface EmptyStateProps {
   actionLabel?: string;
   onAction?: () => void;
 }
-
-const EmptyState = ({ icon: Icon, title, description, actionLabel, onAction }: EmptyStateProps) => {
-  return (
-    <Card className="p-12 text-center bg-gradient-to-br from-card to-muted/20 border-border/50 animate-fade-in">
+const EmptyState = ({
+  icon: Icon,
+  title,
+  description,
+  actionLabel,
+  onAction
+}: EmptyStateProps) => {
+  return <Card className="p-12 text-center bg-gradient-to-br from-card to-muted/20 border-border/50 animate-fade-in px-[46px] py-[13px]">
       <div className="inline-flex p-6 rounded-full bg-primary/10 mb-6">
         <Icon className="w-12 h-12 text-primary" />
       </div>
@@ -25,16 +28,9 @@ const EmptyState = ({ icon: Icon, title, description, actionLabel, onAction }: E
         {description}
       </p>
       
-      {actionLabel && onAction && (
-        <Button
-          onClick={onAction}
-          className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
-        >
+      {actionLabel && onAction && <Button onClick={onAction} className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70">
           {actionLabel}
-        </Button>
-      )}
-    </Card>
-  );
+        </Button>}
+    </Card>;
 };
-
 export default EmptyState;
