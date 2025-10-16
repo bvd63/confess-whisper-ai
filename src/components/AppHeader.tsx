@@ -53,7 +53,7 @@ const AppHeader = ({ onNewConfession }: AppHeaderProps) => {
 
   return (
     <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-lg border-b border-border/50 shadow-[var(--shadow-soft)]">
-      <div className="container max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div className="w-full mx-auto px-4 py-4 flex items-center justify-between max-w-7xl">
         <div className="flex items-center gap-2">
           <Heart className="w-6 h-6 text-primary" fill="currentColor" />
           <h1 
