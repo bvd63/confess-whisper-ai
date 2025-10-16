@@ -36,6 +36,25 @@ const SubscriptionCard = ({
     ? formatCurrency(price / 100)
     : formatCurrency(price / 100 / 12);
 
+  // Mapping between Romanian features and translation keys
+  const featureTranslationMap: Record<string, keyof typeof t> = {
+    "Răspunsuri AI nelimitate": "subscription_feature_unlimited_ai",
+    "Analize avansate": "subscription_feature_advanced_analytics",
+    "Badge-uri exclusive": "subscription_feature_exclusive_badges",
+    "Fără reclame": "subscription_feature_no_ads",
+    "Prioritate în moderare": "subscription_feature_priority_moderation",
+    "Toate beneficiile Premium": "subscription_feature_all_premium",
+    "Confesiuni cu imagine": "subscription_feature_image_confessions",
+    "Statistici detaliate": "subscription_feature_detailed_stats",
+    "Suport prioritar": "subscription_feature_priority_support",
+    "Badge VIP special": "subscription_feature_vip_badge",
+  };
+
+  const translateFeature = (feature: string): string => {
+    const key = featureTranslationMap[feature];
+    return key ? t[key] : feature;
+  };
+
   return (
     <Card className={`p-6 relative overflow-hidden ${
       isVIP ? 'border-primary/50 bg-gradient-to-br from-primary/5 to-primary/10' : ''
@@ -72,7 +91,7 @@ const SubscriptionCard = ({
           {plan.features.map((feature, index) => (
             <li key={index} className="flex items-start gap-2">
               <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-              <span className="text-sm">{feature}</span>
+              <span className="text-sm">{translateFeature(feature)}</span>
             </li>
           ))}
         </ul>

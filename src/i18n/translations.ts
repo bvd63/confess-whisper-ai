@@ -633,6 +633,16 @@ type Translations = {
   subscription_choose: string;
   subscription_title: string;
   subscription_description: string;
+  subscription_feature_unlimited_ai: string;
+  subscription_feature_advanced_analytics: string;
+  subscription_feature_exclusive_badges: string;
+  subscription_feature_no_ads: string;
+  subscription_feature_priority_moderation: string;
+  subscription_feature_all_premium: string;
+  subscription_feature_image_confessions: string;
+  subscription_feature_detailed_stats: string;
+  subscription_feature_priority_support: string;
+  subscription_feature_vip_badge: string;
   
   // Payment
   payment_view_profile: string;
@@ -1457,6 +1467,16 @@ export const translations: Record<Language, Translations> = {
     subscription_choose: "Choose",
     subscription_title: "Choose Your Premium Plan",
     subscription_description: "Unlock all features and get a superior experience",
+    subscription_feature_unlimited_ai: "Unlimited AI responses",
+    subscription_feature_advanced_analytics: "Advanced analytics",
+    subscription_feature_exclusive_badges: "Exclusive badges",
+    subscription_feature_no_ads: "Ad-free",
+    subscription_feature_priority_moderation: "Priority in moderation",
+    subscription_feature_all_premium: "All Premium benefits",
+    subscription_feature_image_confessions: "Confessions with images",
+    subscription_feature_detailed_stats: "Detailed statistics",
+    subscription_feature_priority_support: "Priority support",
+    subscription_feature_vip_badge: "Special VIP badge",
     
     payment_view_profile: "View Your Premium Profile",
     payment_redirecting: "You will be redirected automatically in a few seconds...",
@@ -2133,6 +2153,16 @@ export const translations: Record<Language, Translations> = {
     subscription_choose: "Elegir",
     subscription_title: "Elige Tu Plan Premium",
     subscription_description: "Desbloquea todas las funciones y obtén una experiencia superior",
+    subscription_feature_unlimited_ai: "Respuestas AI ilimitadas",
+    subscription_feature_advanced_analytics: "Análisis avanzados",
+    subscription_feature_exclusive_badges: "Insignias exclusivas",
+    subscription_feature_no_ads: "Sin anuncios",
+    subscription_feature_priority_moderation: "Prioridad en moderación",
+    subscription_feature_all_premium: "Todos los beneficios Premium",
+    subscription_feature_image_confessions: "Confesiones con imágenes",
+    subscription_feature_detailed_stats: "Estadísticas detalladas",
+    subscription_feature_priority_support: "Soporte prioritario",
+    subscription_feature_vip_badge: "Insignia VIP especial",
     
     payment_view_profile: "Ver Tu Perfil Premium",
     payment_redirecting: "Serás redirigido automáticamente en unos segundos...",
@@ -2843,6 +2873,16 @@ export const translations: Record<Language, Translations> = {
     subscription_choose: "Wählen",
     subscription_title: "Wähle Deinen Premium-Plan",
     subscription_description: "Schalte alle Funktionen frei und erhalte ein überlegenes Erlebnis",
+    subscription_feature_unlimited_ai: "Unbegrenzte KI-Antworten",
+    subscription_feature_advanced_analytics: "Erweiterte Analysen",
+    subscription_feature_exclusive_badges: "Exklusive Abzeichen",
+    subscription_feature_no_ads: "Werbefrei",
+    subscription_feature_priority_moderation: "Priorität bei Moderation",
+    subscription_feature_all_premium: "Alle Premium-Vorteile",
+    subscription_feature_image_confessions: "Geständnisse mit Bildern",
+    subscription_feature_detailed_stats: "Detaillierte Statistiken",
+    subscription_feature_priority_support: "Prioritäts-Support",
+    subscription_feature_vip_badge: "Spezielle VIP-Badge",
     
     payment_view_profile: "Dein Premium-Profil Anzeigen",
     payment_redirecting: "Du wirst in wenigen Sekunden automatisch weitergeleitet...",
