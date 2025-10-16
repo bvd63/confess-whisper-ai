@@ -1,20 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Heart, PlusCircle, LogOut, Sparkles, Crown, User, TrendingUp, Clock, LogIn, Filter, BookMarked } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
-import ConfessionCard from "@/components/ConfessionCard";
-import NewConfessionDialog from "@/components/NewConfessionDialog";
-import PremiumDialog from "@/components/PremiumDialog";
-import OnboardingDialog from "@/components/OnboardingDialog";
+import ConfessionFeed from "@/components/ConfessionFeed";
 import ConfessionSkeleton from "@/components/ConfessionSkeleton";
 import SocialProofStats from "@/components/SocialProofStats";
-import TrustBadges from "@/components/TrustBadges";
-import FAQ from "@/components/FAQ";
 import FeatureHighlight from "@/components/FeatureHighlight";
 import ThemeToggle from "@/components/ThemeToggle";
-import EmptyState from "@/components/EmptyState";
 import NotificationsDropdown from "@/components/NotificationsDropdown";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -24,18 +18,14 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useConfessions } from "@/hooks/useConfessions";
 
-interface Confession {
-  id: string;
-  content: string;
-  category: string;
-  user_id?: string | null;
-  comments_count?: number;
-  likes_count?: number;
-  ai_response?: string | null;
-  ai_deep_insight?: string | null;
-  created_at: string;
-}
+// Lazy load heavy components
+const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
+const PremiumDialog = lazy(() => import("@/components/PremiumDialog"));
+const OnboardingDialog = lazy(() => import("@/components/OnboardingDialog"));
+const TrustBadges = lazy(() => import("@/components/TrustBadges"));
+const FAQ = lazy(() => import("@/components/FAQ"));
 
 const Index = () => {
   const navigate = useNavigate();
@@ -44,18 +34,21 @@ const Index = () => {
   const { user } = useCurrentUser();
   const { isPremium } = usePremiumStatus(user?.id);
   const { likedConfessions, bookmarkedConfessions, reloadLikes, reloadBookmarks } = useConfessionInteractions({ userId: user?.id || null });
-  const [confessions, setConfessions] = useState<Confession[]>([]);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
   const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const [isLoading, setIsLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const { toast } = useToast();
 
+  // Use the optimized confessions hook
+  const { confessions, isLoading, reload: reloadConfessions } = useConfessions({
+    sortBy,
+    categoryFilter,
+    limit: 20,
+  });
+
   useEffect(() => {
-    loadConfessions();
-    
     // Track page view
     trackEvent('page_view', { page: 'index' });
     
@@ -71,67 +64,7 @@ const Index = () => {
     if (refCode) {
       localStorage.setItem('referralCode', refCode);
     }
-    
-    // Set up real-time subscription
-    const channel = supabase
-      .channel('confessions-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'confessions'
-        },
-        () => {
-          loadConfessions();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, []);
-
-  useEffect(() => {
-    loadConfessions();
-  }, [sortBy, categoryFilter]);
-
-  const loadConfessions = async () => {
-    setIsLoading(true);
-    try {
-      let query = supabase
-        .from('confessions')
-        .select('*')
-        .limit(20);
-
-      // Filter by category if not 'all'
-      if (categoryFilter !== 'all') {
-        query = query.eq('category', categoryFilter);
-      }
-
-      // Sort based on selected filter
-      if (sortBy === 'recent') {
-        query = query.order('created_at', { ascending: false });
-      } else {
-        query = query.order('likes_count', { ascending: false });
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-      setConfessions(data || []);
-    } catch (error) {
-      console.error('Error loading confessions:', error);
-      toast({
-        title: t.error_generic,
-        description: t.error_load,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleNewConfession = () => {
     if (!user) {
@@ -339,73 +272,59 @@ const Index = () => {
         )}
 
         {/* Confessions Feed */}
-        {isLoading ? (
-          <div className="space-y-6">
-            <ConfessionSkeleton />
-            <ConfessionSkeleton />
-            <ConfessionSkeleton />
-          </div>
-        ) : confessions.length === 0 ? (
-          <EmptyState
-            icon={Heart}
-            title={t.index_no_confessions_title}
-            description={t.index_no_confessions_desc}
-            actionLabel={t.new_confession}
-            onAction={handleNewConfession}
-          />
-        ) : (
-          <div className="space-y-4">
-            {confessions.map((confession) => (
-              <ConfessionCard
-                key={confession.id}
-                confession={confession}
-                isPremium={isPremium}
-                isLiked={likedConfessions.has(confession.id)}
-                isBookmarked={bookmarkedConfessions.has(confession.id)}
-                onReport={handleReport}
-                onUpgradeClick={() => setIsPremiumDialogOpen(true)}
-                onInsightGenerated={loadConfessions}
-                onLikeChange={reloadLikes}
-                onCommentChange={loadConfessions}
-                onBookmarkChange={reloadBookmarks}
-              />
-            ))}
-          </div>
-        )}
+        <ConfessionFeed
+          confessions={confessions}
+          isLoading={isLoading}
+          isPremium={isPremium}
+          likedConfessions={likedConfessions}
+          bookmarkedConfessions={bookmarkedConfessions}
+          onReport={handleReport}
+          onUpgradeClick={() => setIsPremiumDialogOpen(true)}
+          onInsightGenerated={reloadConfessions}
+          onLikeChange={reloadLikes}
+          onCommentChange={reloadConfessions}
+          onBookmarkChange={reloadBookmarks}
+          onNewConfession={handleNewConfession}
+        />
       </main>
 
-      {/* Dialogs */}
-      <NewConfessionDialog
-        open={isNewConfessionOpen}
-        onOpenChange={setIsNewConfessionOpen}
-        onConfessionCreated={() => {
-          loadConfessions();
-          trackEvent('confession_created');
-        }}
-      />
+      {/* Dialogs with Suspense for lazy loading */}
+      <Suspense fallback={null}>
+        <NewConfessionDialog
+          open={isNewConfessionOpen}
+          onOpenChange={setIsNewConfessionOpen}
+          onConfessionCreated={() => {
+            reloadConfessions();
+            trackEvent('confession_created');
+          }}
+        />
 
-      <PremiumDialog
-        open={isPremiumDialogOpen}
-        onOpenChange={setIsPremiumDialogOpen}
-        onUpgrade={handleUpgradeToPremium}
-      />
+        <PremiumDialog
+          open={isPremiumDialogOpen}
+          onOpenChange={setIsPremiumDialogOpen}
+          onUpgrade={handleUpgradeToPremium}
+        />
 
-      <OnboardingDialog
-        open={showOnboarding}
-        onComplete={() => {
-          setShowOnboarding(false);
-          localStorage.setItem('hasSeenOnboarding', 'true');
-        }}
-      />
+        <OnboardingDialog
+          open={showOnboarding}
+          onComplete={() => {
+            setShowOnboarding(false);
+            localStorage.setItem('hasSeenOnboarding', 'true');
+          }}
+        />
+      </Suspense>
       
-      {/* FAQ Section */}
-      <div id="faq-section" className="mt-16">
-        <FAQ />
-      </div>
+      {/* FAQ Section with Suspense */}
+      <Suspense fallback={<ConfessionSkeleton />}>
+        <div id="faq-section" className="mt-16">
+          <FAQ />
+        </div>
+      </Suspense>
 
       {/* Footer with trust badges */}
-      <footer className="mt-16">
-        <TrustBadges />
+      <Suspense fallback={null}>
+        <footer className="mt-16">
+          <TrustBadges />
         
         <div className="text-center py-6 border-t border-border/50">
           <div className="flex justify-center gap-6 text-sm text-muted-foreground">
@@ -427,6 +346,7 @@ const Index = () => {
           </p>
         </div>
       </footer>
+      </Suspense>
     </div>
   );
 };
