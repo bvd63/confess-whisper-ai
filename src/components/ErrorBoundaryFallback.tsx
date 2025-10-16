@@ -48,10 +48,10 @@ class ErrorBoundary extends Component<Props, State> {
             
             <div className="space-y-2">
               <h1 className="text-2xl font-bold text-foreground">
-                Oops! Ceva nu a mers bine
+                {t.error_something_wrong}
               </h1>
               <p className="text-muted-foreground">
-                A apărut o eroare neașteptată. Te rugăm să încerci din nou.
+                {t.error_unexpected}
               </p>
             </div>
 
@@ -68,7 +68,7 @@ class ErrorBoundary extends Component<Props, State> {
               className="w-full bg-gradient-to-r from-primary to-primary/80"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
-              Reîncarcare pagină
+              {t.error_reload_page}
             </Button>
           </div>
         </div>

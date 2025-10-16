@@ -100,7 +100,7 @@ const MoodStats = ({ userId }: MoodStatsProps) => {
   return (
     <div className="space-y-6">
       <Card className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Distribuția stărilor tale</h3>
+        <h3 className="text-lg font-semibold mb-4">{t.mood_distribution}</h3>
         
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
@@ -147,7 +147,7 @@ const MoodStats = ({ userId }: MoodStatsProps) => {
 
       {timelineData.length > 0 && (
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Evoluția intensității</h3>
+          <h3 className="text-lg font-semibold mb-4">{t.mood_intensity_evolution}</h3>
           
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">

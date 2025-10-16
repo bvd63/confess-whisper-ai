@@ -647,6 +647,40 @@ type Translations = {
   leaderboard_top_this_week: string;
   recommended_for_you: string;
   badges_earned_on: string;
+  
+  // More UI texts
+  analytics_category_distribution: string;
+  error_something_wrong: string;
+  error_unexpected: string;
+  error_try_again_desc: string;
+  error_reload_page: string;
+  error_retry: string;
+  follow_connections: string;
+  follow_following: string;
+  follow_followers: string;
+  mood_distribution: string;
+  mood_intensity_evolution: string;
+  rate_limit_title: string;
+  rate_limit_desc: string;
+  moderation_action_done: string;
+  moderation_action_approved: string;
+  moderation_action_rejected: string;
+  moderation_action_marked: string;
+  moderation_error_action: string;
+  moderation_pending_count: string;
+  moderation_approve: string;
+  moderation_reported_count: string;
+  moderation_reason_optional: string;
+  referral_link_copied_toast: string;
+  referral_link_copied_desc: string;
+  referral_pending: string;
+  streak_your: string;
+  subscription_payment_error_desc: string;
+  preferences_color_green: string;
+  preferences_color_red: string;
+  preferences_color_orange: string;
+  following_your_feed: string;
+  index_back_to_feed: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -1222,6 +1256,39 @@ export const translations: Record<Language, Translations> = {
     leaderboard_top_this_week: "Top This Week",
     recommended_for_you: "Recommended for You",
     badges_earned_on: "Earned on",
+    
+    analytics_category_distribution: "Category Distribution",
+    error_something_wrong: "Oops! Something went wrong",
+    error_unexpected: "An unexpected error occurred. Please try again.",
+    error_try_again_desc: "Try again",
+    error_reload_page: "Reload Page",
+    error_retry: "Try Again",
+    follow_connections: "Connections",
+    follow_following: "Following",
+    follow_followers: "Followers",
+    mood_distribution: "Your Mood Distribution",
+    mood_intensity_evolution: "Intensity Evolution",
+    rate_limit_title: "Too Many Requests",
+    rate_limit_desc: "You've reached the AI request limit. Please wait a few moments before trying again.",
+    moderation_action_done: "Action Completed",
+    moderation_action_approved: "approved",
+    moderation_action_rejected: "rejected",
+    moderation_action_marked: "marked",
+    moderation_error_action: "Could not perform action",
+    moderation_pending_count: "Pending",
+    moderation_approve: "Approve",
+    moderation_reported_count: "Reported",
+    moderation_reason_optional: "Reason (optional)...",
+    referral_link_copied_toast: "Link copied!",
+    referral_link_copied_desc: "The referral link has been copied to clipboard",
+    referral_pending: "Pending",
+    streak_your: "Your Streak",
+    subscription_payment_error_desc: "Could not initiate payment process",
+    preferences_color_green: "Green",
+    preferences_color_red: "Red",
+    preferences_color_orange: "Orange",
+    following_your_feed: "Your Feed",
+    index_back_to_feed: "Back to Feed",
   },
   es: {
     app_name: "Confess+",
@@ -1797,6 +1864,39 @@ export const translations: Record<Language, Translations> = {
     leaderboard_top_this_week: "Top Esta Semana",
     recommended_for_you: "Recomendado para Ti",
     badges_earned_on: "Obtenido el",
+    
+    analytics_category_distribution: "Distribución de Categorías",
+    error_something_wrong: "¡Ups! Algo salió mal",
+    error_unexpected: "Ocurrió un error inesperado. Por favor intenta nuevamente.",
+    error_try_again_desc: "Intentar nuevamente",
+    error_reload_page: "Recargar Página",
+    error_retry: "Intentar Nuevamente",
+    follow_connections: "Conexiones",
+    follow_following: "Siguiendo",
+    follow_followers: "Seguidores",
+    mood_distribution: "Tu Distribución de Estados",
+    mood_intensity_evolution: "Evolución de Intensidad",
+    rate_limit_title: "Demasiadas Solicitudes",
+    rate_limit_desc: "Has alcanzado el límite de solicitudes de IA. Por favor espera unos momentos antes de intentar nuevamente.",
+    moderation_action_done: "Acción Completada",
+    moderation_action_approved: "aprobada",
+    moderation_action_rejected: "rechazada",
+    moderation_action_marked: "marcada",
+    moderation_error_action: "No se pudo realizar la acción",
+    moderation_pending_count: "Pendiente",
+    moderation_approve: "Aprobar",
+    moderation_reported_count: "Reportada",
+    moderation_reason_optional: "Razón (opcional)...",
+    referral_link_copied_toast: "¡Enlace copiado!",
+    referral_link_copied_desc: "El enlace de referido ha sido copiado al portapapeles",
+    referral_pending: "Pendiente",
+    streak_your: "Tu Racha",
+    subscription_payment_error_desc: "No se pudo iniciar el proceso de pago",
+    preferences_color_green: "Verde",
+    preferences_color_red: "Rojo",
+    preferences_color_orange: "Naranja",
+    following_your_feed: "Tu Feed",
+    index_back_to_feed: "Volver al Feed",
   },
   de: {
     app_name: "Confess+",
@@ -2372,5 +2472,38 @@ export const translations: Record<Language, Translations> = {
     leaderboard_top_this_week: "Top Diese Woche",
     recommended_for_you: "Empfohlen für Dich",
     badges_earned_on: "Erworben am",
+    
+    analytics_category_distribution: "Kategorienverteilung",
+    error_something_wrong: "Hoppla! Etwas ist schiefgelaufen",
+    error_unexpected: "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut.",
+    error_try_again_desc: "Erneut versuchen",
+    error_reload_page: "Seite Neu Laden",
+    error_retry: "Erneut Versuchen",
+    follow_connections: "Verbindungen",
+    follow_following: "Folge ich",
+    follow_followers: "Follower",
+    mood_distribution: "Deine Stimmungsverteilung",
+    mood_intensity_evolution: "Intensitätsentwicklung",
+    rate_limit_title: "Zu Viele Anfragen",
+    rate_limit_desc: "Du hast das KI-Anfragelimit erreicht. Bitte warte einige Momente, bevor du es erneut versuchst.",
+    moderation_action_done: "Aktion Abgeschlossen",
+    moderation_action_approved: "genehmigt",
+    moderation_action_rejected: "abgelehnt",
+    moderation_action_marked: "markiert",
+    moderation_error_action: "Aktion konnte nicht ausgeführt werden",
+    moderation_pending_count: "Ausstehend",
+    moderation_approve: "Genehmigen",
+    moderation_reported_count: "Gemeldet",
+    moderation_reason_optional: "Grund (optional)...",
+    referral_link_copied_toast: "Link kopiert!",
+    referral_link_copied_desc: "Der Empfehlungslink wurde in die Zwischenablage kopiert",
+    referral_pending: "Ausstehend",
+    streak_your: "Deine Serie",
+    subscription_payment_error_desc: "Der Zahlungsvorgang konnte nicht gestartet werden",
+    preferences_color_green: "Grün",
+    preferences_color_red: "Rot",
+    preferences_color_orange: "Orange",
+    following_your_feed: "Dein Feed",
+    index_back_to_feed: "Zurück zum Feed",
   },
 };

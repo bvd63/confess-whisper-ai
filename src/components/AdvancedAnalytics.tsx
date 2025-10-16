@@ -145,7 +145,7 @@ const AdvancedAnalytics = ({ userId }: AdvancedAnalyticsProps) => {
         <Card className="p-6">
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="w-5 h-5 text-primary" />
-            <h3 className="text-lg font-semibold">Distribuție categorii</h3>
+            <h3 className="text-lg font-semibold">{t.analytics_category_distribution}</h3>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

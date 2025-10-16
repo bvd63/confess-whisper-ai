@@ -30,7 +30,7 @@ const ErrorMessage = ({
           className="mt-2"
         >
           <RefreshCw className="w-4 h-4 mr-2" />
-          Încearcă din nou
+          {t.error_retry}
         </Button>
       )}
     </div>
