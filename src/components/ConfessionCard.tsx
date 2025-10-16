@@ -64,7 +64,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
 
       toast({
         title: t.success_deleted,
-        description: "Confesiunea a fost ștearsă",
+        description: t.confession_deleted,
       });
 
       // Refresh the page or notify parent component

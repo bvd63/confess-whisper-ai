@@ -3,12 +3,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
 import { TrendingUp, Calendar, Heart, MessageSquare } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AdvancedAnalyticsProps {
   userId: string;
 }
 
 const AdvancedAnalytics = ({ userId }: AdvancedAnalyticsProps) => {
+  const { t } = useLanguage();
   const [categoryData, setCategoryData] = useState<any[]>([]);
   const [timelineData, setTimelineData] = useState<any[]>([]);
   const [engagementData, setEngagementData] = useState<any[]>([]);
@@ -53,8 +55,8 @@ const AdvancedAnalytics = ({ userId }: AdvancedAnalyticsProps) => {
         }).length;
 
         last7Days.push({
-          date: date.toLocaleDateString('ro-RO', { weekday: 'short' }),
-          confesiuni: count,
+          date: date.toLocaleDateString(undefined, { weekday: 'short' }),
+          [t.analytics_confessions]: count,
         });
       }
       setTimelineData(last7Days);
@@ -67,7 +69,7 @@ const AdvancedAnalytics = ({ userId }: AdvancedAnalyticsProps) => {
 
       setEngagementData([
         { name: 'Likes', value: totalLikes, avg: avgLikes, icon: Heart, color: '#ef4444' },
-        { name: 'Comentarii', value: totalComments, avg: avgComments, icon: MessageSquare, color: '#3b82f6' },
+        { name: t.comments_title, value: totalComments, avg: avgComments, icon: MessageSquare, color: '#3b82f6' },
       ]);
     } catch (error) {
       console.error('Error loading analytics:', error);
@@ -96,7 +98,7 @@ const AdvancedAnalytics = ({ userId }: AdvancedAnalyticsProps) => {
                 <span className="text-sm text-muted-foreground">total</span>
               </div>
               <p className="text-sm text-muted-foreground">
-                Medie: <span className="font-semibold">{stat.avg}</span> per confesiune
+                {t.analytics_average_per}: <span className="font-semibold">{stat.avg}</span>
               </p>
             </div>
           </Card>
@@ -129,7 +131,7 @@ const AdvancedAnalytics = ({ userId }: AdvancedAnalyticsProps) => {
             />
             <Line 
               type="monotone" 
-              dataKey="confesiuni" 
+              dataKey={t.analytics_confessions}
               stroke="hsl(var(--primary))" 
               strokeWidth={2}
               dot={{ fill: 'hsl(var(--primary))' }}

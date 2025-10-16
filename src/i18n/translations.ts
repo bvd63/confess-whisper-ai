@@ -455,6 +455,63 @@ type Translations = {
   moderation_reject_title: string;
   moderation_reject_description: string;
   moderation_reason_placeholder: string;
+  
+  // Analytics
+  analytics_confessions: string;
+  analytics_average_per: string;
+  
+  // Coins
+  coins_per_confession: string;
+  
+  // Confession actions
+  confession_deleted: string;
+  confession_your_confession: string;
+  confession_reported_success: string;
+  confession_report_error: string;
+  
+  // Draft
+  draft_delete_error: string;
+  
+  // Export
+  export_error: string;
+  export_my_confessions: string;
+  
+  // Following
+  following_load_error: string;
+  following_start_following: string;
+  following_count_confessions: string;
+  
+  // Image Upload
+  image_added: string;
+  image_upload_error: string;
+  
+  // Leaderboard
+  leaderboard_confessions: string;
+  leaderboard_reactions: string;
+  
+  // Moderation actions
+  moderation_approved: string;
+  moderation_rejected: string;
+  moderation_marked: string;
+  moderation_action_error: string;
+  moderation_no_pending: string;
+  moderation_no_reported: string;
+  
+  // Reactions
+  reaction_update_error: string;
+  
+  // Streak
+  streak_last_confession: string;
+  
+  // Subscription errors
+  subscription_payment_error: string;
+  subscription_portal_error: string;
+  
+  // Preferences
+  preferences_save_error: string;
+  
+  // Comment Thread
+  comment_reply_error: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -658,6 +715,49 @@ export const translations: Record<Language, Translations> = {
     moderation_reject_title: "Reject confession",
     moderation_reject_description: "Provide a reason for rejecting this confession",
     moderation_reason_placeholder: "Reason (optional)...",
+    
+    analytics_confessions: "confessions",
+    analytics_average_per: "Average per confession",
+    
+    coins_per_confession: "coins for each confession",
+    
+    confession_deleted: "Confession was deleted",
+    confession_your_confession: "Your confession:",
+    confession_reported_success: "Confession was reported",
+    confession_report_error: "Could not report confession",
+    
+    draft_delete_error: "Could not delete draft",
+    
+    export_error: "Could not export data",
+    export_my_confessions: "My Confessions",
+    
+    following_load_error: "Could not load confessions",
+    following_start_following: "Start following users to see their confessions here",
+    following_count_confessions: "confessions",
+    
+    image_added: "Image was added to confession",
+    image_upload_error: "Could not upload image",
+    
+    leaderboard_confessions: "confessions",
+    leaderboard_reactions: "reactions",
+    
+    moderation_approved: "approved",
+    moderation_rejected: "rejected",
+    moderation_marked: "marked",
+    moderation_action_error: "Could not perform action",
+    moderation_no_pending: "No pending confessions",
+    moderation_no_reported: "No reported confessions",
+    
+    reaction_update_error: "Could not update reaction",
+    
+    streak_last_confession: "Last confession:",
+    
+    subscription_payment_error: "Could not initiate payment process",
+    subscription_portal_error: "Could not open subscription portal",
+    
+    preferences_save_error: "Could not save preferences",
+    
+    comment_reply_error: "Could not send reply",
     
     achievements_title: "Achievements",
     achievements_unlocked: "unlocked",
@@ -1302,6 +1402,49 @@ export const translations: Record<Language, Translations> = {
     moderation_reject_title: "Rechazar confesión",
     moderation_reject_description: "Proporciona una razón para rechazar esta confesión",
     moderation_reason_placeholder: "Motivo (opcional)...",
+    
+    analytics_confessions: "confesiones",
+    analytics_average_per: "Promedio por confesión",
+    
+    coins_per_confession: "monedas por cada confesión",
+    
+    confession_deleted: "La confesión fue eliminada",
+    confession_your_confession: "Tu confesión:",
+    confession_reported_success: "La confesión fue reportada",
+    confession_report_error: "No se pudo reportar la confesión",
+    
+    draft_delete_error: "No se pudo eliminar el borrador",
+    
+    export_error: "No se pudieron exportar los datos",
+    export_my_confessions: "Mis Confesiones",
+    
+    following_load_error: "No se pudieron cargar las confesiones",
+    following_start_following: "Comienza a seguir usuarios para ver sus confesiones aquí",
+    following_count_confessions: "confesiones",
+    
+    image_added: "La imagen fue añadida a la confesión",
+    image_upload_error: "No se pudo cargar la imagen",
+    
+    leaderboard_confessions: "confesiones",
+    leaderboard_reactions: "reacciones",
+    
+    moderation_approved: "aprobada",
+    moderation_rejected: "rechazada",
+    moderation_marked: "marcada",
+    moderation_action_error: "No se pudo realizar la acción",
+    moderation_no_pending: "No hay confesiones pendientes",
+    moderation_no_reported: "No hay confesiones reportadas",
+    
+    reaction_update_error: "No se pudo actualizar la reacción",
+    
+    streak_last_confession: "Última confesión:",
+    
+    subscription_payment_error: "No se pudo iniciar el proceso de pago",
+    subscription_portal_error: "No se pudo abrir el portal de suscripción",
+    
+    preferences_save_error: "No se pudieron guardar las preferencias",
+    
+    comment_reply_error: "No se pudo enviar la respuesta",
   },
   de: {
     app_name: "Confess+",
@@ -1724,5 +1867,48 @@ export const translations: Record<Language, Translations> = {
     moderation_reject_title: "Geständnis ablehnen",
     moderation_reject_description: "Gib einen Grund für die Ablehnung dieses Geständnisses an",
     moderation_reason_placeholder: "Grund (optional)...",
+    
+    analytics_confessions: "Geständnisse",
+    analytics_average_per: "Durchschnitt pro Geständnis",
+    
+    coins_per_confession: "Münzen für jedes Geständnis",
+    
+    confession_deleted: "Das Geständnis wurde gelöscht",
+    confession_your_confession: "Dein Geständnis:",
+    confession_reported_success: "Das Geständnis wurde gemeldet",
+    confession_report_error: "Das Geständnis konnte nicht gemeldet werden",
+    
+    draft_delete_error: "Der Entwurf konnte nicht gelöscht werden",
+    
+    export_error: "Die Daten konnten nicht exportiert werden",
+    export_my_confessions: "Meine Geständnisse",
+    
+    following_load_error: "Die Geständnisse konnten nicht geladen werden",
+    following_start_following: "Beginne Benutzern zu folgen, um ihre Geständnisse hier zu sehen",
+    following_count_confessions: "Geständnisse",
+    
+    image_added: "Das Bild wurde zum Geständnis hinzugefügt",
+    image_upload_error: "Das Bild konnte nicht hochgeladen werden",
+    
+    leaderboard_confessions: "Geständnisse",
+    leaderboard_reactions: "Reaktionen",
+    
+    moderation_approved: "genehmigt",
+    moderation_rejected: "abgelehnt",
+    moderation_marked: "markiert",
+    moderation_action_error: "Die Aktion konnte nicht durchgeführt werden",
+    moderation_no_pending: "Keine ausstehenden Geständnisse",
+    moderation_no_reported: "Keine gemeldeten Geständnisse",
+    
+    reaction_update_error: "Die Reaktion konnte nicht aktualisiert werden",
+    
+    streak_last_confession: "Letztes Geständnis:",
+    
+    subscription_payment_error: "Der Zahlungsprozess konnte nicht gestartet werden",
+    subscription_portal_error: "Das Abonnementportal konnte nicht geöffnet werden",
+    
+    preferences_save_error: "Die Einstellungen konnten nicht gespeichert werden",
+    
+    comment_reply_error: "Die Antwort konnte nicht gesendet werden",
   },
 };

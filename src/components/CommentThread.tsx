@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { MessageCircle, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
 interface Comment {
@@ -32,12 +33,13 @@ const CommentThread = ({
   const [replyContent, setReplyContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleReply = async () => {
     if (!currentUserId) {
       toast({
-        title: "Autentificare necesară",
-        description: "Trebuie să fii autentificat pentru a răspunde",
+        title: t.auth_error,
+        description: t.auth_error_generic,
         variant: "destructive",
       });
       return;
@@ -54,14 +56,14 @@ const CommentThread = ({
           content: replyContent.trim(),
           confession_id: confessionId,
           user_id: currentUserId,
-          parent_comment_id: parentCommentId, // Would need to add this column
+          parent_comment_id: parentCommentId,
         });
 
       if (error) throw error;
 
       toast({
-        title: "Răspuns trimis",
-        description: "Răspunsul tău a fost adăugat",
+        title: t.success_sent,
+        description: "Reply was added",
       });
 
       setReplyContent("");
@@ -70,8 +72,8 @@ const CommentThread = ({
     } catch (error) {
       console.error('Error posting reply:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut trimite răspunsul",
+        title: t.common_error,
+        description: t.comment_reply_error,
         variant: "destructive",
       });
     } finally {
@@ -87,7 +89,7 @@ const CommentThread = ({
             <div key={reply.id} className="text-sm">
               <p className="text-muted-foreground">{reply.content}</p>
               <span className="text-xs text-muted-foreground">
-                {new Date(reply.created_at).toLocaleDateString('ro-RO')}
+                {new Date(reply.created_at).toLocaleDateString()}
               </span>
             </div>
           ))}
@@ -102,14 +104,14 @@ const CommentThread = ({
           className="text-xs gap-1"
         >
           <MessageCircle className="w-3 h-3" />
-          Răspunde
+          Reply
         </Button>
       ) : (
         <div className="space-y-2">
           <Textarea
             value={replyContent}
             onChange={(e) => setReplyContent(e.target.value)}
-            placeholder="Scrie un răspuns..."
+            placeholder="Write a reply..."
             className="min-h-[60px] text-sm"
             disabled={isSubmitting}
           />
@@ -120,7 +122,7 @@ const CommentThread = ({
               disabled={isSubmitting || !replyContent.trim()}
             >
               <Send className="w-3 h-3 mr-1" />
-              Trimite
+              Send
             </Button>
             <Button
               size="sm"
@@ -131,7 +133,7 @@ const CommentThread = ({
               }}
               disabled={isSubmitting}
             >
-              Anulează
+              Cancel
             </Button>
           </div>
         </div>
