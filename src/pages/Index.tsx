@@ -66,7 +66,7 @@ const Index = () => {
     if (refCode) {
       localStorage.setItem('referralCode', refCode);
     }
-  }, []);
+  }, [trackEvent]);
 
   const handleNewConfession = () => {
     if (!user) {
@@ -113,7 +113,7 @@ const Index = () => {
         variant: "destructive",
       });
     }
-  }, [supabase, trackEvent, toast, t]);
+  }, [trackEvent, toast, t]);
 
   const handleUpgradeToPremium = useCallback(async () => {
     toast({
