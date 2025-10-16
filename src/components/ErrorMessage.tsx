@@ -1,5 +1,6 @@
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ErrorMessageProps {
   title?: string;
@@ -12,6 +13,8 @@ const ErrorMessage = ({
   message,
   onRetry 
 }: ErrorMessageProps) => {
+  const { t } = useLanguage();
+  
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-12 px-4">
       <div className="rounded-full bg-destructive/10 p-4">

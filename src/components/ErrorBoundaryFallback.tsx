@@ -1,6 +1,7 @@
 import { Component, ReactNode } from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { translations } from '@/i18n/translations';
 
 interface Props {
   children: ReactNode;
@@ -36,6 +37,9 @@ class ErrorBoundary extends Component<Props, State> {
       if (this.props.fallback) {
         return this.props.fallback;
       }
+
+      const language = (localStorage.getItem('language') as 'en' | 'es' | 'de') || 'en';
+      const t = translations[language];
 
       return (
         <div className="min-h-screen flex items-center justify-center bg-background p-4">

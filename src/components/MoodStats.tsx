@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Smile, Frown, Meh, Angry, Sparkles } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface MoodStatsProps {
   userId: string;
@@ -33,6 +34,7 @@ const moodIcons: Record<string, any> = {
 };
 
 const MoodStats = ({ userId }: MoodStatsProps) => {
+  const { t } = useLanguage();
   const [moodData, setMoodData] = useState<MoodData[]>([]);
   const [timelineData, setTimelineData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
