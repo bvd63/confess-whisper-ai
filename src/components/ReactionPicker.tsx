@@ -110,7 +110,7 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
   };
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-1.5 sm:gap-2">
       {reactions.map(({ type, icon: Icon, label, color }) => {
         const count = reactionCounts[type] || 0;
         const isActive = userReactions.has(type);
@@ -123,12 +123,12 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
             onClick={() => toggleReaction(type)}
             disabled={isLoading}
             className={cn(
-              "gap-1",
+              "gap-1 h-9 sm:h-8 min-w-[44px] px-2 sm:px-3 touch-manipulation",
               isActive && color
             )}
             title={label}
           >
-            <Icon className="w-4 h-4" />
+            <Icon className="w-4 h-4 flex-shrink-0" />
             {count > 0 && <span className="text-xs">{count}</span>}
           </Button>
         );

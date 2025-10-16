@@ -109,19 +109,19 @@ const FollowButton = ({ targetUserId, currentUserId }: FollowButtonProps) => {
       onClick={toggleFollow}
       disabled={loading}
       className={cn(
-        "gap-1",
+        "gap-1 h-9 sm:h-8 min-w-[44px] px-2 sm:px-3 text-xs sm:text-sm touch-manipulation",
         isFollowing && "border-primary/30"
       )}
     >
       {isFollowing ? (
         <>
-          <UserMinus className="w-4 h-4" />
-          Following
+          <UserMinus className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+          <span className="hidden xs:inline">Following</span>
         </>
       ) : (
         <>
-          <UserPlus className="w-4 h-4" />
-          Follow
+          <UserPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+          <span className="hidden xs:inline">Follow</span>
         </>
       )}
     </Button>

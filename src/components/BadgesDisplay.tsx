@@ -121,26 +121,26 @@ const BadgesDisplay = ({ userId, variant = "compact" }: BadgesDisplayProps) => {
     const earnedBadges = badges.filter(b => b.earned);
     return (
       <TooltipProvider>
-        <div className="flex gap-1 flex-wrap">
+        <div className="flex gap-1 sm:gap-1.5 flex-wrap">
           {earnedBadges.slice(0, 3).map((badge) => {
             const IconComponent = iconMap[badge.icon] || Award;
             const translation = getBadgeTranslation(badge);
             return (
               <Tooltip key={badge.id}>
                 <TooltipTrigger>
-                  <Badge variant="secondary" className="gap-1">
-                    <IconComponent className="w-3 h-3" />
+                  <Badge variant="secondary" className="gap-1 h-6 sm:h-auto px-1.5 sm:px-2">
+                    <IconComponent className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   </Badge>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p className="font-semibold">{translation.name}</p>
-                  <p className="text-xs text-muted-foreground">{translation.description}</p>
+                  <p className="font-semibold text-xs sm:text-sm">{translation.name}</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground">{translation.description}</p>
                 </TooltipContent>
               </Tooltip>
             );
           })}
           {earnedBadges.length > 3 && (
-            <Badge variant="outline" className="text-xs">
+            <Badge variant="outline" className="text-[10px] sm:text-xs h-6 sm:h-auto px-1.5 sm:px-2">
               +{earnedBadges.length - 3}
             </Badge>
           )}
@@ -150,7 +150,7 @@ const BadgesDisplay = ({ userId, variant = "compact" }: BadgesDisplayProps) => {
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
       {badges.map((badge) => {
         const IconComponent = iconMap[badge.icon] || Award;
         const translation = getBadgeTranslation(badge);
@@ -160,32 +160,32 @@ const BadgesDisplay = ({ userId, variant = "compact" }: BadgesDisplayProps) => {
           <div
             key={badge.id}
             className={cn(
-              "flex flex-col items-center gap-2 p-4 border rounded-lg transition-colors relative",
+              "flex flex-col items-center gap-2 p-3 sm:p-4 border rounded-lg transition-colors relative",
               isLocked 
                 ? "bg-muted/50 opacity-60" 
                 : "bg-card hover:bg-accent/50"
             )}
           >
             <div className={cn(
-              "w-12 h-12 rounded-full flex items-center justify-center relative",
+              "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center relative",
               isLocked ? "bg-muted" : "bg-primary/10"
             )}>
               {isLocked ? (
-                <Lock className="w-6 h-6 text-muted-foreground" />
+                <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground" />
               ) : (
-                <IconComponent className="w-6 h-6 text-primary" />
+                <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               )}
             </div>
             <div className="text-center">
               <p className={cn(
-                "font-semibold text-sm",
+                "font-semibold text-xs sm:text-sm",
                 isLocked && "text-muted-foreground"
               )}>
                 {translation.name}
               </p>
-              <p className="text-xs text-muted-foreground">{translation.description}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight">{translation.description}</p>
               {!isLocked && badge.earned_at && (
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
                   {t.badges_earned_on} {new Date(badge.earned_at).toLocaleDateString(
                     language === 'es' ? 'es-ES' : language === 'de' ? 'de-DE' : 'en-US'
                   )}
