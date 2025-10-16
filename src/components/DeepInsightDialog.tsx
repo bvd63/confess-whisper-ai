@@ -92,7 +92,7 @@ const DeepInsightDialog = ({
         <div className="space-y-4 py-4">
           {/* Original Confession */}
           <div className="p-4 bg-muted/50 rounded-lg border border-border/50">
-            <p className="text-sm text-muted-foreground mb-2">Confesiunea ta:</p>
+            <p className="text-sm text-muted-foreground mb-2">{t.deep_insight_your_confession}</p>
             <p className="text-foreground leading-relaxed">
               {confession.content}
             </p>

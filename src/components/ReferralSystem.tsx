@@ -83,7 +83,7 @@ const ReferralSystem = ({ userId }: ReferralSystemProps) => {
     <Card className="p-6">
       <div className="flex items-center gap-2 mb-6">
         <Gift className="w-6 h-6 text-primary" />
-        <h3 className="text-lg font-semibold">Program de recomandare</h3>
+        <h3 className="text-lg font-semibold">{t.referral_program_title}</h3>
       </div>
 
       {/* Stats */}
@@ -91,7 +91,7 @@ const ReferralSystem = ({ userId }: ReferralSystemProps) => {
         <div className="text-center p-4 bg-primary/10 rounded-lg">
           <Users className="w-6 h-6 text-primary mx-auto mb-2" />
           <p className="text-2xl font-bold text-primary">{completedCount}</p>
-          <p className="text-xs text-muted-foreground">Completate</p>
+          <p className="text-xs text-muted-foreground">{t.referral_completed}</p>
         </div>
         <div className="text-center p-4 bg-muted/50 rounded-lg">
           <Users className="w-6 h-6 text-muted-foreground mx-auto mb-2" />

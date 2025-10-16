@@ -22,7 +22,11 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    console.log('Moderating content in language:', language);
+    // Whitelist: only EN/ES/DE supported, coerce to EN if invalid
+    const SUPPORTED_LANGUAGES = ['en', 'es', 'de'];
+    const validLanguage = SUPPORTED_LANGUAGES.includes(language) ? language : 'en';
+
+    console.log('Moderating content in language:', validLanguage);
 
     const languageInstructions: Record<string, string> = {
       en: 'Respond in English',
@@ -30,7 +34,7 @@ serve(async (req) => {
       de: 'Antworte auf Deutsch'
     };
     
-    const selectedLanguage = languageInstructions[language] || languageInstructions.en;
+    const selectedLanguage = languageInstructions[validLanguage];
 
     const systemPrompt = `You are an AI moderator checking if text contains:
 - Violent or threatening content

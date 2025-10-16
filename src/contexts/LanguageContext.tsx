@@ -11,16 +11,44 @@ export type { Language };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+// Supported languages whitelist
+const SUPPORTED_LANGUAGES: Language[] = ['en', 'es', 'de'];
+
+/**
+ * Ensures the language code is supported, coercing to 'en' if not
+ */
+export function ensureLanguage(code: string | null | undefined): Language {
+  if (!code) return 'en';
+  const normalized = code.toLowerCase().slice(0, 2) as Language;
+  return SUPPORTED_LANGUAGES.includes(normalized) ? normalized : 'en';
+}
+
+/**
+ * Detects browser language with fallback to English
+ */
+function detectBrowserLanguage(): Language {
+  if (typeof navigator === 'undefined') return 'en';
+  const browserLang = navigator.language || (navigator as any).userLanguage;
+  return ensureLanguage(browserLang);
+}
+
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguageState] = useState<Language>(() => {
-    const saved = localStorage.getItem('language') as Language;
-    const validLanguages: Language[] = ['en', 'es', 'de'];
-    return validLanguages.includes(saved) ? saved : 'en';
+    // Priority: localStorage > browser detection > default 'en'
+    const saved = localStorage.getItem('language');
+    if (saved) {
+      return ensureLanguage(saved);
+    }
+    const detected = detectBrowserLanguage();
+    // Save detected language to localStorage
+    localStorage.setItem('language', detected);
+    return detected;
   });
 
   const setLanguage = (lang: Language) => {
-    setLanguageState(lang);
-    localStorage.setItem('language', lang);
+    const validLang = ensureLanguage(lang);
+    setLanguageState(validLang);
+    localStorage.setItem('language', validLang);
   };
 
   useEffect(() => {

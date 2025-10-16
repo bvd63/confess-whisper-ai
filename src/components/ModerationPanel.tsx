@@ -189,9 +189,9 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-6">
           <Shield className="w-6 h-6 text-primary" />
-          <h2 className="text-2xl font-bold">Panoul de moderare</h2>
+          <h2 className="text-2xl font-bold">{t.moderation_panel_title}</h2>
           <Badge variant="secondary" className="ml-auto">
-            {userRole === 'admin' ? 'Administrator' : 'Moderator'}
+            {userRole === 'admin' ? t.moderation_role_admin : t.moderation_role_moderator}
           </Badge>
         </div>
 
@@ -278,7 +278,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
                         {/* Show reports */}
                         {confession.reports && confession.reports.length > 0 && (
                           <div className="mt-3 space-y-2">
-                            <p className="text-xs font-semibold text-muted-foreground">Motive:</p>
+                            <p className="text-xs font-semibold text-muted-foreground">{t.moderation_reports_title}</p>
                             {confession.reports.slice(0, 3).map((report: any, idx: number) => (
                               <div key={idx} className="text-xs bg-destructive/10 p-2 rounded">
                                 <p className="font-medium">{report.reason}</p>

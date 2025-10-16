@@ -1,5 +1,45 @@
 export type Language = 'en' | 'es' | 'de';
 
+// Supported languages whitelist
+export const SUPPORTED_LANGUAGES: Language[] = ['en', 'es', 'de'];
+
+/**
+ * Ensures the language code is supported, coercing to 'en' if not
+ */
+export function ensureLanguage(code: string | null | undefined): Language {
+  if (!code) return 'en';
+  const normalized = code.toLowerCase().slice(0, 2) as Language;
+  return SUPPORTED_LANGUAGES.includes(normalized) ? normalized : 'en';
+}
+
+/**
+ * Safe translation helper with strict English fallback
+ * Never returns mixed-language strings - falls back atomically to English
+ */
+export function getTranslation(
+  key: keyof Translations,
+  language: Language
+): string {
+  const translation = translations[language]?.[key];
+  
+  if (translation !== undefined) {
+    return translation;
+  }
+  
+  // Strict fallback to English
+  const fallback = translations.en[key];
+  
+  // Log warning in development when fallback occurs
+  if (import.meta.env.DEV && language !== 'en') {
+    console.warn(
+      `[i18n] Missing translation for key "${key}" in language "${language}". ` +
+      `Falling back to English.`
+    );
+  }
+  
+  return fallback ?? key;
+}
+
 type Translations = {
   app_name: string;
   welcome_title: string;
@@ -716,6 +756,13 @@ type Translations = {
   moderation_action_rejected: string;
   moderation_action_marked: string;
   moderation_error_action: string;
+  moderation_panel_title: string;
+  moderation_role_admin: string;
+  moderation_role_moderator: string;
+  moderation_reports_title: string;
+  referral_program_title: string;
+  referral_completed: string;
+  deep_insight_your_confession: string;
   moderation_pending_count: string;
   moderation_approve: string;
   moderation_reported_count: string;
@@ -1376,6 +1423,13 @@ export const translations: Record<Language, Translations> = {
     moderation_action_rejected: "rejected",
     moderation_action_marked: "marked",
     moderation_error_action: "Could not perform action",
+    moderation_panel_title: "Moderation Panel",
+    moderation_role_admin: "Administrator",
+    moderation_role_moderator: "Moderator",
+    moderation_reports_title: "Reasons:",
+    referral_program_title: "Referral Program",
+    referral_completed: "Completed",
+    deep_insight_your_confession: "Your confession:",
     moderation_pending_count: "Pending",
     moderation_approve: "Approve",
     moderation_reported_count: "Reported",
@@ -2036,6 +2090,13 @@ export const translations: Record<Language, Translations> = {
     moderation_action_rejected: "rechazada",
     moderation_action_marked: "marcada",
     moderation_error_action: "No se pudo realizar la acción",
+    moderation_panel_title: "Panel de Moderación",
+    moderation_role_admin: "Administrador",
+    moderation_role_moderator: "Moderador",
+    moderation_reports_title: "Razones:",
+    referral_program_title: "Programa de Referidos",
+    referral_completed: "Completados",
+    deep_insight_your_confession: "Tu confesión:",
     moderation_pending_count: "Pendiente",
     moderation_approve: "Aprobar",
     moderation_reported_count: "Reportada",
@@ -2696,6 +2757,13 @@ export const translations: Record<Language, Translations> = {
     moderation_action_rejected: "abgelehnt",
     moderation_action_marked: "markiert",
     moderation_error_action: "Aktion konnte nicht ausgeführt werden",
+    moderation_panel_title: "Moderationspanel",
+    moderation_role_admin: "Administrator",
+    moderation_role_moderator: "Moderator",
+    moderation_reports_title: "Gründe:",
+    referral_program_title: "Empfehlungsprogramm",
+    referral_completed: "Abgeschlossen",
+    deep_insight_your_confession: "Dein Geständnis:",
     moderation_pending_count: "Ausstehend",
     moderation_approve: "Genehmigen",
     moderation_reported_count: "Gemeldet",
