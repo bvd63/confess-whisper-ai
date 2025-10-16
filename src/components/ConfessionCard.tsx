@@ -8,6 +8,8 @@ import ConfessionActions from "./ConfessionActions";
 import ConfessionHeader from "./ConfessionHeader";
 import ReactionPicker from "./ReactionPicker";
 import BadgesDisplay from "./BadgesDisplay";
+import FollowButton from "./FollowButton";
+import StreakCounter from "./StreakCounter";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -86,10 +88,17 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         {confession.content}
       </p>
 
-      {/* Show user badges if available */}
+      {/* Show user badges and streak if available */}
       {confession.user_id && (
-        <div className="mb-3">
+        <div className="flex items-center gap-3 mb-3 flex-wrap">
           <BadgesDisplay userId={confession.user_id} variant="compact" />
+          <StreakCounter userId={confession.user_id} variant="compact" />
+          <div className="ml-auto">
+            <FollowButton 
+              targetUserId={confession.user_id} 
+              currentUserId={user?.id || null}
+            />
+          </div>
         </div>
       )}
 

@@ -1,0 +1,129 @@
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { UserPlus, UserMinus } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+
+interface FollowButtonProps {
+  targetUserId: string;
+  currentUserId: string | null;
+}
+
+const FollowButton = ({ targetUserId, currentUserId }: FollowButtonProps) => {
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    checkFollowStatus();
+  }, [targetUserId, currentUserId]);
+
+  const checkFollowStatus = async () => {
+    if (!currentUserId) return;
+
+    const { data } = await supabase
+      .from('user_follows')
+      .select('id')
+      .eq('follower_id', currentUserId)
+      .eq('following_id', targetUserId)
+      .maybeSingle();
+
+    setIsFollowing(!!data);
+  };
+
+  const toggleFollow = async () => {
+    if (!currentUserId) {
+      toast({
+        title: "Autentificare necesară",
+        description: "Trebuie să fii autentificat pentru a urmări utilizatori",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (currentUserId === targetUserId) {
+      toast({
+        title: "Acțiune invalidă",
+        description: "Nu te poți urmări pe tine însuți",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      if (isFollowing) {
+        // Unfollow
+        const { error } = await supabase
+          .from('user_follows')
+          .delete()
+          .eq('follower_id', currentUserId)
+          .eq('following_id', targetUserId);
+
+        if (error) throw error;
+
+        setIsFollowing(false);
+        toast({
+          title: "Nu mai urmărești",
+          description: "Ai încetat să urmărești acest utilizator",
+        });
+      } else {
+        // Follow
+        const { error } = await supabase
+          .from('user_follows')
+          .insert({
+            follower_id: currentUserId,
+            following_id: targetUserId,
+          });
+
+        if (error) throw error;
+
+        setIsFollowing(true);
+        toast({
+          title: "Urmărești acum",
+          description: "Vei vedea confesiunile acestui utilizator în feed",
+        });
+      }
+    } catch (error) {
+      console.error('Error toggling follow:', error);
+      toast({
+        title: "Eroare",
+        description: "Nu am putut finaliza acțiunea",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!currentUserId || currentUserId === targetUserId) return null;
+
+  return (
+    <Button
+      variant={isFollowing ? "outline" : "default"}
+      size="sm"
+      onClick={toggleFollow}
+      disabled={loading}
+      className={cn(
+        "gap-1",
+        isFollowing && "border-primary/30"
+      )}
+    >
+      {isFollowing ? (
+        <>
+          <UserMinus className="w-4 h-4" />
+          Urmărești
+        </>
+      ) : (
+        <>
+          <UserPlus className="w-4 h-4" />
+          Urmărește
+        </>
+      )}
+    </Button>
+  );
+};
+
+export default FollowButton;

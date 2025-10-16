@@ -13,6 +13,11 @@ import UserAnalytics from "@/components/UserAnalytics";
 import BadgesDisplay from "@/components/BadgesDisplay";
 import StreakCounter from "@/components/StreakCounter";
 import UserPreferences from "@/components/UserPreferences";
+import MoodStats from "@/components/MoodStats";
+import WordCloudViz from "@/components/WordCloudViz";
+import FollowStats from "@/components/FollowStats";
+import StreakReminder from "@/components/StreakReminder";
+import AchievementToast from "@/components/AchievementToast";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -34,6 +39,8 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <AchievementToast userId={user.id} />
+      
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="flex items-center justify-between mb-8">
           <Button
@@ -56,17 +63,22 @@ const Profile = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="statistics" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+        <StreakReminder userId={user.id} />
+
+        <Tabs defaultValue="statistics" className="space-y-6 mt-6">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="statistics">{t.profile_statistics}</TabsTrigger>
             <TabsTrigger value="confessions">{t.profile_my_confessions}</TabsTrigger>
             <TabsTrigger value="achievements">Realizări</TabsTrigger>
+            <TabsTrigger value="mood">Stări</TabsTrigger>
             <TabsTrigger value="settings">Setări</TabsTrigger>
           </TabsList>
 
           <TabsContent value="statistics" className="space-y-6">
             <StreakCounter userId={user.id} variant="full" />
+            <FollowStats userId={user.id} />
             <UserAnalytics />
+            <WordCloudViz userId={user.id} />
           </TabsContent>
 
           <TabsContent value="confessions" className="space-y-6">
@@ -78,6 +90,10 @@ const Profile = () => {
               <h2 className="text-2xl font-bold">Badge-urile tale</h2>
               <BadgesDisplay userId={user.id} variant="full" />
             </div>
+          </TabsContent>
+
+          <TabsContent value="mood" className="space-y-6">
+            <MoodStats userId={user.id} />
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">

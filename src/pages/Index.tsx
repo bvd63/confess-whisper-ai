@@ -1,7 +1,7 @@
 import { useState, useEffect, lazy, Suspense, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Heart, PlusCircle, LogOut, Sparkles, Crown, User, TrendingUp, Clock, LogIn, Filter, BookMarked } from "lucide-react";
+import { Heart, PlusCircle, LogOut, Sparkles, Crown, User, TrendingUp, Clock, LogIn, Filter, BookMarked, Users } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ConfessionFeed from "@/components/ConfessionFeed";
@@ -12,6 +12,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import NotificationsDropdown from "@/components/NotificationsDropdown";
 import DailyPrompt from "@/components/DailyPrompt";
 import Leaderboard from "@/components/Leaderboard";
+import RecommendedConfessions from "@/components/RecommendedConfessions";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
@@ -192,6 +193,15 @@ const Index = () => {
                 <Button
                   variant="ghost"
                   size="icon"
+                  onClick={() => navigate('/following')}
+                  className="text-muted-foreground hover:text-foreground"
+                  title="Feed personalizat"
+                >
+                  <Users className="w-5 h-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={() => navigate('/profile')}
                   className="text-muted-foreground hover:text-foreground"
                 >
@@ -249,6 +259,16 @@ const Index = () => {
 
         {/* Feature Highlights */}
         <FeatureHighlight />
+
+        {/* Recommended Confessions */}
+        {user && (
+          <div className="my-6">
+            <RecommendedConfessions 
+              userId={user.id} 
+              currentCategory={categoryFilter !== 'all' ? categoryFilter : undefined}
+            />
+          </div>
+        )}
 
         {/* Filters */}
         {confessions.length > 0 && (
