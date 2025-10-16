@@ -1,6 +1,6 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@14.21.0";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.75.0";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import Stripe from "https://esm.sh/stripe@18.5.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -32,11 +32,12 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const { priceId } = await req.json();
+    const { priceId, planName, billingCycle } = await req.json();
+    logStep("Request body parsed", { priceId, planName, billingCycle });
+    
     if (!priceId) throw new Error("Price ID is required");
-    logStep("Price ID received", { priceId });
 
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { apiVersion: "2023-10-16" });
+    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { apiVersion: "2025-08-27.basil" as any });
     
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId;
@@ -58,8 +59,13 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${origin}/payment-success`,
+      success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/payment-canceled`,
+      metadata: {
+        user_id: user.id,
+        plan_name: planName || 'unknown',
+        billing_cycle: billingCycle || 'monthly'
+      },
     });
 
     logStep("Checkout session created", { sessionId: session.id });

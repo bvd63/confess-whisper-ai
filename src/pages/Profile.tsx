@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, User } from "lucide-react";
+import { ArrowLeft, User, Settings } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useSubscriptionCheck } from "@/hooks/useSubscriptionCheck";
 import UserConfessionsList from "@/components/UserConfessionsList";
 import UserAnalytics from "@/components/UserAnalytics";
 import BadgesDisplay from "@/components/BadgesDisplay";
@@ -24,14 +26,39 @@ import ModerationPanel from "@/components/ModerationPanel";
 import CoinsDisplay from "@/components/CoinsDisplay";
 import BlockedUsers from "@/components/BlockedUsers";
 import ReferralSystem from "@/components/ReferralSystem";
+import PremiumDialog from "@/components/PremiumDialog";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useToast } from "@/hooks/use-toast";
 
 const Profile = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { user } = useCurrentUser();
+  const { isPremium, subscriptionTier, isVIP } = usePremiumStatus(user?.id);
+  const { checkSubscription } = useSubscriptionCheck(user?.id);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [premiumDialogOpen, setPremiumDialogOpen] = useState(false);
   const { isModerator } = useUserRole(user?.id);
+  const { toast } = useToast();
+
+  const handleManageSubscription = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('customer-portal');
+      
+      if (error) throw error;
+      
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      }
+    } catch (error) {
+      console.error('Error opening customer portal:', error);
+      toast({
+        title: "Eroare",
+        description: "Nu am putut deschide portalul de abonament",
+        variant: "destructive",
+      });
+    }
+  };
 
   useEffect(() => {
     checkAuth();
@@ -85,6 +112,30 @@ const Profile = () => {
           </TabsList>
 
           <TabsContent value="statistics" className="space-y-6">
+            {/* Subscription Status Card */}
+            <div className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg border border-primary/20">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-lg font-semibold mb-1">
+                    Plan {subscriptionTier === 'free' ? 'Gratuit' : subscriptionTier === 'vip' ? 'VIP' : 'Premium'}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {isPremium ? 'Mulțumim pentru suport!' : 'Upgrade pentru mai multe funcții'}
+                  </p>
+                </div>
+                {isPremium ? (
+                  <Button onClick={handleManageSubscription} variant="outline">
+                    <Settings className="w-4 h-4 mr-2" />
+                    Gestionează abonament
+                  </Button>
+                ) : (
+                  <Button onClick={() => setPremiumDialogOpen(true)}>
+                    Upgrade la Premium
+                  </Button>
+                )}
+              </div>
+            </div>
+
             <StreakCounter userId={user.id} variant="full" />
             <CoinsDisplay userId={user.id} variant="full" />
             <FollowStats userId={user.id} />
@@ -136,6 +187,12 @@ const Profile = () => {
         open={exportDialogOpen}
         onOpenChange={setExportDialogOpen}
         userId={user.id}
+      />
+
+      <PremiumDialog
+        open={premiumDialogOpen}
+        onOpenChange={setPremiumDialogOpen}
+        onUpgrade={() => {}}
       />
     </div>
   );

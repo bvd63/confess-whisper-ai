@@ -17,10 +17,11 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const supabaseClient = createClient(
-    Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_ANON_KEY") ?? ""
-  );
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
 
   try {
     logStep("Function started");
@@ -48,12 +49,13 @@ serve(async (req) => {
     if (customers.data.length === 0) {
       logStep("No customer found, updating unsubscribed state");
       
-      // Update profile to reflect free status
+      // Update profile to free tier
       await supabaseClient
         .from('profiles')
         .update({ 
+          subscription_tier: 'free',
           is_premium: false,
-          subscription_status: 'free',
+          subscription_ends_at: null,
           stripe_subscription_id: null
         })
         .eq('user_id', user.id);
@@ -67,6 +69,12 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     logStep("Found Stripe customer", { customerId });
 
+    // Update profile with Stripe customer ID
+    await supabaseClient
+      .from('profiles')
+      .update({ stripe_customer_id: customerId })
+      .eq('user_id', user.id);
+
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
       status: "active",
@@ -74,31 +82,36 @@ serve(async (req) => {
     });
     const hasActiveSub = subscriptions.data.length > 0;
     let subscriptionEnd = null;
+    let subscriptionTier = 'free';
 
     if (hasActiveSub) {
       const subscription = subscriptions.data[0];
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
       logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
       
-      // Update profile with subscription details
+      // Determine tier based on metadata or price
+      subscriptionTier = subscription.metadata?.plan_name?.toLowerCase() || 'premium';
+      
+      // Update profile with subscription info
       await supabaseClient
         .from('profiles')
         .update({ 
           is_premium: true,
-          subscription_status: 'active',
-          stripe_customer_id: customerId,
+          subscription_tier: subscriptionTier,
+          subscription_ends_at: subscriptionEnd,
           stripe_subscription_id: subscription.id
         })
         .eq('user_id', user.id);
     } else {
       logStep("No active subscription found");
       
-      // Update profile to free
+      // Update profile to free tier
       await supabaseClient
         .from('profiles')
         .update({ 
+          subscription_tier: 'free',
           is_premium: false,
-          subscription_status: 'free',
+          subscription_ends_at: null,
           stripe_subscription_id: null
         })
         .eq('user_id', user.id);
@@ -106,6 +119,7 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({
       subscribed: hasActiveSub,
+      subscription_tier: subscriptionTier,
       subscription_end: subscriptionEnd
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

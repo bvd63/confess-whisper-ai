@@ -25,6 +25,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useSubscriptionCheck } from "@/hooks/useSubscriptionCheck";
 import { useConfessions } from "@/hooks/useConfessions";
 import { useConfessionSearch } from "@/hooks/useConfessionSearch";
 import { useRateLimitHandler } from "@/components/RateLimitNotification";
@@ -44,6 +45,7 @@ const Index = () => {
   const { t } = useLanguage();
   const { user } = useCurrentUser();
   const { isPremium } = usePremiumStatus(user?.id);
+  useSubscriptionCheck(user?.id);
   const { likedConfessions, bookmarkedConfessions, reloadLikes, reloadBookmarks } = useConfessionInteractions({ userId: user?.id || null });
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
