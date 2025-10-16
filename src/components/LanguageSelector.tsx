@@ -17,6 +17,14 @@ const languages = [
 export const LanguageSelector = () => {
   const { language, setLanguage } = useLanguage();
 
+  const handleLanguageChange = (newLanguage: Language) => {
+    if (newLanguage !== language) {
+      setLanguage(newLanguage);
+      // Reload page to ensure full synchronization
+      window.location.reload();
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -28,7 +36,7 @@ export const LanguageSelector = () => {
         {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
-            onClick={() => setLanguage(lang.code)}
+            onClick={() => handleLanguageChange(lang.code)}
             className={language === lang.code ? 'bg-accent' : ''}
           >
             <span className="mr-2">{lang.flag}</span>

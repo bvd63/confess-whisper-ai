@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { content, language = 'ro' } = await req.json();
+    const { content, language = 'en' } = await req.json();
     
     if (!content) {
       throw new Error('Content is required');
@@ -27,9 +27,10 @@ serve(async (req) => {
     const languageInstructions: Record<string, string> = {
       en: 'Respond in English',
       es: 'Responde en español',
-      de: 'Antworte auf Deutsch',
-      ro: 'Răspunde în română'
+      de: 'Antworte auf Deutsch'
     };
+    
+    const selectedLanguage = languageInstructions[language] || languageInstructions.en;
 
     const systemPrompt = `You are an AI moderator checking if text contains:
 - Violent or threatening content
@@ -37,7 +38,7 @@ serve(async (req) => {
 - Incitement to self-harm or harm to others
 - Spam or aggressive commercial promotion
 
-${languageInstructions[language]}.
+${selectedLanguage}.
 
 IMPORTANT: Confessions can contain negative emotions, frustrations or sadness - these are OK and normal. Mark as unsafe ONLY truly dangerous content.`;
 

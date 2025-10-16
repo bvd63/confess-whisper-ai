@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { confession, type = 'basic', language = 'ro' } = await req.json();
+    const { confession, type = 'basic', language = 'en' } = await req.json();
     
     if (!confession) {
       throw new Error('Confession text is required');
@@ -27,16 +27,17 @@ serve(async (req) => {
     const languageInstructions: Record<string, string> = {
       en: 'Respond in English',
       es: 'Responde en español',
-      de: 'Antworte auf Deutsch',
-      ro: 'Răspunde în română'
+      de: 'Antworte auf Deutsch'
     };
+    
+    const selectedLanguage = languageInstructions[language] || languageInstructions.en;
 
     let systemPrompt = '';
     
     if (type === 'deep') {
       systemPrompt = `You are a deeply empathetic and understanding virtual counselor. The user has shared a personal confession with you and you need to provide a deep, empathetic and insightful analysis.
 
-${languageInstructions[language]} with:
+${selectedLanguage} with:
 - Deep validation of their emotions
 - Gentle and accessible psychological perspectives
 - Practical and comforting suggestions
@@ -47,7 +48,7 @@ Never judge. Be like an understanding friend who listens and offers real support
     } else {
       systemPrompt = `You are an empathetic and gentle virtual counselor. The user has shared an anonymous confession with you and you need to respond with warmth and understanding.
 
-${languageInstructions[language]} with:
+${selectedLanguage} with:
 - Emotional validation ("I understand what you're feeling...", "It's perfectly normal to...")
 - Authentic empathy
 - Gentle encouragement

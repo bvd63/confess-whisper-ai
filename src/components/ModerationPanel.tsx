@@ -220,9 +220,9 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
                       <div className="flex-1">
                         <p className="text-sm mb-2">{confession.content}</p>
                         <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <span>Categorie: {confession.category}</span>
+                          <span>{t.moderation_category_label}: {confession.category}</span>
                           <span>
-                            {new Date(confession.created_at).toLocaleDateString('ro-RO')}
+                            {new Date(confession.created_at).toLocaleDateString()}
                           </span>
                         </div>
                       </div>

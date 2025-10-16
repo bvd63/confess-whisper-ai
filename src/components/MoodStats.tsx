@@ -83,7 +83,7 @@ const MoodStats = ({ userId }: MoodStatsProps) => {
 
     if (timeline) {
       const dailyMood = timeline.map(entry => ({
-        date: new Date(entry.created_at).toLocaleDateString('ro-RO', { 
+        date: new Date(entry.created_at).toLocaleDateString(undefined, { 
           month: 'short', 
           day: 'numeric' 
         }),

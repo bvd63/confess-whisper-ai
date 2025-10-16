@@ -686,6 +686,7 @@ type Translations = {
   preferences_color_pink: string;
   following_your_feed: string;
   index_back_to_feed: string;
+  moderation_category_label: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -1299,6 +1300,7 @@ export const translations: Record<Language, Translations> = {
     preferences_color_pink: "Pink",
     following_your_feed: "Your Feed",
     index_back_to_feed: "Back to Feed",
+    moderation_category_label: "Category",
   },
   es: {
     app_name: "Confess+",
@@ -1912,6 +1914,7 @@ export const translations: Record<Language, Translations> = {
     preferences_color_pink: "Rosa",
     following_your_feed: "Tu Feed",
     index_back_to_feed: "Volver al Feed",
+    moderation_category_label: "Categoría",
   },
   de: {
     app_name: "Confess+",
@@ -2525,5 +2528,6 @@ export const translations: Record<Language, Translations> = {
     preferences_color_pink: "Rosa",
     following_your_feed: "Dein Feed",
     index_back_to_feed: "Zurück zum Feed",
+    moderation_category_label: "Kategorie",
   },
 };
