@@ -585,6 +585,37 @@ type Translations = {
   
   // Comment Thread
   comment_reply_error: string;
+  
+  // Analytics
+  analytics_activity_7days: string;
+  
+  // Subscription
+  subscription_billed_yearly: string;
+  subscription_plan_unavailable: string;
+  subscription_yearly_discount: string;
+  
+  // Profile
+  profile_achievements: string;
+  profile_moods: string;
+  profile_settings: string;
+  profile_moderation: string;
+  profile_plan_free: string;
+  profile_plan_premium: string;
+  profile_plan_vip: string;
+  
+  // Referral
+  referral_benefits: string;
+  referral_benefit_coins: string;
+  referral_benefit_friend: string;
+  referral_benefit_badge: string;
+  
+  // Preferences
+  preferences_customization: string;
+  preferences_accent_color: string;
+  preferences_text_size: string;
+  preferences_size_small: string;
+  preferences_size_medium: string;
+  preferences_size_large: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -1055,20 +1086,9 @@ export const translations: Record<Language, Translations> = {
     notfound_return_home: "Return to Home",
     
     analytics_activity_7days: "Activity last 7 days",
-    
-    reaction_heart: "Heart",
-    reaction_sad: "Sad",
-    reaction_strong: "Power",
-    reaction_thinking: "Interesting",
-    reaction_auth_required: "Authentication required",
-    reaction_auth_required_desc: "You must be authenticated to react",
-    
-    subscription_monthly: "Monthly",
-    subscription_yearly: "Yearly",
-    subscription_yearly_discount: "-20%",
-    subscription_cancel_anytime: "You can cancel anytime. No hidden fees.",
+    subscription_billed_yearly: "Billed annually",
     subscription_plan_unavailable: "Subscription plan unavailable",
-    
+    subscription_yearly_discount: "-20%",
     profile_achievements: "Achievements",
     profile_moods: "Moods",
     profile_settings: "Settings",
@@ -1076,21 +1096,16 @@ export const translations: Record<Language, Translations> = {
     profile_plan_free: "Free",
     profile_plan_premium: "Premium",
     profile_plan_vip: "VIP",
-    
     referral_benefits: "Benefits:",
     referral_benefit_coins: "• 100 coins for each completed referral",
     referral_benefit_friend: "• Your friend receives 50 bonus coins",
     referral_benefit_badge: "• Special badge after 10 referrals",
-    
     preferences_customization: "Customization",
     preferences_accent_color: "Accent color",
     preferences_text_size: "Text size",
     preferences_size_small: "Small",
     preferences_size_medium: "Medium",
     preferences_size_large: "Large",
-    
-    subscription_billed_yearly: "Billed annually",
-    subscription_per_month: "per month",
     
     draft_deleted: "Draft deleted",
     draft_deleted_desc: "The draft was successfully deleted",
@@ -1148,6 +1163,13 @@ export const translations: Record<Language, Translations> = {
     
     profile_portal_error: "Error",
     profile_portal_error_desc: "Could not open subscription portal",
+    
+    reaction_heart: "Heart",
+    reaction_sad: "Sad",
+    reaction_strong: "Power",
+    reaction_thinking: "Interesting",
+    reaction_auth_required: "Authentication required",
+    reaction_auth_required_desc: "You must be authenticated to react",
   },
   es: {
     app_name: "Confess+",
@@ -1670,6 +1692,38 @@ export const translations: Record<Language, Translations> = {
     
     profile_portal_error: "Error",
     profile_portal_error_desc: "No se pudo abrir el portal de suscripción",
+    
+    reaction_heart: "Corazón",
+    reaction_sad: "Triste",
+    reaction_strong: "Fuerte",
+    reaction_thinking: "Interesante",
+    reaction_auth_required: "Autenticación requerida",
+    reaction_auth_required_desc: "Debes estar autenticado para reaccionar",
+    
+    analytics_activity_7days: "Actividad últimos 7 días",
+    subscription_billed_yearly: "Facturado anualmente",
+    subscription_plan_unavailable: "Plan de suscripción no disponible",
+    subscription_yearly_discount: "-20%",
+    
+    profile_achievements: "Logros",
+    profile_moods: "Estados",
+    profile_settings: "Configuración",
+    profile_moderation: "Moderación",
+    profile_plan_free: "Gratis",
+    profile_plan_premium: "Premium",
+    profile_plan_vip: "VIP",
+    
+    referral_benefits: "Beneficios:",
+    referral_benefit_coins: "• 100 monedas por cada referido completado",
+    referral_benefit_friend: "• Tu amigo recibe 50 monedas de bonificación",
+    referral_benefit_badge: "• Insignia especial después de 10 referidos",
+    
+    preferences_customization: "Personalización",
+    preferences_accent_color: "Color de acento",
+    preferences_text_size: "Tamaño del texto",
+    preferences_size_small: "Pequeño",
+    preferences_size_medium: "Mediano",
+    preferences_size_large: "Grande",
   },
   de: {
     app_name: "Confess+",
@@ -2192,5 +2246,37 @@ export const translations: Record<Language, Translations> = {
     
     profile_portal_error: "Fehler",
     profile_portal_error_desc: "Das Abonnementportal konnte nicht geöffnet werden",
+    
+    reaction_heart: "Herz",
+    reaction_sad: "Traurig",
+    reaction_strong: "Stark",
+    reaction_thinking: "Interessant",
+    reaction_auth_required: "Authentifizierung erforderlich",
+    reaction_auth_required_desc: "Du musst authentifiziert sein, um zu reagieren",
+    
+    analytics_activity_7days: "Aktivität letzte 7 Tage",
+    subscription_billed_yearly: "Jährlich abgerechnet",
+    subscription_plan_unavailable: "Abonnementplan nicht verfügbar",
+    subscription_yearly_discount: "-20%",
+    
+    profile_achievements: "Erfolge",
+    profile_moods: "Stimmungen",
+    profile_settings: "Einstellungen",
+    profile_moderation: "Moderation",
+    profile_plan_free: "Kostenlos",
+    profile_plan_premium: "Premium",
+    profile_plan_vip: "VIP",
+    
+    referral_benefits: "Vorteile:",
+    referral_benefit_coins: "• 100 Münzen für jede abgeschlossene Empfehlung",
+    referral_benefit_friend: "• Dein Freund erhält 50 Bonus-Münzen",
+    referral_benefit_badge: "• Spezielle Auszeichnung nach 10 Empfehlungen",
+    
+    preferences_customization: "Anpassung",
+    preferences_accent_color: "Akzentfarbe",
+    preferences_text_size: "Textgröße",
+    preferences_size_small: "Klein",
+    preferences_size_medium: "Mittel",
+    preferences_size_large: "Groß",
   },
 };

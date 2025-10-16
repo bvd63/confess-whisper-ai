@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Gift, Users, Copy, Check, Coins } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ReferralSystemProps {
   userId: string;
@@ -23,6 +24,7 @@ const ReferralSystem = ({ userId }: ReferralSystemProps) => {
   const [totalRewards, setTotalRewards] = useState(0);
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadReferralData();
