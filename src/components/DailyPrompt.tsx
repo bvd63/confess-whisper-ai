@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 interface DailyPromptData {
   id: string;
   prompt_text: string;
@@ -14,6 +15,7 @@ const DailyPrompt = () => {
   const [prompt, setPrompt] = useState<DailyPromptData | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { t } = useLanguage();
   useEffect(() => {
     loadTodayPrompt();
   }, []);
@@ -36,11 +38,11 @@ const DailyPrompt = () => {
         </div>
         
         <div className="flex-1">
-          <h3 className="font-semibold text-lg mb-2">Întrebarea zilei</h3>
+          <h3 className="font-semibold text-lg mb-2">{t.daily_prompt_title}</h3>
           <p className="text-muted-foreground mb-4">{prompt.prompt_text}</p>
           
           <Button onClick={() => navigate('/')} variant="default" size="sm">
-            Împărtășește-ți gândurile
+            {t.daily_prompt_share}
           </Button>
         </div>
       </div>

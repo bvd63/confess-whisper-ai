@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Trophy } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AchievementToastProps {
   userId: string;
@@ -9,6 +10,7 @@ interface AchievementToastProps {
 
 const AchievementToast = ({ userId }: AchievementToastProps) => {
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     // Subscribe to new badges being awarded
@@ -32,7 +34,7 @@ const AchievementToast = ({ userId }: AchievementToastProps) => {
 
           if (badge) {
             toast({
-              title: "🏆 Ai obținut un nou badge!",
+              title: t.achievement_new_badge,
               description: `${badge.name}: ${badge.description}`,
               duration: 5000,
             });

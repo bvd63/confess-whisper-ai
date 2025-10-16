@@ -1,7 +1,7 @@
 {
-  "name": "Confess+ | Platformă Anonimă pentru Confesiuni",
+  "name": "Confess+ | Anonymous Confession Platform",
   "short_name": "Confess+",
-  "description": "Împărtășește-ți gândurile în siguranță și anonimitate completă. Primește răspunsuri empatice generate de AI.",
+  "description": "Share your thoughts safely and anonymously. Get empathetic AI-generated responses.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

@@ -381,6 +381,20 @@ type Translations = {
   profile_total_comments: string;
   profile_empty_state: string;
   profile_empty_description: string;
+  
+  // Achievement Toast
+  achievement_new_badge: string;
+  
+  // Daily Prompt
+  daily_prompt_title: string;
+  daily_prompt_share: string;
+  
+  // Confession Header
+  confession_anonymous: string;
+  time_now: string;
+  time_minutes: string;
+  time_hours: string;
+  time_days: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -522,6 +536,17 @@ export const translations: Record<Language, Translations> = {
     profile_total_comments: "Total Comments",
     profile_empty_state: "No confessions yet",
     profile_empty_description: "Start sharing your thoughts anonymously",
+    
+    achievement_new_badge: "🏆 You earned a new badge!",
+    
+    daily_prompt_title: "Question of the Day",
+    daily_prompt_share: "Share your thoughts",
+    
+    confession_anonymous: "Anonymous",
+    time_now: "now",
+    time_minutes: "m",
+    time_hours: "h",
+    time_days: "d",
     
     achievements_title: "Achievements",
     achievements_unlocked: "unlocked",
@@ -1104,6 +1129,17 @@ export const translations: Record<Language, Translations> = {
     profile_total_comments: "Total de Comentarios",
     profile_empty_state: "Sin confesiones aún",
     profile_empty_description: "Empieza a compartir tus pensamientos anónimamente",
+    
+    achievement_new_badge: "🏆 ¡Has obtenido una nueva insignia!",
+    
+    daily_prompt_title: "Pregunta del Día",
+    daily_prompt_share: "Comparte tus pensamientos",
+    
+    confession_anonymous: "Anónimo",
+    time_now: "ahora",
+    time_minutes: "m",
+    time_hours: "h",
+    time_days: "d",
   },
   de: {
     app_name: "Confess+",
@@ -1464,5 +1500,16 @@ export const translations: Record<Language, Translations> = {
     profile_total_comments: "Gesamt Kommentare",
     profile_empty_state: "Noch keine Geständnisse",
     profile_empty_description: "Beginnen Sie, Ihre Gedanken anonym zu teilen",
+    
+    achievement_new_badge: "🏆 Du hast ein neues Abzeichen erhalten!",
+    
+    daily_prompt_title: "Frage des Tages",
+    daily_prompt_share: "Teile deine Gedanken",
+    
+    confession_anonymous: "Anonym",
+    time_now: "jetzt",
+    time_minutes: "Min",
+    time_hours: "Std",
+    time_days: "T",
   },
 };

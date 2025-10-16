@@ -29,16 +29,16 @@ const ConfessionHeader = memo(({ category, createdAt }: ConfessionHeaderProps) =
     const confessionDate = new Date(createdAt);
     const diffInMinutes = Math.floor((now.getTime() - confessionDate.getTime()) / 60000);
     
-    if (diffInMinutes < 1) return 'acum';
-    if (diffInMinutes < 60) return `${diffInMinutes}m`;
-    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h`;
-    return `${Math.floor(diffInMinutes / 1440)}z`;
-  }, [createdAt]);
+    if (diffInMinutes < 1) return t.time_now;
+    if (diffInMinutes < 60) return `${diffInMinutes}${t.time_minutes}`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}${t.time_hours}`;
+    return `${Math.floor(diffInMinutes / 1440)}${t.time_days}`;
+  }, [createdAt, t]);
 
   return (
     <div className="flex items-center gap-2 text-muted-foreground text-sm flex-wrap">
       <MessageCircle className="w-4 h-4" />
-      <span>Anonim • {timeAgo}</span>
+      <span>{t.confession_anonymous} • {timeAgo}</span>
       <Badge variant="secondary" className="text-xs gap-1 bg-primary/10 text-primary border-primary/20">
         <Tag className="w-3 h-3" />
         {getCategoryLabel}
