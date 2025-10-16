@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect, lazy, Suspense, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Heart, PlusCircle, LogOut, Sparkles, Crown, User, TrendingUp, Clock, LogIn, Filter, BookMarked } from "lucide-react";
@@ -19,6 +19,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useConfessions } from "@/hooks/useConfessions";
+import { useRateLimitHandler } from "@/components/RateLimitNotification";
 
 // Lazy load heavy components
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
@@ -40,6 +41,7 @@ const Index = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [showOnboarding, setShowOnboarding] = useState(false);
   const { toast } = useToast();
+  const { RateLimitUI } = useRateLimitHandler();
 
   // Use the optimized confessions hook
   const { confessions, isLoading, reload: reloadConfessions } = useConfessions({
@@ -88,7 +90,7 @@ const Index = () => {
     });
   };
 
-  const handleReport = async (id: string) => {
+  const handleReport = useCallback(async (id: string) => {
     try {
       const { error } = await supabase
         .from('confessions')
@@ -111,15 +113,14 @@ const Index = () => {
         variant: "destructive",
       });
     }
-  };
+  }, [supabase, trackEvent, toast, t]);
 
-  const handleUpgradeToPremium = async () => {
+  const handleUpgradeToPremium = useCallback(async () => {
     toast({
       title: t.ui_upgrading,
       description: t.ui_payment_redirect,
     });
     
-    // Demo: simulate upgrade
     setTimeout(async () => {
       if (user) {
         const { error } = await supabase
@@ -133,11 +134,10 @@ const Index = () => {
             title: t.ui_welcome_premium,
             description: t.ui_premium_access,
           });
-          // The usePremiumStatus hook will automatically update via real-time
         }
       }
     }, 1500);
-  };
+  }, [user, toast, t]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
@@ -347,6 +347,9 @@ const Index = () => {
         </div>
       </footer>
       </Suspense>
+      
+      {/* Rate Limit Notification */}
+      {RateLimitUI}
     </div>
   );
 };
