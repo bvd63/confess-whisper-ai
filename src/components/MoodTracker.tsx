@@ -15,12 +15,12 @@ const MoodTracker = ({ onMoodSelect, selectedMood }: MoodTrackerProps) => {
   const [intensity, setIntensity] = useState(3);
   
   const moods = [
-    { value: 'happy', icon: Smile, label: 'Happy', color: 'text-green-500' },
-    { value: 'sad', icon: Frown, label: 'Sad', color: 'text-blue-500' },
-    { value: 'anxious', icon: Meh, label: 'Anxious', color: 'text-yellow-500' },
-    { value: 'angry', icon: Angry, label: 'Angry', color: 'text-red-500' },
-    { value: 'neutral', icon: Meh, label: 'Neutral', color: 'text-gray-500' },
-    { value: 'hopeful', icon: Sparkles, label: 'Hopeful', color: 'text-purple-500' },
+    { value: 'happy', icon: Smile, label: t.mood_happy, color: 'text-green-500' },
+    { value: 'sad', icon: Frown, label: t.mood_sad, color: 'text-blue-500' },
+    { value: 'anxious', icon: Meh, label: t.mood_anxious, color: 'text-yellow-500' },
+    { value: 'angry', icon: Angry, label: t.mood_angry, color: 'text-red-500' },
+    { value: 'neutral', icon: Meh, label: t.mood_neutral, color: 'text-gray-500' },
+    { value: 'hopeful', icon: Sparkles, label: t.mood_hopeful, color: 'text-purple-500' },
   ];
 
   const handleMoodSelect = (moodValue: string) => {

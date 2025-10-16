@@ -481,6 +481,12 @@ type Translations = {
   // Mood Tracker
   mood_how_feeling: string;
   mood_intensity: string;
+  mood_happy: string;
+  mood_sad: string;
+  mood_anxious: string;
+  mood_angry: string;
+  mood_neutral: string;
+  mood_hopeful: string;
   
   // Report Dialog
   report_title: string;
@@ -978,6 +984,12 @@ export const translations: Record<Language, Translations> = {
     
     mood_how_feeling: "How are you feeling now?",
     mood_intensity: "Intensity",
+    mood_happy: "Happy",
+    mood_sad: "Sad",
+    mood_anxious: "Anxious",
+    mood_angry: "Angry",
+    mood_neutral: "Neutral",
+    mood_hopeful: "Hopeful",
     
     report_title: "Report confession",
     report_description: "Help us keep the community safe. Your report is anonymous.",
@@ -1867,6 +1879,12 @@ export const translations: Record<Language, Translations> = {
     
     mood_how_feeling: "¿Cómo te sientes ahora?",
     mood_intensity: "Intensidad",
+    mood_happy: "Feliz",
+    mood_sad: "Triste",
+    mood_anxious: "Ansioso",
+    mood_angry: "Enojado",
+    mood_neutral: "Neutral",
+    mood_hopeful: "Esperanzado",
     
     report_title: "Reportar confesión",
     report_description: "Ayúdanos a mantener la comunidad segura. Tu reporte es anónimo.",
@@ -2537,6 +2555,12 @@ export const translations: Record<Language, Translations> = {
     
     mood_how_feeling: "Wie fühlst du dich jetzt?",
     mood_intensity: "Intensität",
+    mood_happy: "Glücklich",
+    mood_sad: "Traurig",
+    mood_anxious: "Ängstlich",
+    mood_angry: "Wütend",
+    mood_neutral: "Neutral",
+    mood_hopeful: "Hoffnungsvoll",
     
     report_title: "Geständnis melden",
     report_description: "Hilf uns, die Community sicher zu halten. Deine Meldung ist anonym.",
