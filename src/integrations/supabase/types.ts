@@ -377,21 +377,27 @@ export type Database = {
           category: string
           created_at: string | null
           id: string
-          prompt_text: string
+          prompt_text_de: string | null
+          prompt_text_en: string
+          prompt_text_es: string | null
         }
         Insert: {
           active_date: string
           category: string
           created_at?: string | null
           id?: string
-          prompt_text: string
+          prompt_text_de?: string | null
+          prompt_text_en: string
+          prompt_text_es?: string | null
         }
         Update: {
           active_date?: string
           category?: string
           created_at?: string | null
           id?: string
-          prompt_text?: string
+          prompt_text_de?: string | null
+          prompt_text_en?: string
+          prompt_text_es?: string | null
         }
         Relationships: []
       }
