@@ -395,6 +395,11 @@ type Translations = {
   time_minutes: string;
   time_hours: string;
   time_days: string;
+  
+  // Word Cloud
+  wordcloud_title: string;
+  wordcloud_used_times: string;
+  wordcloud_based_on: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -547,6 +552,10 @@ export const translations: Record<Language, Translations> = {
     time_minutes: "m",
     time_hours: "h",
     time_days: "d",
+    
+    wordcloud_title: "Your Frequent Words",
+    wordcloud_used_times: "Used {count} times",
+    wordcloud_based_on: "Based on {count} words from your confessions",
     
     achievements_title: "Achievements",
     achievements_unlocked: "unlocked",
@@ -1140,6 +1149,10 @@ export const translations: Record<Language, Translations> = {
     time_minutes: "m",
     time_hours: "h",
     time_days: "d",
+    
+    wordcloud_title: "Tus Palabras Frecuentes",
+    wordcloud_used_times: "Usado {count} veces",
+    wordcloud_based_on: "Basado en {count} palabras de tus confesiones",
   },
   de: {
     app_name: "Confess+",
@@ -1511,5 +1524,9 @@ export const translations: Record<Language, Translations> = {
     time_minutes: "Min",
     time_hours: "Std",
     time_days: "T",
+    
+    wordcloud_title: "Deine Häufigen Wörter",
+    wordcloud_used_times: "{count} Mal verwendet",
+    wordcloud_based_on: "Basierend auf {count} Wörtern aus deinen Geständnissen",
   },
 };
