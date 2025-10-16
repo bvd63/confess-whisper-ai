@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
+import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 
 interface Confession {
   id: string;
@@ -29,9 +30,9 @@ const Bookmarks = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { user } = useCurrentUser();
+  const { isPremium } = usePremiumStatus(user?.id);
   const { likedConfessions, bookmarkedConfessions, reloadLikes, reloadBookmarks } = useConfessionInteractions({ userId: user?.id || null });
   const [confessions, setConfessions] = useState<Confession[]>([]);
-  const [isPremium, setIsPremium] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
@@ -40,26 +41,8 @@ const Bookmarks = () => {
       navigate('/auth');
       return;
     }
-    loadPremiumStatus();
     loadBookmarkedConfessions();
   }, [user]);
-
-  const loadPremiumStatus = async () => {
-    if (!user) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('is_premium')
-        .eq('user_id', user.id)
-        .single();
-
-      if (error) throw error;
-      setIsPremium(data?.is_premium || false);
-    } catch (error) {
-      console.error('Error checking premium status:', error);
-    }
-  };
 
   const loadBookmarkedConfessions = async () => {
     if (!user) return;

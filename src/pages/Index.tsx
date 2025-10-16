@@ -23,6 +23,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
+import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 
 interface Confession {
   id: string;
@@ -41,11 +42,11 @@ const Index = () => {
   const { trackEvent } = useAnalytics();
   const { t } = useLanguage();
   const { user } = useCurrentUser();
+  const { isPremium } = usePremiumStatus(user?.id);
   const { likedConfessions, bookmarkedConfessions, reloadLikes, reloadBookmarks } = useConfessionInteractions({ userId: user?.id || null });
   const [confessions, setConfessions] = useState<Confession[]>([]);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
-  const [isPremium, setIsPremium] = useState(false);
   const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [isLoading, setIsLoading] = useState(true);
@@ -93,31 +94,8 @@ const Index = () => {
   }, []);
 
   useEffect(() => {
-    if (user) {
-      checkPremiumStatus();
-    }
-  }, [user]);
-
-  useEffect(() => {
     loadConfessions();
   }, [sortBy, categoryFilter]);
-
-  const checkPremiumStatus = async () => {
-    if (!user) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('is_premium')
-        .eq('user_id', user.id)
-        .single();
-
-      if (error) throw error;
-      setIsPremium(data?.is_premium || false);
-    } catch (error) {
-      console.error('Error checking premium status:', error);
-    }
-  };
 
   const loadConfessions = async () => {
     setIsLoading(true);
@@ -203,7 +181,6 @@ const Index = () => {
   };
 
   const handleUpgradeToPremium = async () => {
-    // In a real app, this would integrate with Stripe
     toast({
       title: t.ui_upgrading,
       description: t.ui_payment_redirect,
@@ -218,12 +195,12 @@ const Index = () => {
           .eq('user_id', user.id);
 
         if (!error) {
-          setIsPremium(true);
           setIsPremiumDialogOpen(false);
           toast({
             title: t.ui_welcome_premium,
             description: t.ui_premium_access,
           });
+          // The usePremiumStatus hook will automatically update via real-time
         }
       }
     }, 1500);

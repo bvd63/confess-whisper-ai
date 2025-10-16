@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 
@@ -28,6 +29,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
   const [category, setCategory] = useState("other");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [aiResponse, setAiResponse] = useState<string | null>(null);
+  const { user } = useCurrentUser();
   const { toast } = useToast();
   const { language, t } = useLanguage();
 
@@ -86,9 +88,6 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
       const responseText = aiData?.response || null;
       setAiResponse(responseText);
 
-      // Save confession to database
-      const { data: { user } } = await supabase.auth.getUser();
-      
       if (!user) {
         toast({
           title: t.error_auth,

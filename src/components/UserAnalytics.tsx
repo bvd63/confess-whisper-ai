@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { translations } from "@/i18n/translations";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { MessageSquare, Heart, FileText } from "lucide-react";
 
@@ -11,21 +11,46 @@ interface UserAnalyticsProps {
 
 const UserAnalytics = ({ userId }: UserAnalyticsProps) => {
   const { t } = useLanguage();
+  const { user } = useCurrentUser();
   const [stats, setStats] = useState({
     totalConfessions: 0,
     totalLikes: 0,
     totalComments: 0,
   });
 
+  const targetUserId = userId || user?.id;
+
   useEffect(() => {
-    fetchUserStats();
-  }, [userId]);
+    if (targetUserId) {
+      fetchUserStats();
+      
+      // Set up real-time subscription for confessions updates
+      const channel = supabase
+        .channel('user-stats-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'confessions',
+            filter: `user_id=eq.${targetUserId}`
+          },
+          () => {
+            fetchUserStats();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [targetUserId]);
 
   const fetchUserStats = async () => {
+    if (!targetUserId) return;
+
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      const targetUserId = userId || user?.id;
-      if (!targetUserId) return;
 
       // Get total confessions
       const { count: confessionsCount } = await supabase
