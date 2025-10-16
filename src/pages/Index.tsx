@@ -27,6 +27,9 @@ import { useConfessionSearch } from "@/hooks/useConfessionSearch";
 import { useRateLimitHandler } from "@/components/RateLimitNotification";
 import { useDebounce } from "@/hooks/useDebounce";
 import SEOHead from "@/components/SEOHead";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Loader2 } from "lucide-react";
 
 // Lazy load heavy components
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
@@ -51,6 +54,19 @@ const Index = () => {
   const [viewMode, setViewMode] = useState<'feed' | 'search'>('feed');
   const { toast } = useToast();
   const { RateLimitUI } = useRateLimitHandler();
+  const isMobile = useIsMobile();
+
+  // Pull to refresh functionality for mobile
+  const handleRefresh = async () => {
+    await Promise.all([reloadConfessions(), reloadLikes(), reloadBookmarks()]);
+    trackEvent('pull_to_refresh');
+  };
+
+  const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    threshold: 80,
+    disabled: !isMobile || viewMode === 'search',
+  });
 
   // Debounce filter changes to avoid excessive queries
   const debouncedSortBy = useDebounce(sortBy, 300);
@@ -161,8 +177,30 @@ const Index = () => {
       <SEOHead />
       <AppLayout onNewConfession={handleNewConfession}>
 
-      {/* Main Content */}
-      <main className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
+      {/* Main Content with Pull to Refresh */}
+      <main 
+        ref={containerRef}
+        className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 relative touch-manipulation smooth-scroll"
+      >
+        {/* Pull to Refresh Indicator */}
+        {isMobile && pullDistance > 0 && (
+          <div 
+            className="absolute top-0 left-0 right-0 flex items-center justify-center transition-all duration-200 pointer-events-none z-10"
+            style={{ 
+              height: `${Math.min(pullDistance, 80)}px`,
+              opacity: pullDistance / 80 
+            }}
+          >
+            <div className="flex flex-col items-center gap-1">
+              <Loader2 
+                className={`w-5 h-5 text-primary ${isRefreshing || isTriggered ? 'animate-spin' : ''}`} 
+              />
+              <span className="text-xs text-muted-foreground">
+                {isRefreshing ? t.ui_refreshing || 'Refreshing...' : isTriggered ? t.ui_release_to_refresh || 'Release to refresh' : t.ui_pull_to_refresh || 'Pull to refresh'}
+              </span>
+            </div>
+          </div>
+        )}
         {/* Welcome Section */}
         <div className="mb-6 sm:mb-8 text-center animate-fade-in">
           <div className="inline-flex items-center gap-2 mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 rounded-full border border-primary/20">

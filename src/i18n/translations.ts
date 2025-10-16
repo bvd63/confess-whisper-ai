@@ -217,6 +217,9 @@ type Translations = {
   ui_help_question: string;
   ui_help_choose: string;
   ui_help_reply_time: string;
+  ui_pull_to_refresh: string;
+  ui_release_to_refresh: string;
+  ui_refreshing: string;
   
   // Subscription Plans
   subscription_premium_title: string;
@@ -1235,6 +1238,9 @@ export const translations: Record<Language, Translations> = {
     ui_help_question: "How can we help?",
     ui_help_choose: "Choose one of the options below to get help",
     ui_help_reply_time: "We usually reply within 24 hours",
+    ui_pull_to_refresh: "Pull to refresh",
+    ui_release_to_refresh: "Release to refresh",
+    ui_refreshing: "Refreshing...",
     
     subscription_premium_title: "Confess+ Premium",
     subscription_choose_plan: "Choose the plan that suits you best",
@@ -1746,6 +1752,9 @@ export const translations: Record<Language, Translations> = {
     ui_help_question: "¿Cómo podemos ayudarte?",
     ui_help_choose: "Elige una de las opciones a continuación para obtener ayuda",
     ui_help_reply_time: "Normalmente respondemos en 24 horas",
+    ui_pull_to_refresh: "Desliza para actualizar",
+    ui_release_to_refresh: "Suelta para actualizar",
+    ui_refreshing: "Actualizando...",
     
     subscription_premium_title: "Confess+ Premium",
     subscription_choose_plan: "Elige el plan que mejor se adapte a ti",
@@ -2453,6 +2462,9 @@ export const translations: Record<Language, Translations> = {
     ui_help_question: "Wie können wir helfen?",
     ui_help_choose: "Wähle eine der unten stehenden Optionen, um Hilfe zu erhalten",
     ui_help_reply_time: "Wir antworten normalerweise innerhalb von 24 Stunden",
+    ui_pull_to_refresh: "Zum Aktualisieren ziehen",
+    ui_release_to_refresh: "Zum Aktualisieren loslassen",
+    ui_refreshing: "Aktualisiert...",
     
     subscription_premium_title: "Confess+ Premium",
     subscription_choose_plan: "Wähle den Plan, der am besten zu dir passt",

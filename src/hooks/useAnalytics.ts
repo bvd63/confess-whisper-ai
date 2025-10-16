@@ -13,7 +13,8 @@ export type AnalyticsEvent =
   | 'auth_signup'
   | 'auth_login'
   | 'referral_shared'
-  | 'performance_metric';
+  | 'performance_metric'
+  | 'pull_to_refresh';
 
 interface EventData {
   [key: string]: any;

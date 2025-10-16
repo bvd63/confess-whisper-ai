@@ -80,7 +80,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   };
 
   return (
-    <Card className="p-3 sm:p-4 md:p-5 mb-3 sm:mb-4 bg-gradient-to-br from-card to-muted/30 border-border/50 shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-glow)] transition-all duration-300 animate-fade-in">
+    <Card className="p-3 sm:p-4 md:p-5 mb-3 sm:mb-4 bg-gradient-to-br from-card to-muted/30 border-border/50 shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-glow)] transition-all duration-300 animate-fade-in touch-manipulation active-scale">
       <div className="mb-2 sm:mb-3">
         <ConfessionHeader 
           category={confession.category} 
