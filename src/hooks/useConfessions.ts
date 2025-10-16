@@ -81,19 +81,50 @@ export const useConfessions = ({
     loadConfessions();
   }, [loadConfessions]);
 
-  // Set up real-time subscription
+  // Set up real-time subscription with smart updates
   useEffect(() => {
     const channel = supabase
       .channel('confessions-realtime')
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'INSERT',
           schema: 'public',
           table: 'confessions'
         },
-        () => {
-          loadConfessions();
+        (payload) => {
+          // Add new confession to the top
+          setConfessions((current) => [payload.new as Confession, ...current]);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'confessions'
+        },
+        (payload) => {
+          // Update existing confession
+          setConfessions((current) =>
+            current.map((conf) =>
+              conf.id === payload.new.id ? (payload.new as Confession) : conf
+            )
+          );
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'confessions'
+        },
+        (payload) => {
+          // Remove deleted confession
+          setConfessions((current) =>
+            current.filter((conf) => conf.id !== payload.old.id)
+          );
         }
       )
       .subscribe();
@@ -101,7 +132,7 @@ export const useConfessions = ({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [loadConfessions]);
+  }, []); // Only set up once
 
   return {
     confessions,

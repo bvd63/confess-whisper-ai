@@ -20,6 +20,7 @@ import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useConfessions } from "@/hooks/useConfessions";
 import { useRateLimitHandler } from "@/components/RateLimitNotification";
+import { useDebounce } from "@/hooks/useDebounce";
 
 // Lazy load heavy components
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
@@ -43,10 +44,14 @@ const Index = () => {
   const { toast } = useToast();
   const { RateLimitUI } = useRateLimitHandler();
 
-  // Use the optimized confessions hook
+  // Debounce filter changes to avoid excessive queries
+  const debouncedSortBy = useDebounce(sortBy, 300);
+  const debouncedCategoryFilter = useDebounce(categoryFilter, 300);
+
+  // Use the optimized confessions hook with debounced values
   const { confessions, isLoading, reload: reloadConfessions } = useConfessions({
-    sortBy,
-    categoryFilter,
+    sortBy: debouncedSortBy,
+    categoryFilter: debouncedCategoryFilter,
     limit: 20,
   });
 
