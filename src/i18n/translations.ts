@@ -1389,7 +1389,7 @@ export const translations: Record<Language, Translations> = {
     analytics_activity_7days: "Activity last 7 days",
     subscription_billed_yearly: "Billed annually",
     subscription_plan_unavailable: "Subscription plan unavailable",
-    subscription_yearly_discount: "-20%",
+    subscription_yearly_discount: "-33%",
     profile_achievements: "Achievements",
     profile_moods: "Moods",
     profile_settings: "Settings",
@@ -2180,7 +2180,7 @@ export const translations: Record<Language, Translations> = {
     analytics_activity_7days: "Actividad últimos 7 días",
     subscription_billed_yearly: "Facturado anualmente",
     subscription_plan_unavailable: "Plan de suscripción no disponible",
-    subscription_yearly_discount: "-20%",
+    subscription_yearly_discount: "-33%",
     
     profile_achievements: "Logros",
     profile_moods: "Estados",
@@ -2900,7 +2900,7 @@ export const translations: Record<Language, Translations> = {
     analytics_activity_7days: "Aktivität letzte 7 Tage",
     subscription_billed_yearly: "Jährlich abgerechnet",
     subscription_plan_unavailable: "Abonnementplan nicht verfügbar",
-    subscription_yearly_discount: "-20%",
+    subscription_yearly_discount: "-33%",
     
     profile_achievements: "Erfolge",
     profile_moods: "Stimmungen",
