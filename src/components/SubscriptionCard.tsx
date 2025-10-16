@@ -25,18 +25,16 @@ const SubscriptionCard = ({
   onSubscribe,
   loading 
 }: SubscriptionCardProps) => {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const isCurrentPlan = currentTier === plan.name.toLowerCase();
   const isPremium = plan.name === "Premium";
   const isVIP = plan.name === "VIP";
   
   const price = billingCycle === "monthly" ? plan.price_monthly : plan.price_yearly;
-  const locale = language === 'es' ? 'es-ES' : language === 'de' ? 'de-DE' : 'en-US';
-  const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat(locale, { style: 'currency', currency: 'RON', maximumFractionDigits: 0 }).format(amount);
+  const formatCurrency = (amount: number) => `$${amount.toFixed(0)}`;
   const displayPrice = billingCycle === "monthly" 
-    ? (price / 100).toFixed(0)
-    : (price / 100 / 12).toFixed(0);
+    ? formatCurrency(price / 100)
+    : formatCurrency(price / 100 / 12);
 
   return (
     <Card className={`p-6 relative overflow-hidden ${
@@ -61,11 +59,11 @@ const SubscriptionCard = ({
         <div className="mb-6">
           <div className="flex items-baseline gap-1">
             <span className="text-4xl font-bold text-primary">{displayPrice}</span>
-            <span className="text-muted-foreground">{t.subscription_per_month}</span>
+            <span className="text-muted-foreground">/{t.subscription_per_month}</span>
           </div>
           {billingCycle === "yearly" && (
             <p className="text-sm text-muted-foreground mt-1">
-              {t.subscription_billed_yearly} ({formatCurrency(price / 100)} {t.subscription_per_year})
+              {t.subscription_billed_yearly} ({formatCurrency(price / 100)}/{t.subscription_per_year})
             </p>
           )}
         </div>
