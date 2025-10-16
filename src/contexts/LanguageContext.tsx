@@ -35,24 +35,45 @@ function detectBrowserLanguage(): Language {
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguageState] = useState<Language>(() => {
     // Priority: localStorage > browser detection > default 'en'
-    const saved = localStorage.getItem('language');
-    if (saved) {
-      return ensureLanguage(saved);
+    try {
+      const saved = localStorage.getItem('language');
+      if (saved) {
+        const validLang = ensureLanguage(saved);
+        console.log('[LanguageContext] Loaded from localStorage:', validLang);
+        return validLang;
+      }
+    } catch (error) {
+      console.error('[LanguageContext] Error reading localStorage:', error);
     }
+    
     const detected = detectBrowserLanguage();
+    console.log('[LanguageContext] Detected browser language:', detected);
+    
     // Save detected language to localStorage
-    localStorage.setItem('language', detected);
+    try {
+      localStorage.setItem('language', detected);
+    } catch (error) {
+      console.error('[LanguageContext] Error saving to localStorage:', error);
+    }
+    
     return detected;
   });
 
   const setLanguage = (lang: Language) => {
     const validLang = ensureLanguage(lang);
+    console.log('[LanguageContext] Setting language to:', validLang);
     setLanguageState(validLang);
-    localStorage.setItem('language', validLang);
+    
+    try {
+      localStorage.setItem('language', validLang);
+    } catch (error) {
+      console.error('[LanguageContext] Error saving language:', error);
+    }
   };
 
   useEffect(() => {
     document.documentElement.lang = language;
+    console.log('[LanguageContext] HTML lang attribute set to:', language);
   }, [language]);
 
   const value = {

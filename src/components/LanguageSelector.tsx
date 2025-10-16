@@ -19,8 +19,9 @@ export const LanguageSelector = () => {
 
   const handleLanguageChange = (newLanguage: Language) => {
     if (newLanguage !== language) {
-      setLanguage(newLanguage);
-      // Reload page to ensure full synchronization
+      // Save language BEFORE reload to prevent race condition
+      localStorage.setItem('language', newLanguage);
+      // Force immediate reload - don't wait for React state update
       window.location.reload();
     }
   };
