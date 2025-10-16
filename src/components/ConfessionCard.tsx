@@ -1,14 +1,14 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
-import { MessageCircle, Sparkles, Tag } from "lucide-react";
+import { MessageCircle, Sparkles } from "lucide-react";
 import DeepInsightDialog from "./DeepInsightDialog";
 import ShareDialog from "./ShareDialog";
 import CommentsSection from "./CommentsSection";
 import ConfessionActions from "./ConfessionActions";
+import ConfessionHeader from "./ConfessionHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
@@ -42,29 +42,6 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   const { user } = useCurrentUser();
   const { toast } = useToast();
   const { t } = useLanguage();
-  
-  const getCategoryLabel = (category: string) => {
-    const categoryMap: Record<string, string> = {
-      relationships: t.category_relationships,
-      work: t.category_work,
-      family: t.category_family,
-      health: t.category_health,
-      money: t.category_money,
-      other: t.category_other,
-    };
-    return categoryMap[category] || t.category_other;
-  };
-  
-  const timeAgo = (date: string) => {
-    const now = new Date();
-    const confessionDate = new Date(date);
-    const diffInMinutes = Math.floor((now.getTime() - confessionDate.getTime()) / 60000);
-    
-    if (diffInMinutes < 1) return 'acum';
-    if (diffInMinutes < 60) return `${diffInMinutes}m`;
-    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h`;
-    return `${Math.floor(diffInMinutes / 1440)}z`;
-  };
 
   const handleDeleteConfession = async () => {
     if (!user || confession.user_id !== user.id) return;
@@ -96,15 +73,11 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
 
   return (
     <Card className="p-5 mb-4 bg-gradient-to-br from-card to-muted/30 border-border/50 shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-glow)] transition-all duration-300 animate-fade-in">
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-2 text-muted-foreground text-sm flex-wrap">
-          <MessageCircle className="w-4 h-4" />
-          <span>Anonim • {timeAgo(confession.created_at)}</span>
-          <Badge variant="secondary" className="text-xs gap-1 bg-primary/10 text-primary border-primary/20">
-            <Tag className="w-3 h-3" />
-            {getCategoryLabel(confession.category)}
-          </Badge>
-        </div>
+      <div className="mb-3">
+        <ConfessionHeader 
+          category={confession.category} 
+          createdAt={confession.created_at}
+        />
       </div>
 
       <p className="text-foreground leading-relaxed mb-4">

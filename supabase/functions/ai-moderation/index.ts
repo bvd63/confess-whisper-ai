@@ -39,12 +39,6 @@ serve(async (req) => {
 
 ${languageInstructions[language]}.
 
-Respond ONLY with JSON in this format:
-{
-  "is_safe": true/false,
-  "reason": "brief explanation if unsafe"
-}
-
 IMPORTANT: Confessions can contain negative emotions, frustrations or sadness - these are OK and normal. Mark as unsafe ONLY truly dangerous content.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -59,6 +53,31 @@ IMPORTANT: Confessions can contain negative emotions, frustrations or sadness - 
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `Moderează acest text:\n\n${content}` }
         ],
+        tools: [
+          {
+            type: 'function',
+            function: {
+              name: 'moderate_content',
+              description: 'Moderate content and return safety assessment',
+              parameters: {
+                type: 'object',
+                properties: {
+                  is_safe: {
+                    type: 'boolean',
+                    description: 'Whether the content is safe'
+                  },
+                  reason: {
+                    type: 'string',
+                    description: 'Brief explanation if content is unsafe, null otherwise'
+                  }
+                },
+                required: ['is_safe'],
+                additionalProperties: false
+              }
+            }
+          }
+        ],
+        tool_choice: { type: 'function', function: { name: 'moderate_content' } }
       }),
     });
 
@@ -74,24 +93,21 @@ IMPORTANT: Confessions can contain negative emotions, frustrations or sadness - 
     }
 
     const data = await response.json();
-    const aiResponse = data.choices[0].message.content;
+    
+    console.log('Moderation raw response:', JSON.stringify(data));
 
-    console.log('Moderation response:', aiResponse);
-
-    // Parse AI response
+    // Extract structured output from tool call
     let moderationResult;
     try {
-      // Try to extract JSON from the response
-      const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        moderationResult = JSON.parse(jsonMatch[0]);
+      const toolCall = data.choices[0]?.message?.tool_calls?.[0];
+      if (toolCall?.function?.arguments) {
+        moderationResult = JSON.parse(toolCall.function.arguments);
       } else {
-        // If no JSON found, default to safe
+        // Fallback to safe if no tool call
         moderationResult = { is_safe: true, reason: null };
       }
     } catch (parseError) {
       console.error('Error parsing moderation result:', parseError);
-      // Default to safe if parsing fails
       moderationResult = { is_safe: true, reason: null };
     }
 
