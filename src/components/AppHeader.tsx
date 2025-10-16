@@ -65,71 +65,71 @@ const AppHeader = ({ onNewConfession }: AppHeaderProps) => {
         </div>
         
         <div className="flex items-center gap-2">
-          {user && (
-            <>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate('/')}
-                className={cn(
-                  "text-muted-foreground hover:text-foreground",
-                  isActive('/') && "bg-accent text-foreground"
-                )}
-                title={t.home_title}
-              >
-                <Home className="w-5 h-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate('/bookmarks')}
-                className={cn(
-                  "text-muted-foreground hover:text-foreground",
-                  isActive('/bookmarks') && "bg-accent text-foreground"
-                )}
-                title={t.bookmarks_title}
-              >
-                <BookMarked className="w-5 h-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate('/following')}
-                className={cn(
-                  "text-muted-foreground hover:text-foreground",
-                  isActive('/following') && "bg-accent text-foreground"
-                )}
-                title={t.ui_following_feed}
-              >
-                <Users className="w-5 h-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate('/profile')}
-                className={cn(
-                  "text-muted-foreground hover:text-foreground",
-                  isActive('/profile') && "bg-accent text-foreground"
-                )}
-                title={t.profile_title}
-              >
-                <User className="w-5 h-5" />
-              </Button>
-              <div className="w-px h-6 bg-border mx-1" />
-            </>
-          )}
-          
           <LanguageSelector />
           <ThemeToggle />
           
           {user ? (
             <>
+              <div className="flex items-center gap-1 ml-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate('/')}
+                  className={cn(
+                    "text-muted-foreground hover:text-foreground transition-colors",
+                    isActive('/') && "bg-accent text-foreground"
+                  )}
+                  title={t.home_title}
+                >
+                  <Home className="w-5 h-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate('/bookmarks')}
+                  className={cn(
+                    "text-muted-foreground hover:text-foreground transition-colors",
+                    isActive('/bookmarks') && "bg-accent text-foreground"
+                  )}
+                  title={t.bookmarks_title}
+                >
+                  <BookMarked className="w-5 h-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate('/following')}
+                  className={cn(
+                    "text-muted-foreground hover:text-foreground transition-colors",
+                    isActive('/following') && "bg-accent text-foreground"
+                  )}
+                  title={t.ui_following_feed}
+                >
+                  <Users className="w-5 h-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate('/profile')}
+                  className={cn(
+                    "text-muted-foreground hover:text-foreground transition-colors",
+                    isActive('/profile') && "bg-accent text-foreground"
+                  )}
+                  title={t.profile_title}
+                >
+                  <User className="w-5 h-5" />
+                </Button>
+              </div>
+              
+              <div className="w-px h-6 bg-border mx-2" />
+              
               {isPremium && (
                 <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-primary/20 to-primary/10 rounded-full border border-primary/30">
                   <Crown className="w-4 h-4 text-primary" />
                   <span className="text-xs font-medium text-primary">{t.premium_member}</span>
                 </div>
               )}
+              
               <Button
                 onClick={handleNewConfession}
                 className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-[var(--shadow-soft)]"
@@ -137,9 +137,11 @@ const AppHeader = ({ onNewConfession }: AppHeaderProps) => {
                 <PlusCircle className="w-4 h-4 mr-2" />
                 {t.new_confession}
               </Button>
+              
               <StreakCounter userId={user.id} variant="compact" />
               <CoinsDisplay userId={user.id} variant="compact" />
               <NotificationsDropdown />
+              
               <Button
                 variant="ghost"
                 size="icon"
