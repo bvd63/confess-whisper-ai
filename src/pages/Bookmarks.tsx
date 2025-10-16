@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Bookmark } from "lucide-react";
-import { LanguageSelector } from "@/components/LanguageSelector";
+import { Bookmark } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ConfessionCard from "@/components/ConfessionCard";
 import ConfessionSkeleton from "@/components/ConfessionSkeleton";
-import ThemeToggle from "@/components/ThemeToggle";
 import EmptyState from "@/components/EmptyState";
+import AppLayout from "@/components/AppLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -119,34 +117,14 @@ const Bookmarks = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-lg border-b border-border/50 shadow-[var(--shadow-soft)]">
-        <div className="container max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate('/')}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <Bookmark className="w-6 h-6 text-primary" />
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-              {t.bookmarks_title}
-            </h1>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <LanguageSelector />
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
+    <AppLayout>
       <main className="container max-w-2xl mx-auto px-4 py-8">
+        <div className="flex items-center gap-2 mb-8">
+          <Bookmark className="w-6 h-6 text-primary" />
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+            {t.bookmarks_title}
+          </h1>
+        </div>
         {isLoading ? (
           <div className="space-y-6">
             <ConfessionSkeleton />
@@ -181,7 +159,7 @@ const Bookmarks = () => {
           </div>
         )}
       </main>
-    </div>
+    </AppLayout>
   );
 };
 

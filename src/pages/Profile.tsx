@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, User, Settings } from "lucide-react";
-import ThemeToggle from "@/components/ThemeToggle";
-import { LanguageSelector } from "@/components/LanguageSelector";
+import { User, Settings } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AppLayout from "@/components/AppLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -74,29 +73,13 @@ const Profile = () => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-background">
+    <AppLayout>
       <AchievementToast userId={user.id} />
       
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="flex items-center justify-between mb-8">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/')}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            {t.common_back}
-          </Button>
-          
-          <div className="flex items-center gap-3">
-            <User className="h-8 w-8 text-primary" />
-            <h1 className="text-4xl font-bold">{t.profile_title}</h1>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <LanguageSelector />
-            <ThemeToggle />
-          </div>
+        <div className="flex items-center gap-3 mb-8">
+          <User className="h-8 w-8 text-primary" />
+          <h1 className="text-4xl font-bold">{t.profile_title}</h1>
         </div>
 
         <StreakReminder userId={user.id} />
@@ -194,7 +177,7 @@ const Profile = () => {
         onOpenChange={setPremiumDialogOpen}
         onUpgrade={() => {}}
       />
-    </div>
+    </AppLayout>
   );
 };
 

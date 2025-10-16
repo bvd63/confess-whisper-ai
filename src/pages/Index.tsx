@@ -1,21 +1,17 @@
 import { useState, useEffect, lazy, Suspense, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Heart, PlusCircle, LogOut, Sparkles, Crown, User, TrendingUp, Clock, LogIn, Filter, BookMarked, Users } from "lucide-react";
-import { LanguageSelector } from "@/components/LanguageSelector";
+import { Sparkles, TrendingUp, Clock, Filter } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import AppLayout from "@/components/AppLayout";
 import ConfessionFeed from "@/components/ConfessionFeed";
 import ConfessionSkeleton from "@/components/ConfessionSkeleton";
 import SocialProofStats from "@/components/SocialProofStats";
 import FeatureHighlight from "@/components/FeatureHighlight";
-import ThemeToggle from "@/components/ThemeToggle";
-import NotificationsDropdown from "@/components/NotificationsDropdown";
 import DailyPrompt from "@/components/DailyPrompt";
 import Leaderboard from "@/components/Leaderboard";
 import RecommendedConfessions from "@/components/RecommendedConfessions";
 import SearchBar from "@/components/SearchBar";
-import CoinsDisplay from "@/components/CoinsDisplay";
-import StreakCounter from "@/components/StreakCounter";
 import FollowStats from "@/components/FollowStats";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -163,86 +159,7 @@ const Index = () => {
   return (
     <>
       <SEOHead />
-      <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-lg border-b border-border/50 shadow-[var(--shadow-soft)]">
-        <div className="container max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Heart className="w-6 h-6 text-primary" fill="currentColor" />
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-              {t.app_name}
-            </h1>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <LanguageSelector />
-            <ThemeToggle />
-            {user ? (
-              <>
-              {isPremium && (
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-primary/20 to-primary/10 rounded-full border border-primary/30">
-                    <Crown className="w-4 h-4 text-primary" />
-                    <span className="text-xs font-medium text-primary">{t.premium_member}</span>
-                  </div>
-                )}
-                  <Button
-                    onClick={handleNewConfession}
-                    className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-[var(--shadow-soft)]"
-                  >
-                    <PlusCircle className="w-4 h-4 mr-2" />
-                    {t.new_confession}
-                  </Button>
-                  <StreakCounter userId={user.id} variant="compact" />
-                  <CoinsDisplay userId={user.id} variant="compact" />
-                  <NotificationsDropdown />
-                 <Button
-                   variant="ghost"
-                   size="icon"
-                   onClick={() => navigate('/bookmarks')}
-                   className="text-muted-foreground hover:text-foreground"
-                   title={t.bookmarks_title}
-                 >
-                   <BookMarked className="w-5 h-5" />
-                 </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate('/following')}
-                  className="text-muted-foreground hover:text-foreground"
-                  title={t.ui_following_feed}
-                >
-                  <Users className="w-5 h-5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate('/profile')}
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  <User className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleSignOut}
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  <LogOut className="w-4 h-4" />
-                </Button>
-              </>
-            ) : (
-              <Button
-                onClick={() => navigate('/auth')}
-                variant="outline"
-                className="border-primary/30 hover:bg-primary/10"
-              >
-                <LogIn className="w-4 h-4 mr-2" />
-                {t.login}
-              </Button>
-            )}
-          </div>
-        </div>
-      </header>
+      <AppLayout onNewConfession={handleNewConfession}>
 
       {/* Main Content */}
       <main className="container max-w-2xl mx-auto px-4 py-8">
@@ -433,7 +350,7 @@ const Index = () => {
       
       {/* Rate Limit Notification */}
       {RateLimitUI}
-      </div>
+      </AppLayout>
     </>
   );
 };
