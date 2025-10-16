@@ -593,6 +593,10 @@ type Translations = {
   subscription_billed_yearly: string;
   subscription_plan_unavailable: string;
   subscription_yearly_discount: string;
+  subscription_thanks: string;
+  subscription_upgrade_more: string;
+  subscription_manage: string;
+  subscription_upgrade_premium: string;
   
   // Profile
   profile_achievements: string;
@@ -616,6 +620,12 @@ type Translations = {
   preferences_size_small: string;
   preferences_size_medium: string;
   preferences_size_large: string;
+  
+  // Badges
+  badges_your_badges: string;
+  
+  // Export
+  export_my_data: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -1106,6 +1116,15 @@ export const translations: Record<Language, Translations> = {
     preferences_size_small: "Small",
     preferences_size_medium: "Medium",
     preferences_size_large: "Large",
+    
+    subscription_thanks: "Thank you for your support!",
+    subscription_upgrade_more: "Upgrade for more features",
+    subscription_manage: "Manage subscription",
+    subscription_upgrade_premium: "Upgrade to Premium",
+    
+    badges_your_badges: "Your Badges",
+    
+    export_my_data: "Export my data",
     
     draft_deleted: "Draft deleted",
     draft_deleted_desc: "The draft was successfully deleted",
@@ -1724,6 +1743,15 @@ export const translations: Record<Language, Translations> = {
     preferences_size_small: "Pequeño",
     preferences_size_medium: "Mediano",
     preferences_size_large: "Grande",
+    
+    subscription_thanks: "¡Gracias por tu apoyo!",
+    subscription_upgrade_more: "Mejora para más funciones",
+    subscription_manage: "Gestionar suscripción",
+    subscription_upgrade_premium: "Mejorar a Premium",
+    
+    badges_your_badges: "Tus Insignias",
+    
+    export_my_data: "Exportar mis datos",
   },
   de: {
     app_name: "Confess+",
@@ -2278,5 +2306,14 @@ export const translations: Record<Language, Translations> = {
     preferences_size_small: "Klein",
     preferences_size_medium: "Mittel",
     preferences_size_large: "Groß",
+    
+    subscription_thanks: "Vielen Dank für Ihre Unterstützung!",
+    subscription_upgrade_more: "Upgrade für mehr Funktionen",
+    subscription_manage: "Abonnement verwalten",
+    subscription_upgrade_premium: "Auf Premium upgraden",
+    
+    badges_your_badges: "Deine Auszeichnungen",
+    
+    export_my_data: "Meine Daten exportieren",
   },
 };

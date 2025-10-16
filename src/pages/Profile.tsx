@@ -120,17 +120,17 @@ const Profile = () => {
                     {t.profile} {subscriptionTier === 'free' ? t.profile_plan_free : subscriptionTier === 'vip' ? t.profile_plan_vip : t.profile_plan_premium}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    {isPremium ? 'Mulțumim pentru suport!' : 'Upgrade pentru mai multe funcții'}
+                    {isPremium ? t.subscription_thanks : t.subscription_upgrade_more}
                   </p>
                 </div>
                 {isPremium ? (
                   <Button onClick={handleManageSubscription} variant="outline">
                     <Settings className="w-4 h-4 mr-2" />
-                    Gestionează abonament
+                    {t.subscription_manage}
                   </Button>
                 ) : (
                   <Button onClick={() => setPremiumDialogOpen(true)}>
-                    Upgrade la Premium
+                    {t.subscription_upgrade_premium}
                   </Button>
                 )}
               </div>
@@ -150,7 +150,7 @@ const Profile = () => {
 
           <TabsContent value="achievements" className="space-y-6">
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold">Badge-urile tale</h2>
+              <h2 className="text-2xl font-bold">{t.badges_your_badges}</h2>
               <BadgesDisplay userId={user.id} variant="full" />
             </div>
           </TabsContent>
@@ -170,7 +170,7 @@ const Profile = () => {
                 variant="outline"
                 className="w-full"
               >
-                Exportă datele mele
+                {t.export_my_data}
               </Button>
             </div>
           </TabsContent>
