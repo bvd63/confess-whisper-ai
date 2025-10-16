@@ -100,8 +100,8 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
     } catch (error) {
       console.error('Error toggling reaction:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut actualiza reacția",
+        title: t.common_error,
+        description: t.reaction_update_error,
         variant: "destructive",
       });
     } finally {

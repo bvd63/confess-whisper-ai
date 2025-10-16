@@ -145,8 +145,8 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
       if (logError) throw logError;
 
       toast({
-        title: "Acțiune efectuată",
-        description: `Confesiunea a fost ${action === 'approve' ? 'aprobată' : action === 'reject' ? 'respinsă' : 'marcată'}`,
+        title: t.moderation_action_done,
+        description: action === 'approve' ? t.moderation_action_approved : action === 'reject' ? t.moderation_action_rejected : t.moderation_action_marked,
       });
 
       setSelectedConfession(null);
@@ -155,8 +155,8 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
     } catch (error) {
       console.error('Error moderating confession:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut efectua acțiunea",
+        title: t.common_error,
+        description: t.moderation_error_action,
         variant: "destructive",
       });
     }
@@ -199,7 +199,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="pending" className="gap-2">
               <AlertTriangle className="w-4 h-4" />
-              În așteptare ({pendingConfessions.length})
+              {t.moderation_pending_count} ({pendingConfessions.length})
             </TabsTrigger>
             <TabsTrigger value="reported" className="gap-2">
               <Shield className="w-4 h-4" />
@@ -236,7 +236,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
                         className="gap-1"
                       >
                         <Check className="w-4 h-4" />
-                        Aprobă
+                        {t.moderation_approve}
                       </Button>
                       <Button
                         size="sm"
@@ -268,7 +268,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
                         <div className="flex items-center gap-2 mb-2">
                           <AlertTriangle className="w-4 h-4 text-destructive" />
                           <span className="text-sm font-semibold text-destructive">
-                            Raportată {confession.reports?.length ? `(${confession.reports.length} rapoarte)` : ''}
+                            {t.moderation_reported_count} {confession.reports?.length ? `(${confession.reports.length})` : ''}
                           </span>
                         </div>
                         <p className="text-sm mb-2">{confession.content}</p>
@@ -339,7 +339,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
 
           <div className="space-y-4">
             <Textarea
-              placeholder="Motiv (opțional)..."
+              placeholder={t.moderation_reason_optional}
               value={moderationReason}
               onChange={(e) => setModerationReason(e.target.value)}
               className="min-h-[100px]"

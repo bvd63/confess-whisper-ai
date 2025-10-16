@@ -35,7 +35,7 @@ const Following = () => {
           
           <div className="flex items-center gap-3">
             <Users className="h-8 w-8 text-primary" />
-            <h1 className="text-4xl font-bold">Feed-ul tău</h1>
+            <h1 className="text-4xl font-bold">{t.following_your_feed}</h1>
           </div>
 
           <div className="flex items-center gap-2">

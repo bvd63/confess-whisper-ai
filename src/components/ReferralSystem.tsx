@@ -71,8 +71,8 @@ const ReferralSystem = ({ userId }: ReferralSystemProps) => {
     setTimeout(() => setCopied(false), 2000);
     
     toast({
-      title: "Link copiat!",
-      description: "Link-ul de recomandare a fost copiat în clipboard",
+      title: t.referral_link_copied_toast,
+      description: t.referral_link_copied_desc,
     });
   };
 
@@ -96,7 +96,7 @@ const ReferralSystem = ({ userId }: ReferralSystemProps) => {
         <div className="text-center p-4 bg-muted/50 rounded-lg">
           <Users className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
           <p className="text-2xl font-bold">{pendingCount}</p>
-          <p className="text-xs text-muted-foreground">În așteptare</p>
+          <p className="text-xs text-muted-foreground">{t.referral_pending}</p>
         </div>
         <div className="text-center p-4 bg-yellow-500/10 rounded-lg">
           <Coins className="w-6 h-6 text-yellow-500 mx-auto mb-2" />

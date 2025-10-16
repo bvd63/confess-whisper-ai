@@ -113,8 +113,8 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
     } catch (error) {
       console.error('Error creating checkout session:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut iniția procesul de plată",
+        title: t.common_error,
+        description: t.subscription_payment_error_desc,
         variant: "destructive",
       });
     } finally {

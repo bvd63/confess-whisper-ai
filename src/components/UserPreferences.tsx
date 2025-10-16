@@ -20,12 +20,12 @@ interface Preferences {
 }
 
 const colors = [
-  { name: 'Violet', value: '#8b5cf6' },
-  { name: 'Albastru', value: '#3b82f6' },
-  { name: 'Verde', value: '#10b981' },
-  { name: 'Roșu', value: '#ef4444' },
-  { name: 'Portocaliu', value: '#f97316' },
-  { name: 'Roz', value: '#ec4899' },
+  { name: 'preferences_color_violet', value: '#8b5cf6' },
+  { name: 'preferences_color_blue', value: '#3b82f6' },
+  { name: 'preferences_color_green', value: '#10b981' },
+  { name: 'preferences_color_red', value: '#ef4444' },
+  { name: 'preferences_color_orange', value: '#f97316' },
+  { name: 'preferences_color_pink', value: '#ec4899' },
 ];
 
 const UserPreferences = ({ userId }: UserPreferencesProps) => {
@@ -130,7 +130,7 @@ const UserPreferences = ({ userId }: UserPreferencesProps) => {
                     className="w-4 h-4 rounded-full" 
                     style={{ backgroundColor: color.value }}
                   />
-                  {color.name}
+                  {t[color.name as keyof typeof t]}
                 </Button>
               ))}
             </div>

@@ -277,7 +277,7 @@ const Index = () => {
               }}
               className="mt-2"
             >
-              Înapoi la feed
+              {t.index_back_to_feed}
             </Button>
           )}
         </div>

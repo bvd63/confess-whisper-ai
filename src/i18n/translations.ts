@@ -675,10 +675,15 @@ type Translations = {
   referral_link_copied_desc: string;
   referral_pending: string;
   streak_your: string;
+  streak_consecutive_days: string;
+  streak_personal_best: string;
   subscription_payment_error_desc: string;
   preferences_color_green: string;
   preferences_color_red: string;
   preferences_color_orange: string;
+  preferences_color_violet: string;
+  preferences_color_blue: string;
+  preferences_color_pink: string;
   following_your_feed: string;
   index_back_to_feed: string;
 };
@@ -1283,10 +1288,15 @@ export const translations: Record<Language, Translations> = {
     referral_link_copied_desc: "The referral link has been copied to clipboard",
     referral_pending: "Pending",
     streak_your: "Your Streak",
+    streak_consecutive_days: "Consecutive Days",
+    streak_personal_best: "Personal Best",
     subscription_payment_error_desc: "Could not initiate payment process",
     preferences_color_green: "Green",
     preferences_color_red: "Red",
     preferences_color_orange: "Orange",
+    preferences_color_violet: "Violet",
+    preferences_color_blue: "Blue",
+    preferences_color_pink: "Pink",
     following_your_feed: "Your Feed",
     index_back_to_feed: "Back to Feed",
   },
@@ -1891,10 +1901,15 @@ export const translations: Record<Language, Translations> = {
     referral_link_copied_desc: "El enlace de referido ha sido copiado al portapapeles",
     referral_pending: "Pendiente",
     streak_your: "Tu Racha",
+    streak_consecutive_days: "Días Consecutivos",
+    streak_personal_best: "Récord Personal",
     subscription_payment_error_desc: "No se pudo iniciar el proceso de pago",
     preferences_color_green: "Verde",
     preferences_color_red: "Rojo",
     preferences_color_orange: "Naranja",
+    preferences_color_violet: "Violeta",
+    preferences_color_blue: "Azul",
+    preferences_color_pink: "Rosa",
     following_your_feed: "Tu Feed",
     index_back_to_feed: "Volver al Feed",
   },
@@ -2499,10 +2514,15 @@ export const translations: Record<Language, Translations> = {
     referral_link_copied_desc: "Der Empfehlungslink wurde in die Zwischenablage kopiert",
     referral_pending: "Ausstehend",
     streak_your: "Deine Serie",
+    streak_consecutive_days: "Aufeinanderfolgende Tage",
+    streak_personal_best: "Persönliche Bestleistung",
     subscription_payment_error_desc: "Der Zahlungsvorgang konnte nicht gestartet werden",
     preferences_color_green: "Grün",
     preferences_color_red: "Rot",
     preferences_color_orange: "Orange",
+    preferences_color_violet: "Violett",
+    preferences_color_blue: "Blau",
+    preferences_color_pink: "Rosa",
     following_your_feed: "Dein Feed",
     index_back_to_feed: "Zurück zum Feed",
   },

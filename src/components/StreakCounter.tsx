@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Flame } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface StreakCounterProps {
   userId: string;
@@ -18,6 +19,7 @@ interface StreakData {
 const StreakCounter = ({ userId, variant = "compact" }: StreakCounterProps) => {
   const [streak, setStreak] = useState<StreakData | null>(null);
   const [loading, setLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadStreak();
@@ -48,7 +50,7 @@ const StreakCounter = ({ userId, variant = "compact" }: StreakCounterProps) => {
           streak.current_streak >= 7 ? "text-orange-500" : "text-yellow-500"
         )} />
         <span className="font-semibold">{streak.current_streak}</span>
-        <span className="text-muted-foreground">zile</span>
+        <span className="text-muted-foreground">{t.time_days}</span>
       </div>
     );
   }
@@ -56,7 +58,7 @@ const StreakCounter = ({ userId, variant = "compact" }: StreakCounterProps) => {
   return (
     <Card className="p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">Streak-ul tău</h3>
+        <h3 className="text-lg font-semibold">{t.streak_your}</h3>
         <Flame className={cn(
           "w-6 h-6",
           streak.current_streak >= 7 ? "text-orange-500 animate-pulse" : "text-yellow-500"
@@ -66,18 +68,18 @@ const StreakCounter = ({ userId, variant = "compact" }: StreakCounterProps) => {
       <div className="grid grid-cols-2 gap-4">
         <div className="text-center p-4 bg-accent/50 rounded-lg">
           <p className="text-3xl font-bold text-primary">{streak.current_streak}</p>
-          <p className="text-sm text-muted-foreground">Zile consecutive</p>
+          <p className="text-sm text-muted-foreground">{t.streak_consecutive_days}</p>
         </div>
         
         <div className="text-center p-4 bg-accent/50 rounded-lg">
           <p className="text-3xl font-bold text-primary">{streak.longest_streak}</p>
-          <p className="text-sm text-muted-foreground">Record personal</p>
+          <p className="text-sm text-muted-foreground">{t.streak_personal_best}</p>
         </div>
       </div>
 
       {streak.last_confession_date && (
         <p className="text-xs text-muted-foreground text-center mt-4">
-          Ultima confesiune: {new Date(streak.last_confession_date).toLocaleDateString('ro-RO')}
+          {t.streak_last_confession} {new Date(streak.last_confession_date).toLocaleDateString()}
         </p>
       )}
     </Card>
