@@ -23,6 +23,7 @@ import ExportDataDialog from "@/components/ExportDataDialog";
 import ModerationPanel from "@/components/ModerationPanel";
 import CoinsDisplay from "@/components/CoinsDisplay";
 import BlockedUsers from "@/components/BlockedUsers";
+import ReferralSystem from "@/components/ReferralSystem";
 import { useUserRole } from "@/hooks/useUserRole";
 
 const Profile = () => {
@@ -109,6 +110,7 @@ const Profile = () => {
 
           <TabsContent value="settings" className="space-y-6">
             <UserPreferences userId={user.id} />
+            <ReferralSystem userId={user.id} />
             <BlockedUsers userId={user.id} />
             
             <div className="pt-4">

@@ -1,50 +1,108 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Check, Crown, Loader2, Zap } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import SubscriptionCard from "./SubscriptionCard";
 
 interface SubscriptionPlansProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const PLANS = {
-  monthly: {
-    priceId: 'price_1SIVcRR7kygIyYg9aPdkdzCD',
-    productId: 'prod_TEzb0QzrMOVFe6',
-    price: '$4.99',
-  },
-  yearly: {
-    priceId: 'price_1SIVcgR7kygIyYg9fvcIPq5R',
-    productId: 'prod_TEzbwHO3zir2dE',
-    price: '$39.99',
-  },
-};
+interface SubscriptionPlan {
+  id: string;
+  name: string;
+  price_monthly: number;
+  price_yearly: number;
+  features: string[];
+  stripe_price_id_monthly: string | null;
+  stripe_price_id_yearly: string | null;
+}
 
 const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
-  const [isLoading, setIsLoading] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [currentTier, setCurrentTier] = useState("free");
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("yearly");
   const { toast } = useToast();
   const { t } = useLanguage();
 
-  const handleSubscribe = async (planKey: 'monthly' | 'yearly') => {
-    setIsLoading(planKey);
+  useEffect(() => {
+    if (open) {
+      loadPlans();
+      loadCurrentSubscription();
+    }
+  }, [open]);
+
+  const loadPlans = async () => {
+    const { data } = await supabase
+      .from('subscription_plans')
+      .select('*')
+      .order('price_monthly', { ascending: true });
+    
+    if (data) {
+      const typedPlans = data.map(plan => ({
+        ...plan,
+        features: Array.isArray(plan.features) ? plan.features : []
+      })) as SubscriptionPlan[];
+      setPlans(typedPlans);
+    }
+  };
+
+  const loadCurrentSubscription = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('subscription_tier')
+      .eq('user_id', user.id)
+      .single();
+    
+    if (profile) {
+      setCurrentTier(profile.subscription_tier || 'free');
+    }
+  };
+
+  const handleSubscribe = async (planId: string, cycle: "monthly" | "yearly") => {
+    setIsLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast({
-          title: t.common_error,
-          description: t.subscription_auth_required,
+          title: "Autentificare necesară",
+          description: "Trebuie să fii autentificat pentru a te abona",
           variant: "destructive",
         });
         return;
       }
 
-      const plan = PLANS[planKey];
+      const plan = plans.find(p => p.id === planId);
+      if (!plan) return;
+
+      const priceId = cycle === 'monthly' 
+        ? plan.stripe_price_id_monthly 
+        : plan.stripe_price_id_yearly;
+
+      if (!priceId) {
+        toast({
+          title: "Eroare",
+          description: "Plan de abonament indisponibil",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-        body: { priceId: plan.priceId },
+        body: { 
+          priceId,
+          planName: plan.name,
+          billingCycle: cycle
+        },
       });
 
       if (error) throw error;
@@ -55,115 +113,60 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
     } catch (error) {
       console.error('Error creating checkout session:', error);
       toast({
-        title: t.common_error,
-        description: t.subscription_error,
+        title: "Eroare",
+        description: "Nu am putut iniția procesul de plată",
         variant: "destructive",
       });
     } finally {
-      setIsLoading(null);
+      setIsLoading(false);
     }
   };
 
-  const benefits = [
-    t.subscription_benefit_1,
-    t.subscription_benefit_2,
-    t.subscription_benefit_3,
-    t.subscription_benefit_4,
-    t.subscription_benefit_5
-  ];
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] bg-gradient-to-br from-card via-primary/5 to-card border-primary/30">
+      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto bg-gradient-to-br from-card via-primary/5 to-card border-primary/30">
         <DialogHeader>
           <DialogTitle className="text-3xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent flex items-center gap-2">
             <Crown className="w-7 h-7 text-primary" />
-            {t.subscription_premium_title}
+            Alege planul tău Premium
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            {t.subscription_choose_plan}
+            Deblocează toate funcționalitățile și obține o experiență superioară
           </DialogDescription>
         </DialogHeader>
 
         <div className="py-6 space-y-6">
-          {/* Benefits */}
-          <div className="space-y-3">
-            {benefits.map((benefit, i) => (
-              <div key={i} className="flex items-start gap-3 animate-fade-in" style={{ animationDelay: `${i * 100}ms` }}>
-                <div className="mt-0.5 p-1 rounded-full bg-primary/20">
-                  <Check className="w-4 h-4 text-primary" />
-                </div>
-                <p className="text-sm text-foreground/90">{benefit}</p>
-              </div>
+          {/* Billing Cycle Toggle */}
+          <div className="flex justify-center">
+            <Tabs value={billingCycle} onValueChange={(v) => setBillingCycle(v as "monthly" | "yearly")} className="w-full max-w-md">
+              <TabsList className="grid w-full grid-cols-2 bg-muted/50">
+                <TabsTrigger value="monthly">Lunar</TabsTrigger>
+                <TabsTrigger value="yearly" className="relative">
+                  Anual
+                  <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                    -20%
+                  </span>
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+
+          {/* Subscription Cards */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {plans.map((plan) => (
+              <SubscriptionCard
+                key={plan.id}
+                plan={plan}
+                currentTier={currentTier}
+                billingCycle={billingCycle}
+                onSubscribe={handleSubscribe}
+                loading={isLoading}
+              />
             ))}
           </div>
 
-          {/* Pricing Plans */}
-          <div className="grid md:grid-cols-2 gap-4">
-            {/* Monthly Plan */}
-            <div className="p-6 bg-card rounded-xl border border-border hover:border-primary/50 transition-all">
-              <div className="text-center mb-4">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <Zap className="w-5 h-5 text-primary" />
-                  <h3 className="text-lg font-semibold">{t.subscription_monthly}</h3>
-                </div>
-                <div className="text-3xl font-bold text-primary mb-1">{PLANS.monthly.price}</div>
-                <div className="text-sm text-muted-foreground">{t.subscription_per_month}</div>
-              </div>
-              <Button
-                onClick={() => handleSubscribe('monthly')}
-                disabled={isLoading !== null}
-                className="w-full bg-gradient-to-r from-primary/80 to-primary/60 hover:from-primary/90 hover:to-primary/70 text-primary-foreground"
-              >
-                {isLoading === 'monthly' ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    {t.subscription_processing}
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    {t.subscription_subscribe}
-                  </>
-                )}
-              </Button>
-            </div>
-
-            <div className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border-2 border-primary relative overflow-hidden">
-              <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-bl-lg">
-                {t.subscription_most_popular}
-              </div>
-              <div className="text-center mb-4 mt-2">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <Crown className="w-5 h-5 text-primary" />
-                  <h3 className="text-lg font-semibold">{t.subscription_yearly}</h3>
-                </div>
-                <div className="text-3xl font-bold text-primary mb-1">{PLANS.yearly.price}</div>
-                <div className="text-sm text-muted-foreground mb-1">{t.subscription_per_year}</div>
-                <div className="text-xs font-semibold text-primary">{t.subscription_save_percent}</div>
-              </div>
-              <Button
-                onClick={() => handleSubscribe('yearly')}
-                disabled={isLoading !== null}
-                className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-[var(--shadow-glow)] animate-glow"
-              >
-                {isLoading === 'yearly' ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    {t.subscription_processing}
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    {t.subscription_subscribe_yearly}
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-
           <p className="text-xs text-center text-muted-foreground">
-            {t.subscription_cancel_anytime}
+            Poți anula abonamentul oricând. Fără taxe ascunse.
           </p>
         </div>
       </DialogContent>

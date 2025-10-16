@@ -566,7 +566,10 @@ export type Database = {
           referred_by: string | null
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
+          subscription_cancel_at_period_end: boolean | null
+          subscription_ends_at: string | null
           subscription_status: string | null
+          subscription_tier: string | null
           total_referrals: number | null
           user_id: string
         }
@@ -578,7 +581,10 @@ export type Database = {
           referred_by?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
+          subscription_cancel_at_period_end?: boolean | null
+          subscription_ends_at?: string | null
           subscription_status?: string | null
+          subscription_tier?: string | null
           total_referrals?: number | null
           user_id: string
         }
@@ -590,11 +596,49 @@ export type Database = {
           referred_by?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
+          subscription_cancel_at_period_end?: boolean | null
+          subscription_ends_at?: string | null
           subscription_status?: string | null
+          subscription_tier?: string | null
           total_referrals?: number | null
           user_id?: string
         }
         Relationships: []
+      }
+      referral_rewards: {
+        Row: {
+          claimed_at: string
+          id: string
+          referral_id: string
+          reward_type: string
+          reward_value: number
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          id?: string
+          referral_id: string
+          reward_type: string
+          reward_value: number
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string
+          id?: string
+          referral_id?: string
+          reward_type?: string
+          reward_value?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_rewards_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "referrals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       referrals: {
         Row: {
@@ -626,6 +670,39 @@ export type Database = {
           referrer_user_id?: string
           reward_claimed?: boolean | null
           status?: string
+        }
+        Relationships: []
+      }
+      subscription_plans: {
+        Row: {
+          created_at: string
+          features: Json
+          id: string
+          name: string
+          price_monthly: number
+          price_yearly: number
+          stripe_price_id_monthly: string | null
+          stripe_price_id_yearly: string | null
+        }
+        Insert: {
+          created_at?: string
+          features?: Json
+          id?: string
+          name: string
+          price_monthly: number
+          price_yearly: number
+          stripe_price_id_monthly?: string | null
+          stripe_price_id_yearly?: string | null
+        }
+        Update: {
+          created_at?: string
+          features?: Json
+          id?: string
+          name?: string
+          price_monthly?: number
+          price_yearly?: number
+          stripe_price_id_monthly?: string | null
+          stripe_price_id_yearly?: string | null
         }
         Relationships: []
       }
