@@ -126,24 +126,24 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto bg-gradient-to-br from-card via-primary/5 to-card border-primary/30">
         <DialogHeader>
-          <DialogTitle className="text-3xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent flex items-center gap-2">
-            <Crown className="w-7 h-7 text-primary" />
+          <DialogTitle className="text-xl sm:text-2xl md:text-3xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent flex items-center gap-2">
+            <Crown className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-primary" />
             {t.subscription_title}
           </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
+          <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
             {t.subscription_description}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="py-6 space-y-6">
+        <div className="py-4 sm:py-6 space-y-4 sm:space-y-6">
           {/* Billing Cycle Toggle */}
-          <div className="flex justify-center">
+          <div className="flex justify-center px-3 sm:px-0">
             <Tabs value={billingCycle} onValueChange={(v) => setBillingCycle(v as "monthly" | "yearly")} className="w-full max-w-md">
-              <TabsList className="grid w-full grid-cols-2 bg-muted/50">
-                <TabsTrigger value="monthly">{t.subscription_monthly}</TabsTrigger>
-                <TabsTrigger value="yearly" className="relative">
+              <TabsList className="grid w-full grid-cols-2 bg-muted/50 h-9 sm:h-10">
+                <TabsTrigger value="monthly" className="text-xs sm:text-sm">{t.subscription_monthly}</TabsTrigger>
+                <TabsTrigger value="yearly" className="relative text-xs sm:text-sm">
                   {t.subscription_yearly}
-                  <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                  <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-[8px] sm:text-[10px] font-bold px-1 sm:px-1.5 py-0.5 rounded-full">
                     {t.subscription_yearly_discount}
                   </span>
                 </TabsTrigger>
@@ -152,7 +152,7 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
           </div>
 
           {/* Subscription Cards */}
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-4 sm:gap-6 px-3 sm:px-0">
             {plans.map((plan) => (
               <SubscriptionCard
                 key={plan.id}
@@ -165,7 +165,7 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
             ))}
           </div>
 
-          <p className="text-xs text-center text-muted-foreground">
+          <p className="text-[10px] sm:text-xs text-center text-muted-foreground px-3 sm:px-0">
             {t.subscription_cancel_anytime}
           </p>
         </div>

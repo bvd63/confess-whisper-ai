@@ -116,27 +116,27 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-destructive" />
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-destructive" />
             {t.report_title}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-xs sm:text-sm">
             {t.report_description}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          <div className="space-y-3">
-            <Label className="text-sm font-semibold">{t.report_reason_label}</Label>
+        <div className="space-y-3 sm:space-y-4 py-3 sm:py-4">
+          <div className="space-y-2 sm:space-y-3">
+            <Label className="text-xs sm:text-sm font-semibold">{t.report_reason_label}</Label>
             <RadioGroup value={selectedReason} onValueChange={setSelectedReason}>
               {reportReasons.map((reason) => (
                 <div key={reason.value} className="flex items-center space-x-2">
                   <RadioGroupItem value={reason.value} id={reason.value} />
                   <Label
                     htmlFor={reason.value}
-                    className="text-sm font-normal cursor-pointer"
+                    className="text-xs sm:text-sm font-normal cursor-pointer"
                   >
                     {reason.label}
                   </Label>
@@ -146,7 +146,7 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="details" className="text-sm font-semibold">
+            <Label htmlFor="details" className="text-xs sm:text-sm font-semibold">
               {t.report_details_label}
             </Label>
             <Textarea
@@ -154,7 +154,7 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
               placeholder={t.report_details_placeholder}
               value={details}
               onChange={(e) => setDetails(e.target.value)}
-              className="min-h-[100px]"
+              className="min-h-[80px] sm:min-h-[100px] text-xs sm:text-sm"
               disabled={submitting}
             />
           </div>
@@ -164,7 +164,8 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={submitting}
-              className="flex-1"
+              className="flex-1 text-xs sm:text-sm"
+              size="sm"
             >
               {t.moderation_cancel}
             </Button>
@@ -172,11 +173,12 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
               onClick={handleSubmit}
               disabled={submitting || !selectedReason}
               variant="destructive"
-              className="flex-1"
+              className="flex-1 text-xs sm:text-sm"
+              size="sm"
             >
               {submitting ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 mr-2 animate-spin" />
                   {t.report_submitting}
                 </>
               ) : (

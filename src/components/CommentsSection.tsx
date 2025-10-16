@@ -134,24 +134,24 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
   };
 
   return (
-    <div className="mt-4 border-t border-border/50 pt-4">
+    <div className="mt-3 sm:mt-4 border-t border-border/50 pt-3 sm:pt-4">
       <Button
         variant="ghost"
         size="sm"
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full justify-between text-muted-foreground hover:text-foreground"
+        className="w-full justify-between text-muted-foreground hover:text-foreground px-2 sm:px-4"
       >
-        <div className="flex items-center gap-2">
-          <MessageSquare className="w-4 h-4" />
-          <span className="text-sm">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4" />
+          <span className="text-xs sm:text-sm">
             {commentsCount} {t.comments_title}
           </span>
         </div>
-        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        {isExpanded ? <ChevronUp className="w-3 h-3 sm:w-4 sm:h-4" /> : <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4" />}
       </Button>
 
       {isExpanded && (
-        <div className="mt-4 space-y-4 animate-fade-in">
+        <div className="mt-3 sm:mt-4 space-y-3 sm:space-y-4 animate-fade-in">
           {/* Add Comment Form */}
           {user && (
             <div className="space-y-2">
@@ -159,21 +159,21 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                 placeholder={t.comments_placeholder}
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                className="min-h-[80px] resize-none border-primary/20 focus:border-primary/40 bg-background/50"
+                className="min-h-[60px] sm:min-h-[80px] resize-none border-primary/20 focus:border-primary/40 bg-background/50 text-xs sm:text-sm"
                 disabled={isSubmitting}
                 maxLength={500}
               />
               <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">
+                <span className="text-[10px] sm:text-xs text-muted-foreground">
                   {newComment.length}/500
                 </span>
                 <Button
                   onClick={handleSubmit}
                   disabled={isSubmitting || !newComment.trim()}
                   size="sm"
-                  className="bg-gradient-to-r from-primary to-primary/80"
+                  className="bg-gradient-to-r from-primary to-primary/80 text-xs sm:text-sm"
                 >
-                  <Send className="w-4 h-4 mr-2" />
+                  <Send className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                   {t.comments_submit}
                 </Button>
               </div>
@@ -181,19 +181,19 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
           )}
 
           {/* Comments List */}
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {comments.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">
+              <p className="text-xs sm:text-sm text-muted-foreground text-center py-3 sm:py-4">
                 {t.comments_none}
               </p>
             ) : (
               comments.map((comment) => (
                 <div
                   key={comment.id}
-                  className="p-3 bg-muted/30 rounded-lg border border-border/50"
+                  className="p-2 sm:p-3 bg-muted/30 rounded-lg border border-border/50"
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <div className="flex items-start justify-between mb-1 sm:mb-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground">
                       <span>{t.confession_anonymous}</span>
                       <span>•</span>
                       <span>{timeAgo(comment.created_at)}</span>
@@ -203,13 +203,13 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(comment.id)}
-                        className="h-6 px-2 text-muted-foreground hover:text-destructive"
+                        className="h-5 sm:h-6 px-1.5 sm:px-2 text-muted-foreground hover:text-destructive"
                       >
-                        <Trash2 className="w-3 h-3" />
+                        <Trash2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                       </Button>
                     )}
                   </div>
-                  <p className="text-sm text-foreground">{comment.content}</p>
+                  <p className="text-xs sm:text-sm text-foreground leading-relaxed">{comment.content}</p>
                 </div>
               ))
             )}

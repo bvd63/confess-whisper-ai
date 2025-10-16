@@ -108,50 +108,51 @@ const UserPreferences = ({ userId }: UserPreferencesProps) => {
   if (loading) return null;
 
   return (
-    <Card className="p-6 space-y-6">
-      <div className="space-y-4">
+    <Card className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+      <div className="space-y-3 sm:space-y-4">
         <div className="flex items-center gap-2">
-          <Palette className="w-5 h-5 text-primary" />
-          <h3 className="text-lg font-semibold">{t.preferences_customization}</h3>
+          <Palette className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+          <h3 className="text-base sm:text-lg font-semibold">{t.preferences_customization}</h3>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           <div className="space-y-2">
-            <Label>{t.preferences_accent_color}</Label>
-            <div className="grid grid-cols-3 gap-2">
+            <Label className="text-xs sm:text-sm">{t.preferences_accent_color}</Label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 sm:gap-2">
               {colors.map((color) => (
                 <Button
                   key={color.value}
                   variant={preferences.custom_color === color.value ? "default" : "outline"}
-                  className="justify-start gap-2"
+                  className="justify-start gap-1.5 sm:gap-2 text-xs sm:text-sm py-2 h-auto"
+                  size="sm"
                   onClick={() => setPreferences({ ...preferences, custom_color: color.value })}
                 >
                   <div 
-                    className="w-4 h-4 rounded-full" 
+                    className="w-3 h-3 sm:w-4 sm:h-4 rounded-full flex-shrink-0" 
                     style={{ backgroundColor: color.value }}
                   />
-                  {t[color.name as keyof typeof t]}
+                  <span className="truncate">{t[color.name as keyof typeof t]}</span>
                 </Button>
               ))}
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Type className="w-4 h-4" />
+            <Label className="flex items-center gap-2 text-xs sm:text-sm">
+              <Type className="w-3 h-3 sm:w-4 sm:h-4" />
               {t.preferences_text_size}
             </Label>
             <Select 
               value={preferences.font_size} 
               onValueChange={(value) => setPreferences({ ...preferences, font_size: value })}
             >
-              <SelectTrigger>
+              <SelectTrigger className="text-xs sm:text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="small">{t.preferences_size_small}</SelectItem>
-                <SelectItem value="medium">{t.preferences_size_medium}</SelectItem>
-                <SelectItem value="large">{t.preferences_size_large}</SelectItem>
+                <SelectItem value="small" className="text-xs sm:text-sm">{t.preferences_size_small}</SelectItem>
+                <SelectItem value="medium" className="text-xs sm:text-sm">{t.preferences_size_medium}</SelectItem>
+                <SelectItem value="large" className="text-xs sm:text-sm">{t.preferences_size_large}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -160,7 +161,8 @@ const UserPreferences = ({ userId }: UserPreferencesProps) => {
         <Button 
           onClick={savePreferences} 
           disabled={saving}
-          className="w-full"
+          className="w-full text-xs sm:text-sm"
+          size="sm"
         >
           {saving ? t.preferences_saving : t.preferences_save}
         </Button>

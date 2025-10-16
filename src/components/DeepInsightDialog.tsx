@@ -78,53 +78,54 @@ const DeepInsightDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] bg-gradient-to-br from-card to-primary/5 border-primary/30">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-gradient-to-br from-card to-primary/5 border-primary/30">
         <DialogHeader>
-          <DialogTitle className="text-2xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-primary" />
+          <DialogTitle className="text-xl sm:text-2xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent flex items-center gap-2">
+            <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
             {t.deep_insight_title}
           </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
+          <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
             {t.deep_insight_description}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-3 sm:space-y-4 py-3 sm:py-4">
           {/* Original Confession */}
-          <div className="p-4 bg-muted/50 rounded-lg border border-border/50">
-            <p className="text-sm text-muted-foreground mb-2">{t.deep_insight_your_confession}</p>
-            <p className="text-foreground leading-relaxed">
+          <div className="p-3 sm:p-4 bg-muted/50 rounded-lg border border-border/50">
+            <p className="text-xs sm:text-sm text-muted-foreground mb-2">{t.deep_insight_your_confession}</p>
+            <p className="text-sm sm:text-base text-foreground leading-relaxed">
               {confession.content}
             </p>
           </div>
 
           {/* Deep Insight */}
           {insight ? (
-            <div className="p-5 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg border border-primary/20 animate-slide-up">
-              <div className="flex items-center gap-2 mb-3 text-primary">
-                <Sparkles className="w-5 h-5" />
-                <span className="font-medium">{t.deep_insight_title}</span>
+            <div className="p-3 sm:p-5 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg border border-primary/20 animate-slide-up">
+              <div className="flex items-center gap-2 mb-2 sm:mb-3 text-primary">
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="text-sm sm:text-base font-medium">{t.deep_insight_title}</span>
               </div>
-              <p className="text-foreground/90 leading-relaxed whitespace-pre-line">
+              <p className="text-sm sm:text-base text-foreground/90 leading-relaxed whitespace-pre-line">
                 {insight}
               </p>
             </div>
           ) : (
-            <div className="text-center py-8">
+            <div className="text-center py-6 sm:py-8">
               {!isPremium ? (
-                <div className="space-y-4">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
-                    <Crown className="w-4 h-4 text-primary" />
-                    <span className="text-sm text-primary font-medium">{t.premium_feature}</span>
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 rounded-full border border-primary/20">
+                    <Crown className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
+                    <span className="text-xs sm:text-sm text-primary font-medium">{t.premium_feature}</span>
                   </div>
-                  <p className="text-muted-foreground text-sm">
+                  <p className="text-muted-foreground text-xs sm:text-sm px-4">
                     {t.deep_insight_premium}
                   </p>
                   <Button
                     onClick={onUpgradeClick}
-                    className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                    className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-xs sm:text-sm"
+                    size="sm"
                   >
-                    <Crown className="w-4 h-4 mr-2" />
+                    <Crown className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                     {t.premium_upgrade}
                   </Button>
                 </div>
@@ -132,16 +133,17 @@ const DeepInsightDialog = ({
                 <Button
                   onClick={generateDeepInsight}
                   disabled={isGenerating}
-                  className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-[var(--shadow-glow)]"
+                  className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-[var(--shadow-glow)] text-xs sm:text-sm"
+                  size="sm"
                 >
                   {isGenerating ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 mr-2 animate-spin" />
                       {t.submitting}
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-4 h-4 mr-2" />
+                      <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                       {t.generate_insight}
                     </>
                   )}

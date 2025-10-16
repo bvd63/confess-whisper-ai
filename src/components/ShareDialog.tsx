@@ -51,52 +51,59 @@ const ShareDialog = ({ open, onOpenChange, confessionId }: ShareDialogProps) => 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{t.share_title}</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl">{t.share_title}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-3 sm:space-y-4">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
             <Button
               variant="outline"
               onClick={() => handleShare('facebook')}
-              className="gap-2"
+              className="gap-1.5 sm:gap-2 text-xs sm:text-sm"
+              size="sm"
             >
-              <Facebook className="w-4 h-4" />
-              Facebook
+              <Facebook className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Facebook</span>
+              <span className="sm:hidden">FB</span>
             </Button>
             <Button
               variant="outline"
               onClick={() => handleShare('twitter')}
-              className="gap-2"
+              className="gap-1.5 sm:gap-2 text-xs sm:text-sm"
+              size="sm"
             >
-              <Twitter className="w-4 h-4" />
-              Twitter
+              <Twitter className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Twitter</span>
+              <span className="sm:hidden">X</span>
             </Button>
             <Button
               variant="outline"
               onClick={() => handleShare('linkedin')}
-              className="gap-2"
+              className="gap-1.5 sm:gap-2 text-xs sm:text-sm"
+              size="sm"
             >
-              <Linkedin className="w-4 h-4" />
+              <Linkedin className="w-3 h-3 sm:w-4 sm:h-4" />
               LinkedIn
             </Button>
             <Button
               variant="outline"
               onClick={() => handleShare('email')}
-              className="gap-2"
+              className="gap-1.5 sm:gap-2 text-xs sm:text-sm"
+              size="sm"
             >
-              <Mail className="w-4 h-4" />
+              <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
               Email
             </Button>
           </div>
 
-          <div className="pt-4 border-t">
+          <div className="pt-3 sm:pt-4 border-t">
             <Button
               onClick={handleCopyLink}
               variant="secondary"
-              className="w-full gap-2"
+              className="w-full gap-2 text-xs sm:text-sm"
+              size="sm"
             >
-              <Link2 className="w-4 h-4" />
+              <Link2 className="w-3 h-3 sm:w-4 sm:h-4" />
               {t.share_copy_link}
             </Button>
           </div>

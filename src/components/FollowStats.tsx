@@ -14,27 +14,27 @@ const FollowStats = ({ userId }: FollowStatsProps) => {
   if (loading) return null;
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center gap-2 mb-4">
-        <Users className="w-5 h-5 text-primary" />
-        <h3 className="text-lg font-semibold">{t.follow_connections}</h3>
+    <Card className="p-4 sm:p-6">
+      <div className="flex items-center gap-2 mb-3 sm:mb-4">
+        <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+        <h3 className="text-base sm:text-lg font-semibold">{t.follow_connections}</h3>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="text-center p-4 bg-accent/50 rounded-lg">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <UserPlus className="w-5 h-5 text-primary" />
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        <div className="text-center p-3 sm:p-4 bg-accent/50 rounded-lg">
+          <div className="flex items-center justify-center gap-2 mb-1 sm:mb-2">
+            <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
           </div>
-          <p className="text-2xl font-bold text-primary">{followingCount}</p>
-          <p className="text-sm text-muted-foreground">{t.follow_following}</p>
+          <p className="text-xl sm:text-2xl font-bold text-primary">{followingCount}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground">{t.follow_following}</p>
         </div>
 
-        <div className="text-center p-4 bg-accent/50 rounded-lg">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Users className="w-5 h-5 text-primary" />
+        <div className="text-center p-3 sm:p-4 bg-accent/50 rounded-lg">
+          <div className="flex items-center justify-center gap-2 mb-1 sm:mb-2">
+            <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
           </div>
-          <p className="text-2xl font-bold text-primary">{followersCount}</p>
-          <p className="text-sm text-muted-foreground">{t.follow_followers}</p>
+          <p className="text-xl sm:text-2xl font-bold text-primary">{followersCount}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground">{t.follow_followers}</p>
         </div>
       </div>
     </Card>
