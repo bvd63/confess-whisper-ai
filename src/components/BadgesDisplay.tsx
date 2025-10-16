@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { MessageSquare, MessageSquarePlus, Award, Heart, Star, Flame, Trophy, Cake } from "lucide-react";
+import { MessageSquare, MessageSquarePlus, Award, Heart, Star, Flame, Trophy, Cake, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -22,14 +22,18 @@ const iconMap: Record<string, any> = {
   Cake,
 };
 
-interface UserBadge {
-  badge_id: string;
-  earned_at: string;
-  badges: {
-    name: string;
-    description: string;
-    icon: string;
-  };
+interface BadgeData {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  requirement_type: string;
+  requirement_value: number;
+}
+
+interface EnrichedBadge extends BadgeData {
+  earned: boolean;
+  earned_at?: string;
 }
 
 // Mapping between DB badge names (Romanian) and translation keys
@@ -45,13 +49,13 @@ const badgeTranslationMap: Record<string, { name: string; desc: string }> = {
 };
 
 const BadgesDisplay = ({ userId, variant = "compact" }: BadgesDisplayProps) => {
-  const [badges, setBadges] = useState<UserBadge[]>([]);
+  const [badges, setBadges] = useState<EnrichedBadge[]>([]);
   const { t, language } = useLanguage();
   const [loading, setLoading] = useState(true);
   
   // Helper function to get translated badge name and description
-  const getBadgeTranslation = (badge: UserBadge) => {
-    const mapping = badgeTranslationMap[badge.badges.name];
+  const getBadgeTranslation = (badge: EnrichedBadge) => {
+    const mapping = badgeTranslationMap[badge.name];
     if (mapping) {
       return {
         name: t[mapping.name as keyof typeof t] as string,
@@ -60,8 +64,8 @@ const BadgesDisplay = ({ userId, variant = "compact" }: BadgesDisplayProps) => {
     }
     // Fallback to DB values if no mapping found
     return {
-      name: badge.badges.name,
-      description: badge.badges.description,
+      name: badge.name,
+      description: badge.description,
     };
   };
 
@@ -70,22 +74,29 @@ const BadgesDisplay = ({ userId, variant = "compact" }: BadgesDisplayProps) => {
   }, [userId]);
 
   const loadBadges = async () => {
-    const { data, error } = await supabase
-      .from('user_badges')
-      .select(`
-        badge_id,
-        earned_at,
-        badges (
-          name,
-          description,
-          icon
-        )
-      `)
-      .eq('user_id', userId)
-      .order('earned_at', { ascending: false });
+    // Load all badges
+    const { data: allBadges, error: badgesError } = await supabase
+      .from('badges')
+      .select('*')
+      .order('requirement_value', { ascending: true });
 
-    if (!error && data) {
-      setBadges(data as UserBadge[]);
+    // Load user's earned badges
+    const { data: userBadges, error: userBadgesError } = await supabase
+      .from('user_badges')
+      .select('badge_id, earned_at')
+      .eq('user_id', userId);
+
+    if (!badgesError && !userBadgesError && allBadges) {
+      const earnedBadgeIds = new Set(userBadges?.map(ub => ub.badge_id) || []);
+      const earnedBadgeMap = new Map(userBadges?.map(ub => [ub.badge_id, ub.earned_at]) || []);
+      
+      const enrichedBadges: EnrichedBadge[] = allBadges.map(badge => ({
+        ...badge,
+        earned: earnedBadgeIds.has(badge.id),
+        earned_at: earnedBadgeMap.get(badge.id),
+      }));
+
+      setBadges(enrichedBadges);
     }
     setLoading(false);
   };
@@ -94,14 +105,15 @@ const BadgesDisplay = ({ userId, variant = "compact" }: BadgesDisplayProps) => {
   if (badges.length === 0) return null;
 
   if (variant === "compact") {
+    const earnedBadges = badges.filter(b => b.earned);
     return (
       <TooltipProvider>
         <div className="flex gap-1 flex-wrap">
-          {badges.slice(0, 3).map((userBadge) => {
-            const IconComponent = iconMap[userBadge.badges.icon] || Award;
-            const translation = getBadgeTranslation(userBadge);
+          {earnedBadges.slice(0, 3).map((badge) => {
+            const IconComponent = iconMap[badge.icon] || Award;
+            const translation = getBadgeTranslation(badge);
             return (
-              <Tooltip key={userBadge.badge_id}>
+              <Tooltip key={badge.id}>
                 <TooltipTrigger>
                   <Badge variant="secondary" className="gap-1">
                     <IconComponent className="w-3 h-3" />
@@ -114,9 +126,9 @@ const BadgesDisplay = ({ userId, variant = "compact" }: BadgesDisplayProps) => {
               </Tooltip>
             );
           })}
-          {badges.length > 3 && (
+          {earnedBadges.length > 3 && (
             <Badge variant="outline" className="text-xs">
-              +{badges.length - 3}
+              +{earnedBadges.length - 3}
             </Badge>
           )}
         </div>
@@ -126,25 +138,46 @@ const BadgesDisplay = ({ userId, variant = "compact" }: BadgesDisplayProps) => {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {badges.map((userBadge) => {
-        const IconComponent = iconMap[userBadge.badges.icon] || Award;
-        const translation = getBadgeTranslation(userBadge);
+      {badges.map((badge) => {
+        const IconComponent = iconMap[badge.icon] || Award;
+        const translation = getBadgeTranslation(badge);
+        const isLocked = !badge.earned;
+        
         return (
           <div
-            key={userBadge.badge_id}
-            className="flex flex-col items-center gap-2 p-4 border rounded-lg bg-card hover:bg-accent/50 transition-colors"
+            key={badge.id}
+            className={cn(
+              "flex flex-col items-center gap-2 p-4 border rounded-lg transition-colors relative",
+              isLocked 
+                ? "bg-muted/50 opacity-60" 
+                : "bg-card hover:bg-accent/50"
+            )}
           >
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <IconComponent className="w-6 h-6 text-primary" />
+            <div className={cn(
+              "w-12 h-12 rounded-full flex items-center justify-center relative",
+              isLocked ? "bg-muted" : "bg-primary/10"
+            )}>
+              {isLocked ? (
+                <Lock className="w-6 h-6 text-muted-foreground" />
+              ) : (
+                <IconComponent className="w-6 h-6 text-primary" />
+              )}
             </div>
             <div className="text-center">
-              <p className="font-semibold text-sm">{translation.name}</p>
-              <p className="text-xs text-muted-foreground">{translation.description}</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {t.badges_earned_on} {new Date(userBadge.earned_at).toLocaleDateString(
-                  language === 'es' ? 'es-ES' : language === 'de' ? 'de-DE' : 'en-US'
-                )}
+              <p className={cn(
+                "font-semibold text-sm",
+                isLocked && "text-muted-foreground"
+              )}>
+                {translation.name}
               </p>
+              <p className="text-xs text-muted-foreground">{translation.description}</p>
+              {!isLocked && badge.earned_at && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t.badges_earned_on} {new Date(badge.earned_at).toLocaleDateString(
+                    language === 'es' ? 'es-ES' : language === 'de' ? 'de-DE' : 'en-US'
+                  )}
+                </p>
+              )}
             </div>
           </div>
         );
