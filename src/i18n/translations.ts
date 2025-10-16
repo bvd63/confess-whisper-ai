@@ -566,6 +566,12 @@ type Translations = {
   
   // Reactions
   reaction_update_error: string;
+  reaction_heart: string;
+  reaction_sad: string;
+  reaction_strong: string;
+  reaction_thinking: string;
+  reaction_auth_required: string;
+  reaction_auth_required_desc: string;
   
   // Streak
   streak_last_confession: string;
@@ -1047,6 +1053,44 @@ export const translations: Record<Language, Translations> = {
     notfound_404: "404",
     notfound_title: "Oops! Page not found",
     notfound_return_home: "Return to Home",
+    
+    analytics_activity_7days: "Activity last 7 days",
+    
+    reaction_heart: "Heart",
+    reaction_sad: "Sad",
+    reaction_strong: "Power",
+    reaction_thinking: "Interesting",
+    reaction_auth_required: "Authentication required",
+    reaction_auth_required_desc: "You must be authenticated to react",
+    
+    subscription_monthly: "Monthly",
+    subscription_yearly: "Yearly",
+    subscription_yearly_discount: "-20%",
+    subscription_cancel_anytime: "You can cancel anytime. No hidden fees.",
+    subscription_plan_unavailable: "Subscription plan unavailable",
+    
+    profile_achievements: "Achievements",
+    profile_moods: "Moods",
+    profile_settings: "Settings",
+    profile_moderation: "Moderation",
+    profile_plan_free: "Free",
+    profile_plan_premium: "Premium",
+    profile_plan_vip: "VIP",
+    
+    referral_benefits: "Benefits:",
+    referral_benefit_coins: "• 100 coins for each completed referral",
+    referral_benefit_friend: "• Your friend receives 50 bonus coins",
+    referral_benefit_badge: "• Special badge after 10 referrals",
+    
+    preferences_customization: "Customization",
+    preferences_accent_color: "Accent color",
+    preferences_text_size: "Text size",
+    preferences_size_small: "Small",
+    preferences_size_medium: "Medium",
+    preferences_size_large: "Large",
+    
+    subscription_billed_yearly: "Billed annually",
+    subscription_per_month: "per month",
     
     draft_deleted: "Draft deleted",
     draft_deleted_desc: "The draft was successfully deleted",

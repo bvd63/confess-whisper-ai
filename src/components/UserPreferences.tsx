@@ -112,12 +112,12 @@ const UserPreferences = ({ userId }: UserPreferencesProps) => {
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Palette className="w-5 h-5 text-primary" />
-          <h3 className="text-lg font-semibold">Personalizare</h3>
+          <h3 className="text-lg font-semibold">{t.preferences_customization}</h3>
         </div>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>Culoare accent</Label>
+            <Label>{t.preferences_accent_color}</Label>
             <div className="grid grid-cols-3 gap-2">
               {colors.map((color) => (
                 <Button
@@ -139,7 +139,7 @@ const UserPreferences = ({ userId }: UserPreferencesProps) => {
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
               <Type className="w-4 h-4" />
-              Mărime text
+              {t.preferences_text_size}
             </Label>
             <Select 
               value={preferences.font_size} 
@@ -149,9 +149,9 @@ const UserPreferences = ({ userId }: UserPreferencesProps) => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="small">Mic</SelectItem>
-                <SelectItem value="medium">Mediu</SelectItem>
-                <SelectItem value="large">Mare</SelectItem>
+                <SelectItem value="small">{t.preferences_size_small}</SelectItem>
+                <SelectItem value="medium">{t.preferences_size_medium}</SelectItem>
+                <SelectItem value="large">{t.preferences_size_large}</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -74,8 +74,8 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast({
-          title: "Autentificare necesară",
-          description: "Trebuie să fii autentificat pentru a te abona",
+          title: t.reaction_auth_required,
+          description: t.reaction_auth_required_desc,
           variant: "destructive",
         });
         return;
@@ -90,8 +90,8 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
 
       if (!priceId) {
         toast({
-          title: "Eroare",
-          description: "Plan de abonament indisponibil",
+          title: t.common_error,
+          description: t.subscription_plan_unavailable,
           variant: "destructive",
         });
         return;
@@ -140,11 +140,11 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
           <div className="flex justify-center">
             <Tabs value={billingCycle} onValueChange={(v) => setBillingCycle(v as "monthly" | "yearly")} className="w-full max-w-md">
               <TabsList className="grid w-full grid-cols-2 bg-muted/50">
-                <TabsTrigger value="monthly">Lunar</TabsTrigger>
+                <TabsTrigger value="monthly">{t.subscription_monthly}</TabsTrigger>
                 <TabsTrigger value="yearly" className="relative">
-                  Anual
+                  {t.subscription_yearly}
                   <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                    -20%
+                    {t.subscription_yearly_discount}
                   </span>
                 </TabsTrigger>
               </TabsList>
@@ -166,7 +166,7 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
           </div>
 
           <p className="text-xs text-center text-muted-foreground">
-            Poți anula abonamentul oricând. Fără taxe ascunse.
+            {t.subscription_cancel_anytime}
           </p>
         </div>
       </DialogContent>

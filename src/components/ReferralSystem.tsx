@@ -129,11 +129,11 @@ const ReferralSystem = ({ userId }: ReferralSystemProps) => {
 
       {/* Benefits */}
       <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-        <p className="text-sm font-semibold mb-2">Beneficii:</p>
+        <p className="text-sm font-semibold mb-2">{t.referral_benefits}</p>
         <ul className="text-xs text-muted-foreground space-y-1">
-          <li>• 100 monede pentru fiecare recomandare completată</li>
-          <li>• Prietenul tău primește 50 monede bonus</li>
-          <li>• Badge special după 10 recomandări</li>
+          <li>{t.referral_benefit_coins}</li>
+          <li>{t.referral_benefit_friend}</li>
+          <li>{t.referral_benefit_badge}</li>
         </ul>
       </div>
     </Card>

@@ -4,24 +4,26 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ReactionPickerProps {
   confessionId: string;
   userId: string | undefined;
 }
 
-const reactions = [
-  { type: 'heart', icon: Heart, label: 'Inimă', color: 'text-red-500' },
-  { type: 'sad', icon: Frown, label: 'Trist', color: 'text-blue-500' },
-  { type: 'strong', icon: Zap, label: 'Putere', color: 'text-yellow-500' },
-  { type: 'thinking', icon: Lightbulb, label: 'Interesant', color: 'text-purple-500' },
-];
-
 const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [userReactions, setUserReactions] = useState<Set<string>>(new Set());
   const [reactionCounts, setReactionCounts] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(false);
+  
+  const reactions = [
+    { type: 'heart', icon: Heart, label: t.reaction_heart, color: 'text-red-500' },
+    { type: 'sad', icon: Frown, label: t.reaction_sad, color: 'text-blue-500' },
+    { type: 'strong', icon: Zap, label: t.reaction_strong, color: 'text-yellow-500' },
+    { type: 'thinking', icon: Lightbulb, label: t.reaction_thinking, color: 'text-purple-500' },
+  ];
 
   useEffect(() => {
     loadReactions();
@@ -53,8 +55,8 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
   const toggleReaction = async (reactionType: string) => {
     if (!userId) {
       toast({
-        title: "Autentificare necesară",
-        description: "Trebuie să fii autentificat pentru a reacționa",
+        title: t.reaction_auth_required,
+        description: t.reaction_auth_required_desc,
         variant: "destructive",
       });
       return;

@@ -109,7 +109,7 @@ const AdvancedAnalytics = ({ userId }: AdvancedAnalyticsProps) => {
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-4">
           <Calendar className="w-5 h-5 text-primary" />
-          <h3 className="text-lg font-semibold">Activitate ultimele 7 zile</h3>
+          <h3 className="text-lg font-semibold">{t.analytics_activity_7days}</h3>
         </div>
         <ResponsiveContainer width="100%" height={200}>
           <LineChart data={timelineData}>

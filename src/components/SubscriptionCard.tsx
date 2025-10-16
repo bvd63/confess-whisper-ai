@@ -58,11 +58,11 @@ const SubscriptionCard = ({
         <div className="mb-6">
           <div className="flex items-baseline gap-1">
             <span className="text-4xl font-bold text-primary">{displayPrice}</span>
-            <span className="text-muted-foreground">RON/lună</span>
+            <span className="text-muted-foreground">{t.subscription_per_month}</span>
           </div>
           {billingCycle === "yearly" && (
             <p className="text-sm text-muted-foreground mt-1">
-              Facturat anual ({(price / 100).toFixed(0)} RON/an)
+              {t.subscription_billed_yearly} ({(price / 100).toFixed(0)} RON/an)
             </p>
           )}
         </div>

@@ -105,10 +105,10 @@ const Profile = () => {
           <TabsList className={`grid w-full ${isModerator ? 'grid-cols-6' : 'grid-cols-5'}`}>
             <TabsTrigger value="statistics">{t.profile_statistics}</TabsTrigger>
             <TabsTrigger value="confessions">{t.profile_my_confessions}</TabsTrigger>
-            <TabsTrigger value="achievements">Realizări</TabsTrigger>
-            <TabsTrigger value="mood">Stări</TabsTrigger>
-            <TabsTrigger value="settings">Setări</TabsTrigger>
-            {isModerator && <TabsTrigger value="moderation">Moderare</TabsTrigger>}
+            <TabsTrigger value="achievements">{t.profile_achievements}</TabsTrigger>
+            <TabsTrigger value="mood">{t.profile_moods}</TabsTrigger>
+            <TabsTrigger value="settings">{t.profile_settings}</TabsTrigger>
+            {isModerator && <TabsTrigger value="moderation">{t.profile_moderation}</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="statistics" className="space-y-6">
@@ -117,7 +117,7 @@ const Profile = () => {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="text-lg font-semibold mb-1">
-                    Plan {subscriptionTier === 'free' ? 'Gratuit' : subscriptionTier === 'vip' ? 'VIP' : 'Premium'}
+                    {t.profile} {subscriptionTier === 'free' ? t.profile_plan_free : subscriptionTier === 'vip' ? t.profile_plan_vip : t.profile_plan_premium}
                   </h3>
                   <p className="text-sm text-muted-foreground">
                     {isPremium ? 'Mulțumim pentru suport!' : 'Upgrade pentru mai multe funcții'}
