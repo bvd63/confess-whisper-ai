@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { UserX, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface BlockedUser {
   id: string;
@@ -19,6 +20,7 @@ const BlockedUsers = ({ userId }: BlockedUsersProps) => {
   const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadBlockedUsers();
@@ -52,14 +54,14 @@ const BlockedUsers = ({ userId }: BlockedUsersProps) => {
 
       setBlockedUsers(blockedUsers.filter(b => b.id !== blockId));
       toast({
-        title: "Utilizator deblocat",
-        description: "Vei vedea din nou confesiunile acestui utilizator",
+        title: t.blocked_user_unblocked,
+        description: t.blocked_user_unblocked_desc,
       });
     } catch (error) {
       console.error('Error unblocking user:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut debloca utilizatorul",
+        title: t.common_error,
+        description: t.blocked_users_error,
         variant: "destructive",
       });
     }
@@ -71,7 +73,7 @@ const BlockedUsers = ({ userId }: BlockedUsersProps) => {
     return (
       <Card className="p-6 text-center">
         <UserX className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-        <p className="text-muted-foreground">Nu ai blocat niciun utilizator</p>
+        <p className="text-muted-foreground">{t.blocked_users_none}</p>
       </Card>
     );
   }
@@ -80,7 +82,7 @@ const BlockedUsers = ({ userId }: BlockedUsersProps) => {
     <Card className="p-6">
       <div className="flex items-center gap-2 mb-4">
         <UserX className="w-5 h-5 text-primary" />
-        <h3 className="text-lg font-semibold">Utilizatori blocați</h3>
+        <h3 className="text-lg font-semibold">{t.blocked_users_title}</h3>
         <span className="text-sm text-muted-foreground ml-auto">
           {blockedUsers.length}
         </span>
@@ -95,9 +97,9 @@ const BlockedUsers = ({ userId }: BlockedUsersProps) => {
             <div className="flex items-center gap-3">
               <UserX className="w-4 h-4 text-muted-foreground" />
               <div>
-                <p className="text-sm font-medium">Utilizator anonim</p>
+                <p className="text-sm font-medium">{t.blocked_users_anonymous}</p>
                 <p className="text-xs text-muted-foreground">
-                  Blocat pe {new Date(block.created_at).toLocaleDateString('ro-RO')}
+                  {t.blocked_on} {new Date(block.created_at).toLocaleDateString()}
                 </p>
               </div>
             </div>

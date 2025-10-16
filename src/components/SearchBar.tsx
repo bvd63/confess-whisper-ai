@@ -26,7 +26,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
   const { t } = useLanguage();
 
   const categories = [
-    { value: 'all', label: 'Toate' },
+    { value: 'all', label: t.search_all_categories },
     { value: 'relationships', label: t.category_relationships },
     { value: 'work', label: t.category_work },
     { value: 'family', label: t.category_family },
@@ -36,16 +36,16 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
   ];
 
   const timeRanges = [
-    { value: 'all', label: 'Oricând' },
-    { value: 'today', label: 'Azi' },
-    { value: 'week', label: 'Săptămâna aceasta' },
-    { value: 'month', label: 'Luna aceasta' },
+    { value: 'all', label: t.search_anytime },
+    { value: 'today', label: t.search_today },
+    { value: 'week', label: t.search_this_week },
+    { value: 'month', label: t.search_this_month },
   ];
 
   const sortOptions = [
-    { value: 'recent', label: 'Cele mai recente' },
-    { value: 'popular', label: 'Cele mai populare' },
-    { value: 'trending', label: 'În tendințe' },
+    { value: 'recent', label: t.search_most_recent },
+    { value: 'popular', label: t.search_most_popular },
+    { value: 'trending', label: t.search_trending },
   ];
 
   const handleSearch = () => {
@@ -72,7 +72,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Caută confesiuni..."
+            placeholder={t.search_placeholder}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -90,7 +90,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
 
         <Button onClick={handleSearch}>
           <Search className="w-4 h-4 mr-2" />
-          Caută
+          {t.search_button}
         </Button>
 
         <Popover>
@@ -102,7 +102,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
           <PopoverContent className="w-80" align="end">
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Categorie</Label>
+                <Label>{t.search_category_label}</Label>
                 <Select
                   value={filters.category || 'all'}
                   onValueChange={(value) =>
@@ -123,7 +123,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
               </div>
 
               <div className="space-y-2">
-                <Label>Sortare</Label>
+                <Label>{t.search_sort_label}</Label>
                 <Select
                   value={filters.sortBy}
                   onValueChange={(value: any) => setFilters({ ...filters, sortBy: value })}
@@ -142,7 +142,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
               </div>
 
               <div className="space-y-2">
-                <Label>Perioadă</Label>
+                <Label>{t.search_period_label}</Label>
                 <Select
                   value={filters.timeRange || 'all'}
                   onValueChange={(value: any) =>
@@ -169,7 +169,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
       {hasFilters && (
         <Button variant="ghost" size="sm" onClick={handleClear} className="h-8">
           <X className="w-3 h-3 mr-1" />
-          Șterge filtre
+          {t.search_clear_filters}
         </Button>
       )}
     </div>

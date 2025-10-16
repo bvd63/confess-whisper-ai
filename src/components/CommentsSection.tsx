@@ -127,10 +127,10 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
     const commentDate = new Date(date);
     const diffInMinutes = Math.floor((now.getTime() - commentDate.getTime()) / 60000);
     
-    if (diffInMinutes < 1) return 'acum';
-    if (diffInMinutes < 60) return `${diffInMinutes}m`;
-    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h`;
-    return `${Math.floor(diffInMinutes / 1440)}z`;
+    if (diffInMinutes < 1) return t.time_now;
+    if (diffInMinutes < 60) return `${diffInMinutes}${t.time_minutes}`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}${t.time_hours}`;
+    return `${Math.floor(diffInMinutes / 1440)}${t.time_days}`;
   };
 
   return (
@@ -194,7 +194,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span>Anonim</span>
+                      <span>{t.confession_anonymous}</span>
                       <span>•</span>
                       <span>{timeAgo(comment.created_at)}</span>
                     </div>

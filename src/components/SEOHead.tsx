@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SEOHeadProps {
   title?: string;
@@ -9,22 +10,27 @@ interface SEOHeadProps {
 }
 
 const SEOHead = ({
-  title = 'Confesiuni Anonime - Împărtășește-ți Gândurile în Siguranță',
-  description = 'Platformă sigură și anonimă pentru confesiuni. Împărtășește-ți gândurile, primește suport AI și conectează-te cu alții într-un spațiu protejat.',
-  keywords = 'confesiuni anonime, support emoțional, AI confesiuni, platformă sigură, împărtășire anonimă',
-  ogImage = 'https://confesiuni.app/og-image.jpg',
-  canonical = 'https://confesiuni.app/',
+  title,
+  description,
+  keywords,
+  ogImage = 'https://confess.app/og-image.jpg',
+  canonical = 'https://confess.app/',
 }: SEOHeadProps) => {
+  const { t } = useLanguage();
+  
+  const finalTitle = title || t.seo_default_title;
+  const finalDescription = description || t.seo_default_description;
+  const finalKeywords = keywords || t.seo_default_keywords;
   useEffect(() => {
     // Update title
-    document.title = title;
+    document.title = finalTitle;
 
     // Update meta tags
     const metaTags = [
-      { name: 'description', content: description },
-      { name: 'keywords', content: keywords },
-      { property: 'og:title', content: title },
-      { property: 'og:description', content: description },
+      { name: 'description', content: finalDescription },
+      { name: 'keywords', content: finalKeywords },
+      { property: 'og:title', content: finalTitle },
+      { property: 'og:description', content: finalDescription },
       { property: 'og:image', content: ogImage },
       { property: 'og:url', content: canonical },
       { name: 'twitter:title', content: title },
@@ -59,14 +65,14 @@ const SEOHead = ({
     const structuredData = {
       '@context': 'https://schema.org',
       '@type': 'WebApplication',
-      name: 'Confesiuni Anonime',
-      description: description,
+      name: t.seo_app_name,
+      description: finalDescription,
       url: canonical,
       applicationCategory: 'SocialNetworkingApplication',
       offers: {
         '@type': 'Offer',
         price: '0',
-        priceCurrency: 'RON',
+        priceCurrency: 'USD',
       },
       aggregateRating: {
         '@type': 'AggregateRating',
@@ -82,7 +88,7 @@ const SEOHead = ({
       document.head.appendChild(script);
     }
     script.textContent = JSON.stringify(structuredData);
-  }, [title, description, keywords, ogImage, canonical]);
+  }, [finalTitle, finalDescription, finalKeywords, ogImage, canonical, t]);
 
   return null;
 };

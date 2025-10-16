@@ -400,6 +400,61 @@ type Translations = {
   wordcloud_title: string;
   wordcloud_used_times: string;
   wordcloud_based_on: string;
+  
+  // SEO
+  seo_default_title: string;
+  seo_default_description: string;
+  seo_default_keywords: string;
+  seo_app_name: string;
+  
+  // Search
+  search_placeholder: string;
+  search_button: string;
+  search_clear_filters: string;
+  search_category_label: string;
+  search_sort_label: string;
+  search_period_label: string;
+  search_all_categories: string;
+  search_anytime: string;
+  search_today: string;
+  search_this_week: string;
+  search_this_month: string;
+  search_most_recent: string;
+  search_most_popular: string;
+  search_trending: string;
+  
+  // Blocked Users
+  blocked_users_title: string;
+  blocked_user_unblocked: string;
+  blocked_user_unblocked_desc: string;
+  blocked_users_error: string;
+  blocked_users_none: string;
+  blocked_users_anonymous: string;
+  blocked_on: string;
+  
+  // Follow
+  follow_now_following: string;
+  follow_now_following_desc: string;
+  follow_error: string;
+  follow_error_desc: string;
+  
+  // Mood Tracker
+  mood_how_feeling: string;
+  mood_intensity: string;
+  
+  // Report Dialog
+  report_title: string;
+  report_description: string;
+  report_reason_label: string;
+  
+  // Streak Reminder
+  streak_reminder_text: string;
+  streak_post_now: string;
+  
+  // Moderation
+  moderation_reject_title: string;
+  moderation_reject_description: string;
+  moderation_reason_placeholder: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -556,6 +611,53 @@ export const translations: Record<Language, Translations> = {
     wordcloud_title: "Your Frequent Words",
     wordcloud_used_times: "Used {count} times",
     wordcloud_based_on: "Based on {count} words from your confessions",
+    
+    seo_default_title: "Anonymous Confessions - Share Your Thoughts Safely",
+    seo_default_description: "Safe and anonymous platform for confessions. Share your thoughts, receive AI support and connect with others in a protected space.",
+    seo_default_keywords: "anonymous confessions, emotional support, AI confessions, safe platform, anonymous sharing",
+    seo_app_name: "Anonymous Confessions",
+    
+    search_placeholder: "Search confessions...",
+    search_button: "Search",
+    search_clear_filters: "Clear filters",
+    search_category_label: "Category",
+    search_sort_label: "Sort",
+    search_period_label: "Period",
+    search_all_categories: "All",
+    search_anytime: "Anytime",
+    search_today: "Today",
+    search_this_week: "This week",
+    search_this_month: "This month",
+    search_most_recent: "Most recent",
+    search_most_popular: "Most popular",
+    search_trending: "Trending",
+    
+    blocked_users_title: "Blocked Users",
+    blocked_user_unblocked: "User unblocked",
+    blocked_user_unblocked_desc: "You'll see this user's confessions again",
+    blocked_users_error: "Could not unblock user",
+    blocked_users_none: "You haven't blocked any users",
+    blocked_users_anonymous: "Anonymous user",
+    blocked_on: "Blocked on",
+    
+    follow_now_following: "Now following",
+    follow_now_following_desc: "You'll see this user's confessions in your feed",
+    follow_error: "Error",
+    follow_error_desc: "Could not complete the action",
+    
+    mood_how_feeling: "How are you feeling now?",
+    mood_intensity: "Intensity",
+    
+    report_title: "Report confession",
+    report_description: "Help us keep the community safe. Your report is anonymous.",
+    report_reason_label: "Reason for reporting",
+    
+    streak_reminder_text: "You have a {count} day streak! Post a confession today to keep it.",
+    streak_post_now: "Post now",
+    
+    moderation_reject_title: "Reject confession",
+    moderation_reject_description: "Provide a reason for rejecting this confession",
+    moderation_reason_placeholder: "Reason (optional)...",
     
     achievements_title: "Achievements",
     achievements_unlocked: "unlocked",
@@ -1153,6 +1255,53 @@ export const translations: Record<Language, Translations> = {
     wordcloud_title: "Tus Palabras Frecuentes",
     wordcloud_used_times: "Usado {count} veces",
     wordcloud_based_on: "Basado en {count} palabras de tus confesiones",
+    
+    seo_default_title: "Confesiones Anónimas - Comparte Tus Pensamientos de Forma Segura",
+    seo_default_description: "Plataforma segura y anónima para confesiones. Comparte tus pensamientos, recibe apoyo de IA y conéctate con otros en un espacio protegido.",
+    seo_default_keywords: "confesiones anónimas, apoyo emocional, confesiones con IA, plataforma segura, compartir anónimamente",
+    seo_app_name: "Confesiones Anónimas",
+    
+    search_placeholder: "Buscar confesiones...",
+    search_button: "Buscar",
+    search_clear_filters: "Limpiar filtros",
+    search_category_label: "Categoría",
+    search_sort_label: "Ordenar",
+    search_period_label: "Período",
+    search_all_categories: "Todas",
+    search_anytime: "Cualquier momento",
+    search_today: "Hoy",
+    search_this_week: "Esta semana",
+    search_this_month: "Este mes",
+    search_most_recent: "Más recientes",
+    search_most_popular: "Más populares",
+    search_trending: "En tendencia",
+    
+    blocked_users_title: "Usuarios Bloqueados",
+    blocked_user_unblocked: "Usuario desbloqueado",
+    blocked_user_unblocked_desc: "Volverás a ver las confesiones de este usuario",
+    blocked_users_error: "No se pudo desbloquear al usuario",
+    blocked_users_none: "No has bloqueado a ningún usuario",
+    blocked_users_anonymous: "Usuario anónimo",
+    blocked_on: "Bloqueado el",
+    
+    follow_now_following: "Ahora siguiendo",
+    follow_now_following_desc: "Verás las confesiones de este usuario en tu feed",
+    follow_error: "Error",
+    follow_error_desc: "No se pudo completar la acción",
+    
+    mood_how_feeling: "¿Cómo te sientes ahora?",
+    mood_intensity: "Intensidad",
+    
+    report_title: "Reportar confesión",
+    report_description: "Ayúdanos a mantener la comunidad segura. Tu reporte es anónimo.",
+    report_reason_label: "Motivo del reporte",
+    
+    streak_reminder_text: "¡Tienes una racha de {count} días! Publica una confesión hoy para mantenerla.",
+    streak_post_now: "Publicar ahora",
+    
+    moderation_reject_title: "Rechazar confesión",
+    moderation_reject_description: "Proporciona una razón para rechazar esta confesión",
+    moderation_reason_placeholder: "Motivo (opcional)...",
   },
   de: {
     app_name: "Confess+",
@@ -1528,5 +1677,52 @@ export const translations: Record<Language, Translations> = {
     wordcloud_title: "Deine Häufigen Wörter",
     wordcloud_used_times: "{count} Mal verwendet",
     wordcloud_based_on: "Basierend auf {count} Wörtern aus deinen Geständnissen",
+    
+    seo_default_title: "Anonyme Geständnisse - Teile Deine Gedanken Sicher",
+    seo_default_description: "Sichere und anonyme Plattform für Geständnisse. Teile deine Gedanken, erhalte KI-Unterstützung und verbinde dich mit anderen in einem geschützten Raum.",
+    seo_default_keywords: "anonyme Geständnisse, emotionale Unterstützung, KI-Geständnisse, sichere Plattform, anonymes Teilen",
+    seo_app_name: "Anonyme Geständnisse",
+    
+    search_placeholder: "Geständnisse suchen...",
+    search_button: "Suchen",
+    search_clear_filters: "Filter löschen",
+    search_category_label: "Kategorie",
+    search_sort_label: "Sortieren",
+    search_period_label: "Zeitraum",
+    search_all_categories: "Alle",
+    search_anytime: "Jederzeit",
+    search_today: "Heute",
+    search_this_week: "Diese Woche",
+    search_this_month: "Diesen Monat",
+    search_most_recent: "Neueste",
+    search_most_popular: "Beliebteste",
+    search_trending: "Im Trend",
+    
+    blocked_users_title: "Blockierte Benutzer",
+    blocked_user_unblocked: "Benutzer entsperrt",
+    blocked_user_unblocked_desc: "Du wirst die Geständnisse dieses Benutzers wieder sehen",
+    blocked_users_error: "Benutzer konnte nicht entsperrt werden",
+    blocked_users_none: "Du hast keine Benutzer blockiert",
+    blocked_users_anonymous: "Anonymer Benutzer",
+    blocked_on: "Blockiert am",
+    
+    follow_now_following: "Jetzt folgend",
+    follow_now_following_desc: "Du wirst die Geständnisse dieses Benutzers in deinem Feed sehen",
+    follow_error: "Fehler",
+    follow_error_desc: "Die Aktion konnte nicht abgeschlossen werden",
+    
+    mood_how_feeling: "Wie fühlst du dich jetzt?",
+    mood_intensity: "Intensität",
+    
+    report_title: "Geständnis melden",
+    report_description: "Hilf uns, die Community sicher zu halten. Deine Meldung ist anonym.",
+    report_reason_label: "Grund der Meldung",
+    
+    streak_reminder_text: "Du hast eine {count}-Tage-Serie! Poste heute ein Geständnis, um sie zu behalten.",
+    streak_post_now: "Jetzt posten",
+    
+    moderation_reject_title: "Geständnis ablehnen",
+    moderation_reject_description: "Gib einen Grund für die Ablehnung dieses Geständnisses an",
+    moderation_reason_placeholder: "Grund (optional)...",
   },
 };
