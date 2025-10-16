@@ -5,6 +5,7 @@ import { MessageSquare, Trash2, Send, ChevronDown, ChevronUp } from "lucide-reac
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 interface Comment {
   id: string;
@@ -25,24 +26,15 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const { user } = useCurrentUser();
   const { toast } = useToast();
   const { t } = useLanguage();
-
-  useEffect(() => {
-    checkUser();
-  }, []);
 
   useEffect(() => {
     if (isExpanded) {
       loadComments();
     }
   }, [isExpanded, confessionId]);
-
-  const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    setCurrentUserId(user?.id || null);
-  };
 
   const loadComments = async () => {
     try {
@@ -60,7 +52,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
   };
 
   const handleSubmit = async () => {
-    if (!newComment.trim() || !currentUserId) return;
+    if (!newComment.trim() || !user) return;
 
     if (newComment.length > 500) {
       toast({
@@ -77,7 +69,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
         .from('comments')
         .insert({
           confession_id: confessionId,
-          user_id: currentUserId,
+          user_id: user.id,
           content: newComment.trim(),
         });
 
@@ -160,7 +152,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
       {isExpanded && (
         <div className="mt-4 space-y-4 animate-fade-in">
           {/* Add Comment Form */}
-          {currentUserId && (
+          {user && (
             <div className="space-y-2">
               <Textarea
                 placeholder={t.comments_placeholder}
@@ -205,7 +197,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                       <span>•</span>
                       <span>{timeAgo(comment.created_at)}</span>
                     </div>
-                    {(currentUserId === comment.user_id || currentUserId === confessionOwnerId) && (
+                    {(user?.id === comment.user_id || user?.id === confessionOwnerId) && (
                       <Button
                         variant="ghost"
                         size="sm"

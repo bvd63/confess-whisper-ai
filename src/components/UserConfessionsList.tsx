@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { translations } from "@/i18n/translations";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
 import ConfessionCard from "@/components/ConfessionCard";
 import ConfessionSkeleton from "@/components/ConfessionSkeleton";
 import EmptyState from "@/components/EmptyState";
@@ -12,22 +13,40 @@ type Confession = Tables<"confessions">;
 
 const UserConfessionsList = () => {
   const { t } = useLanguage();
+  const { user } = useCurrentUser();
+  const { likedConfessions, bookmarkedConfessions, reloadLikes, reloadBookmarks } = useConfessionInteractions({ userId: user?.id || null });
   const [confessions, setConfessions] = useState<Confession[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userLikes, setUserLikes] = useState<Set<string>>(new Set());
-  const [userBookmarks, setUserBookmarks] = useState<Set<string>>(new Set());
+  const [isPremium, setIsPremium] = useState(false);
 
   useEffect(() => {
-    fetchUserConfessions();
-    fetchUserLikes();
-    fetchUserBookmarks();
-  }, []);
+    if (user) {
+      fetchUserConfessions();
+      fetchPremiumStatus();
+    }
+  }, [user]);
+
+  const fetchPremiumStatus = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('is_premium')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error) throw error;
+      setIsPremium(data?.is_premium || false);
+    } catch (error) {
+      console.error('Error fetching premium status:', error);
+    }
+  };
 
   const fetchUserConfessions = async () => {
+    if (!user) return;
+    
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       const { data, error } = await supabase
         .from("confessions")
         .select("*")
@@ -43,40 +62,8 @@ const UserConfessionsList = () => {
     }
   };
 
-  const fetchUserLikes = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data } = await supabase
-        .from("user_likes")
-        .select("confession_id")
-        .eq("user_id", user.id);
-
-      setUserLikes(new Set(data?.map(like => like.confession_id) || []));
-    } catch (error) {
-      console.error("Error fetching user likes:", error);
-    }
-  };
-
-  const fetchUserBookmarks = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data } = await supabase
-        .from("bookmarks")
-        .select("confession_id")
-        .eq("user_id", user.id);
-
-      setUserBookmarks(new Set(data?.map(bookmark => bookmark.confession_id) || []));
-    } catch (error) {
-      console.error("Error fetching user bookmarks:", error);
-    }
-  };
-
   const handleLikeChange = () => {
-    fetchUserLikes();
+    reloadLikes();
     fetchUserConfessions();
   };
 
@@ -85,7 +72,7 @@ const UserConfessionsList = () => {
   };
 
   const handleBookmarkChange = () => {
-    fetchUserBookmarks();
+    reloadBookmarks();
   };
 
   if (loading) {
@@ -113,9 +100,9 @@ const UserConfessionsList = () => {
         <ConfessionCard
           key={confession.id}
           confession={confession}
-          isPremium={false}
-          isLiked={userLikes.has(confession.id)}
-          isBookmarked={userBookmarks.has(confession.id)}
+          isPremium={isPremium}
+          isLiked={likedConfessions.has(confession.id)}
+          isBookmarked={bookmarkedConfessions.has(confession.id)}
           onReport={() => {}}
           onUpgradeClick={() => {}}
           onInsightGenerated={fetchUserConfessions}
