@@ -53,8 +53,8 @@ const Profile = () => {
     } catch (error) {
       console.error('Error opening customer portal:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut deschide portalul de abonament",
+        title: t.profile_portal_error,
+        description: t.profile_portal_error_desc,
         variant: "destructive",
       });
     }

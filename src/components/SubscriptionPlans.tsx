@@ -128,10 +128,10 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
         <DialogHeader>
           <DialogTitle className="text-3xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent flex items-center gap-2">
             <Crown className="w-7 h-7 text-primary" />
-            Alege planul tău Premium
+            {t.subscription_title}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Deblocează toate funcționalitățile și obține o experiență superioară
+            {t.subscription_description}
           </DialogDescription>
         </DialogHeader>
 

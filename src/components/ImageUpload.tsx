@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ImageUploadProps {
   onImageUploaded: (url: string) => void;
@@ -16,6 +17,7 @@ const ImageUpload = ({ onImageUploaded, onImageRemoved, currentImage, disabled }
   const [preview, setPreview] = useState<string | null>(currentImage || null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -24,8 +26,8 @@ const ImageUpload = ({ onImageUploaded, onImageRemoved, currentImage, disabled }
     // Validate file type
     if (!file.type.startsWith('image/')) {
       toast({
-        title: "Fișier invalid",
-        description: "Te rog selectează o imagine (JPEG, PNG, GIF sau WebP)",
+        title: t.image_invalid_file,
+        description: t.image_invalid_file_desc,
         variant: "destructive",
       });
       return;
@@ -34,8 +36,8 @@ const ImageUpload = ({ onImageUploaded, onImageRemoved, currentImage, disabled }
     // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast({
-        title: "Fișier prea mare",
-        description: "Imaginea nu poate depăși 5MB",
+        title: t.image_too_large,
+        description: t.image_invalid_file_desc,
         variant: "destructive",
       });
       return;
@@ -70,14 +72,14 @@ const ImageUpload = ({ onImageUploaded, onImageRemoved, currentImage, disabled }
       onImageUploaded(publicUrl);
 
       toast({
-        title: "Imagine încărcată",
-        description: "Imaginea a fost adăugată la confesiune",
+        title: t.image_added,
+        description: t.image_upload_error,
       });
     } catch (error) {
       console.error('Error uploading image:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut încărca imaginea",
+        title: t.common_error,
+        description: t.image_upload_error,
         variant: "destructive",
       });
     } finally {
@@ -115,12 +117,12 @@ const ImageUpload = ({ onImageUploaded, onImageRemoved, currentImage, disabled }
           {uploading ? (
             <>
               <Upload className="w-4 h-4 animate-pulse" />
-              Se încarcă...
+              {t.image_uploading}
             </>
           ) : (
             <>
               <ImageIcon className="w-4 h-4" />
-              Adaugă imagine (opțional)
+              {t.image_add_optional}
             </>
           )}
         </Button>

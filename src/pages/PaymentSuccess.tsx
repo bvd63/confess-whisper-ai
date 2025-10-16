@@ -72,11 +72,11 @@ const PaymentSuccess = () => {
           onClick={() => navigate("/profile")}
           className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
         >
-          Vezi profilul tău Premium
+          {t.payment_view_profile}
         </Button>
 
         <p className="text-xs text-muted-foreground mt-4">
-          Vei fi redirecționat automat în câteva secunde...
+          {t.payment_redirecting}
         </p>
       </Card>
     </div>

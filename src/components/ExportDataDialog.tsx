@@ -116,16 +116,16 @@ const ExportDataDialog = ({ open, onOpenChange, userId }: ExportDataDialogProps)
       }
 
       toast({
-        title: "Export reușit",
-        description: "Datele tale au fost exportate cu succes",
+        title: t.export_success,
+        description: t.export_success_desc,
       });
 
       onOpenChange(false);
     } catch (error) {
       console.error('Error exporting data:', error);
       toast({
-        title: "Eroare",
-        description: "Nu am putut exporta datele",
+        title: t.common_error,
+        description: t.export_error,
         variant: "destructive",
       });
     } finally {
@@ -148,15 +148,15 @@ const ExportDataDialog = ({ open, onOpenChange, userId }: ExportDataDialogProps)
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Exportă datele tale</DialogTitle>
+          <DialogTitle>{t.export_title}</DialogTitle>
           <DialogDescription>
-            Descarcă o copie a datelor tale în format JSON sau CSV
+            {t.export_description}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-3">
-            <Label className="text-sm font-semibold">Format</Label>
+            <Label className="text-sm font-semibold">{t.export_format}</Label>
             <div className="flex gap-2">
               <Button
                 variant={format === 'json' ? 'default' : 'outline'}
@@ -178,7 +178,7 @@ const ExportDataDialog = ({ open, onOpenChange, userId }: ExportDataDialogProps)
           </div>
 
           <div className="space-y-3">
-            <Label className="text-sm font-semibold">Ce vrei să exporți?</Label>
+            <Label className="text-sm font-semibold">{t.export_what}</Label>
             
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
@@ -188,7 +188,7 @@ const ExportDataDialog = ({ open, onOpenChange, userId }: ExportDataDialogProps)
                   onCheckedChange={(checked) => setIncludeConfessions(checked as boolean)}
                 />
                 <Label htmlFor="confessions" className="text-sm font-normal cursor-pointer">
-                  Confesiunile mele
+                  {t.export_my_confessions}
                 </Label>
               </div>
 
@@ -199,7 +199,7 @@ const ExportDataDialog = ({ open, onOpenChange, userId }: ExportDataDialogProps)
                   onCheckedChange={(checked) => setIncludeComments(checked as boolean)}
                 />
                 <Label htmlFor="comments" className="text-sm font-normal cursor-pointer">
-                  Comentariile mele
+                  {t.export_my_comments}
                 </Label>
               </div>
 
@@ -210,7 +210,7 @@ const ExportDataDialog = ({ open, onOpenChange, userId }: ExportDataDialogProps)
                   onCheckedChange={(checked) => setIncludeLikes(checked as boolean)}
                 />
                 <Label htmlFor="likes" className="text-sm font-normal cursor-pointer">
-                  Like-urile mele
+                  {t.export_my_likes}
                 </Label>
               </div>
 
@@ -221,7 +221,7 @@ const ExportDataDialog = ({ open, onOpenChange, userId }: ExportDataDialogProps)
                   onCheckedChange={(checked) => setIncludeBookmarks(checked as boolean)}
                 />
                 <Label htmlFor="bookmarks" className="text-sm font-normal cursor-pointer">
-                  Bookmark-urile mele
+                  {t.export_my_bookmarks}
                 </Label>
               </div>
             </div>
@@ -235,12 +235,12 @@ const ExportDataDialog = ({ open, onOpenChange, userId }: ExportDataDialogProps)
             {exporting ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Se exportă...
+                {t.export_downloading}
               </>
             ) : (
               <>
                 <Download className="w-4 h-4 mr-2" />
-                Descarcă datele
+                {t.export_download}
               </>
             )}
           </Button>

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Palette, Type } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface UserPreferencesProps {
   userId: string;
@@ -29,6 +30,7 @@ const colors = [
 
 const UserPreferences = ({ userId }: UserPreferencesProps) => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [preferences, setPreferences] = useState<Preferences>({
     theme: 'dark',
     custom_color: null,
@@ -84,14 +86,14 @@ const UserPreferences = ({ userId }: UserPreferencesProps) => {
 
     if (error) {
       toast({
-        title: "Eroare",
-        description: "Nu am putut salva preferințele",
+        title: t.common_error,
+        description: t.preferences_save_error,
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Succes",
-        description: "Preferințele au fost salvate",
+        title: t.success_sent,
+        description: t.preferences_save,
       });
       
       // Apply theme if changed
@@ -160,7 +162,7 @@ const UserPreferences = ({ userId }: UserPreferencesProps) => {
           disabled={saving}
           className="w-full"
         >
-          {saving ? "Se salvează..." : "Salvează preferințele"}
+          {saving ? t.preferences_saving : t.preferences_save}
         </Button>
       </div>
     </Card>

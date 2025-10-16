@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, Crown, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SubscriptionCardProps {
   plan: {
@@ -24,6 +25,7 @@ const SubscriptionCard = ({
   onSubscribe,
   loading 
 }: SubscriptionCardProps) => {
+  const { t } = useLanguage();
   const isCurrentPlan = currentTier === plan.name.toLowerCase();
   const isPremium = plan.name === "Premium";
   const isVIP = plan.name === "VIP";
@@ -49,7 +51,7 @@ const SubscriptionCard = ({
             <h3 className="text-2xl font-bold">{plan.name}</h3>
           </div>
           {isCurrentPlan && (
-            <Badge variant="secondary">Plan curent</Badge>
+            <Badge variant="secondary">{t.subscription_active_plan}</Badge>
           )}
         </div>
 
@@ -80,7 +82,7 @@ const SubscriptionCard = ({
           className="w-full"
           variant={isVIP ? "default" : "outline"}
         >
-          {isCurrentPlan ? "Plan activ" : `Alege ${plan.name}`}
+          {isCurrentPlan ? t.subscription_active_plan : `${t.subscription_choose} ${plan.name}`}
         </Button>
       </div>
     </Card>

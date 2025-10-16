@@ -7,6 +7,7 @@ import LoadingSpinner from "./LoadingSpinner";
 import ErrorMessage from "./ErrorMessage";
 import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface FollowingFeedProps {
   userId: string;
@@ -20,6 +21,7 @@ const FollowingFeed = ({ userId, isPremium, onUpgradeClick }: FollowingFeedProps
   const [error, setError] = useState<string | null>(null);
   const { likedConfessions, bookmarkedConfessions, reloadLikes, reloadBookmarks } = useConfessionInteractions({ userId });
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadFollowingConfessions();
@@ -56,14 +58,14 @@ const FollowingFeed = ({ userId, isPremium, onUpgradeClick }: FollowingFeedProps
       setConfessions(confessionsData || []);
     } catch (err) {
       console.error('Error loading following feed:', err);
-      setError('Nu am putut încărca confesiunile');
+      setError(t.following_load_error);
     } finally {
       setLoading(false);
     }
   };
 
   if (loading) {
-    return <LoadingSpinner text="Se încarcă feed-ul..." />;
+    return <LoadingSpinner text={t.following_feed_loading} />;
   }
 
   if (error) {
@@ -79,9 +81,9 @@ const FollowingFeed = ({ userId, isPremium, onUpgradeClick }: FollowingFeedProps
     return (
       <Card className="p-8 text-center">
         <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-        <h3 className="text-lg font-semibold mb-2">Nu urmărești pe nimeni încă</h3>
+        <h3 className="text-lg font-semibold mb-2">{t.following_feed_start}</h3>
         <p className="text-sm text-muted-foreground">
-          Începe să urmărești utilizatori pentru a le vedea confesiunile aici
+          {t.following_start_following}
         </p>
       </Card>
     );
@@ -91,9 +93,9 @@ const FollowingFeed = ({ userId, isPremium, onUpgradeClick }: FollowingFeedProps
     <div className="space-y-4">
       <div className="flex items-center gap-2 mb-4">
         <Users className="w-5 h-5 text-primary" />
-        <h2 className="text-xl font-semibold">Feed-ul tău personalizat</h2>
+        <h2 className="text-xl font-semibold">{t.following_feed_start}</h2>
         <span className="text-sm text-muted-foreground">
-          ({confessions.length} confesiuni)
+          ({confessions.length} {t.following_count_confessions})
         </span>
       </div>
 
@@ -125,14 +127,14 @@ const FollowingFeed = ({ userId, isPremium, onUpgradeClick }: FollowingFeedProps
               if (error) throw error;
 
               toast({
-                title: "Raportat cu succes",
-                description: "Confesiunea a fost raportată",
+                title: t.confession_reported_success,
+                description: t.confession_reported_success,
               });
             } catch (error) {
               console.error('Error reporting:', error);
               toast({
-                title: "Eroare",
-                description: "Nu am putut raporta confesiunea",
+                title: t.common_error,
+                description: t.confession_report_error,
                 variant: "destructive",
               });
             }

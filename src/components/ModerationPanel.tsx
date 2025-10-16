@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Confession {
   id: string;
@@ -38,6 +39,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
   const [selectedConfession, setSelectedConfession] = useState<Confession | null>(null);
   const [moderationReason, setModerationReason] = useState("");
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     checkUserRole();
@@ -305,7 +307,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
                         className="gap-1"
                       >
                         <Check className="w-4 h-4" />
-                        Menține
+                        {t.moderation_keep}
                       </Button>
                       <Button
                         size="sm"
@@ -314,7 +316,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
                         className="gap-1"
                       >
                         <X className="w-4 h-4" />
-                        Șterge
+                        {t.moderation_delete}
                       </Button>
                     </div>
                   </div>
@@ -349,7 +351,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
                 variant="outline"
                 className="flex-1"
               >
-                Anulează
+                {t.moderation_cancel}
               </Button>
               <Button
                 onClick={() => {
