@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Heart, Share2, Bookmark, Trash2, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,7 +19,7 @@ interface ConfessionActionsProps {
   onDelete?: () => void;
 }
 
-const ConfessionActions = ({
+const ConfessionActions = memo(({
   confessionId,
   confessionUserId,
   currentUserId,
@@ -38,7 +38,7 @@ const ConfessionActions = ({
   const { toast } = useToast();
   const { t } = useLanguage();
 
-  const handleLike = async () => {
+  const handleLike = useCallback(async () => {
     if (!currentUserId) {
       toast({
         title: t.error_auth,
@@ -85,9 +85,9 @@ const ConfessionActions = ({
         variant: "destructive",
       });
     }
-  };
+  }, [currentUserId, localIsLiked, localLikesCount, confessionId, t, toast, likesCount, onLikeChange]);
 
-  const handleBookmark = async () => {
+  const handleBookmark = useCallback(async () => {
     if (!currentUserId) {
       toast({
         title: t.error_auth,
@@ -139,7 +139,7 @@ const ConfessionActions = ({
         variant: "destructive",
       });
     }
-  };
+  }, [currentUserId, localIsBookmarked, confessionId, t, toast, onBookmarkChange]);
 
   const isOwner = currentUserId === confessionUserId;
 
@@ -202,6 +202,8 @@ const ConfessionActions = ({
       </div>
     </div>
   );
-};
+});
+
+ConfessionActions.displayName = "ConfessionActions";
 
 export default ConfessionActions;
