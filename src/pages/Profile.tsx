@@ -14,7 +14,6 @@ import UserAnalytics from "@/components/UserAnalytics";
 import BadgesDisplay from "@/components/BadgesDisplay";
 import StreakCounter from "@/components/StreakCounter";
 import UserPreferences from "@/components/UserPreferences";
-import MoodStats from "@/components/MoodStats";
 import WordCloudViz from "@/components/WordCloudViz";
 import FollowStats from "@/components/FollowStats";
 import StreakReminder from "@/components/StreakReminder";
@@ -88,11 +87,10 @@ const Profile = () => {
         <StreakReminder userId={user.id} />
 
         <Tabs defaultValue="statistics" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
-          <TabsList className={`grid w-full ${isModerator ? 'grid-cols-3 sm:grid-cols-6' : 'grid-cols-2 sm:grid-cols-5'} h-auto`}>
+          <TabsList className={`grid w-full ${isModerator ? 'grid-cols-3 sm:grid-cols-5' : 'grid-cols-2 sm:grid-cols-4'} h-auto`}>
             <TabsTrigger value="statistics" className="text-xs sm:text-sm py-2">{t.profile_statistics}</TabsTrigger>
             <TabsTrigger value="confessions" className="text-xs sm:text-sm py-2">{t.profile_my_confessions}</TabsTrigger>
             <TabsTrigger value="achievements" className="text-xs sm:text-sm py-2">{t.profile_achievements}</TabsTrigger>
-            <TabsTrigger value="mood" className="text-xs sm:text-sm py-2">{t.profile_moods}</TabsTrigger>
             <TabsTrigger value="settings" className="text-xs sm:text-sm py-2">{t.profile_settings}</TabsTrigger>
             {isModerator && <TabsTrigger value="moderation" className="text-xs sm:text-sm py-2">{t.profile_moderation}</TabsTrigger>}
           </TabsList>
@@ -139,10 +137,6 @@ const Profile = () => {
               <h2 className="text-2xl font-bold">{t.badges_your_badges}</h2>
               <BadgesDisplay userId={user.id} variant="full" />
             </div>
-          </TabsContent>
-
-          <TabsContent value="mood" className="space-y-6">
-            <MoodStats userId={user.id} />
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">
