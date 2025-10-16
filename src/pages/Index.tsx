@@ -12,7 +12,6 @@ import ConfessionSkeleton from "@/components/ConfessionSkeleton";
 import SocialProofStats from "@/components/SocialProofStats";
 import TrustBadges from "@/components/TrustBadges";
 import FAQ from "@/components/FAQ";
-import HelpButton from "@/components/HelpButton";
 import FeatureHighlight from "@/components/FeatureHighlight";
 import ThemeToggle from "@/components/ThemeToggle";
 import EmptyState from "@/components/EmptyState";
@@ -22,12 +21,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
 
 interface Confession {
   id: string;
   content: string;
   category: string;
+  user_id?: string | null;
   comments_count?: number;
+  likes_count?: number;
   ai_response?: string | null;
   ai_deep_insight?: string | null;
   created_at: string;
@@ -37,21 +40,19 @@ const Index = () => {
   const navigate = useNavigate();
   const { trackEvent } = useAnalytics();
   const { t } = useLanguage();
+  const { user } = useCurrentUser();
+  const { likedConfessions, bookmarkedConfessions, reloadLikes, reloadBookmarks } = useConfessionInteractions({ userId: user?.id || null });
   const [confessions, setConfessions] = useState<Confession[]>([]);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const [likedConfessions, setLikedConfessions] = useState<Set<string>>(new Set());
-  const [bookmarkedConfessions, setBookmarkedConfessions] = useState<Set<string>>(new Set());
-  const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    checkUser();
     loadConfessions();
     
     // Track page view
@@ -81,7 +82,6 @@ const Index = () => {
           table: 'confessions'
         },
         () => {
-          // Reload confessions when new one is added
           loadConfessions();
         }
       )
@@ -95,22 +95,12 @@ const Index = () => {
   useEffect(() => {
     if (user) {
       checkPremiumStatus();
-      loadUserLikes();
-      loadUserBookmarks();
-    } else {
-      setLikedConfessions(new Set());
-      setBookmarkedConfessions(new Set());
     }
   }, [user]);
 
   useEffect(() => {
     loadConfessions();
   }, [sortBy, categoryFilter]);
-
-  const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    setUser(user);
-  };
 
   const checkPremiumStatus = async () => {
     if (!user) return;
@@ -126,42 +116,6 @@ const Index = () => {
       setIsPremium(data?.is_premium || false);
     } catch (error) {
       console.error('Error checking premium status:', error);
-    }
-  };
-
-  const loadUserLikes = async () => {
-    if (!user) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('user_likes')
-        .select('confession_id')
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-      
-      const likedIds = new Set(data?.map(like => like.confession_id) || []);
-      setLikedConfessions(likedIds);
-    } catch (error) {
-      console.error('Error loading user likes:', error);
-    }
-  };
-
-  const loadUserBookmarks = async () => {
-    if (!user) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('bookmarks')
-        .select('confession_id')
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-      
-      const bookmarkedIds = new Set(data?.map(bookmark => bookmark.confession_id) || []);
-      setBookmarkedConfessions(bookmarkedIds);
-    } catch (error) {
-      console.error('Error loading user bookmarks:', error);
     }
   };
 
@@ -217,7 +171,6 @@ const Index = () => {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    setUser(null);
     toast({
       title: t.success_logout,
       description: t.success_logout,
@@ -435,9 +388,9 @@ const Index = () => {
                 onReport={handleReport}
                 onUpgradeClick={() => setIsPremiumDialogOpen(true)}
                 onInsightGenerated={loadConfessions}
-                onLikeChange={loadUserLikes}
+                onLikeChange={reloadLikes}
                 onCommentChange={loadConfessions}
-                onBookmarkChange={loadUserBookmarks}
+                onBookmarkChange={reloadBookmarks}
               />
             ))}
           </div>
@@ -497,9 +450,6 @@ const Index = () => {
           </p>
         </div>
       </footer>
-
-      {/* Floating Help Button */}
-      <HelpButton />
     </div>
   );
 };

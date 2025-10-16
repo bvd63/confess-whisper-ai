@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Heart, ArrowLeft, Bookmark } from "lucide-react";
+import { ArrowLeft, Bookmark } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ConfessionCard from "@/components/ConfessionCard";
@@ -10,11 +10,14 @@ import ThemeToggle from "@/components/ThemeToggle";
 import EmptyState from "@/components/EmptyState";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
 
 interface Confession {
   id: string;
   content: string;
   category: string;
+  user_id?: string | null;
   comments_count?: number;
   likes_count?: number;
   ai_response?: string | null;
@@ -25,38 +28,30 @@ interface Confession {
 const Bookmarks = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { user } = useCurrentUser();
+  const { likedConfessions, bookmarkedConfessions, reloadLikes, reloadBookmarks } = useConfessionInteractions({ userId: user?.id || null });
   const [confessions, setConfessions] = useState<Confession[]>([]);
   const [isPremium, setIsPremium] = useState(false);
-  const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [likedConfessions, setLikedConfessions] = useState<Set<string>>(new Set());
-  const [bookmarkedConfessions, setBookmarkedConfessions] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
   useEffect(() => {
-    checkUser();
-  }, []);
-
-  const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
     if (!user) {
       navigate('/auth');
       return;
     }
+    loadPremiumStatus();
+    loadBookmarkedConfessions();
+  }, [user]);
 
-    setUser(user);
-    await loadPremiumStatus(user.id);
-    await loadBookmarkedConfessions(user.id);
-    await loadUserLikes(user.id);
-  };
-
-  const loadPremiumStatus = async (userId: string) => {
+  const loadPremiumStatus = async () => {
+    if (!user) return;
+    
     try {
       const { data, error } = await supabase
         .from('profiles')
         .select('is_premium')
-        .eq('user_id', userId)
+        .eq('user_id', user.id)
         .single();
 
       if (error) throw error;
@@ -66,20 +61,21 @@ const Bookmarks = () => {
     }
   };
 
-  const loadBookmarkedConfessions = async (userId: string) => {
+  const loadBookmarkedConfessions = async () => {
+    if (!user) return;
+    
     setIsLoading(true);
     try {
       // Get bookmarked confession IDs
       const { data: bookmarks, error: bookmarksError } = await supabase
         .from('bookmarks')
         .select('confession_id')
-        .eq('user_id', userId)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (bookmarksError) throw bookmarksError;
 
       const confessionIds = bookmarks?.map(b => b.confession_id) || [];
-      setBookmarkedConfessions(new Set(confessionIds));
 
       if (confessionIds.length === 0) {
         setConfessions([]);
@@ -110,22 +106,6 @@ const Bookmarks = () => {
       });
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const loadUserLikes = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('user_likes')
-        .select('confession_id')
-        .eq('user_id', userId);
-
-      if (error) throw error;
-      
-      const likedIds = new Set(data?.map(like => like.confession_id) || []);
-      setLikedConfessions(likedIds);
-    } catch (error) {
-      console.error('Error loading user likes:', error);
     }
   };
 
@@ -206,10 +186,10 @@ const Bookmarks = () => {
                 isBookmarked={bookmarkedConfessions.has(confession.id)}
                 onReport={handleReport}
                 onUpgradeClick={() => {}}
-                onInsightGenerated={() => loadBookmarkedConfessions(user.id)}
-                onLikeChange={() => loadUserLikes(user.id)}
-                onCommentChange={() => loadBookmarkedConfessions(user.id)}
-                onBookmarkChange={() => loadBookmarkedConfessions(user.id)}
+                onInsightGenerated={loadBookmarkedConfessions}
+                onLikeChange={reloadLikes}
+                onCommentChange={loadBookmarkedConfessions}
+                onBookmarkChange={reloadBookmarks}
               />
             ))}
           </div>
