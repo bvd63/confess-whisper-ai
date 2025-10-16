@@ -31,7 +31,7 @@ const SubscriptionCard = ({
   const isVIP = plan.name === "VIP";
   
   const price = billingCycle === "monthly" ? plan.price_monthly : plan.price_yearly;
-  const formatCurrency = (amount: number) => `$${amount.toFixed(0)}`;
+  const formatCurrency = (amount: number) => `$${amount.toFixed(2)}`;
   const displayPrice = billingCycle === "monthly" 
     ? formatCurrency(price / 100)
     : formatCurrency(price / 100 / 12);
