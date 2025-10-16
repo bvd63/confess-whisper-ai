@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense, lazy } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bookmark } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -11,6 +11,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+
+const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
+const PremiumDialog = lazy(() => import("@/components/PremiumDialog"));
 
 interface Confession {
   id: string;
@@ -32,6 +35,8 @@ const Bookmarks = () => {
   const { likedConfessions, bookmarkedConfessions, reloadLikes, reloadBookmarks } = useConfessionInteractions({ userId: user?.id || null });
   const [confessions, setConfessions] = useState<Confession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
+  const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -117,7 +122,7 @@ const Bookmarks = () => {
   };
 
   return (
-    <AppLayout>
+    <AppLayout onNewConfession={() => setIsNewConfessionOpen(true)}>
       <main className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
         <div className="flex items-center gap-2 mb-6 sm:mb-8">
           <Bookmark className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
@@ -159,6 +164,19 @@ const Bookmarks = () => {
           </div>
         )}
       </main>
+
+      <Suspense fallback={null}>
+        <NewConfessionDialog
+          open={isNewConfessionOpen}
+          onOpenChange={setIsNewConfessionOpen}
+          onConfessionCreated={loadBookmarkedConfessions}
+        />
+        <PremiumDialog
+          open={isPremiumDialogOpen}
+          onOpenChange={setIsPremiumDialogOpen}
+          onUpgrade={async () => {}}
+        />
+      </Suspense>
     </AppLayout>
   );
 };

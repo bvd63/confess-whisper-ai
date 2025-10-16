@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense, lazy } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { User, Settings } from "lucide-react";
@@ -29,6 +29,8 @@ import PremiumDialog from "@/components/PremiumDialog";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useToast } from "@/hooks/use-toast";
 
+const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
+
 const Profile = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
@@ -37,6 +39,7 @@ const Profile = () => {
   const { checkSubscription } = useSubscriptionCheck(user?.id);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [premiumDialogOpen, setPremiumDialogOpen] = useState(false);
+  const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const { isModerator } = useUserRole(user?.id);
   const { toast } = useToast();
 
@@ -73,7 +76,7 @@ const Profile = () => {
   if (!user) return null;
 
   return (
-    <AppLayout>
+    <AppLayout onNewConfession={() => setIsNewConfessionOpen(true)}>
       <AchievementToast userId={user.id} />
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-4xl">
@@ -177,6 +180,14 @@ const Profile = () => {
         onOpenChange={setPremiumDialogOpen}
         onUpgrade={() => {}}
       />
+
+      <Suspense fallback={null}>
+        <NewConfessionDialog
+          open={isNewConfessionOpen}
+          onOpenChange={setIsNewConfessionOpen}
+          onConfessionCreated={() => {}}
+        />
+      </Suspense>
     </AppLayout>
   );
 };

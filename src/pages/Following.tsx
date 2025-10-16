@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState, Suspense, lazy } from "react";
 import { Users } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -7,19 +8,29 @@ import FollowingFeed from "@/components/FollowingFeed";
 import FollowStats from "@/components/FollowStats";
 import AppLayout from "@/components/AppLayout";
 
+const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
+const PremiumDialog = lazy(() => import("@/components/PremiumDialog"));
+
 const Following = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { user } = useCurrentUser();
   const { isPremium } = usePremiumStatus(user?.id);
+  const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
+  const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/auth');
+    }
+  }, [user, navigate]);
 
   if (!user) {
-    navigate('/auth');
     return null;
   }
 
   return (
-    <AppLayout>
+    <AppLayout onNewConfession={() => setIsNewConfessionOpen(true)}>
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-4xl">
         <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
           <Users className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
@@ -40,6 +51,19 @@ const Following = () => {
           </div>
         </div>
       </div>
+
+      <Suspense fallback={null}>
+        <NewConfessionDialog
+          open={isNewConfessionOpen}
+          onOpenChange={setIsNewConfessionOpen}
+          onConfessionCreated={() => {}}
+        />
+        <PremiumDialog
+          open={isPremiumDialogOpen}
+          onOpenChange={setIsPremiumDialogOpen}
+          onUpgrade={async () => {}}
+        />
+      </Suspense>
     </AppLayout>
   );
 };
