@@ -446,6 +446,49 @@ type Translations = {
   report_title: string;
   report_description: string;
   report_reason_label: string;
+  report_reason_spam: string;
+  report_reason_harassment: string;
+  report_reason_hate_speech: string;
+  report_reason_violence: string;
+  report_reason_adult_content: string;
+  report_reason_misinformation: string;
+  report_reason_personal_info: string;
+  report_reason_other: string;
+  report_details_label: string;
+  report_details_placeholder: string;
+  report_select_reason_error: string;
+  report_already_reported_title: string;
+  report_already_reported_desc: string;
+  report_submit_success_desc: string;
+  report_submit_error_desc: string;
+  report_submitting: string;
+  report_submit_button: string;
+  
+  // Comment Thread
+  comments_reply_placeholder: string;
+  comments_reply_button: string;
+  comments_send_button: string;
+  comments_reply_added_desc: string;
+  comments_too_long_error: string;
+  
+  // Follow
+  follow_cannot_self_desc: string;
+  follow_unfollowed_title: string;
+  follow_unfollowed_desc: string;
+  
+  // Help
+  help_user_guide_title: string;
+  help_user_guide_desc: string;
+  help_view_guide: string;
+  help_faq_title: string;
+  help_faq_desc: string;
+  help_view_faq: string;
+  help_contact_title: string;
+  help_contact_desc: string;
+  help_send_email: string;
+  help_dialog_title: string;
+  help_dialog_desc: string;
+  help_response_time: string;
   
   // Streak Reminder
   streak_reminder_text: string;
@@ -883,6 +926,46 @@ export const translations: Record<Language, Translations> = {
     report_title: "Report confession",
     report_description: "Help us keep the community safe. Your report is anonymous.",
     report_reason_label: "Reason for reporting",
+    report_reason_spam: "Spam or advertising",
+    report_reason_harassment: "Harassment or bullying",
+    report_reason_hate_speech: "Hate speech",
+    report_reason_violence: "Violence or threats",
+    report_reason_adult_content: "Adult content",
+    report_reason_misinformation: "Misinformation",
+    report_reason_personal_info: "Personal information",
+    report_reason_other: "Other",
+    report_details_label: "Additional details (optional)",
+    report_details_placeholder: "Provide more details about the issue...",
+    report_select_reason_error: "Please select a reason",
+    report_already_reported_title: "Already reported",
+    report_already_reported_desc: "You already reported this confession",
+    report_submit_success_desc: "Thank you for your report. Our team will investigate.",
+    report_submit_error_desc: "Could not submit report",
+    report_submitting: "Submitting...",
+    report_submit_button: "Submit Report",
+    
+    comments_reply_placeholder: "Write a reply...",
+    comments_reply_button: "Reply",
+    comments_send_button: "Send",
+    comments_reply_added_desc: "Reply was added",
+    comments_too_long_error: "Comment too long (max 500 characters)",
+    
+    follow_cannot_self_desc: "You cannot follow yourself",
+    follow_unfollowed_title: "Unfollowed",
+    follow_unfollowed_desc: "You stopped following this user",
+    
+    help_user_guide_title: "User Guide",
+    help_user_guide_desc: "Learn how to use the platform",
+    help_view_guide: "View guide",
+    help_faq_title: "FAQ",
+    help_faq_desc: "Answers to frequently asked questions",
+    help_view_faq: "View FAQ",
+    help_contact_title: "Contact us",
+    help_contact_desc: "Send us an email for support",
+    help_send_email: "Send email",
+    help_dialog_title: "How can we help?",
+    help_dialog_desc: "Choose one of the options below to get help",
+    help_response_time: "We usually reply within 24 hours",
     
     streak_reminder_text: "You have a {count} day streak! Post a confession today to keep it.",
     streak_post_now: "Post now",
@@ -1716,6 +1799,46 @@ export const translations: Record<Language, Translations> = {
     report_title: "Reportar confesión",
     report_description: "Ayúdanos a mantener la comunidad segura. Tu reporte es anónimo.",
     report_reason_label: "Motivo del reporte",
+    report_reason_spam: "Spam o publicidad",
+    report_reason_harassment: "Acoso o intimidación",
+    report_reason_hate_speech: "Discurso de odio",
+    report_reason_violence: "Violencia o amenazas",
+    report_reason_adult_content: "Contenido adulto",
+    report_reason_misinformation: "Desinformación",
+    report_reason_personal_info: "Información personal",
+    report_reason_other: "Otro",
+    report_details_label: "Detalles adicionales (opcional)",
+    report_details_placeholder: "Proporciona más detalles sobre el problema...",
+    report_select_reason_error: "Por favor selecciona un motivo",
+    report_already_reported_title: "Ya reportado",
+    report_already_reported_desc: "Ya has reportado esta confesión",
+    report_submit_success_desc: "Gracias por tu reporte. Nuestro equipo investigará.",
+    report_submit_error_desc: "No se pudo enviar el reporte",
+    report_submitting: "Enviando...",
+    report_submit_button: "Enviar Reporte",
+    
+    comments_reply_placeholder: "Escribe una respuesta...",
+    comments_reply_button: "Responder",
+    comments_send_button: "Enviar",
+    comments_reply_added_desc: "Respuesta añadida",
+    comments_too_long_error: "Comentario demasiado largo (máx. 500 caracteres)",
+    
+    follow_cannot_self_desc: "No puedes seguirte a ti mismo",
+    follow_unfollowed_title: "Dejaste de seguir",
+    follow_unfollowed_desc: "Dejaste de seguir a este usuario",
+    
+    help_user_guide_title: "Guía de usuario",
+    help_user_guide_desc: "Aprende a usar la plataforma",
+    help_view_guide: "Ver guía",
+    help_faq_title: "Preguntas frecuentes",
+    help_faq_desc: "Respuestas a preguntas frecuentes",
+    help_view_faq: "Ver FAQ",
+    help_contact_title: "Contáctanos",
+    help_contact_desc: "Envíanos un correo para soporte",
+    help_send_email: "Enviar correo",
+    help_dialog_title: "¿Cómo podemos ayudarte?",
+    help_dialog_desc: "Elige una de las opciones a continuación para obtener ayuda",
+    help_response_time: "Normalmente respondemos en 24 horas",
     
     streak_reminder_text: "¡Tienes una racha de {count} días! Publica una confesión hoy para mantenerla.",
     streak_post_now: "Publicar ahora",
@@ -2330,6 +2453,46 @@ export const translations: Record<Language, Translations> = {
     report_title: "Geständnis melden",
     report_description: "Hilf uns, die Community sicher zu halten. Deine Meldung ist anonym.",
     report_reason_label: "Grund der Meldung",
+    report_reason_spam: "Spam oder Werbung",
+    report_reason_harassment: "Belästigung oder Mobbing",
+    report_reason_hate_speech: "Hassrede",
+    report_reason_violence: "Gewalt oder Drohungen",
+    report_reason_adult_content: "Erwachseneninhalte",
+    report_reason_misinformation: "Fehlinformation",
+    report_reason_personal_info: "Persönliche Informationen",
+    report_reason_other: "Andere",
+    report_details_label: "Zusätzliche Details (optional)",
+    report_details_placeholder: "Gib weitere Details zum Problem an...",
+    report_select_reason_error: "Bitte wähle einen Grund",
+    report_already_reported_title: "Bereits gemeldet",
+    report_already_reported_desc: "Du hast dieses Geständnis bereits gemeldet",
+    report_submit_success_desc: "Danke für deine Meldung. Unser Team wird es untersuchen.",
+    report_submit_error_desc: "Meldung konnte nicht gesendet werden",
+    report_submitting: "Wird gesendet...",
+    report_submit_button: "Meldung Absenden",
+    
+    comments_reply_placeholder: "Schreibe eine Antwort...",
+    comments_reply_button: "Antworten",
+    comments_send_button: "Senden",
+    comments_reply_added_desc: "Antwort hinzugefügt",
+    comments_too_long_error: "Kommentar zu lang (max. 500 Zeichen)",
+    
+    follow_cannot_self_desc: "Du kannst dir nicht selbst folgen",
+    follow_unfollowed_title: "Nicht mehr gefolgt",
+    follow_unfollowed_desc: "Du folgst diesem Benutzer nicht mehr",
+    
+    help_user_guide_title: "Benutzerhandbuch",
+    help_user_guide_desc: "Lerne, wie du die Plattform benutzt",
+    help_view_guide: "Anleitung anzeigen",
+    help_faq_title: "FAQ",
+    help_faq_desc: "Antworten auf häufig gestellte Fragen",
+    help_view_faq: "FAQ anzeigen",
+    help_contact_title: "Kontaktiere uns",
+    help_contact_desc: "Sende uns eine E-Mail für Unterstützung",
+    help_send_email: "E-Mail senden",
+    help_dialog_title: "Wie können wir helfen?",
+    help_dialog_desc: "Wähle eine der folgenden Optionen, um Hilfe zu erhalten",
+    help_response_time: "Wir antworten normalerweise innerhalb von 24 Stunden",
     
     streak_reminder_text: "Du hast eine {count}-Tage-Serie! Poste heute ein Geständnis, um sie zu behalten.",
     streak_post_now: "Jetzt posten",

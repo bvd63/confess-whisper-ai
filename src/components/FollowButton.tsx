@@ -47,7 +47,7 @@ const FollowButton = ({ targetUserId, currentUserId }: FollowButtonProps) => {
     if (currentUserId === targetUserId) {
       toast({
         title: t.common_error,
-        description: "You cannot follow yourself",
+        description: t.follow_cannot_self_desc,
         variant: "destructive",
       });
       return;
@@ -68,8 +68,8 @@ const FollowButton = ({ targetUserId, currentUserId }: FollowButtonProps) => {
 
         setIsFollowing(false);
         toast({
-          title: "Unfollowed",
-          description: "You stopped following this user",
+          title: t.follow_unfollowed_title,
+          description: t.follow_unfollowed_desc,
         });
       } else {
         // Follow

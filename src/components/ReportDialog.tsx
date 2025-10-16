@@ -24,14 +24,14 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
   const { toast } = useToast();
   
   const reportReasons = [
-    { value: 'spam', label: 'Spam or advertising' },
-    { value: 'harassment', label: 'Harassment or bullying' },
-    { value: 'hate_speech', label: 'Hate speech' },
-    { value: 'violence', label: 'Violence or threats' },
-    { value: 'adult_content', label: 'Adult content' },
-    { value: 'misinformation', label: 'Misinformation' },
-    { value: 'personal_info', label: 'Personal information' },
-    { value: 'other', label: 'Other' },
+    { value: 'spam', label: t.report_reason_spam },
+    { value: 'harassment', label: t.report_reason_harassment },
+    { value: 'hate_speech', label: t.report_reason_hate_speech },
+    { value: 'violence', label: t.report_reason_violence },
+    { value: 'adult_content', label: t.report_reason_adult_content },
+    { value: 'misinformation', label: t.report_reason_misinformation },
+    { value: 'personal_info', label: t.report_reason_personal_info },
+    { value: 'other', label: t.report_reason_other },
   ];
 
   const handleSubmit = async () => {
@@ -47,7 +47,7 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
     if (!selectedReason) {
       toast({
         title: t.common_error,
-        description: "Please select a reason",
+        description: t.report_select_reason_error,
         variant: "destructive",
       });
       return;
@@ -66,8 +66,8 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
 
       if (existing) {
         toast({
-          title: "Already reported",
-          description: "You already reported this confession",
+          title: t.report_already_reported_title,
+          description: t.report_already_reported_desc,
           variant: "destructive",
         });
         setSubmitting(false);
@@ -96,7 +96,7 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
 
       toast({
         title: t.success_reported,
-        description: "Thank you for your report. Our team will investigate.",
+        description: t.report_submit_success_desc,
       });
 
       onOpenChange(false);
@@ -106,7 +106,7 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
       console.error('Error submitting report:', error);
       toast({
         title: t.common_error,
-        description: "Could not submit report",
+        description: t.report_submit_error_desc,
         variant: "destructive",
       });
     } finally {
@@ -147,11 +147,11 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
 
           <div className="space-y-2">
             <Label htmlFor="details" className="text-sm font-semibold">
-              Additional details (optional)
+              {t.report_details_label}
             </Label>
             <Textarea
               id="details"
-              placeholder="Provide more details about the issue..."
+              placeholder={t.report_details_placeholder}
               value={details}
               onChange={(e) => setDetails(e.target.value)}
               className="min-h-[100px]"
@@ -166,7 +166,7 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
               disabled={submitting}
               className="flex-1"
             >
-              Cancel
+              {t.moderation_cancel}
             </Button>
             <Button
               onClick={handleSubmit}
@@ -177,10 +177,10 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
               {submitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Submitting...
+                  {t.report_submitting}
                 </>
               ) : (
-                'Submit report'
+                t.report_submit_button
               )}
             </Button>
           </div>

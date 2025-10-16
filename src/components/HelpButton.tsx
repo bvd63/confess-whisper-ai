@@ -18,29 +18,29 @@ const HelpButton = () => {
   const helpOptions = [
     {
       icon: Book,
-      title: "User Guide",
-      description: "Learn how to use the platform",
+      title: t.help_user_guide_title,
+      description: t.help_user_guide_desc,
       action: () => window.scrollTo({ top: 0, behavior: "smooth" }),
-      buttonText: "View guide"
+      buttonText: t.help_view_guide
     },
     {
       icon: MessageCircle,
-      title: "FAQ",
-      description: "Answers to frequently asked questions",
+      title: t.help_faq_title,
+      description: t.help_faq_desc,
       action: () => {
         setOpen(false);
         setTimeout(() => {
           document.getElementById("faq-section")?.scrollIntoView({ behavior: "smooth" });
         }, 300);
       },
-      buttonText: "View FAQ"
+      buttonText: t.help_view_faq
     },
     {
       icon: Mail,
-      title: "Contact us",
-      description: "Send us an email for support",
+      title: t.help_contact_title,
+      description: t.help_contact_desc,
       action: () => window.location.href = "mailto:support@confess.ai",
-      buttonText: "Send email"
+      buttonText: t.help_send_email
     }
   ];
 
@@ -61,10 +61,10 @@ const HelpButton = () => {
           <DialogHeader>
             <DialogTitle className="text-2xl flex items-center gap-2">
               <HelpCircle className="w-6 h-6 text-primary" />
-              How can we help?
+              {t.help_dialog_title}
             </DialogTitle>
             <DialogDescription>
-              Choose one of the options below to get help
+              {t.help_dialog_desc}
             </DialogDescription>
           </DialogHeader>
 
@@ -105,7 +105,7 @@ const HelpButton = () => {
 
           <div className="pt-4 border-t border-border/50 text-center">
             <p className="text-sm text-muted-foreground">
-            We usually reply within 24 hours
+              {t.help_response_time}
             </p>
           </div>
         </DialogContent>

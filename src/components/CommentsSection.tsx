@@ -58,7 +58,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
     if (newComment.length > 500) {
       toast({
         title: t.error_generic,
-        description: "Comment too long (max 500 characters)",
+        description: t.comments_too_long_error,
         variant: "destructive",
       });
       return;

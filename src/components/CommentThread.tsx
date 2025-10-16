@@ -63,7 +63,7 @@ const CommentThread = ({
 
       toast({
         title: t.success_sent,
-        description: "Reply was added",
+        description: t.comments_reply_added_desc,
       });
 
       setReplyContent("");
@@ -104,14 +104,14 @@ const CommentThread = ({
           className="text-xs gap-1"
         >
           <MessageCircle className="w-3 h-3" />
-          Reply
+          {t.comments_reply_button}
         </Button>
       ) : (
         <div className="space-y-2">
           <Textarea
             value={replyContent}
             onChange={(e) => setReplyContent(e.target.value)}
-            placeholder="Write a reply..."
+            placeholder={t.comments_reply_placeholder}
             className="min-h-[60px] text-sm"
             disabled={isSubmitting}
           />
@@ -122,7 +122,7 @@ const CommentThread = ({
               disabled={isSubmitting || !replyContent.trim()}
             >
               <Send className="w-3 h-3 mr-1" />
-              Send
+              {t.comments_send_button}
             </Button>
             <Button
               size="sm"
@@ -133,7 +133,7 @@ const CommentThread = ({
               }}
               disabled={isSubmitting}
             >
-              Cancel
+              {t.moderation_cancel}
             </Button>
           </div>
         </div>
