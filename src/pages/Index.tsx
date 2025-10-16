@@ -21,6 +21,7 @@ import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useConfessions } from "@/hooks/useConfessions";
 import { useRateLimitHandler } from "@/components/RateLimitNotification";
 import { useDebounce } from "@/hooks/useDebounce";
+import SEOHead from "@/components/SEOHead";
 
 // Lazy load heavy components
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
@@ -146,7 +147,9 @@ const Index = () => {
   }, [user, toast, t]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
+    <>
+      <SEOHead />
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-lg border-b border-border/50 shadow-[var(--shadow-soft)]">
         <div className="container max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -356,7 +359,8 @@ const Index = () => {
       
       {/* Rate Limit Notification */}
       {RateLimitUI}
-    </div>
+      </div>
+    </>
   );
 };
 
