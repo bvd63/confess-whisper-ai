@@ -195,14 +195,15 @@ const Index = () => {
                   <StreakCounter userId={user.id} variant="compact" />
                   <CoinsDisplay userId={user.id} variant="compact" />
                   <NotificationsDropdown />
-                  <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate('/bookmarks')}
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  <BookMarked className="w-5 h-5" />
-                </Button>
+                 <Button
+                   variant="ghost"
+                   size="icon"
+                   onClick={() => navigate('/bookmarks')}
+                   className="text-muted-foreground hover:text-foreground"
+                   title={t.bookmarks_title}
+                 >
+                   <BookMarked className="w-5 h-5" />
+                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"

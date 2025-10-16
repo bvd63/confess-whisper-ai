@@ -29,7 +29,7 @@ interface Confession {
 const Bookmarks = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { user } = useCurrentUser();
+  const { user, isLoading: userLoading } = useCurrentUser();
   const { isPremium } = usePremiumStatus(user?.id);
   const { likedConfessions, bookmarkedConfessions, reloadLikes, reloadBookmarks } = useConfessionInteractions({ userId: user?.id || null });
   const [confessions, setConfessions] = useState<Confession[]>([]);
@@ -37,12 +37,15 @@ const Bookmarks = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    // Wait for user loading to complete
+    if (userLoading) return;
+    
     if (!user) {
       navigate('/auth');
       return;
     }
     loadBookmarkedConfessions();
-  }, [user]);
+  }, [user, userLoading]);
 
   const loadBookmarkedConfessions = async () => {
     if (!user) return;
