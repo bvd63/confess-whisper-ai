@@ -51,7 +51,7 @@ IMPORTANT: Confessions can contain negative emotions, frustrations or sadness - 
         model: 'google/gemini-2.5-flash-lite',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Moderează acest text:\n\n${content}` }
+          { role: 'user', content: `Moderate this text:\n\n${content}` }
         ],
         tools: [
           {
@@ -120,7 +120,7 @@ IMPORTANT: Confessions can contain negative emotions, frustrations or sadness - 
 
   } catch (error) {
     console.error('Error in ai-moderation:', error);
-    const errorMessage = error instanceof Error ? error.message : 'A apărut o eroare.';
+    const errorMessage = error instanceof Error ? error.message : 'An error occurred.';
     
     // In case of error, default to safe (don't block content)
     return new Response(

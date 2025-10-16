@@ -78,7 +78,7 @@ Be like a trusted friend who listens without judging.`;
       
       if (response.status === 429) {
         return new Response(JSON.stringify({ 
-          error: 'Prea multe cereri. Te rugăm să încerci din nou mai târziu.' 
+          error: 'Too many requests. Please try again later.' 
         }), {
           status: 429,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -87,7 +87,7 @@ Be like a trusted friend who listens without judging.`;
       
       if (response.status === 402) {
         return new Response(JSON.stringify({ 
-          error: 'Serviciul AI este temporar indisponibil.' 
+          error: 'AI service is temporarily unavailable.' 
         }), {
           status: 402,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -109,7 +109,7 @@ Be like a trusted friend who listens without judging.`;
 
   } catch (error) {
     console.error('Error in ai-confession-response:', error);
-    const errorMessage = error instanceof Error ? error.message : 'A apărut o eroare.';
+    const errorMessage = error instanceof Error ? error.message : 'An error occurred.';
     return new Response(
       JSON.stringify({ error: errorMessage }),
       { 
