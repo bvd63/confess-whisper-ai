@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import ErrorBoundary from "@/components/ErrorBoundaryFallback";
 import { reportWebVitals } from "@/hooks/usePerformanceMonitor";
+import { validateTranslationSystem } from "@/lib/i18nValidator";
 import App from "./App.tsx";
 import "./index.css";
 
@@ -20,6 +21,11 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
 // Start Web Vitals monitoring in production
 if (import.meta.env.PROD) {
   reportWebVitals();
+}
+
+// Validate translation system completeness in development
+if (import.meta.env.DEV) {
+  validateTranslationSystem();
 }
 
 const queryClient = new QueryClient({

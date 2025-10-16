@@ -744,6 +744,9 @@ type Translations = {
   ui_image_preview: string;
   ui_confession_image: string;
   ui_following_feed: string;
+  ui_close: string;
+  ui_previous_slide: string;
+  ui_next_slide: string;
   follow_connections: string;
   follow_following: string;
   follow_followers: string;
@@ -1411,6 +1414,9 @@ export const translations: Record<Language, Translations> = {
     ui_image_preview: "Image preview",
     ui_confession_image: "Confession image",
     ui_following_feed: "Following Feed",
+    ui_close: "Close",
+    ui_previous_slide: "Previous slide",
+    ui_next_slide: "Next slide",
     follow_connections: "Connections",
     follow_following: "Following",
     follow_followers: "Followers",
@@ -2078,6 +2084,9 @@ export const translations: Record<Language, Translations> = {
     ui_image_preview: "Vista previa de imagen",
     ui_confession_image: "Imagen de confesión",
     ui_following_feed: "Feed de seguidos",
+    ui_close: "Cerrar",
+    ui_previous_slide: "Diapositiva anterior",
+    ui_next_slide: "Siguiente diapositiva",
     follow_connections: "Conexiones",
     follow_following: "Siguiendo",
     follow_followers: "Seguidores",
@@ -2745,6 +2754,9 @@ export const translations: Record<Language, Translations> = {
     ui_image_preview: "Bildvorschau",
     ui_confession_image: "Geständnisbild",
     ui_following_feed: "Verfolgte Feed",
+    ui_close: "Schließen",
+    ui_previous_slide: "Vorherige Folie",
+    ui_next_slide: "Nächste Folie",
     follow_connections: "Verbindungen",
     follow_following: "Folge ich",
     follow_followers: "Follower",
