@@ -32,10 +32,38 @@ interface UserBadge {
   };
 }
 
+// Mapping between DB badge names (Romanian) and translation keys
+const badgeTranslationMap: Record<string, { name: string; desc: string }> = {
+  'Prima Confesiune': { name: 'badge_first_confession', desc: 'badge_first_confession_desc' },
+  'Confesor Regulat': { name: 'badge_regular_confessor', desc: 'badge_regular_confessor_desc' },
+  'Veteran': { name: 'badge_veteran', desc: 'badge_veteran_desc' },
+  'Popular': { name: 'badge_popular', desc: 'badge_popular_desc' },
+  'Influencer': { name: 'badge_influencer', desc: 'badge_influencer_desc' },
+  'Săptămâna de Foc': { name: 'badge_fire_week', desc: 'badge_fire_week_desc' },
+  'Luna Perfectă': { name: 'badge_perfect_month', desc: 'badge_perfect_month_desc' },
+  'Aniversare': { name: 'badge_anniversary', desc: 'badge_anniversary_desc' },
+};
+
 const BadgesDisplay = ({ userId, variant = "compact" }: BadgesDisplayProps) => {
   const [badges, setBadges] = useState<UserBadge[]>([]);
   const { t, language } = useLanguage();
   const [loading, setLoading] = useState(true);
+  
+  // Helper function to get translated badge name and description
+  const getBadgeTranslation = (badge: UserBadge) => {
+    const mapping = badgeTranslationMap[badge.badges.name];
+    if (mapping) {
+      return {
+        name: t[mapping.name as keyof typeof t] as string,
+        description: t[mapping.desc as keyof typeof t] as string,
+      };
+    }
+    // Fallback to DB values if no mapping found
+    return {
+      name: badge.badges.name,
+      description: badge.badges.description,
+    };
+  };
 
   useEffect(() => {
     loadBadges();
@@ -71,6 +99,7 @@ const BadgesDisplay = ({ userId, variant = "compact" }: BadgesDisplayProps) => {
         <div className="flex gap-1 flex-wrap">
           {badges.slice(0, 3).map((userBadge) => {
             const IconComponent = iconMap[userBadge.badges.icon] || Award;
+            const translation = getBadgeTranslation(userBadge);
             return (
               <Tooltip key={userBadge.badge_id}>
                 <TooltipTrigger>
@@ -79,8 +108,8 @@ const BadgesDisplay = ({ userId, variant = "compact" }: BadgesDisplayProps) => {
                   </Badge>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p className="font-semibold">{userBadge.badges.name}</p>
-                  <p className="text-xs text-muted-foreground">{userBadge.badges.description}</p>
+                  <p className="font-semibold">{translation.name}</p>
+                  <p className="text-xs text-muted-foreground">{translation.description}</p>
                 </TooltipContent>
               </Tooltip>
             );
@@ -99,6 +128,7 @@ const BadgesDisplay = ({ userId, variant = "compact" }: BadgesDisplayProps) => {
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {badges.map((userBadge) => {
         const IconComponent = iconMap[userBadge.badges.icon] || Award;
+        const translation = getBadgeTranslation(userBadge);
         return (
           <div
             key={userBadge.badge_id}
@@ -108,8 +138,8 @@ const BadgesDisplay = ({ userId, variant = "compact" }: BadgesDisplayProps) => {
               <IconComponent className="w-6 h-6 text-primary" />
             </div>
             <div className="text-center">
-              <p className="font-semibold text-sm">{userBadge.badges.name}</p>
-              <p className="text-xs text-muted-foreground">{userBadge.badges.description}</p>
+              <p className="font-semibold text-sm">{translation.name}</p>
+              <p className="text-xs text-muted-foreground">{translation.description}</p>
               <p className="text-xs text-muted-foreground mt-1">
                 {t.badges_earned_on} {new Date(userBadge.earned_at).toLocaleDateString(
                   language === 'es' ? 'es-ES' : language === 'de' ? 'de-DE' : 'en-US'

@@ -488,6 +488,24 @@ type Translations = {
   mood_neutral: string;
   mood_hopeful: string;
   
+  // Badges (DB badges translations)
+  badge_first_confession: string;
+  badge_first_confession_desc: string;
+  badge_regular_confessor: string;
+  badge_regular_confessor_desc: string;
+  badge_veteran: string;
+  badge_veteran_desc: string;
+  badge_popular: string;
+  badge_popular_desc: string;
+  badge_influencer: string;
+  badge_influencer_desc: string;
+  badge_fire_week: string;
+  badge_fire_week_desc: string;
+  badge_perfect_month: string;
+  badge_perfect_month_desc: string;
+  badge_anniversary: string;
+  badge_anniversary_desc: string;
+  
   // Report Dialog
   report_title: string;
   report_description: string;
@@ -990,6 +1008,23 @@ export const translations: Record<Language, Translations> = {
     mood_angry: "Angry",
     mood_neutral: "Neutral",
     mood_hopeful: "Hopeful",
+    
+    badge_first_confession: "First Confession",
+    badge_first_confession_desc: "You posted your first confession",
+    badge_regular_confessor: "Regular Confessor",
+    badge_regular_confessor_desc: "You posted 10 confessions",
+    badge_veteran: "Veteran",
+    badge_veteran_desc: "You posted 100 confessions",
+    badge_popular: "Popular",
+    badge_popular_desc: "You received 100 reactions",
+    badge_influencer: "Influencer",
+    badge_influencer_desc: "You received 1000 reactions",
+    badge_fire_week: "Fire Week",
+    badge_fire_week_desc: "You posted 7 consecutive days",
+    badge_perfect_month: "Perfect Month",
+    badge_perfect_month_desc: "You posted 30 consecutive days",
+    badge_anniversary: "Anniversary",
+    badge_anniversary_desc: "One year on the platform",
     
     report_title: "Report confession",
     report_description: "Help us keep the community safe. Your report is anonymous.",
@@ -1886,6 +1921,23 @@ export const translations: Record<Language, Translations> = {
     mood_neutral: "Neutral",
     mood_hopeful: "Esperanzado",
     
+    badge_first_confession: "Primera Confesión",
+    badge_first_confession_desc: "Publicaste tu primera confesión",
+    badge_regular_confessor: "Confesor Regular",
+    badge_regular_confessor_desc: "Publicaste 10 confesiones",
+    badge_veteran: "Veterano",
+    badge_veteran_desc: "Publicaste 100 confesiones",
+    badge_popular: "Popular",
+    badge_popular_desc: "Recibiste 100 reacciones",
+    badge_influencer: "Influencer",
+    badge_influencer_desc: "Recibiste 1000 reacciones",
+    badge_fire_week: "Semana de Fuego",
+    badge_fire_week_desc: "Publicaste 7 días consecutivos",
+    badge_perfect_month: "Mes Perfecto",
+    badge_perfect_month_desc: "Publicaste 30 días consecutivos",
+    badge_anniversary: "Aniversario",
+    badge_anniversary_desc: "Un año en la plataforma",
+    
     report_title: "Reportar confesión",
     report_description: "Ayúdanos a mantener la comunidad segura. Tu reporte es anónimo.",
     report_reason_label: "Motivo del reporte",
@@ -2561,6 +2613,23 @@ export const translations: Record<Language, Translations> = {
     mood_angry: "Wütend",
     mood_neutral: "Neutral",
     mood_hopeful: "Hoffnungsvoll",
+    
+    badge_first_confession: "Erstes Geständnis",
+    badge_first_confession_desc: "Du hast dein erstes Geständnis gepostet",
+    badge_regular_confessor: "Regelmäßiger Beichtvater",
+    badge_regular_confessor_desc: "Du hast 10 Geständnisse gepostet",
+    badge_veteran: "Veteran",
+    badge_veteran_desc: "Du hast 100 Geständnisse gepostet",
+    badge_popular: "Beliebt",
+    badge_popular_desc: "Du hast 100 Reaktionen erhalten",
+    badge_influencer: "Influencer",
+    badge_influencer_desc: "Du hast 1000 Reaktionen erhalten",
+    badge_fire_week: "Feuerwoche",
+    badge_fire_week_desc: "Du hast 7 aufeinanderfolgende Tage gepostet",
+    badge_perfect_month: "Perfekter Monat",
+    badge_perfect_month_desc: "Du hast 30 aufeinanderfolgende Tage gepostet",
+    badge_anniversary: "Jubiläum",
+    badge_anniversary_desc: "Ein Jahr auf der Plattform",
     
     report_title: "Geständnis melden",
     report_description: "Hilf uns, die Community sicher zu halten. Deine Meldung ist anonym.",
