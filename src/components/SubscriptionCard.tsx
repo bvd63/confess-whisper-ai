@@ -63,6 +63,13 @@ const SubscriptionCard = ({
         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/20 to-transparent rounded-bl-full" />
       )}
       
+      {/* Discount Badge for Premium and VIP on yearly billing */}
+      {billingCycle === "yearly" && (isPremium || isVIP) && (
+        <Badge className="absolute top-3 right-3 z-20 bg-primary text-primary-foreground font-bold">
+          -33%
+        </Badge>
+      )}
+      
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
