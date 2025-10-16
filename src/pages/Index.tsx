@@ -66,7 +66,8 @@ const Index = () => {
     if (refCode) {
       localStorage.setItem('referralCode', refCode);
     }
-  }, [trackEvent]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleNewConfession = () => {
     if (!user) {

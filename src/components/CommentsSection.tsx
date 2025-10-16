@@ -1,4 +1,4 @@
-import { useState, useEffect, memo, useCallback, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { MessageSquare, Trash2, Send, ChevronDown, ChevronUp } from "lucide-react";
@@ -21,7 +21,7 @@ interface CommentsSectionProps {
   onCommentChange?: () => void;
 }
 
-const CommentsSection = memo(({ confessionId, commentsCount, confessionOwnerId, onCommentChange }: CommentsSectionProps) => {
+const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCommentChange }: CommentsSectionProps) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,7 +30,7 @@ const CommentsSection = memo(({ confessionId, commentsCount, confessionOwnerId, 
   const { toast } = useToast();
   const { t } = useLanguage();
 
-  const loadComments = useCallback(async () => {
+  const loadComments = async () => {
     try {
       const { data, error } = await supabase
         .from('comments')
@@ -43,15 +43,16 @@ const CommentsSection = memo(({ confessionId, commentsCount, confessionOwnerId, 
     } catch (error) {
       console.error('Error loading comments:', error);
     }
-  }, [confessionId]);
+  };
 
   useEffect(() => {
     if (isExpanded) {
       loadComments();
     }
-  }, [isExpanded, loadComments]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isExpanded, confessionId]);
 
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = async () => {
     if (!newComment.trim() || !user) return;
 
     if (newComment.length > 500) {
@@ -93,9 +94,9 @@ const CommentsSection = memo(({ confessionId, commentsCount, confessionOwnerId, 
     } finally {
       setIsSubmitting(false);
     }
-  }, [newComment, user, confessionId, t, toast, loadComments, onCommentChange]);
+  };
 
-  const handleDelete = useCallback(async (commentId: string) => {
+  const handleDelete = async (commentId: string) => {
     try {
       const { error } = await supabase
         .from('comments')
@@ -119,9 +120,9 @@ const CommentsSection = memo(({ confessionId, commentsCount, confessionOwnerId, 
         variant: "destructive",
       });
     }
-  }, [loadComments, onCommentChange, t, toast]);
+  };
 
-  const timeAgo = useMemo(() => (date: string) => {
+  const timeAgo = (date: string) => {
     const now = new Date();
     const commentDate = new Date(date);
     const diffInMinutes = Math.floor((now.getTime() - commentDate.getTime()) / 60000);
@@ -130,7 +131,7 @@ const CommentsSection = memo(({ confessionId, commentsCount, confessionOwnerId, 
     if (diffInMinutes < 60) return `${diffInMinutes}m`;
     if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h`;
     return `${Math.floor(diffInMinutes / 1440)}z`;
-  }, []);
+  };
 
   return (
     <div className="mt-4 border-t border-border/50 pt-4">
@@ -217,8 +218,6 @@ const CommentsSection = memo(({ confessionId, commentsCount, confessionOwnerId, 
       )}
     </div>
   );
-});
-
-CommentsSection.displayName = "CommentsSection";
+};
 
 export default CommentsSection;
