@@ -29,22 +29,22 @@ const MoodTracker = ({ onMoodSelect, selectedMood }: MoodTrackerProps) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium">{t.mood_how_feeling}</label>
-        <div className="grid grid-cols-3 gap-2">
+        <label className="text-xs sm:text-sm font-medium">{t.mood_how_feeling}</label>
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
           {moods.map(({ value, icon: Icon, label, color }) => (
             <Button
               key={value}
               variant={mood === value ? "default" : "outline"}
               className={cn(
-                "flex flex-col gap-1 h-auto py-3",
+                "flex flex-col gap-0.5 sm:gap-1 h-auto py-2 sm:py-3 px-1 sm:px-3",
                 mood === value && color
               )}
               onClick={() => handleMoodSelect(value)}
             >
-              <Icon className="w-6 h-6" />
-              <span className="text-xs">{label}</span>
+              <Icon className="w-4 h-4 sm:w-6 sm:h-6" />
+              <span className="text-[10px] sm:text-xs leading-tight">{label}</span>
             </Button>
           ))}
         </div>
@@ -52,14 +52,14 @@ const MoodTracker = ({ onMoodSelect, selectedMood }: MoodTrackerProps) => {
 
       {mood && (
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium">{t.mood_intensity} (1-5)</label>
-          <div className="flex gap-2">
+          <label className="text-xs sm:text-sm font-medium">{t.mood_intensity} (1-5)</label>
+          <div className="flex gap-1.5 sm:gap-2">
             {[1, 2, 3, 4, 5].map((level) => (
               <Button
                 key={level}
                 variant={intensity === level ? "default" : "outline"}
                 size="sm"
-                className="flex-1"
+                className="flex-1 text-xs sm:text-sm"
                 onClick={() => {
                   setIntensity(level);
                   onMoodSelect(mood, level);

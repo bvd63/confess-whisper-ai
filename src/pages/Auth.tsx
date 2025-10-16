@@ -130,17 +130,17 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-8 bg-card/95 backdrop-blur-sm border-primary/20 shadow-[var(--shadow-soft)] animate-fade-in">
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-background flex items-center justify-center p-3 sm:p-4">
+      <Card className="w-full max-w-md p-4 sm:p-6 md:p-8 bg-card/95 backdrop-blur-sm border-primary/20 shadow-[var(--shadow-soft)] animate-fade-in">
         {/* Logo & Title */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 mb-4">
-            <Heart className="w-8 h-8 text-primary" fill="currentColor" />
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 mb-3 sm:mb-4">
+            <Heart className="w-6 h-6 sm:w-8 sm:h-8 text-primary" fill="currentColor" />
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent mb-2">
             Confess+
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             {isLogin ? t.auth_welcome_back : t.auth_create_account}
           </p>
         </div>
@@ -230,21 +230,21 @@ const Auth = () => {
 
         {/* Benefits for new users */}
         {!isLogin && (
-          <div className="mt-6 pt-6 border-t border-border/50">
-            <p className="text-xs text-center text-muted-foreground mb-3">
+          <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-border/50">
+            <p className="text-[10px] sm:text-xs text-center text-muted-foreground mb-2 sm:mb-3">
               {t.auth_benefits_title}
             </p>
-            <div className="space-y-2 text-xs text-muted-foreground">
+            <div className="space-y-1.5 sm:space-y-2 text-[10px] sm:text-xs text-muted-foreground">
               <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
                 <span>{t.auth_benefit_unlimited}</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
                 <span>{t.auth_benefit_ai_responses}</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
                 <span>{t.auth_benefit_community}</span>
               </div>
             </div>

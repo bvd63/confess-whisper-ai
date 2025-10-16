@@ -210,17 +210,17 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-gradient-to-br from-card to-background border-primary/20">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto bg-gradient-to-br from-card to-background border-primary/20">
         <DialogHeader>
-          <DialogTitle className="text-2xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+          <DialogTitle className="text-xl sm:text-2xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
             {t.new_confession}
           </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
+          <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
             {t.placeholder_confession}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-3 sm:space-y-4 py-3 sm:py-4">
           {user && (
             <DraftManager
               userId={user.id}
@@ -260,7 +260,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
             placeholder={t.placeholder_confession}
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="min-h-[150px] resize-none border-primary/20 focus:border-primary/40 bg-background/50"
+            className="min-h-[120px] sm:min-h-[150px] resize-none border-primary/20 focus:border-primary/40 bg-background/50 text-sm"
             disabled={isSubmitting}
           />
 
