@@ -1,4 +1,5 @@
-const CACHE_NAME = 'confesiuni-cache-v1';
+const CACHE_NAME = 'confesiuni-cache-v2';
+const RUNTIME_CACHE = 'runtime-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -21,7 +22,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
-          .filter((name) => name !== CACHE_NAME)
+          .filter((name) => name !== CACHE_NAME && name !== RUNTIME_CACHE)
           .map((name) => caches.delete(name))
       );
     })
@@ -29,35 +30,87 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch strategy: Network first, fallback to cache
+// Fetch strategy with smart caching
 self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+  
+  // Skip non-GET requests
+  if (request.method !== 'GET') return;
+  
+  // Skip Supabase API calls (always fresh)
+  if (url.hostname.includes('supabase')) return;
+  
+  // Skip external origins
+  if (url.origin !== location.origin) return;
+  
+  // Network first for HTML pages
+  if (request.destination === 'document') {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          const responseClone = response.clone();
+          caches.open(RUNTIME_CACHE)
+            .then((cache) => cache.put(request, responseClone));
+          return response;
+        })
+        .catch(() => caches.match(request).then(cached => cached || caches.match('/index.html')))
+    );
+    return;
+  }
+  
+  // Cache first for static assets (images, scripts, styles)
+  if (request.destination === 'image' || 
+      request.destination === 'script' || 
+      request.destination === 'style' ||
+      request.destination === 'font') {
+    event.respondWith(
+      caches.match(request)
+        .then((cached) => {
+          if (cached) {
+            // Update cache in background
+            fetch(request)
+              .then((response) => {
+                if (response.status === 200) {
+                  caches.open(RUNTIME_CACHE)
+                    .then((cache) => cache.put(request, response));
+                }
+              })
+              .catch(() => {});
+            return cached;
+          }
+          
+          // Not in cache, fetch and cache
+          return fetch(request)
+            .then((response) => {
+              if (response.status === 200) {
+                const responseClone = response.clone();
+                caches.open(RUNTIME_CACHE)
+                  .then((cache) => cache.put(request, responseClone));
+              }
+              return response;
+            })
+            .catch(() => new Response('Offline', { status: 503 }));
+        })
+    );
+    return;
+  }
+  
+  // Default: Network first, fallback to cache
   event.respondWith(
-    fetch(event.request)
+    fetch(request)
       .then((response) => {
-        // Clone the response before caching
-        const responseClone = response.clone();
-        
-        // Cache successful responses
         if (response.status === 200) {
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone);
-          });
+          const responseClone = response.clone();
+          caches.open(RUNTIME_CACHE)
+            .then((cache) => cache.put(request, responseClone));
         }
-        
         return response;
       })
       .catch(() => {
-        // If network fails, try cache
-        return caches.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          
-          // If not in cache, return offline page for navigation requests
-          if (event.request.mode === 'navigate') {
-            return caches.match('/index.html');
-          }
-          
+        return caches.match(request).then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
+          if (request.mode === 'navigate') return caches.match('/index.html');
           return new Response('Offline', { status: 503 });
         });
       })
