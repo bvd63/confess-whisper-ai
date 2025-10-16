@@ -141,6 +141,16 @@ const ConfessionActions = ({
     }
   };
 
+  const handleShare = async () => {
+    // Increment share count
+    try {
+      await supabase.rpc('increment_share_count', { confession_id: confessionId });
+    } catch (error) {
+      console.error('Error tracking share:', error);
+    }
+    onShare();
+  };
+
   const isOwner = currentUserId === confessionUserId;
 
   return (
@@ -160,7 +170,7 @@ const ConfessionActions = ({
       <Button
         variant="ghost"
         size="sm"
-        onClick={onShare}
+        onClick={handleShare}
         className="h-8 px-3 gap-2 text-muted-foreground hover:text-primary transition-colors"
       >
         <Share2 className="w-4 h-4" />

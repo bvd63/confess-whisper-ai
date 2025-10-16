@@ -18,6 +18,7 @@ import WordCloudViz from "@/components/WordCloudViz";
 import FollowStats from "@/components/FollowStats";
 import StreakReminder from "@/components/StreakReminder";
 import AchievementToast from "@/components/AchievementToast";
+import AdvancedAnalytics from "@/components/AdvancedAnalytics";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -78,6 +79,7 @@ const Profile = () => {
             <StreakCounter userId={user.id} variant="full" />
             <FollowStats userId={user.id} />
             <UserAnalytics />
+            <AdvancedAnalytics userId={user.id} />
             <WordCloudViz userId={user.id} />
           </TabsContent>
 

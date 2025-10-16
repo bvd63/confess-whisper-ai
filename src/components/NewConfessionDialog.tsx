@@ -11,6 +11,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import MoodTracker from "@/components/MoodTracker";
+import ImageUpload from "@/components/ImageUpload";
 
 const confessionSchema = z.object({
   content: z.string()
@@ -29,6 +30,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("other");
   const [mood, setMood] = useState<{ mood: string; intensity: number } | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const { user } = useCurrentUser();
@@ -106,6 +108,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
           ai_response: responseText,
           category: category,
           user_id: user.id,
+          image_url: imageUrl,
         })
         .select()
         .single();
@@ -133,6 +136,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
         onOpenChange(false);
         setContent("");
         setCategory("other");
+        setImageUrl(null);
         setAiResponse(null);
       }, 3000);
 
@@ -184,6 +188,13 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
             value={content}
             onChange={(e) => setContent(e.target.value)}
             className="min-h-[150px] resize-none border-primary/20 focus:border-primary/40 bg-background/50"
+            disabled={isSubmitting}
+          />
+
+          <ImageUpload
+            onImageUploaded={(url) => setImageUrl(url)}
+            onImageRemoved={() => setImageUrl(null)}
+            currentImage={imageUrl}
             disabled={isSubmitting}
           />
 

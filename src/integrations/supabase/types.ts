@@ -567,6 +567,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      increment_share_count: {
+        Args: { confession_id: string }
+        Returns: undefined
+      }
       is_confession_owner: {
         Args: { _confession_id: string; _user_id: string }
         Returns: boolean

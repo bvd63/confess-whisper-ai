@@ -27,6 +27,8 @@ interface ConfessionCardProps {
     likes_count?: number;
     comments_count?: number;
     created_at: string;
+    image_url?: string | null;
+    image_blurred?: boolean;
   };
   isPremium: boolean;
   isLiked?: boolean;
@@ -87,6 +89,17 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
       <p className="text-foreground leading-relaxed mb-4">
         {confession.content}
       </p>
+
+      {/* Display image if available */}
+      {confession.image_url && (
+        <div className="mb-4 rounded-lg overflow-hidden">
+          <img
+            src={confession.image_url}
+            alt="Confession attachment"
+            className={`w-full max-h-[400px] object-cover ${confession.image_blurred ? 'blur-lg' : ''}`}
+          />
+        </div>
+      )}
 
       {/* Show user badges and streak if available */}
       {confession.user_id && (
