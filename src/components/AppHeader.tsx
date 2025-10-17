@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Heart, PlusCircle, LogOut, Crown, User, LogIn, BookMarked, Users, Home, Sparkles } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
@@ -77,55 +77,60 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
             {user && (
               <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-1">
                 <Button
+                  asChild
                   variant="ghost"
                   size="icon"
-                  onClick={() => navigate('/')}
                   className={cn(
                     "h-9 w-9 text-muted-foreground hover:text-foreground transition-colors",
                     isActive('/') && "bg-accent text-foreground"
                   )}
                   title={t.home_title}
                 >
-                  <Home className="w-4 h-4" />
+                  <Link to="/">
+                    <Home className="w-4 h-4" />
+                  </Link>
                 </Button>
                 <Button
+                  asChild
                   variant="ghost"
                   size="icon"
-                  onClick={() => navigate('/bookmarks')}
                   className={cn(
                     "h-9 w-9 text-muted-foreground hover:text-foreground transition-colors",
                     isActive('/bookmarks') && "bg-accent text-foreground"
                   )}
                   title={t.bookmarks_title}
                 >
-                  <BookMarked className="w-4 h-4" />
+                  <Link to="/bookmarks">
+                    <BookMarked className="w-4 h-4" />
+                  </Link>
                 </Button>
                 <Button
+                  asChild
                   variant="ghost"
                   size="icon"
-                  onClick={() => {
-                    console.log('[Following Button] Clicked - navigating to /following');
-                    navigate('/following');
-                  }}
                   className={cn(
                     "h-9 w-9 text-muted-foreground hover:text-foreground transition-colors",
                     isActive('/following') && "bg-accent text-foreground"
                   )}
                   title={t.ui_following_feed}
                 >
-                  <Users className="w-4 h-4" />
+                  <Link to="/following">
+                    <Users className="w-4 h-4" />
+                  </Link>
                 </Button>
                 <Button
+                  asChild
                   variant="ghost"
                   size="icon"
-                  onClick={() => navigate('/profile')}
                   className={cn(
                     "h-9 w-9 text-muted-foreground hover:text-foreground transition-colors",
                     isActive('/profile') && "bg-accent text-foreground"
                   )}
                   title={t.profile_title}
                 >
-                  <User className="w-4 h-4" />
+                  <Link to="/profile">
+                    <User className="w-4 h-4" />
+                  </Link>
                 </Button>
               </div>
             )}
@@ -251,51 +256,56 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
         {user && (
           <div className="flex items-center justify-around px-2 py-2 bg-muted/20">
             <Button
+              asChild
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/')}
               className={cn(
                 "flex-1 h-9 text-muted-foreground hover:text-foreground transition-colors",
                 isActive('/') && "bg-accent text-foreground"
               )}
             >
-              <Home className="w-4 h-4" />
+              <Link to="/">
+                <Home className="w-4 h-4" />
+              </Link>
             </Button>
             <Button
+              asChild
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/bookmarks')}
               className={cn(
                 "flex-1 h-9 text-muted-foreground hover:text-foreground transition-colors",
                 isActive('/bookmarks') && "bg-accent text-foreground"
               )}
             >
-              <BookMarked className="w-4 h-4" />
+              <Link to="/bookmarks">
+                <BookMarked className="w-4 h-4" />
+              </Link>
             </Button>
             <Button
+              asChild
               variant="ghost"
               size="sm"
-              onClick={() => {
-                console.log('[Following Button Mobile] Clicked - navigating to /following');
-                navigate('/following');
-              }}
               className={cn(
                 "flex-1 h-9 text-muted-foreground hover:text-foreground transition-colors",
                 isActive('/following') && "bg-accent text-foreground"
               )}
             >
-              <Users className="w-4 h-4" />
+              <Link to="/following">
+                <Users className="w-4 h-4" />
+              </Link>
             </Button>
             <Button
+              asChild
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/profile')}
               className={cn(
                 "flex-1 h-9 text-muted-foreground hover:text-foreground transition-colors",
                 isActive('/profile') && "bg-accent text-foreground"
               )}
             >
-              <User className="w-4 h-4" />
+              <Link to="/profile">
+                <User className="w-4 h-4" />
+              </Link>
             </Button>
           </div>
         )}
