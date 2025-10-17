@@ -1121,6 +1121,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      delete_conversation: {
+        Args: { _conversation_id: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

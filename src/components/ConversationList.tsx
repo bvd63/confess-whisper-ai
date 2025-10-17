@@ -154,29 +154,19 @@ export const ConversationList = ({ currentUserId, onConversationSelect }: Conver
 
   const handleDeleteConversation = async (conversationId: string) => {
     try {
-      // Delete conversation participants first
-      const { error: participantsError } = await supabase
-        .from('conversation_participants')
-        .delete()
-        .eq('conversation_id', conversationId);
+      // Call the database function to delete the conversation
+      const { data, error } = await supabase
+        .rpc('delete_conversation', {
+          _conversation_id: conversationId,
+          _user_id: currentUserId
+        });
 
-      if (participantsError) throw participantsError;
+      if (error) throw error;
 
-      // Delete all messages in the conversation
-      const { error: messagesError } = await supabase
-        .from('messages')
-        .delete()
-        .eq('conversation_id', conversationId);
-
-      if (messagesError) throw messagesError;
-
-      // Delete the conversation itself
-      const { error: conversationError } = await supabase
-        .from('conversations')
-        .delete()
-        .eq('id', conversationId);
-
-      if (conversationError) throw conversationError;
+      if (!data) {
+        toast.error(t.error_generic);
+        return;
+      }
 
       toast.success(t.messages_deleted);
       await loadConversations();
