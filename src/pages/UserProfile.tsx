@@ -1,0 +1,110 @@
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import AppLayout from "@/components/AppLayout";
+import { ProfileHeader } from "@/components/ProfileHeader";
+import UserConfessionsList from "@/components/UserConfessionsList";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { InstagramBottomNav } from "@/components/InstagramBottomNav";
+import { Skeleton } from "@/components/ui/skeleton";
+
+interface UserProfileData {
+  nickname: string;
+  bio?: string;
+}
+
+const UserProfile = () => {
+  const { userId } = useParams<{ userId: string }>();
+  const navigate = useNavigate();
+  const { user: currentUser } = useCurrentUser();
+  const [profile, setProfile] = useState<UserProfileData | null>(null);
+  const [confessionsCount, setConfessionsCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userId) return;
+    loadProfile();
+  }, [userId]);
+
+  const loadProfile = async () => {
+    if (!userId) return;
+    
+    setIsLoading(true);
+    try {
+      // Load profile data
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("nickname")
+        .eq("user_id", userId)
+        .single();
+
+      if (profileError) throw profileError;
+
+      // Load confessions count
+      const { count, error: countError } = await supabase
+        .from("confessions")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .eq("moderation_status", "approved");
+
+      if (countError) throw countError;
+
+      setProfile(profileData);
+      setConfessionsCount(count || 0);
+    } catch (error) {
+      console.error("Error loading profile:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (!currentUser) {
+    navigate("/auth");
+    return null;
+  }
+
+  if (isLoading) {
+    return (
+      <AppLayout>
+        <div className="container max-w-4xl mx-auto px-4 py-8">
+          <Skeleton className="h-32 w-full mb-6" />
+          <Skeleton className="h-64 w-full" />
+        </div>
+        <InstagramBottomNav />
+      </AppLayout>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <AppLayout>
+        <div className="container max-w-4xl mx-auto px-4 py-8 text-center">
+          <p className="text-muted-foreground">User not found</p>
+        </div>
+        <InstagramBottomNav />
+      </AppLayout>
+    );
+  }
+
+  return (
+    <AppLayout>
+      <div className="container max-w-4xl mx-auto px-4 py-8 pb-24">
+        <ProfileHeader
+          userId={userId!}
+          currentUserId={currentUser.id}
+          nickname={profile.nickname}
+          confessionsCount={confessionsCount}
+        />
+
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold mb-4">Confessions</h2>
+          {/* User confessions would go here - filtered by userId */}
+        </div>
+      </div>
+      
+      <InstagramBottomNav />
+    </AppLayout>
+  );
+};
+
+export default UserProfile;

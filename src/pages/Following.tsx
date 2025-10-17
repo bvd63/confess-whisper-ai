@@ -7,6 +7,7 @@ import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import FollowingFeed from "@/components/FollowingFeed";
 import FollowStats from "@/components/FollowStats";
 import AppLayout from "@/components/AppLayout";
+import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 const PremiumDialog = lazy(() => import("@/components/PremiumDialog"));
@@ -38,7 +39,7 @@ const Following = () => {
       onNewConfession={() => setIsNewConfessionOpen(true)}
       onUpgradeClick={() => setIsPremiumDialogOpen(true)}
     >
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-4xl">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-4xl pb-24">
         <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
           <Users className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">{t.following_your_feed}</h1>
@@ -58,6 +59,8 @@ const Following = () => {
           </div>
         </div>
       </div>
+
+      <InstagramBottomNav />
 
       <Suspense fallback={null}>
         <NewConfessionDialog

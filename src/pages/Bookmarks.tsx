@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 const PremiumDialog = lazy(() => import("@/components/PremiumDialog"));
@@ -126,7 +127,7 @@ const Bookmarks = () => {
       onNewConfession={() => setIsNewConfessionOpen(true)}
       onUpgradeClick={() => setIsPremiumDialogOpen(true)}
     >
-      <main className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
+      <main className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
         <div className="flex items-center gap-2 mb-6 sm:mb-8">
           <Bookmark className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
           <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
@@ -167,6 +168,8 @@ const Bookmarks = () => {
           </div>
         )}
       </main>
+
+      <InstagramBottomNav />
 
       <Suspense fallback={null}>
         <NewConfessionDialog

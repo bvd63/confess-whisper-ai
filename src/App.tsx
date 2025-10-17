@@ -5,6 +5,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { InstagramBottomNav } from "./components/InstagramBottomNav";
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
+import UserProfile from "./pages/UserProfile";
 import Bookmarks from "./pages/Bookmarks";
 import Following from "./pages/Following";
 import SearchUsers from "./pages/SearchUsers";
@@ -30,6 +31,7 @@ const App = () => (
               <Route path="/explore" element={<Explore />} />
               <Route path="/compose" element={<Compose />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/user/:userId" element={<UserProfile />} />
               <Route path="/bookmarks" element={<Bookmarks />} />
               <Route path="/following" element={<Following />} />
               <Route path="/search-users" element={<SearchUsers />} />
