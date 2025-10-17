@@ -1059,6 +1059,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_consents: {
+        Row: {
+          consent_type: string
+          consented_at: string | null
+          created_at: string | null
+          id: string
+          ip_address: string | null
+          user_agent: string | null
+          user_id: string
+          version: string
+        }
+        Insert: {
+          consent_type: string
+          consented_at?: string | null
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id: string
+          version: string
+        }
+        Update: {
+          consent_type?: string
+          consented_at?: string | null
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id?: string
+          version?: string
+        }
+        Relationships: []
+      }
       user_follows: {
         Row: {
           created_at: string | null
@@ -1334,6 +1367,21 @@ export type Database = {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
       }
+      get_hot_confessions: {
+        Args: { limit_count?: number }
+        Returns: {
+          ai_deep_insight: string
+          ai_response: string
+          category: string
+          comments_count: number
+          content: string
+          created_at: string
+          hot_score: number
+          id: string
+          likes_count: number
+          user_id: string
+        }[]
+      }
       get_or_create_conversation: {
         Args: { _user1: string; _user2: string }
         Returns: string
@@ -1347,6 +1395,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      has_valid_consent: {
+        Args: { _consent_type: string; _min_version?: string; _user_id: string }
         Returns: boolean
       }
       increment_share_count: {
