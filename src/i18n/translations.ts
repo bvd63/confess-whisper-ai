@@ -890,6 +890,49 @@ type Translations = {
   following_your_feed: string;
   index_back_to_feed: string;
   moderation_category_label: string;
+  
+  // Instagram-style Social
+  explore: string;
+  compose: string;
+  type_message_placeholder: string;
+  send_message_button: string;
+  message_sent_toast: string;
+  message_failed_toast: string;
+  retry_send: string;
+  delete_message_action: string;
+  delete_message_confirm_text: string;
+  read_receipt_status: string;
+  unread_count_badge: string;
+  message_thread_title: string;
+  
+  // Profile Header
+  posts_count: string;
+  followers_count: string;
+  message_user_button: string;
+  
+  // GDPR & Privacy  
+  export_data_description_text: string;
+  export_data_success_toast: string;
+  export_data_failed_toast: string;
+  delete_my_account_button: string;
+  delete_account_warning_full: string;
+  delete_account_confirm_dialog: string;
+  account_deleted_toast: string;
+  consent_management_title: string;
+  view_consents_button: string;
+  
+  // Crisis Support
+  crisis_support_title: string;
+  crisis_message_text: string;
+  crisis_hotline_label: string;
+  crisis_chat_label: string;
+  emergency_services_label: string;
+  you_are_not_alone_message: string;
+  
+  // Safety & Moderation
+  content_review_notice_title: string;
+  content_blocked_title: string;
+  moderation_reason_label: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -1660,6 +1703,49 @@ export const translations: Record<Language, Translations> = {
     following_your_feed: "Your Feed",
     index_back_to_feed: "Back to Feed",
     moderation_category_label: "Category",
+    
+    // Instagram-style Social
+    explore: "Explore",
+    compose: "Compose",
+    type_message_placeholder: "Type a message...",
+    send_message_button: "Send",
+    message_sent_toast: "Message sent",
+    message_failed_toast: "Failed to send message",
+    retry_send: "Retry",
+    delete_message_action: "Delete message",
+    delete_message_confirm_text: "Are you sure you want to delete this message?",
+    read_receipt_status: "Read",
+    unread_count_badge: "new",
+    message_thread_title: "Messages",
+    
+    // Profile Header
+    posts_count: "Posts",
+    followers_count: "Followers",
+    message_user_button: "Message",
+    
+    // GDPR & Privacy
+    export_data_description_text: "Download a copy of all your data",
+    export_data_success_toast: "Data exported successfully",
+    export_data_failed_toast: "Failed to export data",
+    delete_my_account_button: "Delete My Account",
+    delete_account_warning_full: "This action cannot be undone. All your data will be permanently deleted.",
+    delete_account_confirm_dialog: "Are you sure you want to delete your account?",
+    account_deleted_toast: "Account deleted successfully",
+    consent_management_title: "Consent Management",
+    view_consents_button: "View My Consents",
+    
+    // Crisis Support
+    crisis_support_title: "Crisis Support",
+    crisis_message_text: "If you're experiencing thoughts of self-harm or suicide, please reach out for help immediately:",
+    crisis_hotline_label: "Crisis Hotline",
+    crisis_chat_label: "Online Crisis Chat",
+    emergency_services_label: "Emergency Services",
+    you_are_not_alone_message: "You are not alone. Help is available.",
+    
+    // Safety & Moderation
+    content_review_notice_title: "Content Review Notice",
+    content_blocked_title: "Content Blocked",
+    moderation_reason_label: "Reason:",
   },
   es: {
     app_name: "Confess+",
@@ -2430,6 +2516,49 @@ export const translations: Record<Language, Translations> = {
     following_your_feed: "Tu Feed",
     index_back_to_feed: "Volver al Feed",
     moderation_category_label: "Categoría",
+    
+    // Instagram-style Social
+    explore: "Explorar",
+    compose: "Componer",
+    type_message_placeholder: "Escribe un mensaje...",
+    send_message_button: "Enviar",
+    message_sent_toast: "Mensaje enviado",
+    message_failed_toast: "No se pudo enviar el mensaje",
+    retry_send: "Reintentar",
+    delete_message_action: "Eliminar mensaje",
+    delete_message_confirm_text: "¿Estás seguro de que quieres eliminar este mensaje?",
+    read_receipt_status: "Leído",
+    unread_count_badge: "nuevo",
+    message_thread_title: "Mensajes",
+    
+    // Profile Header
+    posts_count: "Publicaciones",
+    followers_count: "Seguidores",
+    message_user_button: "Mensaje",
+    
+    // GDPR & Privacy
+    export_data_description_text: "Descarga una copia de todos tus datos",
+    export_data_success_toast: "Datos exportados correctamente",
+    export_data_failed_toast: "Error al exportar datos",
+    delete_my_account_button: "Eliminar Mi Cuenta",
+    delete_account_warning_full: "Esta acción no se puede deshacer. Todos tus datos serán eliminados permanentemente.",
+    delete_account_confirm_dialog: "¿Estás seguro de que quieres eliminar tu cuenta?",
+    account_deleted_toast: "Cuenta eliminada correctamente",
+    consent_management_title: "Gestión de Consentimiento",
+    view_consents_button: "Ver Mis Consentimientos",
+    
+    // Crisis Support
+    crisis_support_title: "Apoyo en Crisis",
+    crisis_message_text: "Si estás experimentando pensamientos de autolesión o suicidio, por favor busca ayuda inmediatamente:",
+    crisis_hotline_label: "Línea de Crisis",
+    crisis_chat_label: "Chat de Crisis en Línea",
+    emergency_services_label: "Servicios de Emergencia",
+    you_are_not_alone_message: "No estás solo. Hay ayuda disponible.",
+    
+    // Safety & Moderation
+    content_review_notice_title: "Aviso de Revisión de Contenido",
+    content_blocked_title: "Contenido Bloqueado",
+    moderation_reason_label: "Razón:",
   },
   de: {
     app_name: "Confess+",
@@ -3200,5 +3329,48 @@ export const translations: Record<Language, Translations> = {
     following_your_feed: "Dein Feed",
     index_back_to_feed: "Zurück zum Feed",
     moderation_category_label: "Kategorie",
+    
+    // Instagram-style Social
+    explore: "Entdecken",
+    compose: "Verfassen",
+    type_message_placeholder: "Nachricht eingeben...",
+    send_message_button: "Senden",
+    message_sent_toast: "Nachricht gesendet",
+    message_failed_toast: "Nachricht konnte nicht gesendet werden",
+    retry_send: "Wiederholen",
+    delete_message_action: "Nachricht löschen",
+    delete_message_confirm_text: "Bist du sicher, dass du diese Nachricht löschen möchtest?",
+    read_receipt_status: "Gelesen",
+    unread_count_badge: "neu",
+    message_thread_title: "Nachrichten",
+    
+    // Profile Header
+    posts_count: "Beiträge",
+    followers_count: "Follower",
+    message_user_button: "Nachricht",
+    
+    // GDPR & Privacy
+    export_data_description_text: "Lade eine Kopie all deiner Daten herunter",
+    export_data_success_toast: "Daten erfolgreich exportiert",
+    export_data_failed_toast: "Datenexport fehlgeschlagen",
+    delete_my_account_button: "Mein Konto Löschen",
+    delete_account_warning_full: "Diese Aktion kann nicht rückgängig gemacht werden. Alle deine Daten werden dauerhaft gelöscht.",
+    delete_account_confirm_dialog: "Bist du sicher, dass du dein Konto löschen möchtest?",
+    account_deleted_toast: "Konto erfolgreich gelöscht",
+    consent_management_title: "Einwilligungsverwaltung",
+    view_consents_button: "Meine Einwilligungen Anzeigen",
+    
+    // Crisis Support
+    crisis_support_title: "Krisenunterstützung",
+    crisis_message_text: "Wenn du Gedanken an Selbstverletzung oder Suizid hast, bitte suche sofort Hilfe:",
+    crisis_hotline_label: "Krisenhotline",
+    crisis_chat_label: "Online-Krisen-Chat",
+    emergency_services_label: "Notdienste",
+    you_are_not_alone_message: "Du bist nicht allein. Hilfe ist verfügbar.",
+    
+    // Safety & Moderation
+    content_review_notice_title: "Hinweis zur Inhaltsüberprüfung",
+    content_blocked_title: "Inhalt Blockiert",
+    moderation_reason_label: "Grund:",
   },
 };
