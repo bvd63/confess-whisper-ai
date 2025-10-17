@@ -16,6 +16,7 @@ interface ProfileEditorProps {
     bio: string | null;
     handle: string | null;
     privacy_mode: string | null;
+    nickname_updated_at: string | null;
   };
   onUpdate: () => void;
 }
@@ -44,6 +45,22 @@ export const ProfileEditor = ({
       });
       return;
     }
+
+    // Check if nickname changed and cooldown applies
+    if (nickname !== currentProfile.nickname && currentProfile.nickname_updated_at) {
+      const lastUpdate = new Date(currentProfile.nickname_updated_at);
+      const daysSinceUpdate = Math.floor((Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (daysSinceUpdate < 21) {
+        const daysRemaining = 21 - daysSinceUpdate;
+        toast({
+          title: 'Nickname Change Restricted',
+          description: `You can change your nickname again in ${daysRemaining} day${daysRemaining !== 1 ? 's' : ''}`,
+          variant: 'destructive'
+        });
+        return;
+      }
+    }
     setIsUpdating(true);
     try {
       // Generate handle if nickname changed and no handle exists
@@ -54,14 +71,22 @@ export const ProfileEditor = ({
           handleToUse = newHandle;
         }
       }
-      const {
-        error
-      } = await supabase.from('profiles').update({
-        nickname: nickname.trim(),
+      const updateData: any = {
         bio: bio.trim() || null,
         privacy_mode: privacyMode,
         handle: handleToUse
-      }).eq('user_id', userId);
+      };
+
+      // Only update nickname and timestamp if nickname changed
+      if (nickname !== currentProfile.nickname) {
+        updateData.nickname = nickname.trim();
+        updateData.nickname_updated_at = new Date().toISOString();
+      }
+
+      const { error } = await supabase
+        .from('profiles')
+        .update(updateData)
+        .eq('user_id', userId);
       if (error) throw error;
       toast({
         title: 'Profile updated',

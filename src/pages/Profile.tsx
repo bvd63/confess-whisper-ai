@@ -52,6 +52,7 @@ const Profile = () => {
     bio: string | null;
     handle: string | null;
     privacy_mode: string | null;
+    nickname_updated_at: string | null;
   } | null>(null);
   const { isModerator } = useUserRole(user?.id);
   const { toast } = useToast();
@@ -67,7 +68,7 @@ const Profile = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('nickname, bio, handle, privacy_mode')
+        .select('nickname, bio, handle, privacy_mode, nickname_updated_at')
         .eq('user_id', user!.id)
         .single();
 
