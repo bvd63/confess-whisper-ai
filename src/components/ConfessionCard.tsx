@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useCachePurgeOnDelete } from "@/hooks/useCachePurgeOnDelete";
 
 interface ConfessionCardProps {
   confession: {
@@ -50,6 +51,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   const { user } = useCurrentUser();
   const { toast } = useToast();
   const { t } = useLanguage();
+  const { purgeConfession } = useCachePurgeOnDelete();
 
   const handleDeleteConfession = async () => {
     if (!user || confession.user_id !== user.id) return;
@@ -61,6 +63,9 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         .eq('id', confession.id);
 
       if (error) throw error;
+
+      // Immediately purge cache
+      purgeConfession(confession.id);
 
       toast({
         title: t.success_deleted,

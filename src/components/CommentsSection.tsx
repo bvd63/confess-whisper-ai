@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useCachePurgeOnDelete } from "@/hooks/useCachePurgeOnDelete";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { MessageSquare, Trash2, Send, ChevronDown, ChevronUp } from "lucide-react";
@@ -29,6 +30,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
   const { user } = useCurrentUser();
   const { toast } = useToast();
   const { t } = useLanguage();
+  const { purgeComment } = useCachePurgeOnDelete();
 
   const loadComments = async () => {
     try {
@@ -104,6 +106,9 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
         .eq('id', commentId);
 
       if (error) throw error;
+
+      // Purge cache immediately
+      purgeComment(commentId, confessionId);
 
       await loadComments();
       onCommentChange?.();

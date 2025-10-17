@@ -5,7 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import AppLayout from "@/components/AppLayout";
 import { ConversationList } from "@/components/ConversationList";
-import { MessageThread } from "@/components/MessageThread";
+import { EnhancedMessageThread } from "@/components/EnhancedMessageThread";
 import { Card } from "@/components/ui/card";
 
 const Messages = () => {
@@ -106,7 +106,7 @@ const Messages = () => {
             </div>
           ) : (
             <div className="h-[600px]">
-              <MessageThread
+              <EnhancedMessageThread
                 conversationId={selectedConversation}
                 currentUserId={user.id}
                 otherUserId={otherUserId!}

@@ -649,6 +649,15 @@ type Translations = {
   messages_deleted: string;
   messages_delete_conversation: string;
   messages_delete_conversation_confirm: string;
+  messages_retry: string;
+  
+  // Profile
+  profile_posts: string;
+  profile_followers: string;
+  profile_following: string;
+  profile_follows_you: string;
+  profile_follow: string;
+  profile_unfollow: string;
   
   // Following Feed
   following_feed_loading: string;
@@ -1530,6 +1539,14 @@ export const translations: Record<Language, Translations> = {
     messages_deleted: "Message deleted",
     messages_delete_conversation: "Delete conversation",
     messages_delete_conversation_confirm: "Are you sure you want to delete this conversation?",
+    messages_retry: "Retry",
+    
+    profile_posts: "Posts",
+    profile_followers: "Followers",
+    profile_following: "Following",
+    profile_follows_you: "Follows you",
+    profile_follow: "Follow",
+    profile_unfollow: "Unfollow",
     
     following_feed_loading: "Loading feed...",
     following_feed_start: "Start following users to see their confessions here",
@@ -2258,6 +2275,14 @@ export const translations: Record<Language, Translations> = {
     messages_deleted: "Mensaje eliminado",
     messages_delete_conversation: "Eliminar conversación",
     messages_delete_conversation_confirm: "¿Estás seguro de que quieres eliminar esta conversación?",
+    messages_retry: "Reintentar",
+    
+    profile_posts: "Publicaciones",
+    profile_followers: "Seguidores",
+    profile_following: "Siguiendo",
+    profile_follows_you: "Te sigue",
+    profile_follow: "Seguir",
+    profile_unfollow: "Dejar de seguir",
     
     following_feed_loading: "Cargando feed...",
     following_feed_start: "Comienza a seguir usuarios para ver sus confesiones aquí",
@@ -3020,6 +3045,14 @@ export const translations: Record<Language, Translations> = {
     messages_deleted: "Nachricht gelöscht",
     messages_delete_conversation: "Konversation löschen",
     messages_delete_conversation_confirm: "Möchtest du diese Konversation wirklich löschen?",
+    messages_retry: "Erneut versuchen",
+    
+    profile_posts: "Beiträge",
+    profile_followers: "Follower",
+    profile_following: "Folge ich",
+    profile_follows_you: "Folgt dir",
+    profile_follow: "Folgen",
+    profile_unfollow: "Nicht mehr folgen",
     
     following_feed_loading: "Lade Feed...",
     following_feed_start: "Beginne Benutzern zu folgen, um ihre Geständnisse hier zu sehen",
