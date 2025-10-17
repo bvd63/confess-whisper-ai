@@ -14,16 +14,20 @@ const PremiumDialog = lazy(() => import("@/components/PremiumDialog"));
 const Following = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { user } = useCurrentUser();
+  const { user, isLoading } = useCurrentUser();
   const { isPremium } = usePremiumStatus(user?.id);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
 
   useEffect(() => {
-    if (!user) {
+    if (!isLoading && !user) {
       navigate('/auth');
     }
-  }, [user, navigate]);
+  }, [user, isLoading, navigate]);
+
+  if (isLoading) {
+    return null;
+  }
 
   if (!user) {
     return null;
