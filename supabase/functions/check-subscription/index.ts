@@ -89,8 +89,17 @@ serve(async (req) => {
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
       logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
       
-      // Determine tier based on metadata or price
-      subscriptionTier = subscription.metadata?.plan_name?.toLowerCase() || 'premium';
+      // Map price IDs to tiers
+      const priceId = subscription.items.data[0]?.price.id;
+      const PRICE_TO_TIER_MAP: Record<string, string> = {
+        'price_1SJ0vvR7kygIyYg9oT1ju6lQ': 'premium', // Premium monthly
+        'price_1SJ0vvR7kygIyYg9yORadPGD': 'premium', // Premium yearly
+        'price_1SJ0vwR7kygIyYg9OeCiqV00': 'vip',     // VIP monthly
+        'price_1SJ0vvR7kygIyYg9BJuciYGd': 'vip',     // VIP yearly
+      };
+      
+      subscriptionTier = PRICE_TO_TIER_MAP[priceId] || subscription.metadata?.plan_name?.toLowerCase() || 'premium';
+      logStep("Determined subscription tier", { priceId, tier: subscriptionTier });
       
       // Update profile with subscription info
       await supabaseClient
