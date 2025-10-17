@@ -2,8 +2,19 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, User } from "lucide-react";
+import { MessageCircle, User, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Conversation {
   id: string;
@@ -23,6 +34,8 @@ interface ConversationListProps {
 export const ConversationList = ({ currentUserId, onConversationSelect }: ConversationListProps) => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [conversationToDelete, setConversationToDelete] = useState<string | null>(null);
   const { t } = useLanguage();
   const navigate = useNavigate();
 
@@ -139,6 +152,43 @@ export const ConversationList = ({ currentUserId, onConversationSelect }: Conver
     }
   };
 
+  const handleDeleteConversation = async (conversationId: string) => {
+    try {
+      // Delete conversation participants first
+      const { error: participantsError } = await supabase
+        .from('conversation_participants')
+        .delete()
+        .eq('conversation_id', conversationId);
+
+      if (participantsError) throw participantsError;
+
+      // Delete all messages in the conversation
+      const { error: messagesError } = await supabase
+        .from('messages')
+        .delete()
+        .eq('conversation_id', conversationId);
+
+      if (messagesError) throw messagesError;
+
+      // Delete the conversation itself
+      const { error: conversationError } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('id', conversationId);
+
+      if (conversationError) throw conversationError;
+
+      toast.success(t.messages_deleted);
+      await loadConversations();
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+      toast.error(t.error_generic);
+    } finally {
+      setDeleteDialogOpen(false);
+      setConversationToDelete(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -160,38 +210,73 @@ export const ConversationList = ({ currentUserId, onConversationSelect }: Conver
   }
 
   return (
-    <div className="space-y-2">
-      {conversations.map((conversation) => (
-        <Button
-          key={conversation.id}
-          variant="ghost"
-          className="w-full justify-start text-left p-4 h-auto"
-          onClick={() => onConversationSelect(conversation.id, conversation.other_user_id)}
-        >
-          <div className="flex items-start gap-3 w-full">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <User className="w-5 h-5 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-medium truncate">
-                  @{conversation.other_user_nickname || t.confession_anonymous}
-                </span>
-                {conversation.unread_count > 0 && (
-                  <span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">
-                    {conversation.unread_count}
-                  </span>
-                )}
+    <>
+      <div className="space-y-2">
+        {conversations.map((conversation) => (
+          <div key={conversation.id} className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              className="flex-1 justify-start text-left p-4 h-auto"
+              onClick={() => onConversationSelect(conversation.id, conversation.other_user_id)}
+            >
+              <div className="flex items-start gap-3 w-full">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <User className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-medium truncate">
+                      @{conversation.other_user_nickname || t.confession_anonymous}
+                    </span>
+                    {conversation.unread_count > 0 && (
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">
+                        {conversation.unread_count}
+                      </span>
+                    )}
+                  </div>
+                  {conversation.last_message && (
+                    <p className="text-sm text-muted-foreground truncate">
+                      {conversation.last_message}
+                    </p>
+                  )}
+                </div>
               </div>
-              {conversation.last_message && (
-                <p className="text-sm text-muted-foreground truncate">
-                  {conversation.last_message}
-                </p>
-              )}
-            </div>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+              onClick={(e) => {
+                e.stopPropagation();
+                setConversationToDelete(conversation.id);
+                setDeleteDialogOpen(true);
+              }}
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
           </div>
-        </Button>
-      ))}
-    </div>
+        ))}
+      </div>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t.messages_delete_conversation}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t.messages_delete_conversation_confirm}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t.common_back}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => conversationToDelete && handleDeleteConversation(conversationToDelete)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t.delete}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };

@@ -636,6 +636,8 @@ type Translations = {
   messages_conversation_with: string;
   messages_delete_confirm: string;
   messages_deleted: string;
+  messages_delete_conversation: string;
+  messages_delete_conversation_confirm: string;
   
   // Following Feed
   following_feed_loading: string;
@@ -1504,6 +1506,8 @@ export const translations: Record<Language, Translations> = {
     messages_conversation_with: "Conversation with",
     messages_delete_confirm: "Delete this message?",
     messages_deleted: "Message deleted",
+    messages_delete_conversation: "Delete conversation",
+    messages_delete_conversation_confirm: "Are you sure you want to delete this conversation?",
     
     following_feed_loading: "Loading feed...",
     following_feed_start: "Start following users to see their confessions here",
@@ -2219,6 +2223,8 @@ export const translations: Record<Language, Translations> = {
     messages_conversation_with: "Conversación con",
     messages_delete_confirm: "¿Eliminar este mensaje?",
     messages_deleted: "Mensaje eliminado",
+    messages_delete_conversation: "Eliminar conversación",
+    messages_delete_conversation_confirm: "¿Estás seguro de que quieres eliminar esta conversación?",
     
     following_feed_loading: "Cargando feed...",
     following_feed_start: "Comienza a seguir usuarios para ver sus confesiones aquí",
@@ -2968,6 +2974,8 @@ export const translations: Record<Language, Translations> = {
     messages_conversation_with: "Konversation mit",
     messages_delete_confirm: "Diese Nachricht löschen?",
     messages_deleted: "Nachricht gelöscht",
+    messages_delete_conversation: "Konversation löschen",
+    messages_delete_conversation_confirm: "Möchtest du diese Konversation wirklich löschen?",
     
     following_feed_loading: "Lade Feed...",
     following_feed_start: "Beginne Benutzern zu folgen, um ihre Geständnisse hier zu sehen",
