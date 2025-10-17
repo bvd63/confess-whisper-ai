@@ -62,8 +62,8 @@ export const NicknameSettings = ({ userId }: NicknameSettingsProps) => {
       return;
     }
 
-    // Check 21-day cooldown
-    if (nicknameUpdatedAt && daysRemaining !== null && daysRemaining > 0) {
+    // Check 21-day cooldown (only if user already has a nickname)
+    if (currentNickname && nicknameUpdatedAt && daysRemaining !== null && daysRemaining > 0) {
       toast.error(`${t.nickname_cooldown}. ${daysRemaining} ${t.nickname_days_remaining}.`);
       return;
     }
