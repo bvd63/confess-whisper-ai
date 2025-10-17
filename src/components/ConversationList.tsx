@@ -52,13 +52,18 @@ export const ConversationList = ({ currentUserId, onConversationSelect }: Conver
 
   const loadConversations = async () => {
     try {
+      console.log("Loading conversations for user:", currentUserId);
       // Get conversations where user is a participant
       const { data: participantData, error: participantError } = await supabase
         .from('conversation_participants')
         .select('conversation_id')
         .eq('user_id', currentUserId);
 
-      if (participantError) throw participantError;
+      if (participantError) {
+        console.error("Error loading participants:", participantError);
+        throw participantError;
+      }
+      console.log("Participant data:", participantData);
 
       if (!participantData || participantData.length === 0) {
         setConversations([]);

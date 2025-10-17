@@ -37,6 +37,7 @@ export const UserSearch = ({ currentUserId }: UserSearchProps) => {
   const searchUsers = async (query: string) => {
     setLoading(true);
     try {
+      console.log("Searching for users with query:", query);
       const { data, error } = await supabase
         .from("profiles")
         .select("user_id, nickname")
@@ -45,8 +46,12 @@ export const UserSearch = ({ currentUserId }: UserSearchProps) => {
         .neq("user_id", currentUserId)
         .limit(20);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Search error:", error);
+        throw error;
+      }
 
+      console.log("Search results:", data);
       setResults(data || []);
     } catch (error) {
       console.error("Error searching users:", error);
