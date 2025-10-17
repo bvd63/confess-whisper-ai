@@ -1128,6 +1128,10 @@ export type Database = {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
       }
+      get_or_create_conversation: {
+        Args: { _user1: string; _user2: string }
+        Returns: string
+      }
       get_user_nickname: {
         Args: { _target_user_id: string }
         Returns: string

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -16,6 +16,7 @@ const Messages = () => {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [otherUserId, setOtherUserId] = useState<string | null>(null);
   const [otherUserNickname, setOtherUserNickname] = useState<string | null>(null);
+  const startedRef = useRef(false);
 
   useEffect(() => {
     if (isLoading) return;
@@ -24,70 +25,25 @@ const Messages = () => {
       return;
     }
 
-    // Check if we need to start a conversation with a specific user
+    // Start conversation with URL user param only once (guard StrictMode double-invoke)
     const userId = searchParams.get('user');
-    if (userId) {
+    if (userId && !startedRef.current) {
+      startedRef.current = true;
       startConversation(userId);
     }
   }, [user, isLoading, searchParams, navigate]);
 
   const startConversation = async (targetUserId: string) => {
     try {
-      // Get all conversations for current user
-      const { data: myConversations, error: myConvError } = await supabase
-        .from('conversation_participants')
-        .select('conversation_id')
-        .eq('user_id', user!.id);
+      const { data: convId, error } = await supabase.rpc('get_or_create_conversation', {
+        _user1: user!.id,
+        _user2: targetUserId,
+      });
 
-      if (myConvError) throw myConvError;
-
-      // Get all conversations for target user
-      const { data: targetConversations, error: targetConvError } = await supabase
-        .from('conversation_participants')
-        .select('conversation_id')
-        .eq('user_id', targetUserId);
-
-      if (targetConvError) throw targetConvError;
-
-      // Find common conversation ID
-      const myConvIds = myConversations?.map(c => c.conversation_id) || [];
-      const targetConvIds = targetConversations?.map(c => c.conversation_id) || [];
-      const commonConvId = myConvIds.find(id => targetConvIds.includes(id));
-
-      if (commonConvId) {
-        // Conversation already exists - use it
-        console.log('Found existing conversation:', commonConvId);
-        await loadOtherUserInfo(targetUserId);
-        setSelectedConversation(commonConvId);
-        setOtherUserId(targetUserId);
-        return;
-      }
-
-      // No existing conversation - create new one
-      console.log('Creating new conversation between', user!.id, 'and', targetUserId);
-      const { data: newConversation, error: conversationError } = await supabase
-        .from('conversations')
-        .insert({})
-        .select()
-        .single();
-
-      if (conversationError) throw conversationError;
-
-      // Add both participants (sequentially to avoid RLS issues)
-      const { error: currentUserError } = await supabase
-        .from('conversation_participants')
-        .insert({ conversation_id: newConversation.id, user_id: user!.id });
-
-      if (currentUserError) throw currentUserError;
-
-      const { error: targetUserError } = await supabase
-        .from('conversation_participants')
-        .insert({ conversation_id: newConversation.id, user_id: targetUserId });
-
-      if (targetUserError) throw targetUserError;
+      if (error) throw error;
 
       await loadOtherUserInfo(targetUserId);
-      setSelectedConversation(newConversation.id);
+      setSelectedConversation((convId as string) || null);
       setOtherUserId(targetUserId);
     } catch (error) {
       console.error('Error starting conversation:', error);
