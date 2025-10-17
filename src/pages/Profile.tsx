@@ -31,6 +31,7 @@ import { useToast } from "@/hooks/use-toast";
 import { NicknameSettings } from "@/components/NicknameSettings";
 import { EmailDisplay } from "@/components/EmailDisplay";
 import { PasswordChange } from "@/components/PasswordChange";
+import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 
@@ -108,7 +109,7 @@ const Profile = () => {
     >
       <AchievementToast userId={user.id} />
       
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-4xl">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-4xl pb-24">
         <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
           <User className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">{t.profile_title}</h1>
@@ -198,8 +199,10 @@ const Profile = () => {
           )}
         </Tabs>
       </div>
+      
+      <InstagramBottomNav />
 
-      <ExportDataDialog 
+      <ExportDataDialog
         open={exportDialogOpen}
         onOpenChange={setExportDialogOpen}
         userId={user.id}

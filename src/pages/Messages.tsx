@@ -7,6 +7,7 @@ import AppLayout from "@/components/AppLayout";
 import { ConversationList } from "@/components/ConversationList";
 import { EnhancedMessageThread } from "@/components/EnhancedMessageThread";
 import { Card } from "@/components/ui/card";
+import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 
 const Messages = () => {
   const { user, isLoading } = useCurrentUser();
@@ -92,7 +93,7 @@ const Messages = () => {
 
   return (
     <AppLayout>
-      <div className="container max-w-4xl mx-auto px-4 py-6">
+      <div className="container max-w-4xl mx-auto px-4 py-6 pb-24">
         <Card className="overflow-hidden">
           {!selectedConversation ? (
             <div>
@@ -121,6 +122,8 @@ const Messages = () => {
           )}
         </Card>
       </div>
+      
+      <InstagramBottomNav />
     </AppLayout>
   );
 };

@@ -31,6 +31,8 @@ import SEOHead from "@/components/SEOHead";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Loader2 } from "lucide-react";
+import { InstagramBottomNav } from "@/components/InstagramBottomNav";
+import { OnboardingWelcome } from "@/components/OnboardingWelcome";
 
 // Lazy load heavy components
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
@@ -397,6 +399,8 @@ const Index = () => {
       
       {/* Rate Limit Notification */}
       {RateLimitUI}
+      
+      <InstagramBottomNav />
       </AppLayout>
     </>
   );

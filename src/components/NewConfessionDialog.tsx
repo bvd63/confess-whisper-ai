@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/translated-dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Send, Sparkles } from "lucide-react";
+import { Loader2, Send, Sparkles, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
@@ -13,6 +13,8 @@ import { Label } from "@/components/ui/label";
 import MoodTracker from "@/components/MoodTracker";
 import ImageUpload from "@/components/ImageUpload";
 import DraftManager from "@/components/DraftManager";
+import { CrisisDialog } from "@/components/CrisisDialog";
+import { useModerationStatus } from "@/hooks/useModerationStatus";
 
 const confessionSchema = z.object({
   content: z.string()
@@ -35,9 +37,18 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
+  const [showCrisisDialog, setShowCrisisDialog] = useState(false);
   const { user } = useCurrentUser();
   const { toast } = useToast();
   const { language, t } = useLanguage();
+  const { checkForCrisis } = useModerationStatus();
+
+  // Check for crisis keywords on content change
+  useEffect(() => {
+    if (content.length > 20 && checkForCrisis(content)) {
+      setShowCrisisDialog(true);
+    }
+  }, [content, checkForCrisis]);
 
   // Auto-save draft every 5 seconds
   useEffect(() => {
@@ -308,6 +319,11 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
           </Button>
         </div>
       </DialogContent>
+      
+      <CrisisDialog 
+        isOpen={showCrisisDialog}
+        onClose={() => setShowCrisisDialog(false)}
+      />
     </Dialog>
   );
 };
