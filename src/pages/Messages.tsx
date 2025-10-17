@@ -43,14 +43,14 @@ const Messages = () => {
 
       if (existingParticipants) {
         for (const participant of existingParticipants) {
-          const { data: otherParticipant, error: otherError } = await supabase
+          const { data: otherParticipant } = await supabase
             .from('conversation_participants')
             .select('user_id')
             .eq('conversation_id', participant.conversation_id)
             .eq('user_id', targetUserId)
-            .single();
+            .maybeSingle();
 
-          if (!otherError && otherParticipant) {
+          if (otherParticipant) {
             // Conversation exists
             await loadOtherUserInfo(targetUserId);
             setSelectedConversation(participant.conversation_id);
@@ -69,15 +69,20 @@ const Messages = () => {
 
       if (conversationError) throw conversationError;
 
-      // Add both participants
-      const { error: participantsError } = await supabase
+      // Add both participants (sequentially to avoid RLS issues)
+      // First add current user
+      const { error: currentUserError } = await supabase
         .from('conversation_participants')
-        .insert([
-          { conversation_id: newConversation.id, user_id: user!.id },
-          { conversation_id: newConversation.id, user_id: targetUserId }
-        ]);
+        .insert({ conversation_id: newConversation.id, user_id: user!.id });
 
-      if (participantsError) throw participantsError;
+      if (currentUserError) throw currentUserError;
+
+      // Then add target user (now that current user is a participant)
+      const { error: targetUserError } = await supabase
+        .from('conversation_participants')
+        .insert({ conversation_id: newConversation.id, user_id: targetUserId });
+
+      if (targetUserError) throw targetUserError;
 
       await loadOtherUserInfo(targetUserId);
       setSelectedConversation(newConversation.id);
