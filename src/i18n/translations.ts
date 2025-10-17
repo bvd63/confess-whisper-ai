@@ -609,6 +609,18 @@ type Translations = {
   coins_comment_added: string;
   coins_like_received: string;
   
+  // Nickname & User Search
+  nickname_label: string;
+  nickname_placeholder: string;
+  nickname_update: string;
+  nickname_updated: string;
+  nickname_error: string;
+  nickname_taken: string;
+  nickname_invalid: string;
+  search_users: string;
+  search_users_placeholder: string;
+  no_users_found: string;
+  
   // Following Feed
   following_feed_loading: string;
   following_feed_start: string;
@@ -1451,6 +1463,17 @@ export const translations: Record<Language, Translations> = {
     coins_comment_added: "Comment added",
     coins_like_received: "Like received",
     
+    nickname_label: "Nickname",
+    nickname_placeholder: "Enter your nickname",
+    nickname_update: "Update Nickname",
+    nickname_updated: "Nickname updated successfully",
+    nickname_error: "Error updating nickname",
+    nickname_taken: "This nickname is already taken",
+    nickname_invalid: "Nickname must be 3-20 characters (letters, numbers, _, .)",
+    search_users: "Search Users",
+    search_users_placeholder: "Search by nickname...",
+    no_users_found: "No users found",
+    
     following_feed_loading: "Loading feed...",
     following_feed_start: "Start following users to see their confessions here",
     
@@ -2139,6 +2162,17 @@ export const translations: Record<Language, Translations> = {
     coins_confession_created: "Nueva confesión",
     coins_comment_added: "Comentario añadido",
     coins_like_received: "Me gusta recibido",
+    
+    nickname_label: "Apodo",
+    nickname_placeholder: "Ingresa tu apodo",
+    nickname_update: "Actualizar Apodo",
+    nickname_updated: "Apodo actualizado exitosamente",
+    nickname_error: "Error al actualizar apodo",
+    nickname_taken: "Este apodo ya está en uso",
+    nickname_invalid: "El apodo debe tener 3-20 caracteres (letras, números, _, .)",
+    search_users: "Buscar Usuarios",
+    search_users_placeholder: "Buscar por apodo...",
+    no_users_found: "No se encontraron usuarios",
     
     following_feed_loading: "Cargando feed...",
     following_feed_start: "Comienza a seguir usuarios para ver sus confesiones aquí",
@@ -2862,6 +2896,17 @@ export const translations: Record<Language, Translations> = {
     coins_confession_created: "Neues Geständnis",
     coins_comment_added: "Kommentar hinzugefügt",
     coins_like_received: "Like erhalten",
+    
+    nickname_label: "Spitzname",
+    nickname_placeholder: "Gib deinen Spitznamen ein",
+    nickname_update: "Spitzname Aktualisieren",
+    nickname_updated: "Spitzname erfolgreich aktualisiert",
+    nickname_error: "Fehler beim Aktualisieren des Spitznamens",
+    nickname_taken: "Dieser Spitzname ist bereits vergeben",
+    nickname_invalid: "Spitzname muss 3-20 Zeichen haben (Buchstaben, Zahlen, _, .)",
+    search_users: "Benutzer Suchen",
+    search_users_placeholder: "Nach Spitznamen suchen...",
+    no_users_found: "Keine Benutzer gefunden",
     
     following_feed_loading: "Lade Feed...",
     following_feed_start: "Beginne Benutzern zu folgen, um ihre Geständnisse hier zu sehen",

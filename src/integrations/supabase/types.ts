@@ -568,6 +568,7 @@ export type Database = {
           created_at: string
           id: string
           is_premium: boolean | null
+          nickname: string | null
           referral_code: string | null
           referred_by: string | null
           stripe_customer_id: string | null
@@ -583,6 +584,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_premium?: boolean | null
+          nickname?: string | null
           referral_code?: string | null
           referred_by?: string | null
           stripe_customer_id?: string | null
@@ -598,6 +600,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_premium?: boolean | null
+          nickname?: string | null
           referral_code?: string | null
           referred_by?: string | null
           stripe_customer_id?: string | null
