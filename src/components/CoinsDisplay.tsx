@@ -172,11 +172,27 @@ const CoinsDisplay = ({ userId, variant = "compact" }: CoinsDisplayProps) => {
             ) : (
               <div className="space-y-1.5 sm:space-y-2">
                 {transactions.map((transaction) => {
-                  // Map transaction types to translation keys
+                  // Map transaction types/descriptions to translation keys
                   const getTransactionDescription = () => {
-                    if (transaction.type === 'confession_created') return t.coins_confession_created;
-                    if (transaction.type === 'comment_added') return t.coins_comment_added;
-                    if (transaction.type === 'like_received') return t.coins_like_received;
+                    const raw = `${transaction.type ?? ''} ${transaction.description ?? ''}`
+                      .toLowerCase();
+
+                    // Detect by known keywords across languages
+                    if (/(confession|confesiune|confesión|geständnis)/.test(raw)) {
+                      return t.coins_confession_created;
+                    }
+                    if (/(comment|comentario|kommentar)/.test(raw)) {
+                      return t.coins_comment_added;
+                    }
+                    if (/(like|me gusta|gefällt)/.test(raw)) {
+                      return t.coins_like_received;
+                    }
+
+                    // Heuristic fallback by typical award amounts
+                    if (transaction.amount >= 10) return t.coins_confession_created;
+                    if (transaction.amount >= 5) return t.coins_comment_added;
+                    if (transaction.amount >= 2) return t.coins_like_received;
+
                     return transaction.description || transaction.type;
                   };
 
