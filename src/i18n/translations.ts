@@ -405,6 +405,9 @@ type Translations = {
   notification_like: string;
   notification_comment: string;
   notification_new: string;
+  notification_message_prefix: string;
+  notification_message_new: string;
+  notification_view: string;
   
   // Bookmarks
   bookmarks_title: string;
@@ -987,6 +990,9 @@ export const translations: Record<Language, Translations> = {
     notification_like: "liked your confession",
     notification_comment: "commented on your confession",
     notification_new: "New",
+    notification_message_prefix: "New message:",
+    notification_message_new: "New message",
+    notification_view: "View",
     
     // Bookmarks
     bookmarks_title: "Saved",
@@ -1731,6 +1737,9 @@ export const translations: Record<Language, Translations> = {
     notification_like: "le gustó tu confesión",
     notification_comment: "comentó en tu confesión",
     notification_new: "Nueva",
+    notification_message_prefix: "Mensaje nuevo:",
+    notification_message_new: "Mensaje nuevo",
+    notification_view: "Ver",
     
     // Bookmarks
     bookmarks_title: "Guardadas",
@@ -2477,6 +2486,9 @@ export const translations: Record<Language, Translations> = {
     notification_like: "hat dein Geständnis geliked",
     notification_comment: "hat dein Geständnis kommentiert",
     notification_new: "Neu",
+    notification_message_prefix: "Neue Nachricht:",
+    notification_message_new: "Neue Nachricht",
+    notification_view: "Ansehen",
     
     // Bookmarks
     bookmarks_title: "Gespeichert",

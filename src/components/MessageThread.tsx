@@ -34,6 +34,11 @@ export const MessageThread = ({
   const [sending, setSending] = useState(false);
   const { t } = useLanguage();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [displayNickname, setDisplayNickname] = useState<string | null>(otherUserNickname);
+
+  useEffect(() => {
+    setDisplayNickname(otherUserNickname);
+  }, [otherUserNickname]);
 
   useEffect(() => {
     loadMessages();
@@ -117,7 +122,7 @@ export const MessageThread = ({
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>
-          <h3 className="font-medium">@{otherUserNickname || 'Anonymous'}</h3>
+          <h3 className="font-medium">@{displayNickname || t.confession_anonymous}</h3>
           <p className="text-xs text-muted-foreground">{t.messages_conversation_with}</p>
         </div>
       </div>

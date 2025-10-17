@@ -126,10 +126,10 @@ const NotificationsDropdown = () => {
     const notifDate = new Date(date);
     const diffInMinutes = Math.floor((now.getTime() - notifDate.getTime()) / 60000);
     
-    if (diffInMinutes < 1) return 'acum';
-    if (diffInMinutes < 60) return `${diffInMinutes}m`;
-    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h`;
-    return `${Math.floor(diffInMinutes / 1440)}z`;
+    if (diffInMinutes < 1) return t.time_now;
+    if (diffInMinutes < 60) return `${diffInMinutes}${t.time_minutes}`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}${t.time_hours}`;
+    return `${Math.floor(diffInMinutes / 1440)}${t.time_days}`;
   };
 
   const getNotificationIcon = (type: string) => {
@@ -153,7 +153,7 @@ const NotificationsDropdown = () => {
         // Check if it's a message notification (has comment_content and triggered_by)
         if (notification.comment_content && notification.triggered_by) {
           const preview = notification.comment_content.substring(0, 40);
-          return `Mesaj nou: ${preview}${notification.comment_content.length > 40 ? '...' : ''}`;
+          return `${t.notification_message_prefix} ${preview}${notification.comment_content.length > 40 ? '...' : ''}`;
         }
         return t.notification_comment;
       case 'follow':
@@ -219,8 +219,8 @@ const NotificationsDropdown = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-medium">
-                          Anonim {getNotificationText(notification)}
+                          <span className="text-sm font-medium">
+                            {t.anonymous_user} {getNotificationText(notification)}
                         </span>
                         {!notification.is_read && (
                           <Badge variant="secondary" className="text-xs bg-primary text-primary-foreground">

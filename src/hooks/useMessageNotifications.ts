@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface UseMessageNotificationsProps {
   userId: string | undefined;
@@ -10,6 +11,7 @@ interface UseMessageNotificationsProps {
 export const useMessageNotifications = ({ userId, enabled = true }: UseMessageNotificationsProps) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hasPermission = useRef(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     // Request notification permission
@@ -55,13 +57,13 @@ export const useMessageNotifications = ({ userId, enabled = true }: UseMessageNo
             .eq('user_id', notification.triggered_by)
             .single();
 
-          const senderNickname = profile?.nickname || 'Someone';
-          const messagePreview = notification.comment_content?.substring(0, 50) || 'New message';
+          const senderNickname = profile?.nickname || t.anonymous_user;
+          const messagePreview = notification.comment_content?.substring(0, 50) || t.notification_message_new;
 
           // Show in-app toast notification
           toast.info(`${senderNickname}: ${messagePreview}`, {
             action: {
-              label: 'View',
+              label: t.notification_view,
               onClick: () => {
                 window.location.href = `/messages?user=${notification.triggered_by}`;
               }
