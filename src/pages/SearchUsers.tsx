@@ -8,15 +8,17 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 const SearchUsers = () => {
   const navigate = useNavigate();
-  const { user } = useCurrentUser();
+  const { user, isLoading } = useCurrentUser();
   const { t } = useLanguage();
 
   useEffect(() => {
+    if (isLoading) return;
     if (!user) {
       navigate('/auth');
     }
-  }, [user, navigate]);
+  }, [user, isLoading, navigate]);
 
+  if (isLoading) return null;
   if (!user) return null;
 
   return (

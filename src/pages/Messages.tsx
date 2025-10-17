@@ -9,7 +9,7 @@ import { MessageThread } from "@/components/MessageThread";
 import { Card } from "@/components/ui/card";
 
 const Messages = () => {
-  const { user } = useCurrentUser();
+  const { user, isLoading } = useCurrentUser();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -18,6 +18,7 @@ const Messages = () => {
   const [otherUserNickname, setOtherUserNickname] = useState<string | null>(null);
 
   useEffect(() => {
+    if (isLoading) return;
     if (!user) {
       navigate('/auth');
       return;
@@ -28,7 +29,7 @@ const Messages = () => {
     if (userId) {
       startConversation(userId);
     }
-  }, [user, searchParams]);
+  }, [user, isLoading, searchParams, navigate]);
 
   const startConversation = async (targetUserId: string) => {
     try {
@@ -107,6 +108,9 @@ const Messages = () => {
     setOtherUserId(userId);
   };
 
+  if (isLoading) {
+    return null;
+  }
   if (!user) {
     return null;
   }
