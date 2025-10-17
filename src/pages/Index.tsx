@@ -13,6 +13,8 @@ import Leaderboard from "@/components/Leaderboard";
 import RecommendedConfessions from "@/components/RecommendedConfessions";
 import SearchBar from "@/components/SearchBar";
 import FollowStats from "@/components/FollowStats";
+import { QuoteOfTheDay } from "@/components/QuoteOfTheDay";
+import { QuickActions } from "@/components/QuickActions";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
@@ -221,6 +223,16 @@ const Index = () => {
             {t.welcome_description}
           </p>
         </div>
+
+        {/* Quote of the Day */}
+        {user && viewMode === 'feed' && <QuoteOfTheDay />}
+
+        {/* Quick Actions */}
+        {user && viewMode === 'feed' && (
+          <div className="mb-6">
+            <QuickActions onNewConfession={handleNewConfession} />
+          </div>
+        )}
 
         {/* Search Bar */}
         <div className="mb-4 sm:mb-6 animate-fade-in">

@@ -3,8 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import AppLayout from "@/components/AppLayout";
 import { ProfileHeader } from "@/components/ProfileHeader";
-import UserConfessionsList from "@/components/UserConfessionsList";
+import { ProfileTabs } from "@/pages/ProfileTabs";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -17,9 +18,11 @@ const UserProfile = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const { user: currentUser } = useCurrentUser();
+  const { isPremium } = usePremiumStatus(currentUser?.id);
   const [profile, setProfile] = useState<UserProfileData | null>(null);
   const [confessionsCount, setConfessionsCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [premiumDialogOpen, setPremiumDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -97,8 +100,13 @@ const UserProfile = () => {
         />
 
         <div className="mt-8">
-          <h2 className="text-2xl font-bold mb-4">Confessions</h2>
-          {/* User confessions would go here - filtered by userId */}
+          <ProfileTabs 
+            userId={userId!} 
+            isOwnProfile={currentUser.id === userId}
+            isPremium={isPremium}
+            onUpgradeClick={() => setPremiumDialogOpen(true)}
+            onInsightGenerated={() => {}}
+          />
         </div>
       </div>
       

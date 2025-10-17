@@ -32,6 +32,7 @@ import { NicknameSettings } from "@/components/NicknameSettings";
 import { EmailDisplay } from "@/components/EmailDisplay";
 import { PasswordChange } from "@/components/PasswordChange";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
+import { ProfileEditor } from "@/components/ProfileEditor";
 
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 
@@ -46,14 +47,36 @@ const Profile = () => {
   const [premiumDialogOpen, setPremiumDialogOpen] = useState(false);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [passwordChangedAt, setPasswordChangedAt] = useState<string | null>(null);
+  const [profileData, setProfileData] = useState<{
+    nickname: string | null;
+    bio: string | null;
+    handle: string | null;
+    privacy_mode: string | null;
+  } | null>(null);
   const { isModerator } = useUserRole(user?.id);
   const { toast } = useToast();
 
   useEffect(() => {
     if (user?.id) {
       loadPasswordChangedAt();
+      loadProfileData();
     }
   }, [user?.id]);
+
+  const loadProfileData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('nickname, bio, handle, privacy_mode')
+        .eq('user_id', user!.id)
+        .single();
+
+      if (error) throw error;
+      setProfileData(data);
+    } catch (error) {
+      console.error('Error loading profile data:', error);
+    }
+  };
 
   const loadPasswordChangedAt = async () => {
     try {
@@ -171,6 +194,13 @@ const Profile = () => {
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">
+            {profileData && (
+              <ProfileEditor 
+                userId={user.id} 
+                currentProfile={profileData}
+                onUpdate={loadProfileData}
+              />
+            )}
             <EmailDisplay email={user.email || ''} />
             <PasswordChange 
               userId={user.id} 
