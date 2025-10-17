@@ -103,7 +103,10 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => navigate('/following')}
+                  onClick={() => {
+                    console.log('[Following Button] Clicked - navigating to /following');
+                    navigate('/following');
+                  }}
                   className={cn(
                     "h-9 w-9 text-muted-foreground hover:text-foreground transition-colors",
                     isActive('/following') && "bg-accent text-foreground"
@@ -272,7 +275,10 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/following')}
+              onClick={() => {
+                console.log('[Following Button Mobile] Clicked - navigating to /following');
+                navigate('/following');
+              }}
               className={cn(
                 "flex-1 h-9 text-muted-foreground hover:text-foreground transition-colors",
                 isActive('/following') && "bg-accent text-foreground"
