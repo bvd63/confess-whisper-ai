@@ -576,7 +576,7 @@ export type Database = {
       notifications: {
         Row: {
           comment_content: string | null
-          confession_id: string
+          confession_id: string | null
           created_at: string
           id: string
           is_read: boolean
@@ -586,7 +586,7 @@ export type Database = {
         }
         Insert: {
           comment_content?: string | null
-          confession_id: string
+          confession_id?: string | null
           created_at?: string
           id?: string
           is_read?: boolean
@@ -596,7 +596,7 @@ export type Database = {
         }
         Update: {
           comment_content?: string | null
-          confession_id?: string
+          confession_id?: string | null
           created_at?: string
           id?: string
           is_read?: boolean
