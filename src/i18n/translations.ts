@@ -904,11 +904,42 @@ type Translations = {
   read_receipt_status: string;
   unread_count_badge: string;
   message_thread_title: string;
+  user_is_typing: string;
+  users_are_typing: string;
   
   // Profile Header
   posts_count: string;
   followers_count: string;
+  following_count: string;
   message_user_button: string;
+  edit_profile: string;
+  profile_bio: string;
+  profile_handle: string;
+  profile_avatar: string;
+  profile_privacy_public: string;
+  profile_privacy_limited: string;
+  profile_privacy_private: string;
+  profile_privacy_mode: string;
+  
+  // Quote of the Day
+  qotd_title: string;
+  qotd_loading: string;
+  
+  // Notifications Actions
+  notifications_mark_all_read: string;
+  notifications_clear_all: string;
+  notifications_delete: string;
+  notification_deleted: string;
+  notifications_cleared: string;
+  
+  // Admin Panel
+  admin_title: string;
+  admin_moderation_queue: string;
+  admin_reports: string;
+  admin_no_items: string;
+  admin_approve: string;
+  admin_reject: string;
+  admin_view_confession: string;
   
   // GDPR & Privacy  
   export_data_description_text: string;
@@ -1721,7 +1752,38 @@ export const translations: Record<Language, Translations> = {
     // Profile Header
     posts_count: "Posts",
     followers_count: "Followers",
+    following_count: "Following",
     message_user_button: "Message",
+    edit_profile: "Edit Profile",
+    profile_bio: "Bio",
+    profile_handle: "Handle",
+    profile_avatar: "Avatar",
+    profile_privacy_public: "Public",
+    profile_privacy_limited: "Limited",
+    profile_privacy_private: "Private",
+    profile_privacy_mode: "Privacy Mode",
+    user_is_typing: "{user} is typing...",
+    users_are_typing: "{users} are typing...",
+    
+    // Quote of the Day
+    qotd_title: "Quote of the Day",
+    qotd_loading: "Loading quote...",
+    
+    // Notifications Actions
+    notifications_mark_all_read: "Mark All as Read",
+    notifications_clear_all: "Clear All",
+    notifications_delete: "Delete Notification",
+    notification_deleted: "Notification deleted",
+    notifications_cleared: "All notifications cleared",
+    
+    // Admin Panel
+    admin_title: "Admin Dashboard",
+    admin_moderation_queue: "Moderation Queue",
+    admin_reports: "Reports",
+    admin_no_items: "No items to review",
+    admin_approve: "Approve",
+    admin_reject: "Reject",
+    admin_view_confession: "View Confession",
     
     // GDPR & Privacy
     export_data_description_text: "Download a copy of all your data",
@@ -2534,7 +2596,38 @@ export const translations: Record<Language, Translations> = {
     // Profile Header
     posts_count: "Publicaciones",
     followers_count: "Seguidores",
+    following_count: "Siguiendo",
     message_user_button: "Mensaje",
+    edit_profile: "Editar Perfil",
+    profile_bio: "Biografía",
+    profile_handle: "Usuario",
+    profile_avatar: "Avatar",
+    profile_privacy_public: "Público",
+    profile_privacy_limited: "Limitado",
+    profile_privacy_private: "Privado",
+    profile_privacy_mode: "Modo de Privacidad",
+    user_is_typing: "{user} está escribiendo...",
+    users_are_typing: "{users} están escribiendo...",
+    
+    // Quote of the Day
+    qotd_title: "Cita del Día",
+    qotd_loading: "Cargando cita...",
+    
+    // Notifications Actions
+    notifications_mark_all_read: "Marcar Todas como Leídas",
+    notifications_clear_all: "Borrar Todas",
+    notifications_delete: "Eliminar Notificación",
+    notification_deleted: "Notificación eliminada",
+    notifications_cleared: "Todas las notificaciones eliminadas",
+    
+    // Admin Panel
+    admin_title: "Panel de Administración",
+    admin_moderation_queue: "Cola de Moderación",
+    admin_reports: "Reportes",
+    admin_no_items: "No hay elementos para revisar",
+    admin_approve: "Aprobar",
+    admin_reject: "Rechazar",
+    admin_view_confession: "Ver Confesión",
     
     // GDPR & Privacy
     export_data_description_text: "Descarga una copia de todos tus datos",
@@ -3347,7 +3440,38 @@ export const translations: Record<Language, Translations> = {
     // Profile Header
     posts_count: "Beiträge",
     followers_count: "Follower",
+    following_count: "Folge ich",
     message_user_button: "Nachricht",
+    edit_profile: "Profil Bearbeiten",
+    profile_bio: "Biografie",
+    profile_handle: "Benutzername",
+    profile_avatar: "Avatar",
+    profile_privacy_public: "Öffentlich",
+    profile_privacy_limited: "Eingeschränkt",
+    profile_privacy_private: "Privat",
+    profile_privacy_mode: "Datenschutzmodus",
+    user_is_typing: "{user} schreibt...",
+    users_are_typing: "{users} schreiben...",
+    
+    // Quote of the Day
+    qotd_title: "Zitat des Tages",
+    qotd_loading: "Zitat wird geladen...",
+    
+    // Notifications Actions
+    notifications_mark_all_read: "Alle als gelesen markieren",
+    notifications_clear_all: "Alle löschen",
+    notifications_delete: "Benachrichtigung löschen",
+    notification_deleted: "Benachrichtigung gelöscht",
+    notifications_cleared: "Alle Benachrichtigungen gelöscht",
+    
+    // Admin Panel
+    admin_title: "Admin-Dashboard",
+    admin_moderation_queue: "Moderationswarteschlange",
+    admin_reports: "Berichte",
+    admin_no_items: "Keine Elemente zu überprüfen",
+    admin_approve: "Genehmigen",
+    admin_reject: "Ablehnen",
+    admin_view_confession: "Geständnis ansehen",
     
     // GDPR & Privacy
     export_data_description_text: "Lade eine Kopie all deiner Daten herunter",
