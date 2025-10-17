@@ -20,6 +20,7 @@ interface Notification {
   is_read: boolean;
   created_at: string;
   triggered_by?: string;
+  triggered_by_nickname?: string;
 }
 
 const NotificationsDropdown = () => {
@@ -67,8 +68,27 @@ const NotificationsDropdown = () => {
 
       if (error) throw error;
 
-      setNotifications(data || []);
-      setUnreadCount(data?.filter(n => !n.is_read).length || 0);
+      // Fetch nicknames for users who triggered notifications
+      const notificationsWithNicknames = await Promise.all(
+        (data || []).map(async (notification) => {
+          if (notification.triggered_by) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('nickname')
+              .eq('user_id', notification.triggered_by)
+              .single();
+            
+            return {
+              ...notification,
+              triggered_by_nickname: profile?.nickname || null
+            };
+          }
+          return notification;
+        })
+      );
+
+      setNotifications(notificationsWithNicknames);
+      setUnreadCount(notificationsWithNicknames?.filter(n => !n.is_read).length || 0);
     } catch (error) {
       console.error('Error loading notifications:', error);
     }
@@ -219,8 +239,11 @@ const NotificationsDropdown = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-medium">
-                            {t.anonymous_user} {getNotificationText(notification)}
+                        <span className="text-sm font-medium">
+                          @{notification.triggered_by_nickname || t.anonymous_user}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {getNotificationText(notification)}
                         </span>
                         {!notification.is_read && (
                           <Badge variant="secondary" className="text-xs bg-primary text-primary-foreground">
