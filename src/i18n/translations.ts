@@ -621,6 +621,17 @@ type Translations = {
   search_users_placeholder: string;
   no_users_found: string;
   
+  // Messages
+  messages_title: string;
+  messages_new: string;
+  messages_send: string;
+  messages_type_message: string;
+  messages_no_conversations: string;
+  messages_start_conversation: string;
+  messages_conversation_with: string;
+  messages_delete_confirm: string;
+  messages_deleted: string;
+  
   // Following Feed
   following_feed_loading: string;
   following_feed_start: string;
@@ -1474,6 +1485,16 @@ export const translations: Record<Language, Translations> = {
     search_users_placeholder: "Search by nickname...",
     no_users_found: "No users found",
     
+    messages_title: "Messages",
+    messages_new: "New Message",
+    messages_send: "Send",
+    messages_type_message: "Type a message...",
+    messages_no_conversations: "No conversations yet",
+    messages_start_conversation: "Start a conversation",
+    messages_conversation_with: "Conversation with",
+    messages_delete_confirm: "Delete this message?",
+    messages_deleted: "Message deleted",
+    
     following_feed_loading: "Loading feed...",
     following_feed_start: "Start following users to see their confessions here",
     
@@ -2173,6 +2194,16 @@ export const translations: Record<Language, Translations> = {
     search_users: "Buscar Usuarios",
     search_users_placeholder: "Buscar por apodo...",
     no_users_found: "No se encontraron usuarios",
+    
+    messages_title: "Mensajes",
+    messages_new: "Nuevo Mensaje",
+    messages_send: "Enviar",
+    messages_type_message: "Escribe un mensaje...",
+    messages_no_conversations: "Aún no hay conversaciones",
+    messages_start_conversation: "Iniciar una conversación",
+    messages_conversation_with: "Conversación con",
+    messages_delete_confirm: "¿Eliminar este mensaje?",
+    messages_deleted: "Mensaje eliminado",
     
     following_feed_loading: "Cargando feed...",
     following_feed_start: "Comienza a seguir usuarios para ver sus confesiones aquí",
@@ -2907,6 +2938,16 @@ export const translations: Record<Language, Translations> = {
     search_users: "Benutzer Suchen",
     search_users_placeholder: "Nach Spitznamen suchen...",
     no_users_found: "Keine Benutzer gefunden",
+    
+    messages_title: "Nachrichten",
+    messages_new: "Neue Nachricht",
+    messages_send: "Senden",
+    messages_type_message: "Nachricht eingeben...",
+    messages_no_conversations: "Noch keine Konversationen",
+    messages_start_conversation: "Konversation beginnen",
+    messages_conversation_with: "Konversation mit",
+    messages_delete_confirm: "Diese Nachricht löschen?",
+    messages_deleted: "Nachricht gelöscht",
     
     following_feed_loading: "Lade Feed...",
     following_feed_start: "Beginne Benutzern zu folgen, um ihre Geständnisse hier zu sehen",

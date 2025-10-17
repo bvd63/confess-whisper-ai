@@ -1,6 +1,6 @@
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Heart, PlusCircle, LogOut, Crown, User, LogIn, BookMarked, Users, Home, Sparkles } from "lucide-react";
+import { Heart, PlusCircle, LogOut, Crown, User, LogIn, BookMarked, Users, Home, Sparkles, Search } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -122,6 +122,20 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
                   title={t.ui_following_feed}
                 >
                   <Users className="w-4 h-4" />
+                </Button>
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "h-9 w-9 text-muted-foreground hover:text-foreground transition-colors",
+                    isActive('/search-users') && "bg-accent text-foreground"
+                  )}
+                  title={t.search_users}
+                >
+                  <Link to="/search-users">
+                    <Search className="w-4 h-4" />
+                  </Link>
                 </Button>
                 <Button
                   asChild
@@ -303,6 +317,19 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
               )}
             >
               <Users className="w-4 h-4" />
+            </Button>
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "flex-1 h-9 text-muted-foreground hover:text-foreground transition-colors",
+                isActive('/search-users') && "bg-accent text-foreground"
+              )}
+            >
+              <Link to="/search-users">
+                <Search className="w-4 h-4" />
+              </Link>
             </Button>
             <Button
               asChild

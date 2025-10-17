@@ -27,6 +27,7 @@ import ReferralSystem from "@/components/ReferralSystem";
 import PremiumDialog from "@/components/PremiumDialog";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useToast } from "@/hooks/use-toast";
+import { NicknameSettings } from "@/components/NicknameSettings";
 
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 
@@ -143,6 +144,7 @@ const Profile = () => {
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">
+            <NicknameSettings userId={user.id} />
             <UserPreferences userId={user.id} />
             <ReferralSystem userId={user.id} />
             <BlockedUsers userId={user.id} />
