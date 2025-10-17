@@ -11,12 +11,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 import { useToast } from "@/hooks/use-toast";
 
 const Explore = () => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState("trending");
   const { user } = useCurrentUser();
+  useAnalyticsTracking(user?.id || null);
   const { isPremium } = usePremiumStatus(user?.id);
   const { toast } = useToast();
 

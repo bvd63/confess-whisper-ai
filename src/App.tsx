@@ -3,9 +3,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { InstagramBottomNav } from "./components/InstagramBottomNav";
+import { AnalyticsProvider } from "./components/AnalyticsProvider";
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
+import Admin from "./pages/Admin";
 import Bookmarks from "./pages/Bookmarks";
 import Following from "./pages/Following";
 import SearchUsers from "./pages/SearchUsers";
@@ -22,7 +24,8 @@ import NotFound from "./pages/NotFound";
 const App = () => (
   <ErrorBoundary>
     <TooltipProvider>
-      <Sonner />
+      <AnalyticsProvider>
+        <Sonner />
         <BrowserRouter>
           <div className="relative pb-16">
             <Routes>
@@ -31,7 +34,9 @@ const App = () => (
               <Route path="/explore" element={<Explore />} />
               <Route path="/compose" element={<Compose />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/u/:handle" element={<UserProfile />} />
               <Route path="/user/:userId" element={<UserProfile />} />
+              <Route path="/admin" element={<Admin />} />
               <Route path="/bookmarks" element={<Bookmarks />} />
               <Route path="/following" element={<Following />} />
               <Route path="/search-users" element={<SearchUsers />} />
@@ -46,7 +51,8 @@ const App = () => (
             <InstagramBottomNav />
           </div>
         </BrowserRouter>
-      </TooltipProvider>
+      </AnalyticsProvider>
+    </TooltipProvider>
   </ErrorBoundary>
 );
 
