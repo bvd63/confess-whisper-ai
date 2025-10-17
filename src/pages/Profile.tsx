@@ -75,7 +75,10 @@ const Profile = () => {
   if (!user) return null;
 
   return (
-    <AppLayout onNewConfession={() => setIsNewConfessionOpen(true)}>
+    <AppLayout 
+      onNewConfession={() => setIsNewConfessionOpen(true)}
+      onUpgradeClick={() => setPremiumDialogOpen(true)}
+    >
       <AchievementToast userId={user.id} />
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-4xl">

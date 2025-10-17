@@ -30,7 +30,10 @@ const Following = () => {
   }
 
   return (
-    <AppLayout onNewConfession={() => setIsNewConfessionOpen(true)}>
+    <AppLayout 
+      onNewConfession={() => setIsNewConfessionOpen(true)}
+      onUpgradeClick={() => setIsPremiumDialogOpen(true)}
+    >
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-4xl">
         <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
           <Users className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />

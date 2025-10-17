@@ -175,7 +175,10 @@ const Index = () => {
   return (
     <>
       <SEOHead />
-      <AppLayout onNewConfession={handleNewConfession}>
+      <AppLayout 
+        onNewConfession={handleNewConfession}
+        onUpgradeClick={() => setIsPremiumDialogOpen(true)}
+      >
 
       {/* Main Content with Pull to Refresh */}
       <main 

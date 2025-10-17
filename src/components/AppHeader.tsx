@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Heart, PlusCircle, LogOut, Crown, User, LogIn, BookMarked, Users, Home } from "lucide-react";
+import { Heart, PlusCircle, LogOut, Crown, User, LogIn, BookMarked, Users, Home, Sparkles } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -17,9 +17,10 @@ import { useHideOnScroll } from "@/hooks/useHideOnScroll";
 
 interface AppHeaderProps {
   onNewConfession?: () => void;
+  onUpgradeClick?: () => void;
 }
 
-const AppHeader = ({ onNewConfession }: AppHeaderProps) => {
+const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useLanguage();
@@ -134,11 +135,21 @@ const AppHeader = ({ onNewConfession }: AppHeaderProps) => {
             
             {user ? (
               <>
-                {isPremium && (
+                {isPremium ? (
                   <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-primary/20 to-primary/10 rounded-full border border-primary/30">
                     <Crown className="w-3 h-3 text-primary" />
                     <span className="text-xs font-medium text-primary">{t.premium_member}</span>
                   </div>
+                ) : (
+                  <Button
+                    onClick={onUpgradeClick}
+                    variant="outline"
+                    size="sm"
+                    className="hidden lg:flex items-center gap-1.5 border-primary/30 hover:bg-primary/10 h-9"
+                  >
+                    <Sparkles className="w-3 h-3 text-primary" />
+                    <span className="text-xs font-medium">{t.subscription_upgrade_premium}</span>
+                  </Button>
                 )}
                 
                 <Button
@@ -201,6 +212,16 @@ const AppHeader = ({ onNewConfession }: AppHeaderProps) => {
             <ThemeToggle />
             {user ? (
               <>
+                {!isPremium && (
+                  <Button
+                    onClick={onUpgradeClick}
+                    variant="outline"
+                    size="sm"
+                    className="border-primary/30 hover:bg-primary/10 h-8 px-2"
+                  >
+                    <Crown className="w-3 h-3 text-primary" />
+                  </Button>
+                )}
                 <NotificationsDropdown />
                 <Button
                   onClick={handleNewConfession}

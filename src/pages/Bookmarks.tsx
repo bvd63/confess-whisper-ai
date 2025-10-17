@@ -122,7 +122,10 @@ const Bookmarks = () => {
   };
 
   return (
-    <AppLayout onNewConfession={() => setIsNewConfessionOpen(true)}>
+    <AppLayout 
+      onNewConfession={() => setIsNewConfessionOpen(true)}
+      onUpgradeClick={() => setIsPremiumDialogOpen(true)}
+    >
       <main className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
         <div className="flex items-center gap-2 mb-6 sm:mb-8">
           <Bookmark className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
