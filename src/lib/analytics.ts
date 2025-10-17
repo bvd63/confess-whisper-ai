@@ -1,0 +1,99 @@
+import { supabase } from '@/integrations/supabase/client';
+
+type AnalyticsEvent = 
+  | 'confession_posted'
+  | 'ai_reply_shown'
+  | 'dm_sent'
+  | 'follow'
+  | 'profile_view'
+  | 'notification_deleted'
+  | 'checkout_completed'
+  | 'page_view'
+  | 'search'
+  | 'like'
+  | 'comment'
+  | 'share'
+  | 'bookmark'
+  | 'deep_insight_generated';
+
+interface AnalyticsEventData {
+  [key: string]: any;
+}
+
+class Analytics {
+  private queue: Array<{ event: AnalyticsEvent; data: AnalyticsEventData }> = [];
+  private flushInterval: NodeJS.Timeout | null = null;
+  private readonly BATCH_SIZE = 10;
+  private readonly FLUSH_INTERVAL = 5000; // 5 seconds
+
+  constructor() {
+    this.startFlushInterval();
+  }
+
+  private startFlushInterval() {
+    this.flushInterval = setInterval(() => {
+      this.flush();
+    }, this.FLUSH_INTERVAL);
+  }
+
+  track(event: AnalyticsEvent, data: AnalyticsEventData = {}) {
+    // Add to queue
+    this.queue.push({
+      event,
+      data: {
+        ...data,
+        timestamp: new Date().toISOString(),
+        url: window.location.href,
+        referrer: document.referrer,
+      },
+    });
+
+    // Flush if batch size reached
+    if (this.queue.length >= this.BATCH_SIZE) {
+      this.flush();
+    }
+  }
+
+  private async flush() {
+    if (this.queue.length === 0) return;
+
+    const batch = [...this.queue];
+    this.queue = [];
+
+    try {
+      // Send events to backend
+      await supabase.functions.invoke('analytics-event', {
+        body: { events: batch },
+      });
+    } catch (error) {
+      console.error('Analytics flush error:', error);
+      // Re-queue failed events (up to limit)
+      if (this.queue.length < 100) {
+        this.queue.unshift(...batch.slice(0, 50));
+      }
+    }
+  }
+
+  async identify(userId: string, traits: Record<string, any> = {}) {
+    this.track('page_view', {
+      user_id: userId,
+      ...traits,
+    });
+  }
+
+  cleanup() {
+    if (this.flushInterval) {
+      clearInterval(this.flushInterval);
+    }
+    this.flush();
+  }
+}
+
+export const analytics = new Analytics();
+
+// Cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    analytics.cleanup();
+  });
+}

@@ -107,10 +107,12 @@ export const useNotifications = (userId: string | null) => {
 
       if (error) throw error;
 
-      setNotifications(prev => prev.filter(n => n.id !== notificationId));
-      setUnreadCount(prev => {
-        const notification = notifications.find(n => n.id === notificationId);
-        return notification && !notification.is_read ? Math.max(0, prev - 1) : prev;
+      setNotifications(prev => {
+        const notification = prev.find(n => n.id === notificationId);
+        if (notification && !notification.is_read) {
+          setUnreadCount(current => Math.max(0, current - 1));
+        }
+        return prev.filter(n => n.id !== notificationId);
       });
 
       // Purge from cache
@@ -118,7 +120,7 @@ export const useNotifications = (userId: string | null) => {
     } catch (error) {
       console.error('Error deleting notification:', error);
     }
-  }, [notifications]);
+  }, []);
 
   const deleteAllNotifications = useCallback(async () => {
     if (!userId) return;
