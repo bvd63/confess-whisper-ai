@@ -427,6 +427,17 @@ type Translations = {
   profile_total_comments: string;
   profile_empty_state: string;
   profile_empty_description: string;
+  profile_email_label: string;
+  profile_change_password: string;
+  profile_current_password: string;
+  profile_new_password: string;
+  profile_confirm_password: string;
+  profile_password_changed: string;
+  profile_password_cooldown: string;
+  profile_password_mismatch: string;
+  profile_password_weak: string;
+  profile_password_same: string;
+  profile_hours_remaining: string;
   
   // Achievement Toast
   achievement_new_badge: string;
@@ -1014,6 +1025,17 @@ export const translations: Record<Language, Translations> = {
     profile_total_comments: "Total Comments",
     profile_empty_state: "No confessions yet",
     profile_empty_description: "Start sharing your thoughts anonymously",
+    profile_email_label: "Email Address",
+    profile_change_password: "Change Password",
+    profile_current_password: "Current Password",
+    profile_new_password: "New Password",
+    profile_confirm_password: "Confirm New Password",
+    profile_password_changed: "Password changed successfully",
+    profile_password_cooldown: "You can only change your password once every 24 hours",
+    profile_password_mismatch: "Passwords do not match",
+    profile_password_weak: "Password must be at least 6 characters",
+    profile_password_same: "New password must be different from current password",
+    profile_hours_remaining: "hours remaining until you can change your password",
     
     achievement_new_badge: "🏆 You earned a new badge!",
     
@@ -1987,6 +2009,17 @@ export const translations: Record<Language, Translations> = {
     profile_total_comments: "Total de Comentarios",
     profile_empty_state: "Sin confesiones aún",
     profile_empty_description: "Empieza a compartir tus pensamientos anónimamente",
+    profile_email_label: "Dirección de Email",
+    profile_change_password: "Cambiar Contraseña",
+    profile_current_password: "Contraseña Actual",
+    profile_new_password: "Nueva Contraseña",
+    profile_confirm_password: "Confirmar Nueva Contraseña",
+    profile_password_changed: "Contraseña cambiada exitosamente",
+    profile_password_cooldown: "Solo puedes cambiar tu contraseña una vez cada 24 horas",
+    profile_password_mismatch: "Las contraseñas no coinciden",
+    profile_password_weak: "La contraseña debe tener al menos 6 caracteres",
+    profile_password_same: "La nueva contraseña debe ser diferente de la actual",
+    profile_hours_remaining: "horas restantes hasta que puedas cambiar tu contraseña",
     
     achievement_new_badge: "🏆 ¡Has obtenido una nueva insignia!",
     
@@ -2738,6 +2771,17 @@ export const translations: Record<Language, Translations> = {
     profile_total_comments: "Gesamt Kommentare",
     profile_empty_state: "Noch keine Geständnisse",
     profile_empty_description: "Beginnen Sie, Ihre Gedanken anonym zu teilen",
+    profile_email_label: "E-Mail-Adresse",
+    profile_change_password: "Passwort Ändern",
+    profile_current_password: "Aktuelles Passwort",
+    profile_new_password: "Neues Passwort",
+    profile_confirm_password: "Neues Passwort Bestätigen",
+    profile_password_changed: "Passwort erfolgreich geändert",
+    profile_password_cooldown: "Du kannst dein Passwort nur alle 24 Stunden ändern",
+    profile_password_mismatch: "Passwörter stimmen nicht überein",
+    profile_password_weak: "Passwort muss mindestens 6 Zeichen lang sein",
+    profile_password_same: "Neues Passwort muss sich vom aktuellen unterscheiden",
+    profile_hours_remaining: "Stunden verbleibend, bis du dein Passwort ändern kannst",
     
     achievement_new_badge: "🏆 Du hast ein neues Abzeichen erhalten!",
     

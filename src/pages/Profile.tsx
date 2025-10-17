@@ -29,6 +29,8 @@ import PremiumDialog from "@/components/PremiumDialog";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useToast } from "@/hooks/use-toast";
 import { NicknameSettings } from "@/components/NicknameSettings";
+import { EmailDisplay } from "@/components/EmailDisplay";
+import { PasswordChange } from "@/components/PasswordChange";
 
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 
@@ -42,8 +44,30 @@ const Profile = () => {
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [premiumDialogOpen, setPremiumDialogOpen] = useState(false);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
+  const [passwordChangedAt, setPasswordChangedAt] = useState<string | null>(null);
   const { isModerator } = useUserRole(user?.id);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (user?.id) {
+      loadPasswordChangedAt();
+    }
+  }, [user?.id]);
+
+  const loadPasswordChangedAt = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('password_changed_at')
+        .eq('user_id', user!.id)
+        .single();
+
+      if (error) throw error;
+      setPasswordChangedAt(data?.password_changed_at || null);
+    } catch (error) {
+      console.error('Error loading password changed date:', error);
+    }
+  };
 
   const handleManageSubscription = async () => {
     try {
@@ -146,6 +170,11 @@ const Profile = () => {
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">
+            <EmailDisplay email={user.email || ''} />
+            <PasswordChange 
+              userId={user.id} 
+              passwordChangedAt={passwordChangedAt}
+            />
             <NicknameSettings userId={user.id} />
             <UserPreferences userId={user.id} />
             <ReferralSystem userId={user.id} />
