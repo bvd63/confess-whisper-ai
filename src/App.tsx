@@ -9,6 +9,7 @@ import Profile from "./pages/Profile";
 import Bookmarks from "./pages/Bookmarks";
 import Following from "./pages/Following";
 import SearchUsers from "./pages/SearchUsers";
+import Messages from "./pages/Messages";
 import Auth from "./pages/Auth";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/bookmarks" element={<Bookmarks />} />
             <Route path="/following" element={<Following />} />
             <Route path="/search-users" element={<SearchUsers />} />
+            <Route path="/messages" element={<Messages />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/payment-canceled" element={<PaymentCanceled />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />

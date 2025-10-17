@@ -1,11 +1,13 @@
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Search, User } from "lucide-react";
+import { Search, User, MessageCircle } from "lucide-react";
 import FollowButton from "@/components/FollowButton";
 import { useDebounce } from "@/hooks/useDebounce";
+import { Button } from "@/components/ui/button";
 
 interface UserSearchResult {
   user_id: string;
@@ -18,6 +20,7 @@ interface UserSearchProps {
 
 export const UserSearch = ({ currentUserId }: UserSearchProps) => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [results, setResults] = useState<UserSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -89,10 +92,20 @@ export const UserSearch = ({ currentUserId }: UserSearchProps) => {
                   <p className="font-medium">@{user.nickname}</p>
                 </div>
               </div>
-              <FollowButton
-                targetUserId={user.user_id}
-                currentUserId={currentUserId}
-              />
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate(`/messages?user=${user.user_id}`)}
+                  title={t.messages_title}
+                >
+                  <MessageCircle className="w-4 h-4" />
+                </Button>
+                <FollowButton
+                  targetUserId={user.user_id}
+                  currentUserId={currentUserId}
+                />
+              </div>
             </div>
           </Card>
         ))}
