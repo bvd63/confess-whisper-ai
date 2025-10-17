@@ -86,13 +86,17 @@ export const ConversationList = ({ currentUserId, onConversationSelect }: Conver
         ?.filter(p => p.user_id !== currentUserId)
         .map(p => p.user_id) || [];
 
-      // Get profiles for other users
+      // Get profiles for other users (deduplicate user IDs first)
+      const uniqueOtherUserIds = [...new Set(otherUserIds)];
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('user_id, nickname')
-        .in('user_id', otherUserIds);
+        .in('user_id', uniqueOtherUserIds);
 
-      if (profilesError) throw profilesError;
+      if (profilesError) {
+        console.error('Error loading profiles:', profilesError);
+        // Continue without profiles rather than throwing
+      }
 
       // Get last messages
       const { data: messages, error: messagesError } = await supabase
