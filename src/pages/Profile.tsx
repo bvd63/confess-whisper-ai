@@ -206,7 +206,6 @@ const Profile = () => {
               userId={user.id} 
               passwordChangedAt={passwordChangedAt}
             />
-            <NicknameSettings userId={user.id} />
             <UserPreferences userId={user.id} />
             <ReferralSystem userId={user.id} />
             <BlockedUsers userId={user.id} />

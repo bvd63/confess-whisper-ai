@@ -86,7 +86,19 @@ export const ProfileEditor = ({
       </div>
 
       <div className="space-y-4">
-        
+        <div>
+          <Label htmlFor="nickname">Nickname</Label>
+          <Input
+            id="nickname"
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+            placeholder="Your display name"
+            maxLength={50}
+          />
+          <p className="text-xs text-muted-foreground mt-1">
+            {nickname.length}/50
+          </p>
+        </div>
 
         <div>
           <Label htmlFor="bio">Bio</Label>
