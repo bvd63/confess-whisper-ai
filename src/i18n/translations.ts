@@ -605,6 +605,9 @@ type Translations = {
   coins_per_like_detail: string;
   coins_no_transactions: string;
   coins_all_transactions: string;
+  coins_confession_created: string;
+  coins_comment_added: string;
+  coins_like_received: string;
   
   // Following Feed
   following_feed_loading: string;
@@ -1444,6 +1447,9 @@ export const translations: Record<Language, Translations> = {
     coins_per_like_detail: "• 2 coins when you receive a like",
     coins_no_transactions: "No transactions yet",
     coins_all_transactions: "All your coin transactions",
+    coins_confession_created: "New confession",
+    coins_comment_added: "Comment added",
+    coins_like_received: "Like received",
     
     following_feed_loading: "Loading feed...",
     following_feed_start: "Start following users to see their confessions here",
@@ -2130,6 +2136,9 @@ export const translations: Record<Language, Translations> = {
     coins_per_like_detail: "• 2 monedas cuando recibes un me gusta",
     coins_no_transactions: "Aún no hay transacciones",
     coins_all_transactions: "Todas tus transacciones de monedas",
+    coins_confession_created: "Nueva confesión",
+    coins_comment_added: "Comentario añadido",
+    coins_like_received: "Me gusta recibido",
     
     following_feed_loading: "Cargando feed...",
     following_feed_start: "Comienza a seguir usuarios para ver sus confesiones aquí",
@@ -2850,6 +2859,9 @@ export const translations: Record<Language, Translations> = {
     coins_per_like_detail: "• 2 Münzen wenn du ein Like erhältst",
     coins_no_transactions: "Noch keine Transaktionen",
     coins_all_transactions: "Alle deine Münztransaktionen",
+    coins_confession_created: "Neues Geständnis",
+    coins_comment_added: "Kommentar hinzugefügt",
+    coins_like_received: "Like erhalten",
     
     following_feed_loading: "Lade Feed...",
     following_feed_start: "Beginne Benutzern zu folgen, um ihre Geständnisse hier zu sehen",

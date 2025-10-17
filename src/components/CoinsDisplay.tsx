@@ -171,33 +171,43 @@ const CoinsDisplay = ({ userId, variant = "compact" }: CoinsDisplayProps) => {
               </p>
             ) : (
               <div className="space-y-1.5 sm:space-y-2">
-                {transactions.map((transaction) => (
-                  <div
-                    key={transaction.id}
-                    className="flex items-center justify-between p-2.5 sm:p-3 bg-muted/50 rounded-lg"
-                  >
-                    <div className="flex-1 min-w-0 pr-2">
-                      <p className="text-xs sm:text-sm font-medium truncate">
-                        {transaction.description || transaction.type}
-                      </p>
-                      <p className="text-[10px] sm:text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(transaction.created_at), {
-                          addSuffix: true,
-                        })}
-                      </p>
-                    </div>
-                    <span
-                      className={`text-base sm:text-lg font-bold flex-shrink-0 ${
-                        transaction.amount > 0
-                          ? 'text-green-500'
-                          : 'text-red-500'
-                      }`}
+                {transactions.map((transaction) => {
+                  // Map transaction types to translation keys
+                  const getTransactionDescription = () => {
+                    if (transaction.type === 'confession_created') return t.coins_confession_created;
+                    if (transaction.type === 'comment_added') return t.coins_comment_added;
+                    if (transaction.type === 'like_received') return t.coins_like_received;
+                    return transaction.description || transaction.type;
+                  };
+
+                  return (
+                    <div
+                      key={transaction.id}
+                      className="flex items-center justify-between p-2.5 sm:p-3 bg-muted/50 rounded-lg"
                     >
-                      {transaction.amount > 0 ? '+' : ''}
-                      {transaction.amount}
-                    </span>
-                  </div>
-                ))}
+                      <div className="flex-1 min-w-0 pr-2">
+                        <p className="text-xs sm:text-sm font-medium truncate">
+                          {getTransactionDescription()}
+                        </p>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground">
+                          {formatDistanceToNow(new Date(transaction.created_at), {
+                            addSuffix: true,
+                          })}
+                        </p>
+                      </div>
+                      <span
+                        className={`text-base sm:text-lg font-bold flex-shrink-0 ${
+                          transaction.amount > 0
+                            ? 'text-green-500'
+                            : 'text-red-500'
+                        }`}
+                      >
+                        {transaction.amount > 0 ? '+' : ''}
+                        {transaction.amount}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </ScrollArea>
