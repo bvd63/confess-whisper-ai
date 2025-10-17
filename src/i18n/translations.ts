@@ -617,6 +617,8 @@ type Translations = {
   nickname_error: string;
   nickname_taken: string;
   nickname_invalid: string;
+  nickname_cooldown: string;
+  nickname_days_remaining: string;
   search_users: string;
   search_users_placeholder: string;
   no_users_found: string;
@@ -1481,6 +1483,8 @@ export const translations: Record<Language, Translations> = {
     nickname_error: "Error updating nickname",
     nickname_taken: "This nickname is already taken",
     nickname_invalid: "Nickname must be 3-20 characters (letters, numbers, _, .)",
+    nickname_cooldown: "You can only change your nickname once every 21 days",
+    nickname_days_remaining: "days remaining until you can change your nickname",
     search_users: "Search Users",
     search_users_placeholder: "Search by nickname...",
     no_users_found: "No users found",
@@ -2191,6 +2195,8 @@ export const translations: Record<Language, Translations> = {
     nickname_error: "Error al actualizar apodo",
     nickname_taken: "Este apodo ya está en uso",
     nickname_invalid: "El apodo debe tener 3-20 caracteres (letras, números, _, .)",
+    nickname_cooldown: "Solo puedes cambiar tu apodo una vez cada 21 días",
+    nickname_days_remaining: "días restantes hasta que puedas cambiar tu apodo",
     search_users: "Buscar Usuarios",
     search_users_placeholder: "Buscar por apodo...",
     no_users_found: "No se encontraron usuarios",
@@ -2935,6 +2941,8 @@ export const translations: Record<Language, Translations> = {
     nickname_error: "Fehler beim Aktualisieren des Spitznamens",
     nickname_taken: "Dieser Spitzname ist bereits vergeben",
     nickname_invalid: "Spitzname muss 3-20 Zeichen haben (Buchstaben, Zahlen, _, .)",
+    nickname_cooldown: "Du kannst deinen Spitznamen nur alle 21 Tage ändern",
+    nickname_days_remaining: "Tage verbleibend, bis du deinen Spitznamen ändern kannst",
     search_users: "Benutzer Suchen",
     search_users_placeholder: "Nach Spitznamen suchen...",
     no_users_found: "Keine Benutzer gefunden",
