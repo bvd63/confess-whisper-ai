@@ -9,6 +9,8 @@ import Bookmarks from "./pages/Bookmarks";
 import Following from "./pages/Following";
 import SearchUsers from "./pages/SearchUsers";
 import Messages from "./pages/Messages";
+import Explore from "./pages/Explore";
+import Compose from "./pages/Compose";
 import Auth from "./pages/Auth";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
@@ -25,6 +27,8 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/explore" element={<Explore />} />
+              <Route path="/compose" element={<Compose />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/bookmarks" element={<Bookmarks />} />
               <Route path="/following" element={<Following />} />
