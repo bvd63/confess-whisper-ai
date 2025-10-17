@@ -24,9 +24,9 @@ import NotFound from "./pages/NotFound";
 const App = () => (
   <ErrorBoundary>
     <TooltipProvider>
-      <AnalyticsProvider>
-        <Sonner />
-        <BrowserRouter>
+      <Sonner />
+      <BrowserRouter>
+        <AnalyticsProvider>
           <div className="relative pb-16">
             <Routes>
               <Route path="/" element={<Index />} />
@@ -50,8 +50,8 @@ const App = () => (
             </Routes>
             <InstagramBottomNav />
           </div>
-        </BrowserRouter>
-      </AnalyticsProvider>
+        </AnalyticsProvider>
+      </BrowserRouter>
     </TooltipProvider>
   </ErrorBoundary>
 );
