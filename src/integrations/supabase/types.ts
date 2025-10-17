@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_usage: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          id: string
+          language: string | null
+          tokens_used: number | null
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          id?: string
+          language?: string | null
+          tokens_used?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          id?: string
+          language?: string | null
+          tokens_used?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       analytics_events: {
         Row: {
           created_at: string
@@ -99,6 +126,13 @@ export type Database = {
             foreignKeyName: "bookmarks_confession_id_fkey"
             columns: ["confession_id"]
             isOneToOne: false
+            referencedRelation: "hot_confessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookmarks_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
             referencedRelation: "trending_confessions"
             referencedColumns: ["id"]
           },
@@ -165,6 +199,13 @@ export type Database = {
             columns: ["confession_id"]
             isOneToOne: false
             referencedRelation: "confessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "hot_confessions"
             referencedColumns: ["id"]
           },
           {
@@ -246,6 +287,13 @@ export type Database = {
             foreignKeyName: "confession_reactions_confession_id_fkey"
             columns: ["confession_id"]
             isOneToOne: false
+            referencedRelation: "hot_confessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "confession_reactions_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
             referencedRelation: "trending_confessions"
             referencedColumns: ["id"]
           },
@@ -291,6 +339,13 @@ export type Database = {
             columns: ["confession_id"]
             isOneToOne: false
             referencedRelation: "confessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "confession_reports_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "hot_confessions"
             referencedColumns: ["id"]
           },
           {
@@ -526,6 +581,71 @@ export type Database = {
             foreignKeyName: "moderation_logs_confession_id_fkey"
             columns: ["confession_id"]
             isOneToOne: false
+            referencedRelation: "hot_confessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moderation_logs_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "trending_confessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      moderation_queue: {
+        Row: {
+          ai_reason: string | null
+          confession_id: string | null
+          content: string
+          created_at: string | null
+          id: string
+          moderation_level: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+        }
+        Insert: {
+          ai_reason?: string | null
+          confession_id?: string | null
+          content: string
+          created_at?: string | null
+          id?: string
+          moderation_level: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+        }
+        Update: {
+          ai_reason?: string | null
+          confession_id?: string | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          moderation_level?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moderation_queue_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "confessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moderation_queue_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "hot_confessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moderation_queue_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
             referencedRelation: "trending_confessions"
             referencedColumns: ["id"]
           },
@@ -562,6 +682,13 @@ export type Database = {
             columns: ["confession_id"]
             isOneToOne: false
             referencedRelation: "confessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mood_entries_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "hot_confessions"
             referencedColumns: ["id"]
           },
           {
@@ -610,6 +737,13 @@ export type Database = {
             columns: ["confession_id"]
             isOneToOne: false
             referencedRelation: "confessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "hot_confessions"
             referencedColumns: ["id"]
           },
           {
@@ -776,6 +910,45 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_entitlements: {
+        Row: {
+          ai_insights_quota: number | null
+          ai_insights_used: number | null
+          created_at: string | null
+          features: Json | null
+          id: string
+          stripe_subscription_id: string | null
+          tier: string | null
+          updated_at: string | null
+          user_id: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          ai_insights_quota?: number | null
+          ai_insights_used?: number | null
+          created_at?: string | null
+          features?: Json | null
+          id?: string
+          stripe_subscription_id?: string | null
+          tier?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          ai_insights_quota?: number | null
+          ai_insights_used?: number | null
+          created_at?: string | null
+          features?: Json | null
+          id?: string
+          stripe_subscription_id?: string | null
+          tier?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
       subscription_plans: {
         Row: {
           created_at: string
@@ -938,6 +1111,13 @@ export type Database = {
             foreignKeyName: "user_likes_confession_id_fkey"
             columns: ["confession_id"]
             isOneToOne: false
+            referencedRelation: "hot_confessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_likes_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
             referencedRelation: "trending_confessions"
             referencedColumns: ["id"]
           },
@@ -1029,6 +1209,32 @@ export type Database = {
       }
     }
     Views: {
+      hot_confessions: {
+        Row: {
+          ai_deep_insight: string | null
+          ai_response: string | null
+          category: string | null
+          comments_count: number | null
+          content: string | null
+          created_at: string | null
+          hot_score: number | null
+          id: string | null
+          image_blurred: boolean | null
+          image_url: string | null
+          is_draft: boolean | null
+          is_private: boolean | null
+          is_reported: boolean | null
+          likes_count: number | null
+          moderated_at: string | null
+          moderated_by: string | null
+          moderation_status: string | null
+          shared_count: number | null
+          updated_at: string | null
+          user_id: string | null
+          views_count: number | null
+        }
+        Relationships: []
+      }
       trending_confessions: {
         Row: {
           ai_deep_insight: string | null
@@ -1154,6 +1360,10 @@ export type Database = {
       is_conversation_participant: {
         Args: { conversation_uuid: string; user_uuid: string }
         Returns: boolean
+      }
+      refresh_hot_confessions: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {
