@@ -28,6 +28,7 @@ export const useNotifications = (userId: string | null) => {
         .from('notifications')
         .select('*')
         .eq('user_id', userId)
+        .is('deleted_at', null)
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -85,7 +86,8 @@ export const useNotifications = (userId: string | null) => {
         .from('notifications')
         .update({ is_read: true })
         .eq('user_id', userId)
-        .eq('is_read', false);
+        .eq('is_read', false)
+        .is('deleted_at', null);
 
       if (error) throw error;
 
@@ -93,6 +95,55 @@ export const useNotifications = (userId: string | null) => {
       setUnreadCount(0);
     } catch (error) {
       console.error('Error marking all as read:', error);
+    }
+  }, [userId]);
+
+  const deleteNotification = useCallback(async (notificationId: string) => {
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', notificationId);
+
+      if (error) throw error;
+
+      setNotifications(prev => prev.filter(n => n.id !== notificationId));
+      setUnreadCount(prev => {
+        const notification = notifications.find(n => n.id === notificationId);
+        return notification && !notification.is_read ? Math.max(0, prev - 1) : prev;
+      });
+
+      // Purge from cache
+      localStorage.removeItem(`notification_${notificationId}`);
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+    }
+  }, [notifications]);
+
+  const deleteAllNotifications = useCallback(async () => {
+    if (!userId) return;
+
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('user_id', userId)
+        .is('deleted_at', null);
+
+      if (error) throw error;
+
+      setNotifications([]);
+      setUnreadCount(0);
+
+      // Purge all notification cache
+      const keys = Object.keys(localStorage);
+      keys.forEach(key => {
+        if (key.startsWith('notification_')) {
+          localStorage.removeItem(key);
+        }
+      });
+    } catch (error) {
+      console.error('Error deleting all notifications:', error);
     }
   }, [userId]);
 
@@ -127,6 +178,8 @@ export const useNotifications = (userId: string | null) => {
     isLoading,
     markAsRead,
     markAllAsRead,
+    deleteNotification,
+    deleteAllNotifications,
     reload: loadNotifications,
   };
 };

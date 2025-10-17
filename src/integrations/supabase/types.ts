@@ -65,6 +65,24 @@ export type Database = {
         }
         Relationships: []
       }
+      app_state: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           created_at: string | null
@@ -430,6 +448,8 @@ export type Database = {
         Row: {
           conversation_id: string
           id: string
+          is_blocked: boolean | null
+          is_muted: boolean | null
           joined_at: string
           last_read_at: string | null
           user_id: string
@@ -437,6 +457,8 @@ export type Database = {
         Insert: {
           conversation_id: string
           id?: string
+          is_blocked?: boolean | null
+          is_muted?: boolean | null
           joined_at?: string
           last_read_at?: string | null
           user_id: string
@@ -444,6 +466,8 @@ export type Database = {
         Update: {
           conversation_id?: string
           id?: string
+          is_blocked?: boolean | null
+          is_muted?: boolean | null
           joined_at?: string
           last_read_at?: string | null
           user_id?: string
@@ -506,13 +530,47 @@ export type Database = {
         }
         Relationships: []
       }
+      message_typing_status: {
+        Row: {
+          conversation_id: string
+          id: string
+          is_typing: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          id?: string
+          is_typing?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          id?: string
+          is_typing?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_typing_status_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
           conversation_id: string
           created_at: string
+          edited_at: string | null
           id: string
           is_read: boolean
+          read_at: string | null
           sender_id: string
           updated_at: string
         }
@@ -520,8 +578,10 @@ export type Database = {
           content: string
           conversation_id: string
           created_at?: string
+          edited_at?: string | null
           id?: string
           is_read?: boolean
+          read_at?: string | null
           sender_id: string
           updated_at?: string
         }
@@ -529,8 +589,10 @@ export type Database = {
           content?: string
           conversation_id?: string
           created_at?: string
+          edited_at?: string | null
           id?: string
           is_read?: boolean
+          read_at?: string | null
           sender_id?: string
           updated_at?: string
         }
@@ -705,6 +767,7 @@ export type Database = {
           comment_content: string | null
           confession_id: string | null
           created_at: string
+          deleted_at: string | null
           id: string
           is_read: boolean
           triggered_by: string | null
@@ -715,6 +778,7 @@ export type Database = {
           comment_content?: string | null
           confession_id?: string | null
           created_at?: string
+          deleted_at?: string | null
           id?: string
           is_read?: boolean
           triggered_by?: string | null
@@ -725,6 +789,7 @@ export type Database = {
           comment_content?: string | null
           confession_id?: string | null
           created_at?: string
+          deleted_at?: string | null
           id?: string
           is_read?: boolean
           triggered_by?: string | null
@@ -787,12 +852,20 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
+          bio: string | null
           created_at: string
+          followers_count: number | null
+          following_count: number | null
+          handle: string | null
           id: string
           is_premium: boolean | null
+          is_shadow_banned: boolean | null
           nickname: string | null
           nickname_updated_at: string | null
           password_changed_at: string | null
+          posts_count: number | null
+          privacy_mode: string | null
           referral_code: string | null
           referred_by: string | null
           stripe_customer_id: string | null
@@ -805,12 +878,20 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          avatar_url?: string | null
+          bio?: string | null
           created_at?: string
+          followers_count?: number | null
+          following_count?: number | null
+          handle?: string | null
           id?: string
           is_premium?: boolean | null
+          is_shadow_banned?: boolean | null
           nickname?: string | null
           nickname_updated_at?: string | null
           password_changed_at?: string | null
+          posts_count?: number | null
+          privacy_mode?: string | null
           referral_code?: string | null
           referred_by?: string | null
           stripe_customer_id?: string | null
@@ -823,12 +904,20 @@ export type Database = {
           user_id: string
         }
         Update: {
+          avatar_url?: string | null
+          bio?: string | null
           created_at?: string
+          followers_count?: number | null
+          following_count?: number | null
+          handle?: string | null
           id?: string
           is_premium?: boolean | null
+          is_shadow_banned?: boolean | null
           nickname?: string | null
           nickname_updated_at?: string | null
           password_changed_at?: string | null
+          posts_count?: number | null
+          privacy_mode?: string | null
           referral_code?: string | null
           referred_by?: string | null
           stripe_customer_id?: string | null
@@ -839,6 +928,39 @@ export type Database = {
           subscription_tier?: string | null
           total_referrals?: number | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      quotes: {
+        Row: {
+          author: string | null
+          category: string | null
+          created_at: string
+          id: string
+          text_de: string
+          text_en: string
+          text_es: string
+          used_count: number | null
+        }
+        Insert: {
+          author?: string | null
+          category?: string | null
+          created_at?: string
+          id?: string
+          text_de: string
+          text_en: string
+          text_es: string
+          used_count?: number | null
+        }
+        Update: {
+          author?: string | null
+          category?: string | null
+          created_at?: string
+          id?: string
+          text_de?: string
+          text_en?: string
+          text_es?: string
+          used_count?: number | null
         }
         Relationships: []
       }
@@ -1331,6 +1453,15 @@ export type Database = {
         }
         Relationships: []
       }
+      user_post_counts: {
+        Row: {
+          post_count: number | null
+          posts_this_month: number | null
+          posts_this_week: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       award_coins: {
@@ -1366,6 +1497,10 @@ export type Database = {
       delete_conversation: {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
+      }
+      generate_unique_handle: {
+        Args: { base_nickname: string }
+        Returns: string
       }
       get_hot_confessions: {
         Args: { limit_count?: number }
