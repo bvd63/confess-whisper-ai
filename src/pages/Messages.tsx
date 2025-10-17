@@ -96,6 +96,17 @@ const Messages = () => {
 
   const loadOtherUserInfo = async (userId: string) => {
     try {
+      // Prefer secure RPC to avoid any RLS edge cases
+      const { data: nickname, error: rpcError } = await supabase.rpc('get_user_nickname', {
+        _target_user_id: userId,
+      });
+
+      if (!rpcError && nickname) {
+        setOtherUserNickname(nickname as string);
+        return;
+      }
+
+      // Fallback to direct select (should also work with policies)
       const { data, error } = await supabase
         .from('profiles')
         .select('nickname')
@@ -106,6 +117,7 @@ const Messages = () => {
       setOtherUserNickname(data?.nickname || null);
     } catch (error) {
       console.error('Error loading user info:', error);
+      setOtherUserNickname(null);
     }
   };
 

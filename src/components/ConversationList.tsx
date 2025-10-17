@@ -121,7 +121,7 @@ export const ConversationList = ({ currentUserId, onConversationSelect }: Conver
       if (messagesError) throw messagesError;
 
       // Build conversations list
-      const conversationsList: Conversation[] = conversationIds.map(convId => {
+      const baseList: Conversation[] = conversationIds.map(convId => {
         const otherParticipant = allParticipants?.find(
           p => p.conversation_id === convId && p.user_id !== currentUserId
         );
@@ -138,6 +138,19 @@ export const ConversationList = ({ currentUserId, onConversationSelect }: Conver
           unread_count: 0
         };
       });
+
+      // Fill missing nicknames via RPC (handles any RLS edge cases)
+      const conversationsList: Conversation[] = await Promise.all(
+        baseList.map(async (c) => {
+          if (!c.other_user_nickname && c.other_user_id) {
+            const { data: nickname } = await supabase.rpc('get_user_nickname', {
+              _target_user_id: c.other_user_id,
+            });
+            return { ...c, other_user_nickname: (nickname as string) || c.other_user_nickname };
+          }
+          return c;
+        })
+      );
 
       // Sort by most recent
       conversationsList.sort((a, b) => 

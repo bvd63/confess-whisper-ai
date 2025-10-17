@@ -68,19 +68,16 @@ const NotificationsDropdown = () => {
 
       if (error) throw error;
 
-      // Fetch nicknames for users who triggered notifications
+      // Fetch nicknames (via secure RPC) for users who triggered notifications
       const notificationsWithNicknames = await Promise.all(
         (data || []).map(async (notification) => {
           if (notification.triggered_by) {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('nickname')
-              .eq('user_id', notification.triggered_by)
-              .single();
-            
+            const { data: nickname } = await supabase.rpc('get_user_nickname', {
+              _target_user_id: notification.triggered_by,
+            });
             return {
               ...notification,
-              triggered_by_nickname: profile?.nickname || null
+              triggered_by_nickname: (nickname as string) || null,
             };
           }
           return notification;
@@ -88,7 +85,7 @@ const NotificationsDropdown = () => {
       );
 
       setNotifications(notificationsWithNicknames);
-      setUnreadCount(notificationsWithNicknames?.filter(n => !n.is_read).length || 0);
+      setUnreadCount(notificationsWithNicknames?.filter((n) => !n.is_read).length || 0);
     } catch (error) {
       console.error('Error loading notifications:', error);
     }
