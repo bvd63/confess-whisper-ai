@@ -105,18 +105,23 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
                   </Link>
                 </Button>
                 <Button
-                  asChild
                   variant="ghost"
                   size="icon"
+                  onClick={() => {
+                    if (!user) {
+                      toast({ title: t.error_auth, description: t.error_auth });
+                      navigate('/auth');
+                      return;
+                    }
+                    navigate('/following');
+                  }}
                   className={cn(
                     "h-9 w-9 text-muted-foreground hover:text-foreground transition-colors",
                     isActive('/following') && "bg-accent text-foreground"
                   )}
                   title={t.ui_following_feed}
                 >
-                  <Link to="/following">
-                    <Users className="w-4 h-4" />
-                  </Link>
+                  <Users className="w-4 h-4" />
                 </Button>
                 <Button
                   asChild
@@ -282,17 +287,22 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
               </Link>
             </Button>
             <Button
-              asChild
               variant="ghost"
               size="sm"
+              onClick={() => {
+                if (!user) {
+                  toast({ title: t.error_auth, description: t.error_auth });
+                  navigate('/auth');
+                  return;
+                }
+                navigate('/following');
+              }}
               className={cn(
                 "flex-1 h-9 text-muted-foreground hover:text-foreground transition-colors",
                 isActive('/following') && "bg-accent text-foreground"
               )}
             >
-              <Link to="/following">
-                <Users className="w-4 h-4" />
-              </Link>
+              <Users className="w-4 h-4" />
             </Button>
             <Button
               asChild
