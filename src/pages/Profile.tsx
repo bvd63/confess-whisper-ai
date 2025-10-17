@@ -7,6 +7,7 @@ import AppLayout from "@/components/AppLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useMessageNotifications } from "@/hooks/useMessageNotifications";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useSubscriptionCheck } from "@/hooks/useSubscriptionCheck";
 import UserConfessionsList from "@/components/UserConfessionsList";
@@ -37,6 +38,7 @@ const Profile = () => {
   const { user } = useCurrentUser();
   const { isPremium, subscriptionTier, isVIP } = usePremiumStatus(user?.id);
   const { checkSubscription } = useSubscriptionCheck(user?.id);
+  useMessageNotifications({ userId: user?.id });
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [premiumDialogOpen, setPremiumDialogOpen] = useState(false);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);

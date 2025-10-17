@@ -108,6 +108,14 @@ const NotificationsDropdown = () => {
 
   const handleNotificationClick = async (notification: Notification) => {
     await markAsRead(notification.id);
+    
+    // For message notifications, navigate to messages
+    if (notification.type === 'comment' && notification.triggered_by) {
+      navigate(`/messages?user=${notification.triggered_by}`);
+      setIsOpen(false);
+      return;
+    }
+    
     setIsOpen(false);
     // Navigate to the confession (could be implemented to scroll to specific confession)
     navigate('/');
@@ -130,6 +138,8 @@ const NotificationsDropdown = () => {
         return <Heart className="w-4 h-4 text-primary" />;
       case 'comment':
         return <MessageSquare className="w-4 h-4 text-primary" />;
+      case 'follow':
+        return <Bell className="w-4 h-4 text-purple-500" />;
       default:
         return <Bell className="w-4 h-4 text-primary" />;
     }
@@ -140,6 +150,11 @@ const NotificationsDropdown = () => {
       case 'like':
         return t.notification_like;
       case 'comment':
+        // Check if it's a message notification (has comment_content and triggered_by)
+        if (notification.comment_content && notification.triggered_by) {
+          const preview = notification.comment_content.substring(0, 40);
+          return `Mesaj nou: ${preview}${notification.comment_content.length > 40 ? '...' : ''}`;
+        }
         return t.notification_comment;
       case 'follow':
         return t.notification_followed;
