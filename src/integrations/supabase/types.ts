@@ -235,6 +235,86 @@ export type Database = {
           },
         ]
       }
+      communities: {
+        Row: {
+          category: string
+          cover_image: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_private: boolean | null
+          member_count: number | null
+          name: string
+          post_count: number | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          cover_image?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_private?: boolean | null
+          member_count?: number | null
+          name: string
+          post_count?: number | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          cover_image?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_private?: boolean | null
+          member_count?: number | null
+          name?: string
+          post_count?: number | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      community_members: {
+        Row: {
+          community_id: string
+          id: string
+          joined_at: string
+          role: string | null
+          user_id: string
+        }
+        Insert: {
+          community_id: string
+          id?: string
+          joined_at?: string
+          role?: string | null
+          user_id: string
+        }
+        Update: {
+          community_id?: string
+          id?: string
+          joined_at?: string
+          role?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_members_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       confession_drafts: {
         Row: {
           category: string
@@ -381,6 +461,7 @@ export type Database = {
           ai_response: string | null
           category: string
           comments_count: number
+          community_id: string | null
           content: string
           created_at: string
           id: string
@@ -390,6 +471,11 @@ export type Database = {
           is_private: boolean | null
           is_reported: boolean | null
           likes_count: number | null
+          location_city: string | null
+          location_country: string | null
+          location_enabled: boolean | null
+          location_lat: number | null
+          location_lng: number | null
           moderated_at: string | null
           moderated_by: string | null
           moderation_status: string | null
@@ -403,6 +489,7 @@ export type Database = {
           ai_response?: string | null
           category?: string
           comments_count?: number
+          community_id?: string | null
           content: string
           created_at?: string
           id?: string
@@ -412,6 +499,11 @@ export type Database = {
           is_private?: boolean | null
           is_reported?: boolean | null
           likes_count?: number | null
+          location_city?: string | null
+          location_country?: string | null
+          location_enabled?: boolean | null
+          location_lat?: number | null
+          location_lng?: number | null
           moderated_at?: string | null
           moderated_by?: string | null
           moderation_status?: string | null
@@ -425,6 +517,7 @@ export type Database = {
           ai_response?: string | null
           category?: string
           comments_count?: number
+          community_id?: string | null
           content?: string
           created_at?: string
           id?: string
@@ -434,6 +527,11 @@ export type Database = {
           is_private?: boolean | null
           is_reported?: boolean | null
           likes_count?: number | null
+          location_city?: string | null
+          location_country?: string | null
+          location_enabled?: boolean | null
+          location_lat?: number | null
+          location_lng?: number | null
           moderated_at?: string | null
           moderated_by?: string | null
           moderation_status?: string | null
@@ -442,7 +540,15 @@ export type Database = {
           user_id?: string | null
           views_count?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "confessions_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       conversation_participants: {
         Row: {
