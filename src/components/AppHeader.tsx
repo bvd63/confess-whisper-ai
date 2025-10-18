@@ -9,6 +9,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import NotificationsDropdown from "@/components/NotificationsDropdown";
 import CoinsDisplay from "@/components/CoinsDisplay";
 import StreakCounter from "@/components/StreakCounter";
+import { SyncStatusIndicator } from "@/components/SyncStatusIndicator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -172,6 +173,7 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
           
           {/* Right - Actions */}
           <div className="flex items-center gap-1 lg:gap-2 justify-end">
+            <SyncStatusIndicator />
             <LanguageSelector />
             <ThemeToggle />
             

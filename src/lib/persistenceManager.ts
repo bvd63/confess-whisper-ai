@@ -3,6 +3,8 @@
  * Handles all local and server-side data persistence with sync capabilities
  */
 
+import { persistenceMonitor } from './persistenceMonitor';
+
 interface PersistenceOptions {
   ttl?: number; // Time to live in milliseconds
   syncWithServer?: boolean;
@@ -61,51 +63,55 @@ class PersistenceManager {
 
   // Generic set method
   async set<T>(store: string, key: string, value: T, options: PersistenceOptions = {}): Promise<void> {
-    const db = await this.ensureDB();
-    const transaction = db.transaction([store], 'readwrite');
-    const objectStore = transaction.objectStore(store);
+    return persistenceMonitor.trackOperation(`set:${store}:${key}`, async () => {
+      const db = await this.ensureDB();
+      const transaction = db.transaction([store], 'readwrite');
+      const objectStore = transaction.objectStore(store);
 
-    const cachedItem: CachedItem<T> = {
-      data: value,
-      timestamp: Date.now(),
-      version: 1
-    };
+      const cachedItem: CachedItem<T> = {
+        data: value,
+        timestamp: Date.now(),
+        version: 1
+      };
 
-    return new Promise((resolve, reject) => {
-      const request = objectStore.put({ key, ...cachedItem });
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
+      return new Promise((resolve, reject) => {
+        const request = objectStore.put({ key, ...cachedItem });
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
     });
   }
 
   // Generic get method
   async get<T>(store: string, key: string, ttl?: number): Promise<T | null> {
-    const db = await this.ensureDB();
-    const transaction = db.transaction([store], 'readonly');
-    const objectStore = transaction.objectStore(store);
+    return persistenceMonitor.trackOperation(`get:${store}:${key}`, async () => {
+      const db = await this.ensureDB();
+      const transaction = db.transaction([store], 'readonly');
+      const objectStore = transaction.objectStore(store);
 
-    return new Promise((resolve, reject) => {
-      const request = objectStore.get(key);
-      
-      request.onsuccess = () => {
-        const result = request.result as (CachedItem<T> & { key: string }) | undefined;
+      return new Promise((resolve, reject) => {
+        const request = objectStore.get(key);
         
-        if (!result) {
-          resolve(null);
-          return;
-        }
+        request.onsuccess = () => {
+          const result = request.result as (CachedItem<T> & { key: string }) | undefined;
+          
+          if (!result) {
+            resolve(null);
+            return;
+          }
 
-        // Check TTL
-        if (ttl && Date.now() - result.timestamp > ttl) {
-          this.remove(store, key);
-          resolve(null);
-          return;
-        }
+          // Check TTL
+          if (ttl && Date.now() - result.timestamp > ttl) {
+            this.remove(store, key);
+            resolve(null);
+            return;
+          }
 
-        resolve(result.data);
-      };
-      
-      request.onerror = () => reject(request.error);
+          resolve(result.data);
+        };
+        
+        request.onerror = () => reject(request.error);
+      });
     });
   }
 

@@ -14,6 +14,7 @@ interface QueuedOperation {
   retryCount: number;
   maxRetries: number;
   createdAt: number;
+  lastRetryAt?: number;
 }
 
 class OfflineQueue {
@@ -120,6 +121,17 @@ class OfflineQueue {
     while (this.queue.length > 0 && navigator.onLine) {
       const op = this.queue[0];
 
+      // Check if enough time has passed since last retry (exponential backoff)
+      if (op.lastRetryAt) {
+        const backoffMs = Math.min(1000 * Math.pow(2, op.retryCount), 30000);
+        if (Date.now() - op.lastRetryAt < backoffMs) {
+          // Not ready to retry yet, skip to next operation
+          const skippedOp = this.queue.shift()!;
+          this.queue.push(skippedOp);
+          continue;
+        }
+      }
+
       try {
         // Execute the operation
         await op.operation();
@@ -132,8 +144,9 @@ class OfflineQueue {
       } catch (error) {
         console.error(`❌ Failed to process operation ${op.type}:`, error);
 
-        // Increment retry count
+        // Increment retry count and track last retry time
         op.retryCount++;
+        op.lastRetryAt = Date.now();
 
         if (op.retryCount >= op.maxRetries) {
           // Max retries reached - remove from queue
@@ -141,9 +154,14 @@ class OfflineQueue {
           this.queue.shift();
           await persistenceManager.remove('state', `queue_${op.id}`);
         } else {
-          // Retry later
-          await new Promise(resolve => setTimeout(resolve, this.retryDelay));
+          // Move to end of queue for exponential backoff
+          const failedOp = this.queue.shift()!;
+          this.queue.push(failedOp);
+          await persistenceManager.set('state', `queue_${op.id}`, failedOp);
         }
+
+        // Stop processing on error (will retry on next network event)
+        break;
       }
     }
 
