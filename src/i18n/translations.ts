@@ -998,6 +998,64 @@ type Translations = {
   content_review_notice_title: string;
   content_blocked_title: string;
   moderation_reason_label: string;
+  
+  // Communities
+  communities_title: string;
+  communities_discover: string;
+  communities_create: string;
+  communities_category: string;
+  communities_name: string;
+  communities_description: string;
+  communities_icon: string;
+  communities_private: string;
+  communities_creating: string;
+  communities_create_success: string;
+  communities_create_error: string;
+  communities_join: string;
+  communities_leave: string;
+  communities_members: string;
+  communities_posts: string;
+  communities_not_found: string;
+  communities_back: string;
+  communities_no_posts: string;
+  communities_first_post: string;
+  communities_recent: string;
+  communities_create_confession: string;
+  communities_filter_all: string;
+  communities_filter_mental_health: string;
+  communities_filter_relationships: string;
+  communities_filter_work: string;
+  communities_filter_general: string;
+  
+  // Location
+  location_add: string;
+  location_detecting: string;
+  location_detected: string;
+  location_error: string;
+  location_error_permission: string;
+  location_city: string;
+  
+  // Nearby Confessions
+  nearby_title: string;
+  nearby_discover: string;
+  nearby_radius: string;
+  nearby_within_km: string;
+  nearby_list_view: string;
+  nearby_map_view: string;
+  nearby_map_coming_soon: string;
+  nearby_no_location: string;
+  nearby_enable_location: string;
+  nearby_none_found: string;
+  nearby_increase_radius: string;
+  nearby_distance_km: string;
+  
+  // Quick Actions
+  quick_action_new: string;
+  quick_action_explore: string;
+  quick_action_messages: string;
+  quick_action_search: string;
+  quick_action_communities: string;
+  quick_action_nearby: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -1883,6 +1941,64 @@ export const translations: Record<Language, Translations> = {
     content_review_notice_title: "Content Review Notice",
     content_blocked_title: "Content Blocked",
     moderation_reason_label: "Reason:",
+    
+    // Communities
+    communities_title: "Communities",
+    communities_discover: "Discover communities that share your interests",
+    communities_create: "Create Community",
+    communities_category: "Category",
+    communities_name: "Community Name",
+    communities_description: "Description",
+    communities_icon: "Icon (emoji)",
+    communities_private: "Private Community",
+    communities_creating: "Creating...",
+    communities_create_success: "Community created successfully",
+    communities_create_error: "Failed to create community",
+    communities_join: "Join",
+    communities_leave: "Leave",
+    communities_members: "members",
+    communities_posts: "posts",
+    communities_not_found: "Community not found",
+    communities_back: "Back to Communities",
+    communities_no_posts: "No confessions yet. Be the first to share!",
+    communities_first_post: "Be the first to share!",
+    communities_recent: "Recent Confessions",
+    communities_create_confession: "Create Confession",
+    communities_filter_all: "All",
+    communities_filter_mental_health: "Mental Health",
+    communities_filter_relationships: "Relationships",
+    communities_filter_work: "Work & Career",
+    communities_filter_general: "General",
+    
+    // Location
+    location_add: "Add location (optional)",
+    location_detecting: "Detecting location...",
+    location_detected: "Location detected",
+    location_error: "Location error",
+    location_error_permission: "Could not get your location. Please enable location permissions.",
+    location_city: "Location",
+    
+    // Nearby Confessions
+    nearby_title: "Nearby Confessions",
+    nearby_discover: "Discover confessions from people around you",
+    nearby_radius: "Radius",
+    nearby_within_km: "Within {km} km",
+    nearby_list_view: "List",
+    nearby_map_view: "Map",
+    nearby_map_coming_soon: "Map view coming soon",
+    nearby_no_location: "Could not get your location",
+    nearby_enable_location: "Please enable location permissions to see nearby confessions",
+    nearby_none_found: "No nearby confessions found",
+    nearby_increase_radius: "Try increasing the search radius or check back later",
+    nearby_distance_km: "{distance} km",
+    
+    // Quick Actions
+    quick_action_new: "New",
+    quick_action_explore: "Explore",
+    quick_action_messages: "Messages",
+    quick_action_search: "Search",
+    quick_action_communities: "Communities",
+    quick_action_nearby: "Nearby",
   },
   es: {
     app_name: "Confess+",
@@ -2768,6 +2884,64 @@ export const translations: Record<Language, Translations> = {
     content_review_notice_title: "Aviso de Revisión de Contenido",
     content_blocked_title: "Contenido Bloqueado",
     moderation_reason_label: "Razón:",
+    
+    // Communities
+    communities_title: "Comunidades",
+    communities_discover: "Descubre comunidades que comparten tus intereses",
+    communities_create: "Crear Comunidad",
+    communities_category: "Categoría",
+    communities_name: "Nombre de la Comunidad",
+    communities_description: "Descripción",
+    communities_icon: "Ícono (emoji)",
+    communities_private: "Comunidad Privada",
+    communities_creating: "Creando...",
+    communities_create_success: "Comunidad creada exitosamente",
+    communities_create_error: "Error al crear la comunidad",
+    communities_join: "Unirse",
+    communities_leave: "Salir",
+    communities_members: "miembros",
+    communities_posts: "publicaciones",
+    communities_not_found: "Comunidad no encontrada",
+    communities_back: "Volver a Comunidades",
+    communities_no_posts: "Aún no hay confesiones. ¡Sé el primero en compartir!",
+    communities_first_post: "¡Sé el primero en compartir!",
+    communities_recent: "Confesiones Recientes",
+    communities_create_confession: "Crear Confesión",
+    communities_filter_all: "Todas",
+    communities_filter_mental_health: "Salud Mental",
+    communities_filter_relationships: "Relaciones",
+    communities_filter_work: "Trabajo y Carrera",
+    communities_filter_general: "General",
+    
+    // Location
+    location_add: "Agregar ubicación (opcional)",
+    location_detecting: "Detectando ubicación...",
+    location_detected: "Ubicación detectada",
+    location_error: "Error de ubicación",
+    location_error_permission: "No se pudo obtener tu ubicación. Por favor, habilita los permisos de ubicación.",
+    location_city: "Ubicación",
+    
+    // Nearby Confessions
+    nearby_title: "Confesiones Cercanas",
+    nearby_discover: "Descubre confesiones de personas cerca de ti",
+    nearby_radius: "Radio",
+    nearby_within_km: "Dentro de {km} km",
+    nearby_list_view: "Lista",
+    nearby_map_view: "Mapa",
+    nearby_map_coming_soon: "Vista de mapa próximamente",
+    nearby_no_location: "No se pudo obtener tu ubicación",
+    nearby_enable_location: "Por favor, habilita los permisos de ubicación para ver confesiones cercanas",
+    nearby_none_found: "No se encontraron confesiones cercanas",
+    nearby_increase_radius: "Intenta aumentar el radio de búsqueda o vuelve más tarde",
+    nearby_distance_km: "{distance} km",
+    
+    // Quick Actions
+    quick_action_new: "Nuevo",
+    quick_action_explore: "Explorar",
+    quick_action_messages: "Mensajes",
+    quick_action_search: "Buscar",
+    quick_action_communities: "Comunidades",
+    quick_action_nearby: "Cercanas",
   },
   de: {
     app_name: "Confess+",
@@ -3653,5 +3827,63 @@ export const translations: Record<Language, Translations> = {
     content_review_notice_title: "Hinweis zur Inhaltsüberprüfung",
     content_blocked_title: "Inhalt Blockiert",
     moderation_reason_label: "Grund:",
+    
+    // Communities
+    communities_title: "Communities",
+    communities_discover: "Entdecke Communities, die deine Interessen teilen",
+    communities_create: "Community erstellen",
+    communities_category: "Kategorie",
+    communities_name: "Community-Name",
+    communities_description: "Beschreibung",
+    communities_icon: "Symbol (Emoji)",
+    communities_private: "Private Community",
+    communities_creating: "Wird erstellt...",
+    communities_create_success: "Community erfolgreich erstellt",
+    communities_create_error: "Fehler beim Erstellen der Community",
+    communities_join: "Beitreten",
+    communities_leave: "Verlassen",
+    communities_members: "Mitglieder",
+    communities_posts: "Beiträge",
+    communities_not_found: "Community nicht gefunden",
+    communities_back: "Zurück zu Communities",
+    communities_no_posts: "Noch keine Geständnisse. Sei der Erste, der etwas teilt!",
+    communities_first_post: "Sei der Erste, der etwas teilt!",
+    communities_recent: "Aktuelle Geständnisse",
+    communities_create_confession: "Geständnis erstellen",
+    communities_filter_all: "Alle",
+    communities_filter_mental_health: "Psychische Gesundheit",
+    communities_filter_relationships: "Beziehungen",
+    communities_filter_work: "Arbeit & Karriere",
+    communities_filter_general: "Allgemein",
+    
+    // Location
+    location_add: "Standort hinzufügen (optional)",
+    location_detecting: "Standort wird erkannt...",
+    location_detected: "Standort erkannt",
+    location_error: "Standortfehler",
+    location_error_permission: "Standort konnte nicht ermittelt werden. Bitte aktiviere die Standortberechtigungen.",
+    location_city: "Standort",
+    
+    // Nearby Confessions
+    nearby_title: "Geständnisse in der Nähe",
+    nearby_discover: "Entdecke Geständnisse von Menschen in deiner Nähe",
+    nearby_radius: "Radius",
+    nearby_within_km: "Innerhalb von {km} km",
+    nearby_list_view: "Liste",
+    nearby_map_view: "Karte",
+    nearby_map_coming_soon: "Kartenansicht demnächst",
+    nearby_no_location: "Standort konnte nicht ermittelt werden",
+    nearby_enable_location: "Bitte aktiviere die Standortberechtigungen, um Geständnisse in der Nähe zu sehen",
+    nearby_none_found: "Keine Geständnisse in der Nähe gefunden",
+    nearby_increase_radius: "Versuche, den Suchradius zu erhöhen oder schaue später noch einmal vorbei",
+    nearby_distance_km: "{distance} km",
+    
+    // Quick Actions
+    quick_action_new: "Neu",
+    quick_action_explore: "Entdecken",
+    quick_action_messages: "Nachrichten",
+    quick_action_search: "Suchen",
+    quick_action_communities: "Communities",
+    quick_action_nearby: "In der Nähe",
   },
 };

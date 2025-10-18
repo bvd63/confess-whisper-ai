@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Geolocation } from "@capacitor/geolocation";
 import { Button } from "@/components/ui/button";
 import { MapPin, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Card } from "@/components/ui/card";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface LocationPickerProps {
   onLocationSelect: (location: {
@@ -24,6 +25,7 @@ export const LocationPicker = ({ onLocationSelect, initialLocation }: LocationPi
   const [location, setLocation] = useState(initialLocation);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const getCurrentLocation = async () => {
     setLoading(true);
@@ -60,14 +62,14 @@ export const LocationPicker = ({ onLocationSelect, initialLocation }: LocationPi
       onLocationSelect(newLocation);
 
       toast({
-        title: "Location detected",
-        description: `${city || 'Location'}, ${country || 'Unknown'}`,
+        title: t.location_detected,
+        description: `${city || t.location_city}, ${country || t.location_city}`,
       });
     } catch (error: any) {
       console.error('Error getting location:', error);
       toast({
-        title: "Location error",
-        description: error.message || "Could not get your location. Please enable location permissions.",
+        title: t.location_error,
+        description: error.message || t.location_error_permission,
         variant: "destructive",
       });
     } finally {
@@ -87,7 +89,7 @@ export const LocationPicker = ({ onLocationSelect, initialLocation }: LocationPi
           <div className="flex items-center gap-2">
             <MapPin className="w-4 h-4 text-primary" />
             <div className="text-sm">
-              <p className="font-medium">{location.city || 'Location'}</p>
+              <p className="font-medium">{location.city || t.location_city}</p>
               <p className="text-muted-foreground text-xs">{location.country}</p>
             </div>
           </div>
@@ -108,7 +110,7 @@ export const LocationPicker = ({ onLocationSelect, initialLocation }: LocationPi
           className="w-full"
         >
           <MapPin className="w-4 h-4 mr-2" />
-          {loading ? "Detecting location..." : "Add location (optional)"}
+          {loading ? t.location_detecting : t.location_add}
         </Button>
       )}
     </div>

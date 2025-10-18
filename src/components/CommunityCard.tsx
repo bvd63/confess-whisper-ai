@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Users, MessageSquare } from "lucide-react";
 import { useCommunityMembers } from "@/hooks/useCommunities";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface CommunityCardProps {
   community: {
@@ -22,6 +23,7 @@ export const CommunityCard = ({ community }: CommunityCardProps) => {
   const navigate = useNavigate();
   const { isMember, joinCommunity, leaveCommunity, isJoining, isLeaving } = 
     useCommunityMembers(community.id);
+  const { t } = useLanguage();
 
   const handleToggleMembership = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -57,7 +59,7 @@ export const CommunityCard = ({ community }: CommunityCardProps) => {
           onClick={handleToggleMembership}
           disabled={isJoining || isLeaving}
         >
-          {isMember ? "Joined" : "Join"}
+          {isMember ? t.communities_leave : t.communities_join}
         </Button>
       </div>
 
@@ -70,11 +72,11 @@ export const CommunityCard = ({ community }: CommunityCardProps) => {
       <div className="flex items-center gap-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-1">
           <Users className="w-4 h-4" />
-          <span>{community.member_count.toLocaleString()}</span>
+          <span>{community.member_count.toLocaleString()} {t.communities_members}</span>
         </div>
         <div className="flex items-center gap-1">
           <MessageSquare className="w-4 h-4" />
-          <span>{community.post_count.toLocaleString()}</span>
+          <span>{community.post_count.toLocaleString()} {t.communities_posts}</span>
         </div>
       </div>
     </AnimatedCard>

@@ -1,7 +1,8 @@
 import { EnhancedButton } from "@/components/EnhancedButton";
-import { Plus, Search, MessageCircle, Compass } from "lucide-react";
+import { Plus, Search, MessageCircle, Compass, Users, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface QuickActionsProps {
   className?: string;
@@ -13,29 +14,42 @@ interface QuickActionsProps {
  */
 export const QuickActions = ({ className, onNewConfession }: QuickActionsProps) => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const actions = [
     {
       icon: Plus,
-      label: "New",
+      label: t.quick_action_new,
       onClick: onNewConfession,
       variant: "default" as const,
     },
     {
       icon: Compass,
-      label: "Explore",
+      label: t.quick_action_explore,
       onClick: () => navigate("/explore"),
       variant: "outline" as const,
     },
     {
       icon: MessageCircle,
-      label: "Messages",
+      label: t.quick_action_messages,
       onClick: () => navigate("/messages"),
       variant: "outline" as const,
     },
     {
+      icon: Users,
+      label: t.quick_action_communities,
+      onClick: () => navigate("/communities"),
+      variant: "outline" as const,
+    },
+    {
+      icon: MapPin,
+      label: t.quick_action_nearby,
+      onClick: () => navigate("/nearby"),
+      variant: "outline" as const,
+    },
+    {
       icon: Search,
-      label: "Search",
+      label: t.quick_action_search,
       onClick: () => navigate("/search-users"),
       variant: "outline" as const,
     },
