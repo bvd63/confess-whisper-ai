@@ -1,5 +1,6 @@
 import { Quote } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import { AnimatedCard } from '@/components/AnimatedCard';
+import { FloatingElement } from '@/components/FloatingElement';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useQuoteOfTheDay } from '@/hooks/useQuoteOfTheDay';
 
@@ -8,7 +9,7 @@ export const QuoteOfTheDay = () => {
 
   if (isLoading) {
     return (
-      <Card className="p-4 mb-4">
+      <AnimatedCard className="p-4 mb-4" hover="none">
         <div className="flex items-start gap-3">
           <Skeleton className="h-6 w-6 rounded flex-shrink-0" />
           <div className="flex-1 space-y-2">
@@ -17,16 +18,22 @@ export const QuoteOfTheDay = () => {
             <Skeleton className="h-3 w-1/4" />
           </div>
         </div>
-      </Card>
+      </AnimatedCard>
     );
   }
 
   if (!quote) return null;
 
   return (
-    <Card className="p-4 mb-4 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+    <AnimatedCard 
+      hover="glow"
+      gradient
+      className="p-4 mb-4 border-primary/20"
+    >
       <div className="flex items-start gap-3">
-        <Quote className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+        <FloatingElement delay={0.3}>
+          <Quote className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+        </FloatingElement>
         <div className="flex-1">
           <p className="text-base font-medium leading-relaxed mb-2">
             "{quote.text}"
@@ -38,6 +45,6 @@ export const QuoteOfTheDay = () => {
           )}
         </div>
       </div>
-    </Card>
+    </AnimatedCard>
   );
 };

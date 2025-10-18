@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
+import { AnimatedCard } from "@/components/AnimatedCard";
+import { FloatingElement } from "@/components/FloatingElement";
 import { Trophy, TrendingUp } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -64,18 +65,26 @@ const Leaderboard = () => {
   if (leaders.length === 0) return null;
 
   return (
-    <Card className="p-4 sm:p-5 md:p-6">
+    <AnimatedCard 
+      hover="lift"
+      glass
+      gradient
+      className="p-4 sm:p-5 md:p-6"
+    >
       <div className="flex items-center gap-2 mb-4">
-        <Trophy className="w-5 h-5 text-yellow-500" />
+        <FloatingElement delay={0.5}>
+          <Trophy className="w-5 h-5 text-yellow-500 animate-pulse-glow" />
+        </FloatingElement>
         <h3 className="text-base sm:text-lg font-semibold">{t.leaderboard_top_this_week}</h3>
         <TrendingUp className="w-4 h-4 text-muted-foreground ml-auto" />
       </div>
 
       <div className="space-y-2 sm:space-y-3">
-        {leaders.map((leader) => (
+        {leaders.map((leader, index) => (
           <div
             key={leader.user_id}
-            className="flex items-center gap-3 p-3 rounded-lg bg-accent/50 hover:bg-accent transition-colors"
+            className="flex items-center gap-3 p-3 rounded-lg glass hover-lift transition-all animate-fade-in"
+            style={{ animationDelay: `${index * 50}ms` }}
           >
             <div className="w-8 text-center font-bold text-primary">
               #{leader.rank}
@@ -96,7 +105,7 @@ const Leaderboard = () => {
           </div>
         ))}
       </div>
-    </Card>
+    </AnimatedCard>
   );
 };
 

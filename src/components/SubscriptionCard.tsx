@@ -1,5 +1,6 @@
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { AnimatedCard } from "@/components/AnimatedCard";
+import { EnhancedButton } from "@/components/EnhancedButton";
+import { FloatingElement } from "@/components/FloatingElement";
 import { Check, Crown, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -56,25 +57,40 @@ const SubscriptionCard = ({
   };
 
   return (
-    <Card className={`p-6 relative overflow-hidden ${
-      isVIP ? 'border-primary/50 bg-gradient-to-br from-primary/5 to-primary/10' : ''
-    }`}>
+    <AnimatedCard 
+      hover="lift"
+      glass={isVIP}
+      gradient={isVIP}
+      className={`p-6 relative overflow-hidden ${
+        isVIP ? 'border-primary/50' : ''
+      }`}
+    >
       {isVIP && (
         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/20 to-transparent rounded-bl-full" />
       )}
       
       {/* Discount Badge for Premium and VIP on yearly billing */}
       {billingCycle === "yearly" && (isPremium || isVIP) && (
-        <div className="absolute top-3 right-3 z-20 bg-primary text-primary-foreground font-bold rounded-full w-16 h-16 flex items-center justify-center text-lg shadow-lg">
-          -33%
-        </div>
+        <FloatingElement delay={0.3}>
+          <div className="absolute top-3 right-3 z-20 bg-primary text-primary-foreground font-bold rounded-full w-16 h-16 flex items-center justify-center text-lg shadow-elegant animate-pulse-glow">
+            -33%
+          </div>
+        </FloatingElement>
       )}
       
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            {isPremium && <Crown className="w-5 h-5 text-primary" />}
-            {isVIP && <Sparkles className="w-5 h-5 text-primary" />}
+            {isPremium && (
+              <FloatingElement delay={0.5}>
+                <Crown className="w-5 h-5 text-primary" />
+              </FloatingElement>
+            )}
+            {isVIP && (
+              <FloatingElement delay={0.5}>
+                <Sparkles className="w-5 h-5 text-primary animate-pulse-glow" />
+              </FloatingElement>
+            )}
             <h3 className="text-2xl font-bold">{plan.name}</h3>
           </div>
           {isCurrentPlan && (
@@ -103,16 +119,19 @@ const SubscriptionCard = ({
           ))}
         </ul>
 
-        <Button
+        <EnhancedButton
           onClick={() => onSubscribe(plan.id, billingCycle)}
           disabled={isCurrentPlan || loading}
           className="w-full"
           variant={isVIP ? "default" : "outline"}
+          glow={isVIP}
+          shine={isVIP}
+          lift={!isCurrentPlan}
         >
           {isCurrentPlan ? t.subscription_active_plan : `${t.subscription_choose} ${plan.name}`}
-        </Button>
+        </EnhancedButton>
       </div>
-    </Card>
+    </AnimatedCard>
   );
 };
 

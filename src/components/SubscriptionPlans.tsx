@@ -1,5 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/translated-dialog";
-import { Button } from "@/components/ui/button";
+import { GradientText } from "@/components/GradientText";
+import { FloatingElement } from "@/components/FloatingElement";
 import { Sparkles, Check, Crown, Loader2, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -124,11 +125,13 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto bg-gradient-to-br from-card via-primary/5 to-card border-primary/30">
+      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto glass-strong border-primary/30">
         <DialogHeader>
-          <DialogTitle className="text-xl sm:text-2xl md:text-3xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent flex items-center gap-2">
-            <Crown className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-primary" />
-            {t.subscription_title}
+          <DialogTitle className="text-xl sm:text-2xl md:text-3xl flex items-center gap-2">
+            <FloatingElement delay={0.5}>
+              <Crown className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-primary animate-pulse-glow" />
+            </FloatingElement>
+            <GradientText variant="hero">{t.subscription_title}</GradientText>
           </DialogTitle>
           <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
             {t.subscription_description}

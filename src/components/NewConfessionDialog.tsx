@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/translated-dialog";
-import { Button } from "@/components/ui/button";
+import { EnhancedButton } from "@/components/EnhancedButton";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Send, Sparkles, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -221,9 +221,9 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto bg-gradient-to-br from-card to-background border-primary/20">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto glass-strong border-primary/20">
         <DialogHeader>
-          <DialogTitle className="text-xl sm:text-2xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+          <DialogTitle className="text-xl sm:text-2xl text-gradient-hero">
             {t.new_confession}
           </DialogTitle>
           <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
@@ -289,9 +289,9 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
           </div>
 
           {aiResponse && (
-            <div className="p-4 bg-primary/10 rounded-lg border border-primary/20 animate-slide-up">
+            <div className="p-4 glass rounded-lg border border-primary/20 animate-slide-up">
               <div className="flex items-center gap-2 mb-2 text-primary">
-                <Sparkles className="w-4 h-4" />
+                <Sparkles className="w-4 h-4 animate-pulse-glow" />
                 <span className="text-sm font-medium">{t.ai_reply_title}</span>
               </div>
               <p className="text-sm text-foreground/90 leading-relaxed italic">
@@ -300,10 +300,13 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
             </div>
           )}
 
-          <Button
+          <EnhancedButton
             onClick={handleSubmit}
             disabled={isSubmitting || !content.trim()}
-            className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-glow)] transition-all"
+            className="w-full"
+            glow
+            shine
+            lift
           >
             {isSubmitting ? (
               <>
@@ -316,7 +319,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
                 {t.submit}
               </>
             )}
-          </Button>
+          </EnhancedButton>
         </div>
       </DialogContent>
       
