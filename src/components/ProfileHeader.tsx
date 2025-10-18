@@ -1,4 +1,6 @@
-import { Button } from "@/components/ui/button";
+import { EnhancedButton } from "@/components/EnhancedButton";
+import { AnimatedCard } from "@/components/AnimatedCard";
+import { FloatingElement } from "@/components/FloatingElement";
 import { MessageCircle, UserPlus, UserMinus, Settings } from "lucide-react";
 import { useFollowSystem } from "@/hooks/useFollowSystem";
 import { useNavigate } from "react-router-dom";
@@ -33,15 +35,17 @@ export const ProfileHeader = ({
   const displayName = nickname || t.confession_anonymous;
 
   return (
-    <div className="flex flex-col gap-4 p-4 border-b border-border/50">
+    <AnimatedCard hover="lift" glass className="p-4 border-b border-border/50">
       {/* Avatar and Stats Row */}
       <div className="flex items-center gap-4">
-        <Avatar className="w-20 h-20 border-2 border-primary/20">
-          <AvatarImage src={avatarUrl || undefined} alt={displayName} />
-          <AvatarFallback className="text-2xl font-bold bg-gradient-to-br from-primary/20 to-primary/10">
-            {displayName.charAt(0).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
+        <FloatingElement delay={0.5}>
+          <Avatar className="w-20 h-20 border-2 border-primary/20 shadow-glow">
+            <AvatarImage src={avatarUrl || undefined} alt={displayName} />
+            <AvatarFallback className="text-2xl font-bold bg-gradient-to-br from-primary/20 to-primary/10">
+              {displayName.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        </FloatingElement>
 
         <div className="flex-1 flex justify-around">
           <div className="flex flex-col items-center">
@@ -71,21 +75,24 @@ export const ProfileHeader = ({
       {/* Action Buttons */}
       <div className="flex gap-2">
         {isOwnProfile ? (
-          <Button
+          <EnhancedButton
             variant="outline"
             className="flex-1"
             onClick={() => navigate("/settings")}
+            lift
           >
             <Settings className="w-4 h-4 mr-2" />
             {t.settings || "Edit Profile"}
-          </Button>
+          </EnhancedButton>
         ) : (
           <>
-            <Button
+            <EnhancedButton
               variant={stats.isFollowing ? "outline" : "default"}
               className="flex-1"
               onClick={toggleFollow}
               disabled={isProcessing}
+              glow={!stats.isFollowing}
+              lift
             >
               {stats.isFollowing ? (
                 <>
@@ -98,16 +105,17 @@ export const ProfileHeader = ({
                   {t.profile_follow || "Follow"}
                 </>
               )}
-            </Button>
-            <Button
+            </EnhancedButton>
+            <EnhancedButton
               variant="outline"
               onClick={() => navigate(`/messages?user=${userId}`)}
+              lift
             >
               <MessageCircle className="w-4 h-4" />
-            </Button>
+            </EnhancedButton>
           </>
         )}
       </div>
-    </div>
+    </AnimatedCard>
   );
 };

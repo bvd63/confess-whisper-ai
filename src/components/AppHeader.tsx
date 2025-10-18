@@ -1,5 +1,7 @@
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { EnhancedButton } from "@/components/EnhancedButton";
+import { FloatingElement } from "@/components/FloatingElement";
 import { Heart, PlusCircle, LogOut, Crown, User, LogIn, BookMarked, Users, Home, Sparkles, Search, MessageCircle } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -57,15 +59,18 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-lg border-b border-border/50 shadow-[var(--shadow-soft)]">
+    <header className="sticky top-0 z-50 glass-strong border-b border-border/50 shadow-elegant"
+    >
       {/* Desktop/Tablet Layout */}
       <div className="hidden md:block w-full mx-auto px-4 py-3 max-w-7xl">
         <div className="grid grid-cols-3 items-center gap-4">
           {/* Left - Logo */}
           <div className="flex items-center gap-2">
-            <Heart className="w-5 h-5 lg:w-6 lg:h-6 text-primary flex-shrink-0" fill="currentColor" />
+            <FloatingElement delay={0.5}>
+              <Heart className="w-5 h-5 lg:w-6 lg:h-6 text-primary flex-shrink-0 animate-heart-beat" fill="currentColor" />
+            </FloatingElement>
             <h1 
-              className="text-lg lg:text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent cursor-pointer whitespace-nowrap"
+              className="text-lg lg:text-2xl font-bold text-gradient-hero cursor-pointer whitespace-nowrap"
               onClick={() => navigate('/')}
             >
               {t.app_name}
@@ -177,30 +182,33 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
             {user ? (
               <>
                 {isPremium ? (
-                  <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-primary/20 to-primary/10 rounded-full border border-primary/30">
+                  <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 glass rounded-full border border-primary/30 animate-pulse-glow">
                     <Crown className="w-3 h-3 text-primary" />
                     <span className="text-xs font-medium text-primary">{t.premium_member}</span>
                   </div>
                 ) : (
-                  <Button
+                  <EnhancedButton
                     onClick={onUpgradeClick}
                     variant="outline"
                     size="sm"
-                    className="hidden lg:flex items-center gap-1.5 border-primary/30 hover:bg-primary/10 h-9"
+                    className="hidden lg:flex items-center gap-1.5 border-primary/30 h-9"
+                    glow
                   >
-                    <Sparkles className="w-3 h-3 text-primary" />
+                    <Sparkles className="w-3 h-3 text-primary animate-pulse-glow" />
                     <span className="text-xs font-medium">{t.subscription_upgrade_premium}</span>
-                  </Button>
+                  </EnhancedButton>
                 )}
                 
-                <Button
+                <EnhancedButton
                   onClick={handleNewConfession}
                   size="sm"
-                  className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground h-9"
+                  className="h-9"
+                  glow
+                  lift
                 >
                   <PlusCircle className="w-4 h-4 lg:mr-2" />
                   <span className="hidden lg:inline">{t.new_confession}</span>
-                </Button>
+                </EnhancedButton>
                 
                 <div className="hidden lg:flex items-center gap-1">
                   <StreakCounter userId={user.id} variant="compact" />
@@ -235,7 +243,7 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
       </div>
 
       {/* Mobile Layout */}
-      <div className={`md:hidden w-full sticky top-0 z-50 bg-card/80 backdrop-blur-lg border-b border-border/50 shadow-[var(--shadow-soft)] transition-transform duration-300 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+      <div className={`md:hidden w-full sticky top-0 z-50 glass-strong border-b border-border/50 shadow-elegant transition-transform duration-300 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
         {/* Top row - Logo and essentials */}
         <div className="flex items-center justify-between px-3 py-2 border-b border-border/30">
           <div className="flex items-center gap-2">

@@ -24,9 +24,9 @@ export const InstagramBottomNav = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-lg border-t border-border/50 safe-area-inset-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 glass-strong border-t border-border/50 safe-area-inset-bottom shadow-elegant">
       <div className="flex items-center justify-around h-16 max-w-screen-xl mx-auto px-4">
-        {navItems.map((item) => {
+        {navItems.map((item, index) => {
           const Icon = item.icon;
           const active = isActive(item.path);
 
@@ -35,11 +35,12 @@ export const InstagramBottomNav = () => {
               key={item.path}
               onClick={() => navigate(item.path)}
               className={cn(
-                "relative flex flex-col items-center justify-center w-16 h-12 rounded-lg transition-all duration-200",
+                "relative flex flex-col items-center justify-center w-16 h-12 rounded-lg transition-all duration-200 animate-fade-in hover-scale",
                 active
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               )}
+              style={{ animationDelay: `${index * 50}ms` }}
               aria-label={item.label}
             >
               <Icon
@@ -51,13 +52,13 @@ export const InstagramBottomNav = () => {
               />
               
               {item.badge && item.badge > 0 && (
-                <span className="absolute top-1 right-3 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-destructive rounded-full animate-pulse">
+                <span className="absolute top-1 right-3 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-destructive rounded-full animate-pulse-glow shadow-elegant">
                   {item.badge > 9 ? "9+" : item.badge}
                 </span>
               )}
 
               {active && (
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full" />
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full animate-pulse-glow" />
               )}
             </button>
           );
