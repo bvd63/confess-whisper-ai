@@ -14,14 +14,8 @@ export const useProfileHandle = (userId: string | null) => {
 
       if (error) throw error;
       
-      // Update profile with generated handle
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ handle: data })
-        .eq('user_id', userId);
-
-      if (updateError) throw updateError;
-
+      // Just return the generated handle, don't update the profile
+      // Let the caller handle the update
       return data;
     } catch (error) {
       console.error('Error generating handle:', error);

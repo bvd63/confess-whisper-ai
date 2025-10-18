@@ -91,7 +91,12 @@ export const ProfileEditor = ({
         .from('profiles')
         .update(updateData)
         .eq('user_id', userId);
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Profile update error:', error);
+        throw error;
+      }
+      
       toast({
         title: 'Profile updated',
         description: 'Your changes have been saved'
