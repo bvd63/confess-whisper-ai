@@ -49,7 +49,7 @@ export const ProfileEditor = ({
     const diffDays = Math.floor((Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24));
     return Math.max(COOLDOWN_DAYS - diffDays, 0);
   }, [currentProfile.nickname_updated_at, now]);
-  const handleUpdate = async () => {
+  const handleNicknameUpdate = async () => {
     if (!nickname.trim()) {
       toast({
         title: 'Error',
@@ -77,9 +77,10 @@ export const ProfileEditor = ({
         return;
       }
     }
+
     setIsUpdating(true);
     try {
-      // Generate handle if nickname changed and no handle exists
+      // Generate handle if nickname changed
       let handleToUse = currentProfile.handle;
       if (!handleToUse || nickname !== currentProfile.nickname) {
         const newHandle = await generateHandle(nickname);
@@ -87,9 +88,8 @@ export const ProfileEditor = ({
           handleToUse = newHandle;
         }
       }
+
       const updateData: any = {
-        bio: bio.trim() || null,
-        privacy_mode: privacyMode,
         handle: handleToUse
       };
 
@@ -98,6 +98,41 @@ export const ProfileEditor = ({
         updateData.nickname = nickname.trim();
         updateData.nickname_updated_at = new Date().toISOString();
       }
+
+      const { error } = await supabase
+        .from('profiles')
+        .update(updateData)
+        .eq('user_id', userId);
+      
+      if (error) {
+        console.error('Profile update error:', error);
+        throw error;
+      }
+      
+      toast({
+        title: 'Profile updated',
+        description: 'Nickname updated successfully'
+      });
+      onUpdate();
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update nickname',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleBioPrivacyUpdate = async () => {
+    setIsUpdating(true);
+    try {
+      const updateData: any = {
+        bio: bio.trim() || null,
+        privacy_mode: privacyMode
+      };
 
       const { error } = await supabase
         .from('profiles')
@@ -125,68 +160,113 @@ export const ProfileEditor = ({
       setIsUpdating(false);
     }
   };
-  return <Card className="p-6 space-y-4">
-      <div className="flex items-center gap-2 mb-4">
-        <User className="h-5 w-5 text-primary" />
-        <h3 className="text-lg font-semibold">Edit Profile</h3>
-      </div>
-
-      <div className="space-y-4">
-        <div>
-          <Label htmlFor="nickname">Nickname</Label>
-          <Input
-            id="nickname"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-            placeholder="Your display name"
-            maxLength={50}
-          />
-          <p className="text-xs text-muted-foreground mt-1">
-            {nickname.length}/50
-          </p>
-        <div className="mt-1 text-xs text-muted-foreground flex items-center gap-1" aria-live="polite">
-          <Clock className="h-3 w-3" />
-          {daysRemaining > 0 ? (
-            <span>
-              {(daysRemaining === 1
-                ? t.profile_nickname_days_remaining_singular
-                : t.profile_nickname_days_remaining_plural
-              ).replace("{days}", daysRemaining.toString())}
-            </span>
-          ) : (
-            <span>{t.profile_nickname_change_available}</span>
-          )}
-        </div>
+  return (
+    <div className="space-y-4">
+      {/* Nickname Card */}
+      <Card className="p-6 space-y-4">
+        <div className="flex items-center gap-2 mb-4">
+          <User className="h-5 w-5 text-primary" />
+          <h3 className="text-lg font-semibold">Nickname</h3>
         </div>
 
-        <div>
-          <Label htmlFor="bio">Bio</Label>
-          <Textarea id="bio" value={bio} onChange={e => setBio(e.target.value)} placeholder="Tell us about yourself..." maxLength={200} rows={3} />
-          <p className="text-xs text-muted-foreground mt-1">
-            {bio.length}/200
-          </p>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="nickname">Nickname</Label>
+            <Input
+              id="nickname"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              placeholder="Your display name"
+              maxLength={50}
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              {nickname.length}/50
+            </p>
+            <div className="mt-1 text-xs text-muted-foreground flex items-center gap-1" aria-live="polite">
+              <Clock className="h-3 w-3" />
+              {daysRemaining > 0 ? (
+                <span>
+                  {(daysRemaining === 1
+                    ? t.profile_nickname_days_remaining_singular
+                    : t.profile_nickname_days_remaining_plural
+                  ).replace("{days}", daysRemaining.toString())}
+                </span>
+              ) : (
+                <span>{t.profile_nickname_change_available}</span>
+              )}
+            </div>
+          </div>
+
+          <Button 
+            onClick={handleNicknameUpdate} 
+            disabled={isUpdating || isGenerating} 
+            className="w-full"
+          >
+            {isUpdating || isGenerating ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              'Save Nickname'
+            )}
+          </Button>
+        </div>
+      </Card>
+
+      {/* Bio & Privacy Card */}
+      <Card className="p-6 space-y-4">
+        <div className="flex items-center gap-2 mb-4">
+          <User className="h-5 w-5 text-primary" />
+          <h3 className="text-lg font-semibold">Bio & Privacy</h3>
         </div>
 
-        <div>
-          <Label htmlFor="privacy">Privacy Mode</Label>
-          <Select value={privacyMode} onValueChange={setPrivacyMode}>
-            <SelectTrigger id="privacy">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="public">Public - Everyone can see</SelectItem>
-              <SelectItem value="limited">Limited - Only followers</SelectItem>
-              <SelectItem value="private">Private - Hidden</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="bio">Bio</Label>
+            <Textarea 
+              id="bio" 
+              value={bio} 
+              onChange={e => setBio(e.target.value)} 
+              placeholder="Tell us about yourself..." 
+              maxLength={200} 
+              rows={3} 
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              {bio.length}/200
+            </p>
+          </div>
 
-        <Button onClick={handleUpdate} disabled={isUpdating || isGenerating} className="w-full">
-          {isUpdating || isGenerating ? <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Saving...
-            </> : 'Save Changes'}
-        </Button>
-      </div>
-    </Card>;
+          <div>
+            <Label htmlFor="privacy">Privacy Mode</Label>
+            <Select value={privacyMode} onValueChange={setPrivacyMode}>
+              <SelectTrigger id="privacy">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="public">Public - Everyone can see</SelectItem>
+                <SelectItem value="limited">Limited - Only followers</SelectItem>
+                <SelectItem value="private">Private - Hidden</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button 
+            onClick={handleBioPrivacyUpdate} 
+            disabled={isUpdating} 
+            className="w-full"
+          >
+            {isUpdating ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              'Save Changes'
+            )}
+          </Button>
+        </div>
+      </Card>
+    </div>
+  );
 };
