@@ -11,6 +11,7 @@ import { EnhancedMessageThread } from "@/components/EnhancedMessageThread";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { NetworkStatusIndicator } from "@/components/NetworkStatusIndicator";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
+import { sessionManager } from "@/lib/sessionManager";
 
 
 const Messages = () => {
@@ -93,6 +94,9 @@ const Messages = () => {
     await loadOtherUserInfo(userId);
     setSelectedConversation(conversationId);
     setOtherUserId(userId);
+    
+    // Save session state
+    await sessionManager.saveSessionState('/messages', userId);
   };
 
   if (isLoading) {

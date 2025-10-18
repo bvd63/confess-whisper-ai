@@ -11,6 +11,10 @@ import { SystemNotifications } from '@/components/SystemNotifications';
 import { PerformanceIndicator } from '@/components/PerformanceIndicator';
 import { InstallPrompt } from '@/components/InstallPrompt';
 import { useAuthRefresh } from '@/hooks/useAuthRefresh';
+import { useSessionRestoration } from '@/hooks/useSessionRestoration';
+import { useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { persistenceManager } from '@/lib/persistenceManager';
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
@@ -35,6 +39,28 @@ const queryClient = new QueryClient();
 
 const AppContent = () => {
   useAuthRefresh(); // Auto JWT refresh
+  useSessionRestoration(); // Auto session restoration
+  
+  // Clear cache on logout
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        persistenceManager.clearAllUserData().catch(console.error);
+      }
+    });
+
+    // Clear expired cache weekly
+    const clearExpired = () => {
+      persistenceManager.clearExpiredData().catch(console.error);
+    };
+    clearExpired();
+    const interval = setInterval(clearExpired, 7 * 24 * 60 * 60 * 1000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearInterval(interval);
+    };
+  }, []);
   
   return (
     <div className="relative pb-16">

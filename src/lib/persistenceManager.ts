@@ -198,6 +198,41 @@ class PersistenceManager {
     const lang = await this.getPreference<string>('language');
     return lang || localStorage.getItem('language');
   }
+
+  // Clear all user data (for logout)
+  async clearAllUserData(): Promise<void> {
+    const stores = ['messages', 'drafts', 'conversations', 'state', 'preferences'];
+    await Promise.all(stores.map(store => this.clearStore(store)));
+  }
+
+  // Clear old cached data (for performance)
+  async clearExpiredData(maxAge: number = 7 * 24 * 60 * 60 * 1000): Promise<void> {
+    const now = Date.now();
+    const stores = ['messages', 'conversations', 'state'];
+    
+    for (const storeName of stores) {
+      try {
+        const db = await this.ensureDB();
+        const transaction = db.transaction([storeName], 'readwrite');
+        const objectStore = transaction.objectStore(storeName);
+        const request = objectStore.openCursor();
+
+        request.onsuccess = (event) => {
+          const cursor = (event.target as IDBRequest).result;
+          if (cursor) {
+            const item = cursor.value as CachedItem<any> & { key: string };
+            if (now - item.timestamp > maxAge) {
+              cursor.delete();
+            }
+            cursor.continue();
+          }
+        };
+      } catch (error) {
+        console.error(`Error clearing expired data from ${storeName}:`, error);
+      }
+    }
+  }
+
 }
 
 export const persistenceManager = new PersistenceManager();
