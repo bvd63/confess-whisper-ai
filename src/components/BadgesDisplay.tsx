@@ -5,6 +5,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { MessageSquare, MessageSquarePlus, Award, Heart, Star, Flame, Trophy, Cake, Lock, Share2, Eye, Bookmark, Moon, Users, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ExpiryTimer } from "./ExpiryTimer";
 
 interface BadgesDisplayProps {
   userId: string;
@@ -40,6 +41,8 @@ interface BadgeData {
 interface EnrichedBadge extends BadgeData {
   earned: boolean;
   earned_at?: string;
+  expires_at?: string | null;
+  acquired_at?: string | null;
 }
 
 // Mapping between DB badge names (Romanian) and translation keys
@@ -93,21 +96,39 @@ const BadgesDisplay = ({ userId, variant = "compact" }: BadgesDisplayProps) => {
       .select('*')
       .order('requirement_value', { ascending: true });
 
-    // Load user's earned badges
+    // Load user's earned badges with expiry info
     const { data: userBadges, error: userBadgesError } = await supabase
       .from('user_badges')
-      .select('badge_id, earned_at')
+      .select('badge_id, earned_at, expires_at, acquired_at')
       .eq('user_id', userId);
 
     if (!badgesError && !userBadgesError && allBadges) {
-      const earnedBadgeIds = new Set(userBadges?.map(ub => ub.badge_id) || []);
-      const earnedBadgeMap = new Map(userBadges?.map(ub => [ub.badge_id, ub.earned_at]) || []);
+      // Filter out expired badges
+      const activeBadges = userBadges?.filter(ub => {
+        if (!ub.expires_at) return true;
+        return new Date(ub.expires_at) > new Date();
+      }) || [];
+
+      const earnedBadgeIds = new Set(activeBadges.map(ub => ub.badge_id));
+      const earnedBadgeMap = new Map(activeBadges.map(ub => [
+        ub.badge_id, 
+        { 
+          earned_at: ub.earned_at, 
+          expires_at: ub.expires_at,
+          acquired_at: ub.acquired_at 
+        }
+      ]));
       
-      const enrichedBadges: EnrichedBadge[] = allBadges.map(badge => ({
-        ...badge,
-        earned: earnedBadgeIds.has(badge.id),
-        earned_at: earnedBadgeMap.get(badge.id),
-      }));
+      const enrichedBadges: EnrichedBadge[] = allBadges.map(badge => {
+        const badgeInfo = earnedBadgeMap.get(badge.id);
+        return {
+          ...badge,
+          earned: earnedBadgeIds.has(badge.id),
+          earned_at: badgeInfo?.earned_at,
+          expires_at: badgeInfo?.expires_at,
+          acquired_at: badgeInfo?.acquired_at,
+        };
+      });
 
       setBadges(enrichedBadges);
     }
@@ -184,7 +205,16 @@ const BadgesDisplay = ({ userId, variant = "compact" }: BadgesDisplayProps) => {
                 {translation.name}
               </p>
               <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight">{translation.description}</p>
-              {!isLocked && badge.earned_at && (
+              {!isLocked && badge.expires_at && (
+                <div className="mt-2">
+                  <ExpiryTimer 
+                    expiresAt={badge.expires_at} 
+                    className="text-[10px]"
+                    showIcon={false}
+                  />
+                </div>
+              )}
+              {!isLocked && badge.earned_at && !badge.expires_at && (
                 <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
                   {t.badges_earned_on} {new Date(badge.earned_at).toLocaleDateString(
                     language === 'es' ? 'es-ES' : language === 'de' ? 'de-DE' : 'en-US'
