@@ -18,7 +18,6 @@ import FollowStats from "@/components/FollowStats";
 import FollowStatsSkeleton from "@/components/FollowStatsSkeleton";
 import { QuoteOfTheDay } from "@/components/QuoteOfTheDay";
 import QuoteOfTheDaySkeleton from "@/components/QuoteOfTheDaySkeleton";
-import { QuickActions } from "@/components/QuickActions";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
@@ -246,12 +245,6 @@ const Index = () => {
           </Suspense>
         )}
 
-        {/* Quick Actions */}
-        {user && viewMode === 'feed' && (
-          <div className="mb-6">
-            <QuickActions onNewConfession={handleNewConfession} />
-          </div>
-        )}
 
         {/* Search Bar */}
         <div className="mb-4 sm:mb-6 animate-fade-in">
