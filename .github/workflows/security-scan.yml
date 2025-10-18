@@ -1,0 +1,70 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        continue-on-error: true
+        run: |
+          npm audit --audit-level=moderate --json > npm-audit.json
+          npm audit --audit-level=moderate
+
+      - name: Check for high/critical vulnerabilities
+        run: |
+          HIGH_VULNS=$(cat npm-audit.json | jq '.metadata.vulnerabilities.high // 0')
+          CRITICAL_VULNS=$(cat npm-audit.json | jq '.metadata.vulnerabilities.critical // 0')
+          
+          echo "High vulnerabilities: $HIGH_VULNS"
+          echo "Critical vulnerabilities: $CRITICAL_VULNS"
+          
+          if [ "$CRITICAL_VULNS" -gt 0 ]; then
+            echo "❌ Critical vulnerabilities found!"
+            exit 1
+          fi
+          
+          if [ "$HIGH_VULNS" -gt 0 ]; then
+            echo "⚠️ High vulnerabilities found!"
+            exit 1
+          fi
+          
+          echo "✅ No high or critical vulnerabilities"
+
+      - name: TypeScript type check
+        run: npm run typecheck
+
+      - name: Lint check
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
+      - name: Upload security report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report
+          path: npm-audit.json
+          retention-days: 30

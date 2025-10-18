@@ -10,6 +10,7 @@ import { AnalyticsProvider } from "./components/AnalyticsProvider";
 import { SystemNotifications } from '@/components/SystemNotifications';
 import { PerformanceIndicator } from '@/components/PerformanceIndicator';
 import { InstallPrompt } from '@/components/InstallPrompt';
+import { useAuthRefresh } from '@/hooks/useAuthRefresh';
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
@@ -32,6 +33,38 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+const AppContent = () => {
+  useAuthRefresh(); // Auto JWT refresh
+  
+  return (
+    <div className="relative pb-16">
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/explore" element={<Explore />} />
+        <Route path="/compose" element={<Compose />} />
+        <Route path="/communities" element={<Communities />} />
+        <Route path="/community/:id" element={<CommunityDetail />} />
+        <Route path="/nearby" element={<NearbyConfessions />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/u/:handle" element={<UserProfile />} />
+        <Route path="/user/:userId" element={<UserProfile />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/bookmarks" element={<Bookmarks />} />
+        <Route path="/following" element={<Following />} />
+        <Route path="/search-users" element={<SearchUsers />} />
+        <Route path="/messages" element={<Messages />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-canceled" element={<PaymentCanceled />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <InstagramBottomNav />
+    </div>
+  );
+};
+
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
     <LanguageProvider>
@@ -41,32 +74,7 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <AnalyticsProvider>
-                <div className="relative pb-16">
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/auth" element={<Auth />} />
-                    <Route path="/explore" element={<Explore />} />
-                    <Route path="/compose" element={<Compose />} />
-                    <Route path="/communities" element={<Communities />} />
-                    <Route path="/community/:id" element={<CommunityDetail />} />
-                    <Route path="/nearby" element={<NearbyConfessions />} />
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/u/:handle" element={<UserProfile />} />
-                    <Route path="/user/:userId" element={<UserProfile />} />
-                    <Route path="/admin" element={<Admin />} />
-                    <Route path="/bookmarks" element={<Bookmarks />} />
-                    <Route path="/following" element={<Following />} />
-                    <Route path="/search-users" element={<SearchUsers />} />
-                    <Route path="/messages" element={<Messages />} />
-                    <Route path="/payment-success" element={<PaymentSuccess />} />
-                    <Route path="/payment-canceled" element={<PaymentCanceled />} />
-                    <Route path="/privacy" element={<PrivacyPolicy />} />
-                    <Route path="/terms" element={<TermsOfService />} />
-                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                  <InstagramBottomNav />
-                </div>
+                <AppContent />
                 <SystemNotifications />
                 <PerformanceIndicator />
                 <InstallPrompt />

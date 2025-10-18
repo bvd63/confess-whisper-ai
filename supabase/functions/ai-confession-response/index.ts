@@ -1,17 +1,99 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Rate limiting in-memory store
+const rateLimits = new Map<string, { count: number; resetAt: number }>();
+const AI_RATE_LIMIT = { maxAttempts: 5, windowMs: 60000 }; // 5 per minute
+
+function log(level: 'info' | 'warn' | 'error', message: string, metadata?: any) {
+  console.log(JSON.stringify({
+    timestamp: new Date().toISOString(),
+    level,
+    message,
+    function: 'ai-confession-response',
+    metadata,
+  }));
+}
+
+function checkRateLimit(userId: string): { allowed: boolean; retryAfter?: number } {
+  const key = `ai_request:${userId}`;
+  const now = Date.now();
+  let rateLimitData = rateLimits.get(key);
+
+  if (!rateLimitData || now > rateLimitData.resetAt) {
+    rateLimits.set(key, { count: 1, resetAt: now + AI_RATE_LIMIT.windowMs });
+    return { allowed: true };
+  }
+
+  if (rateLimitData.count >= AI_RATE_LIMIT.maxAttempts) {
+    const retryAfter = Math.ceil((rateLimitData.resetAt - now) / 1000);
+    return { allowed: false, retryAfter };
+  }
+
+  rateLimitData.count++;
+  rateLimits.set(key, rateLimitData);
+  return { allowed: true };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  log('info', 'AI confession request started', { requestId });
+
   try {
+    // Authenticate user
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      log('warn', 'Unauthorized request', { requestId });
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+    );
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      log('warn', 'Invalid token', { requestId, error: authError?.message });
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Rate limiting
+    const rateCheck = checkRateLimit(user.id);
+    if (!rateCheck.allowed) {
+      log('warn', 'Rate limit exceeded', { requestId, userId: user.id, retryAfter: rateCheck.retryAfter });
+      return new Response(JSON.stringify({ 
+        error: 'Rate limit exceeded. Please try again later.',
+        retryAfter: rateCheck.retryAfter 
+      }), {
+        status: 429,
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json',
+          'Retry-After': rateCheck.retryAfter!.toString(),
+        },
+      });
+    }
+
     const { confession, type = 'basic', language = 'en' } = await req.json();
+    log('info', 'Processing request', { requestId, userId: user.id, type, language });
     
     if (!confession) {
       throw new Error('Confession text is required');
@@ -62,6 +144,11 @@ ${selectedLanguage} with:
 Be like a trusted friend who listens without judging.`;
     }
 
+    // Add timeout to AI request
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
+    const startTime = Date.now();
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -75,7 +162,12 @@ Be like a trusted friend who listens without judging.`;
           { role: 'user', content: confession }
         ],
       }),
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
+    const duration = Date.now() - startTime;
+    log('info', 'AI request completed', { requestId, userId: user.id, duration });
 
     if (!response.ok) {
       const errorText = await response.text();
