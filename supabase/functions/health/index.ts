@@ -23,6 +23,17 @@ interface HealthCheck {
   };
 }
 
+// Structured logging helper
+function log(level: 'info' | 'warn' | 'error', message: string, metadata?: any) {
+  console.log(JSON.stringify({
+    timestamp: new Date().toISOString(),
+    level,
+    message,
+    function: 'health',
+    metadata,
+  }));
+}
+
 const startTime = Date.now();
 
 serve(async (req) => {
@@ -31,6 +42,8 @@ serve(async (req) => {
   }
 
   try {
+    log('info', 'Health check initiated');
+    
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? ''
@@ -39,7 +52,7 @@ serve(async (req) => {
     const healthCheck: HealthCheck = {
       status: 'healthy',
       timestamp: new Date().toISOString(),
-      version: '1.0.0',
+      version: '1.1.0',
       uptime: Date.now() - startTime,
       checks: {
         database: { status: 'unknown' },
@@ -59,21 +72,25 @@ serve(async (req) => {
       const dbLatency = Date.now() - dbStart;
       
       if (dbError) {
+        log('error', 'Database health check failed', { error: dbError.message });
         healthCheck.checks.database = {
           status: 'unhealthy',
           error: dbError.message,
         };
         healthCheck.status = 'degraded';
       } else {
+        log('info', 'Database health check passed', { latency: dbLatency });
         healthCheck.checks.database = {
           status: 'healthy',
           latency: dbLatency,
         };
       }
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      log('error', 'Database health check exception', { error: errorMsg });
       healthCheck.checks.database = {
         status: 'unhealthy',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: errorMsg,
       };
       healthCheck.status = 'unhealthy';
     }
@@ -125,6 +142,15 @@ serve(async (req) => {
       : healthCheck.status === 'degraded' ? 200 
       : 503;
 
+    log('info', 'Health check completed', { 
+      status: healthCheck.status,
+      statusCode,
+      latencies: {
+        database: healthCheck.checks.database.latency,
+        storage: healthCheck.checks.storage.latency,
+      }
+    });
+
     return new Response(
       JSON.stringify(healthCheck, null, 2),
       { 
@@ -138,7 +164,8 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Health check error:', error);
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+    log('error', 'Health check failed with exception', { error: errorMsg });
     
     return new Response(
       JSON.stringify({

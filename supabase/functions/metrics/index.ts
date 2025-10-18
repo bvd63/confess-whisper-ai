@@ -17,6 +17,17 @@ interface Metric {
 const metrics: Metric[] = [];
 const MAX_METRICS = 10000;
 
+// Structured logging helper
+function log(level: 'info' | 'warn' | 'error', message: string, metadata?: any) {
+  console.log(JSON.stringify({
+    timestamp: new Date().toISOString(),
+    level,
+    message,
+    function: 'metrics',
+    metadata,
+  }));
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -32,8 +43,11 @@ serve(async (req) => {
 
     // POST - Record metrics
     if (req.method === 'POST') {
+      log('info', 'Metrics POST request received');
+      
       const authHeader = req.headers.get('Authorization');
       if (!authHeader) {
+        log('warn', 'Unauthorized metrics POST attempt');
         return new Response(
           JSON.stringify({ error: 'Unauthorized' }),
           { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -75,6 +89,12 @@ serve(async (req) => {
         metrics.splice(0, metrics.length - MAX_METRICS);
       }
 
+      log('info', 'Metric recorded', { 
+        name: metric.name, 
+        type: metric.type,
+        totalMetrics: metrics.length 
+      });
+
       return new Response(
         JSON.stringify({ success: true, metric }),
         { status: 201, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -83,6 +103,10 @@ serve(async (req) => {
 
     // GET - Retrieve metrics (Prometheus format or JSON)
     if (req.method === 'GET') {
+      log('info', 'Metrics GET request received', { 
+        format: url.searchParams.get('format'),
+        name: url.searchParams.get('name')
+      });
       const format = url.searchParams.get('format') || 'json';
       const name = url.searchParams.get('name');
       const startTime = url.searchParams.get('start');
@@ -116,6 +140,11 @@ serve(async (req) => {
       // Return JSON with aggregations
       const aggregated = aggregateMetrics(filteredMetrics);
 
+      log('info', 'Metrics retrieved', { 
+        count: filteredMetrics.length,
+        uniqueMetrics: Object.keys(aggregated).length 
+      });
+
       return new Response(
         JSON.stringify({
           total: filteredMetrics.length,
@@ -135,9 +164,11 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Metrics error:', error);
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+    log('error', 'Metrics operation failed', { error: errorMsg });
+    
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+      JSON.stringify({ error: errorMsg }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
