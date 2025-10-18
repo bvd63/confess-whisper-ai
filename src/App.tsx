@@ -10,6 +10,7 @@ import { AnalyticsProvider } from "./components/AnalyticsProvider";
 import { SystemNotifications } from '@/components/SystemNotifications';
 import { PerformanceIndicator } from '@/components/PerformanceIndicator';
 import { InstallPrompt } from '@/components/InstallPrompt';
+import { NetworkStatusIndicator } from '@/components/NetworkStatusIndicator';
 import { useAuthRefresh } from '@/hooks/useAuthRefresh';
 import { useSessionRestoration } from '@/hooks/useSessionRestoration';
 import { useBackgroundSync } from '@/hooks/useBackgroundSync';
@@ -102,6 +103,7 @@ const AppContent = () => {
   
   return (
     <div className="relative pb-16">
+      <NetworkStatusIndicator />
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
