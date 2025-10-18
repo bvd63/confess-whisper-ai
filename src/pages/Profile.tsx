@@ -23,6 +23,7 @@ import WordCloudViz from "@/components/WordCloudViz";
 import FollowStats from "@/components/FollowStats";
 import StreakReminder from "@/components/StreakReminder";
 import AchievementToast from "@/components/AchievementToast";
+import { ReferralRewardNotification } from "@/components/ReferralRewardNotification";
 import AdvancedAnalytics from "@/components/AdvancedAnalytics";
 import ExportDataDialog from "@/components/ExportDataDialog";
 import ModerationPanel from "@/components/ModerationPanel";
@@ -138,6 +139,7 @@ const Profile = () => {
       onUpgradeClick={() => setPremiumDialogOpen(true)}
     >
       <AchievementToast userId={user.id} />
+      <ReferralRewardNotification userId={user.id} />
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-4xl pb-24">
         <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8 animate-fade-in">

@@ -59,9 +59,9 @@ const ReferralSystem = ({ userId }: ReferralSystemProps) => {
 
     setReferrals(referralsData || []);
 
-    // Calculate rewards
+    // Calculate rewards (20 coins per completed referral)
     const completedReferrals = referralsData?.filter(r => r.status === 'completed').length || 0;
-    setTotalRewards(completedReferrals * 100); // 100 coins per completed referral
+    setTotalRewards(completedReferrals * 20);
   };
 
   const copyReferralLink = () => {
@@ -130,12 +130,20 @@ const ReferralSystem = ({ userId }: ReferralSystemProps) => {
       </div>
 
       {/* Benefits */}
-      <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-        <p className="text-sm font-semibold mb-2">{t.referral_benefits}</p>
-        <ul className="text-xs text-muted-foreground space-y-1">
-          <li>{t.referral_benefit_coins}</li>
-          <li>{t.referral_benefit_friend}</li>
-          <li>{t.referral_benefit_badge}</li>
+      <div className="mt-6 p-4 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20">
+        <p className="text-sm font-semibold mb-3 flex items-center gap-2">
+          <Coins className="w-4 h-4 text-yellow-600" />
+          {t.referral_benefits}
+        </p>
+        <ul className="text-xs text-muted-foreground space-y-2">
+          <li className="flex items-start gap-2">
+            <span className="text-yellow-600">•</span>
+            <span>{t.referral_reward_referrer}</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-yellow-600">•</span>
+            <span>{t.referral_reward_referred}</span>
+          </li>
         </ul>
       </div>
     </Card>

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Gift, Copy, Users, CheckCircle } from "lucide-react";
+import { Gift, Copy, Users, CheckCircle, Coins } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -163,11 +163,31 @@ const ReferralCard = () => {
           </div>
 
           {/* Reward Info */}
+          <div className="space-y-2 p-3 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20">
+            <div className="flex items-center gap-2">
+              <Coins className="w-5 h-5 text-yellow-600" />
+              <p className="font-semibold text-sm">{t.referral_title}</p>
+            </div>
+            <ul className="space-y-1.5 text-xs text-muted-foreground">
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                <span>{t.referral_reward_referrer}</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                <span>{t.referral_reward_referred}</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Success Message */}
           {totalReferrals > 0 && (
             <div className="flex items-start gap-2 p-3 bg-primary/10 rounded-lg">
               <CheckCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
               <div className="text-sm">
-                <p className="font-medium text-primary">{t.referral_reward_message.replace('{days}', String(totalReferrals * 1))}</p>
+                <p className="font-medium text-primary">
+                  {totalReferrals} {t.referral_friends_invited}
+                </p>
                 <p className="text-xs text-muted-foreground mt-1">
                   {t.referral_continue_inviting}
                 </p>

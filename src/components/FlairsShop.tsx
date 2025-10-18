@@ -8,6 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCoins } from "@/hooks/useCoins";
+import { ExpiryTimer } from "@/components/ExpiryTimer";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +29,8 @@ interface UserFlair {
   id: string;
   flair_id: string;
   is_equipped: boolean;
+  expires_at: string | null;
+  acquired_at: string | null;
 }
 
 interface FlairsShopProps {
@@ -153,11 +156,27 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
   };
 
   const isOwned = (flairId: string) => {
-    return userFlairs.some(uf => uf.flair_id === flairId);
+    const userFlair = userFlairs.find(uf => uf.flair_id === flairId);
+    if (!userFlair) return false;
+    // Check if expired
+    if (userFlair.expires_at) {
+      const now = new Date().getTime();
+      const expiry = new Date(userFlair.expires_at).getTime();
+      if (expiry <= now) return false; // Expired, treat as not owned
+    }
+    return true;
+  };
+
+  const isExpired = (flairId: string) => {
+    const userFlair = userFlairs.find(uf => uf.flair_id === flairId);
+    if (!userFlair || !userFlair.expires_at) return false;
+    const now = new Date().getTime();
+    const expiry = new Date(userFlair.expires_at).getTime();
+    return expiry <= now;
   };
 
   const isEquipped = (flairId: string) => {
-    return userFlairs.some(uf => uf.flair_id === flairId && uf.is_equipped);
+    return userFlairs.some(uf => uf.flair_id === flairId && uf.is_equipped && !isExpired(flairId));
   };
 
   const getRarityColor = (rarity: string) => {
@@ -196,6 +215,7 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {flairs.map((flair) => {
                 const owned = isOwned(flair.id);
+                const expired = isExpired(flair.id);
                 const equipped = isEquipped(flair.id);
                 const userFlair = userFlairs.find(uf => uf.flair_id === flair.id);
 
@@ -215,7 +235,31 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
                       {t[flair.name_key as keyof typeof t] || flair.name_key}
                     </p>
 
-                    {owned ? (
+                    {/* Show expiry timer for owned active flairs */}
+                    {owned && userFlair?.expires_at && (
+                      <ExpiryTimer expiresAt={userFlair.expires_at} className="text-[10px]" showIcon={false} />
+                    )}
+
+                    {/* Show duration for non-owned flairs */}
+                    {!owned && !expired && (
+                      <p className="text-[10px] text-muted-foreground text-center">
+                        {t.badge_active_for}
+                      </p>
+                    )}
+
+                    {/* Expired - show Buy Again */}
+                    {expired ? (
+                      <Button
+                        size="sm"
+                        onClick={() => handlePurchase(flair)}
+                        disabled={purchasing === flair.id || coinsBalance < flair.cost}
+                        className="w-full gap-1"
+                        variant="outline"
+                      >
+                        <Coins className="w-3 h-3" />
+                        {t.buy_again} ({flair.cost})
+                      </Button>
+                    ) : owned ? (
                       equipped ? (
                         <Button size="sm" variant="outline" disabled className="w-full gap-1">
                           <Check className="w-3 h-3" />

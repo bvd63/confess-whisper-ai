@@ -54,6 +54,20 @@ serve(async (req) => {
       );
     }
 
+    // Check if user already has a referrer
+    const { data: existingProfile } = await supabaseClient
+      .from('profiles')
+      .select('referred_by')
+      .eq('user_id', user.id)
+      .single();
+
+    if (existingProfile?.referred_by) {
+      return new Response(
+        JSON.stringify({ success: false, message: 'You have already used a referral code' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+
     // Update the new user's profile with referrer
     const { error: updateError } = await supabaseClient
       .from('profiles')
@@ -65,7 +79,7 @@ serve(async (req) => {
       throw updateError;
     }
 
-    // Create referral record
+    // Create referral record (rewards will be given when user posts first confession)
     const { error: referralError } = await supabaseClient
       .from('referrals')
       .insert({
@@ -93,16 +107,12 @@ serve(async (req) => {
       console.error('Error updating referral count:', countError);
     }
 
-    // TODO: Award 1 day premium to referrer
-    // This would integrate with your Stripe subscription system
-    // For now, we just track the referrals
-
-    console.log('Referral processed successfully');
+    console.log('Referral processed successfully - rewards will be given on first confession');
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Referral processed successfully' 
+        message: 'Referral processed successfully. Post your first confession to earn coins!' 
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
