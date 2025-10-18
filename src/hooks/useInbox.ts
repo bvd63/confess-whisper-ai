@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useCachePurgeOnDelete } from './useCachePurgeOnDelete';
-import { getNicknameCached } from '@/lib/nicknameCache';
+import { getNicknameCached, primeNicknameCache } from '@/lib/nicknameCache';
 
 interface Conversation {
   id: string;
@@ -38,26 +38,35 @@ export const useInbox = (userId: string | null) => {
 
       if (error) throw error;
 
-      // Load details for each conversation
-      const conversationDetails = await Promise.all(
+      // Batch fetch all other participants first
+      const allOtherParticipants = await Promise.all(
         (participants || []).map(async (p) => {
-          const convId = p.conversation_id;
-
-          // Get other participant
-          const { data: otherParticipants } = await supabase
+          const { data } = await supabase
             .from('conversation_participants')
             .select('user_id')
-            .eq('conversation_id', convId)
+            .eq('conversation_id', p.conversation_id)
             .neq('user_id', userId)
             .limit(1);
+          return { convId: p.conversation_id, otherUserId: data?.[0]?.user_id };
+        })
+      );
 
-          const otherUserId = otherParticipants?.[0]?.user_id;
+      // Batch fetch all nicknames
+      const nicknamePromises = allOtherParticipants
+        .filter(p => p.otherUserId)
+        .map(p => getNicknameCached(p.otherUserId!));
+      await Promise.all(nicknamePromises);
 
-          // Get nickname
+      // Load details for each conversation
+      const conversationDetails = await Promise.all(
+        (participants || []).map(async (p, idx) => {
+          const convId = p.conversation_id;
+          const otherUserId = allOtherParticipants[idx]?.otherUserId;
+
+          // Get nickname from cache (already prefetched)
           let nickname = null;
           if (otherUserId) {
-            const nicknameData = await getNicknameCached(otherUserId);
-            nickname = nicknameData || null;
+            nickname = await getNicknameCached(otherUserId);
           }
 
           // Get last message

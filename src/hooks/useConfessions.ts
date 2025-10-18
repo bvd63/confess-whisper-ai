@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useOptimizedQuery } from "./useOptimizedQuery";
+import { primeConfessionBatch } from '@/lib/confessionCache';
+import { primeNicknameCache } from '@/lib/nicknameCache';
 
 interface Confession {
   id: string;
@@ -32,7 +34,10 @@ export const useConfessions = ({
     queryFn: async () => {
       let query = supabase
         .from('confessions')
-        .select('*')
+        .select(`
+          *,
+          profiles!confessions_user_id_fkey(nickname)
+        `)
         .limit(limit);
 
       if (categoryFilter !== 'all') {
@@ -47,6 +52,17 @@ export const useConfessions = ({
 
       const { data, error: queryError } = await query;
       if (queryError) throw queryError;
+
+      // Prime caches for better performance
+      if (data) {
+        primeConfessionBatch(data);
+        data.forEach((confession: any) => {
+          if (confession.user_id && confession.profiles?.nickname) {
+            primeNicknameCache(confession.user_id, confession.profiles.nickname);
+          }
+        });
+      }
+
       return data || [];
     },
     cacheTTL: 2 * 60 * 1000, // 2 minutes

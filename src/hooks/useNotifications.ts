@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { getNicknameCached } from '@/lib/nicknameCache';
+import { getNicknameCached, primeNicknameCache } from '@/lib/nicknameCache';
 
 interface Notification {
   id: string;
@@ -35,7 +35,18 @@ export const useNotifications = (userId: string | null) => {
 
       if (error) throw error;
 
-      // Load nicknames for each notification
+      // Batch prefetch all nicknames first
+      const uniqueUserIds = [...new Set(
+        (data || [])
+          .map(n => n.triggered_by)
+          .filter(Boolean) as string[]
+      )];
+      
+      await Promise.all(
+        uniqueUserIds.map(userId => getNicknameCached(userId))
+      );
+
+      // Load nicknames for each notification (from cache now)
       const notificationsWithNicknames = await Promise.all(
         (data || []).map(async (notif) => {
           let nickname = null;
