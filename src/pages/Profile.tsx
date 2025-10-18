@@ -37,6 +37,7 @@ import { EmailDisplay } from "@/components/EmailDisplay";
 import { PasswordChange } from "@/components/PasswordChange";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { ProfileEditor } from "@/components/ProfileEditor";
+import { FlairsShop } from "@/components/FlairsShop";
 
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 
@@ -50,6 +51,7 @@ const Profile = () => {
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [premiumDialogOpen, setPremiumDialogOpen] = useState(false);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
+  const [flairsDialogOpen, setFlairsDialogOpen] = useState(false);
   const [passwordChangedAt, setPasswordChangedAt] = useState<string | null>(null);
   const [profileData, setProfileData] = useState<{
     nickname: string | null;
@@ -216,6 +218,15 @@ const Profile = () => {
               passwordChangedAt={passwordChangedAt}
             />
             <UserPreferences userId={user.id} />
+            <div className="pt-4">
+              <Button 
+                onClick={() => setFlairsDialogOpen(true)}
+                variant="outline"
+                className="w-full"
+              >
+                {t.flairs_shop}
+              </Button>
+            </div>
             <ReferralSystem userId={user.id} />
             <BlockedUsers userId={user.id} />
             
@@ -250,6 +261,12 @@ const Profile = () => {
         open={premiumDialogOpen}
         onOpenChange={setPremiumDialogOpen}
         onUpgrade={() => {}}
+      />
+
+      <FlairsShop
+        open={flairsDialogOpen}
+        onOpenChange={setFlairsDialogOpen}
+        userId={user.id}
       />
 
       <Suspense fallback={null}>

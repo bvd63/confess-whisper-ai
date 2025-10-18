@@ -17,6 +17,7 @@ import { CrisisDialog } from "@/components/CrisisDialog";
 import { useModerationStatus } from "@/hooks/useModerationStatus";
 import { LocationPicker } from "@/components/LocationPicker";
 import { useCommunities } from "@/hooks/useCommunities";
+import { PolishConfessionButton } from "@/components/PolishConfessionButton";
 
 const confessionSchema = z.object({
   content: z.string()
@@ -343,25 +344,26 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
               disabled={isSubmitting}
             />
             <EnhancedButton
-            onClick={handleSubmit}
-            disabled={isSubmitting || !content.trim()}
-            className="w-full"
-            glow
-            shine
-            lift
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                {t.submitting}
-              </>
-            ) : (
-              <>
-                <Send className="w-4 h-4 mr-2" />
-                {t.submit}
-              </>
-            )}
-          </EnhancedButton>
+              onClick={handleSubmit}
+              disabled={isSubmitting || !content.trim()}
+              className="w-full"
+              glow
+              shine
+              lift
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  {t.submitting}
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4 mr-2" />
+                  {t.submit}
+                </>
+              )}
+            </EnhancedButton>
+          </div>
         </div>
       </DialogContent>
       
