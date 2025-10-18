@@ -1097,6 +1097,27 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limits: {
+        Row: {
+          count: number
+          created_at: string
+          key: string
+          reset_at: string
+        }
+        Insert: {
+          count?: number
+          created_at?: string
+          key: string
+          reset_at: string
+        }
+        Update: {
+          count?: number
+          created_at?: string
+          key?: string
+          reset_at?: string
+        }
+        Relationships: []
+      }
       referral_rewards: {
         Row: {
           claimed_at: string
@@ -1616,6 +1637,10 @@ export type Database = {
           views: number
         }
         Returns: number
+      }
+      cleanup_expired_rate_limits: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       deduct_coins: {
         Args: {

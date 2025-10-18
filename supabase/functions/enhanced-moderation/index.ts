@@ -30,6 +30,56 @@ serve(async (req) => {
   try {
     log('info', '[ENHANCED-MODERATION] Function started', { requestId });
 
+    // Verify authentication and authorization
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      log('warn', '[ENHANCED-MODERATION] No authorization header', { requestId });
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    // Verify user authentication
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    if (authError || !user) {
+      log('warn', '[ENHANCED-MODERATION] User not authenticated', { requestId });
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check if user has moderator or admin role
+    const { data: roleData, error: roleError } = await supabaseClient.rpc('has_role', {
+      _user_id: user.id,
+      _role: 'admin'
+    });
+
+    const { data: modRoleData, error: modRoleError } = await supabaseClient.rpc('has_role', {
+      _user_id: user.id,
+      _role: 'moderator'
+    });
+
+    const isAdmin = !roleError && roleData === true;
+    const isModerator = !modRoleError && modRoleData === true;
+
+    if (!isAdmin && !isModerator) {
+      log('warn', '[ENHANCED-MODERATION] User lacks admin/moderator role', { requestId, userId: user.id });
+      return new Response(
+        JSON.stringify({ error: 'Forbidden - Admin or Moderator role required' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    log('info', '[ENHANCED-MODERATION] User authorized', { requestId, userId: user.id, isAdmin, isModerator });
+
     const { content, confessionId, language = 'en' } = await req.json();
 
     if (!content || !confessionId) {
@@ -51,14 +101,15 @@ serve(async (req) => {
 
     log('info', '[ENHANCED-MODERATION] Validating confession', { requestId, confessionId });
 
-    const supabaseClient = createClient(
+    // Use service role client for moderation operations
+    const serviceClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
     // Call AI moderation
     log('info', '[ENHANCED-MODERATION] Calling AI moderation', { requestId, confessionId });
-    const { data: moderationData, error: moderationError } = await supabaseClient.functions.invoke(
+    const { data: moderationData, error: moderationError } = await serviceClient.functions.invoke(
       'ai-moderation',
       { body: { content, language } }
     );
@@ -95,7 +146,7 @@ serve(async (req) => {
     if (level !== 'safe') {
       log('info', '[ENHANCED-MODERATION] Content flagged', { requestId, confessionId, level, reason });
       
-      await supabaseClient.from('moderation_queue').insert({
+      await serviceClient.from('moderation_queue').insert({
         confession_id: confessionId,
         content,
         moderation_level: level,
@@ -104,7 +155,7 @@ serve(async (req) => {
       });
 
       // Update confession status
-      await supabaseClient
+      await serviceClient
         .from('confessions')
         .update({ 
           moderation_status: level === 'unsafe' ? 'rejected' : 'pending' 
@@ -115,7 +166,7 @@ serve(async (req) => {
     } else {
       // Auto-approve safe content
       log('info', '[ENHANCED-MODERATION] Content approved', { requestId, confessionId });
-      await supabaseClient
+      await serviceClient
         .from('confessions')
         .update({ moderation_status: 'approved' })
         .eq('id', confessionId);

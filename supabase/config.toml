@@ -53,7 +53,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.enhanced-moderation]
-verify_jwt = false
+verify_jwt = true
 
 [functions.process-referral]
 verify_jwt = true

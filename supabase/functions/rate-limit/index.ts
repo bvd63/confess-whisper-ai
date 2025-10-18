@@ -1,12 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
-
-// In-memory rate limit store (use Redis in production)
-const rateLimits = new Map<string, { count: number; resetAt: number }>();
 
 interface RateLimitConfig {
   maxAttempts: number;
@@ -36,62 +34,104 @@ serve(async (req) => {
       );
     }
 
+    // Initialize Supabase client with service role for database access
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
     const config = configs[action] || configs.default;
     const key = `${action}:${userId || ip}`;
-    const now = Date.now();
+    const now = new Date();
+    const resetAt = new Date(now.getTime() + config.windowMs);
 
-    let rateLimitData = rateLimits.get(key);
+    // Try to get existing rate limit from database
+    const { data: existing, error: fetchError } = await supabaseClient
+      .from('rate_limits')
+      .select('*')
+      .eq('key', key)
+      .maybeSingle();
 
-    // Reset if window expired
-    if (!rateLimitData || now > rateLimitData.resetAt) {
-      rateLimitData = {
-        count: 1,
-        resetAt: now + config.windowMs,
-      };
-      rateLimits.set(key, rateLimitData);
+    if (fetchError) {
+      console.error('Error fetching rate limit:', fetchError);
+      // On error, allow the request (fail open)
+      return new Response(
+        JSON.stringify({ allowed: true, error: 'Rate limit check failed' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check if rate limit exists and is still valid
+    if (existing && new Date(existing.reset_at) > now) {
+      // Check if limit exceeded
+      if (existing.count >= config.maxAttempts) {
+        const retryAfter = Math.ceil((new Date(existing.reset_at).getTime() - now.getTime()) / 1000);
+        
+        return new Response(
+          JSON.stringify({
+            allowed: false,
+            remaining: 0,
+            resetAt: existing.reset_at,
+            retryAfter,
+            message: `Rate limit exceeded. Try again in ${retryAfter} seconds.`,
+          }),
+          { 
+            status: 429, 
+            headers: { 
+              ...corsHeaders, 
+              'Content-Type': 'application/json',
+              'Retry-After': retryAfter.toString(),
+              'X-RateLimit-Limit': config.maxAttempts.toString(),
+              'X-RateLimit-Remaining': '0',
+            } 
+          }
+        );
+      }
+
+      // Increment count
+      const newCount = existing.count + 1;
+      const { error: updateError } = await supabaseClient
+        .from('rate_limits')
+        .update({ count: newCount })
+        .eq('key', key);
+
+      if (updateError) {
+        console.error('Error updating rate limit:', updateError);
+      }
 
       return new Response(
         JSON.stringify({
           allowed: true,
-          remaining: config.maxAttempts - 1,
-          resetAt: rateLimitData.resetAt,
+          remaining: config.maxAttempts - newCount,
+          resetAt: existing.reset_at,
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Check if limit exceeded
-    if (rateLimitData.count >= config.maxAttempts) {
-      const retryAfter = Math.ceil((rateLimitData.resetAt - now) / 1000);
-      
+    // Create new rate limit entry or reset expired one
+    const { error: upsertError } = await supabaseClient
+      .from('rate_limits')
+      .upsert({
+        key,
+        count: 1,
+        reset_at: resetAt.toISOString(),
+      });
+
+    if (upsertError) {
+      console.error('Error creating rate limit:', upsertError);
+      // On error, allow the request (fail open)
       return new Response(
-        JSON.stringify({
-          allowed: false,
-          remaining: 0,
-          resetAt: rateLimitData.resetAt,
-          retryAfter,
-          message: `Rate limit exceeded. Try again in ${retryAfter} seconds.`,
-        }),
-        { 
-          status: 429, 
-          headers: { 
-            ...corsHeaders, 
-            'Content-Type': 'application/json',
-            'Retry-After': retryAfter.toString(),
-          } 
-        }
+        JSON.stringify({ allowed: true, error: 'Rate limit creation failed' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    // Increment counter
-    rateLimitData.count++;
-    rateLimits.set(key, rateLimitData);
 
     return new Response(
       JSON.stringify({
         allowed: true,
-        remaining: config.maxAttempts - rateLimitData.count,
-        resetAt: rateLimitData.resetAt,
+        remaining: config.maxAttempts - 1,
+        resetAt: resetAt.toISOString(),
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
@@ -104,13 +144,3 @@ serve(async (req) => {
     );
   }
 });
-
-// Cleanup old entries every 5 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, data] of rateLimits.entries()) {
-    if (now > data.resetAt + 300000) { // 5 minutes after reset
-      rateLimits.delete(key);
-    }
-  }
-}, 300000);
