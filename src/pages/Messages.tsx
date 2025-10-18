@@ -9,6 +9,8 @@ import AppLayout from "@/components/AppLayout";
 import { ConversationList } from "@/components/ConversationList";
 import { EnhancedMessageThread } from "@/components/EnhancedMessageThread";
 import { AnimatedCard } from "@/components/AnimatedCard";
+import { NetworkStatusIndicator } from "@/components/NetworkStatusIndicator";
+import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 
 
 const Messages = () => {
@@ -20,6 +22,9 @@ const Messages = () => {
   const [otherUserId, setOtherUserId] = useState<string | null>(null);
   const [otherUserNickname, setOtherUserNickname] = useState<string | null>(null);
   const startedRef = useRef(false);
+  
+  // Restore scroll position when returning to conversation list
+  useScrollRestoration(!selectedConversation);
 
   useEffect(() => {
     if (isLoading) return;
@@ -99,6 +104,7 @@ const Messages = () => {
 
   return (
     <AppLayout>
+      <NetworkStatusIndicator />
       <div className="container max-w-4xl mx-auto px-4 py-6 pb-24">
         <AnimatedCard className="overflow-hidden" hover="none">
           {!selectedConversation ? (

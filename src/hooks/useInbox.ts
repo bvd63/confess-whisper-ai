@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useCachePurgeOnDelete } from './useCachePurgeOnDelete';
 import { getNicknameCached, primeNicknameCache } from '@/lib/nicknameCache';
+import { persistenceManager } from '@/lib/persistenceManager';
 
 interface Conversation {
   id: string;
@@ -22,6 +23,21 @@ export const useInbox = (userId: string | null) => {
 
   const loadConversations = useCallback(async () => {
     if (!userId) return;
+
+    // Try loading from cache first for instant display
+    try {
+      const cached = await persistenceManager.get<Conversation[]>(
+        'conversations',
+        `inbox_${userId}`,
+        5 * 60 * 1000 // 5 minute TTL
+      );
+      if (cached && cached.length > 0) {
+        setConversations(cached);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error('Failed to load cached conversations:', error);
+    }
 
     try {
       const { data: participants, error } = await supabase
@@ -90,6 +106,13 @@ export const useInbox = (userId: string | null) => {
       );
 
       setConversations(conversationDetails);
+      
+      // Cache the conversations
+      await persistenceManager.set(
+        'conversations',
+        `inbox_${userId}`,
+        conversationDetails
+      );
     } catch (error) {
       console.error('Error loading conversations:', error);
     } finally {
@@ -112,6 +135,9 @@ export const useInbox = (userId: string | null) => {
         
         // Purge cache
         purgeConversation(conversationId);
+        
+        // Clear cached conversations list
+        await persistenceManager.remove('conversations', `inbox_${userId}`);
       }
     } catch (error) {
       console.error('Error deleting conversation:', error);

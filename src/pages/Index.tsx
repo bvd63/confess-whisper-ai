@@ -36,6 +36,8 @@ import SEOHead from "@/components/SEOHead";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Loader2 } from "lucide-react";
+import { NetworkStatusIndicator } from "@/components/NetworkStatusIndicator";
+import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 
 import { OnboardingWelcome } from "@/components/OnboardingWelcome";
 import { usePerformanceBudget } from "@/hooks/usePerformanceBudget";
@@ -66,6 +68,9 @@ const Index = () => {
   const { toast } = useToast();
   const { RateLimitUI } = useRateLimitHandler();
   const isMobile = useIsMobile();
+  
+  // Restore scroll position on feed
+  useScrollRestoration(viewMode === 'feed');
   
   // Monitor performance budget
   usePerformanceBudget();
@@ -203,6 +208,7 @@ const Index = () => {
         onNewConfession={handleNewConfession}
         onUpgradeClick={() => setIsPremiumDialogOpen(true)}
       >
+      <NetworkStatusIndicator />
 
       {/* Main Content with Pull to Refresh */}
       <main 
