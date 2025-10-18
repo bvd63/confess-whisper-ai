@@ -17,6 +17,7 @@ import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { persistenceManager } from '@/lib/persistenceManager';
 import { dataValidator } from '@/lib/dataValidator';
+import { syncScheduler } from '@/lib/syncScheduler';
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
@@ -48,14 +49,25 @@ const AppContent = () => {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_OUT') {
+        syncScheduler.stopPeriodicSync();
         await persistenceManager.clearAllUserData().catch(console.error);
       } else if (event === 'SIGNED_IN' && session?.user) {
+        // Start periodic sync
+        syncScheduler.startPeriodicSync(session.user.id);
+        
         // Run data repair on login
         try {
           await dataValidator.repairData(session.user.id);
         } catch (error) {
           console.error('Data repair failed:', error);
         }
+      }
+    });
+
+    // Start sync if already logged in
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        syncScheduler.startPeriodicSync(user.id);
       }
     });
 
@@ -82,6 +94,7 @@ const AppContent = () => {
 
     return () => {
       subscription.unsubscribe();
+      syncScheduler.stopPeriodicSync();
       clearInterval(interval);
       clearInterval(healthInterval);
     };
