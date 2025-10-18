@@ -13,6 +13,7 @@ import { Users, Plus, Search } from "lucide-react";
 import { useCommunities } from "@/hooks/useCommunities";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Communities = () => {
   const [category, setCategory] = useState<string>("all");
@@ -20,6 +21,7 @@ const Communities = () => {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { communities, isLoading, createCommunity, isCreating } = useCommunities(category);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const [newCommunity, setNewCommunity] = useState({
     name: "",
@@ -32,8 +34,8 @@ const Communities = () => {
   const handleCreateCommunity = () => {
     if (!newCommunity.name || !newCommunity.slug) {
       toast({
-        title: "Missing fields",
-        description: "Please fill in all required fields",
+        title: t.error_generic,
+        description: t.validation_required_field,
         variant: "destructive",
       });
       return;
@@ -64,10 +66,10 @@ const Communities = () => {
             <Users className="w-16 h-16 mx-auto mb-4 text-primary" />
           </FloatingElement>
           <h1 className="text-4xl font-bold mb-2">
-            <GradientText variant="hero">Communities</GradientText>
+            <GradientText variant="hero">{t.communities_title}</GradientText>
           </h1>
           <p className="text-muted-foreground">
-            Join communities and connect with like-minded people
+            {t.communities_discover}
           </p>
         </div>
 
@@ -76,7 +78,7 @@ const Communities = () => {
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Search communities..."
+              placeholder={t.search_placeholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -84,36 +86,34 @@ const Communities = () => {
           </div>
           <Select value={category} onValueChange={setCategory}>
             <SelectTrigger className="w-full md:w-48">
-              <SelectValue placeholder="Category" />
+              <SelectValue placeholder={t.communities_category} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              <SelectItem value="general">General</SelectItem>
-              <SelectItem value="mental-health">Mental Health</SelectItem>
-              <SelectItem value="relationships">Relationships</SelectItem>
-              <SelectItem value="work">Work & Career</SelectItem>
-              <SelectItem value="family">Family</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
+              <SelectItem value="all">{t.communities_filter_all}</SelectItem>
+              <SelectItem value="general">{t.communities_filter_general}</SelectItem>
+              <SelectItem value="mental-health">{t.communities_filter_mental_health}</SelectItem>
+              <SelectItem value="relationships">{t.communities_filter_relationships}</SelectItem>
+              <SelectItem value="work">{t.communities_filter_work}</SelectItem>
             </SelectContent>
           </Select>
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="w-4 h-4 mr-2" />
-                Create Community
+                {t.communities_create}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Create a Community</DialogTitle>
+                <DialogTitle>{t.communities_create}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <Label>Name *</Label>
+                  <Label>{t.communities_name} *</Label>
                   <Input
                     value={newCommunity.name}
                     onChange={(e) => setNewCommunity({ ...newCommunity, name: e.target.value })}
-                    placeholder="Community name"
+                    placeholder={t.communities_name}
                   />
                 </div>
                 <div>
@@ -125,31 +125,29 @@ const Communities = () => {
                   />
                 </div>
                 <div>
-                  <Label>Description</Label>
+                  <Label>{t.communities_description}</Label>
                   <Textarea
                     value={newCommunity.description}
                     onChange={(e) => setNewCommunity({ ...newCommunity, description: e.target.value })}
-                    placeholder="Describe your community..."
+                    placeholder={t.communities_description}
                   />
                 </div>
                 <div>
-                  <Label>Category</Label>
+                  <Label>{t.communities_category}</Label>
                   <Select value={newCommunity.category} onValueChange={(v) => setNewCommunity({ ...newCommunity, category: v })}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="general">General</SelectItem>
-                      <SelectItem value="mental-health">Mental Health</SelectItem>
-                      <SelectItem value="relationships">Relationships</SelectItem>
-                      <SelectItem value="work">Work & Career</SelectItem>
-                      <SelectItem value="family">Family</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="general">{t.communities_filter_general}</SelectItem>
+                      <SelectItem value="mental-health">{t.communities_filter_mental_health}</SelectItem>
+                      <SelectItem value="relationships">{t.communities_filter_relationships}</SelectItem>
+                      <SelectItem value="work">{t.communities_filter_work}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <Button onClick={handleCreateCommunity} disabled={isCreating} className="w-full">
-                  {isCreating ? "Creating..." : "Create Community"}
+                  {isCreating ? t.communities_creating : t.communities_create}
                 </Button>
               </div>
             </DialogContent>
@@ -170,7 +168,7 @@ const Communities = () => {
         ) : (
           <div className="text-center py-12">
             <Users className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-            <p className="text-muted-foreground">No communities found</p>
+            <p className="text-muted-foreground">{t.communities_not_found}</p>
           </div>
         )}
       </div>

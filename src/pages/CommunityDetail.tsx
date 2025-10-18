@@ -14,6 +14,7 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import ConfessionCard from "@/components/ConfessionCard";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const CommunityDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -23,6 +24,7 @@ const CommunityDetail = () => {
   const { membership, isMember, joinCommunity, leaveCommunity, isJoining, isLeaving } = 
     useCommunityMembers(id!);
   const { isPremium } = usePremiumStatus(user?.id);
+  const { t } = useLanguage();
 
   const { data: community, isLoading: loadingCommunity } = useQuery({
     queryKey: ['community', id],
@@ -69,9 +71,9 @@ const CommunityDetail = () => {
     return (
       <AppLayout>
         <div className="max-w-4xl mx-auto px-4 py-8 text-center">
-          <p className="text-muted-foreground">Community not found</p>
+          <p className="text-muted-foreground">{t.communities_not_found}</p>
           <Button onClick={() => navigate('/communities')} className="mt-4">
-            Back to Communities
+            {t.communities_back}
           </Button>
         </div>
       </AppLayout>
@@ -89,7 +91,7 @@ const CommunityDetail = () => {
           className="mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Communities
+          {t.communities_back}
         </Button>
 
         <AnimatedCard glass hover="lift" className="p-6 mb-6">
@@ -113,7 +115,7 @@ const CommunityDetail = () => {
                 onClick={() => isMember ? leaveCommunity() : joinCommunity()}
                 disabled={isJoining || isLeaving}
               >
-                {isMember ? "Leave" : "Join"}
+                {isMember ? t.communities_leave : t.communities_join}
               </Button>
               {membership?.role === 'admin' && (
                 <Button variant="ghost" size="icon">
@@ -130,18 +132,18 @@ const CommunityDetail = () => {
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4" />
-              <span>{community.member_count.toLocaleString()} members</span>
+              <span>{community.member_count.toLocaleString()} {t.communities_members}</span>
             </div>
             <div className="flex items-center gap-2">
               <MessageSquare className="w-4 h-4" />
-              <span>{community.post_count.toLocaleString()} posts</span>
+              <span>{community.post_count.toLocaleString()} {t.communities_posts}</span>
             </div>
           </div>
         </AnimatedCard>
 
         {/* Confessions */}
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Recent Confessions</h2>
+          <h2 className="text-xl font-semibold">{t.communities_recent}</h2>
           {loadingConfessions ? (
             <LoadingSpinner />
           ) : confessions && confessions.length > 0 ? (
@@ -159,13 +161,13 @@ const CommunityDetail = () => {
             <AnimatedCard glass className="p-8 text-center">
               <MessageSquare className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
               <p className="text-muted-foreground">
-                No confessions yet. Be the first to share!
+                {t.communities_no_posts}
               </p>
               <Button 
                 onClick={() => navigate('/compose')} 
                 className="mt-4"
               >
-                Create Confession
+                {t.communities_create_confession}
               </Button>
             </AnimatedCard>
           )}

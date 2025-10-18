@@ -11,6 +11,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import ConfessionCard from "@/components/ConfessionCard";
 import { AnimatedCard } from "@/components/AnimatedCard";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const NearbyConfessions = () => {
   const [radius, setRadius] = useState<number>(50);
@@ -19,6 +20,7 @@ const NearbyConfessions = () => {
   const { user } = useCurrentUser();
   const { data: confessions, isLoading, error } = useNearbyConfessions({ radiusKm: radius });
   const { isPremium } = usePremiumStatus(user?.id);
+  const { t } = useLanguage();
 
   return (
     <AppLayout>
@@ -29,10 +31,10 @@ const NearbyConfessions = () => {
             <MapPin className="w-16 h-16 mx-auto mb-4 text-primary" />
           </FloatingElement>
           <h1 className="text-4xl font-bold mb-2">
-            <GradientText variant="hero">Nearby Confessions</GradientText>
+            <GradientText variant="hero">{t.nearby_title}</GradientText>
           </h1>
           <p className="text-muted-foreground">
-            Discover confessions from people around you
+            {t.nearby_discover}
           </p>
         </div>
 
@@ -40,13 +42,13 @@ const NearbyConfessions = () => {
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <Select value={radius.toString()} onValueChange={(v) => setRadius(Number(v))}>
             <SelectTrigger className="w-full md:w-48">
-              <SelectValue placeholder="Radius" />
+              <SelectValue placeholder={t.nearby_radius} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="10">Within 10 km</SelectItem>
-              <SelectItem value="25">Within 25 km</SelectItem>
-              <SelectItem value="50">Within 50 km</SelectItem>
-              <SelectItem value="100">Within 100 km</SelectItem>
+              <SelectItem value="10">{t.nearby_within_km.replace('{km}', '10')}</SelectItem>
+              <SelectItem value="25">{t.nearby_within_km.replace('{km}', '25')}</SelectItem>
+              <SelectItem value="50">{t.nearby_within_km.replace('{km}', '50')}</SelectItem>
+              <SelectItem value="100">{t.nearby_within_km.replace('{km}', '100')}</SelectItem>
             </SelectContent>
           </Select>
 
@@ -57,17 +59,17 @@ const NearbyConfessions = () => {
               onClick={() => setView('list')}
             >
               <List className="w-4 h-4 mr-2" />
-              List
+              {t.nearby_list_view}
             </Button>
             <Button
               variant={view === 'map' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setView('map')}
               disabled
-              title="Map view coming soon"
+              title={t.nearby_map_coming_soon}
             >
               <MapIcon className="w-4 h-4 mr-2" />
-              Map
+              {t.nearby_map_view}
             </Button>
           </div>
         </div>
@@ -78,9 +80,9 @@ const NearbyConfessions = () => {
         ) : error ? (
           <AnimatedCard glass className="p-8 text-center">
             <MapPin className="w-12 h-12 mx-auto mb-4 text-destructive" />
-            <p className="text-muted-foreground mb-2">Could not get your location</p>
+            <p className="text-muted-foreground mb-2">{t.nearby_no_location}</p>
             <p className="text-sm text-muted-foreground">
-              Please enable location permissions to see nearby confessions
+              {t.nearby_enable_location}
             </p>
           </AnimatedCard>
         ) : confessions && confessions.length > 0 ? (
@@ -102,7 +104,7 @@ const NearbyConfessions = () => {
                     <AnimatedCard glass className="px-3 py-1">
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <MapPin className="w-3 h-3" />
-                        <span>{confession.distance.toFixed(1)} km</span>
+                        <span>{t.nearby_distance_km.replace('{distance}', confession.distance.toFixed(1))}</span>
                       </div>
                     </AnimatedCard>
                   </div>
@@ -113,9 +115,9 @@ const NearbyConfessions = () => {
         ) : (
           <AnimatedCard glass className="p-8 text-center">
             <MapPin className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-            <p className="text-muted-foreground mb-2">No nearby confessions found</p>
+            <p className="text-muted-foreground mb-2">{t.nearby_none_found}</p>
             <p className="text-sm text-muted-foreground">
-              Try increasing the search radius or check back later
+              {t.nearby_increase_radius}
             </p>
           </AnimatedCard>
         )}
