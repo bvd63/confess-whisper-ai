@@ -606,6 +606,33 @@ export type Database = {
         }
         Relationships: []
       }
+      cron_job_logs: {
+        Row: {
+          created_at: string | null
+          details: Json | null
+          executed_at: string | null
+          id: string
+          job_name: string
+          status: string
+        }
+        Insert: {
+          created_at?: string | null
+          details?: Json | null
+          executed_at?: string | null
+          id?: string
+          job_name: string
+          status: string
+        }
+        Update: {
+          created_at?: string | null
+          details?: Json | null
+          executed_at?: string | null
+          id?: string
+          job_name?: string
+          status?: string
+        }
+        Relationships: []
+      }
       daily_prompts: {
         Row: {
           active_date: string
