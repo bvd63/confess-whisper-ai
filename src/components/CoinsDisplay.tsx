@@ -112,6 +112,17 @@ const CoinsDisplay = ({ userId, variant = "compact" }: CoinsDisplayProps) => {
             <li>{t.coins_per_like_detail}</li>
           </ul>
         </div>
+
+        <div className="mt-3 sm:mt-4 p-2.5 sm:p-3 bg-primary/10 rounded-lg border border-primary/20">
+          <p className="text-[10px] sm:text-xs text-primary font-semibold mb-1.5 sm:mb-2">
+            {t.coins_how_to_spend}
+          </p>
+          <ul className="text-[10px] sm:text-xs text-muted-foreground space-y-0.5 sm:space-y-1">
+            <li>{t.coins_polish_detail}</li>
+            <li>{t.coins_boost_detail}</li>
+            <li>{t.coins_flairs_detail}</li>
+          </ul>
+        </div>
       </Card>
 
       <Dialog open={showHistory} onOpenChange={setShowHistory}>

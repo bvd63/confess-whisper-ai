@@ -656,6 +656,10 @@ type Translations = {
   coins_confession_created: string;
   coins_comment_added: string;
   coins_like_received: string;
+  coins_how_to_spend: string;
+  coins_polish_detail: string;
+  coins_boost_detail: string;
+  coins_flairs_detail: string;
   
   // Boost Confession
   boost_confession: string;
@@ -1777,6 +1781,10 @@ export const translations: Record<Language, Translations> = {
     coins_confession_created: "New confession",
     coins_comment_added: "Comment added",
     coins_like_received: "Like received",
+    coins_how_to_spend: "💎 How to Spend Coins",
+    coins_polish_detail: "✨ Polish Confession (10 coins) - AI improves your text",
+    coins_boost_detail: "🚀 Boost Confession (15 coins) - Highlight for 1 hour",
+    coins_flairs_detail: "🎨 Profile Flairs (30 coins) - Customize your profile",
     
     boost_confession: "Boost Confession",
     boost_success_title: "Confession Boosted!",
@@ -2737,6 +2745,10 @@ export const translations: Record<Language, Translations> = {
     coins_confession_created: "Nueva confesión",
     coins_comment_added: "Comentario añadido",
     coins_like_received: "Me gusta recibido",
+    coins_how_to_spend: "💎 Cómo Gastar Monedas",
+    coins_polish_detail: "✨ Mejorar Confesión (10 monedas) - IA mejora tu texto",
+    coins_boost_detail: "🚀 Impulsar Confesión (15 monedas) - Destacar por 1 hora",
+    coins_flairs_detail: "🎨 Insignias de Perfil (30 monedas) - Personaliza tu perfil",
     
     boost_confession: "Impulsar Confesión",
     boost_success_title: "¡Confesión Impulsada!",
@@ -3731,6 +3743,10 @@ export const translations: Record<Language, Translations> = {
     coins_confession_created: "Neues Geständnis",
     coins_comment_added: "Kommentar hinzugefügt",
     coins_like_received: "Like erhalten",
+    coins_how_to_spend: "💎 Münzen Ausgeben",
+    coins_polish_detail: "✨ Geständnis Verbessern (10 Münzen) - KI verbessert deinen Text",
+    coins_boost_detail: "🚀 Geständnis Boosten (15 Münzen) - 1 Stunde hervorheben",
+    coins_flairs_detail: "🎨 Profil-Abzeichen (30 Münzen) - Profil personalisieren",
     
     boost_confession: "Geständnis Boosten",
     boost_success_title: "Geständnis Geboostet!",
