@@ -13,7 +13,10 @@ export const useCurrentUser = () => {
       const { data } = await supabase.auth.getUser();
       return data.user;
     },
-    cacheTTL: 30 * 1000, // 30 seconds
+    cacheTTL: 60 * 1000, // 1 minute cache
+    useCircuitBreaker: false, // Auth is local, no need for circuit breaker
+    useRetry: false, // Auth checks are fast, no retry needed
+    useDedupe: true, // Keep deduplication
   });
 
   useEffect(() => {
