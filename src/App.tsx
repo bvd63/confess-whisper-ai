@@ -23,6 +23,7 @@ import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import Admin from "./pages/Admin";
+import SystemMonitor from "./pages/SystemMonitor";
 import Bookmarks from "./pages/Bookmarks";
 import Following from "./pages/Following";
 import SearchUsers from "./pages/SearchUsers";
@@ -116,6 +117,7 @@ const AppContent = () => {
         <Route path="/u/:handle" element={<UserProfile />} />
         <Route path="/user/:userId" element={<UserProfile />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/system-monitor" element={<SystemMonitor />} />
         <Route path="/bookmarks" element={<Bookmarks />} />
         <Route path="/following" element={<Following />} />
         <Route path="/search-users" element={<SearchUsers />} />
