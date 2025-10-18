@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import { Card } from "@/components/ui/card";
+import { AnimatedCard } from "@/components/AnimatedCard";
+import { EnhancedButton } from "@/components/EnhancedButton";
 import { MessageCircle, Sparkles } from "lucide-react";
 import DeepInsightDialog from "./DeepInsightDialog";
 import ShareDialog from "./ShareDialog";
@@ -85,7 +86,11 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   };
 
   return (
-    <Card className="p-3 sm:p-4 md:p-5 mb-3 sm:mb-4 bg-gradient-to-br from-card to-muted/30 border-border/50 shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-glow)] transition-all duration-300 animate-fade-in touch-manipulation active-scale">
+    <AnimatedCard 
+      hover="lift"
+      glass
+      className="p-3 sm:p-4 md:p-5 mb-3 sm:mb-4 touch-manipulation"
+    >
       <div className="mb-2 sm:mb-3">
         <ConfessionHeader 
           category={confession.category} 
@@ -157,14 +162,16 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
           </div>
 
           {/* Deep Insight Button */}
-          <Button
+          <EnhancedButton
             onClick={() => setIsDeepInsightOpen(true)}
             variant="outline"
-            className="w-full mt-3 border-primary/30 hover:bg-primary/10 hover:border-primary/50 text-primary"
+            className="w-full mt-3 border-primary/30 text-primary"
+            glow
+            shine
           >
-            <Sparkles className="w-4 h-4 mr-2" />
+            <Sparkles className="w-4 h-4 mr-2 animate-pulse-glow" />
             {confession.ai_deep_insight ? t.deep_insight_title : t.generate_insight}
-          </Button>
+          </EnhancedButton>
         </>
       )}
 
@@ -200,7 +207,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         confessionId={confession.id}
         userId={user?.id || null}
       />
-    </Card>
+    </AnimatedCard>
   );
 };
 

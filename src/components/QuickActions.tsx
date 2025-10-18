@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { EnhancedButton } from "@/components/EnhancedButton";
 import { Plus, Search, MessageCircle, Compass } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -43,17 +43,20 @@ export const QuickActions = ({ className, onNewConfession }: QuickActionsProps) 
 
   return (
     <div className={cn("flex gap-2 flex-wrap", className)}>
-      {actions.map((action) => (
-        <Button
+      {actions.map((action, index) => (
+        <EnhancedButton
           key={action.label}
           variant={action.variant}
           size="sm"
           onClick={action.onClick}
-          className="gap-2"
+          className="gap-2 animate-fade-in"
+          style={{ animationDelay: `${index * 50}ms` }}
+          lift={action.variant === "default"}
+          glow={action.variant === "default"}
         >
           <action.icon className="w-4 h-4" />
           {action.label}
-        </Button>
+        </EnhancedButton>
       ))}
     </div>
   );

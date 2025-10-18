@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { EnhancedButton } from "@/components/EnhancedButton";
+import { AnimatedCard } from "@/components/AnimatedCard";
+import { GradientText } from "@/components/GradientText";
+import { FloatingElement } from "@/components/FloatingElement";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 import { Heart, Mail, Lock, Loader2, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -130,15 +132,21 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-background flex items-center justify-center p-3 sm:p-4">
-      <Card className="w-full max-w-md p-4 sm:p-6 md:p-8 bg-card/95 backdrop-blur-sm border-primary/20 shadow-[var(--shadow-soft)] animate-fade-in">
+    <div className="min-h-screen bg-gradient-mesh flex items-center justify-center p-3 sm:p-4">
+      <AnimatedCard 
+        hover="glow"
+        glass
+        className="w-full max-w-md p-4 sm:p-6 md:p-8 border-primary/20"
+      >
         {/* Logo & Title */}
-        <div className="text-center mb-6 sm:mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 mb-3 sm:mb-4">
-            <Heart className="w-6 h-6 sm:w-8 sm:h-8 text-primary" fill="currentColor" />
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent mb-2">
-            Confess+
+        <div className="text-center mb-6 sm:mb-8 animate-fade-in">
+          <FloatingElement delay={0.5}>
+            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 mb-3 sm:mb-4">
+              <Heart className="w-6 h-6 sm:w-8 sm:h-8 text-primary animate-heart-beat" fill="currentColor" />
+            </div>
+          </FloatingElement>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">
+            <GradientText variant="hero">Confess+</GradientText>
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
             {isLogin ? t.auth_welcome_back : t.auth_create_account}
@@ -187,10 +195,13 @@ const Auth = () => {
             )}
           </div>
 
-          <Button
+          <EnhancedButton
             type="submit"
-            className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-[var(--shadow-glow)]"
+            className="w-full"
             disabled={isLoading}
+            glow
+            lift
+            shine
           >
             {isLoading ? (
               <>
@@ -199,11 +210,11 @@ const Auth = () => {
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4 mr-2" />
+                <Sparkles className="w-4 h-4 mr-2 animate-pulse-glow" />
                 {isLogin ? t.auth_login_button : t.auth_signup_button}
               </>
             )}
-          </Button>
+          </EnhancedButton>
         </form>
 
         {/* Toggle Login/Signup */}
@@ -250,7 +261,7 @@ const Auth = () => {
             </div>
           </div>
         )}
-      </Card>
+      </AnimatedCard>
     </div>
   );
 };
