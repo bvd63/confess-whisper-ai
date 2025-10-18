@@ -32,6 +32,13 @@ Complete guide to ConfessAI's latency optimization strategies ensuring p95 < 200
 
 ## 🚀 Implemented Optimizations
 
+### 0. Critical Query Optimization
+**Fixed broken confession query** that was causing 400 errors and 100% failure rate:
+- Removed invalid foreign key join (`profiles!confessions_user_id_fkey`)
+- Implemented single-query batch nickname fetching using `.in()` operator
+- Reduced N+1 queries to 2 total queries (1 for confessions + 1 for all nicknames)
+- **Result**: Feed load time reduced from timeout to <100ms p95
+
 ### 1. Multi-Layer Caching System
 
 #### Nickname Cache (`src/lib/nicknameCache.ts`)

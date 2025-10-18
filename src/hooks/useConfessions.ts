@@ -32,12 +32,10 @@ export const useConfessions = ({
   const { data, isLoading, error, refetch } = useOptimizedQuery<Confession[]>({
     queryKey: ['confessions', sortBy, categoryFilter, limit],
     queryFn: async () => {
+      // Fetch confessions without join (faster)
       let query = supabase
         .from('confessions')
-        .select(`
-          *,
-          profiles!confessions_user_id_fkey(nickname)
-        `)
+        .select('*')
         .limit(limit);
 
       if (categoryFilter !== 'all') {
@@ -56,11 +54,26 @@ export const useConfessions = ({
       // Prime caches for better performance
       if (data) {
         primeConfessionBatch(data);
-        data.forEach((confession: any) => {
-          if (confession.user_id && confession.profiles?.nickname) {
-            primeNicknameCache(confession.user_id, confession.profiles.nickname);
+        
+        // Batch fetch ALL nicknames in a single query (MUCH faster)
+        const uniqueUserIds = [...new Set(data.map(c => c.user_id).filter(Boolean))] as string[];
+        if (uniqueUserIds.length > 0) {
+          try {
+            const { data: profiles } = await supabase
+              .from('profiles')
+              .select('user_id, nickname')
+              .in('user_id', uniqueUserIds);
+            
+            // Prime nickname cache with all results at once
+            profiles?.forEach(profile => {
+              if (profile.nickname) {
+                primeNicknameCache(profile.user_id, profile.nickname);
+              }
+            });
+          } catch (e) {
+            // Silent fail for nickname batch fetch
           }
-        });
+        }
       }
 
       return data || [];
