@@ -42,30 +42,44 @@ export const useInbox = (userId: string | null) => {
     }
 
     try {
-      const { data: participants, error } = await supabase
+      // First, get all conversation IDs for this user
+      const { data: participants, error: participantsError } = await supabase
         .from('conversation_participants')
-        .select(`
-          conversation_id,
-          conversations!inner (
-            id,
-            updated_at
-          )
-        `)
-        .eq('user_id', userId)
-        .order('conversations.updated_at', { ascending: false });
+        .select('conversation_id')
+        .eq('user_id', userId);
 
-      if (error) throw error;
+      if (participantsError) throw participantsError;
+      if (!participants || participants.length === 0) {
+        setConversations([]);
+        setIsLoading(false);
+        return;
+      }
+
+      // Get conversation details with updated_at for sorting
+      const conversationIds = participants.map(p => p.conversation_id);
+      const { data: conversationsData, error: conversationsError } = await supabase
+        .from('conversations')
+        .select('id, updated_at')
+        .in('id', conversationIds)
+        .order('updated_at', { ascending: false });
+
+      if (conversationsError) throw conversationsError;
+
+      // Use the ordered conversations list
+      const orderedParticipants = conversationsData?.map(conv => 
+        participants.find(p => p.conversation_id === conv.id)
+      ).filter(Boolean) || [];
 
       // Batch fetch all other participants first
       const allOtherParticipants = await Promise.all(
-        (participants || []).map(async (p) => {
+        orderedParticipants.map(async (p) => {
           const { data } = await supabase
             .from('conversation_participants')
             .select('user_id')
-            .eq('conversation_id', p.conversation_id)
+            .eq('conversation_id', p!.conversation_id)
             .neq('user_id', userId)
             .limit(1);
-          return { convId: p.conversation_id, otherUserId: data?.[0]?.user_id };
+          return { convId: p!.conversation_id, otherUserId: data?.[0]?.user_id };
         })
       );
 
@@ -77,8 +91,8 @@ export const useInbox = (userId: string | null) => {
 
       // Load details for each conversation
       const conversationDetails = await Promise.all(
-        (participants || []).map(async (p, idx) => {
-          const convId = p.conversation_id;
+        orderedParticipants.map(async (p, idx) => {
+          const convId = p!.conversation_id;
           const otherUserId = allOtherParticipants[idx]?.otherUserId;
 
           // Get nickname from cache (already prefetched)
