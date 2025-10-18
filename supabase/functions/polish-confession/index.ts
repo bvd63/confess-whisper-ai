@@ -7,6 +7,8 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  const startTime = performance.now();
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -14,7 +16,10 @@ serve(async (req) => {
   try {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      throw new Error('No authorization header');
+      return new Response(
+        JSON.stringify({ error: 'No authorization header' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -26,13 +31,19 @@ serve(async (req) => {
     // Get authenticated user
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
-      throw new Error('Unauthorized');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const { confessionText, language = 'en' } = await req.json();
 
     if (!confessionText || confessionText.trim().length === 0) {
-      throw new Error('Confession text is required');
+      return new Response(
+        JSON.stringify({ error: 'Confession text is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Check and deduct coins
@@ -40,7 +51,7 @@ serve(async (req) => {
       .from('user_coins')
       .select('balance')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     if (coinsError || !coinsData || coinsData.balance < 10) {
       return new Response(
@@ -103,6 +114,9 @@ serve(async (req) => {
       console.error('Error deducting coins:', deductError);
       throw new Error('Failed to deduct coins');
     }
+
+    const duration = performance.now() - startTime;
+    console.log(`Polish confession completed in ${duration.toFixed(2)}ms`);
 
     return new Response(
       JSON.stringify({ 

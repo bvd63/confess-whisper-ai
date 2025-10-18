@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { RealtimeChannel } from "@supabase/supabase-js";
 
 interface CoinsData {
   balance: number;
@@ -20,8 +19,6 @@ export const useCoins = (userId: string | undefined) => {
       setCoinsData({ balance: 0, lifetimeEarned: 0, loading: false });
       return;
     }
-
-    let channel: RealtimeChannel;
 
     const loadCoins = async () => {
       try {
@@ -48,7 +45,7 @@ export const useCoins = (userId: string | undefined) => {
     loadCoins();
 
     // Set up realtime subscription
-    channel = supabase
+    const channel = supabase
       .channel(`user_coins:${userId}`)
       .on(
         'postgres_changes',
@@ -71,7 +68,7 @@ export const useCoins = (userId: string | undefined) => {
       .subscribe();
 
     return () => {
-      channel?.unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, [userId]);
 
