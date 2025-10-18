@@ -9,6 +9,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, User } from 'lucide-react';
 import { useProfileHandle } from '@/hooks/useProfileHandle';
+import { useLanguage } from '@/contexts/LanguageContext';
+
 interface ProfileEditorProps {
   userId: string;
   currentProfile: {
@@ -29,9 +31,8 @@ export const ProfileEditor = ({
   const [bio, setBio] = useState(currentProfile.bio || '');
   const [privacyMode, setPrivacyMode] = useState(currentProfile.privacy_mode || 'public');
   const [isUpdating, setIsUpdating] = useState(false);
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+  const { t } = useLanguage();
   const {
     generateHandle,
     isGenerating
@@ -53,9 +54,12 @@ export const ProfileEditor = ({
       
       if (daysSinceUpdate < 21) {
         const daysRemaining = 21 - daysSinceUpdate;
+        const plural = daysRemaining !== 1 ? 's' : '';
         toast({
-          title: 'Nickname Change Restricted',
-          description: `You can change your nickname again in ${daysRemaining} day${daysRemaining !== 1 ? 's' : ''}`,
+          title: t.profile_nickname_change_restricted,
+          description: t.profile_nickname_cooldown_message
+            .replace('{days}', daysRemaining.toString())
+            .replace('{plural}', plural),
           variant: 'destructive'
         });
         return;

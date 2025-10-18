@@ -420,6 +420,8 @@ type Translations = {
   
   // Profile Analytics
   profile_title: string;
+  profile_nickname_change_restricted: string;
+  profile_nickname_cooldown_message: string;
   profile_my_confessions: string;
   profile_statistics: string;
   profile_total_confessions: string;
@@ -1101,6 +1103,8 @@ export const translations: Record<Language, Translations> = {
     
     // Profile Analytics
     profile_title: "Profile",
+    profile_nickname_change_restricted: "Nickname Change Restricted",
+    profile_nickname_cooldown_message: "You can change your nickname again in {days} day{plural}",
     profile_my_confessions: "My Confessions",
     profile_statistics: "Statistics",
     profile_total_confessions: "Total Confessions",
@@ -2167,6 +2171,8 @@ export const translations: Record<Language, Translations> = {
     bookmarks_empty_state: "Sin marcadores aún",
     bookmarks_empty_description: "Empieza a marcar confesiones para verlas aquí",
     profile_title: "Perfil",
+    profile_nickname_change_restricted: "Cambio de Apodo Restringido",
+    profile_nickname_cooldown_message: "Puedes cambiar tu apodo nuevamente en {days} día{plural}",
     profile_my_confessions: "Mis Confesiones",
     profile_statistics: "Estadísticas",
     profile_total_confessions: "Total de Confesiones",
@@ -3011,6 +3017,8 @@ export const translations: Record<Language, Translations> = {
     bookmarks_empty_state: "Noch keine Lesezeichen",
     bookmarks_empty_description: "Beginnen Sie, Geständnisse zu markieren, um sie hier zu sehen",
     profile_title: "Profil",
+    profile_nickname_change_restricted: "Nickname-Änderung Eingeschränkt",
+    profile_nickname_cooldown_message: "Du kannst deinen Nickname in {days} Tag{plural} wieder ändern",
     profile_my_confessions: "Meine Geständnisse",
     profile_statistics: "Statistiken",
     profile_total_confessions: "Gesamt Geständnisse",
