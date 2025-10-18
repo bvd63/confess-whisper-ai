@@ -14,6 +14,7 @@ interface ProfileHeaderProps {
   avatarUrl?: string | null;
   bio?: string | null;
   confessionsCount: number;
+  onEditProfile?: () => void;
 }
 
 /**
@@ -26,6 +27,7 @@ export const ProfileHeader = ({
   avatarUrl,
   bio,
   confessionsCount,
+  onEditProfile,
 }: ProfileHeaderProps) => {
   const navigate = useNavigate();
   const { t } = useLanguage();
@@ -78,7 +80,7 @@ export const ProfileHeader = ({
           <EnhancedButton
             variant="outline"
             className="flex-1"
-            onClick={() => navigate("/settings")}
+            onClick={onEditProfile || (() => navigate("/profile"))}
             lift
           >
             <Settings className="w-4 h-4 mr-2" />
