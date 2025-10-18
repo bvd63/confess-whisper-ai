@@ -7,12 +7,23 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
-};
+function generateRequestId(): string {
+  return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+
+function log(level: string, message: string, context?: any) {
+  const logEntry = {
+    timestamp: new Date().toISOString(),
+    level,
+    message,
+    ...context,
+  };
+  console.log(JSON.stringify(logEntry));
+}
 
 serve(async (req) => {
+  const requestId = generateRequestId();
+  
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -23,19 +34,30 @@ serve(async (req) => {
   );
 
   try {
-    logStep("Function started");
+    log('info', '[CREATE-CHECKOUT] Function started', { requestId });
 
-    const authHeader = req.headers.get("Authorization")!;
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      log('warn', '[CREATE-CHECKOUT] No authorization header', { requestId });
+      throw new Error("No authorization header provided");
+    }
+
     const token = authHeader.replace("Bearer ", "");
     const { data } = await supabaseClient.auth.getUser(token);
     const user = data.user;
-    if (!user?.email) throw new Error("User not authenticated or email not available");
-    logStep("User authenticated", { userId: user.id, email: user.email });
+    if (!user?.email) {
+      log('warn', '[CREATE-CHECKOUT] User not authenticated', { requestId });
+      throw new Error("User not authenticated or email not available");
+    }
+    log('info', '[CREATE-CHECKOUT] User authenticated', { requestId, userId: user.id });
 
     const { priceId, planName, billingCycle } = await req.json();
-    logStep("Request body parsed", { priceId, planName, billingCycle });
+    log('info', '[CREATE-CHECKOUT] Request parsed', { requestId, priceId, planName, billingCycle });
     
-    if (!priceId) throw new Error("Price ID is required");
+    if (!priceId || typeof priceId !== 'string') {
+      log('warn', '[CREATE-CHECKOUT] Invalid price ID', { requestId, priceId });
+      throw new Error("Valid Price ID is required");
+    }
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { apiVersion: "2025-08-27.basil" as any });
     
@@ -43,9 +65,9 @@ serve(async (req) => {
     let customerId;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
-      logStep("Existing customer found", { customerId });
+      log('info', '[CREATE-CHECKOUT] Existing customer found', { requestId, customerId });
     } else {
-      logStep("No existing customer, will create on checkout");
+      log('info', '[CREATE-CHECKOUT] Will create customer on checkout', { requestId });
     }
 
     const origin = req.headers.get("origin") || "http://localhost:8080";
@@ -68,7 +90,7 @@ serve(async (req) => {
       },
     });
 
-    logStep("Checkout session created", { sessionId: session.id });
+    log('info', '[CREATE-CHECKOUT] Session created successfully', { requestId, sessionId: session.id });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -76,7 +98,7 @@ serve(async (req) => {
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR in create-checkout", { message: errorMessage });
+    log('error', '[CREATE-CHECKOUT] Error occurred', { requestId, error: errorMessage });
     return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,

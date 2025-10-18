@@ -6,20 +6,50 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+function generateRequestId(): string {
+  return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+
+function log(level: string, message: string, context?: any) {
+  const logEntry = {
+    timestamp: new Date().toISOString(),
+    level,
+    message,
+    ...context,
+  };
+  console.log(JSON.stringify(logEntry));
+}
+
 serve(async (req) => {
+  const requestId = generateRequestId();
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    log('info', '[ENHANCED-MODERATION] Function started', { requestId });
+
     const { content, confessionId, language = 'en' } = await req.json();
 
     if (!content || !confessionId) {
+      log('warn', '[ENHANCED-MODERATION] Missing required fields', { requestId });
       return new Response(
         JSON.stringify({ error: 'Missing required fields' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    // Validate inputs
+    if (typeof content !== 'string' || content.length > 10000) {
+      log('warn', '[ENHANCED-MODERATION] Invalid content length', { requestId, contentLength: content.length });
+      return new Response(
+        JSON.stringify({ error: 'Content must be a string with max 10000 characters' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    log('info', '[ENHANCED-MODERATION] Validating confession', { requestId, confessionId });
 
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -27,12 +57,16 @@ serve(async (req) => {
     );
 
     // Call AI moderation
+    log('info', '[ENHANCED-MODERATION] Calling AI moderation', { requestId, confessionId });
     const { data: moderationData, error: moderationError } = await supabaseClient.functions.invoke(
       'ai-moderation',
       { body: { content, language } }
     );
 
-    if (moderationError) throw moderationError;
+    if (moderationError) {
+      log('error', '[ENHANCED-MODERATION] AI moderation failed', { requestId, error: moderationError.message });
+      throw moderationError;
+    }
 
     const isSafe = moderationData?.is_safe ?? true;
     const reason = moderationData?.reason ?? '';
@@ -59,6 +93,8 @@ serve(async (req) => {
 
     // Add to moderation queue if flagged
     if (level !== 'safe') {
+      log('info', '[ENHANCED-MODERATION] Content flagged', { requestId, confessionId, level, reason });
+      
       await supabaseClient.from('moderation_queue').insert({
         confession_id: confessionId,
         content,
@@ -74,13 +110,18 @@ serve(async (req) => {
           moderation_status: level === 'unsafe' ? 'rejected' : 'pending' 
         })
         .eq('id', confessionId);
+      
+      log('info', '[ENHANCED-MODERATION] Confession status updated', { requestId, confessionId, status: level === 'unsafe' ? 'rejected' : 'pending' });
     } else {
       // Auto-approve safe content
+      log('info', '[ENHANCED-MODERATION] Content approved', { requestId, confessionId });
       await supabaseClient
         .from('confessions')
         .update({ moderation_status: 'approved' })
         .eq('id', confessionId);
     }
+
+    log('info', '[ENHANCED-MODERATION] Moderation complete', { requestId, confessionId, level });
 
     return new Response(
       JSON.stringify({
@@ -92,7 +133,10 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Enhanced moderation error:', error);
+    log('error', '[ENHANCED-MODERATION] Error occurred', { 
+      requestId, 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    });
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
