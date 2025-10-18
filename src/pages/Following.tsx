@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, Suspense, lazy } from "react";
+import { GradientText } from "@/components/GradientText";
+import { FloatingElement } from "@/components/FloatingElement";
 import { Users } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -42,9 +44,13 @@ const Following = () => {
       onUpgradeClick={() => setIsPremiumDialogOpen(true)}
     >
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-4xl pb-24">
-        <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
-          <Users className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">{t.following_your_feed}</h1>
+        <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8 animate-fade-in">
+          <FloatingElement delay={0.5}>
+            <Users className="h-6 w-6 sm:h-8 sm:w-8 text-primary animate-pulse-glow" />
+          </FloatingElement>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
+            <GradientText variant="hero">{t.following_your_feed}</GradientText>
+          </h1>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">

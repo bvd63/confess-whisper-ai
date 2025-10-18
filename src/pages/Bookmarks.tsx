@@ -1,5 +1,7 @@
 import { useState, useEffect, Suspense, lazy } from "react";
 import { useNavigate } from "react-router-dom";
+import { GradientText } from "@/components/GradientText";
+import { FloatingElement } from "@/components/FloatingElement";
 import { Bookmark } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ConfessionCard from "@/components/ConfessionCard";
@@ -130,10 +132,12 @@ const Bookmarks = () => {
       onUpgradeClick={() => setIsPremiumDialogOpen(true)}
     >
       <main className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
-        <div className="flex items-center gap-2 mb-6 sm:mb-8">
-          <Bookmark className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-          <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-            {t.bookmarks_title}
+        <div className="flex items-center gap-2 mb-6 sm:mb-8 animate-fade-in">
+          <FloatingElement delay={0.5}>
+            <Bookmark className="w-5 h-5 sm:w-6 sm:h-6 text-primary animate-pulse-glow" />
+          </FloatingElement>
+          <h1 className="text-xl sm:text-2xl font-bold">
+            <GradientText variant="hero">{t.bookmarks_title}</GradientText>
           </h1>
         </div>
         {isLoading ? (
