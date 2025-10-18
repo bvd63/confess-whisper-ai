@@ -294,13 +294,13 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
           />
 
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Community (optional)</Label>
+            <Label className="text-sm font-medium">{t.location_community_optional}</Label>
             <Select value={communityId || "none"} onValueChange={(v) => setCommunityId(v === "none" ? null : v)} disabled={isSubmitting}>
               <SelectTrigger className="border-primary/20 focus:border-primary/40 bg-background/50">
-                <SelectValue placeholder="Select a community" />
+                <SelectValue placeholder={t.location_select_community} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">No community</SelectItem>
+                <SelectItem value="none">{t.location_no_community}</SelectItem>
                 {communities?.map((community) => (
                   <SelectItem key={community.id} value={community.id}>
                     {community.icon} {community.name}
@@ -311,7 +311,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
           </div>
 
           <div>
-            <Label className="text-sm font-medium mb-2 block">Location (optional)</Label>
+            <Label className="text-sm font-medium mb-2 block">{t.location_optional}</Label>
             <LocationPicker
               onLocationSelect={setLocation}
               initialLocation={location}

@@ -1034,6 +1034,10 @@ type Translations = {
   location_error: string;
   location_error_permission: string;
   location_city: string;
+  location_optional: string;
+  location_community_optional: string;
+  location_select_community: string;
+  location_no_community: string;
   
   // Nearby Confessions
   nearby_title: string;
@@ -1977,6 +1981,10 @@ export const translations: Record<Language, Translations> = {
     location_error: "Location error",
     location_error_permission: "Could not get your location. Please enable location permissions.",
     location_city: "Location",
+    location_optional: "Location (optional)",
+    location_community_optional: "Community (optional)",
+    location_select_community: "Select a community",
+    location_no_community: "No community",
     
     // Nearby Confessions
     nearby_title: "Nearby Confessions",
@@ -2920,6 +2928,10 @@ export const translations: Record<Language, Translations> = {
     location_error: "Error de ubicación",
     location_error_permission: "No se pudo obtener tu ubicación. Por favor, habilita los permisos de ubicación.",
     location_city: "Ubicación",
+    location_optional: "Ubicación (opcional)",
+    location_community_optional: "Comunidad (opcional)",
+    location_select_community: "Selecciona una comunidad",
+    location_no_community: "Sin comunidad",
     
     // Nearby Confessions
     nearby_title: "Confesiones Cercanas",
@@ -3863,6 +3875,10 @@ export const translations: Record<Language, Translations> = {
     location_error: "Standortfehler",
     location_error_permission: "Standort konnte nicht ermittelt werden. Bitte aktiviere die Standortberechtigungen.",
     location_city: "Standort",
+    location_optional: "Standort (optional)",
+    location_community_optional: "Community (optional)",
+    location_select_community: "Wähle eine Community",
+    location_no_community: "Keine Community",
     
     // Nearby Confessions
     nearby_title: "Geständnisse in der Nähe",
