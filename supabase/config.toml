@@ -63,3 +63,9 @@ verify_jwt = false
 
 [functions.rotate-qotd]
 verify_jwt = false
+
+[functions.health]
+verify_jwt = false
+
+[functions.metrics]
+verify_jwt = false
