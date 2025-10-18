@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Send, Loader2 } from 'lucide-react';
 import { useTypingIndicator } from '@/hooks/useTypingIndicator';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface MessageInputProps {
   conversationId: string;
@@ -16,6 +17,7 @@ export const MessageInput = ({ conversationId, userId, onSend, disabled }: Messa
   const [isSending, setIsSending] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { startTyping, stopTyping } = useTypingIndicator(conversationId, userId);
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (content.length > 0) {
@@ -58,7 +60,7 @@ export const MessageInput = ({ conversationId, userId, onSend, disabled }: Messa
         value={content}
         onChange={(e) => setContent(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Type a message..."
+        placeholder={t.type_message_placeholder}
         disabled={disabled || isSending}
         className="min-h-[44px] max-h-32 resize-none"
         rows={1}

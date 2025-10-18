@@ -117,11 +117,11 @@ const Communities = () => {
                   />
                 </div>
                 <div>
-                  <Label>Slug * (URL identifier)</Label>
+                  <Label>{t.communities_slug_label}</Label>
                   <Input
                     value={newCommunity.slug}
                     onChange={(e) => setNewCommunity({ ...newCommunity, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
-                    placeholder="community-slug"
+                    placeholder={t.communities_slug_placeholder}
                   />
                 </div>
                 <div>

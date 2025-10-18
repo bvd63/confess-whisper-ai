@@ -948,6 +948,7 @@ type Translations = {
   message_user_button: string;
   edit_profile: string;
   profile_bio: string;
+  profile_bio_placeholder: string;
   profile_handle: string;
   profile_avatar: string;
   profile_privacy_public: string;
@@ -1006,6 +1007,8 @@ type Translations = {
   communities_category: string;
   communities_name: string;
   communities_description: string;
+  communities_slug_label: string;
+  communities_slug_placeholder: string;
   communities_icon: string;
   communities_private: string;
   communities_creating: string;
@@ -1893,6 +1896,7 @@ export const translations: Record<Language, Translations> = {
     message_user_button: "Message",
     edit_profile: "Edit Profile",
     profile_bio: "Bio",
+    profile_bio_placeholder: "Tell us about yourself...",
     profile_handle: "Handle",
     profile_avatar: "Avatar",
     profile_privacy_public: "Public",
@@ -1953,6 +1957,8 @@ export const translations: Record<Language, Translations> = {
     communities_category: "Category",
     communities_name: "Community Name",
     communities_description: "Description",
+    communities_slug_label: "Slug (URL identifier)",
+    communities_slug_placeholder: "community-slug",
     communities_icon: "Icon (emoji)",
     communities_private: "Private Community",
     communities_creating: "Creating...",
@@ -2840,6 +2846,7 @@ export const translations: Record<Language, Translations> = {
     message_user_button: "Mensaje",
     edit_profile: "Editar Perfil",
     profile_bio: "Biografía",
+    profile_bio_placeholder: "Cuéntanos sobre ti...",
     profile_handle: "Usuario",
     profile_avatar: "Avatar",
     profile_privacy_public: "Público",
@@ -2900,6 +2907,8 @@ export const translations: Record<Language, Translations> = {
     communities_category: "Categoría",
     communities_name: "Nombre de la Comunidad",
     communities_description: "Descripción",
+    communities_slug_label: "Identificador (URL)",
+    communities_slug_placeholder: "identificador-comunidad",
     communities_icon: "Ícono (emoji)",
     communities_private: "Comunidad Privada",
     communities_creating: "Creando...",
@@ -3787,6 +3796,7 @@ export const translations: Record<Language, Translations> = {
     message_user_button: "Nachricht",
     edit_profile: "Profil Bearbeiten",
     profile_bio: "Biografie",
+    profile_bio_placeholder: "Erzähle uns von dir...",
     profile_handle: "Benutzername",
     profile_avatar: "Avatar",
     profile_privacy_public: "Öffentlich",
@@ -3847,6 +3857,8 @@ export const translations: Record<Language, Translations> = {
     communities_category: "Kategorie",
     communities_name: "Community-Name",
     communities_description: "Beschreibung",
+    communities_slug_label: "Kennung (URL)",
+    communities_slug_placeholder: "community-kennung",
     communities_icon: "Symbol (Emoji)",
     communities_private: "Private Community",
     communities_creating: "Wird erstellt...",

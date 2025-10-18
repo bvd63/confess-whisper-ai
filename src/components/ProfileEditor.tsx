@@ -176,7 +176,7 @@ export const ProfileEditor = ({
               id="nickname"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
-              placeholder="Your display name"
+              placeholder={t.nickname_placeholder}
               maxLength={50}
             />
             <p className="text-xs text-muted-foreground mt-1">
@@ -228,7 +228,7 @@ export const ProfileEditor = ({
               id="bio" 
               value={bio} 
               onChange={e => setBio(e.target.value)} 
-              placeholder="Tell us about yourself..." 
+              placeholder={t.profile_bio_placeholder}
               maxLength={200} 
               rows={3} 
             />
