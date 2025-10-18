@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getNicknameCached } from "@/lib/nicknameCache";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { toast } from "sonner";
 import AppLayout from "@/components/AppLayout";
 import { ConversationList } from "@/components/ConversationList";
 import { EnhancedMessageThread } from "@/components/EnhancedMessageThread";
@@ -77,6 +78,13 @@ const Messages = () => {
   };
 
   const handleConversationSelect = async (conversationId: string, userId: string) => {
+    // Validate userId before proceeding
+    if (!userId || userId.trim() === '') {
+      console.error('Invalid userId provided to handleConversationSelect');
+      toast.error(t.error_generic);
+      return;
+    }
+    
     await loadOtherUserInfo(userId);
     setSelectedConversation(conversationId);
     setOtherUserId(userId);

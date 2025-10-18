@@ -121,24 +121,30 @@ export const ConversationList = ({ currentUserId, onConversationSelect }: Conver
 
       if (messagesError) throw messagesError;
 
-      // Build conversations list
-      const baseList: Conversation[] = conversationIds.map(convId => {
-        const otherParticipant = allParticipants?.find(
-          p => p.conversation_id === convId && p.user_id !== currentUserId
-        );
-        const profile = profiles?.find(p => p.user_id === otherParticipant?.user_id);
-        const lastMsg = messages?.find(m => m.conversation_id === convId);
+      // Build conversations list (filter out invalid participants)
+      const baseList: Conversation[] = conversationIds
+        .map(convId => {
+          const otherParticipant = allParticipants?.find(
+            p => p.conversation_id === convId && p.user_id !== currentUserId
+          );
+          
+          // Skip if no valid other participant
+          if (!otherParticipant?.user_id) return null;
+          
+          const profile = profiles?.find(p => p.user_id === otherParticipant.user_id);
+          const lastMsg = messages?.find(m => m.conversation_id === convId);
 
-        return {
-          id: convId,
-          created_at: lastMsg?.created_at || '',
-          updated_at: lastMsg?.created_at || '',
-          other_user_id: otherParticipant?.user_id || '',
-          other_user_nickname: profile?.nickname || null,
-          last_message: lastMsg?.content || null,
-          unread_count: 0
-        };
-      });
+          return {
+            id: convId,
+            created_at: lastMsg?.created_at || '',
+            updated_at: lastMsg?.created_at || '',
+            other_user_id: otherParticipant.user_id,
+            other_user_nickname: profile?.nickname || null,
+            last_message: lastMsg?.content || null,
+            unread_count: 0
+          };
+        })
+        .filter((c): c is Conversation => c !== null);
 
       // Fill missing nicknames via RPC (handles any RLS edge cases)
       const conversationsList: Conversation[] = await Promise.all(
