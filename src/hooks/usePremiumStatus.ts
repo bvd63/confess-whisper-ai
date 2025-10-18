@@ -1,26 +1,13 @@
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useOptimizedQuery } from "./useOptimizedQuery";
 
 export const usePremiumStatus = (userId: string | null | undefined) => {
-  const [isPremium, setIsPremium] = useState(false);
-  const [subscriptionTier, setSubscriptionTier] = useState<string>('free');
-  const [isLoading, setIsLoading] = useState(true);
+  const { data, isLoading, refetch } = useOptimizedQuery<any>({
+    queryKey: ['premium-status', userId],
+    queryFn: async () => {
+      if (!userId) return null;
 
-  useEffect(() => {
-    if (userId) {
-      checkPremiumStatus();
-    } else {
-      setIsPremium(false);
-      setSubscriptionTier('free');
-      setIsLoading(false);
-    }
-  }, [userId]);
-
-  const checkPremiumStatus = async () => {
-    if (!userId) return;
-    
-    setIsLoading(true);
-    try {
       const { data, error } = await supabase
         .from('profiles')
         .select('is_premium, subscription_tier, subscription_ends_at')
@@ -28,31 +15,36 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
         .maybeSingle();
 
       if (error) throw error;
+      return data;
+    },
+    enabled: !!userId,
+    cacheTTL: 5 * 60 * 1000, // 5 minutes
+  });
 
-      // Check if subscription is active
-      const hasActivePremium = data?.is_premium || false;
-      const tier = data?.subscription_tier || 'free';
-      const endsAt = data?.subscription_ends_at;
-
-      // If there's an end date, check if it's in the future
-      const isActive = !endsAt || new Date(endsAt) > new Date();
-
-      setIsPremium((hasActivePremium || tier !== 'free') && isActive);
-      setSubscriptionTier(isActive ? tier : 'free');
-    } catch (error) {
-      console.error('Error checking premium status:', error);
-      setIsPremium(false);
-      setSubscriptionTier('free');
-    } finally {
-      setIsLoading(false);
+  const premiumStatus = useMemo(() => {
+    if (!data) {
+      return {
+        isPremium: false,
+        subscriptionTier: 'free',
+        isVIP: false,
+      };
     }
-  };
 
-  return { 
-    isPremium, 
-    subscriptionTier,
-    isVIP: subscriptionTier === 'vip',
-    isLoading, 
-    refetch: checkPremiumStatus 
+    const hasActivePremium = data.is_premium || false;
+    const tier = data.subscription_tier || 'free';
+    const endsAt = data.subscription_ends_at;
+    const isActive = !endsAt || new Date(endsAt) > new Date();
+
+    return {
+      isPremium: (hasActivePremium || tier !== 'free') && isActive,
+      subscriptionTier: isActive ? tier : 'free',
+      isVIP: isActive && tier === 'vip',
+    };
+  }, [data]);
+
+  return {
+    ...premiumStatus,
+    isLoading,
+    refetch,
   };
 };

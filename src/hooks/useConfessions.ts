@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useOptimizedQuery } from "./useOptimizedQuery";
 
 interface Confession {
   id: string;
@@ -25,30 +26,19 @@ export const useConfessions = ({
   limit = 20 
 }: UseConfessionsOptions = {}) => {
   const [confessions, setConfessions] = useState<Confession[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-  const retryCountRef = useRef(0);
-  const maxRetries = 3;
 
-  const loadConfessions = useCallback(async (isRetry = false) => {
-    if (!isRetry) {
-      setIsLoading(true);
-      setError(null);
-      retryCountRef.current = 0;
-    }
-    
-    try {
+  const { data, isLoading, error, refetch } = useOptimizedQuery<Confession[]>({
+    queryKey: ['confessions', sortBy, categoryFilter, limit],
+    queryFn: async () => {
       let query = supabase
         .from('confessions')
         .select('*')
         .limit(limit);
 
-      // Filter by category if not 'all'
       if (categoryFilter !== 'all') {
         query = query.eq('category', categoryFilter);
       }
 
-      // Sort based on selected filter
       if (sortBy === 'recent') {
         query = query.order('created_at', { ascending: false });
       } else {
@@ -56,30 +46,17 @@ export const useConfessions = ({
       }
 
       const { data, error: queryError } = await query;
-
       if (queryError) throw queryError;
-      setConfessions(data || []);
-      retryCountRef.current = 0; // Reset on success
-    } catch (err) {
-      console.error('Error loading confessions:', err);
-      setError(err as Error);
-      
-      // Retry logic for network errors
-      if (retryCountRef.current < maxRetries) {
-        retryCountRef.current++;
-        console.log(`Retrying... (${retryCountRef.current}/${maxRetries})`);
-        setTimeout(() => loadConfessions(true), 1000 * retryCountRef.current);
-      }
-    } finally {
-      if (!isRetry || retryCountRef.current >= maxRetries) {
-        setIsLoading(false);
-      }
-    }
-  }, [sortBy, categoryFilter, limit]);
+      return data || [];
+    },
+    cacheTTL: 2 * 60 * 1000, // 2 minutes
+  });
 
   useEffect(() => {
-    loadConfessions();
-  }, [loadConfessions]);
+    if (data) {
+      setConfessions(data);
+    }
+  }, [data]);
 
   // Set up real-time subscription with smart updates
   useEffect(() => {
@@ -138,6 +115,6 @@ export const useConfessions = ({
     confessions,
     isLoading,
     error,
-    reload: loadConfessions,
+    reload: refetch,
   };
 };

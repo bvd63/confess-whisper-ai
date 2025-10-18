@@ -1,53 +1,48 @@
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useOptimizedQuery } from "./useOptimizedQuery";
 
 interface UseFollowingOptions {
   userId: string | null;
 }
 
 export const useFollowing = ({ userId }: UseFollowingOptions) => {
-  const [following, setFollowing] = useState<string[]>([]);
-  const [followers, setFollowers] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: followingData, isLoading: followingLoading, refetch: refetchFollowing } = useOptimizedQuery<string[]>({
+    queryKey: ['following', userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data, error } = await supabase
+        .from('user_follows')
+        .select('following_id')
+        .eq('follower_id', userId);
+      if (error) throw error;
+      return data?.map(f => f.following_id) || [];
+    },
+    enabled: !!userId,
+    cacheTTL: 3 * 60 * 1000, // 3 minutes
+  });
 
-  useEffect(() => {
-    if (userId) {
-      loadFollowing();
-      loadFollowers();
-    }
-  }, [userId]);
+  const { data: followersData, isLoading: followersLoading, refetch: refetchFollowers } = useOptimizedQuery<string[]>({
+    queryKey: ['followers', userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data, error } = await supabase
+        .from('user_follows')
+        .select('follower_id')
+        .eq('following_id', userId);
+      if (error) throw error;
+      return data?.map(f => f.follower_id) || [];
+    },
+    enabled: !!userId,
+    cacheTTL: 3 * 60 * 1000, // 3 minutes
+  });
 
-  const loadFollowing = async () => {
-    if (!userId) return;
+  const following = followingData || [];
+  const followers = followersData || [];
 
-    const { data, error } = await supabase
-      .from('user_follows')
-      .select('following_id')
-      .eq('follower_id', userId);
-
-    if (!error && data) {
-      setFollowing(data.map(f => f.following_id));
-    }
-  };
-
-  const loadFollowers = async () => {
-    if (!userId) return;
-
-    const { data, error } = await supabase
-      .from('user_follows')
-      .select('follower_id')
-      .eq('following_id', userId);
-
-    if (!error && data) {
-      setFollowers(data.map(f => f.follower_id));
-    }
-    
-    setLoading(false);
-  };
-
-  const isFollowing = (targetUserId: string) => {
-    return following.includes(targetUserId);
-  };
+  const isFollowing = useMemo(() => {
+    return (targetUserId: string) => following.includes(targetUserId);
+  }, [following]);
 
   return {
     following,
@@ -55,10 +50,10 @@ export const useFollowing = ({ userId }: UseFollowingOptions) => {
     isFollowing,
     followingCount: following.length,
     followersCount: followers.length,
-    loading,
+    loading: followingLoading || followersLoading,
     reload: () => {
-      loadFollowing();
-      loadFollowers();
+      refetchFollowing();
+      refetchFollowers();
     },
   };
 };
