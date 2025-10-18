@@ -1,6 +1,10 @@
 import { useState, useEffect, Suspense, lazy } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { EnhancedButton } from "@/components/EnhancedButton";
+import { AnimatedCard } from "@/components/AnimatedCard";
+import { GradientText } from "@/components/GradientText";
+import { FloatingElement } from "@/components/FloatingElement";
 import { User, Settings } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppLayout from "@/components/AppLayout";
@@ -134,9 +138,13 @@ const Profile = () => {
       <AchievementToast userId={user.id} />
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-4xl pb-24">
-        <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
-          <User className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">{t.profile_title}</h1>
+        <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8 animate-fade-in">
+          <FloatingElement delay={0.5}>
+            <User className="h-6 w-6 sm:h-8 sm:w-8 text-primary animate-pulse-glow" />
+          </FloatingElement>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
+            <GradientText variant="hero">{t.profile_title}</GradientText>
+          </h1>
         </div>
 
         <StreakReminder userId={user.id} />
@@ -152,7 +160,7 @@ const Profile = () => {
 
           <TabsContent value="statistics" className="space-y-6">
             {/* Subscription Status Card */}
-            <div className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg border border-primary/20">
+            <AnimatedCard hover="glow" glass gradient className="p-6 border-primary/20">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="text-lg font-semibold mb-1">
@@ -163,17 +171,17 @@ const Profile = () => {
                   </p>
                 </div>
                 {isPremium ? (
-                  <Button onClick={handleManageSubscription} variant="outline">
+                  <EnhancedButton onClick={handleManageSubscription} variant="outline" lift>
                     <Settings className="w-4 h-4 mr-2" />
                     {t.subscription_manage}
-                  </Button>
+                  </EnhancedButton>
                 ) : (
-                  <Button onClick={() => setPremiumDialogOpen(true)}>
+                  <EnhancedButton onClick={() => setPremiumDialogOpen(true)} glow shine>
                     {t.subscription_upgrade_premium}
-                  </Button>
+                  </EnhancedButton>
                 )}
               </div>
-            </div>
+            </AnimatedCard>
 
             <StreakCounter userId={user.id} variant="full" />
             <CoinsDisplay userId={user.id} variant="full" />

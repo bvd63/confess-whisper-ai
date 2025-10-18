@@ -7,6 +7,8 @@ import {
   DialogDescription,
 } from "@/components/ui/translated-dialog";
 import { Button } from "@/components/ui/button";
+import { EnhancedButton } from "@/components/EnhancedButton";
+import { FloatingElement } from "@/components/FloatingElement";
 import { Settings, Download, Trash2, LogOut, Loader2, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -132,10 +134,12 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto glass-strong">
           <DialogHeader>
             <DialogTitle className="text-xl sm:text-2xl flex items-center gap-2">
-              <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+              <FloatingElement delay={0.5}>
+                <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-primary animate-pulse-glow" />
+              </FloatingElement>
               {t.settings}
             </DialogTitle>
             <DialogDescription className="text-xs sm:text-sm">
@@ -145,11 +149,13 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
 
           <div className="space-y-2 sm:space-y-3 py-3 sm:py-4">
             {/* Export Data */}
-            <div className="p-3 sm:p-4 border border-border/50 rounded-lg hover:border-primary/30 transition-colors">
+            <div className="p-3 sm:p-4 border border-border/50 rounded-lg hover-lift transition-colors glass">
               <div className="flex items-start gap-3 sm:gap-4">
-                <div className="p-1.5 sm:p-2 rounded-full bg-primary/10">
-                  <Download className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                </div>
+                <FloatingElement delay={0.3}>
+                  <div className="p-1.5 sm:p-2 rounded-full bg-primary/10">
+                    <Download className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                  </div>
+                </FloatingElement>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-sm sm:text-base text-foreground mb-1">
                     {t.export_data}
@@ -157,12 +163,13 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
                   <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">
                     {t.settings_export_desc}
                   </p>
-                  <Button
+                  <EnhancedButton
                     onClick={handleExportData}
                     disabled={isExporting}
                     variant="outline"
                     size="sm"
                     className="text-xs sm:text-sm"
+                    lift
                   >
                     {isExporting ? (
                       <>
@@ -175,13 +182,13 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
                         {t.export_data}
                       </>
                     )}
-                  </Button>
+                  </EnhancedButton>
                 </div>
               </div>
             </div>
 
             {/* Privacy */}
-            <div className="p-3 sm:p-4 border border-border/50 rounded-lg">
+            <div className="p-3 sm:p-4 border border-border/50 rounded-lg glass hover-lift transition-colors">
               <div className="flex items-start gap-3 sm:gap-4">
                 <div className="p-1.5 sm:p-2 rounded-full bg-primary/10">
                   <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
@@ -193,7 +200,7 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
                   <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">
                     {t.settings_privacy_view}
                   </p>
-                  <Button
+                  <EnhancedButton
                     onClick={() => {
                       onOpenChange(false);
                       navigate('/privacy');
@@ -201,15 +208,16 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
                     variant="outline"
                     size="sm"
                     className="text-xs sm:text-sm"
+                    lift
                   >
                     {t.privacy_policy}
-                  </Button>
+                  </EnhancedButton>
                 </div>
               </div>
             </div>
 
             {/* Delete Account */}
-            <div className="p-3 sm:p-4 border border-destructive/30 rounded-lg bg-destructive/5">
+            <div className="p-3 sm:p-4 border border-destructive/30 rounded-lg bg-destructive/5 hover-lift transition-colors">
               <div className="flex items-start gap-3 sm:gap-4">
                 <div className="p-1.5 sm:p-2 rounded-full bg-destructive/20">
                   <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 text-destructive" />

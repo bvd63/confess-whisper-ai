@@ -3,7 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import AppLayout from "@/components/AppLayout";
 import ConfessionCard from "@/components/ConfessionCard";
-import { Card } from "@/components/ui/card";
+import { AnimatedCard } from "@/components/AnimatedCard";
+import { GradientText } from "@/components/GradientText";
+import { FloatingElement } from "@/components/FloatingElement";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrendingUp, Flame, Clock } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -69,19 +71,19 @@ const Explore = () => {
       return Array(3)
         .fill(0)
         .map((_, i) => (
-          <Card key={i} className="p-6">
+          <AnimatedCard key={i} className="p-6" hover="none" delay={i * 100}>
             <Skeleton className="h-4 w-3/4 mb-2" />
             <Skeleton className="h-4 w-full mb-2" />
             <Skeleton className="h-4 w-5/6" />
-          </Card>
+          </AnimatedCard>
         ));
     }
 
     if (!confessions || confessions.length === 0) {
       return (
-        <Card className="p-8 text-center">
+        <AnimatedCard className="p-8 text-center" hover="none">
           <p className="text-muted-foreground">{t.ui_no_confessions}</p>
-        </Card>
+        </AnimatedCard>
       );
     }
 
@@ -103,8 +105,10 @@ const Explore = () => {
   return (
     <AppLayout>
       <div className="container max-w-4xl mx-auto px-4 py-8 pb-24">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">{t.explore}</h1>
+        <div className="mb-8 animate-fade-in">
+          <h1 className="text-3xl font-bold mb-2">
+            <GradientText variant="hero">{t.explore}</GradientText>
+          </h1>
           <p className="text-muted-foreground">{t.recommended_for_you}</p>
         </div>
 

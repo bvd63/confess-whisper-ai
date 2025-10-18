@@ -6,7 +6,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import AppLayout from "@/components/AppLayout";
 import { ConversationList } from "@/components/ConversationList";
 import { EnhancedMessageThread } from "@/components/EnhancedMessageThread";
-import { Card } from "@/components/ui/card";
+import { AnimatedCard } from "@/components/AnimatedCard";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 
 const Messages = () => {
@@ -94,10 +94,11 @@ const Messages = () => {
   return (
     <AppLayout>
       <div className="container max-w-4xl mx-auto px-4 py-6 pb-24">
-        <Card className="overflow-hidden">
+        <AnimatedCard className="overflow-hidden" hover="none">
           {!selectedConversation ? (
             <div>
-              <div className="p-6 border-b border-border">
+              <div className="p-6 border-b border-border glass"
+              >
                 <h1 className="text-2xl font-bold">{t.messages_title}</h1>
               </div>
               <ConversationList
@@ -120,7 +121,7 @@ const Messages = () => {
               />
             </div>
           )}
-        </Card>
+        </AnimatedCard>
       </div>
       
       <InstagramBottomNav />
