@@ -108,7 +108,7 @@ export const useInbox = (userId: string | null) => {
             .eq('conversation_id', convId)
             .order('created_at', { ascending: false })
             .limit(1)
-            .single();
+            .maybeSingle();
 
           return {
             id: convId,
