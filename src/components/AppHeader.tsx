@@ -141,18 +141,16 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
                   </Link>
                 </Button>
                 <Button
-                  asChild
                   variant="ghost"
                   size="icon"
+                  onClick={() => navigate('/messages')}
                   className={cn(
                     "h-9 w-9 text-muted-foreground hover:text-foreground transition-colors",
                     isActive('/messages') && "bg-accent text-foreground"
                   )}
                   title={t.messages_title}
                 >
-                  <Link to="/messages">
-                    <MessageCircle className="w-4 h-4" />
-                  </Link>
+                  <MessageCircle className="w-4 h-4" />
                 </Button>
                 <Button
                   asChild
