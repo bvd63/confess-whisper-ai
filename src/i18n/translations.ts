@@ -676,6 +676,7 @@ type Translations = {
   
   // Flairs Shop
   flairs_shop: string;
+  flair_shop_description: string;
   flair_purchased_title: string;
   flair_purchased_description: string;
   flair_purchase_error: string;
@@ -1793,6 +1794,7 @@ export const translations: Record<Language, Translations> = {
     polish_empty_error: "Please write your confession first",
     
     flairs_shop: "Flairs Shop",
+    flair_shop_description: "Customize your profile with unique flairs and badges",
     flair_purchased_title: "Flair Purchased!",
     flair_purchased_description: "Your new flair is now equipped",
     flair_purchase_error: "Failed to purchase flair",
@@ -2752,6 +2754,7 @@ export const translations: Record<Language, Translations> = {
     polish_empty_error: "Por favor escribe tu confesión primero",
     
     flairs_shop: "Tienda de Insignias",
+    flair_shop_description: "Personaliza tu perfil con insignias y emblemas únicos",
     flair_purchased_title: "¡Insignia Comprada!",
     flair_purchased_description: "Tu nueva insignia está ahora equipada",
     flair_purchase_error: "Error al comprar insignia",
@@ -3745,6 +3748,7 @@ export const translations: Record<Language, Translations> = {
     polish_empty_error: "Bitte schreibe zuerst dein Geständnis",
     
     flairs_shop: "Abzeichen-Shop",
+    flair_shop_description: "Personalisiere dein Profil mit einzigartigen Abzeichen und Emblemen",
     flair_purchased_title: "Abzeichen Gekauft!",
     flair_purchased_description: "Dein neues Abzeichen ist jetzt ausgerüstet",
     flair_purchase_error: "Fehler beim Kauf des Abzeichens",

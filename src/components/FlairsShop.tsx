@@ -7,11 +7,13 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useCoins } from "@/hooks/useCoins";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/translated-dialog";
 
 interface Flair {
@@ -37,11 +39,11 @@ interface FlairsShopProps {
 export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
   const [flairs, setFlairs] = useState<Flair[]>([]);
   const [userFlairs, setUserFlairs] = useState<UserFlair[]>([]);
-  const [coinsBalance, setCoinsBalance] = useState(0);
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState<string | null>(null);
   const { toast } = useToast();
   const { t } = useLanguage();
+  const { balance: coinsBalance, refetch: refetchCoins } = useCoins(userId);
 
   useEffect(() => {
     if (open) {
@@ -71,15 +73,8 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
       if (userFlairsError) throw userFlairsError;
       setUserFlairs(userFlairsData || []);
 
-      // Load coins balance
-      const { data: coinsData, error: coinsError } = await supabase
-        .from('user_coins')
-        .select('balance')
-        .eq('user_id', userId)
-        .single();
-
-      if (coinsError) throw coinsError;
-      setCoinsBalance(coinsData?.balance || 0);
+      // Refetch coins balance
+      await refetchCoins();
     } catch (error) {
       console.error('Error loading flairs:', error);
     } finally {
@@ -189,6 +184,9 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
               {coinsBalance}
             </span>
           </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            {t.flair_shop_description}
+          </DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="h-[400px] sm:h-[500px] pr-4">

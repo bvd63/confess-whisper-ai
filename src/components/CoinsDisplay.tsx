@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Coins, TrendingUp } from "lucide-react";
@@ -13,11 +13,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-interface CoinsData {
-  balance: number;
-  lifetime_earned: number;
-}
+import { useCoins } from "@/hooks/useCoins";
 
 interface Transaction {
   id: string;
@@ -33,44 +29,10 @@ interface CoinsDisplayProps {
 }
 
 const CoinsDisplay = ({ userId, variant = "compact" }: CoinsDisplayProps) => {
-  const [coins, setCoins] = useState<CoinsData | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [showHistory, setShowHistory] = useState(false);
-  const [loading, setLoading] = useState(true);
   const { t } = useLanguage();
-
-  useEffect(() => {
-    loadCoins();
-  }, [userId]);
-
-  const loadCoins = async () => {
-    try {
-      const { data: coinsData } = await supabase
-        .from('user_coins')
-        .select('balance, lifetime_earned')
-        .eq('user_id', userId)
-        .maybeSingle();
-
-      if (coinsData) {
-        setCoins(coinsData);
-      } else {
-        // Initialize coins for user
-        const { data: newCoins } = await supabase
-          .from('user_coins')
-          .insert({ user_id: userId, balance: 0, lifetime_earned: 0 })
-          .select('balance, lifetime_earned')
-          .single();
-        
-        if (newCoins) {
-          setCoins(newCoins);
-        }
-      }
-    } catch (error) {
-      console.error('Error loading coins:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { balance, lifetimeEarned, loading } = useCoins(userId);
 
   const loadTransactions = async () => {
     try {
@@ -92,7 +54,7 @@ const CoinsDisplay = ({ userId, variant = "compact" }: CoinsDisplayProps) => {
     setShowHistory(true);
   };
 
-  if (loading || !coins) return null;
+  if (loading) return null;
 
   if (variant === "compact") {
     return (
@@ -103,7 +65,7 @@ const CoinsDisplay = ({ userId, variant = "compact" }: CoinsDisplayProps) => {
         className="gap-1 sm:gap-2 h-9 sm:h-8 min-w-[44px] px-2 sm:px-3 touch-manipulation"
       >
         <Coins className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-500 flex-shrink-0" />
-        <span className="font-semibold text-xs sm:text-sm">{coins.balance}</span>
+        <span className="font-semibold text-xs sm:text-sm">{balance}</span>
       </Button>
     );
   }
@@ -120,14 +82,14 @@ const CoinsDisplay = ({ userId, variant = "compact" }: CoinsDisplayProps) => {
           <div className="text-center p-3 sm:p-4 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
             <Coins className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500 mx-auto mb-2" />
             <p className="text-2xl sm:text-3xl font-bold text-yellow-600 dark:text-yellow-400">
-              {coins.balance}
+              {balance}
             </p>
             <p className="text-xs sm:text-sm text-muted-foreground">{t.coins_current_balance}</p>
           </div>
 
           <div className="text-center p-3 sm:p-4 bg-primary/10 rounded-lg border border-primary/20">
             <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-2" />
-            <p className="text-2xl sm:text-3xl font-bold text-primary">{coins.lifetime_earned}</p>
+            <p className="text-2xl sm:text-3xl font-bold text-primary">{lifetimeEarned}</p>
             <p className="text-xs sm:text-sm text-muted-foreground">{t.coins_total_earned}</p>
           </div>
         </div>
