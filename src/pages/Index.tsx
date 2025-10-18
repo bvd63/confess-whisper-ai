@@ -15,7 +15,9 @@ import Leaderboard from "@/components/Leaderboard";
 import RecommendedConfessions from "@/components/RecommendedConfessions";
 import SearchBar from "@/components/SearchBar";
 import FollowStats from "@/components/FollowStats";
+import FollowStatsSkeleton from "@/components/FollowStatsSkeleton";
 import { QuoteOfTheDay } from "@/components/QuoteOfTheDay";
+import QuoteOfTheDaySkeleton from "@/components/QuoteOfTheDaySkeleton";
 import { QuickActions } from "@/components/QuickActions";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -37,6 +39,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Loader2 } from "lucide-react";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { OnboardingWelcome } from "@/components/OnboardingWelcome";
+import { usePerformanceBudget } from "@/hooks/usePerformanceBudget";
 
 // Lazy load heavy components
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
@@ -60,9 +63,13 @@ const Index = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [viewMode, setViewMode] = useState<'feed' | 'search'>('feed');
+  const [showSecondaryContent, setShowSecondaryContent] = useState(false);
   const { toast } = useToast();
   const { RateLimitUI } = useRateLimitHandler();
   const isMobile = useIsMobile();
+  
+  // Monitor performance budget
+  usePerformanceBudget();
 
   // Pull to refresh functionality for mobile
   const handleRefresh = async () => {
@@ -106,6 +113,10 @@ const Index = () => {
     if (refCode) {
       localStorage.setItem('referralCode', refCode);
     }
+
+    // Stagger secondary content loading for better perceived performance
+    const timer = setTimeout(() => setShowSecondaryContent(true), 300);
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -229,7 +240,11 @@ const Index = () => {
         </div>
 
         {/* Quote of the Day */}
-        {user && viewMode === 'feed' && <QuoteOfTheDay />}
+        {user && viewMode === 'feed' && (
+          <Suspense fallback={<QuoteOfTheDaySkeleton />}>
+            <QuoteOfTheDay />
+          </Suspense>
+        )}
 
         {/* Quick Actions */}
         {user && viewMode === 'feed' && (
@@ -267,27 +282,35 @@ const Index = () => {
         {/* Follow Stats */}
         {user && viewMode === 'feed' && (
           <div className="mb-4 sm:mb-6">
-            <FollowStats userId={user.id} />
+            <Suspense fallback={<FollowStatsSkeleton />}>
+              <FollowStats userId={user.id} />
+            </Suspense>
           </div>
         )}
 
         {/* Social Proof Stats */}
-        <div className="hidden sm:block">
-          <SocialProofStats stats={{}} />
-        </div>
+        {showSecondaryContent && (
+          <div className="hidden sm:block">
+            <SocialProofStats stats={{}} />
+          </div>
+        )}
 
         {/* Leaderboard */}
-        <div className="my-4 sm:my-6">
-          <Leaderboard />
-        </div>
+        {showSecondaryContent && (
+          <div className="my-4 sm:my-6">
+            <Leaderboard />
+          </div>
+        )}
 
         {/* Feature Highlights */}
-        <div className="hidden sm:block">
-          <FeatureHighlight />
-        </div>
+        {showSecondaryContent && (
+          <div className="hidden sm:block">
+            <FeatureHighlight />
+          </div>
+        )}
 
         {/* Recommended Confessions */}
-        {user && (
+        {user && showSecondaryContent && (
           <div className="my-4 sm:my-6">
             <RecommendedConfessions 
               userId={user.id} 

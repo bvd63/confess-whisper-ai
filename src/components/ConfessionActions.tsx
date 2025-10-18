@@ -35,6 +35,8 @@ const ConfessionActions = ({
   const [localLikesCount, setLocalLikesCount] = useState(likesCount);
   const [localIsLiked, setLocalIsLiked] = useState(isLiked);
   const [localIsBookmarked, setLocalIsBookmarked] = useState(isBookmarked);
+  const [isLiking, setIsLiking] = useState(false);
+  const [isBookmarking, setIsBookmarking] = useState(false);
   const { toast } = useToast();
   const { t } = useLanguage();
 
@@ -48,12 +50,15 @@ const ConfessionActions = ({
       return;
     }
 
+    if (isLiking) return;
+
     const newLiked = !localIsLiked;
     const optimisticCount = newLiked ? localLikesCount + 1 : Math.max(0, localLikesCount - 1);
     
     // Optimistic update
     setLocalIsLiked(newLiked);
     setLocalLikesCount(optimisticCount);
+    setIsLiking(true);
 
     try {
       if (newLiked) {
@@ -84,6 +89,8 @@ const ConfessionActions = ({
         description: t.error_generic,
         variant: "destructive",
       });
+    } finally {
+      setIsLiking(false);
     }
   };
 
@@ -97,10 +104,13 @@ const ConfessionActions = ({
       return;
     }
 
+    if (isBookmarking) return;
+
     const newBookmarked = !localIsBookmarked;
     
     // Optimistic update
     setLocalIsBookmarked(newBookmarked);
+    setIsBookmarking(true);
 
     try {
       if (newBookmarked) {
@@ -138,6 +148,8 @@ const ConfessionActions = ({
         description: t.error_generic,
         variant: "destructive",
       });
+    } finally {
+      setIsBookmarking(false);
     }
   };
 
@@ -160,9 +172,10 @@ const ConfessionActions = ({
         variant="ghost"
         size="sm"
         onClick={handleLike}
-        className={`h-9 sm:h-8 min-w-[44px] px-2 sm:px-3 gap-1 sm:gap-2 ${localIsLiked ? 'text-primary' : 'text-muted-foreground'} hover:text-primary transition-colors touch-manipulation`}
+        disabled={isLiking}
+        className={`h-9 sm:h-8 min-w-[44px] px-2 sm:px-3 gap-1 sm:gap-2 ${localIsLiked ? 'text-primary' : 'text-muted-foreground'} hover:text-primary transition-colors touch-manipulation ${isLiking ? 'opacity-50' : ''}`}
       >
-        <Heart className={`w-4 h-4 sm:w-4 sm:h-4 flex-shrink-0 ${localIsLiked ? 'fill-current' : ''}`} />
+        <Heart className={`w-4 h-4 sm:w-4 sm:h-4 flex-shrink-0 ${localIsLiked ? 'fill-current' : ''} ${isLiking ? 'animate-pulse' : ''}`} />
         <span className="text-xs sm:text-sm">{localLikesCount}</span>
       </Button>
 
@@ -182,9 +195,10 @@ const ConfessionActions = ({
         variant="ghost"
         size="sm"
         onClick={handleBookmark}
-        className={`h-9 sm:h-8 min-w-[44px] px-2 sm:px-3 ${localIsBookmarked ? 'text-primary' : 'text-muted-foreground'} hover:text-primary transition-colors touch-manipulation`}
+        disabled={isBookmarking}
+        className={`h-9 sm:h-8 min-w-[44px] px-2 sm:px-3 ${localIsBookmarked ? 'text-primary' : 'text-muted-foreground'} hover:text-primary transition-colors touch-manipulation ${isBookmarking ? 'opacity-50' : ''}`}
       >
-        <Bookmark className={`w-4 h-4 flex-shrink-0 ${localIsBookmarked ? 'fill-current' : ''}`} />
+        <Bookmark className={`w-4 h-4 flex-shrink-0 ${localIsBookmarked ? 'fill-current' : ''} ${isBookmarking ? 'animate-pulse' : ''}`} />
       </Button>
 
       {/* Owner Actions */}

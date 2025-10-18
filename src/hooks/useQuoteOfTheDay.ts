@@ -24,17 +24,17 @@ export const useQuoteOfTheDay = () => {
         .from('app_state')
         .select('value')
         .eq('key', 'quote_of_the_day')
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data?.value ? (data.value as unknown as Quote) : null;
     },
     cacheKey: 'qotd',
-    cacheTTL: 60000, // 1 minute (synced with refetch)
+    cacheTTL: 10 * 60 * 1000, // 10 minutes (increased from 1 minute)
+    staleTime: 10 * 60 * 1000,
     useCircuitBreaker: true,
     useRetry: true,
     useDedupe: true,
-    refetchInterval: 60000, // Check every minute for updates
   });
 
   // Subscribe to realtime updates
