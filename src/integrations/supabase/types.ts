@@ -1646,6 +1646,10 @@ export type Database = {
         Args: { confession_id: string }
         Returns: undefined
       }
+      is_community_admin: {
+        Args: { _community_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_confession_owner: {
         Args: { _confession_id: string; _user_id: string }
         Returns: boolean
