@@ -1,8 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
+import { useOptimizedQuery } from './useOptimizedQuery';
 import { supabase } from '@/integrations/supabase/client';
 
 export const useShadowBan = (userId: string | null) => {
-  const { data: isShadowBanned, isLoading } = useQuery({
+  const { data: isShadowBanned, isLoading } = useOptimizedQuery({
     queryKey: ['shadow-ban-status', userId],
     queryFn: async () => {
       if (!userId) return false;
@@ -16,6 +16,11 @@ export const useShadowBan = (userId: string | null) => {
       if (error) throw error;
       return data?.is_shadow_banned || false;
     },
+    cacheKey: `shadowban-${userId}`,
+    cacheTTL: 300000, // 5 minutes
+    useCircuitBreaker: true,
+    useRetry: true,
+    useDedupe: true,
     enabled: !!userId,
   });
 

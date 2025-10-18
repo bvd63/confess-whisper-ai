@@ -1,4 +1,5 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useOptimizedQuery } from './useOptimizedQuery';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useEffect } from 'react';
@@ -16,7 +17,7 @@ export const useQuoteOfTheDay = () => {
   const { language } = useLanguage();
   const queryClient = useQueryClient();
 
-  const { data: qotdState, isLoading } = useQuery({
+  const { data: qotdState, isLoading } = useOptimizedQuery({
     queryKey: ['quote-of-the-day'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -28,6 +29,11 @@ export const useQuoteOfTheDay = () => {
       if (error) throw error;
       return data?.value ? (data.value as unknown as Quote) : null;
     },
+    cacheKey: 'qotd',
+    cacheTTL: 60000, // 1 minute (synced with refetch)
+    useCircuitBreaker: true,
+    useRetry: true,
+    useDedupe: true,
     refetchInterval: 60000, // Check every minute for updates
   });
 
