@@ -422,6 +422,9 @@ type Translations = {
   profile_title: string;
   profile_nickname_change_restricted: string;
   profile_nickname_cooldown_message: string;
+  profile_nickname_days_remaining_singular: string;
+  profile_nickname_days_remaining_plural: string;
+  profile_nickname_change_available: string;
   profile_my_confessions: string;
   profile_statistics: string;
   profile_total_confessions: string;
@@ -1105,6 +1108,9 @@ export const translations: Record<Language, Translations> = {
     profile_title: "Profile",
     profile_nickname_change_restricted: "Nickname Change Restricted",
     profile_nickname_cooldown_message: "You can change your nickname again in {days} day{plural}",
+    profile_nickname_days_remaining_singular: "You can change your nickname again in {days} day",
+    profile_nickname_days_remaining_plural: "You can change your nickname again in {days} days",
+    profile_nickname_change_available: "You can change your nickname now",
     profile_my_confessions: "My Confessions",
     profile_statistics: "Statistics",
     profile_total_confessions: "Total Confessions",
@@ -2173,6 +2179,9 @@ export const translations: Record<Language, Translations> = {
     profile_title: "Perfil",
     profile_nickname_change_restricted: "Cambio de Apodo Restringido",
     profile_nickname_cooldown_message: "Puedes cambiar tu apodo nuevamente en {days} día{plural}",
+    profile_nickname_days_remaining_singular: "Podrás cambiar tu apodo de nuevo en {days} día",
+    profile_nickname_days_remaining_plural: "Podrás cambiar tu apodo de nuevo en {days} días",
+    profile_nickname_change_available: "Puedes cambiar tu apodo ahora",
     profile_my_confessions: "Mis Confesiones",
     profile_statistics: "Estadísticas",
     profile_total_confessions: "Total de Confesiones",
@@ -3019,6 +3028,9 @@ export const translations: Record<Language, Translations> = {
     profile_title: "Profil",
     profile_nickname_change_restricted: "Nickname-Änderung Eingeschränkt",
     profile_nickname_cooldown_message: "Du kannst deinen Nickname in {days} Tag{plural} wieder ändern",
+    profile_nickname_days_remaining_singular: "Du kannst deinen Nickname in {days} Tag wieder ändern",
+    profile_nickname_days_remaining_plural: "Du kannst deinen Nickname in {days} Tagen wieder ändern",
+    profile_nickname_change_available: "Du kannst deinen Nickname jetzt ändern",
     profile_my_confessions: "Meine Geständnisse",
     profile_statistics: "Statistiken",
     profile_total_confessions: "Gesamt Geständnisse",

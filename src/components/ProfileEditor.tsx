@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, User } from 'lucide-react';
+import { Loader2, User, Clock } from 'lucide-react';
 import { useProfileHandle } from '@/hooks/useProfileHandle';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -37,6 +37,18 @@ export const ProfileEditor = ({
     generateHandle,
     isGenerating
   } = useProfileHandle(userId);
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 3600 * 1000);
+    return () => clearInterval(id);
+  }, []);
+  const COOLDOWN_DAYS = 21;
+  const daysRemaining = useMemo(() => {
+    if (!currentProfile.nickname_updated_at) return 0;
+    const lastUpdate = new Date(currentProfile.nickname_updated_at);
+    const diffDays = Math.floor((Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24));
+    return Math.max(COOLDOWN_DAYS - diffDays, 0);
+  }, [currentProfile.nickname_updated_at, now]);
   const handleUpdate = async () => {
     if (!nickname.trim()) {
       toast({
@@ -132,6 +144,19 @@ export const ProfileEditor = ({
           <p className="text-xs text-muted-foreground mt-1">
             {nickname.length}/50
           </p>
+        <div className="mt-1 text-xs text-muted-foreground flex items-center gap-1" aria-live="polite">
+          <Clock className="h-3 w-3" />
+          {daysRemaining > 0 ? (
+            <span>
+              {(daysRemaining === 1
+                ? t.profile_nickname_days_remaining_singular
+                : t.profile_nickname_days_remaining_plural
+              ).replace("{days}", daysRemaining.toString())}
+            </span>
+          ) : (
+            <span>{t.profile_nickname_change_available}</span>
+          )}
+        </div>
         </div>
 
         <div>
