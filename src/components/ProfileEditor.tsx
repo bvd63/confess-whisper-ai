@@ -52,8 +52,8 @@ export const ProfileEditor = ({
   const handleNicknameUpdate = async () => {
     if (!nickname.trim()) {
       toast({
-        title: 'Error',
-        description: 'Nickname cannot be empty',
+        title: t.common_error,
+        description: t.profile_nickname_empty_error,
         variant: 'destructive'
       });
       return;
@@ -110,15 +110,15 @@ export const ProfileEditor = ({
       }
       
       toast({
-        title: 'Profile updated',
-        description: 'Nickname updated successfully'
+        title: t.profile_nickname_updated,
+        description: t.profile_nickname_update_success
       });
       onUpdate();
     } catch (error) {
       console.error('Error updating profile:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to update nickname',
+        title: t.common_error,
+        description: t.profile_update_error,
         variant: 'destructive'
       });
     } finally {
@@ -145,15 +145,15 @@ export const ProfileEditor = ({
       }
       
       toast({
-        title: 'Profile updated',
-        description: 'Your changes have been saved'
+        title: t.profile_settings_updated,
+        description: t.profile_settings_update_success
       });
       onUpdate();
     } catch (error) {
       console.error('Error updating profile:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to update profile',
+        title: t.common_error,
+        description: t.profile_update_error,
         variant: 'destructive'
       });
     } finally {

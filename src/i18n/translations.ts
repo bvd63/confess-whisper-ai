@@ -425,6 +425,12 @@ type Translations = {
   profile_nickname_days_remaining_singular: string;
   profile_nickname_days_remaining_plural: string;
   profile_nickname_change_available: string;
+  profile_nickname_updated: string;
+  profile_nickname_update_success: string;
+  profile_settings_updated: string;
+  profile_settings_update_success: string;
+  profile_nickname_empty_error: string;
+  profile_update_error: string;
   profile_my_confessions: string;
   profile_statistics: string;
   profile_total_confessions: string;
@@ -1111,6 +1117,12 @@ export const translations: Record<Language, Translations> = {
     profile_nickname_days_remaining_singular: "You can change your nickname again in {days} day",
     profile_nickname_days_remaining_plural: "You can change your nickname again in {days} days",
     profile_nickname_change_available: "You can change your nickname now",
+    profile_nickname_updated: "Nickname Updated",
+    profile_nickname_update_success: "Your nickname has been updated successfully",
+    profile_settings_updated: "Settings Updated",
+    profile_settings_update_success: "Your settings have been saved successfully",
+    profile_nickname_empty_error: "Nickname cannot be empty",
+    profile_update_error: "Failed to update profile",
     profile_my_confessions: "My Confessions",
     profile_statistics: "Statistics",
     profile_total_confessions: "Total Confessions",
@@ -2182,6 +2194,12 @@ export const translations: Record<Language, Translations> = {
     profile_nickname_days_remaining_singular: "Podrás cambiar tu apodo de nuevo en {days} día",
     profile_nickname_days_remaining_plural: "Podrás cambiar tu apodo de nuevo en {days} días",
     profile_nickname_change_available: "Puedes cambiar tu apodo ahora",
+    profile_nickname_updated: "Apodo Actualizado",
+    profile_nickname_update_success: "Tu apodo ha sido actualizado exitosamente",
+    profile_settings_updated: "Configuración Actualizada",
+    profile_settings_update_success: "Tu configuración ha sido guardada exitosamente",
+    profile_nickname_empty_error: "El apodo no puede estar vacío",
+    profile_update_error: "Error al actualizar el perfil",
     profile_my_confessions: "Mis Confesiones",
     profile_statistics: "Estadísticas",
     profile_total_confessions: "Total de Confesiones",
@@ -3031,6 +3049,12 @@ export const translations: Record<Language, Translations> = {
     profile_nickname_days_remaining_singular: "Du kannst deinen Nickname in {days} Tag wieder ändern",
     profile_nickname_days_remaining_plural: "Du kannst deinen Nickname in {days} Tagen wieder ändern",
     profile_nickname_change_available: "Du kannst deinen Nickname jetzt ändern",
+    profile_nickname_updated: "Nickname Aktualisiert",
+    profile_nickname_update_success: "Dein Nickname wurde erfolgreich aktualisiert",
+    profile_settings_updated: "Einstellungen Aktualisiert",
+    profile_settings_update_success: "Deine Einstellungen wurden erfolgreich gespeichert",
+    profile_nickname_empty_error: "Nickname darf nicht leer sein",
+    profile_update_error: "Fehler beim Aktualisieren des Profils",
     profile_my_confessions: "Meine Geständnisse",
     profile_statistics: "Statistiken",
     profile_total_confessions: "Gesamt Geständnisse",
