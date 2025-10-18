@@ -1,0 +1,141 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run test:ci
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 1
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/develop'
+    environment:
+      name: staging
+      url: https://staging.confessai.app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - name: Deploy to staging
+        run: |
+          echo "Deploying to staging environment"
+          # Add your staging deployment commands here
+      - name: Health check
+        run: |
+          sleep 30
+          curl -f https://staging.confessai.app/api/health || exit 1
+
+  deploy-canary:
+    name: Deploy Canary (10%)
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: production-canary
+      url: https://confessai.app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - name: Deploy canary
+        run: |
+          echo "Deploying canary (10% traffic)"
+          # Add canary deployment commands
+      - name: Health check
+        run: |
+          sleep 30
+          curl -f https://confessai.app/api/health || exit 1
+      - name: Monitor metrics
+        run: |
+          sleep 300  # Monitor for 5 minutes
+          # Add metrics validation
+
+  deploy-production:
+    name: Deploy to Production (100%)
+    runs-on: ubuntu-latest
+    needs: deploy-canary
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: https://confessai.app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - name: Deploy to production
+        run: |
+          echo "Deploying to production (100% traffic)"
+          # Add production deployment commands
+      - name: Final health check
+        run: |
+          sleep 30
+          curl -f https://confessai.app/api/health || exit 1
+          curl -f https://confessai.app/api/metrics || exit 1
+
+  rollback:
+    name: Rollback on Failure
+    runs-on: ubuntu-latest
+    needs: [deploy-canary, deploy-production]
+    if: failure()
+    steps:
+      - name: Rollback deployment
+        run: |
+          echo "Rolling back deployment"
+          # Add rollback commands here
