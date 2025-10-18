@@ -15,6 +15,8 @@ import ImageUpload from "@/components/ImageUpload";
 import DraftManager from "@/components/DraftManager";
 import { CrisisDialog } from "@/components/CrisisDialog";
 import { useModerationStatus } from "@/hooks/useModerationStatus";
+import { LocationPicker } from "@/components/LocationPicker";
+import { useCommunities } from "@/hooks/useCommunities";
 
 const confessionSchema = z.object({
   content: z.string()
@@ -38,10 +40,13 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
   const [showCrisisDialog, setShowCrisisDialog] = useState(false);
+  const [location, setLocation] = useState<{ lat: number; lng: number; city?: string; country?: string } | null>(null);
+  const [communityId, setCommunityId] = useState<string | null>(null);
   const { user } = useCurrentUser();
   const { toast } = useToast();
   const { language, t } = useLanguage();
   const { checkForCrisis } = useModerationStatus();
+  const { communities } = useCommunities();
 
   // Check for crisis keywords on content change
   useEffect(() => {
@@ -167,6 +172,12 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
           category: category,
           user_id: user.id,
           image_url: imageUrl,
+          community_id: communityId,
+          location_enabled: !!location,
+          location_lat: location?.lat,
+          location_lng: location?.lng,
+          location_city: location?.city,
+          location_country: location?.country,
         })
         .select()
         .single();
@@ -281,6 +292,31 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
             currentImage={imageUrl}
             disabled={isSubmitting}
           />
+
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Community (optional)</Label>
+            <Select value={communityId || "none"} onValueChange={(v) => setCommunityId(v === "none" ? null : v)} disabled={isSubmitting}>
+              <SelectTrigger className="border-primary/20 focus:border-primary/40 bg-background/50">
+                <SelectValue placeholder="Select a community" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No community</SelectItem>
+                {communities?.map((community) => (
+                  <SelectItem key={community.id} value={community.id}>
+                    {community.icon} {community.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-sm font-medium mb-2 block">Location (optional)</Label>
+            <LocationPicker
+              onLocationSelect={setLocation}
+              initialLocation={location}
+            />
+          </div>
 
           <div className="pt-2">
             <MoodTracker 

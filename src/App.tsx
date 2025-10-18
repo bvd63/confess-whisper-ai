@@ -20,6 +20,7 @@ import SearchUsers from "./pages/SearchUsers";
 import Messages from "./pages/Messages";
 import Explore from "./pages/Explore";
 import Compose from "./pages/Compose";
+import Communities from "./pages/Communities";
 import Auth from "./pages/Auth";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
@@ -44,6 +45,7 @@ const App = () => (
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/explore" element={<Explore />} />
                     <Route path="/compose" element={<Compose />} />
+                    <Route path="/communities" element={<Communities />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/u/:handle" element={<UserProfile />} />
                     <Route path="/user/:userId" element={<UserProfile />} />

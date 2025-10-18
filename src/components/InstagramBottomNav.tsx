@@ -1,4 +1,4 @@
-import { Home, Search, PlusSquare, MessageCircle, User } from "lucide-react";
+import { Home, Search, PlusSquare, MessageCircle, User, Users } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -18,6 +18,7 @@ export const InstagramBottomNav = () => {
   const navItems = [
     { icon: Home, path: "/", label: "Home" },
     { icon: Search, path: "/explore", label: "Explore" },
+    { icon: Users, path: "/communities", label: "Communities" },
     { icon: PlusSquare, path: "/compose", label: "Compose" },
     { icon: MessageCircle, path: "/messages", label: "Messages", badge: unreadCount },
     { icon: User, path: "/profile", label: "Profile" },
