@@ -653,8 +653,6 @@ type Translations = {
   coins_no_transactions: string;
   coins_all_transactions: string;
   coins_confession_created: string;
-  coins_comment_added: string;
-  coins_like_received: string;
   coins_how_to_spend: string;
   coins_polish_detail: string;
   coins_boost_detail: string;
@@ -1786,8 +1784,6 @@ export const translations: Record<Language, Translations> = {
     coins_no_transactions: "No transactions yet",
     coins_all_transactions: "All your coin transactions",
     coins_confession_created: "New confession",
-    coins_comment_added: "Comment added",
-    coins_like_received: "Like received",
     coins_how_to_spend: "💎 How to Spend Coins",
     coins_polish_detail: "✨ Polish Confession (10 coins) - AI improves your text",
     coins_boost_detail: "🚀 Boost Confession (15 coins) - Highlight for 1 hour",
@@ -2758,8 +2754,6 @@ export const translations: Record<Language, Translations> = {
     coins_no_transactions: "Aún no hay transacciones",
     coins_all_transactions: "Todas tus transacciones de monedas",
     coins_confession_created: "Nueva confesión",
-    coins_comment_added: "Comentario añadido",
-    coins_like_received: "Me gusta recibido",
     coins_how_to_spend: "💎 Cómo Gastar Monedas",
     coins_polish_detail: "✨ Mejorar Confesión (10 monedas) - IA mejora tu texto",
     coins_boost_detail: "🚀 Impulsar Confesión (15 monedas) - Destacar por 1 hora",
@@ -3764,8 +3758,6 @@ export const translations: Record<Language, Translations> = {
     coins_no_transactions: "Noch keine Transaktionen",
     coins_all_transactions: "Alle deine Münztransaktionen",
     coins_confession_created: "Neues Geständnis",
-    coins_comment_added: "Kommentar hinzugefügt",
-    coins_like_received: "Like erhalten",
     coins_how_to_spend: "💎 Münzen Ausgeben",
     coins_polish_detail: "✨ Geständnis Verbessern (10 Münzen) - KI verbessert deinen Text",
     coins_boost_detail: "🚀 Geständnis Boosten (15 Münzen) - 1 Stunde hervorheben",
