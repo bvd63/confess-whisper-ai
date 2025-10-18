@@ -4,6 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Send, Loader2 } from 'lucide-react';
 import { useTypingIndicator } from '@/hooks/useTypingIndicator';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { persistenceManager } from '@/lib/persistenceManager';
 
 interface MessageInputProps {
   conversationId: string;
@@ -19,6 +20,32 @@ export const MessageInput = ({ conversationId, userId, onSend, disabled }: Messa
   const { startTyping, stopTyping } = useTypingIndicator(conversationId, userId);
   const { t } = useLanguage();
 
+  // Load draft on mount
+  useEffect(() => {
+    const loadDraft = async () => {
+      const draft = await persistenceManager.getDraft(conversationId);
+      if (draft) {
+        setContent(draft);
+      }
+    };
+    loadDraft();
+  }, [conversationId]);
+
+  // Save draft on content change (debounced)
+  useEffect(() => {
+    const saveDraft = async () => {
+      if (content) {
+        await persistenceManager.saveDraft(conversationId, content);
+      } else {
+        await persistenceManager.removeDraft(conversationId);
+      }
+    };
+    
+    const timeoutId = setTimeout(saveDraft, 500);
+    return () => clearTimeout(timeoutId);
+  }, [content, conversationId]);
+
+  // Typing indicator
   useEffect(() => {
     if (content.length > 0) {
       startTyping();
@@ -38,6 +65,8 @@ export const MessageInput = ({ conversationId, userId, onSend, disabled }: Messa
     try {
       await onSend(content.trim());
       setContent('');
+      // Clear draft after successful send
+      await persistenceManager.removeDraft(conversationId);
       textareaRef.current?.focus();
     } catch (error) {
       console.error('Error sending message:', error);

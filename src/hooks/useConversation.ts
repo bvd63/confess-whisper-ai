@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useReadReceipts } from './useReadReceipts';
+import { offlineQueue } from '@/lib/offlineQueue';
+import { toast } from 'sonner';
 
 interface Message {
   id: string;
@@ -38,23 +40,59 @@ export const useConversation = (conversationId: string | null, userId: string | 
   const sendMessage = useCallback(async (content: string) => {
     if (!conversationId || !userId || !content.trim()) return;
 
+    const messageData = {
+      conversation_id: conversationId,
+      sender_id: userId,
+      content: content.trim(),
+    };
+
+    // Optimistic update
+    const tempId = `temp_${Date.now()}`;
+    const tempMessage = {
+      id: tempId,
+      ...messageData,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      read_at: null,
+      edited_at: null,
+      is_read: false
+    };
+
+    setMessages(prev => [...prev, tempMessage]);
+
     try {
       const { data, error } = await supabase
         .from('messages')
-        .insert({
-          conversation_id: conversationId,
-          sender_id: userId,
-          content: content.trim(),
-        })
+        .insert(messageData)
         .select()
         .single();
 
       if (error) throw error;
 
-      setMessages(prev => [...prev, data]);
+      // Replace temp message with real one
+      setMessages(prev => prev.map(m => m.id === tempId ? data : m));
     } catch (error) {
       console.error('Error sending message:', error);
-      throw error;
+      
+      // Remove temp message
+      setMessages(prev => prev.filter(m => m.id !== tempId));
+      
+      // Add to offline queue for retry
+      if (!navigator.onLine) {
+        toast.info('Message queued - will send when online');
+        await offlineQueue.addOperation('message', async () => {
+          const { data, error } = await supabase
+            .from('messages')
+            .insert(messageData)
+            .select()
+            .single();
+          if (error) throw error;
+          return data;
+        }, messageData);
+      } else {
+        toast.error('Failed to send message');
+        throw error;
+      }
     }
   }, [conversationId, userId]);
 

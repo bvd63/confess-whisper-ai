@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { type Language, translations } from '@/i18n/translations';
+import { persistenceManager } from '@/lib/persistenceManager';
 
 interface LanguageContextType {
   language: Language;
@@ -33,39 +34,43 @@ function detectBrowserLanguage(): Language {
 }
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguageState] = useState<Language>(() => {
-    // Priority: localStorage > browser detection > default 'en'
-    try {
-      const saved = localStorage.getItem('language');
-      if (saved) {
-        const validLang = ensureLanguage(saved);
-        console.log('[LanguageContext] Loaded from localStorage:', validLang);
-        return validLang;
-      }
-    } catch (error) {
-      console.error('[LanguageContext] Error reading localStorage:', error);
-    }
-    
-    const detected = detectBrowserLanguage();
-    console.log('[LanguageContext] Detected browser language:', detected);
-    
-    // Save detected language to localStorage
-    try {
-      localStorage.setItem('language', detected);
-    } catch (error) {
-      console.error('[LanguageContext] Error saving to localStorage:', error);
-    }
-    
-    return detected;
-  });
+  const [language, setLanguageState] = useState<Language>('en');
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  const setLanguage = (lang: Language) => {
+  // Load language from persistent storage on mount
+  useEffect(() => {
+    const loadLanguage = async () => {
+      try {
+        const saved = await persistenceManager.getLanguage();
+        if (saved) {
+          const validLang = ensureLanguage(saved);
+          console.log('[LanguageContext] Loaded from persistence:', validLang);
+          setLanguageState(validLang);
+        } else {
+          const detected = detectBrowserLanguage();
+          console.log('[LanguageContext] Detected browser language:', detected);
+          setLanguageState(detected);
+          await persistenceManager.saveLanguage(detected);
+        }
+      } catch (error) {
+        console.error('[LanguageContext] Error loading language:', error);
+        const detected = detectBrowserLanguage();
+        setLanguageState(detected);
+      }
+      setIsLoaded(true);
+    };
+    loadLanguage();
+  }, []);
+
+  const setLanguage = async (lang: Language) => {
     const validLang = ensureLanguage(lang);
     console.log('[LanguageContext] Setting language to:', validLang);
     setLanguageState(validLang);
     
     try {
-      localStorage.setItem('language', validLang);
+      await persistenceManager.saveLanguage(validLang);
+      // Force full reload to ensure complete language switch with no mixed strings
+      window.location.reload();
     } catch (error) {
       console.error('[LanguageContext] Error saving language:', error);
     }
@@ -81,6 +86,11 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     setLanguage,
     t: translations[language],
   };
+
+  // Don't render children until language is loaded
+  if (!isLoaded) {
+    return null;
+  }
 
   return (
     <LanguageContext.Provider value={value}>
