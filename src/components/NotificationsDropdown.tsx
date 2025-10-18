@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useNavigate } from "react-router-dom";
+import { getNicknameCached } from "@/lib/nicknameCache";
 
 interface Notification {
   id: string;
@@ -72,12 +73,10 @@ const NotificationsDropdown = () => {
       const notificationsWithNicknames = await Promise.all(
         (data || []).map(async (notification) => {
           if (notification.triggered_by) {
-            const { data: nickname } = await supabase.rpc('get_user_nickname', {
-              _target_user_id: notification.triggered_by,
-            });
+            const nickname = await getNicknameCached(notification.triggered_by);
             return {
               ...notification,
-              triggered_by_nickname: (nickname as string) || null,
+              triggered_by_nickname: nickname || null,
             };
           }
           return notification;

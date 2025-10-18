@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { getNicknameCached } from '@/lib/nicknameCache';
 
 export const useTypingIndicator = (conversationId: string | null, userId: string | null) => {
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
@@ -24,22 +25,20 @@ export const useTypingIndicator = (conversationId: string | null, userId: string
             const record = payload.new as any;
             if (record.is_typing && record.user_id !== userId) {
               // Get nickname for typing user
-              const { data } = await supabase
-                .rpc('get_user_nickname', { _target_user_id: record.user_id });
+              const nickname = await getNicknameCached(record.user_id);
               
               setTypingUsers(prev => {
                 const filtered = prev.filter(id => id !== record.user_id);
-                return [...filtered, data || 'Someone'];
+                return [...filtered, nickname || 'Someone'];
               });
 
               // Auto-remove after 3 seconds
               setTimeout(() => {
-                setTypingUsers(prev => prev.filter(id => id !== (data || 'Someone')));
+                setTypingUsers(prev => prev.filter(id => id !== (nickname || 'Someone')));
               }, 3000);
             } else if (!record.is_typing) {
-              const { data } = await supabase
-                .rpc('get_user_nickname', { _target_user_id: record.user_id });
-              setTypingUsers(prev => prev.filter(id => id !== (data || 'Someone')));
+              const nickname = await getNicknameCached(record.user_id);
+              setTypingUsers(prev => prev.filter(id => id !== (nickname || 'Someone')));
             }
           }
         }

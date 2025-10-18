@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { getNicknameCached } from "@/lib/nicknameCache";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import AppLayout from "@/components/AppLayout";
@@ -53,13 +54,10 @@ const Messages = () => {
 
   const loadOtherUserInfo = async (userId: string) => {
     try {
-      // Prefer secure RPC to avoid any RLS edge cases
-      const { data: nickname, error: rpcError } = await supabase.rpc('get_user_nickname', {
-        _target_user_id: userId,
-      });
+      const nickname = await getNicknameCached(userId);
 
-      if (!rpcError && nickname) {
-        setOtherUserNickname(nickname as string);
+      if (nickname) {
+        setOtherUserNickname(nickname);
         return;
       }
 

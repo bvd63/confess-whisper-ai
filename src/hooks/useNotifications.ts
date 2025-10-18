@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { getNicknameCached } from '@/lib/nicknameCache';
 
 interface Notification {
   id: string;
@@ -39,8 +40,7 @@ export const useNotifications = (userId: string | null) => {
         (data || []).map(async (notif) => {
           let nickname = null;
           if (notif.triggered_by) {
-            const { data: nicknameData } = await supabase
-              .rpc('get_user_nickname', { _target_user_id: notif.triggered_by });
+            const nicknameData = await getNicknameCached(notif.triggered_by);
             nickname = nicknameData || null;
           }
 

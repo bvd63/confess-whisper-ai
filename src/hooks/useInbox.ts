@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useCachePurgeOnDelete } from './useCachePurgeOnDelete';
+import { getNicknameCached } from '@/lib/nicknameCache';
 
 interface Conversation {
   id: string;
@@ -55,8 +56,7 @@ export const useInbox = (userId: string | null) => {
           // Get nickname
           let nickname = null;
           if (otherUserId) {
-            const { data: nicknameData } = await supabase
-              .rpc('get_user_nickname', { _target_user_id: otherUserId });
+            const nicknameData = await getNicknameCached(otherUserId);
             nickname = nicknameData || null;
           }
 
