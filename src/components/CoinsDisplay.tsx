@@ -145,26 +145,31 @@ const CoinsDisplay = ({ userId, variant = "compact" }: CoinsDisplayProps) => {
                 {transactions.map((transaction) => {
                   // Map transaction types/descriptions to translation keys
                   const getTransactionDescription = () => {
-                    const raw = `${transaction.type ?? ''} ${transaction.description ?? ''}`
-                      .toLowerCase();
+                    const type = transaction.type?.toLowerCase() || '';
+                    const desc = transaction.description?.toLowerCase() || '';
 
-                    // Detect by known keywords across languages
-                    if (/(confession|confesiune|confesión|geständnis)/.test(raw)) {
+                    // Map by transaction type
+                    if (type === 'confession_created') {
                       return t.coins_confession_created;
                     }
-                    if (/(comment|comentario|kommentar)/.test(raw)) {
-                      return t.coins_comment_added;
+                    if (type === 'referral_reward') {
+                      return t.referral_reward_referrer;
                     }
-                    if (/(like|me gusta|gefällt)/.test(raw)) {
-                      return t.coins_like_received;
+                    if (type === 'referral_bonus') {
+                      return t.first_confession_bonus;
+                    }
+                    if (type === 'flair_purchase' || type === 'badge_purchase') {
+                      return transaction.description || t.coins_flairs_detail;
+                    }
+                    if (type === 'boost_confession') {
+                      return transaction.description || t.coins_boost_detail;
+                    }
+                    if (type === 'polish_confession') {
+                      return transaction.description || t.coins_polish_detail;
                     }
 
-                    // Heuristic fallback by typical award amounts
-                    if (transaction.amount >= 10) return t.coins_confession_created;
-                    if (transaction.amount >= 5) return t.coins_comment_added;
-                    if (transaction.amount >= 2) return t.coins_like_received;
-
-                    return transaction.description || transaction.type;
+                    // Fallback to description or type
+                    return transaction.description || transaction.type || t.coins_history;
                   };
 
                   return (
