@@ -12,9 +12,11 @@ import { PerformanceIndicator } from '@/components/PerformanceIndicator';
 import { InstallPrompt } from '@/components/InstallPrompt';
 import { useAuthRefresh } from '@/hooks/useAuthRefresh';
 import { useSessionRestoration } from '@/hooks/useSessionRestoration';
+import { useBackgroundSync } from '@/hooks/useBackgroundSync';
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { persistenceManager } from '@/lib/persistenceManager';
+import { dataValidator } from '@/lib/dataValidator';
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
@@ -40,12 +42,20 @@ const queryClient = new QueryClient();
 const AppContent = () => {
   useAuthRefresh(); // Auto JWT refresh
   useSessionRestoration(); // Auto session restoration
+  useBackgroundSync(); // Background sync on focus
   
-  // Clear cache on logout
+  // Clear cache on logout and run health checks
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_OUT') {
-        persistenceManager.clearAllUserData().catch(console.error);
+        await persistenceManager.clearAllUserData().catch(console.error);
+      } else if (event === 'SIGNED_IN' && session?.user) {
+        // Run data repair on login
+        try {
+          await dataValidator.repairData(session.user.id);
+        } catch (error) {
+          console.error('Data repair failed:', error);
+        }
       }
     });
 
@@ -56,9 +66,24 @@ const AppContent = () => {
     clearExpired();
     const interval = setInterval(clearExpired, 7 * 24 * 60 * 60 * 1000);
 
+    // Run cache health check daily
+    const healthCheck = () => {
+      dataValidator.checkCacheHealth().then(result => {
+        if (!result.isValid) {
+          console.error('❌ Cache health issues:', result.errors);
+        }
+        if (result.warnings.length > 0) {
+          console.warn('⚠️ Cache warnings:', result.warnings);
+        }
+      });
+    };
+    healthCheck();
+    const healthInterval = setInterval(healthCheck, 24 * 60 * 60 * 1000);
+
     return () => {
       subscription.unsubscribe();
       clearInterval(interval);
+      clearInterval(healthInterval);
     };
   }, []);
   

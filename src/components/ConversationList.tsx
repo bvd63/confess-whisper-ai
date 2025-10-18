@@ -30,9 +30,10 @@ interface Conversation {
 interface ConversationListProps {
   currentUserId: string;
   onConversationSelect: (conversationId: string, otherUserId: string) => void;
+  markAsRead?: (conversationId: string) => void;
 }
 
-export const ConversationList = ({ currentUserId, onConversationSelect }: ConversationListProps) => {
+export const ConversationList = ({ currentUserId, onConversationSelect, markAsRead }: ConversationListProps) => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -225,7 +226,12 @@ export const ConversationList = ({ currentUserId, onConversationSelect }: Conver
             <Button
               variant="ghost"
               className="flex-1 justify-start text-left p-4 h-auto"
-              onClick={() => onConversationSelect(conversation.id, conversation.other_user_id)}
+              onClick={() => {
+                if (markAsRead) {
+                  markAsRead(conversation.id);
+                }
+                onConversationSelect(conversation.id, conversation.other_user_id);
+              }}
             >
               <div className="flex items-start gap-3 w-full">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">

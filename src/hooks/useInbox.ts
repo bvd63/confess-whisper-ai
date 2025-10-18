@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useCachePurgeOnDelete } from './useCachePurgeOnDelete';
 import { getNicknameCached, primeNicknameCache } from '@/lib/nicknameCache';
 import { persistenceManager } from '@/lib/persistenceManager';
+import { useUnreadCount } from './useUnreadCount';
 
 interface Conversation {
   id: string;
@@ -20,6 +21,7 @@ export const useInbox = (userId: string | null) => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { purgeConversation } = useCachePurgeOnDelete();
+  const { unreadCounts, markConversationAsRead } = useUnreadCount(userId);
 
   const loadConversations = useCallback(async () => {
     if (!userId) return;
@@ -100,7 +102,7 @@ export const useInbox = (userId: string | null) => {
             other_user_nickname: nickname,
             last_message: lastMsg?.content || null,
             last_message_at: lastMsg?.created_at || null,
-            unread_count: 0, // TODO: Implement unread tracking
+            unread_count: unreadCounts[convId] || 0,
           };
         })
       );
@@ -145,6 +147,16 @@ export const useInbox = (userId: string | null) => {
     }
   }, [userId, purgeConversation]);
 
+  // Update conversations when unread counts change
+  useEffect(() => {
+    setConversations(prev => 
+      prev.map(conv => ({
+        ...conv,
+        unread_count: unreadCounts[conv.id] || 0
+      }))
+    );
+  }, [unreadCounts]);
+
   useEffect(() => {
     loadConversations();
 
@@ -174,5 +186,6 @@ export const useInbox = (userId: string | null) => {
     isLoading,
     reload: loadConversations,
     deleteConversation,
+    markConversationAsRead,
   };
 };

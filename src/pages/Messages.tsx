@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getNicknameCached } from "@/lib/nicknameCache";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useInbox } from "@/hooks/useInbox";
 import { toast } from "sonner";
 import AppLayout from "@/components/AppLayout";
 import { ConversationList } from "@/components/ConversationList";
@@ -16,6 +17,7 @@ import { sessionManager } from "@/lib/sessionManager";
 
 const Messages = () => {
   const { user, isLoading } = useCurrentUser();
+  const { markConversationAsRead } = useInbox(user?.id || null);
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -120,6 +122,7 @@ const Messages = () => {
               <ConversationList
                 currentUserId={user.id}
                 onConversationSelect={handleConversationSelect}
+                markAsRead={markConversationAsRead}
               />
             </div>
           ) : (
