@@ -1235,7 +1235,10 @@ export type Database = {
           created_at: string
           id: string
           referral_code: string
+          referred_first_confession_at: string | null
+          referred_rewarded_at: string | null
           referred_user_id: string | null
+          referrer_rewarded_at: string | null
           referrer_user_id: string
           reward_claimed: boolean | null
           status: string
@@ -1245,7 +1248,10 @@ export type Database = {
           created_at?: string
           id?: string
           referral_code: string
+          referred_first_confession_at?: string | null
+          referred_rewarded_at?: string | null
           referred_user_id?: string | null
+          referrer_rewarded_at?: string | null
           referrer_user_id: string
           reward_claimed?: boolean | null
           status?: string
@@ -1255,7 +1261,10 @@ export type Database = {
           created_at?: string
           id?: string
           referral_code?: string
+          referred_first_confession_at?: string | null
+          referred_rewarded_at?: string | null
           referred_user_id?: string | null
+          referrer_rewarded_at?: string | null
           referrer_user_id?: string
           reward_claimed?: boolean | null
           status?: string
@@ -1336,20 +1345,26 @@ export type Database = {
       }
       user_badges: {
         Row: {
+          acquired_at: string | null
           badge_id: string
           earned_at: string | null
+          expires_at: string | null
           id: string
           user_id: string
         }
         Insert: {
+          acquired_at?: string | null
           badge_id: string
           earned_at?: string | null
+          expires_at?: string | null
           id?: string
           user_id: string
         }
         Update: {
+          acquired_at?: string | null
           badge_id?: string
           earned_at?: string | null
+          expires_at?: string | null
           id?: string
           user_id?: string
         }
@@ -1446,6 +1461,8 @@ export type Database = {
       }
       user_flairs: {
         Row: {
+          acquired_at: string | null
+          expires_at: string | null
           flair_id: string
           id: string
           is_equipped: boolean
@@ -1453,6 +1470,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          acquired_at?: string | null
+          expires_at?: string | null
           flair_id: string
           id?: string
           is_equipped?: boolean
@@ -1460,6 +1479,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          acquired_at?: string | null
+          expires_at?: string | null
           flair_id?: string
           id?: string
           is_equipped?: boolean
@@ -1805,6 +1826,10 @@ export type Database = {
       increment_share_count: {
         Args: { confession_id: string }
         Returns: undefined
+      }
+      is_badge_active: {
+        Args: { acquired_at: string; expires_at: string }
+        Returns: boolean
       }
       is_community_admin: {
         Args: { _community_id: string; _user_id: string }

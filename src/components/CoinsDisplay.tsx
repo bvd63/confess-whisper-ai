@@ -102,14 +102,12 @@ const CoinsDisplay = ({ userId, variant = "compact" }: CoinsDisplayProps) => {
           {t.coins_history}
         </Button>
 
-        <div className="mt-3 sm:mt-4 p-2.5 sm:p-3 bg-muted/50 rounded-lg">
-          <p className="text-[10px] sm:text-xs text-muted-foreground font-semibold mb-1.5 sm:mb-2">
+        <div className="mt-3 sm:mt-4 p-2.5 sm:p-3 bg-secondary/10 rounded-lg border border-secondary/20">
+          <p className="text-[10px] sm:text-xs text-secondary font-semibold mb-1.5 sm:mb-2">
             {t.coins_how_to_earn}
           </p>
           <ul className="text-[10px] sm:text-xs text-muted-foreground space-y-0.5 sm:space-y-1">
             <li>{t.coins_per_confession_detail}</li>
-            <li>{t.coins_per_comment_detail}</li>
-            <li>{t.coins_per_like_detail}</li>
           </ul>
         </div>
 

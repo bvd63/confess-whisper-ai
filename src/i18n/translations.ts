@@ -649,8 +649,7 @@ type Translations = {
   coins_history: string;
   coins_how_to_earn: string;
   coins_per_confession_detail: string;
-  coins_per_comment_detail: string;
-  coins_per_like_detail: string;
+  coins_per_confession_new: string;
   coins_no_transactions: string;
   coins_all_transactions: string;
   coins_confession_created: string;
@@ -660,6 +659,15 @@ type Translations = {
   coins_polish_detail: string;
   coins_boost_detail: string;
   coins_flairs_detail: string;
+  badge_expires_in: string;
+  badge_expired: string;
+  badge_active_for: string;
+  buy_again: string;
+  days: string;
+  hours: string;
+  referral_reward_referrer: string;
+  referral_reward_referred: string;
+  first_confession_bonus: string;
   
   // Boost Confession
   boost_confession: string;
@@ -1773,9 +1781,8 @@ export const translations: Record<Language, Translations> = {
     coins_total_earned: "Total Earned",
     coins_history: "View History",
     coins_how_to_earn: "How to earn coins:",
-    coins_per_confession_detail: "• 10 coins for each confession",
-    coins_per_comment_detail: "• 5 coins for each comment",
-    coins_per_like_detail: "• 2 coins when you receive a like",
+    coins_per_confession_detail: "📝 +2 coins per confession",
+    coins_per_confession_new: "+2 coins per confession",
     coins_no_transactions: "No transactions yet",
     coins_all_transactions: "All your coin transactions",
     coins_confession_created: "New confession",
@@ -1784,7 +1791,16 @@ export const translations: Record<Language, Translations> = {
     coins_how_to_spend: "💎 How to Spend Coins",
     coins_polish_detail: "✨ Polish Confession (10 coins) - AI improves your text",
     coins_boost_detail: "🚀 Boost Confession (15 coins) - Highlight for 1 hour",
-    coins_flairs_detail: "🎨 Profile Flairs (30 coins) - Customize your profile",
+    coins_flairs_detail: "🎨 Profile Flairs (30 coins) - Active for 5 days",
+    badge_expires_in: "Expires in",
+    badge_expired: "Expired",
+    badge_active_for: "Active for 5 days",
+    buy_again: "Buy Again",
+    days: "days",
+    hours: "hours",
+    referral_reward_referrer: "+20 coins when referred user posts first confession",
+    referral_reward_referred: "+10 coins after your first confession",
+    first_confession_bonus: "First confession bonus",
     
     boost_confession: "Boost Confession",
     boost_success_title: "Confession Boosted!",
@@ -2737,9 +2753,8 @@ export const translations: Record<Language, Translations> = {
     coins_total_earned: "Total Ganado",
     coins_history: "Ver Historial",
     coins_how_to_earn: "Cómo ganar monedas:",
-    coins_per_confession_detail: "• 10 monedas por cada confesión",
-    coins_per_comment_detail: "• 5 monedas por cada comentario",
-    coins_per_like_detail: "• 2 monedas cuando recibes un me gusta",
+    coins_per_confession_detail: "📝 +2 monedas por confesión",
+    coins_per_confession_new: "+2 monedas por confesión",
     coins_no_transactions: "Aún no hay transacciones",
     coins_all_transactions: "Todas tus transacciones de monedas",
     coins_confession_created: "Nueva confesión",
@@ -2748,7 +2763,16 @@ export const translations: Record<Language, Translations> = {
     coins_how_to_spend: "💎 Cómo Gastar Monedas",
     coins_polish_detail: "✨ Mejorar Confesión (10 monedas) - IA mejora tu texto",
     coins_boost_detail: "🚀 Impulsar Confesión (15 monedas) - Destacar por 1 hora",
-    coins_flairs_detail: "🎨 Insignias de Perfil (30 monedas) - Personaliza tu perfil",
+    coins_flairs_detail: "🎨 Insignias de Perfil (30 monedas) - Activas por 5 días",
+    badge_expires_in: "Expira en",
+    badge_expired: "Expirado",
+    badge_active_for: "Activo por 5 días",
+    buy_again: "Comprar de nuevo",
+    days: "días",
+    hours: "horas",
+    referral_reward_referrer: "+20 monedas cuando el referido publica su primera confesión",
+    referral_reward_referred: "+10 monedas después de tu primera confesión",
+    first_confession_bonus: "Bono de primera confesión",
     
     boost_confession: "Impulsar Confesión",
     boost_success_title: "¡Confesión Impulsada!",
@@ -3732,12 +3756,11 @@ export const translations: Record<Language, Translations> = {
     
     coins_title: "Münzen",
     coins_current_balance: "Aktueller Saldo",
-    coins_total_earned: "Gesamt Verdient",
+    coins_total_earned: "Insgesamt Verdient",
     coins_history: "Verlauf Anzeigen",
     coins_how_to_earn: "Wie man Münzen verdient:",
-    coins_per_confession_detail: "• 10 Münzen für jedes Geständnis",
-    coins_per_comment_detail: "• 5 Münzen für jeden Kommentar",
-    coins_per_like_detail: "• 2 Münzen wenn du ein Like erhältst",
+    coins_per_confession_detail: "📝 +2 Münzen pro Geständnis",
+    coins_per_confession_new: "+2 Münzen pro Geständnis",
     coins_no_transactions: "Noch keine Transaktionen",
     coins_all_transactions: "Alle deine Münztransaktionen",
     coins_confession_created: "Neues Geständnis",
@@ -3746,7 +3769,16 @@ export const translations: Record<Language, Translations> = {
     coins_how_to_spend: "💎 Münzen Ausgeben",
     coins_polish_detail: "✨ Geständnis Verbessern (10 Münzen) - KI verbessert deinen Text",
     coins_boost_detail: "🚀 Geständnis Boosten (15 Münzen) - 1 Stunde hervorheben",
-    coins_flairs_detail: "🎨 Profil-Abzeichen (30 Münzen) - Profil personalisieren",
+    coins_flairs_detail: "🎨 Profil-Abzeichen (30 Münzen) - 5 Tage aktiv",
+    badge_expires_in: "Läuft ab in",
+    badge_expired: "Abgelaufen",
+    badge_active_for: "5 Tage aktiv",
+    buy_again: "Erneut kaufen",
+    days: "Tage",
+    hours: "Stunden",
+    referral_reward_referrer: "+20 Münzen wenn Geworbener erstes Geständnis postet",
+    referral_reward_referred: "+10 Münzen nach deinem ersten Geständnis",
+    first_confession_bonus: "Bonus für erstes Geständnis",
     
     boost_confession: "Geständnis Boosten",
     boost_success_title: "Geständnis Geboostet!",

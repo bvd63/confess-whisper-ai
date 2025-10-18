@@ -102,13 +102,19 @@ serve(async (req) => {
         .eq('is_equipped', true);
     }
 
+    // Calculate expiry date (5 days from now)
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 5);
+
     // Purchase flair
     const { data: purchasedFlair, error: purchaseError } = await supabase
       .from('user_flairs')
       .insert({
         user_id: user.id,
         flair_id: flairId,
-        is_equipped: equip
+        is_equipped: equip,
+        acquired_at: new Date().toISOString(),
+        expires_at: expiresAt.toISOString(),
       })
       .select()
       .single();
