@@ -271,13 +271,6 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
                   </Button>
                 )}
                 <NotificationsDropdown />
-                <Button
-                  onClick={handleNewConfession}
-                  size="sm"
-                  className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground h-8 px-2"
-                >
-                  <PlusCircle className="w-4 h-4" />
-                </Button>
               </>
             ) : (
               <Button

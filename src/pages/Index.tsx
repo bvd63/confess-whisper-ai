@@ -130,7 +130,13 @@ const Index = () => {
     }
     
     trackEvent('confession_create_clicked');
-    setIsNewConfessionOpen(true);
+    
+    // On mobile, route to /compose; on desktop, open dialog inline
+    if (isMobile) {
+      navigate('/compose');
+    } else {
+      setIsNewConfessionOpen(true);
+    }
   };
 
   const handleSignOut = async () => {
