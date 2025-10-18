@@ -9,6 +9,7 @@ import { InstagramBottomNav } from "./components/InstagramBottomNav";
 import { AnalyticsProvider } from "./components/AnalyticsProvider";
 import { SystemNotifications } from '@/components/SystemNotifications';
 import { PerformanceIndicator } from '@/components/PerformanceIndicator';
+import { InstallPrompt } from '@/components/InstallPrompt';
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
@@ -62,6 +63,7 @@ const App = () => (
                 </div>
                 <SystemNotifications />
                 <PerformanceIndicator />
+                <InstallPrompt />
               </AnalyticsProvider>
             </BrowserRouter>
           </TooltipProvider>

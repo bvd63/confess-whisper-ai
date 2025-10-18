@@ -1,6 +1,8 @@
 import { useState, useEffect, lazy, Suspense, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { EnhancedButton } from "@/components/EnhancedButton";
+import { GradientText } from "@/components/GradientText";
 import { Sparkles, TrendingUp, Clock, Filter } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import AppLayout from "@/components/AppLayout";
@@ -212,12 +214,14 @@ const Index = () => {
         )}
         {/* Welcome Section */}
         <div className="mb-6 sm:mb-8 text-center animate-fade-in">
-          <div className="inline-flex items-center gap-2 mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 rounded-full border border-primary/20">
-            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
+          <div className="inline-flex items-center gap-2 mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 glass rounded-full border border-primary/20 hover-glow">
+            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-primary animate-pulse-glow" />
             <span className="text-xs sm:text-sm text-primary font-medium">{t.anonymous_secure}</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent px-4">
-            {t.home_title}
+          <h2 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-3 px-4">
+            <GradientText variant="hero">
+              {t.home_title}
+            </GradientText>
           </h2>
           <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-4">
             {t.welcome_description}
