@@ -336,7 +336,13 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
             </div>
           )}
 
-          <EnhancedButton
+          <div className="flex gap-2">
+            <PolishConfessionButton 
+              confessionText={content}
+              onPolishedTextReceived={(polished) => setContent(polished)}
+              disabled={isSubmitting}
+            />
+            <EnhancedButton
             onClick={handleSubmit}
             disabled={isSubmitting || !content.trim()}
             className="w-full"

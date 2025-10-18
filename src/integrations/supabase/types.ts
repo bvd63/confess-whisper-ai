@@ -315,6 +315,52 @@ export type Database = {
           },
         ]
       }
+      confession_boosts: {
+        Row: {
+          boost_until: string
+          confession_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          boost_until: string
+          confession_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          boost_until?: string
+          confession_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "confession_boosts_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "confessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "confession_boosts_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "hot_confessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "confession_boosts_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "trending_confessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       confession_drafts: {
         Row: {
           category: string
@@ -983,6 +1029,36 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_flairs: {
+        Row: {
+          cost: number
+          created_at: string
+          icon: string
+          id: string
+          is_active: boolean
+          name_key: string
+          rarity: string
+        }
+        Insert: {
+          cost?: number
+          created_at?: string
+          icon: string
+          id?: string
+          is_active?: boolean
+          name_key: string
+          rarity?: string
+        }
+        Update: {
+          cost?: number
+          created_at?: string
+          icon?: string
+          id?: string
+          is_active?: boolean
+          name_key?: string
+          rarity?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1367,6 +1443,38 @@ export type Database = {
           version?: string
         }
         Relationships: []
+      }
+      user_flairs: {
+        Row: {
+          flair_id: string
+          id: string
+          is_equipped: boolean
+          purchased_at: string
+          user_id: string
+        }
+        Insert: {
+          flair_id: string
+          id?: string
+          is_equipped?: boolean
+          purchased_at?: string
+          user_id: string
+        }
+        Update: {
+          flair_id?: string
+          id?: string
+          is_equipped?: boolean
+          purchased_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_flairs_flair_id_fkey"
+            columns: ["flair_id"]
+            isOneToOne: false
+            referencedRelation: "profile_flairs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_follows: {
         Row: {

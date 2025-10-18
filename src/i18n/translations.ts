@@ -657,6 +657,54 @@ type Translations = {
   coins_comment_added: string;
   coins_like_received: string;
   
+  // Boost Confession
+  boost_confession: string;
+  boost_success_title: string;
+  boost_success_description: string;
+  boost_error: string;
+  boost_confirmation_description: string;
+  boost_cost: string;
+  boost_now: string;
+  
+  // Polish Confession
+  polish_confession: string;
+  polishing: string;
+  polish_success_title: string;
+  polish_success_description: string;
+  polish_error: string;
+  polish_empty_error: string;
+  
+  // Flairs Shop
+  flairs_shop: string;
+  flair_purchased_title: string;
+  flair_purchased_description: string;
+  flair_purchase_error: string;
+  flair_equipped: string;
+  equipped: string;
+  equip: string;
+  rarity_common: string;
+  rarity_uncommon: string;
+  rarity_rare: string;
+  rarity_epic: string;
+  
+  // Flair Names
+  flair_star: string;
+  flair_fire: string;
+  flair_heart: string;
+  flair_crown: string;
+  flair_sparkles: string;
+  flair_diamond: string;
+  flair_trophy: string;
+  flair_rocket: string;
+  flair_rainbow: string;
+  flair_unicorn: string;
+  
+  // UI General Additions
+  loading: string;
+  success: string;
+  cancel: string;
+  processing: string;
+  
   // Nickname & User Search
   nickname_label: string;
   nickname_placeholder: string;
@@ -1729,6 +1777,49 @@ export const translations: Record<Language, Translations> = {
     coins_comment_added: "Comment added",
     coins_like_received: "Like received",
     
+    boost_confession: "Boost Confession",
+    boost_success_title: "Confession Boosted!",
+    boost_success_description: "Your confession will be highlighted for 1 hour",
+    boost_error: "Failed to boost confession",
+    boost_confirmation_description: "Boost this confession to make it more visible for 1 hour.",
+    boost_cost: "Cost: 15 coins",
+    boost_now: "Boost Now",
+    
+    polish_confession: "Polish Confession",
+    polishing: "Polishing...",
+    polish_success_title: "Confession Polished!",
+    polish_success_description: "Your confession has been improved by AI",
+    polish_error: "Failed to polish confession",
+    polish_empty_error: "Please write your confession first",
+    
+    flairs_shop: "Flairs Shop",
+    flair_purchased_title: "Flair Purchased!",
+    flair_purchased_description: "Your new flair is now equipped",
+    flair_purchase_error: "Failed to purchase flair",
+    flair_equipped: "Flair equipped successfully",
+    equipped: "Equipped",
+    equip: "Equip",
+    rarity_common: "Common",
+    rarity_uncommon: "Uncommon",
+    rarity_rare: "Rare",
+    rarity_epic: "Epic",
+    
+    flair_star: "Star",
+    flair_fire: "Fire",
+    flair_heart: "Heart",
+    flair_crown: "Crown",
+    flair_sparkles: "Sparkles",
+    flair_diamond: "Diamond",
+    flair_trophy: "Trophy",
+    flair_rocket: "Rocket",
+    flair_rainbow: "Rainbow",
+    flair_unicorn: "Unicorn",
+    
+    loading: "Loading...",
+    success: "Success",
+    cancel: "Cancel",
+    processing: "Processing...",
+    
     nickname_label: "Nickname",
     nickname_placeholder: "Enter your nickname",
     nickname_update: "Update Nickname",
@@ -2644,6 +2735,49 @@ export const translations: Record<Language, Translations> = {
     coins_confession_created: "Nueva confesión",
     coins_comment_added: "Comentario añadido",
     coins_like_received: "Me gusta recibido",
+    
+    boost_confession: "Impulsar Confesión",
+    boost_success_title: "¡Confesión Impulsada!",
+    boost_success_description: "Tu confesión será destacada durante 1 hora",
+    boost_error: "Error al impulsar confesión",
+    boost_confirmation_description: "Impulsa esta confesión para hacerla más visible durante 1 hora.",
+    boost_cost: "Costo: 15 monedas",
+    boost_now: "Impulsar Ahora",
+    
+    polish_confession: "Mejorar Confesión",
+    polishing: "Mejorando...",
+    polish_success_title: "¡Confesión Mejorada!",
+    polish_success_description: "Tu confesión ha sido mejorada por IA",
+    polish_error: "Error al mejorar confesión",
+    polish_empty_error: "Por favor escribe tu confesión primero",
+    
+    flairs_shop: "Tienda de Insignias",
+    flair_purchased_title: "¡Insignia Comprada!",
+    flair_purchased_description: "Tu nueva insignia está ahora equipada",
+    flair_purchase_error: "Error al comprar insignia",
+    flair_equipped: "Insignia equipada exitosamente",
+    equipped: "Equipada",
+    equip: "Equipar",
+    rarity_common: "Común",
+    rarity_uncommon: "Poco Común",
+    rarity_rare: "Rara",
+    rarity_epic: "Épica",
+    
+    flair_star: "Estrella",
+    flair_fire: "Fuego",
+    flair_heart: "Corazón",
+    flair_crown: "Corona",
+    flair_sparkles: "Destellos",
+    flair_diamond: "Diamante",
+    flair_trophy: "Trofeo",
+    flair_rocket: "Cohete",
+    flair_rainbow: "Arcoíris",
+    flair_unicorn: "Unicornio",
+    
+    loading: "Cargando...",
+    success: "Éxito",
+    cancel: "Cancelar",
+    processing: "Procesando...",
     
     nickname_label: "Apodo",
     nickname_placeholder: "Ingresa tu apodo",
@@ -3594,6 +3728,49 @@ export const translations: Record<Language, Translations> = {
     coins_confession_created: "Neues Geständnis",
     coins_comment_added: "Kommentar hinzugefügt",
     coins_like_received: "Like erhalten",
+    
+    boost_confession: "Geständnis Boosten",
+    boost_success_title: "Geständnis Geboostet!",
+    boost_success_description: "Dein Geständnis wird 1 Stunde hervorgehoben",
+    boost_error: "Fehler beim Boosten des Geständnisses",
+    boost_confirmation_description: "Booste dieses Geständnis, um es 1 Stunde lang sichtbarer zu machen.",
+    boost_cost: "Kosten: 15 Münzen",
+    boost_now: "Jetzt Boosten",
+    
+    polish_confession: "Geständnis Verbessern",
+    polishing: "Verbessern...",
+    polish_success_title: "Geständnis Verbessert!",
+    polish_success_description: "Dein Geständnis wurde von KI verbessert",
+    polish_error: "Fehler beim Verbessern des Geständnisses",
+    polish_empty_error: "Bitte schreibe zuerst dein Geständnis",
+    
+    flairs_shop: "Abzeichen-Shop",
+    flair_purchased_title: "Abzeichen Gekauft!",
+    flair_purchased_description: "Dein neues Abzeichen ist jetzt ausgerüstet",
+    flair_purchase_error: "Fehler beim Kauf des Abzeichens",
+    flair_equipped: "Abzeichen erfolgreich ausgerüstet",
+    equipped: "Ausgerüstet",
+    equip: "Ausrüsten",
+    rarity_common: "Gewöhnlich",
+    rarity_uncommon: "Ungewöhnlich",
+    rarity_rare: "Selten",
+    rarity_epic: "Episch",
+    
+    flair_star: "Stern",
+    flair_fire: "Feuer",
+    flair_heart: "Herz",
+    flair_crown: "Krone",
+    flair_sparkles: "Funkeln",
+    flair_diamond: "Diamant",
+    flair_trophy: "Trophäe",
+    flair_rocket: "Rakete",
+    flair_rainbow: "Regenbogen",
+    flair_unicorn: "Einhorn",
+    
+    loading: "Laden...",
+    success: "Erfolg",
+    cancel: "Abbrechen",
+    processing: "Verarbeitung...",
     
     nickname_label: "Spitzname",
     nickname_placeholder: "Gib deinen Spitznamen ein",

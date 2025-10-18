@@ -69,3 +69,12 @@ verify_jwt = false
 
 [functions.metrics]
 verify_jwt = false
+
+[functions.polish-confession]
+verify_jwt = true
+
+[functions.boost-confession]
+verify_jwt = true
+
+[functions.purchase-flair]
+verify_jwt = true
