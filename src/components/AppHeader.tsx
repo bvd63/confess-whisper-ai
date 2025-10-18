@@ -15,7 +15,6 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useHideOnScroll } from "@/hooks/useHideOnScroll";
 
 interface AppHeaderProps {
   onNewConfession?: () => void;
@@ -30,7 +29,6 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
   const { isPremium } = usePremiumStatus(user?.id);
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  const isHeaderVisible = useHideOnScroll({ threshold: 10, disabled: !isMobile });
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -243,7 +241,7 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
       </div>
 
       {/* Mobile Layout - Simplified (Navigation via InstagramBottomNav) */}
-      <div className={`md:hidden w-full sticky top-0 z-50 glass-strong border-b border-border/50 shadow-elegant transition-transform duration-300 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+      <div className="md:hidden w-full sticky top-0 z-50 glass-strong border-b border-border/50 shadow-elegant">
         <div className="flex items-center justify-between px-3 py-2.5">
           <div className="flex items-center gap-2">
             <Heart className="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" />
