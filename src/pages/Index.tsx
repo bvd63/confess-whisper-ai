@@ -36,7 +36,7 @@ import SEOHead from "@/components/SEOHead";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Loader2 } from "lucide-react";
-import { InstagramBottomNav } from "@/components/InstagramBottomNav";
+
 import { OnboardingWelcome } from "@/components/OnboardingWelcome";
 import { usePerformanceBudget } from "@/hooks/usePerformanceBudget";
 
@@ -438,7 +438,7 @@ const Index = () => {
       {/* Rate Limit Notification */}
       {RateLimitUI}
       
-      <InstagramBottomNav />
+      
       </AppLayout>
     </>
   );

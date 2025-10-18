@@ -8,7 +8,7 @@ import AppLayout from "@/components/AppLayout";
 import { ConversationList } from "@/components/ConversationList";
 import { EnhancedMessageThread } from "@/components/EnhancedMessageThread";
 import { AnimatedCard } from "@/components/AnimatedCard";
-import { InstagramBottomNav } from "@/components/InstagramBottomNav";
+
 
 const Messages = () => {
   const { user, isLoading } = useCurrentUser();
@@ -122,7 +122,7 @@ const Messages = () => {
         </AnimatedCard>
       </div>
       
-      <InstagramBottomNav />
+      
     </AppLayout>
   );
 };
