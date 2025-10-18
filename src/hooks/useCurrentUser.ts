@@ -37,5 +37,7 @@ export const useCurrentUser = () => {
     };
   }, [data]);
 
-  return { user, isLoading };
+  // Return isLoading as true until we have a definitive result (user or null)
+  // This prevents race conditions where isLoading becomes false before user state is set
+  return { user, isLoading: isLoading || (data === undefined && user === null) };
 };
