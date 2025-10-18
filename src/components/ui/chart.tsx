@@ -3,6 +3,58 @@ import * as RechartsPrimitive from "recharts";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * ⚠️ SECURITY WARNING: XSS Prevention in Chart Configuration
+ * 
+ * This component uses dangerouslySetInnerHTML to inject CSS for chart theming.
+ * 
+ * 🔒 CRITICAL SECURITY REQUIREMENT:
+ * ChartConfig MUST NEVER contain unsanitized user input. Only use developer-controlled
+ * values or strictly validate user input before using in configuration.
+ * 
+ * ✅ SAFE USAGE:
+ * ```typescript
+ * const config = {
+ *   revenue: { 
+ *     color: "hsl(var(--primary))"  // Design system token - SAFE
+ *   }
+ * }
+ * ```
+ * 
+ * ❌ UNSAFE - NEVER DO THIS:
+ * ```typescript
+ * const userColor = req.body.color  // User input
+ * const config = {
+ *   revenue: { color: userColor }  // XSS VULNERABILITY!
+ * }
+ * ```
+ * 
+ * 🛡️ IF YOU NEED USER-PROVIDED COLORS:
+ * Implement strict validation:
+ * ```typescript
+ * function sanitizeColor(input: string): string {
+ *   // Hex colors
+ *   if (/^#[0-9A-Fa-f]{6}$/.test(input)) return input
+ *   // HSL colors
+ *   if (/^hsl\(\d+,\s*\d+%,\s*\d+%\)$/.test(input)) return input
+ *   // RGB colors
+ *   if (/^rgb\(\d+,\s*\d+,\s*\d+\)$/.test(input)) return input
+ *   // Default fallback
+ *   return 'hsl(var(--foreground))'
+ * }
+ * 
+ * const userConfig = {
+ *   revenue: { color: sanitizeColor(userInput) }  // Now safe
+ * }
+ * ```
+ * 
+ * 📝 AUDIT CHECKLIST:
+ * - [ ] ChartConfig only uses design system tokens
+ * - [ ] No user input reaches ChartConfig without validation
+ * - [ ] If validation is needed, it uses strict regex patterns
+ * - [ ] Code review confirms no XSS vectors exist
+ */
+
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const;
 
