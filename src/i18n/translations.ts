@@ -450,10 +450,33 @@ type Translations = {
   profile_password_same: string;
   profile_hours_remaining: string;
   
-  // Achievement Toast
   achievement_new_badge: string;
   
-  // Daily Prompt
+  system_error_occurred: string;
+  system_rate_limit_exceeded: string;
+  system_service_unavailable: string;
+  system_network_error: string;
+  system_timeout_error: string;
+  system_validation_error: string;
+  system_loading: string;
+  system_retrying: string;
+  system_cache_cleared: string;
+  validation_content_min: string;
+  validation_content_max: string;
+  validation_email_invalid: string;
+  validation_password_min: string;
+  validation_password_requirements: string;
+  validation_nickname_min: string;
+  validation_nickname_max: string;
+  validation_nickname_format: string;
+  validation_required_field: string;
+  validation_invalid_url: string;
+  validation_max_length: string;
+  performance_cache_hit: string;
+  performance_cache_miss: string;
+  performance_slow_query: string;
+  performance_optimizing: string;
+  
   daily_prompt_title: string;
   daily_prompt_share: string;
   
@@ -1141,6 +1164,36 @@ export const translations: Record<Language, Translations> = {
     profile_password_weak: "Password must be at least 6 characters",
     profile_password_same: "New password must be different from current password",
     profile_hours_remaining: "hours remaining until you can change your password",
+    
+    // System & Performance
+    system_error_occurred: "An error occurred. Please try again.",
+    system_rate_limit_exceeded: "Too many requests. Please wait {seconds} seconds before trying again.",
+    system_service_unavailable: "Service temporarily unavailable. We're working on it.",
+    system_network_error: "Network error. Please check your connection.",
+    system_timeout_error: "Request timeout. Please try again.",
+    system_validation_error: "Validation error",
+    system_loading: "Loading...",
+    system_retrying: "Retrying... (Attempt {attempt})",
+    system_cache_cleared: "Cache cleared successfully",
+    
+    // Validation errors
+    validation_content_min: "Content must be at least {min} characters",
+    validation_content_max: "Content must not exceed {max} characters",
+    validation_email_invalid: "Invalid email address",
+    validation_password_min: "Password must be at least {min} characters",
+    validation_password_requirements: "Password must contain uppercase, lowercase, and a number",
+    validation_nickname_min: "Nickname must be at least {min} characters",
+    validation_nickname_max: "Nickname must not exceed {max} characters",
+    validation_nickname_format: "Nickname can only contain letters, numbers, hyphens and underscores",
+    validation_required_field: "This field is required",
+    validation_invalid_url: "Invalid URL format",
+    validation_max_length: "Must not exceed {max} characters",
+    
+    // Performance monitoring
+    performance_cache_hit: "Loaded from cache",
+    performance_cache_miss: "Fetching fresh data",
+    performance_slow_query: "Slow response detected",
+    performance_optimizing: "Optimizing performance...",
     
     achievement_new_badge: "🏆 You earned a new badge!",
     
@@ -2219,6 +2272,36 @@ export const translations: Record<Language, Translations> = {
     profile_password_same: "La nueva contraseña debe ser diferente de la actual",
     profile_hours_remaining: "horas restantes hasta que puedas cambiar tu contraseña",
     
+    // System & Performance
+    system_error_occurred: "Ocurrió un error. Por favor intenta de nuevo.",
+    system_rate_limit_exceeded: "Demasiadas solicitudes. Espera {seconds} segundos antes de intentar nuevamente.",
+    system_service_unavailable: "Servicio temporalmente no disponible. Estamos trabajando en ello.",
+    system_network_error: "Error de red. Por favor verifica tu conexión.",
+    system_timeout_error: "Tiempo de espera agotado. Por favor intenta de nuevo.",
+    system_validation_error: "Error de validación",
+    system_loading: "Cargando...",
+    system_retrying: "Reintentando... (Intento {attempt})",
+    system_cache_cleared: "Caché borrado exitosamente",
+    
+    // Validation errors
+    validation_content_min: "El contenido debe tener al menos {min} caracteres",
+    validation_content_max: "El contenido no debe exceder {max} caracteres",
+    validation_email_invalid: "Dirección de correo electrónico inválida",
+    validation_password_min: "La contraseña debe tener al menos {min} caracteres",
+    validation_password_requirements: "La contraseña debe contener mayúsculas, minúsculas y un número",
+    validation_nickname_min: "El apodo debe tener al menos {min} caracteres",
+    validation_nickname_max: "El apodo no debe exceder {max} caracteres",
+    validation_nickname_format: "El apodo solo puede contener letras, números, guiones y guiones bajos",
+    validation_required_field: "Este campo es obligatorio",
+    validation_invalid_url: "Formato de URL inválido",
+    validation_max_length: "No debe exceder {max} caracteres",
+    
+    // Performance monitoring
+    performance_cache_hit: "Cargado desde caché",
+    performance_cache_miss: "Obteniendo datos frescos",
+    performance_slow_query: "Respuesta lenta detectada",
+    performance_optimizing: "Optimizando rendimiento...",
+    
     achievement_new_badge: "🏆 ¡Has obtenido una nueva insignia!",
     
     daily_prompt_title: "Pregunta del Día",
@@ -3073,6 +3156,36 @@ export const translations: Record<Language, Translations> = {
     profile_password_weak: "Passwort muss mindestens 6 Zeichen lang sein",
     profile_password_same: "Neues Passwort muss sich vom aktuellen unterscheiden",
     profile_hours_remaining: "Stunden verbleibend, bis du dein Passwort ändern kannst",
+    
+    // System & Performance
+    system_error_occurred: "Ein Fehler ist aufgetreten. Bitte versuche es erneut.",
+    system_rate_limit_exceeded: "Zu viele Anfragen. Bitte warte {seconds} Sekunden, bevor du es erneut versuchst.",
+    system_service_unavailable: "Service vorübergehend nicht verfügbar. Wir arbeiten daran.",
+    system_network_error: "Netzwerkfehler. Bitte überprüfe deine Verbindung.",
+    system_timeout_error: "Zeitüberschreitung der Anfrage. Bitte versuche es erneut.",
+    system_validation_error: "Validierungsfehler",
+    system_loading: "Lädt...",
+    system_retrying: "Erneuter Versuch... (Versuch {attempt})",
+    system_cache_cleared: "Cache erfolgreich geleert",
+    
+    // Validation errors
+    validation_content_min: "Inhalt muss mindestens {min} Zeichen haben",
+    validation_content_max: "Inhalt darf {max} Zeichen nicht überschreiten",
+    validation_email_invalid: "Ungültige E-Mail-Adresse",
+    validation_password_min: "Passwort muss mindestens {min} Zeichen haben",
+    validation_password_requirements: "Passwort muss Groß-, Kleinbuchstaben und eine Zahl enthalten",
+    validation_nickname_min: "Nickname muss mindestens {min} Zeichen haben",
+    validation_nickname_max: "Nickname darf {max} Zeichen nicht überschreiten",
+    validation_nickname_format: "Nickname darf nur Buchstaben, Zahlen, Bindestriche und Unterstriche enthalten",
+    validation_required_field: "Dieses Feld ist erforderlich",
+    validation_invalid_url: "Ungültiges URL-Format",
+    validation_max_length: "Darf {max} Zeichen nicht überschreiten",
+    
+    // Performance monitoring
+    performance_cache_hit: "Aus Cache geladen",
+    performance_cache_miss: "Frische Daten werden abgerufen",
+    performance_slow_query: "Langsame Antwort erkannt",
+    performance_optimizing: "Leistung wird optimiert...",
     
     achievement_new_badge: "🏆 Du hast ein neues Abzeichen erhalten!",
     

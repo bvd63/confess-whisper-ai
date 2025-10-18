@@ -2,11 +2,17 @@ import { v4 as uuidv4 } from 'uuid';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
+interface I18nError {
+  key: string;
+  params?: Record<string, string | number>;
+}
+
 export interface LogContext {
   requestId?: string;
   userId?: string;
   action?: string;
   metadata?: Record<string, any>;
+  i18nError?: I18nError;
 }
 
 export interface PerformanceMetric {
