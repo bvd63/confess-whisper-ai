@@ -184,12 +184,15 @@ class ObservabilityService {
 
   private async sendErrorToAnalytics(logEntry: any) {
     try {
-      // This would send to your analytics backend
-      await fetch('/api/analytics/errors', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(logEntry),
-      });
+      // Send to Supabase analytics in production
+      if (typeof window !== 'undefined') {
+        const { supabase } = await import('@/integrations/supabase/client');
+        await supabase.from('analytics_events').insert({
+          event_type: 'error',
+          event_data: logEntry,
+          user_id: logEntry.userId || null,
+        });
+      }
     } catch (e) {
       // Fail silently to avoid infinite loops
       console.error('Failed to send error to analytics', e);
