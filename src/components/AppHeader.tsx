@@ -242,10 +242,9 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
         </div>
       </div>
 
-      {/* Mobile Layout */}
+      {/* Mobile Layout - Simplified (Navigation via InstagramBottomNav) */}
       <div className={`md:hidden w-full sticky top-0 z-50 glass-strong border-b border-border/50 shadow-elegant transition-transform duration-300 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
-        {/* Top row - Logo and essentials */}
-        <div className="flex items-center justify-between px-3 py-2 border-b border-border/30">
+        <div className="flex items-center justify-between px-3 py-2.5">
           <div className="flex items-center gap-2">
             <Heart className="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" />
             <h1 
@@ -292,95 +291,6 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
             )}
           </div>
         </div>
-
-        {/* Bottom row - Navigation */}
-        {user && (
-          <div className="flex items-center justify-around px-2 py-2 bg-muted/20">
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className={cn(
-                "flex-1 h-9 text-muted-foreground hover:text-foreground transition-colors",
-                isActive('/') && "bg-accent text-foreground"
-              )}
-            >
-              <Link to="/">
-                <Home className="w-4 h-4" />
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className={cn(
-                "flex-1 h-9 text-muted-foreground hover:text-foreground transition-colors",
-                isActive('/bookmarks') && "bg-accent text-foreground"
-              )}
-            >
-              <Link to="/bookmarks">
-                <BookMarked className="w-4 h-4" />
-              </Link>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                if (!user) {
-                  toast({ title: t.error_auth, description: t.error_auth });
-                  navigate('/auth');
-                  return;
-                }
-                navigate('/following');
-              }}
-              className={cn(
-                "flex-1 h-9 text-muted-foreground hover:text-foreground transition-colors",
-                isActive('/following') && "bg-accent text-foreground"
-              )}
-            >
-              <Users className="w-4 h-4" />
-            </Button>
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className={cn(
-                "flex-1 h-9 text-muted-foreground hover:text-foreground transition-colors",
-                isActive('/search-users') && "bg-accent text-foreground"
-              )}
-            >
-              <Link to="/search-users">
-                <Search className="w-4 h-4" />
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className={cn(
-                "flex-1 h-9 text-muted-foreground hover:text-foreground transition-colors",
-                isActive('/messages') && "bg-accent text-foreground"
-              )}
-            >
-              <Link to="/messages">
-                <MessageCircle className="w-4 h-4" />
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className={cn(
-                "flex-1 h-9 text-muted-foreground hover:text-foreground transition-colors",
-                isActive('/profile') && "bg-accent text-foreground"
-              )}
-            >
-              <Link to="/profile">
-                <User className="w-4 h-4" />
-              </Link>
-            </Button>
-          </div>
-        )}
       </div>
     </header>
   );
