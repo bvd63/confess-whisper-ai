@@ -289,6 +289,9 @@ type Translations = {
   limit_confessions_remaining: string;
   limit_confessions_unlimited: string;
   
+  // Auth Captcha
+  auth_captcha_required_after_fails: string;
+  
   // Common Actions
   common_close: string;
   
@@ -1708,6 +1711,9 @@ export const translations: Record<Language, Translations> = {
     limit_confessions_remaining: "{count} confessions left today",
     limit_confessions_unlimited: "Unlimited confessions today",
     
+    // Auth Captcha
+    auth_captcha_required_after_fails: "Please verify you're human to continue",
+    
     // Common Actions
     common_close: "Close",
     
@@ -2512,6 +2518,9 @@ export const translations: Record<Language, Translations> = {
     limit_see_plans: "Ver Planes",
     limit_confessions_remaining: "{count} confesiones restantes hoy",
     limit_confessions_unlimited: "Confesiones ilimitadas hoy",
+    
+    // Auth Captcha
+    auth_captcha_required_after_fails: "Por favor verifica que eres humano para continuar",
     
     // Common Actions
     common_close: "Cerrar",
@@ -3565,6 +3574,9 @@ export const translations: Record<Language, Translations> = {
     limit_see_plans: "Pläne Ansehen",
     limit_confessions_remaining: "{count} Beichten übrig heute",
     limit_confessions_unlimited: "Unbegrenzte Beichten heute",
+    
+    // Auth Captcha
+    auth_captcha_required_after_fails: "Bitte bestätigen Sie, dass Sie ein Mensch sind, um fortzufahren",
     
     // Common Actions
     common_close: "Schließen",

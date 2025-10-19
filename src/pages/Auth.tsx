@@ -34,6 +34,8 @@ const Auth = () => {
   const [turnstileError, setTurnstileError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({ email: "", password: "", confirmPassword: "", captcha: "" });
+  const [failedLoginAttempts, setFailedLoginAttempts] = useState(0);
+  const [showLoginCaptcha, setShowLoginCaptcha] = useState(false);
 
   const passwordValidation = usePasswordValidation(password);
   const emailSchema = z.string().email(t.auth_invalid_email);
@@ -83,7 +85,11 @@ const Auth = () => {
 
   const isFormValid = (): boolean => {
     if (isLogin) {
-      return !!email && !!password;
+      const basicValid = !!email && !!password;
+      if (showLoginCaptcha) {
+        return basicValid && !!captchaToken;
+      }
+      return basicValid;
     }
     return (
       !!email &&
@@ -108,11 +114,22 @@ const Auth = () => {
         });
 
         if (error) {
+          // Increment failed attempts and show captcha after 3 attempts
+          const newAttempts = failedLoginAttempts + 1;
+          setFailedLoginAttempts(newAttempts);
+          if (newAttempts >= 3) {
+            setShowLoginCaptcha(true);
+          }
+          
           if (error.message.includes("Invalid login credentials")) {
             throw new Error(t.auth_invalid_credentials);
           }
           throw error;
         }
+
+        // Reset failed attempts on successful login
+        setFailedLoginAttempts(0);
+        setShowLoginCaptcha(false);
 
         toast({
           title: t.auth_login_success,
@@ -192,6 +209,8 @@ const Auth = () => {
     setConfirmPassword("");
     setCaptchaToken("");
     setTurnstileError(false);
+    setFailedLoginAttempts(0);
+    setShowLoginCaptcha(false);
     setErrors({ email: "", password: "", confirmPassword: "", captcha: "" });
   };
 
@@ -363,9 +382,17 @@ const Auth = () => {
             </div>
           )}
 
-          {/* Turnstile CAPTCHA (Signup only) */}
-          {!isLogin && (
+          {/* Turnstile CAPTCHA (Signup always, Login after 3 failed attempts) */}
+          {(!isLogin || showLoginCaptcha) && (
             <div className="space-y-2">
+              {showLoginCaptcha && (
+                <Alert className="mb-2">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    {t.auth_captcha_required_after_fails || "Please verify you're human to continue"}
+                  </AlertDescription>
+                </Alert>
+              )}
               {turnstileError && (
                 <Alert variant="destructive" className="mb-2">
                   <AlertCircle className="h-4 w-4" />

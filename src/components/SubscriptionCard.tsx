@@ -49,6 +49,10 @@ const SubscriptionCard = ({
     "Statistici detaliate": "subscription_feature_detailed_stats",
     "Suport prioritar": "subscription_feature_priority_support",
     "Badge VIP special": "subscription_feature_vip_badge",
+    // Confession limits
+    "3 confessions per day": "plans_free_benefit_confessions",
+    "10 confessions per day": "plans_premium_benefit_confessions",
+    "Unlimited confessions per day": "plans_vip_benefit_confessions",
   };
 
   const translateFeature = (feature: string): string => {
