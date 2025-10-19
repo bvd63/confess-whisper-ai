@@ -104,27 +104,27 @@ const Explore = () => {
 
   return (
     <AppLayout>
-      <div className="container max-w-4xl mx-auto px-4 py-8 pb-24">
-        <div className="mb-8 animate-fade-in">
-          <h1 className="text-3xl font-bold mb-2">
+      <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
+        <div className="mb-6 sm:mb-8 animate-fade-in">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">
             <GradientText variant="hero">{t.explore}</GradientText>
           </h1>
-          <p className="text-muted-foreground">{t.recommended_for_you}</p>
+          <p className="text-sm sm:text-base text-muted-foreground">{t.recommended_for_you}</p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="trending" className="gap-2">
-              <Flame className="w-4 h-4" />
-              {t.search_trending}
+          <TabsList className="grid w-full grid-cols-3 mb-4 sm:mb-6 h-auto">
+            <TabsTrigger value="trending" className="gap-1 sm:gap-2 text-xs sm:text-sm py-2">
+              <Flame className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline">{t.search_trending}</span>
             </TabsTrigger>
-            <TabsTrigger value="popular" className="gap-2">
-              <TrendingUp className="w-4 h-4" />
-              {t.ui_popular}
+            <TabsTrigger value="popular" className="gap-1 sm:gap-2 text-xs sm:text-sm py-2">
+              <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline">{t.ui_popular}</span>
             </TabsTrigger>
-            <TabsTrigger value="recent" className="gap-2">
-              <Clock className="w-4 h-4" />
-              {t.ui_recent}
+            <TabsTrigger value="recent" className="gap-1 sm:gap-2 text-xs sm:text-sm py-2">
+              <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline">{t.ui_recent}</span>
             </TabsTrigger>
           </TabsList>
 

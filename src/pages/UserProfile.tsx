@@ -70,8 +70,8 @@ const UserProfile = () => {
   if (isLoading) {
     return (
       <AppLayout>
-        <div className="container max-w-4xl mx-auto px-4 py-8">
-          <Skeleton className="h-32 w-full mb-6" />
+        <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
+          <Skeleton className="h-32 w-full mb-4 sm:mb-6" />
           <Skeleton className="h-64 w-full" />
         </div>
         <InstagramBottomNav />
@@ -82,8 +82,8 @@ const UserProfile = () => {
   if (!profile) {
     return (
       <AppLayout>
-        <div className="container max-w-4xl mx-auto px-4 py-8 text-center">
-          <p className="text-muted-foreground">User not found</p>
+        <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 text-center pb-24">
+          <p className="text-sm sm:text-base text-muted-foreground">User not found</p>
         </div>
         <InstagramBottomNav />
       </AppLayout>
@@ -92,7 +92,7 @@ const UserProfile = () => {
 
   return (
     <AppLayout>
-      <div className="container max-w-4xl mx-auto px-4 py-8 pb-24">
+      <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
         {isOnTrial && trialEndDate && currentUser.id === userId && (
           <TrialBanner trialEndDate={trialEndDate} />
         )}

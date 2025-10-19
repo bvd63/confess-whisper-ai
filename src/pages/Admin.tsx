@@ -226,8 +226,8 @@ export default function Admin() {
 
   return (
     <AppLayout>
-      <div className="max-w-6xl mx-auto p-4">
-        <div className="flex items-center gap-3 mb-6">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
+        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
           <Shield className="h-8 w-8 text-primary" />
           <div>
             <h1 className="text-2xl font-bold">{t('Admin Dashboard')}</h1>

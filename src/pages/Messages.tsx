@@ -111,13 +111,13 @@ const Messages = () => {
   return (
     <AppLayout>
       <NetworkStatusIndicator />
-      <div className="container max-w-4xl mx-auto px-4 py-6 pb-24">
+      <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 pb-24">
         <AnimatedCard className="overflow-hidden" hover="none">
           {!selectedConversation ? (
             <div>
-              <div className="p-6 border-b border-border glass"
+              <div className="p-4 sm:p-6 border-b border-border glass"
               >
-                <h1 className="text-2xl font-bold">{t.messages_title}</h1>
+                <h1 className="text-xl sm:text-2xl font-bold">{t.messages_title}</h1>
               </div>
               <ConversationList
                 currentUserId={user.id}
@@ -126,7 +126,7 @@ const Messages = () => {
               />
             </div>
           ) : (
-            <div className="h-[600px]">
+            <div className="h-[calc(100vh-200px)] sm:h-[600px]">
               <EnhancedMessageThread
                 conversationId={selectedConversation}
                 currentUserId={user.id}

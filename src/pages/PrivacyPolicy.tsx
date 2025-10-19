@@ -11,7 +11,7 @@ const PrivacyPolicy = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
       <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-lg border-b border-border/50">
-        <div className="container max-w-4xl mx-auto px-4 py-4">
+        <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <Button
             variant="ghost"
             onClick={() => navigate("/")}
@@ -23,8 +23,8 @@ const PrivacyPolicy = () => {
         </div>
       </header>
 
-      <main className="container max-w-4xl mx-auto px-4 py-8">
-        <Card className="p-8 bg-card border-border/50 shadow-[var(--shadow-soft)]">
+      <main className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
+        <Card className="p-4 sm:p-6 md:p-8 bg-card border-border/50 shadow-[var(--shadow-soft)]">
           <div className="flex items-center gap-3 mb-6">
             <Shield className="w-8 h-8 text-primary" />
             <h1 className="text-3xl font-bold">{t.privacy_title}</h1>

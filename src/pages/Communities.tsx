@@ -59,7 +59,7 @@ const Communities = () => {
 
   return (
     <AppLayout>
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
         {/* Header */}
         <div className="mb-8 text-center">
           <Users className="w-16 h-16 mx-auto mb-4 text-primary" />

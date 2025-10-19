@@ -70,8 +70,8 @@ const CommunityDetail = () => {
   if (!community) {
     return (
       <AppLayout>
-        <div className="max-w-4xl mx-auto px-4 py-8 text-center">
-          <p className="text-muted-foreground">{t.communities_not_found}</p>
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 text-center pb-24">
+          <p className="text-sm sm:text-base text-muted-foreground">{t.communities_not_found}</p>
           <Button onClick={() => navigate('/communities')} className="mt-4">
             {t.communities_back}
           </Button>
@@ -82,7 +82,7 @@ const CommunityDetail = () => {
 
   return (
     <AppLayout>
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
         {/* Header */}
         <Button
           variant="ghost"
