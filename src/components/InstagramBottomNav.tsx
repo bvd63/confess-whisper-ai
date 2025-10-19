@@ -52,8 +52,13 @@ export const InstagramBottomNav = () => {
                 strokeWidth={active ? 2.5 : 2}
               />
               
-              {item.badge && item.badge > 0 && (
-                <span className="absolute top-1 right-3 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-destructive rounded-full animate-pulse-glow shadow-elegant">
+              {item.badge !== undefined && (
+                <span className={cn(
+                  "absolute top-1 right-3 flex items-center justify-center w-5 h-5 text-xs font-bold rounded-full shadow-elegant",
+                  item.badge > 0 
+                    ? "text-white bg-destructive animate-pulse-glow" 
+                    : "text-muted-foreground bg-muted"
+                )}>
                   {item.badge > 9 ? "9+" : item.badge}
                 </span>
               )}
