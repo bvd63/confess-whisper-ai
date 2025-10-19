@@ -8,6 +8,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TrialBanner } from "@/components/TrialBanner";
 
 interface UserProfileData {
   nickname: string;
@@ -18,7 +19,7 @@ const UserProfile = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const { user: currentUser } = useCurrentUser();
-  const { isPremium } = usePremiumStatus(currentUser?.id);
+  const { isPremium, isOnTrial, trialEndDate } = usePremiumStatus(currentUser?.id);
   const [profile, setProfile] = useState<UserProfileData | null>(null);
   const [confessionsCount, setConfessionsCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -92,6 +93,10 @@ const UserProfile = () => {
   return (
     <AppLayout>
       <div className="container max-w-4xl mx-auto px-4 py-8 pb-24">
+        {isOnTrial && trialEndDate && currentUser.id === userId && (
+          <TrialBanner trialEndDate={trialEndDate} />
+        )}
+        
         <ProfileHeader
           userId={userId!}
           currentUserId={currentUser.id}
