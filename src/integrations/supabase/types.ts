@@ -745,6 +745,33 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_confession_counts: {
+        Row: {
+          count: number
+          created_at: string
+          date: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          count?: number
+          created_at?: string
+          date?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          count?: number
+          created_at?: string
+          date?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_prompts: {
         Row: {
           active_date: string
@@ -1890,6 +1917,10 @@ export type Database = {
         }
         Returns: number
       }
+      can_user_post_confession: {
+        Args: { _user_id: string }
+        Returns: Json
+      }
       cleanup_expired_rate_limits: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -1919,6 +1950,10 @@ export type Database = {
       generate_unique_handle: {
         Args: { base_nickname: string }
         Returns: string
+      }
+      get_daily_confession_count: {
+        Args: { _user_id: string }
+        Returns: number
       }
       get_failed_login_count: {
         Args: { _email: string; _minutes?: number }
@@ -1957,6 +1992,10 @@ export type Database = {
       has_valid_consent: {
         Args: { _consent_type: string; _min_version?: string; _user_id: string }
         Returns: boolean
+      }
+      increment_daily_confession_count: {
+        Args: { _user_id: string }
+        Returns: number
       }
       increment_share_count: {
         Args: { confession_id: string }

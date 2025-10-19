@@ -273,6 +273,25 @@ type Translations = {
   subscription_auth_required: string;
   subscription_error: string;
   
+  // Subscription Plans - New Benefits (Confession Limits)
+  plans_free_benefit_confessions: string;
+  plans_premium_benefit_confessions: string;
+  plans_vip_benefit_confessions: string;
+  
+  // Confession Limits
+  limit_reached_title: string;
+  limit_reached_description: string;
+  limit_current_plan: string;
+  limit_used_today: string;
+  limit_resets_in: string;
+  limit_upgrade_benefits: string;
+  limit_see_plans: string;
+  limit_confessions_remaining: string;
+  limit_confessions_unlimited: string;
+  
+  // Common Actions
+  common_close: string;
+  
   // Trust Badges
   trust_anonymous: string;
   trust_anonymous_desc: string;
@@ -1673,6 +1692,25 @@ export const translations: Record<Language, Translations> = {
     subscription_auth_required: "You must be authenticated to subscribe.",
     subscription_error: "Could not initiate subscription process. Try again.",
     
+    // Subscription Plans - New Benefits (Confession Limits)
+    plans_free_benefit_confessions: "3 confessions per day",
+    plans_premium_benefit_confessions: "10 confessions per day",
+    plans_vip_benefit_confessions: "Unlimited confessions per day",
+    
+    // Confession Limits
+    limit_reached_title: "Daily Limit Reached",
+    limit_reached_description: "You've reached your daily confession limit. Upgrade to post more!",
+    limit_current_plan: "Current Plan",
+    limit_used_today: "Used Today",
+    limit_resets_in: "Resets in",
+    limit_upgrade_benefits: "Upgrade to post more:",
+    limit_see_plans: "See Plans",
+    limit_confessions_remaining: "{count} confessions left today",
+    limit_confessions_unlimited: "Unlimited confessions today",
+    
+    // Common Actions
+    common_close: "Close",
+    
     trust_anonymous: "100% Anonymous",
     trust_anonymous_desc: "Your identity remains confidential",
     trust_ssl: "SSL Secure",
@@ -2458,6 +2496,25 @@ export const translations: Record<Language, Translations> = {
     subscription_benefit_5: "Acceso a funciones futuras",
     subscription_auth_required: "Debes estar autenticado para suscribirte.",
     subscription_error: "No se pudo iniciar el proceso de suscripción. Inténtalo de nuevo.",
+    
+    // Subscription Plans - New Benefits (Confession Limits)
+    plans_free_benefit_confessions: "3 confesiones por día",
+    plans_premium_benefit_confessions: "10 confesiones por día",
+    plans_vip_benefit_confessions: "Confesiones ilimitadas por día",
+    
+    // Confession Limits
+    limit_reached_title: "Límite Diario Alcanzado",
+    limit_reached_description: "Has alcanzado tu límite diario de confesiones. ¡Mejora para publicar más!",
+    limit_current_plan: "Plan Actual",
+    limit_used_today: "Usado Hoy",
+    limit_resets_in: "Se reinicia en",
+    limit_upgrade_benefits: "Mejora para publicar más:",
+    limit_see_plans: "Ver Planes",
+    limit_confessions_remaining: "{count} confesiones restantes hoy",
+    limit_confessions_unlimited: "Confesiones ilimitadas hoy",
+    
+    // Common Actions
+    common_close: "Cerrar",
     
     trust_anonymous: "100% Anónimo",
     trust_anonymous_desc: "Tu identidad permanece confidencial",
@@ -3492,6 +3549,25 @@ export const translations: Record<Language, Translations> = {
     subscription_benefit_5: "Zugang zu zukünftigen Funktionen",
     subscription_auth_required: "Du musst angemeldet sein, um zu abonnieren.",
     subscription_error: "Abonnementprozess konnte nicht gestartet werden. Versuche es erneut.",
+    
+    // Subscription Plans - New Benefits (Confession Limits)
+    plans_free_benefit_confessions: "3 Beichten pro Tag",
+    plans_premium_benefit_confessions: "10 Beichten pro Tag",
+    plans_vip_benefit_confessions: "Unbegrenzte Beichten pro Tag",
+    
+    // Confession Limits
+    limit_reached_title: "Tageslimit Erreicht",
+    limit_reached_description: "Du hast dein tägliches Beichtlimit erreicht. Upgrade, um mehr zu posten!",
+    limit_current_plan: "Aktueller Plan",
+    limit_used_today: "Heute Verwendet",
+    limit_resets_in: "Zurücksetzen in",
+    limit_upgrade_benefits: "Upgrade für mehr Posts:",
+    limit_see_plans: "Pläne Ansehen",
+    limit_confessions_remaining: "{count} Beichten übrig heute",
+    limit_confessions_unlimited: "Unbegrenzte Beichten heute",
+    
+    // Common Actions
+    common_close: "Schließen",
     
     trust_anonymous: "100% Anonym",
     trust_anonymous_desc: "Deine Identität bleibt vertraulich",

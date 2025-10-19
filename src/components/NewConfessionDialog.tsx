@@ -18,6 +18,8 @@ import { useModerationStatus } from "@/hooks/useModerationStatus";
 import { LocationPicker } from "@/components/LocationPicker";
 import { useCommunities } from "@/hooks/useCommunities";
 import { PolishConfessionButton } from "@/components/PolishConfessionButton";
+import { useConfessionLimits } from "@/hooks/useConfessionLimits";
+import { UpgradeModal } from "@/components/UpgradeModal";
 
 const confessionSchema = z.object({
   content: z.string()
@@ -41,6 +43,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
   const [showCrisisDialog, setShowCrisisDialog] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [location, setLocation] = useState<{ lat: number; lng: number; city?: string; country?: string } | null>(null);
   const [communityId, setCommunityId] = useState<string | null>(null);
   const { user } = useCurrentUser();
@@ -48,6 +51,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
   const { language, t } = useLanguage();
   const { checkForCrisis } = useModerationStatus();
   const { communities } = useCommunities();
+  const { canPost, currentCount, dailyLimit, remaining, tier, checkLimits, incrementCount, isLoading: limitsLoading } = useConfessionLimits();
 
   // Check for crisis keywords on content change
   useEffect(() => {
@@ -111,6 +115,12 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
   ];
 
   const handleSubmit = async () => {
+    // Check confession limits first
+    if (!canPost) {
+      setShowUpgradeModal(true);
+      return;
+    }
+
     // Validate input
     const validation = confessionSchema.safeParse({ content });
     if (!validation.success) {
@@ -195,6 +205,9 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
         });
       }
 
+      // Increment confession count
+      await incrementCount();
+
       toast({
         title: t.success_sent,
         description: t.ai_reply_title,
@@ -241,6 +254,16 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
           <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
             {t.placeholder_confession}
           </DialogDescription>
+          {/* Confession Quota Display */}
+          {!limitsLoading && dailyLimit !== Infinity && (
+            <div className="mt-2 p-2 glass rounded-lg border border-border/50">
+              <p className="text-xs text-muted-foreground text-center">
+                {remaining === Infinity 
+                  ? t.limit_confessions_unlimited
+                  : t.limit_confessions_remaining.replace('{count}', remaining.toString())}
+              </p>
+            </div>
+          )}
         </DialogHeader>
 
         <div className="space-y-3 sm:space-y-4 py-3 sm:py-4">
@@ -370,6 +393,14 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
       <CrisisDialog 
         isOpen={showCrisisDialog}
         onClose={() => setShowCrisisDialog(false)}
+      />
+      
+      <UpgradeModal
+        open={showUpgradeModal}
+        onOpenChange={setShowUpgradeModal}
+        currentTier={tier}
+        currentCount={currentCount}
+        dailyLimit={dailyLimit === Infinity ? 0 : dailyLimit}
       />
     </Dialog>
   );
