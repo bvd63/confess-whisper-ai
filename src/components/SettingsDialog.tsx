@@ -9,11 +9,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { EnhancedButton } from "@/components/EnhancedButton";
 import { FloatingElement } from "@/components/FloatingElement";
-import { Settings, Download, Trash2, LogOut, Loader2, Shield } from "lucide-react";
+import { SubscriptionBadge } from "@/components/SubscriptionBadge";
+import { Settings, Download, Trash2, LogOut, Loader2, Shield, Crown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,6 +40,37 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { user } = useCurrentUser();
+  const { subscriptionTier, subscriptionEndsAt, isOnTrial, trialEndDate } = usePremiumStatus(user?.id);
+
+  // Get benefits list based on tier
+  const getBenefits = () => {
+    if (subscriptionTier === 'vip') {
+      return [
+        t.plans_vip_benefit_confessions,
+        t.plans_vip_benefit_allpremium,
+        t.plans_vip_benefit_images,
+        t.plans_vip_benefit_stats,
+        t.plans_vip_benefit_support,
+        t.plans_vip_benefit_badge,
+      ];
+    }
+    if (subscriptionTier === 'premium' || isOnTrial) {
+      return [
+        t.plans_premium_benefit_confessions,
+        t.plans_premium_benefit_ai,
+        t.plans_premium_benefit_analytics,
+        t.plans_premium_benefit_badge,
+        t.plans_premium_benefit_noads,
+        t.plans_premium_benefit_priority,
+      ];
+    }
+    return [
+      t.plans_free_benefit_confessions,
+      t.plans_free_benefit_basic,
+      t.plans_free_benefit_ads,
+    ];
+  };
 
   const handleExportData = async () => {
     setIsExporting(true);
@@ -148,6 +182,61 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
           </DialogHeader>
 
           <div className="space-y-2 sm:space-y-3 py-3 sm:py-4">
+            {/* Current Plan */}
+            <div className="p-3 sm:p-4 border border-primary/30 rounded-lg bg-primary/5 hover-lift transition-colors">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="p-1.5 sm:p-2 rounded-full bg-primary/10">
+                  <Crown className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-sm sm:text-base text-foreground">
+                      {t.plans_current_plan}
+                    </h3>
+                    <SubscriptionBadge 
+                      tier={subscriptionTier as 'free' | 'premium' | 'vip'} 
+                      variant="compact" 
+                      showTooltip={false}
+                    />
+                  </div>
+                  {isOnTrial && trialEndDate && (
+                    <p className="text-xs text-amber-500 font-medium mb-2">
+                      {t.trial_banner_days_remaining?.replace('{days}', 
+                        Math.ceil((new Date(trialEndDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)).toString()
+                      )}
+                    </p>
+                  )}
+                  {subscriptionEndsAt && !isOnTrial && (
+                    <p className="text-xs text-muted-foreground mb-2">
+                      {t.plans_renews_on}: {new Date(subscriptionEndsAt).toLocaleDateString()}
+                    </p>
+                  )}
+                  <ul className="space-y-1 mb-3">
+                    {getBenefits().map((benefit, idx) => (
+                      <li key={idx} className="text-xs sm:text-sm text-muted-foreground flex items-start gap-2">
+                        <span className="text-primary mt-0.5">✓</span>
+                        <span>{benefit}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {subscriptionTier === 'free' && (
+                    <EnhancedButton
+                      onClick={() => {
+                        onOpenChange(false);
+                        navigate('/profile');
+                      }}
+                      variant="default"
+                      size="sm"
+                      className="text-xs sm:text-sm"
+                      glow
+                    >
+                      {t.plans_upgrade_now}
+                    </EnhancedButton>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {/* Export Data */}
             <div className="p-3 sm:p-4 border border-border/50 rounded-lg hover-lift transition-colors glass">
               <div className="flex items-start gap-3 sm:gap-4">

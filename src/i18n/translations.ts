@@ -289,6 +289,14 @@ type Translations = {
   plans_vip_benefit_stats: string;
   plans_vip_benefit_support: string;
   plans_vip_benefit_badge: string;
+  plans_upgrade_now: string;
+  plans_downgrade: string;
+  plans_current_plan: string;
+  plans_renews_on: string;
+  plans_premium_activated: string;
+  plans_premium_welcome: string;
+  plans_vip_activated: string;
+  plans_vip_welcome: string;
   
   // Plan Titles and Tooltips
   plans_free_title: string;
@@ -1747,6 +1755,14 @@ export const translations: Record<Language, Translations> = {
     plans_vip_benefit_stats: "Detailed statistics",
     plans_vip_benefit_support: "Priority support",
     plans_vip_benefit_badge: "Special VIP badge",
+    plans_upgrade_now: "Upgrade Now",
+    plans_downgrade: "Downgrade",
+    plans_current_plan: "Current Plan",
+    plans_renews_on: "Renews on",
+    plans_premium_activated: "🎉 You're now Premium!",
+    plans_premium_welcome: "Welcome to Premium! Enjoy unlimited AI responses and advanced analytics.",
+    plans_vip_activated: "👑 You're now VIP!",
+    plans_vip_welcome: "Welcome to VIP! Enjoy unlimited confessions and priority support.",
     
     // Plan Titles and Tooltips
     plans_free_title: "Free",
@@ -2591,6 +2607,14 @@ export const translations: Record<Language, Translations> = {
     plans_vip_benefit_stats: "Estadísticas detalladas",
     plans_vip_benefit_support: "Soporte prioritario",
     plans_vip_benefit_badge: "Insignia VIP especial",
+    plans_upgrade_now: "Actualizar ahora",
+    plans_downgrade: "Bajar de categoría",
+    plans_current_plan: "Plan Actual",
+    plans_renews_on: "Se renueva el",
+    plans_premium_activated: "🎉 ¡Ahora eres Premium!",
+    plans_premium_welcome: "¡Bienvenido a Premium! Disfruta de respuestas de IA ilimitadas y análisis avanzados.",
+    plans_vip_activated: "👑 ¡Ahora eres VIP!",
+    plans_vip_welcome: "¡Bienvenido a VIP! Disfruta de confesiones ilimitadas y soporte prioritario.",
     
     // Plan Titles and Tooltips
     plans_free_title: "Gratis",
@@ -3683,6 +3707,14 @@ export const translations: Record<Language, Translations> = {
     plans_vip_benefit_stats: "Detaillierte Statistiken",
     plans_vip_benefit_support: "Prioritäts-Support",
     plans_vip_benefit_badge: "Spezielles VIP-Abzeichen",
+    plans_upgrade_now: "Jetzt upgraden",
+    plans_downgrade: "Herabstufen",
+    plans_current_plan: "Aktueller Plan",
+    plans_renews_on: "Verlängert am",
+    plans_premium_activated: "🎉 Sie sind jetzt Premium!",
+    plans_premium_welcome: "Willkommen bei Premium! Genießen Sie unbegrenzte KI-Antworten und erweiterte Analysen.",
+    plans_vip_activated: "👑 Sie sind jetzt VIP!",
+    plans_vip_welcome: "Willkommen bei VIP! Genießen Sie unbegrenzte Geständnisse und vorrangigen Support.",
     
     // Plan Titles and Tooltips
     plans_free_title: "Kostenlos",

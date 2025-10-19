@@ -12,6 +12,8 @@ import ReactionPicker from "./ReactionPicker";
 import BadgesDisplay from "./BadgesDisplay";
 import FollowButton from "./FollowButton";
 import StreakCounter from "./StreakCounter";
+import { SubscriptionBadge } from "./SubscriptionBadge";
+import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -53,6 +55,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   const { toast } = useToast();
   const { t } = useLanguage();
   const { purgeConfession } = useCachePurgeOnDelete();
+  const { subscriptionTier } = usePremiumStatus(confession.user_id || null);
 
   const handleDeleteConfession = async () => {
     if (!user || confession.user_id !== user.id) return;
@@ -118,6 +121,11 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
       {/* Show user badges and streak if available */}
       {confession.user_id && (
         <div className="flex items-center gap-3 mb-3 flex-wrap">
+          <SubscriptionBadge 
+            tier={subscriptionTier as 'free' | 'premium' | 'vip'} 
+            variant="compact" 
+            showTooltip={true}
+          />
           <BadgesDisplay userId={confession.user_id} variant="compact" />
           <StreakCounter userId={confession.user_id} variant="compact" />
           <div className="ml-auto">

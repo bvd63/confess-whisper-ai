@@ -50,6 +50,7 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
         isVIP: false,
         isOnTrial: true,
         trialEndDate,
+        subscriptionEndsAt: endsAt,
       };
     }
 
@@ -59,6 +60,7 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
       isVIP: subscriptionActive && tier === 'vip',
       isOnTrial: false,
       trialEndDate: null,
+      subscriptionEndsAt: endsAt,
     };
   }, [data]);
 

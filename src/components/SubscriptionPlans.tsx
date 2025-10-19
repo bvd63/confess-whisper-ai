@@ -111,6 +111,15 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
       if (error) throw error;
 
       if (data?.url) {
+        // Show success message based on plan
+        const isPremium = plan.name.toLowerCase().includes('premium');
+        const isVIP = plan.name.toLowerCase().includes('vip');
+        
+        toast({
+          title: isVIP ? t.plans_vip_activated : (isPremium ? t.plans_premium_activated : t.common_success),
+          description: isVIP ? t.plans_vip_welcome : (isPremium ? t.plans_premium_welcome : ''),
+        });
+        
         window.open(data.url, '_blank');
       }
     } catch (error) {
