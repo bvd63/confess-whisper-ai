@@ -116,14 +116,6 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
-
-  /* Mobile-first fixed-width wrapper for consistent layout across all devices */
-  #root {
-    max-width: 430px;
-    width: 100%;
-    margin: 0 auto;
-    padding-inline: 16px;
-  }
 }
 
 @layer utilities {
