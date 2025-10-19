@@ -27,7 +27,18 @@ export const useSubscriptionCheck = (userId: string | undefined) => {
   // Check on mount and when userId changes
   useEffect(() => {
     checkSubscription();
-  }, [checkSubscription]);
+    
+    // Also check trial expiry
+    const checkTrialExpiry = async () => {
+      if (!userId) return;
+      try {
+        await supabase.functions.invoke('check-trial-expiry');
+      } catch (error) {
+        console.error('Error checking trial expiry:', error);
+      }
+    };
+    checkTrialExpiry();
+  }, [checkSubscription, userId]);
 
   // Check every 5 minutes
   useEffect(() => {

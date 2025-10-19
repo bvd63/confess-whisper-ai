@@ -10,6 +10,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import MoodTracker from "@/components/MoodTracker";
 import ImageUpload from "@/components/ImageUpload";
 import DraftManager from "@/components/DraftManager";
@@ -248,8 +249,19 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto glass-strong border-primary/20">
         <DialogHeader>
-          <DialogTitle className="text-xl sm:text-2xl text-gradient-hero">
-            {t.new_confession}
+          <DialogTitle className="flex items-center justify-between">
+            <span className="text-xl sm:text-2xl text-gradient-hero">{t.new_confession}</span>
+            {!limitsLoading && (
+              dailyLimit !== Infinity ? (
+                <Badge variant={remaining > 2 ? "default" : "destructive"} className="ml-2">
+                  {remaining}/{dailyLimit}
+                </Badge>
+              ) : (
+                <Badge className="bg-gradient-to-r from-amber-400 to-yellow-500 text-white border-0 ml-2">
+                  ∞
+                </Badge>
+              )
+            )}
           </DialogTitle>
           <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
             {t.placeholder_confession}

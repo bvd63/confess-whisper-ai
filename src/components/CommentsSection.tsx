@@ -7,6 +7,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { SubscriptionBadge } from "@/components/SubscriptionBadge";
+import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { CommentAuthor } from "./CommentAuthor";
 
 interface Comment {
   id: string;
@@ -199,7 +202,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                 >
                   <div className="flex items-start justify-between mb-1 sm:mb-2">
                     <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground">
-                      <span>{t.confession_anonymous}</span>
+                      <CommentAuthor userId={comment.user_id} showBadge={true} />
                       <span>•</span>
                       <span>{timeAgo(comment.created_at)}</span>
                     </div>

@@ -39,6 +39,7 @@ import { PasswordChange } from "@/components/PasswordChange";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { ProfileEditor } from "@/components/ProfileEditor";
 import { FlairsShop } from "@/components/FlairsShop";
+import { TrialBanner } from "@/components/TrialBanner";
 
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 
@@ -46,7 +47,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { user } = useCurrentUser();
-  const { isPremium, subscriptionTier, isVIP } = usePremiumStatus(user?.id);
+  const { isPremium, subscriptionTier, isVIP, isOnTrial, trialEndDate } = usePremiumStatus(user?.id);
   const { checkSubscription } = useSubscriptionCheck(user?.id);
   useMessageNotifications({ userId: user?.id });
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
@@ -142,6 +143,8 @@ const Profile = () => {
       <ReferralRewardNotification userId={user.id} />
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-4xl pb-24">
+        {isOnTrial && trialEndDate && <TrialBanner trialEndDate={trialEndDate} />}
+        
         <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8 animate-fade-in">
           <FloatingElement delay={0.5}>
             <User className="h-6 w-6 sm:h-8 sm:w-8 text-primary animate-pulse-glow" />
