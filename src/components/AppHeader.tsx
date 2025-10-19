@@ -127,12 +127,12 @@ const AppHeader = ({
                 {isPremium ? <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 glass rounded-full border border-primary/30 animate-pulse-glow">
                     <Crown className="w-3 h-3 text-primary" />
                     <span className="text-xs font-medium text-primary">{t.premium_member}</span>
-                  </div> : <EnhancedButton onClick={onUpgradeClick} variant="outline" size="sm" className="hidden lg:flex items-center gap-1.5 border-primary/30 h-9" glow>
+                  </div> : <EnhancedButton onClick={onUpgradeClick} variant="outline" size="sm" className="hidden lg:flex items-center gap-1.5 border-primary/30 h-9">
                     <Sparkles className="w-3 h-3 text-primary animate-pulse-glow" />
                     <span className="text-xs font-medium">{t.subscription_upgrade_premium}</span>
                   </EnhancedButton>}
                 
-                <EnhancedButton onClick={handleNewConfession} size="sm" className="h-9" glow lift>
+                <EnhancedButton onClick={handleNewConfession} size="sm" className="h-9" lift>
                   <PlusCircle className="w-4 h-4 lg:mr-2" />
                   
                 </EnhancedButton>

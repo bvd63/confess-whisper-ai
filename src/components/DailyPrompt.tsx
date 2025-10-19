@@ -63,7 +63,7 @@ const DailyPrompt = ({
           <h3 className="font-semibold text-base sm:text-lg mb-2">{t.daily_prompt_title}</h3>
           <p className="text-sm sm:text-base text-muted-foreground mb-3 sm:mb-4">{getPromptText()}</p>
           
-          <EnhancedButton onClick={onOpenNewConfession} variant="default" size="sm" className="w-full sm:w-auto" glow lift>
+          <EnhancedButton onClick={onOpenNewConfession} variant="default" size="sm" className="w-full sm:w-auto" lift>
             {t.daily_prompt_share}
           </EnhancedButton>
         </div>
