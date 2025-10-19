@@ -16,50 +16,52 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-
 interface AppHeaderProps {
   onNewConfession?: () => void;
   onUpgradeClick?: () => void;
 }
-
-const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
+const AppHeader = ({
+  onNewConfession,
+  onUpgradeClick
+}: AppHeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useLanguage();
-  const { user } = useCurrentUser();
-  const { isPremium } = usePremiumStatus(user?.id);
-  const { toast } = useToast();
+  const {
+    t
+  } = useLanguage();
+  const {
+    user
+  } = useCurrentUser();
+  const {
+    isPremium
+  } = usePremiumStatus(user?.id);
+  const {
+    toast
+  } = useToast();
   const isMobile = useIsMobile();
-
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate('/');
     toast({
       title: t.success_logout,
-      description: t.success_logout,
+      description: t.success_logout
     });
   };
-
   const handleNewConfession = () => {
     if (!user) {
       navigate('/auth');
       toast({
         title: t.error_auth,
-        description: t.error_auth,
+        description: t.error_auth
       });
       return;
     }
-    
     if (onNewConfession) {
       onNewConfession();
     }
   };
-
   const isActive = (path: string) => location.pathname === path;
-
-  return (
-    <header className="sticky top-0 z-50 glass-strong border-b border-border/50 shadow-elegant"
-    >
+  return <header className="sticky top-0 z-50 glass-strong border-b border-border/50 shadow-elegant">
       {/* Desktop/Tablet Layout */}
       <div className="hidden md:block w-full mx-auto px-4 py-3 max-w-7xl">
         <div className="grid grid-cols-3 items-center gap-4">
@@ -68,107 +70,51 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
             <FloatingElement delay={0.5}>
               <Heart className="w-5 h-5 lg:w-6 lg:h-6 text-primary flex-shrink-0 animate-heart-beat" fill="currentColor" />
             </FloatingElement>
-            <h1 
-              className="text-lg lg:text-2xl font-bold text-gradient-hero cursor-pointer whitespace-nowrap"
-              onClick={() => navigate('/')}
-            >
+            <h1 className="text-lg lg:text-2xl font-bold text-gradient-hero cursor-pointer whitespace-nowrap" onClick={() => navigate('/')}>
               {t.app_name}
             </h1>
           </div>
           
           {/* Center - Navigation */}
           <div className="flex items-center justify-center">
-            {user && (
-              <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-1">
-                <Button
-                  asChild
-                  variant="ghost"
-                  size="icon"
-                  className={cn(
-                    "h-9 w-9 text-muted-foreground hover:text-foreground transition-colors",
-                    isActive('/') && "bg-accent text-foreground"
-                  )}
-                  title={t.home_title}
-                >
+            {user && <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-1">
+                <Button asChild variant="ghost" size="icon" className={cn("h-9 w-9 text-muted-foreground hover:text-foreground transition-colors", isActive('/') && "bg-accent text-foreground")} title={t.home_title}>
                   <Link to="/">
                     <Home className="w-4 h-4" />
                   </Link>
                 </Button>
-                <Button
-                  asChild
-                  variant="ghost"
-                  size="icon"
-                  className={cn(
-                    "h-9 w-9 text-muted-foreground hover:text-foreground transition-colors",
-                    isActive('/bookmarks') && "bg-accent text-foreground"
-                  )}
-                  title={t.bookmarks_title}
-                >
+                <Button asChild variant="ghost" size="icon" className={cn("h-9 w-9 text-muted-foreground hover:text-foreground transition-colors", isActive('/bookmarks') && "bg-accent text-foreground")} title={t.bookmarks_title}>
                   <Link to="/bookmarks">
                     <BookMarked className="w-4 h-4" />
                   </Link>
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    if (!user) {
-                      toast({ title: t.error_auth, description: t.error_auth });
-                      navigate('/auth');
-                      return;
-                    }
-                    navigate('/following');
-                  }}
-                  className={cn(
-                    "h-9 w-9 text-muted-foreground hover:text-foreground transition-colors",
-                    isActive('/following') && "bg-accent text-foreground"
-                  )}
-                  title={t.ui_following_feed}
-                >
+                <Button variant="ghost" size="icon" onClick={() => {
+              if (!user) {
+                toast({
+                  title: t.error_auth,
+                  description: t.error_auth
+                });
+                navigate('/auth');
+                return;
+              }
+              navigate('/following');
+            }} className={cn("h-9 w-9 text-muted-foreground hover:text-foreground transition-colors", isActive('/following') && "bg-accent text-foreground")} title={t.ui_following_feed}>
                   <Users className="w-4 h-4" />
                 </Button>
-                <Button
-                  asChild
-                  variant="ghost"
-                  size="icon"
-                  className={cn(
-                    "h-9 w-9 text-muted-foreground hover:text-foreground transition-colors",
-                    isActive('/search-users') && "bg-accent text-foreground"
-                  )}
-                  title={t.search_users}
-                >
+                <Button asChild variant="ghost" size="icon" className={cn("h-9 w-9 text-muted-foreground hover:text-foreground transition-colors", isActive('/search-users') && "bg-accent text-foreground")} title={t.search_users}>
                   <Link to="/search-users">
                     <Search className="w-4 h-4" />
                   </Link>
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate('/messages')}
-                  className={cn(
-                    "h-9 w-9 text-muted-foreground hover:text-foreground transition-colors",
-                    isActive('/messages') && "bg-accent text-foreground"
-                  )}
-                  title={t.messages_title}
-                >
+                <Button variant="ghost" size="icon" onClick={() => navigate('/messages')} className={cn("h-9 w-9 text-muted-foreground hover:text-foreground transition-colors", isActive('/messages') && "bg-accent text-foreground")} title={t.messages_title}>
                   <MessageCircle className="w-4 h-4" />
                 </Button>
-                <Button
-                  asChild
-                  variant="ghost"
-                  size="icon"
-                  className={cn(
-                    "h-9 w-9 text-muted-foreground hover:text-foreground transition-colors",
-                    isActive('/profile') && "bg-accent text-foreground"
-                  )}
-                  title={t.profile_title}
-                >
+                <Button asChild variant="ghost" size="icon" className={cn("h-9 w-9 text-muted-foreground hover:text-foreground transition-colors", isActive('/profile') && "bg-accent text-foreground")} title={t.profile_title}>
                   <Link to="/profile">
                     <User className="w-4 h-4" />
                   </Link>
                 </Button>
-              </div>
-            )}
+              </div>}
           </div>
           
           {/* Right - Actions */}
@@ -177,35 +123,18 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
             <LanguageSelector />
             <ThemeToggle />
             
-            {user ? (
-              <>
-                {isPremium ? (
-                  <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 glass rounded-full border border-primary/30 animate-pulse-glow">
+            {user ? <>
+                {isPremium ? <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 glass rounded-full border border-primary/30 animate-pulse-glow">
                     <Crown className="w-3 h-3 text-primary" />
                     <span className="text-xs font-medium text-primary">{t.premium_member}</span>
-                  </div>
-                ) : (
-                  <EnhancedButton
-                    onClick={onUpgradeClick}
-                    variant="outline"
-                    size="sm"
-                    className="hidden lg:flex items-center gap-1.5 border-primary/30 h-9"
-                    glow
-                  >
+                  </div> : <EnhancedButton onClick={onUpgradeClick} variant="outline" size="sm" className="hidden lg:flex items-center gap-1.5 border-primary/30 h-9" glow>
                     <Sparkles className="w-3 h-3 text-primary animate-pulse-glow" />
                     <span className="text-xs font-medium">{t.subscription_upgrade_premium}</span>
-                  </EnhancedButton>
-                )}
+                  </EnhancedButton>}
                 
-                <EnhancedButton
-                  onClick={handleNewConfession}
-                  size="sm"
-                  className="h-9"
-                  glow
-                  lift
-                >
+                <EnhancedButton onClick={handleNewConfession} size="sm" className="h-9" glow lift>
                   <PlusCircle className="w-4 h-4 lg:mr-2" />
-                  <span className="hidden lg:inline">{t.new_confession}</span>
+                  
                 </EnhancedButton>
                 
                 <div className="hidden lg:flex items-center gap-1">
@@ -215,27 +144,13 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
                 
                 <NotificationsDropdown />
                 
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleSignOut}
-                  className="h-9 w-9 text-muted-foreground hover:text-foreground"
-                  title={t.success_logout}
-                >
+                <Button variant="ghost" size="icon" onClick={handleSignOut} className="h-9 w-9 text-muted-foreground hover:text-foreground" title={t.success_logout}>
                   <LogOut className="w-4 h-4" />
                 </Button>
-              </>
-            ) : (
-              <Button
-                onClick={() => navigate('/auth')}
-                variant="outline"
-                size="sm"
-                className="border-primary/30 hover:bg-primary/10"
-              >
+              </> : <Button onClick={() => navigate('/auth')} variant="outline" size="sm" className="border-primary/30 hover:bg-primary/10">
                 <LogIn className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">{t.login}</span>
-              </Button>
-            )}
+              </Button>}
           </div>
         </div>
       </div>
@@ -245,10 +160,7 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
         <div className="flex items-center justify-between px-3 py-2.5">
           <div className="flex items-center gap-2">
             <Heart className="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" />
-            <h1 
-              className="text-lg font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent cursor-pointer"
-              onClick={() => navigate('/')}
-            >
+            <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent cursor-pointer" onClick={() => navigate('/')}>
               {t.app_name}
             </h1>
           </div>
@@ -256,35 +168,17 @@ const AppHeader = ({ onNewConfession, onUpgradeClick }: AppHeaderProps) => {
           <div className="flex items-center gap-1">
             <LanguageSelector />
             <ThemeToggle />
-            {user ? (
-              <>
-                {!isPremium && (
-                  <Button
-                    onClick={onUpgradeClick}
-                    variant="outline"
-                    size="sm"
-                    className="border-primary/30 hover:bg-primary/10 h-8 px-2"
-                  >
+            {user ? <>
+                {!isPremium && <Button onClick={onUpgradeClick} variant="outline" size="sm" className="border-primary/30 hover:bg-primary/10 h-8 px-2">
                     <Crown className="w-3 h-3 text-primary" />
-                  </Button>
-                )}
+                  </Button>}
                 <NotificationsDropdown />
-              </>
-            ) : (
-              <Button
-                onClick={() => navigate('/auth')}
-                variant="outline"
-                size="sm"
-                className="border-primary/30 hover:bg-primary/10 h-8 px-3"
-              >
+              </> : <Button onClick={() => navigate('/auth')} variant="outline" size="sm" className="border-primary/30 hover:bg-primary/10 h-8 px-3">
                 <LogIn className="w-3 h-3" />
-              </Button>
-            )}
+              </Button>}
           </div>
         </div>
       </div>
-    </header>
-  );
+    </header>;
 };
-
 export default AppHeader;
