@@ -153,10 +153,10 @@ export default {
         },
         "float": {
           "0%, 100%": {
-            transform: "translateX(0px)"
+            transform: "translateY(0px)"
           },
           "50%": {
-            transform: "translateX(8px)"
+            transform: "translateY(-16px)"
           }
         },
         "pulse-glow": {
