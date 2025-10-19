@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { EnhancedButton } from "@/components/EnhancedButton";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { GradientText } from "@/components/GradientText";
-
+import { FloatingElement } from "@/components/FloatingElement";
 import { User, Settings } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppLayout from "@/components/AppLayout";
@@ -40,16 +40,28 @@ import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { ProfileEditor } from "@/components/ProfileEditor";
 import { FlairsShop } from "@/components/FlairsShop";
 import { TrialBanner } from "@/components/TrialBanner";
-
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
-
 const Profile = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
-  const { user } = useCurrentUser();
-  const { isPremium, subscriptionTier, isVIP, isOnTrial, trialEndDate } = usePremiumStatus(user?.id);
-  const { checkSubscription } = useSubscriptionCheck(user?.id);
-  useMessageNotifications({ userId: user?.id });
+  const {
+    t
+  } = useLanguage();
+  const {
+    user
+  } = useCurrentUser();
+  const {
+    isPremium,
+    subscriptionTier,
+    isVIP,
+    isOnTrial,
+    trialEndDate
+  } = usePremiumStatus(user?.id);
+  const {
+    checkSubscription
+  } = useSubscriptionCheck(user?.id);
+  useMessageNotifications({
+    userId: user?.id
+  });
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [premiumDialogOpen, setPremiumDialogOpen] = useState(false);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
@@ -62,52 +74,49 @@ const Profile = () => {
     privacy_mode: string | null;
     nickname_updated_at: string | null;
   } | null>(null);
-  const { isModerator } = useUserRole(user?.id);
-  const { toast } = useToast();
-
+  const {
+    isModerator
+  } = useUserRole(user?.id);
+  const {
+    toast
+  } = useToast();
   useEffect(() => {
     if (user?.id) {
       loadPasswordChangedAt();
       loadProfileData();
     }
   }, [user?.id]);
-
   const loadProfileData = async () => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('nickname, bio, handle, privacy_mode, nickname_updated_at')
-        .eq('user_id', user!.id)
-        .single();
-
+      const {
+        data,
+        error
+      } = await supabase.from('profiles').select('nickname, bio, handle, privacy_mode, nickname_updated_at').eq('user_id', user!.id).single();
       if (error) throw error;
       setProfileData(data);
     } catch (error) {
       console.error('Error loading profile data:', error);
     }
   };
-
   const loadPasswordChangedAt = async () => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('password_changed_at')
-        .eq('user_id', user!.id)
-        .single();
-
+      const {
+        data,
+        error
+      } = await supabase.from('profiles').select('password_changed_at').eq('user_id', user!.id).single();
       if (error) throw error;
       setPasswordChangedAt(data?.password_changed_at || null);
     } catch (error) {
       console.error('Error loading password changed date:', error);
     }
   };
-
   const handleManageSubscription = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('customer-portal');
-      
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('customer-portal');
       if (error) throw error;
-      
       if (data?.url) {
         window.open(data.url, '_blank');
       }
@@ -116,29 +125,25 @@ const Profile = () => {
       toast({
         title: t.profile_portal_error,
         description: t.profile_portal_error_desc,
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   useEffect(() => {
     checkAuth();
   }, []);
-
   const checkAuth = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: {
+        user
+      }
+    } = await supabase.auth.getUser();
     if (!user) {
       navigate('/auth');
     }
   };
-
   if (!user) return null;
-
-  return (
-    <AppLayout 
-      onNewConfession={() => setIsNewConfessionOpen(true)}
-      onUpgradeClick={() => setPremiumDialogOpen(true)}
-    >
+  return <AppLayout onNewConfession={() => setIsNewConfessionOpen(true)} onUpgradeClick={() => setPremiumDialogOpen(true)}>
       <AchievementToast userId={user.id} />
       <ReferralRewardNotification userId={user.id} />
       
@@ -146,7 +151,9 @@ const Profile = () => {
         {isOnTrial && trialEndDate && <TrialBanner trialEndDate={trialEndDate} />}
         
         <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8 animate-fade-in">
-          <User className="h-6 w-6 sm:h-8 sm:w-8 text-primary animate-pulse-glow" />
+          <FloatingElement delay={0.5} className="rounded-full">
+            <User className="h-6 w-6 sm:h-8 sm:w-8 text-primary animate-pulse-glow" />
+          </FloatingElement>
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
             <GradientText variant="hero">{t.profile_title}</GradientText>
           </h1>
@@ -175,16 +182,12 @@ const Profile = () => {
                     {isPremium ? t.subscription_thanks : t.subscription_upgrade_more}
                   </p>
                 </div>
-                {isPremium ? (
-                  <EnhancedButton onClick={handleManageSubscription} variant="outline" lift>
+                {isPremium ? <EnhancedButton onClick={handleManageSubscription} variant="outline" lift>
                     <Settings className="w-4 h-4 mr-2" />
                     {t.subscription_manage}
-                  </EnhancedButton>
-                ) : (
-                  <EnhancedButton onClick={() => setPremiumDialogOpen(true)}>
+                  </EnhancedButton> : <EnhancedButton onClick={() => setPremiumDialogOpen(true)} glow shine>
                     {t.subscription_upgrade_premium}
-                  </EnhancedButton>
-                )}
+                  </EnhancedButton>}
               </div>
             </AnimatedCard>
 
@@ -208,25 +211,12 @@ const Profile = () => {
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">
-            {profileData && (
-              <ProfileEditor 
-                userId={user.id} 
-                currentProfile={profileData}
-                onUpdate={loadProfileData}
-              />
-            )}
+            {profileData && <ProfileEditor userId={user.id} currentProfile={profileData} onUpdate={loadProfileData} />}
             <EmailDisplay email={user.email || ''} />
-            <PasswordChange 
-              userId={user.id} 
-              passwordChangedAt={passwordChangedAt}
-            />
+            <PasswordChange userId={user.id} passwordChangedAt={passwordChangedAt} />
             <UserPreferences userId={user.id} />
             <div className="pt-4">
-              <Button 
-                onClick={() => setFlairsDialogOpen(true)}
-                variant="outline"
-                className="w-full"
-              >
+              <Button onClick={() => setFlairsDialogOpen(true)} variant="outline" className="w-full">
                 {t.flairs_shop}
               </Button>
             </div>
@@ -234,53 +224,29 @@ const Profile = () => {
             <BlockedUsers userId={user.id} />
             
             <div className="pt-4">
-              <Button 
-                onClick={() => setExportDialogOpen(true)}
-                variant="outline"
-                className="w-full"
-              >
+              <Button onClick={() => setExportDialogOpen(true)} variant="outline" className="w-full">
                 {t.export_my_data}
               </Button>
             </div>
           </TabsContent>
 
-          {isModerator && (
-            <TabsContent value="moderation" className="space-y-6">
+          {isModerator && <TabsContent value="moderation" className="space-y-6">
               <ModerationPanel userId={user.id} />
-            </TabsContent>
-          )}
+            </TabsContent>}
         </Tabs>
       </div>
       
       <InstagramBottomNav />
 
-      <ExportDataDialog
-        open={exportDialogOpen}
-        onOpenChange={setExportDialogOpen}
-        userId={user.id}
-      />
+      <ExportDataDialog open={exportDialogOpen} onOpenChange={setExportDialogOpen} userId={user.id} />
 
-      <PremiumDialog
-        open={premiumDialogOpen}
-        onOpenChange={setPremiumDialogOpen}
-        onUpgrade={() => {}}
-      />
+      <PremiumDialog open={premiumDialogOpen} onOpenChange={setPremiumDialogOpen} onUpgrade={() => {}} />
 
-      <FlairsShop
-        open={flairsDialogOpen}
-        onOpenChange={setFlairsDialogOpen}
-        userId={user.id}
-      />
+      <FlairsShop open={flairsDialogOpen} onOpenChange={setFlairsDialogOpen} userId={user.id} />
 
       <Suspense fallback={null}>
-        <NewConfessionDialog
-          open={isNewConfessionOpen}
-          onOpenChange={setIsNewConfessionOpen}
-          onConfessionCreated={() => {}}
-        />
+        <NewConfessionDialog open={isNewConfessionOpen} onOpenChange={setIsNewConfessionOpen} onConfessionCreated={() => {}} />
       </Suspense>
-    </AppLayout>
-  );
+    </AppLayout>;
 };
-
 export default Profile;
