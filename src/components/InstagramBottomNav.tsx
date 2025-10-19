@@ -1,7 +1,7 @@
 import { Home, Search, PlusSquare, MessageCircle, User, Users } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { useNotifications } from "@/hooks/useNotifications";
+import { useUnreadCount } from "@/hooks/useUnreadCount";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 /**
@@ -11,7 +11,7 @@ export const InstagramBottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useCurrentUser();
-  const { unreadCount } = useNotifications(user?.id || null);
+  const { totalUnread } = useUnreadCount(user?.id || null);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -20,7 +20,7 @@ export const InstagramBottomNav = () => {
     { icon: Search, path: "/explore", label: "Explore" },
     { icon: Users, path: "/communities", label: "Communities" },
     { icon: PlusSquare, path: "/compose", label: "Compose" },
-    { icon: MessageCircle, path: "/messages", label: "Messages", badge: unreadCount },
+    { icon: MessageCircle, path: "/messages", label: "Messages", badge: totalUnread },
     { icon: User, path: "/profile", label: "Profile" },
   ];
 
@@ -54,12 +54,12 @@ export const InstagramBottomNav = () => {
               
               {item.badge !== undefined && (
                 <span className={cn(
-                  "absolute top-1 right-3 flex items-center justify-center w-5 h-5 text-xs font-bold rounded-full shadow-elegant",
+                  "absolute top-1 right-3 flex items-center justify-center min-w-[20px] h-5 px-1 text-xs font-bold rounded-full shadow-elegant text-center",
                   item.badge > 0 
                     ? "text-white bg-destructive animate-pulse-glow" 
                     : "text-muted-foreground bg-muted"
                 )}>
-                  {item.badge > 9 ? "9+" : item.badge}
+                  {item.badge >= 10 ? "9+" : item.badge}
                 </span>
               )}
 
