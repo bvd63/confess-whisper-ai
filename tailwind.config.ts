@@ -120,7 +120,7 @@ export default {
             transform: "translateY(0)"
           },
           "50%": {
-            transform: "translateY(-10px)"
+            transform: "translateY(-4px)"
           }
         },
         "bounce-gentle": {
@@ -156,7 +156,7 @@ export default {
             transform: "translateY(0px)"
           },
           "50%": {
-            transform: "translateY(-20px)"
+            transform: "translateY(-4px)"
           }
         },
         "pulse-glow": {
@@ -220,11 +220,11 @@ export default {
         "fade-in": "fade-in 0.5s ease-out",
         "slide-up": "slide-up 0.4s ease-out",
         "glow": "glow 2s ease-in-out infinite",
-        "bounce-subtle": "bounce-subtle 2s ease-in-out infinite",
+        "bounce-subtle": "bounce-subtle 1.2s ease-in-out infinite",
         "bounce-gentle": "bounce-gentle 1.2s ease-in-out infinite",
         "scale-in": "scale-in 0.3s ease-out",
         "shimmer": "shimmer 2s linear infinite",
-        "float": "float 3s ease-in-out infinite",
+        "float": "float 1.2s ease-in-out infinite",
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
         "slide-in-right": "slide-in-right 0.4s ease-out",
         "slide-in-left": "slide-in-left 0.4s ease-out",

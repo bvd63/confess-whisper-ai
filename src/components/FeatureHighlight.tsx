@@ -33,7 +33,7 @@ const FeatureHighlight = () => {
           delay={index * 100}
           className="p-5 group"
         >
-            <div className="mb-3 inline-flex p-3 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors animate-float" style={{ animationDelay: `${index * 0.5}s` }}>
+            <div className="mb-3 inline-flex p-3 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors animate-float">
               <Icon className="w-6 h-6 text-primary" />
             </div>
             <h3 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
