@@ -13,6 +13,11 @@ const REFRESH_TTL_LONG = 30 * 24 * 60 * 60 * 1000; // 30 days
 const FAILED_ATTEMPT_WINDOW = 15; // minutes
 const MAX_FAILED_ATTEMPTS = 5;
 const CAPTCHA_LOCKOUT_DURATION = 30; // minutes
+const SIGNUP_RATE_LIMIT_WINDOW = 60; // minutes
+const MAX_SIGNUP_ATTEMPTS = 5;
+
+// Strong password policy
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{}.,?:;|<>]).{10,}$/;
 
 interface VerifyCaptchaRequest {
   captchaToken: string;
@@ -81,6 +86,18 @@ function generateRefreshToken(): string {
   const array = new Uint8Array(32);
   crypto.getRandomValues(array);
   return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+function validatePasswordStrength(password: string): { valid: boolean; error?: string } {
+  if (password.length < 10) {
+    return { valid: false, error: 'auth.password_too_short' };
+  }
+  
+  if (!PASSWORD_REGEX.test(password)) {
+    return { valid: false, error: 'auth.password_weak' };
+  }
+  
+  return { valid: true };
 }
 
 serve(async (req) => {
@@ -246,6 +263,73 @@ serve(async (req) => {
             session: authData.session,
             refreshToken,
             expiresAt: expiresAt.toISOString(),
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      case 'validate-signup': {
+        const { email, password, captchaToken } = await req.json();
+        
+        // Normalize email
+        const normalizedEmail = email.toLowerCase().trim();
+        
+        // Validate password strength
+        const passwordValidation = validatePasswordStrength(password);
+        if (!passwordValidation.valid) {
+          return new Response(
+            JSON.stringify({ 
+              error: 'WEAK_PASSWORD', 
+              messageKey: passwordValidation.error 
+            }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
+        // Verify CAPTCHA
+        const captchaResult = await verifyCaptcha(captchaToken, clientIp);
+        if (!captchaResult.success) {
+          return new Response(
+            JSON.stringify({ 
+              error: 'CAPTCHA_FAILED', 
+              messageKey: captchaResult.error 
+            }),
+            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
+        // Check rate limiting for signup attempts from this IP
+        const { data: recentSignups } = await supabaseClient
+          .from('failed_login_attempts')
+          .select('*')
+          .eq('ip_address', clientIp)
+          .gte('attempted_at', new Date(Date.now() - SIGNUP_RATE_LIMIT_WINDOW * 60 * 1000).toISOString())
+          .limit(MAX_SIGNUP_ATTEMPTS);
+        
+        if (recentSignups && recentSignups.length >= MAX_SIGNUP_ATTEMPTS) {
+          return new Response(
+            JSON.stringify({ 
+              error: 'RATE_LIMIT', 
+              messageKey: 'common.rate_limit' 
+            }),
+            { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
+        // Log security event for signup validation
+        await supabaseClient
+          .from('security_events')
+          .insert({
+            event_type: 'signup_validation',
+            event_data: { email: normalizedEmail },
+            ip_address: clientIp,
+            user_agent: userAgent,
+          });
+        
+        return new Response(
+          JSON.stringify({ 
+            valid: true,
+            messageKey: 'auth.validation_passed' 
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );

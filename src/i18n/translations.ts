@@ -222,6 +222,9 @@ type Translations = {
   auth_confirm_password_placeholder: string;
   auth_show_password: string;
   auth_hide_password: string;
+  auth_password_too_short: string;
+  auth_password_weak: string;
+  auth_validation_passed: string;
   
   // Common
   common_success: string;
@@ -1622,6 +1625,9 @@ export const translations: Record<Language, Translations> = {
     auth_confirm_password_placeholder: "Confirm password",
     auth_show_password: "Show password",
     auth_hide_password: "Hide password",
+    auth_password_too_short: "Password must be at least 10 characters",
+    auth_password_weak: "Password does not meet security requirements",
+    auth_validation_passed: "Validation successful",
     
     common_success: "Success",
     common_something_went_wrong: "Something went wrong. Please try again.",
@@ -2405,6 +2411,9 @@ export const translations: Record<Language, Translations> = {
     auth_confirm_password_placeholder: "Confirmar contraseña",
     auth_show_password: "Mostrar contraseña",
     auth_hide_password: "Ocultar contraseña",
+    auth_password_too_short: "La contraseña debe tener al menos 10 caracteres",
+    auth_password_weak: "La contraseña no cumple con los requisitos de seguridad",
+    auth_validation_passed: "Validación exitosa",
     
     common_success: "Éxito",
     common_something_went_wrong: "Algo salió mal. Por favor, inténtalo de nuevo.",
@@ -3436,6 +3445,9 @@ export const translations: Record<Language, Translations> = {
     auth_confirm_password_placeholder: "Passwort bestätigen",
     auth_show_password: "Passwort anzeigen",
     auth_hide_password: "Passwort verbergen",
+    auth_password_too_short: "Passwort muss mindestens 10 Zeichen haben",
+    auth_password_weak: "Passwort erfüllt nicht die Sicherheitsanforderungen",
+    auth_validation_passed: "Validierung erfolgreich",
     
     common_success: "Erfolg",
     common_something_went_wrong: "Etwas ist schiefgelaufen. Bitte versuche es erneut.",

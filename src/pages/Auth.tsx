@@ -7,7 +7,8 @@ import { FloatingElement } from "@/components/FloatingElement";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Heart, Mail, Lock, Loader2, Sparkles, Eye, EyeOff } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Heart, Mail, Lock, Loader2, Sparkles, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
@@ -30,6 +31,7 @@ const Auth = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [staySignedIn, setStaySignedIn] = useState(false);
   const [captchaToken, setCaptchaToken] = useState("");
+  const [turnstileError, setTurnstileError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({ email: "", password: "", confirmPassword: "", captcha: "" });
 
@@ -118,11 +120,24 @@ const Auth = () => {
         });
         navigate('/');
       } else {
-        // Verify password strength on client before submitting
-        if (!validatePasswordStrength(password)) {
-          throw new Error(t.auth_password_min);
+        // Server-side validation before signup
+        const { data: validationResult, error: validationError } = await supabase.functions.invoke('enhanced-auth', {
+          body: { 
+            action: 'validate-signup',
+            email: email.trim(),
+            password,
+            captchaToken,
+          },
+        });
+
+        if (validationError || validationResult?.error) {
+          const errorMsg = validationResult?.messageKey 
+            ? t[validationResult.messageKey as keyof typeof t] as string 
+            : t.auth_error_generic;
+          throw new Error(errorMsg);
         }
 
+        // Proceed with signup after validation passes
         const { error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
@@ -130,7 +145,6 @@ const Auth = () => {
             emailRedirectTo: `${window.location.origin}/`,
             data: {
               staySignedIn,
-              captchaToken,
             },
           },
         });
@@ -177,6 +191,7 @@ const Auth = () => {
     setPassword("");
     setConfirmPassword("");
     setCaptchaToken("");
+    setTurnstileError(false);
     setErrors({ email: "", password: "", confirmPassword: "", captcha: "" });
   };
 
@@ -351,14 +366,29 @@ const Auth = () => {
           {/* Turnstile CAPTCHA (Signup only) */}
           {!isLogin && (
             <div className="space-y-2">
+              {turnstileError && (
+                <Alert variant="destructive" className="mb-2">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    {t.auth_captcha_failed}
+                  </AlertDescription>
+                </Alert>
+              )}
               <Turnstile
                 siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
                 onSuccess={(token) => {
                   setCaptchaToken(token);
+                  setTurnstileError(false);
                   setErrors(prev => ({ ...prev, captcha: "" }));
                 }}
                 onError={() => {
                   setCaptchaToken("");
+                  setTurnstileError(true);
+                  setErrors(prev => ({ ...prev, captcha: t.auth_captcha_failed }));
+                }}
+                onExpire={() => {
+                  setCaptchaToken("");
+                  setTurnstileError(true);
                   setErrors(prev => ({ ...prev, captcha: t.auth_captcha_failed }));
                 }}
                 options={{
@@ -366,7 +396,7 @@ const Auth = () => {
                   size: 'normal',
                 }}
               />
-              {errors.captcha && (
+              {errors.captcha && !turnstileError && (
                 <p className="text-xs text-destructive">{errors.captcha}</p>
               )}
             </div>
