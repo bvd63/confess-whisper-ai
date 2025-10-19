@@ -206,6 +206,22 @@ type Translations = {
   auth_device_mismatch: string;
   auth_session_limit: string;
   auth_account_locked: string;
+  auth_password_rules_title: string;
+  auth_password_rules_len: string;
+  auth_password_rules_upper: string;
+  auth_password_rules_lower: string;
+  auth_password_rules_digit: string;
+  auth_password_rules_special: string;
+  auth_password_match_ok: string;
+  auth_password_match_fail: string;
+  auth_password_strength_weak: string;
+  auth_password_strength_fair: string;
+  auth_password_strength_good: string;
+  auth_password_strength_strong: string;
+  auth_stay_signed_in: string;
+  auth_confirm_password_placeholder: string;
+  auth_show_password: string;
+  auth_hide_password: string;
   
   // Common
   common_success: string;
@@ -1590,6 +1606,22 @@ export const translations: Record<Language, Translations> = {
     auth_device_mismatch: "Device mismatch detected. Please log in again.",
     auth_session_limit: "Maximum active sessions reached. Please log out from another device.",
     auth_account_locked: "Account temporarily locked due to multiple failed login attempts. Please try again later.",
+    auth_password_rules_title: "Password requirements:",
+    auth_password_rules_len: "At least 10 characters",
+    auth_password_rules_upper: "At least one uppercase letter (A-Z)",
+    auth_password_rules_lower: "At least one lowercase letter (a-z)",
+    auth_password_rules_digit: "At least one number (0-9)",
+    auth_password_rules_special: "At least one special character (!@#$%^&*...)",
+    auth_password_match_ok: "Passwords match",
+    auth_password_match_fail: "Passwords do not match",
+    auth_password_strength_weak: "Weak",
+    auth_password_strength_fair: "Fair",
+    auth_password_strength_good: "Good",
+    auth_password_strength_strong: "Strong",
+    auth_stay_signed_in: "Stay signed in",
+    auth_confirm_password_placeholder: "Confirm password",
+    auth_show_password: "Show password",
+    auth_hide_password: "Hide password",
     
     common_success: "Success",
     common_something_went_wrong: "Something went wrong. Please try again.",
@@ -2357,6 +2389,22 @@ export const translations: Record<Language, Translations> = {
     auth_device_mismatch: "Dispositivo no coincidente detectado. Por favor, inicia sesión nuevamente.",
     auth_session_limit: "Número máximo de sesiones activas alcanzado. Por favor, cierra sesión en otro dispositivo.",
     auth_account_locked: "Cuenta bloqueada temporalmente debido a múltiples intentos fallidos de inicio de sesión. Por favor, inténtalo más tarde.",
+    auth_password_rules_title: "Requisitos de contraseña:",
+    auth_password_rules_len: "Al menos 10 caracteres",
+    auth_password_rules_upper: "Al menos una letra mayúscula (A-Z)",
+    auth_password_rules_lower: "Al menos una letra minúscula (a-z)",
+    auth_password_rules_digit: "Al menos un número (0-9)",
+    auth_password_rules_special: "Al menos un carácter especial (!@#$%^&*...)",
+    auth_password_match_ok: "Las contraseñas coinciden",
+    auth_password_match_fail: "Las contraseñas no coinciden",
+    auth_password_strength_weak: "Débil",
+    auth_password_strength_fair: "Regular",
+    auth_password_strength_good: "Buena",
+    auth_password_strength_strong: "Fuerte",
+    auth_stay_signed_in: "Mantener sesión iniciada",
+    auth_confirm_password_placeholder: "Confirmar contraseña",
+    auth_show_password: "Mostrar contraseña",
+    auth_hide_password: "Ocultar contraseña",
     
     common_success: "Éxito",
     common_something_went_wrong: "Algo salió mal. Por favor, inténtalo de nuevo.",
@@ -3372,6 +3420,22 @@ export const translations: Record<Language, Translations> = {
     auth_device_mismatch: "Gerätekonflikt erkannt. Bitte melde dich erneut an.",
     auth_session_limit: "Maximale Anzahl aktiver Sitzungen erreicht. Bitte melde dich auf einem anderen Gerät ab.",
     auth_account_locked: "Konto vorübergehend gesperrt aufgrund mehrerer fehlgeschlagener Anmeldeversuche. Bitte versuche es später erneut.",
+    auth_password_rules_title: "Passwortanforderungen:",
+    auth_password_rules_len: "Mindestens 10 Zeichen",
+    auth_password_rules_upper: "Mindestens ein Großbuchstabe (A-Z)",
+    auth_password_rules_lower: "Mindestens ein Kleinbuchstabe (a-z)",
+    auth_password_rules_digit: "Mindestens eine Zahl (0-9)",
+    auth_password_rules_special: "Mindestens ein Sonderzeichen (!@#$%^&*...)",
+    auth_password_match_ok: "Passwörter stimmen überein",
+    auth_password_match_fail: "Passwörter stimmen nicht überein",
+    auth_password_strength_weak: "Schwach",
+    auth_password_strength_fair: "Mittel",
+    auth_password_strength_good: "Gut",
+    auth_password_strength_strong: "Stark",
+    auth_stay_signed_in: "Angemeldet bleiben",
+    auth_confirm_password_placeholder: "Passwort bestätigen",
+    auth_show_password: "Passwort anzeigen",
+    auth_hide_password: "Passwort verbergen",
     
     common_success: "Erfolg",
     common_something_went_wrong: "Etwas ist schiefgelaufen. Bitte versuche es erneut.",

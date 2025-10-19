@@ -5,11 +5,18 @@ import { AnimatedCard } from "@/components/AnimatedCard";
 import { GradientText } from "@/components/GradientText";
 import { FloatingElement } from "@/components/FloatingElement";
 import { Input } from "@/components/ui/input";
-import { Heart, Mail, Lock, Loader2, Sparkles } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Heart, Mail, Lock, Loader2, Sparkles, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Turnstile } from "@marsidev/react-turnstile";
+import { usePasswordValidation, validatePasswordStrength } from "@/hooks/usePasswordValidation";
+import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
+import { PasswordRulesChecklist } from "@/components/PasswordRulesChecklist";
+import { cn } from "@/lib/utils";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -18,11 +25,16 @@ const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [staySignedIn, setStaySignedIn] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState({ email: "", password: "", confirmPassword: "", captcha: "" });
 
+  const passwordValidation = usePasswordValidation(password);
   const emailSchema = z.string().email(t.auth_invalid_email);
-  const passwordSchema = z.string().min(6, t.auth_password_min);
 
   useEffect(() => {
     checkUser();
@@ -35,8 +47,11 @@ const Auth = () => {
     }
   };
 
-  const validateForm = () => {
-    const newErrors = { email: "", password: "" };
+  const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
+  const passwordsDontMatch = confirmPassword.length > 0 && !passwordsMatch;
+
+  const validateForm = (): boolean => {
+    const newErrors = { email: "", password: "", confirmPassword: "", captcha: "" };
     
     try {
       emailSchema.parse(email);
@@ -46,16 +61,34 @@ const Auth = () => {
       }
     }
 
-    try {
-      passwordSchema.parse(password);
-    } catch (e) {
-      if (e instanceof z.ZodError) {
-        newErrors.password = e.errors[0].message;
+    if (!isLogin) {
+      if (!validatePasswordStrength(password)) {
+        newErrors.password = t.auth_password_min;
+      }
+
+      if (!passwordsMatch) {
+        newErrors.confirmPassword = t.auth_password_match_fail;
+      }
+
+      if (!captchaToken) {
+        newErrors.captcha = t.auth_captcha_failed;
       }
     }
 
     setErrors(newErrors);
-    return !newErrors.email && !newErrors.password;
+    return !newErrors.email && !newErrors.password && !newErrors.confirmPassword && !newErrors.captcha;
+  };
+
+  const isFormValid = (): boolean => {
+    if (isLogin) {
+      return !!email && !!password;
+    }
+    return (
+      !!email &&
+      passwordValidation.allRulesPassed &&
+      passwordsMatch &&
+      !!captchaToken
+    );
   };
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -81,15 +114,24 @@ const Auth = () => {
 
         toast({
           title: t.auth_login_success,
-          description: t.auth_login_success,
+          description: t.auth_welcome_back,
         });
         navigate('/');
       } else {
+        // Verify password strength on client before submitting
+        if (!validatePasswordStrength(password)) {
+          throw new Error(t.auth_password_min);
+        }
+
         const { error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/`,
+            data: {
+              staySignedIn,
+              captchaToken,
+            },
           },
         });
 
@@ -110,7 +152,6 @@ const Auth = () => {
             localStorage.removeItem('referralCode');
           } catch (refError) {
             console.error('Error processing referral:', refError);
-            // Don't block signup if referral processing fails
           }
         }
 
@@ -129,6 +170,14 @@ const Auth = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleModeSwitch = () => {
+    setIsLogin(!isLogin);
+    setPassword("");
+    setConfirmPassword("");
+    setCaptchaToken("");
+    setErrors({ email: "", password: "", confirmPassword: "", captcha: "" });
   };
 
   return (
@@ -155,6 +204,7 @@ const Auth = () => {
 
         {/* Auth Form */}
         <form onSubmit={handleAuth} className="space-y-4">
+          {/* Email Field */}
           <div className="space-y-2">
             <div className="relative">
               <Mail className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
@@ -168,6 +218,7 @@ const Auth = () => {
                 }}
                 className="pl-10"
                 disabled={isLoading}
+                autoComplete="email"
               />
             </div>
             {errors.email && (
@@ -175,30 +226,157 @@ const Auth = () => {
             )}
           </div>
 
+          {/* Password Field */}
           <div className="space-y-2">
             <div className="relative">
               <Lock className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
               <Input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder={t.auth_password_placeholder}
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
                   setErrors(prev => ({ ...prev, password: "" }));
                 }}
-                className="pl-10"
+                className="pl-10 pr-10"
                 disabled={isLoading}
+                autoComplete={isLogin ? "current-password" : "new-password"}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label={showPassword ? t.auth_hide_password : t.auth_show_password}
+                tabIndex={-1}
+              >
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
+              </button>
             </div>
             {errors.password && (
               <p className="text-xs text-destructive">{errors.password}</p>
             )}
+
+            {/* Password Strength and Rules for Signup */}
+            {!isLogin && password.length > 0 && (
+              <div className="space-y-3 pt-2">
+                <PasswordStrengthMeter 
+                  strength={passwordValidation.strength}
+                  strengthScore={passwordValidation.strengthScore}
+                />
+                <PasswordRulesChecklist rules={passwordValidation.rules} />
+              </div>
+            )}
           </div>
 
+          {/* Confirm Password Field (Signup only) */}
+          {!isLogin && (
+            <div className="space-y-2">
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
+                <Input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder={t.auth_confirm_password_placeholder}
+                  value={confirmPassword}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    setErrors(prev => ({ ...prev, confirmPassword: "" }));
+                  }}
+                  onPaste={(e) => e.preventDefault()}
+                  className="pl-10 pr-10"
+                  disabled={isLoading}
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label={showConfirmPassword ? t.auth_hide_password : t.auth_show_password}
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+              
+              {/* Password Match Indicator */}
+              {confirmPassword.length > 0 && (
+                <p className={cn(
+                  "text-xs flex items-center gap-1.5",
+                  passwordsMatch ? "text-green-600 dark:text-green-500" : "text-destructive"
+                )}>
+                  {passwordsMatch ? (
+                    <>
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                      {t.auth_password_match_ok}
+                    </>
+                  ) : (
+                    <>
+                      <span className="w-1.5 h-1.5 rounded-full bg-destructive" />
+                      {t.auth_password_match_fail}
+                    </>
+                  )}
+                </p>
+              )}
+              {errors.confirmPassword && (
+                <p className="text-xs text-destructive">{errors.confirmPassword}</p>
+              )}
+            </div>
+          )}
+
+          {/* Stay Signed In (Signup only) */}
+          {!isLogin && (
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="stay-signed-in"
+                checked={staySignedIn}
+                onCheckedChange={(checked) => setStaySignedIn(checked === true)}
+                disabled={isLoading}
+              />
+              <Label
+                htmlFor="stay-signed-in"
+                className="text-sm cursor-pointer select-none"
+              >
+                {t.auth_stay_signed_in}
+              </Label>
+            </div>
+          )}
+
+          {/* Turnstile CAPTCHA (Signup only) */}
+          {!isLogin && (
+            <div className="space-y-2">
+              <Turnstile
+                siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
+                onSuccess={(token) => {
+                  setCaptchaToken(token);
+                  setErrors(prev => ({ ...prev, captcha: "" }));
+                }}
+                onError={() => {
+                  setCaptchaToken("");
+                  setErrors(prev => ({ ...prev, captcha: t.auth_captcha_failed }));
+                }}
+                options={{
+                  theme: 'auto',
+                  size: 'normal',
+                }}
+              />
+              {errors.captcha && (
+                <p className="text-xs text-destructive">{errors.captcha}</p>
+              )}
+            </div>
+          )}
+
+          {/* Submit Button */}
           <EnhancedButton
             type="submit"
             className="w-full"
-            disabled={isLoading}
+            disabled={isLoading || !isFormValid()}
             glow
             lift
             shine
@@ -220,10 +398,7 @@ const Auth = () => {
         {/* Toggle Login/Signup */}
         <div className="mt-6 text-center">
           <button
-            onClick={() => {
-              setIsLogin(!isLogin);
-              setErrors({ email: "", password: "" });
-            }}
+            onClick={handleModeSwitch}
             className="text-sm text-muted-foreground hover:text-primary transition-colors"
             disabled={isLoading}
           >
