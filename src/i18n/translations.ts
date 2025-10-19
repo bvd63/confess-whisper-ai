@@ -1795,7 +1795,7 @@ export const translations: Record<Language, Translations> = {
     days: "days",
     hours: "hours",
     referral_reward_referrer: "+20 coins when referred user posts first confession",
-    referral_reward_referred: "+10 coins after your first confession",
+    referral_reward_referred: "+10 for referred user after first confession",
     first_confession_bonus: "First confession bonus",
     
     boost_confession: "Boost Confession",
@@ -2765,7 +2765,7 @@ export const translations: Record<Language, Translations> = {
     days: "días",
     hours: "horas",
     referral_reward_referrer: "+20 monedas cuando el referido publica su primera confesión",
-    referral_reward_referred: "+10 monedas después de tu primera confesión",
+    referral_reward_referred: "+10 para usuario referido después de primera confesión",
     first_confession_bonus: "Bono de primera confesión",
     
     boost_confession: "Impulsar Confesión",
@@ -3769,7 +3769,7 @@ export const translations: Record<Language, Translations> = {
     days: "Tage",
     hours: "Stunden",
     referral_reward_referrer: "+20 Münzen wenn Geworbener erstes Geständnis postet",
-    referral_reward_referred: "+10 Münzen nach deinem ersten Geständnis",
+    referral_reward_referred: "+10 für geworbenen Nutzer nach erstem Geständnis",
     first_confession_bonus: "Bonus für erstes Geständnis",
     
     boost_confession: "Geständnis Boosten",
