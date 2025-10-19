@@ -123,6 +123,16 @@ export default {
             transform: "translateY(-10px)"
           }
         },
+        "bounce-gentle": {
+          "0%, 100%": {
+            transform: "translateY(0)",
+            opacity: "1"
+          },
+          "50%": {
+            transform: "translateY(-4px)",
+            opacity: "0.8"
+          }
+        },
         "scale-in": {
           "0%": {
             transform: "scale(0.9)",
@@ -211,6 +221,7 @@ export default {
         "slide-up": "slide-up 0.4s ease-out",
         "glow": "glow 2s ease-in-out infinite",
         "bounce-subtle": "bounce-subtle 2s ease-in-out infinite",
+        "bounce-gentle": "bounce-gentle 1.2s ease-in-out infinite",
         "scale-in": "scale-in 0.3s ease-out",
         "shimmer": "shimmer 2s linear infinite",
         "float": "float 3s ease-in-out infinite",

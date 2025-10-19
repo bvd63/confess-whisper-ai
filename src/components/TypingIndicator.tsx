@@ -14,9 +14,9 @@ export const TypingIndicator = ({ conversationId, currentUserId }: TypingIndicat
     <div className="px-4 py-2 text-sm text-muted-foreground">
       <div className="flex items-center gap-2">
         <div className="flex gap-1">
-          <span className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0ms' }} />
-          <span className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms' }} />
-          <span className="h-2 w-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '300ms' }} />
+          <span className="h-2 w-2 rounded-full bg-primary animate-bounce-gentle" />
+          <span className="h-2 w-2 rounded-full bg-primary animate-bounce-gentle" />
+          <span className="h-2 w-2 rounded-full bg-primary animate-bounce-gentle" />
         </div>
         <span>
           {typingUsers.length === 1
