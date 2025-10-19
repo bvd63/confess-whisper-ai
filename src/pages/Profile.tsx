@@ -191,10 +191,10 @@ const Profile = () => {
               </div>
             </AnimatedCard>
 
-            <StreakCounter userId={user.id} variant="full" />
-            <CoinsDisplay userId={user.id} variant="full" />
-            <FollowStats userId={user.id} />
-            <UserAnalytics />
+          <FollowStats userId={user.id} />
+          <StreakCounter userId={user.id} variant="full" />
+          <CoinsDisplay userId={user.id} variant="full" />
+          <UserAnalytics />
             <AdvancedAnalytics userId={user.id} />
             <WordCloudViz userId={user.id} />
           </TabsContent>
