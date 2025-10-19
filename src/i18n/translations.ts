@@ -200,6 +200,18 @@ type Translations = {
   auth_signup_success: string;
   auth_error: string;
   auth_error_generic: string;
+  auth_captcha_failed: string;
+  auth_session_revoked: string;
+  auth_all_sessions_revoked: string;
+  auth_device_mismatch: string;
+  auth_session_limit: string;
+  auth_account_locked: string;
+  
+  // Common
+  common_success: string;
+  common_something_went_wrong: string;
+  common_unauthorized: string;
+  common_rate_limit: string;
   
   // UI General
   ui_recent: string;
@@ -1572,6 +1584,17 @@ export const translations: Record<Language, Translations> = {
     auth_signup_success: "Account created successfully! 🎉",
     auth_error: "Error",
     auth_error_generic: "An error occurred. Please try again.",
+    auth_captcha_failed: "CAPTCHA verification failed. Please try again.",
+    auth_session_revoked: "Session revoked successfully.",
+    auth_all_sessions_revoked: "All sessions revoked. Please log in again.",
+    auth_device_mismatch: "Device mismatch detected. Please log in again.",
+    auth_session_limit: "Maximum active sessions reached. Please log out from another device.",
+    auth_account_locked: "Account temporarily locked due to multiple failed login attempts. Please try again later.",
+    
+    common_success: "Success",
+    common_something_went_wrong: "Something went wrong. Please try again.",
+    common_unauthorized: "Unauthorized access.",
+    common_rate_limit: "Too many requests. Please try again later.",
     
     ui_recent: "Recent",
     ui_popular: "Popular",
@@ -2328,6 +2351,17 @@ export const translations: Record<Language, Translations> = {
     auth_signup_success: "¡Cuenta creada exitosamente! 🎉",
     auth_error: "Error",
     auth_error_generic: "Ocurrió un error. Por favor, inténtalo de nuevo.",
+    auth_captcha_failed: "Verificación CAPTCHA fallida. Por favor, inténtalo de nuevo.",
+    auth_session_revoked: "Sesión revocada exitosamente.",
+    auth_all_sessions_revoked: "Todas las sesiones revocadas. Por favor, inicia sesión nuevamente.",
+    auth_device_mismatch: "Dispositivo no coincidente detectado. Por favor, inicia sesión nuevamente.",
+    auth_session_limit: "Número máximo de sesiones activas alcanzado. Por favor, cierra sesión en otro dispositivo.",
+    auth_account_locked: "Cuenta bloqueada temporalmente debido a múltiples intentos fallidos de inicio de sesión. Por favor, inténtalo más tarde.",
+    
+    common_success: "Éxito",
+    common_something_went_wrong: "Algo salió mal. Por favor, inténtalo de nuevo.",
+    common_unauthorized: "Acceso no autorizado.",
+    common_rate_limit: "Demasiadas solicitudes. Por favor, inténtalo más tarde.",
     
     ui_recent: "Reciente",
     ui_popular: "Popular",
@@ -3332,6 +3366,17 @@ export const translations: Record<Language, Translations> = {
     auth_signup_success: "Konto erfolgreich erstellt! 🎉",
     auth_error: "Fehler",
     auth_error_generic: "Ein Fehler ist aufgetreten. Bitte versuche es erneut.",
+    auth_captcha_failed: "CAPTCHA-Verifizierung fehlgeschlagen. Bitte versuche es erneut.",
+    auth_session_revoked: "Sitzung erfolgreich widerrufen.",
+    auth_all_sessions_revoked: "Alle Sitzungen widerrufen. Bitte melde dich erneut an.",
+    auth_device_mismatch: "Gerätekonflikt erkannt. Bitte melde dich erneut an.",
+    auth_session_limit: "Maximale Anzahl aktiver Sitzungen erreicht. Bitte melde dich auf einem anderen Gerät ab.",
+    auth_account_locked: "Konto vorübergehend gesperrt aufgrund mehrerer fehlgeschlagener Anmeldeversuche. Bitte versuche es später erneut.",
+    
+    common_success: "Erfolg",
+    common_something_went_wrong: "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+    common_unauthorized: "Unbefugter Zugriff.",
+    common_rate_limit: "Zu viele Anfragen. Bitte versuche es später erneut.",
     
     ui_recent: "Neueste",
     ui_popular: "Beliebt",

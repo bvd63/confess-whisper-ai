@@ -65,9 +65,9 @@ export const useEnhancedAuth = () => {
       });
 
       if (error) {
-        const errorMessage = data?.messageKey ? t[data.messageKey as keyof typeof t] as string : t.auth.invalid_credentials;
+        const errorMessage = data?.messageKey ? t[data.messageKey as keyof typeof t] as string : t.auth_invalid_credentials;
         toast({
-          title: t.common.error,
+          title: t.common_error,
           description: errorMessage,
           variant: 'destructive',
         });
@@ -81,16 +81,16 @@ export const useEnhancedAuth = () => {
       }
 
       toast({
-        title: t.auth.login_success,
-        description: t.auth.welcome_back,
+        title: t.auth_login_success,
+        description: t.auth_welcome_back,
       });
 
       return { data, error: null };
     } catch (error) {
       console.error('Enhanced login error:', error);
       toast({
-        title: t.common.error,
-        description: t.common.something_went_wrong,
+        title: t.common_error,
+        description: t.common_something_went_wrong,
         variant: 'destructive',
       });
       return { error };
@@ -120,8 +120,8 @@ export const useEnhancedAuth = () => {
     } catch (error) {
       console.error('Error listing sessions:', error);
       toast({
-        title: t.common.error,
-        description: t.common.something_went_wrong,
+        title: t.common_error,
+        description: t.common_something_went_wrong,
         variant: 'destructive',
       });
       return { error };
@@ -148,8 +148,8 @@ export const useEnhancedAuth = () => {
       if (error) throw error;
 
       toast({
-        title: t.common.success,
-        description: data.messageKey ? t[data.messageKey as keyof typeof t] as string : t.auth.session_revoked,
+        title: t.common_success,
+        description: data.messageKey ? t[data.messageKey as keyof typeof t] as string : t.auth_session_revoked,
       });
 
       // Refresh sessions list
@@ -159,8 +159,8 @@ export const useEnhancedAuth = () => {
     } catch (error) {
       console.error('Error revoking session:', error);
       toast({
-        title: t.common.error,
-        description: t.common.something_went_wrong,
+        title: t.common_error,
+        description: t.common_something_went_wrong,
         variant: 'destructive',
       });
       return { error };
@@ -186,8 +186,8 @@ export const useEnhancedAuth = () => {
       if (error) throw error;
 
       toast({
-        title: t.common.success,
-        description: data.messageKey ? t[data.messageKey as keyof typeof t] as string : t.auth.all_sessions_revoked,
+        title: t.common_success,
+        description: data.messageKey ? t[data.messageKey as keyof typeof t] as string : t.auth_all_sessions_revoked,
       });
 
       // Clear local session data
@@ -201,8 +201,8 @@ export const useEnhancedAuth = () => {
     } catch (error) {
       console.error('Error revoking all sessions:', error);
       toast({
-        title: t.common.error,
-        description: t.common.something_went_wrong,
+        title: t.common_error,
+        description: t.common_something_went_wrong,
         variant: 'destructive',
       });
       return { error };
