@@ -23,9 +23,7 @@ export const QuoteOfTheDay = () => {
   if (!quote) return null;
   return <AnimatedCard hover="glow" gradient className="p-4 mb-4 border-primary/20">
       <div className="flex items-start gap-3">
-        <FloatingElement delay={0.3}>
-          <Quote className="h-6 w-6 text-primary flex-shrink-0 mt-1 px-0 my-0 py-0 mx-[11px]" />
-        </FloatingElement>
+        <Quote className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
         <div className="flex-1">
           <p className="text-base font-medium leading-relaxed mb-2">
             "{quote.text}"

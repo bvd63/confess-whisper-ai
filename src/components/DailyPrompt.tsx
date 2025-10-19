@@ -53,11 +53,9 @@ const DailyPrompt = ({
   };
   return <AnimatedCard hover="glow" gradient className="p-4 sm:p-5 md:p-6 border-primary/20 mb-4 sm:mb-6">
       <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
-        <FloatingElement>
-          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mx-0 my-0 py-0">
-            <Sparkles className="w-5 h-5 text-primary animate-pulse-glow" />
-          </div>
-        </FloatingElement>
+        <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+          <Sparkles className="w-5 h-5 text-primary animate-pulse-glow" />
+        </div>
         
         <div className="flex-1 w-full sm:w-auto">
           <h3 className="font-semibold text-base sm:text-lg mb-2">{t.daily_prompt_title}</h3>
