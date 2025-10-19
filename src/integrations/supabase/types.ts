@@ -1204,6 +1204,8 @@ export type Database = {
           subscription_status: string | null
           subscription_tier: string | null
           total_referrals: number | null
+          trial_active: boolean | null
+          trial_end_date: string | null
           user_id: string
         }
         Insert: {
@@ -1230,6 +1232,8 @@ export type Database = {
           subscription_status?: string | null
           subscription_tier?: string | null
           total_referrals?: number | null
+          trial_active?: boolean | null
+          trial_end_date?: string | null
           user_id: string
         }
         Update: {
@@ -1256,6 +1260,8 @@ export type Database = {
           subscription_status?: string | null
           subscription_tier?: string | null
           total_referrals?: number | null
+          trial_active?: boolean | null
+          trial_end_date?: string | null
           user_id?: string
         }
         Relationships: []

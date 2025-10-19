@@ -277,6 +277,42 @@ type Translations = {
   plans_free_benefit_confessions: string;
   plans_premium_benefit_confessions: string;
   plans_vip_benefit_confessions: string;
+  plans_free_benefit_basic: string;
+  plans_free_benefit_ads: string;
+  plans_premium_benefit_ai: string;
+  plans_premium_benefit_analytics: string;
+  plans_premium_benefit_badge: string;
+  plans_premium_benefit_noads: string;
+  plans_premium_benefit_priority: string;
+  plans_vip_benefit_allpremium: string;
+  plans_vip_benefit_images: string;
+  plans_vip_benefit_stats: string;
+  plans_vip_benefit_support: string;
+  plans_vip_benefit_badge: string;
+  
+  // Plan Titles and Tooltips
+  plans_free_title: string;
+  plans_free_tooltip: string;
+  plans_premium_title: string;
+  plans_premium_tooltip: string;
+  plans_vip_title: string;
+  plans_vip_tooltip: string;
+  
+  // Paywall
+  plans_paywall_title: string;
+  plans_paywall_subtitle: string;
+  
+  // Trial System
+  trial_offer_title: string;
+  trial_offer_desc: string;
+  trial_button_text: string;
+  trial_already_used_title: string;
+  trial_already_used_desc: string;
+  trial_activated_title: string;
+  trial_activated_desc: string;
+  trial_activation_error: string;
+  trial_banner_title: string;
+  trial_banner_days_remaining: string;
   
   // Confession Limits
   limit_reached_title: string;
@@ -1699,6 +1735,42 @@ export const translations: Record<Language, Translations> = {
     plans_free_benefit_confessions: "3 confessions per day",
     plans_premium_benefit_confessions: "10 confessions per day",
     plans_vip_benefit_confessions: "Unlimited confessions per day",
+    plans_free_benefit_basic: "Basic features",
+    plans_free_benefit_ads: "Ads enabled",
+    plans_premium_benefit_ai: "Unlimited AI responses",
+    plans_premium_benefit_analytics: "Advanced analytics",
+    plans_premium_benefit_badge: "Exclusive Premium badge",
+    plans_premium_benefit_noads: "No ads",
+    plans_premium_benefit_priority: "Priority in moderation",
+    plans_vip_benefit_allpremium: "All Premium benefits",
+    plans_vip_benefit_images: "Image confessions",
+    plans_vip_benefit_stats: "Detailed statistics",
+    plans_vip_benefit_support: "Priority support",
+    plans_vip_benefit_badge: "Special VIP badge",
+    
+    // Plan Titles and Tooltips
+    plans_free_title: "Free",
+    plans_free_tooltip: "Free Member",
+    plans_premium_title: "Premium",
+    plans_premium_tooltip: "Premium Member - Enhanced experience",
+    plans_vip_title: "VIP",
+    plans_vip_tooltip: "VIP Member - Premium access with exclusive benefits",
+    
+    // Paywall
+    plans_paywall_title: "Choose your subscription plan",
+    plans_paywall_subtitle: "Compare features and find your best experience.",
+    
+    // Trial System
+    trial_offer_title: "Try Premium Free!",
+    trial_offer_desc: "Get full Premium access for 3 days, no credit card required",
+    trial_button_text: "Try 3 Days Free",
+    trial_already_used_title: "Trial Already Used",
+    trial_already_used_desc: "You've already used your free trial.",
+    trial_activated_title: "🎉 Premium Trial Activated!",
+    trial_activated_desc: "Enjoy 3 days of Premium features for free!",
+    trial_activation_error: "Could not activate trial. Please try again.",
+    trial_banner_title: "🎉 Premium Trial Active",
+    trial_banner_days_remaining: "{days} days remaining",
     
     // Confession Limits
     limit_reached_title: "Daily Limit Reached",
@@ -2507,6 +2579,42 @@ export const translations: Record<Language, Translations> = {
     plans_free_benefit_confessions: "3 confesiones por día",
     plans_premium_benefit_confessions: "10 confesiones por día",
     plans_vip_benefit_confessions: "Confesiones ilimitadas por día",
+    plans_free_benefit_basic: "Funciones básicas",
+    plans_free_benefit_ads: "Anuncios habilitados",
+    plans_premium_benefit_ai: "Respuestas AI ilimitadas",
+    plans_premium_benefit_analytics: "Análisis avanzado",
+    plans_premium_benefit_badge: "Insignia Premium exclusiva",
+    plans_premium_benefit_noads: "Sin anuncios",
+    plans_premium_benefit_priority: "Prioridad en moderación",
+    plans_vip_benefit_allpremium: "Todos los beneficios Premium",
+    plans_vip_benefit_images: "Confesiones con imagen",
+    plans_vip_benefit_stats: "Estadísticas detalladas",
+    plans_vip_benefit_support: "Soporte prioritario",
+    plans_vip_benefit_badge: "Insignia VIP especial",
+    
+    // Plan Titles and Tooltips
+    plans_free_title: "Gratis",
+    plans_free_tooltip: "Miembro Gratis",
+    plans_premium_title: "Premium",
+    plans_premium_tooltip: "Miembro Premium - Experiencia mejorada",
+    plans_vip_title: "VIP",
+    plans_vip_tooltip: "Miembro VIP - Acceso Premium con beneficios exclusivos",
+    
+    // Paywall
+    plans_paywall_title: "Elige tu plan de suscripción",
+    plans_paywall_subtitle: "Compara características y encuentra tu mejor experiencia.",
+    
+    // Trial System
+    trial_offer_title: "¡Prueba Premium Gratis!",
+    trial_offer_desc: "Obtén acceso Premium completo por 3 días, sin tarjeta de crédito",
+    trial_button_text: "Prueba 3 Días Gratis",
+    trial_already_used_title: "Prueba Ya Usada",
+    trial_already_used_desc: "Ya has usado tu prueba gratuita.",
+    trial_activated_title: "🎉 ¡Prueba Premium Activada!",
+    trial_activated_desc: "¡Disfruta de 3 días de funciones Premium gratis!",
+    trial_activation_error: "No se pudo activar la prueba. Inténtalo de nuevo.",
+    trial_banner_title: "🎉 Prueba Premium Activa",
+    trial_banner_days_remaining: "{days} días restantes",
     
     // Confession Limits
     limit_reached_title: "Límite Diario Alcanzado",
@@ -3563,6 +3671,42 @@ export const translations: Record<Language, Translations> = {
     plans_free_benefit_confessions: "3 Beichten pro Tag",
     plans_premium_benefit_confessions: "10 Beichten pro Tag",
     plans_vip_benefit_confessions: "Unbegrenzte Beichten pro Tag",
+    plans_free_benefit_basic: "Grundfunktionen",
+    plans_free_benefit_ads: "Werbung aktiviert",
+    plans_premium_benefit_ai: "Unbegrenzte KI-Antworten",
+    plans_premium_benefit_analytics: "Erweiterte Analysen",
+    plans_premium_benefit_badge: "Exklusives Premium-Abzeichen",
+    plans_premium_benefit_noads: "Keine Werbung",
+    plans_premium_benefit_priority: "Priorität bei Moderation",
+    plans_vip_benefit_allpremium: "Alle Premium-Vorteile",
+    plans_vip_benefit_images: "Beichten mit Bildern",
+    plans_vip_benefit_stats: "Detaillierte Statistiken",
+    plans_vip_benefit_support: "Prioritäts-Support",
+    plans_vip_benefit_badge: "Spezielles VIP-Abzeichen",
+    
+    // Plan Titles and Tooltips
+    plans_free_title: "Kostenlos",
+    plans_free_tooltip: "Kostenloses Mitglied",
+    plans_premium_title: "Premium",
+    plans_premium_tooltip: "Premium-Mitglied - Verbessertes Erlebnis",
+    plans_vip_title: "VIP",
+    plans_vip_tooltip: "VIP-Mitglied - Premium-Zugang mit exklusiven Vorteilen",
+    
+    // Paywall
+    plans_paywall_title: "Wähle deinen Abonnement-Plan",
+    plans_paywall_subtitle: "Vergleiche Funktionen und finde dein bestes Erlebnis.",
+    
+    // Trial System
+    trial_offer_title: "Premium Kostenlos Testen!",
+    trial_offer_desc: "Erhalte 3 Tage vollen Premium-Zugang, keine Kreditkarte erforderlich",
+    trial_button_text: "3 Tage Kostenlos Testen",
+    trial_already_used_title: "Testversion Bereits Verwendet",
+    trial_already_used_desc: "Du hast deine kostenlose Testversion bereits genutzt.",
+    trial_activated_title: "🎉 Premium-Testversion Aktiviert!",
+    trial_activated_desc: "Genieße 3 Tage Premium-Funktionen kostenlos!",
+    trial_activation_error: "Testversion konnte nicht aktiviert werden. Bitte versuche es erneut.",
+    trial_banner_title: "🎉 Premium-Testversion Aktiv",
+    trial_banner_days_remaining: "{days} Tage verbleibend",
     
     // Confession Limits
     limit_reached_title: "Tageslimit Erreicht",

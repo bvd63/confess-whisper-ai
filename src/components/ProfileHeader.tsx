@@ -6,6 +6,8 @@ import { useFollowSystem } from "@/hooks/useFollowSystem";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { SubscriptionBadge } from "@/components/SubscriptionBadge";
+import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 
 interface ProfileHeaderProps {
   userId: string;
@@ -32,6 +34,7 @@ export const ProfileHeader = ({
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { stats, isProcessing, toggleFollow } = useFollowSystem(currentUserId, userId);
+  const { subscriptionTier } = usePremiumStatus(userId);
   
   const isOwnProfile = currentUserId === userId;
   const displayName = nickname || t.confession_anonymous;
@@ -66,8 +69,11 @@ export const ProfileHeader = ({
       </div>
 
       {/* Name and Bio */}
-      <div>
-        <h2 className="font-bold text-lg">@{displayName}</h2>
+      <div className="mt-3">
+        <div className="flex items-center gap-2 mb-1">
+          <h2 className="font-bold text-lg">@{displayName}</h2>
+          <SubscriptionBadge tier={subscriptionTier as 'free' | 'premium' | 'vip'} variant="compact" />
+        </div>
         {stats.isFollowedBy && !isOwnProfile && (
           <span className="text-xs text-muted-foreground">{t.profile_follows_you || "Follows you"}</span>
         )}

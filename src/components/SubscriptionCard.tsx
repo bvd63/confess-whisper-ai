@@ -37,26 +37,41 @@ const SubscriptionCard = ({
     ? formatCurrency(price / 100)
     : formatCurrency(price / 100 / 12);
 
-  // Mapping between Romanian features and translation keys
-  const featureTranslationMap: Record<string, keyof typeof t> = {
-    "Răspunsuri AI nelimitate": "subscription_feature_unlimited_ai",
-    "Analize avansate": "subscription_feature_advanced_analytics",
-    "Badge-uri exclusive": "subscription_feature_exclusive_badges",
-    "Fără reclame": "subscription_feature_no_ads",
-    "Prioritate în moderare": "subscription_feature_priority_moderation",
-    "Toate beneficiile Premium": "subscription_feature_all_premium",
-    "Confesiuni cu imagine": "subscription_feature_image_confessions",
-    "Statistici detaliate": "subscription_feature_detailed_stats",
-    "Suport prioritar": "subscription_feature_priority_support",
-    "Badge VIP special": "subscription_feature_vip_badge",
+  const featureTranslationMap: Record<string, string> = {
     // Confession limits
     "3 confessions per day": "plans_free_benefit_confessions",
     "10 confessions per day": "plans_premium_benefit_confessions",
     "Unlimited confessions per day": "plans_vip_benefit_confessions",
+    // Basic features
+    "Basic features": "plans_free_benefit_basic",
+    "Ads enabled": "plans_free_benefit_ads",
+    // Premium features
+    "Unlimited AI responses": "plans_premium_benefit_ai",
+    "Advanced analytics": "plans_premium_benefit_analytics",
+    "Exclusive Premium badge": "plans_premium_benefit_badge",
+    "No ads": "plans_premium_benefit_noads",
+    "Priority in moderation": "plans_premium_benefit_priority",
+    // VIP features
+    "All Premium benefits": "plans_vip_benefit_allpremium",
+    "Image confessions": "plans_vip_benefit_images",
+    "Detailed statistics": "plans_vip_benefit_stats",
+    "Priority support": "plans_vip_benefit_support",
+    "Special VIP badge": "plans_vip_benefit_badge",
+    // Romanian features (legacy)
+    "Răspunsuri AI nelimitate": "plans_premium_benefit_ai",
+    "Analize avansate": "plans_premium_benefit_analytics",
+    "Badge-uri exclusive": "plans_premium_benefit_badge",
+    "Fără reclame": "plans_premium_benefit_noads",
+    "Prioritate în moderare": "plans_premium_benefit_priority",
+    "Toate beneficiile Premium": "plans_vip_benefit_allpremium",
+    "Confesiuni cu imagine": "plans_vip_benefit_images",
+    "Statistici detaliate": "plans_vip_benefit_stats",
+    "Suport prioritar": "plans_vip_benefit_support",
+    "Badge VIP special": "plans_vip_benefit_badge",
   };
 
   const translateFeature = (feature: string): string => {
-    const key = featureTranslationMap[feature];
+    const key = featureTranslationMap[feature] as keyof typeof t;
     return key ? t[key] : feature;
   };
 
