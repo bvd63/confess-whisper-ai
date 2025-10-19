@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import AppLayout from "@/components/AppLayout";
 import { GradientText } from "@/components/GradientText";
-import { FloatingElement } from "@/components/FloatingElement";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Users, MessageSquare, ArrowLeft, Settings } from "lucide-react";
@@ -97,11 +97,9 @@ const CommunityDetail = () => {
         <AnimatedCard glass hover="lift" className="p-6 mb-6">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-4">
-              <FloatingElement>
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-4xl">
-                  {community.icon || "🌟"}
-                </div>
-              </FloatingElement>
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-4xl">
+                {community.icon || "🌟"}
+              </div>
               <div>
                 <h1 className="text-2xl font-bold mb-1">
                   <GradientText variant="hero">{community.name}</GradientText>

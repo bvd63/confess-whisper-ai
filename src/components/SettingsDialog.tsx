@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/translated-dialog";
 import { Button } from "@/components/ui/button";
 import { EnhancedButton } from "@/components/EnhancedButton";
-import { FloatingElement } from "@/components/FloatingElement";
+
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 import { Settings, Download, Trash2, LogOut, Loader2, Shield, Crown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -171,9 +171,7 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
         <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto glass-strong">
           <DialogHeader>
             <DialogTitle className="text-xl sm:text-2xl flex items-center gap-2">
-              <FloatingElement delay={0.5}>
-                <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-primary animate-pulse-glow" />
-              </FloatingElement>
+              <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-primary animate-pulse-glow" />
               {t.settings}
             </DialogTitle>
             <DialogDescription className="text-xs sm:text-sm">
@@ -240,11 +238,9 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
             {/* Export Data */}
             <div className="p-3 sm:p-4 border border-border/50 rounded-lg hover-lift transition-colors glass">
               <div className="flex items-start gap-3 sm:gap-4">
-                <FloatingElement delay={0.3}>
-                  <div className="p-1.5 sm:p-2 rounded-full bg-primary/10">
-                    <Download className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                  </div>
-                </FloatingElement>
+                <div className="p-1.5 sm:p-2 rounded-full bg-primary/10">
+                  <Download className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-sm sm:text-base text-foreground mb-1">
                     {t.export_data}

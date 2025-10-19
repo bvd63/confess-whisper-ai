@@ -5,7 +5,7 @@ import AppLayout from "@/components/AppLayout";
 import ConfessionCard from "@/components/ConfessionCard";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { GradientText } from "@/components/GradientText";
-import { FloatingElement } from "@/components/FloatingElement";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrendingUp, Flame, Clock } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";

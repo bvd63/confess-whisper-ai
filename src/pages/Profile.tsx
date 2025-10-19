@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { EnhancedButton } from "@/components/EnhancedButton";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { GradientText } from "@/components/GradientText";
-import { FloatingElement } from "@/components/FloatingElement";
+
 import { User, Settings } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppLayout from "@/components/AppLayout";
@@ -146,9 +146,7 @@ const Profile = () => {
         {isOnTrial && trialEndDate && <TrialBanner trialEndDate={trialEndDate} />}
         
         <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8 animate-fade-in">
-          <FloatingElement delay={0.5}>
-            <User className="h-6 w-6 sm:h-8 sm:w-8 text-primary animate-pulse-glow" />
-          </FloatingElement>
+          <User className="h-6 w-6 sm:h-8 sm:w-8 text-primary animate-pulse-glow" />
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
             <GradientText variant="hero">{t.profile_title}</GradientText>
           </h1>

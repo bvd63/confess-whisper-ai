@@ -1,6 +1,6 @@
 import { EnhancedButton } from "@/components/EnhancedButton";
 import { AnimatedCard } from "@/components/AnimatedCard";
-import { FloatingElement } from "@/components/FloatingElement";
+
 import { MessageCircle, UserPlus, UserMinus, Settings } from "lucide-react";
 import { useFollowSystem } from "@/hooks/useFollowSystem";
 import { useNavigate } from "react-router-dom";
@@ -43,14 +43,12 @@ export const ProfileHeader = ({
     <AnimatedCard hover="lift" glass className="p-4 border-b border-border/50">
       {/* Avatar and Stats Row */}
       <div className="flex items-center gap-4">
-        <FloatingElement delay={0.5}>
           <Avatar className="w-20 h-20 border-2 border-primary/20 shadow-glow">
             <AvatarImage src={avatarUrl || undefined} alt={displayName} />
             <AvatarFallback className="text-2xl font-bold bg-gradient-to-br from-primary/20 to-primary/10">
               {displayName.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-        </FloatingElement>
 
         <div className="flex-1 flex justify-around">
           <div className="flex flex-col items-center">

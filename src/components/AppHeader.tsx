@@ -1,7 +1,7 @@
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { EnhancedButton } from "@/components/EnhancedButton";
-import { FloatingElement } from "@/components/FloatingElement";
+
 import { Heart, PlusCircle, LogOut, Crown, User, LogIn, BookMarked, Users, Home, Sparkles, Search, MessageCircle } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -67,9 +67,7 @@ const AppHeader = ({
         <div className="grid grid-cols-3 items-center gap-4">
           {/* Left - Logo */}
           <div className="flex items-center gap-2">
-            <FloatingElement delay={0.5}>
-              <Heart className="w-5 h-5 lg:w-6 lg:h-6 text-primary flex-shrink-0 animate-heart-beat" fill="currentColor" />
-            </FloatingElement>
+            <Heart className="w-5 h-5 lg:w-6 lg:h-6 text-primary flex-shrink-0 animate-heart-beat" fill="currentColor" />
             <h1 className="text-lg lg:text-2xl font-bold text-gradient-hero cursor-pointer whitespace-nowrap" onClick={() => navigate('/')}>
               {t.app_name}
             </h1>

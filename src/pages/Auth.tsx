@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { EnhancedButton } from "@/components/EnhancedButton";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { GradientText } from "@/components/GradientText";
-import { FloatingElement } from "@/components/FloatingElement";
+
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -223,11 +223,9 @@ const Auth = () => {
       >
         {/* Logo & Title */}
         <div className="text-center mb-6 sm:mb-8 animate-fade-in">
-          <FloatingElement delay={0.5}>
-            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 mb-3 sm:mb-4">
-              <Heart className="w-6 h-6 sm:w-8 sm:h-8 text-primary animate-heart-beat" fill="currentColor" />
-            </div>
-          </FloatingElement>
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 mb-3 sm:mb-4">
+            <Heart className="w-6 h-6 sm:w-8 sm:h-8 text-primary animate-heart-beat" fill="currentColor" />
+          </div>
           <h1 className="text-2xl sm:text-3xl font-bold mb-2">
             <GradientText variant="hero">Confess+</GradientText>
           </h1>

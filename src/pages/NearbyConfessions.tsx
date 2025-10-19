@@ -1,7 +1,7 @@
 import { useState } from "react";
 import AppLayout from "@/components/AppLayout";
 import { GradientText } from "@/components/GradientText";
-import { FloatingElement } from "@/components/FloatingElement";
+
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, List, Map as MapIcon } from "lucide-react";
@@ -27,9 +27,7 @@ const NearbyConfessions = () => {
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8 text-center">
-          <FloatingElement delay={0}>
-            <MapPin className="w-16 h-16 mx-auto mb-4 text-primary" />
-          </FloatingElement>
+          <MapPin className="w-16 h-16 mx-auto mb-4 text-primary" />
           <h1 className="text-4xl font-bold mb-2">
             <GradientText variant="hero">{t.nearby_title}</GradientText>
           </h1>

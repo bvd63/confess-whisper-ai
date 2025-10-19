@@ -1,7 +1,7 @@
 import { useState } from "react";
 import AppLayout from "@/components/AppLayout";
 import { GradientText } from "@/components/GradientText";
-import { FloatingElement } from "@/components/FloatingElement";
+
 import { CommunityCard } from "@/components/CommunityCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,9 +62,7 @@ const Communities = () => {
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8 text-center">
-          <FloatingElement delay={0}>
-            <Users className="w-16 h-16 mx-auto mb-4 text-primary" />
-          </FloatingElement>
+          <Users className="w-16 h-16 mx-auto mb-4 text-primary" />
           <h1 className="text-4xl font-bold mb-2">
             <GradientText variant="hero">{t.communities_title}</GradientText>
           </h1>

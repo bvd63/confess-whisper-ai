@@ -1,6 +1,6 @@
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { EnhancedButton } from "@/components/EnhancedButton";
-import { FloatingElement } from "@/components/FloatingElement";
+
 import { Check, Crown, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -90,25 +90,19 @@ const SubscriptionCard = ({
       
       {/* Discount Badge for Premium and VIP on yearly billing */}
       {billingCycle === "yearly" && (isPremium || isVIP) && (
-        <FloatingElement delay={0.3}>
-          <div className="absolute top-3 right-3 z-20 bg-primary text-primary-foreground font-bold rounded-full w-16 h-16 flex items-center justify-center text-lg shadow-elegant animate-pulse-glow">
-            -33%
-          </div>
-        </FloatingElement>
+        <div className="absolute top-3 right-3 z-20 bg-primary text-primary-foreground font-bold rounded-full w-16 h-16 flex items-center justify-center text-lg shadow-elegant animate-pulse-glow">
+          -33%
+        </div>
       )}
       
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             {isPremium && (
-              <FloatingElement delay={0.5}>
-                <Crown className="w-5 h-5 text-primary" />
-              </FloatingElement>
+              <Crown className="w-5 h-5 text-primary" />
             )}
             {isVIP && (
-              <FloatingElement delay={0.5}>
-                <Sparkles className="w-5 h-5 text-primary animate-pulse-glow" />
-              </FloatingElement>
+              <Sparkles className="w-5 h-5 text-primary animate-pulse-glow" />
             )}
             <h3 className="text-2xl font-bold">{plan.name}</h3>
           </div>

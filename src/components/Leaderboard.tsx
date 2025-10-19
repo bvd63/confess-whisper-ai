@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AnimatedCard } from "@/components/AnimatedCard";
-import { FloatingElement } from "@/components/FloatingElement";
+
 import { Trophy, TrendingUp } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -72,9 +72,7 @@ const Leaderboard = () => {
       className="p-4 sm:p-5 md:p-6"
     >
       <div className="flex items-center gap-2 mb-4">
-        <FloatingElement delay={0.5}>
           <Trophy className="w-5 h-5 text-yellow-500 animate-pulse-glow" />
-        </FloatingElement>
         <h3 className="text-base sm:text-lg font-semibold">{t.leaderboard_top_this_week}</h3>
         <TrendingUp className="w-4 h-4 text-muted-foreground ml-auto" />
       </div>

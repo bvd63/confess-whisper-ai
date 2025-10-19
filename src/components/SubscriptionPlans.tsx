@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/translated-dialog";
 import { GradientText } from "@/components/GradientText";
-import { FloatingElement } from "@/components/FloatingElement";
+
 import { Sparkles, Check, Crown, Loader2, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AnimatedCard } from "./AnimatedCard";
@@ -185,9 +185,7 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
       <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto glass-strong border-primary/30">
         <DialogHeader>
           <DialogTitle className="text-xl sm:text-2xl md:text-3xl flex items-center gap-2 justify-center">
-            <FloatingElement delay={0.5}>
-              <Crown className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-primary animate-pulse-glow" />
-            </FloatingElement>
+            <Crown className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-primary animate-pulse-glow" />
             <GradientText variant="hero">{t.plans_paywall_title || "Choose your subscription plan"}</GradientText>
           </DialogTitle>
           <DialogDescription className="text-xs sm:text-sm text-center text-muted-foreground">
