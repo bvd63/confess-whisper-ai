@@ -83,6 +83,48 @@ export type Database = {
         }
         Relationships: []
       }
+      auth_sessions: {
+        Row: {
+          created_at: string
+          device_id: string | null
+          expires_at: string
+          id: string
+          ip_address: string | null
+          last_refreshed_at: string | null
+          revoked_at: string | null
+          stay_connected: boolean | null
+          token_hash: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_id?: string | null
+          expires_at: string
+          id?: string
+          ip_address?: string | null
+          last_refreshed_at?: string | null
+          revoked_at?: string | null
+          stay_connected?: boolean | null
+          token_hash: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          last_refreshed_at?: string | null
+          revoked_at?: string | null
+          stay_connected?: boolean | null
+          token_hash?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           created_at: string | null
@@ -155,6 +197,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      captcha_requirements: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          reason: string
+          required_until: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          reason: string
+          required_until: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          reason?: string
+          required_until?: string
+        }
+        Relationships: []
       }
       coin_transactions: {
         Row: {
@@ -706,6 +772,33 @@ export type Database = {
           prompt_text_de?: string | null
           prompt_text_en?: string
           prompt_text_es?: string | null
+        }
+        Relationships: []
+      }
+      failed_login_attempts: {
+        Row: {
+          attempted_at: string
+          email: string
+          failure_reason: string | null
+          id: string
+          ip_address: string
+          user_agent: string | null
+        }
+        Insert: {
+          attempted_at?: string
+          email: string
+          failure_reason?: string | null
+          id?: string
+          ip_address: string
+          user_agent?: string | null
+        }
+        Update: {
+          attempted_at?: string
+          email?: string
+          failure_reason?: string | null
+          id?: string
+          ip_address?: string
+          user_agent?: string | null
         }
         Relationships: []
       }
@@ -1271,6 +1364,36 @@ export type Database = {
         }
         Relationships: []
       }
+      security_events: {
+        Row: {
+          created_at: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          ip_address: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       subscription_entitlements: {
         Row: {
           ai_insights_quota: number | null
@@ -1771,6 +1894,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      cleanup_expired_sessions: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      cleanup_old_failed_attempts: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       deduct_coins: {
         Args: {
           _amount: number
@@ -1788,6 +1919,10 @@ export type Database = {
       generate_unique_handle: {
         Args: { base_nickname: string }
         Returns: string
+      }
+      get_failed_login_count: {
+        Args: { _email: string; _minutes?: number }
+        Returns: number
       }
       get_hot_confessions: {
         Args: { limit_count?: number }
@@ -1831,6 +1966,10 @@ export type Database = {
         Args: { acquired_at: string; expires_at: string }
         Returns: boolean
       }
+      is_captcha_required: {
+        Args: { _email: string }
+        Returns: boolean
+      }
       is_community_admin: {
         Args: { _community_id: string; _user_id: string }
         Returns: boolean
@@ -1843,8 +1982,22 @@ export type Database = {
         Args: { conversation_uuid: string; user_uuid: string }
         Returns: boolean
       }
+      log_security_event: {
+        Args: {
+          _event_data?: Json
+          _event_type: string
+          _ip_address?: string
+          _user_agent?: string
+          _user_id: string
+        }
+        Returns: undefined
+      }
       refresh_hot_confessions: {
         Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      revoke_all_user_sessions: {
+        Args: { _user_id: string }
         Returns: undefined
       }
     }
