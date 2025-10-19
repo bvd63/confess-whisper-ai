@@ -26,7 +26,7 @@ const NotFound = () => {
         <p className="mb-8 text-xl sm:text-2xl text-muted-foreground">
           {t.notfound_title}
         </p>
-        <EnhancedButton asChild glow shine lift>
+        <EnhancedButton asChild lift>
           <Link to="/" className="inline-flex items-center gap-2">
             <HomeIcon className="w-4 h-4" />
             {t.notfound_return_home}

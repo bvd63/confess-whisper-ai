@@ -183,7 +183,7 @@ const Profile = () => {
                     {t.subscription_manage}
                   </EnhancedButton>
                 ) : (
-                  <EnhancedButton onClick={() => setPremiumDialogOpen(true)} glow shine>
+                  <EnhancedButton onClick={() => setPremiumDialogOpen(true)}>
                     {t.subscription_upgrade_premium}
                   </EnhancedButton>
                 )}
