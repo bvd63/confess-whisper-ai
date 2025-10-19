@@ -13,17 +13,5 @@ export const EnhancedButton = ({
   lift = false,
   ...props
 }: EnhancedButtonProps) => {
-  return (
-    <Button
-      className={cn(
-        glow && "animate-glow",
-        shine && "animate-shimmer",
-        lift && "hover:scale-105 transition-transform duration-200",
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </Button>
-  );
+  return;
 };

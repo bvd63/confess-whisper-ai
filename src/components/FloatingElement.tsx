@@ -15,6 +15,7 @@ export const FloatingElement = ({
   return (
     <div 
       className={cn("animate-float", className)}
+      style={{ animationDelay: `${delay}s` }}
     >
       {children}
     </div>
