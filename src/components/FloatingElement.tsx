@@ -10,13 +10,9 @@ interface FloatingElementProps {
 export const FloatingElement = ({ 
   children, 
   className,
-  delay = 0
 }: FloatingElementProps) => {
   return (
-    <div 
-      className={cn("animate-float", className)}
-      style={{ animationDelay: `${delay}s` }}
-    >
+    <div className={cn("animate-float", className)}>
       {children}
     </div>
   );

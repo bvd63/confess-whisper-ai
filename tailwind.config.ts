@@ -120,7 +120,7 @@ export default {
             transform: "translateY(0)"
           },
           "50%": {
-            transform: "translateY(-10px)"
+            transform: "translateY(-8px)"
           }
         },
         "bounce-gentle": {
@@ -129,7 +129,7 @@ export default {
             opacity: "1"
           },
           "50%": {
-            transform: "translateY(-4px)",
+            transform: "translateY(-3px)",
             opacity: "0.8"
           }
         },
@@ -156,7 +156,7 @@ export default {
             transform: "translateY(0px)"
           },
           "50%": {
-            transform: "translateY(-20px)"
+            transform: "translateY(-16px)"
           }
         },
         "pulse-glow": {
