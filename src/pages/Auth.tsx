@@ -376,7 +376,7 @@ const Auth = () => {
               htmlFor="stay-signed-in"
               className="text-sm cursor-pointer select-none"
             >
-              {t.auth_stay_signed_in}
+              {isLogin ? "Stay logged in" : t.auth_stay_signed_in}
             </Label>
           </div>
 
