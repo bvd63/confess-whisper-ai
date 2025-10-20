@@ -61,10 +61,16 @@ class Analytics {
     this.queue = [];
 
     try {
-      // Send events to backend
-      await supabase.functions.invoke('analytics-event', {
-        body: { events: batch },
-      });
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const events = batch.map(({ event, data }) => ({
+        user_id: user.id,
+        event_type: event,
+        event_data: data || {},
+      }));
+
+      await supabase.from('analytics_events').insert(events);
     } catch (error) {
       console.error('Analytics flush error:', error);
       // Re-queue failed events (up to limit)
