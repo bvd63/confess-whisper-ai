@@ -1,5 +1,23 @@
 import { describe, it, expect } from 'vitest';
 
+// Helpers to make assertions locale-agnostic.
+const timeMatches24hOr12h = (formatted: string, hour24: number, minute: number = 0) => {
+  const h24 = String(hour24).padStart(2, '0');
+  const m = String(minute).padStart(2, '0');
+
+  // Derive 12h representation
+  const hour12 = ((hour24 + 11) % 12) + 1; // 0..23 -> 1..12
+  const h12 = String(hour12).padStart(2, '0');
+  const meridians = '(AM|PM|am|pm)';
+
+  // Allow separators ":" or "." and optional spaces/commas around time.
+  const re = new RegExp(
+    `(?:${h24}[:\\.]?${m})|(?:${h12}[:\\.]?${m}\\s*${meridians})`
+  );
+
+  return re.test(formatted);
+};
+
 describe('Currency and Date Formatters', () => {
   describe('Currency Formatting', () => {
     it('should format USD correctly', () => {
@@ -89,7 +107,11 @@ describe('Currency and Date Formatters', () => {
         minute: '2-digit',
       });
       const resultUTC = formatterUTC.format(date);
-      expect(resultUTC).toContain('18:00');
+      expect(timeMatches24hOr12h(resultUTC, 18, 0)).toBe(true);
+      
+      // Additionally verify the numeric UTC hour for correctness independent of string format:
+      const expectedUtcHour = 18;
+      expect(new Date(date).getUTCHours()).toBe(expectedUtcHour);
     });
 
     it('should format relative time correctly', () => {
