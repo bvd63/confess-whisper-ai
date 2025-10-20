@@ -387,13 +387,14 @@ export const EnhancedMessageThread = ({
                   {/* Quick reaction picker on hover */}
                   {!message.optimistic && (
                     <div className={cn(
-                      "absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity bg-background border border-border rounded-full px-2 py-1 flex gap-1 shadow-lg",
+                      "absolute -top-10 opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity bg-background border border-border rounded-full px-2 py-1 flex gap-1 shadow-xl z-50",
                       isOwn ? "right-0" : "left-0"
                     )}>
                       {['❤️', '👍', '😂', '😮', '😢'].map((emoji) => (
                         <button
                           key={emoji}
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             const userReaction = reactions.find(r => r.userId === currentUserId && r.emoji === emoji);
                             if (userReaction) {
                               removeReaction(message.id, emoji);
@@ -401,7 +402,7 @@ export const EnhancedMessageThread = ({
                               addReaction(message.id, emoji);
                             }
                           }}
-                          className="hover:scale-125 transition-transform text-lg"
+                          className="hover:scale-125 active:scale-110 transition-transform text-lg p-1 touch-manipulation"
                         >
                           {emoji}
                         </button>
