@@ -18,7 +18,7 @@ interface CachedItem<T> {
 
 class PersistenceManager {
   private dbName = 'confessai_storage';
-  private dbVersion = 1;
+  private dbVersion = 2;
   private db: IDBDatabase | null = null;
 
   async init(): Promise<void> {
@@ -42,7 +42,7 @@ class PersistenceManager {
           db.createObjectStore('drafts', { keyPath: 'key' });
         }
         if (!db.objectStoreNames.contains('conversations')) {
-          db.createObjectStore('conversations', { keyPath: 'id' });
+          db.createObjectStore('conversations', { keyPath: 'key' });
         }
         if (!db.objectStoreNames.contains('state')) {
           db.createObjectStore('state', { keyPath: 'key' });
