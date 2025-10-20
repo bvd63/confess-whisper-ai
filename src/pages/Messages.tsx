@@ -56,6 +56,8 @@ const Messages = () => {
       setSelectedConversation(null);
       setOtherUserId(null);
       setOtherUserNickname(null);
+      // Clear any persisted conversation so it won't auto-redirect back
+      sessionManager.saveSessionState('/messages', null);
     }
   }, [location.pathname]);
 
@@ -151,6 +153,9 @@ const Messages = () => {
     
     // Pop back to list within tab stack
     popFromTabStack('messages');
+
+    // Clear any persisted conversation redirect
+    sessionManager.saveSessionState('/messages', null);
   };
   if (isLoading) {
     return null;

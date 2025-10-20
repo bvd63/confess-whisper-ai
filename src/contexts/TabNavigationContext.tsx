@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { sessionManager } from '@/lib/sessionManager';
 
 type TabId = 'home' | 'explore' | 'messages' | 'profile';
 
@@ -126,32 +127,24 @@ export const TabNavigationProvider: React.FC<{ children: React.ReactNode }> = ({
       currentSearch: location.search
     });
 
-    // If tapping Messages while inside a conversation, pop to list view within Messages
+    // If tapping Messages while inside a conversation, reset to list
     if (tabId === 'messages' && isInConversation) {
-      console.log('[TabNav] Tapped messages while in conversation, resetting to list');
-      setTabStacks(prev => ({
-        ...prev,
-        messages: [{ path: '/messages' }],
-      }));
+      setTabStacks(prev => ({ ...prev, messages: [{ path: '/messages' }] }));
+      sessionManager.saveSessionState('/messages', null);
       navigate('/messages', { replace: true });
       setActiveTab('messages');
       return;
     }
 
-    // If switching away from messages while in a conversation, clear the messages stack to the list
+    // If leaving Messages while in a conversation, reset Messages stack and clear persisted convo
     if (activeTab === 'messages' && tabId !== 'messages' && isInConversation) {
-      console.log('[TabNav] Resetting messages stack and clearing conversation');
-      setTabStacks(prev => ({
-        ...prev,
-        messages: [{ path: '/messages' }],
-      }));
+      setTabStacks(prev => ({ ...prev, messages: [{ path: '/messages' }] }));
+      sessionManager.saveSessionState('/messages', null);
     }
 
     // Get target path and navigate
     const targetStack = tabStacks[tabId];
     const targetPath = targetStack[targetStack.length - 1];
-    
-    console.log('[TabNav] Navigating to:', targetPath.path);
     
     // Use replace instead of push to avoid history issues between tabs
     navigate(targetPath.path, { replace: true, state: targetPath.state });
