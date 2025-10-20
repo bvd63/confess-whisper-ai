@@ -176,9 +176,9 @@ const NotificationsDropdown = () => {
   const handleNotificationClick = async (notification: Notification) => {
     await markAsRead(notification.id);
     
-    // For message notifications, navigate to messages
+    // For message notifications, navigate to specific conversation via query param
     if (notification.type === 'comment' && notification.triggered_by) {
-      navigate('/messages');
+      navigate(`/messages?user=${notification.triggered_by}`);
       setIsOpen(false);
       return;
     }

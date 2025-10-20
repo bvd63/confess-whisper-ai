@@ -67,7 +67,7 @@ export const useMessageNotifications = ({ userId, enabled = true }: UseMessageNo
             action: {
               label: t.notification_view,
               onClick: () => {
-                navigate('/messages');
+                navigate(`/messages?user=${notification.triggered_by}`);
               }
             }
           });
