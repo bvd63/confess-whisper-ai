@@ -92,9 +92,15 @@ export const EnhancedMessageThread = ({
           filter: `conversation_id=eq.${conversationId}`,
         },
         (payload) => {
+          const updatedMessage = payload.new as Message;
+          // Ensure reactions is always an array
+          updatedMessage.reactions = Array.isArray(updatedMessage.reactions) 
+            ? updatedMessage.reactions 
+            : [];
+          
           setMessages((prev) =>
             prev.map((m) =>
-              m.id === payload.new.id ? (payload.new as Message) : m
+              m.id === updatedMessage.id ? updatedMessage : m
             )
           );
         }
