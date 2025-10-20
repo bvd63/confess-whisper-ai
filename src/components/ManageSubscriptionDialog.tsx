@@ -40,6 +40,7 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
   }, [open]);
 
   const loadSubscriptionStatus = async () => {
+    setIsLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -58,6 +59,8 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
       }
     } catch (error) {
       console.error('Error loading subscription status:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -115,7 +118,17 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
     );
   }
 
-  if (!status) return null;
+  if (!status) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[480px] max-h-[80vh] overflow-y-auto glass-strong border-primary/30">
+          <div className="flex items-center justify-center py-10">
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   const canUpgrade = status.tier === 'premium' && !status.isTrial;
   const canDowngrade = status.tier === 'vip' && !status.isTrial;
