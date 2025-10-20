@@ -233,8 +233,8 @@ const Index = () => {
         )}
         {/* Welcome Section */}
         <div className="mb-6 sm:mb-8 text-center animate-fade-in">
-          <div className="inline-flex items-center gap-2 mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 glass rounded-full border border-primary/20 hover-glow">
-            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-primary animate-pulse-glow" />
+          <div className="inline-flex items-center gap-2 mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 glass rounded-full border border-primary/20">
+            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
             <span className="text-xs sm:text-sm text-primary font-medium">{t.anonymous_secure}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-3 px-4">
