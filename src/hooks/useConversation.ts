@@ -11,6 +11,11 @@ interface Message {
   created_at: string;
   read_at: string | null;
   edited_at: string | null;
+  sent_at?: string | null;
+  delivered_at?: string | null;
+  seen_at?: string | null;
+  reactions?: Array<{ userId: string; emoji: string; createdAt: string }>;
+  client_message_id?: string | null;
 }
 
 export const useConversation = (conversationId: string | null, userId: string | null) => {
@@ -29,7 +34,23 @@ export const useConversation = (conversationId: string | null, userId: string | 
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setMessages(data || []);
+      
+      // Map database messages to our Message type with proper typing
+      const typedMessages: Message[] = (data || []).map(msg => ({
+        id: msg.id,
+        content: msg.content,
+        sender_id: msg.sender_id,
+        created_at: msg.created_at,
+        read_at: msg.read_at,
+        edited_at: msg.edited_at,
+        sent_at: msg.sent_at,
+        delivered_at: msg.delivered_at,
+        seen_at: msg.seen_at,
+        reactions: Array.isArray(msg.reactions) ? msg.reactions as Array<{ userId: string; emoji: string; createdAt: string }> : [],
+        client_message_id: msg.client_message_id,
+      }));
+      
+      setMessages(typedMessages);
     } catch (error) {
       console.error('Error loading messages:', error);
     } finally {
@@ -40,10 +61,13 @@ export const useConversation = (conversationId: string | null, userId: string | 
   const sendMessage = useCallback(async (content: string) => {
     if (!conversationId || !userId || !content.trim()) return;
 
+    const clientMessageId = `${userId}_${Date.now()}_${Math.random()}`;
     const messageData = {
       conversation_id: conversationId,
       sender_id: userId,
       content: content.trim(),
+      client_message_id: clientMessageId,
+      sent_at: new Date().toISOString(),
     };
 
     // Optimistic update
@@ -55,6 +79,9 @@ export const useConversation = (conversationId: string | null, userId: string | 
       updated_at: new Date().toISOString(),
       read_at: null,
       edited_at: null,
+      delivered_at: null,
+      seen_at: null,
+      reactions: [],
       is_read: false
     };
 
@@ -69,8 +96,21 @@ export const useConversation = (conversationId: string | null, userId: string | 
 
       if (error) throw error;
 
-      // Replace temp message with real one
-      setMessages(prev => prev.map(m => m.id === tempId ? data : m));
+      // Replace temp message with real one - map to proper type
+      const typedMessage: Message = {
+        id: data.id,
+        content: data.content,
+        sender_id: data.sender_id,
+        created_at: data.created_at,
+        read_at: data.read_at,
+        edited_at: data.edited_at,
+        sent_at: data.sent_at,
+        delivered_at: data.delivered_at,
+        seen_at: data.seen_at,
+        reactions: Array.isArray(data.reactions) ? data.reactions as Array<{ userId: string; emoji: string; createdAt: string }> : [],
+        client_message_id: data.client_message_id,
+      };
+      setMessages(prev => prev.map(m => m.id === tempId ? typedMessage : m));
     } catch (error) {
       console.error('Error sending message:', error);
       
@@ -96,6 +136,30 @@ export const useConversation = (conversationId: string | null, userId: string | 
     }
   }, [conversationId, userId]);
 
+  const markMessagesAsDelivered = useCallback(async (messageIds: string[]) => {
+    if (messageIds.length === 0) return;
+
+    for (const messageId of messageIds) {
+      try {
+        await supabase.functions.invoke('mark-message-delivered', {
+          body: { messageId }
+        });
+      } catch (error) {
+        console.error('Error marking message as delivered:', error);
+      }
+    }
+  }, []);
+
+  const markMessageAsSeen = useCallback(async (messageId: string) => {
+    try {
+      await supabase.functions.invoke('mark-message-seen', {
+        body: { messageId }
+      });
+    } catch (error) {
+      console.error('Error marking message as seen:', error);
+    }
+  }, []);
+
   useEffect(() => {
     loadMessages();
 
@@ -113,10 +177,24 @@ export const useConversation = (conversationId: string | null, userId: string | 
           filter: `conversation_id=eq.${conversationId}`
         },
         (payload) => {
-          setMessages(prev => [...prev, payload.new as Message]);
+          const newMsg = payload.new as any;
+          const typedMessage: Message = {
+            id: newMsg.id,
+            content: newMsg.content,
+            sender_id: newMsg.sender_id,
+            created_at: newMsg.created_at,
+            read_at: newMsg.read_at,
+            edited_at: newMsg.edited_at,
+            sent_at: newMsg.sent_at,
+            delivered_at: newMsg.delivered_at,
+            seen_at: newMsg.seen_at,
+            reactions: Array.isArray(newMsg.reactions) ? newMsg.reactions : [],
+            client_message_id: newMsg.client_message_id,
+          };
+          setMessages(prev => [...prev, typedMessage]);
           
           // Auto-mark as read if not sent by current user
-          if ((payload.new as Message).sender_id !== userId) {
+          if (typedMessage.sender_id !== userId) {
             markConversationAsRead();
           }
         }
@@ -130,8 +208,22 @@ export const useConversation = (conversationId: string | null, userId: string | 
           filter: `conversation_id=eq.${conversationId}`
         },
         (payload) => {
+          const updatedMsg = payload.new as any;
+          const typedMessage: Message = {
+            id: updatedMsg.id,
+            content: updatedMsg.content,
+            sender_id: updatedMsg.sender_id,
+            created_at: updatedMsg.created_at,
+            read_at: updatedMsg.read_at,
+            edited_at: updatedMsg.edited_at,
+            sent_at: updatedMsg.sent_at,
+            delivered_at: updatedMsg.delivered_at,
+            seen_at: updatedMsg.seen_at,
+            reactions: Array.isArray(updatedMsg.reactions) ? updatedMsg.reactions : [],
+            client_message_id: updatedMsg.client_message_id,
+          };
           setMessages(prev =>
-            prev.map(m => m.id === (payload.new as Message).id ? payload.new as Message : m)
+            prev.map(m => m.id === typedMessage.id ? typedMessage : m)
           );
         }
       )
@@ -147,5 +239,7 @@ export const useConversation = (conversationId: string | null, userId: string | 
     isLoading,
     sendMessage,
     reload: loadMessages,
+    markMessagesAsDelivered,
+    markMessageAsSeen,
   };
 };

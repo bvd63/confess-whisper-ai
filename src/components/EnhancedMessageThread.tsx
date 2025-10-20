@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCachePurgeOnDelete } from "@/hooks/useCachePurgeOnDelete";
+import { getNicknameCached } from "@/lib/nicknameCache";
 
 interface Message {
   id: string;
@@ -157,34 +158,42 @@ export const EnhancedMessageThread = ({
     }
   };
 
+  // Mark undelivered messages as delivered when conversation loads
+  useEffect(() => {
+    const undeliveredMessages = messages.filter(
+      m => m.sender_id === otherUserId && !m.delivered_at && !m.optimistic
+    );
+
+    if (undeliveredMessages.length > 0) {
+      undeliveredMessages.forEach(async (msg) => {
+        try {
+          await supabase.functions.invoke('mark-message-delivered', {
+            body: { messageId: msg.id }
+          });
+        } catch (error) {
+          console.error('Error marking message as delivered:', error);
+        }
+      });
+    }
+  }, [messages, otherUserId]);
+
+  // Mark messages as seen when in viewport
   const markAsRead = async () => {
     try {
-      // Get all unread messages from the other user
-      const unreadMessages = messages
-        .filter(m => m.sender_id === otherUserId && !m.seen_at)
+      // Get all unseen messages from the other user
+      const unseenMessages = messages
+        .filter(m => m.sender_id === otherUserId && !m.seen_at && !m.optimistic)
         .map(m => m.id);
 
-      if (unreadMessages.length === 0) return;
+      if (unseenMessages.length === 0) return;
 
-      // Call the mark-messages-read function
-      const { error } = await supabase.functions.invoke('mark-messages-read', {
-        body: {
-          threadId: conversationId,
-          messageIds: unreadMessages,
-        },
+      // Mark the last unseen message as seen
+      const lastUnseenId = unseenMessages[unseenMessages.length - 1];
+      await supabase.functions.invoke('mark-message-seen', {
+        body: { messageId: lastUnseenId }
       });
-
-      if (error) throw error;
-
-      // Mark delivered for any messages that don't have delivered_at
-      const { error: deliveredError } = await supabase.rpc('mark_messages_delivered', {
-        thread_id: conversationId,
-        user_id: currentUserId,
-      });
-
-      if (deliveredError) console.error('Error marking delivered:', deliveredError);
     } catch (error) {
-      console.error('Error marking messages as read:', error);
+      console.error('Error marking messages as seen:', error);
     }
   };
 
@@ -193,6 +202,7 @@ export const EnhancedMessageThread = ({
 
     if (!newMessage.trim() || sending) return;
 
+    const clientMessageId = `${currentUserId}_${Date.now()}_${Math.random()}`;
     const optimisticId = `optimistic-${Date.now()}`;
     const optimisticMessage: Message = {
       id: optimisticId,
@@ -217,6 +227,8 @@ export const EnhancedMessageThread = ({
         conversation_id: conversationId,
         sender_id: currentUserId,
         content: messageContent,
+        client_message_id: clientMessageId,
+        sent_at: new Date().toISOString(),
       });
 
       if (error) throw error;
@@ -239,10 +251,13 @@ export const EnhancedMessageThread = ({
   const retryMessage = async (message: Message) => {
     setSending(true);
     try {
+      const clientMessageId = `${currentUserId}_${Date.now()}_${Math.random()}`;
       const { error } = await supabase.from('messages').insert({
         conversation_id: conversationId,
         sender_id: currentUserId,
         content: message.content,
+        client_message_id: clientMessageId,
+        sent_at: new Date().toISOString(),
       });
 
       if (error) throw error;
