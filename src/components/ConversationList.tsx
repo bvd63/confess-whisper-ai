@@ -132,21 +132,21 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
 
       const conversationIds = participantData.map(p => p.conversation_id);
 
-      // Get all participants for these conversations
-      const { data: allParticipants, error: allParticipantsError } = await supabase
-        .from('conversation_participants')
-        .select('conversation_id, user_id')
-        .in('conversation_id', conversationIds);
-
-      if (allParticipantsError) throw allParticipantsError;
-
-      // Get other user IDs
-      const otherUserIds = allParticipants
-        ?.filter(p => p.user_id !== currentUserId)
-        .map(p => p.user_id) || [];
+      // Get other user IDs via RPC to avoid RLS issues
+      const partnerResults = await Promise.all(
+        conversationIds.map(async (id) => {
+          const { data: partnerId } = await supabase.rpc('get_conversation_partner', {
+            conv_id: id,
+            current_user_id: currentUserId,
+          });
+          return { convId: id, otherUserId: partnerId as string | null };
+        })
+      );
 
       // Get profiles for other users (deduplicate user IDs first)
-      const uniqueOtherUserIds = [...new Set(otherUserIds)];
+      const uniqueOtherUserIds = [...new Set(
+        partnerResults.map(r => r.otherUserId).filter(Boolean) as string[]
+      )];
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('user_id, nickname, subscription_tier')
@@ -182,30 +182,26 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
         }
       });
 
-      // Build conversations list (filter out invalid participants)
+      // Build conversations list (include empty threads too)
       const baseList: Conversation[] = conversationIds
         .map(convId => {
-          const otherParticipant = allParticipants?.find(
-            p => p.conversation_id === convId && p.user_id !== currentUserId
-          );
-          
-          // Skip if no valid other participant
-          if (!otherParticipant?.user_id) return null;
-          
-          const profile = profiles?.find(p => p.user_id === otherParticipant.user_id);
+          const partnerId = partnerResults.find(r => r.convId === convId)?.otherUserId;
+          if (!partnerId) return null;
+
+          const profile = profiles?.find(p => p.user_id === partnerId);
           const lastMsg = visibleMessages?.find(m => m.conversation_id === convId);
 
           return {
             id: convId,
             created_at: lastMsg?.created_at || '',
             updated_at: lastMsg?.created_at || '',
-            other_user_id: otherParticipant.user_id,
+            other_user_id: partnerId,
             other_user_nickname: profile?.nickname || null,
             last_message: lastMsg?.content || null,
             unread_count: 0
           };
         })
-        .filter((c): c is Conversation => c !== null && c.last_message !== null); // Filter out empty conversations
+        .filter((c): c is Conversation => c !== null);
 
       // Fill missing nicknames via RPC (handles any RLS edge cases)
       const conversationsList: Conversation[] = await Promise.all(

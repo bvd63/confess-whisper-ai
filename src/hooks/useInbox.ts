@@ -76,16 +76,15 @@ export const useInbox = (userId: string | null) => {
         participants.find(p => p.conversation_id === conv.id)
       ).filter(Boolean) || [];
 
-      // Batch fetch all other participants first
+      // Get other participant via RPC to avoid RLS edge cases
       const allOtherParticipants = await Promise.all(
         orderedParticipants.map(async (p) => {
-          const { data } = await supabase
-            .from('conversation_participants')
-            .select('user_id')
-            .eq('conversation_id', p!.conversation_id)
-            .neq('user_id', userId)
-            .limit(1);
-          return { convId: p!.conversation_id, otherUserId: data?.[0]?.user_id };
+          const convId = p!.conversation_id;
+          const { data: partnerId } = await supabase.rpc('get_conversation_partner', {
+            conv_id: convId,
+            current_user_id: userId
+          });
+          return { convId, otherUserId: (partnerId as string) || undefined };
         })
       );
 
