@@ -790,10 +790,21 @@ type Translations = {
   flair_equipped: string;
   equipped: string;
   equip: string;
+  buy_again: string;
+  shop_free_tier: string;
+  shop_premium_tier: string;
+  shop_vip_tier: string;
+  shop_lock_premium: string;
+  shop_lock_vip: string;
+  shop_empty: string;
+  shop_expires_in: string;
+  shop_buy: string;
+  shop_open: string;
   rarity_common: string;
   rarity_uncommon: string;
   rarity_rare: string;
   rarity_epic: string;
+  rarity_legendary: string;
   
   // Flair Names
   flair_star: string;

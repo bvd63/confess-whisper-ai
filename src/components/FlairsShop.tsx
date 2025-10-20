@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Coins, Sparkles, Check } from "lucide-react";
+import { Coins, Sparkles, Check, ChevronDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,12 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/translated-dialog";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface Flair {
   id: string;
@@ -205,13 +211,99 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
       case 'uncommon': return 'bg-green-500';
       case 'rare': return 'bg-blue-500';
       case 'epic': return 'bg-purple-500';
+      case 'legendary': return 'bg-amber-500';
       default: return 'bg-gray-500';
     }
   };
 
+  // Filter flairs by tier and group them
+  const freeFlairs = flairs.filter(f => !f.required_plan || f.required_plan === 'free');
+  const premiumFlairs = flairs.filter(f => f.required_plan === 'premium');
+  const vipFlairs = flairs.filter(f => f.required_plan === 'vip');
+
+  // Determine which sections to show based on user tier
+  const showFree = true;
+  const showPremium = userTier === 'premium' || userTier === 'vip';
+  const showVIP = userTier === 'vip';
+
+  const renderFlairCard = (flair: Flair) => {
+    const owned = isOwned(flair.id);
+    const expired = isExpired(flair.id);
+    const equipped = isEquipped(flair.id);
+    const userFlair = userFlairs.find(uf => uf.flair_id === flair.id);
+    const canBuy = canPurchase(flair);
+
+    return (
+      <Card 
+        key={flair.id} 
+        className={`p-4 flex flex-col items-center gap-2 relative hover:scale-105 transition-transform ${
+          equipped ? 'ring-2 ring-primary' : ''
+        }`}
+      >
+        <Badge className={`absolute top-2 right-2 text-xs ${getRarityColor(flair.rarity)}`}>
+          {t[`rarity_${flair.rarity}` as keyof typeof t] || flair.rarity}
+        </Badge>
+        
+        <div className="text-4xl">{flair.icon}</div>
+        <p className="text-sm font-medium text-center">
+          {t[flair.name_key as keyof typeof t] || flair.name_key}
+        </p>
+
+        {owned && userFlair?.expires_at && (
+          <ExpiryTimer expiresAt={userFlair.expires_at} className="text-[10px]" showIcon={false} />
+        )}
+
+        {!owned && !expired && (
+          <p className="text-[10px] text-muted-foreground text-center">
+            {t.shop_expires_in.replace('{days}', '5')}
+          </p>
+        )}
+
+        {expired ? (
+          <Button
+            size="sm"
+            onClick={() => handlePurchase(flair)}
+            disabled={purchasing === flair.id || coinsBalance < flair.cost || !canBuy}
+            className="w-full gap-1"
+            variant="outline"
+          >
+            <Coins className="w-3 h-3" />
+            {t.buy_again} ({flair.cost})
+          </Button>
+        ) : owned ? (
+          equipped ? (
+            <Button size="sm" variant="outline" disabled className="w-full gap-1">
+              <Check className="w-3 h-3" />
+              {t.equipped}
+            </Button>
+          ) : (
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={() => handleEquip(userFlair!.id)}
+              className="w-full"
+            >
+              {t.equip}
+            </Button>
+          )
+        ) : (
+          <Button
+            size="sm"
+            onClick={() => handlePurchase(flair)}
+            disabled={purchasing === flair.id || coinsBalance < flair.cost}
+            className="w-full gap-1"
+          >
+            <Coins className="w-3 h-3" />
+            {flair.cost}
+          </Button>
+        )}
+      </Card>
+    );
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh]">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between text-lg sm:text-xl">
             <span className="flex items-center gap-2">
@@ -232,88 +324,63 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
           {loading ? (
             <div className="text-center py-8 text-muted-foreground">{t.loading}</div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {flairs.map((flair) => {
-                const owned = isOwned(flair.id);
-                const expired = isExpired(flair.id);
-                const equipped = isEquipped(flair.id);
-                const userFlair = userFlairs.find(uf => uf.flair_id === flair.id);
+            <Accordion type="multiple" defaultValue={["free", "premium", "vip"]} className="w-full space-y-2">
+              {showFree && freeFlairs.length > 0 && (
+                <AccordionItem value="free" className="border rounded-lg px-4">
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-semibold">{t.shop_free_tier}</span>
+                      <Badge variant="secondary">{freeFlairs.length}</Badge>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+                      {freeFlairs.map(renderFlairCard)}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )}
 
-                return (
-                  <Card 
-                    key={flair.id} 
-                    className={`p-4 flex flex-col items-center gap-2 relative ${
-                      equipped ? 'ring-2 ring-primary' : ''
-                    }`}
-                  >
-                    <Badge className={`absolute top-2 right-2 text-xs ${getRarityColor(flair.rarity)}`}>
-                      {t[`rarity_${flair.rarity}` as keyof typeof t] || flair.rarity}
-                    </Badge>
-                    
-                    <div className="text-4xl">{flair.icon}</div>
-                    <p className="text-sm font-medium text-center">
-                      {t[flair.name_key as keyof typeof t] || flair.name_key}
-                    </p>
+              {showPremium && premiumFlairs.length > 0 && (
+                <AccordionItem value="premium" className="border rounded-lg px-4">
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-semibold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+                        {t.shop_premium_tier}
+                      </span>
+                      <Badge className="bg-violet-500">{premiumFlairs.length}</Badge>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+                      {premiumFlairs.map(renderFlairCard)}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )}
 
-                    {/* Show expiry timer for owned active flairs */}
-                    {owned && userFlair?.expires_at && (
-                      <ExpiryTimer expiresAt={userFlair.expires_at} className="text-[10px]" showIcon={false} />
-                    )}
+              {showVIP && vipFlairs.length > 0 && (
+                <AccordionItem value="vip" className="border rounded-lg px-4">
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-semibold bg-gradient-to-r from-amber-600 to-yellow-600 bg-clip-text text-transparent">
+                        {t.shop_vip_tier}
+                      </span>
+                      <Badge className="bg-amber-500">{vipFlairs.length}</Badge>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+                      {vipFlairs.map(renderFlairCard)}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+            </Accordion>
+          )}
 
-                    {/* Show duration for non-owned flairs */}
-                    {!owned && !expired && (
-                      <p className="text-[10px] text-muted-foreground text-center">
-                        {t.badge_active_for}
-                      </p>
-                    )}
-
-                    {/* Expired - show Buy Again */}
-                    {expired ? (
-                      <Button
-                        size="sm"
-                        onClick={() => handlePurchase(flair)}
-                        disabled={purchasing === flair.id || coinsBalance < flair.cost || !canPurchase(flair)}
-                        className="w-full gap-1"
-                        variant="outline"
-                      >
-                        <Coins className="w-3 h-3" />
-                        {t.buy_again} ({flair.cost})
-                      </Button>
-                    ) : owned ? (
-                      equipped ? (
-                        <Button size="sm" variant="outline" disabled className="w-full gap-1">
-                          <Check className="w-3 h-3" />
-                          {t.equipped}
-                        </Button>
-                      ) : (
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          onClick={() => handleEquip(userFlair!.id)}
-                          className="w-full"
-                        >
-                          {t.equip}
-                        </Button>
-                      )
-                    ) : !canPurchase(flair) ? (
-                      <div className="w-full text-center p-2 bg-muted/50 rounded text-[10px] text-muted-foreground">
-                        {flair.required_plan === 'premium' ? t.shop_lock_premium : t.shop_lock_vip}
-                      </div>
-                    ) : (
-                      <Button
-                        size="sm"
-                        onClick={() => handlePurchase(flair)}
-                        disabled={purchasing === flair.id || coinsBalance < flair.cost}
-                        className="w-full gap-1"
-                      >
-                        <Coins className="w-3 h-3" />
-                        {flair.cost}
-                      </Button>
-                    )}
-                  </Card>
-                );
-              })}
-            </div>
+          {!loading && flairs.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">{t.shop_empty}</div>
           )}
         </ScrollArea>
       </DialogContent>

@@ -39,6 +39,7 @@ import { PasswordChange } from "@/components/PasswordChange";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { ProfileEditor } from "@/components/ProfileEditor";
 import { FlairsShop } from "@/components/FlairsShop";
+import { FlairsShopButton } from "@/components/FlairsShopButton";
 import { TrialBanner } from "@/components/TrialBanner";
 import { MyPerks } from "@/components/MyPerks";
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
