@@ -41,8 +41,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     name: 'Premium',
     priceMonthly: 9.99,
     priceYearly: 99.99, // ~17% savings
-    stripePriceIdMonthly: 'price_1SKGCzR7kygIyYg9DGRcT8Pg',
-    stripePriceIdYearly: 'price_1SKGCzR7kygIyYg9DGRcT8Pg', // Update with actual yearly price ID
+    stripePriceIdMonthly: 'price_1SJ0vvR7kygIyYg9oT1ju6lQ',
+    stripePriceIdYearly: 'price_1SJ0vvR7kygIyYg9yORadPGD',
     isPopular: true,
     benefits: [
       'subscription_benefits_premium_more_confessions',
@@ -59,8 +59,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     name: 'VIP',
     priceMonthly: 19.99,
     priceYearly: 199.99, // ~17% savings
-    stripePriceIdMonthly: 'price_1SKH1TR7kygIyYg9SZ2iH7Kw',
-    stripePriceIdYearly: 'price_1SKH1TR7kygIyYg9SZ2iH7Kw', // Update with actual yearly price ID
+    stripePriceIdMonthly: 'price_1SJ0vwR7kygIyYg9OeCiqV00',
+    stripePriceIdYearly: 'price_1SJ0vvR7kygIyYg9BJuciYGd',
     benefits: [
       'subscription_benefits_vip_unlimited_confessions',
       'subscription_benefits_vip_all_premium',
