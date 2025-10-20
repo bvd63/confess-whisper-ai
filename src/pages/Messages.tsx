@@ -86,6 +86,8 @@ const Messages = () => {
       await loadOtherUserInfo(targetUserId);
       setSelectedConversation((convId as string) || null);
       setOtherUserId(targetUserId);
+      // Ensure messages tab stack reflects deep-linked conversation
+      pushToTabStack('messages', `/messages?user=${targetUserId}`);
     } catch (error) {
       console.error('Error starting conversation:', error);
     }

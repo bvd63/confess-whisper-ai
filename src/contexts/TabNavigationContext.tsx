@@ -126,7 +126,19 @@ export const TabNavigationProvider: React.FC<{ children: React.ReactNode }> = ({
       currentSearch: location.search
     });
 
-    // If switching away from messages while in a conversation, clear the URL first
+    // If tapping Messages while inside a conversation, pop to list view within Messages
+    if (tabId === 'messages' && isInConversation) {
+      console.log('[TabNav] Tapped messages while in conversation, resetting to list');
+      setTabStacks(prev => ({
+        ...prev,
+        messages: [{ path: '/messages' }],
+      }));
+      navigate('/messages', { replace: true });
+      setActiveTab('messages');
+      return;
+    }
+
+    // If switching away from messages while in a conversation, clear the messages stack to the list
     if (activeTab === 'messages' && tabId !== 'messages' && isInConversation) {
       console.log('[TabNav] Resetting messages stack and clearing conversation');
       setTabStacks(prev => ({
@@ -141,7 +153,7 @@ export const TabNavigationProvider: React.FC<{ children: React.ReactNode }> = ({
     
     console.log('[TabNav] Navigating to:', targetPath.path);
     
-    // Use replace instead of push to avoid history issues
+    // Use replace instead of push to avoid history issues between tabs
     navigate(targetPath.path, { replace: true, state: targetPath.state });
     setActiveTab(tabId);
   }, [activeTab, isInConversation, tabStacks, navigate, location]);
