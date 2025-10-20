@@ -35,6 +35,12 @@ export const InstagramBottomNav = () => {
       return;
     }
     
+    // Special handling for home button when on compose route
+    if (tabId === "home" && location.pathname === "/compose") {
+      navigate("/");
+      return;
+    }
+    
     // Always switch tab immediately, even if in a conversation
     switchTab(tabId);
   };

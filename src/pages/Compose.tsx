@@ -9,7 +9,7 @@ const Compose = () => {
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
     if (!isOpen) {
-      navigate(-1);
+      navigate("/");
     }
   };
 
