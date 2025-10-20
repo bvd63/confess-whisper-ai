@@ -384,23 +384,38 @@ export type Database = {
       confession_boosts: {
         Row: {
           boost_until: string
+          coins_spent: number | null
           confession_id: string
           created_at: string
+          ends_at: string
           id: string
+          starts_at: string | null
+          status: string
+          updated_at: string | null
           user_id: string
         }
         Insert: {
           boost_until: string
+          coins_spent?: number | null
           confession_id: string
           created_at?: string
+          ends_at: string
           id?: string
+          starts_at?: string | null
+          status?: string
+          updated_at?: string | null
           user_id: string
         }
         Update: {
           boost_until?: string
+          coins_spent?: number | null
           confession_id?: string
           created_at?: string
+          ends_at?: string
           id?: string
+          starts_at?: string | null
+          status?: string
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: [
@@ -462,6 +477,58 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      confession_insights: {
+        Row: {
+          confession_id: string
+          created_at: string | null
+          extra_prompt: string | null
+          id: string
+          insight_text: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          confession_id: string
+          created_at?: string | null
+          extra_prompt?: string | null
+          id?: string
+          insight_text: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          confession_id?: string
+          created_at?: string | null
+          extra_prompt?: string | null
+          id?: string
+          insight_text?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "confession_insights_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "confessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "confession_insights_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "hot_confessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "confession_insights_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "trending_confessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       confession_reactions: {
         Row: {
@@ -571,6 +638,8 @@ export type Database = {
         Row: {
           ai_deep_insight: string | null
           ai_response: string | null
+          author_nickname_snapshot: string | null
+          author_visibility_snapshot: string | null
           category: string
           comments_count: number
           community_id: string | null
@@ -599,6 +668,8 @@ export type Database = {
         Insert: {
           ai_deep_insight?: string | null
           ai_response?: string | null
+          author_nickname_snapshot?: string | null
+          author_visibility_snapshot?: string | null
           category?: string
           comments_count?: number
           community_id?: string | null
@@ -627,6 +698,8 @@ export type Database = {
         Update: {
           ai_deep_insight?: string | null
           ai_response?: string | null
+          author_nickname_snapshot?: string | null
+          author_visibility_snapshot?: string | null
           category?: string
           comments_count?: number
           community_id?: string | null
@@ -1197,6 +1270,9 @@ export type Database = {
           nickname: string | null
           nickname_lower: string | null
           nickname_updated_at: string | null
+          nickname_visibility:
+            | Database["public"]["Enums"]["nickname_visibility_enum"]
+            | null
           password_changed_at: string | null
           posts_count: number | null
           privacy_mode: string | null
@@ -1227,6 +1303,9 @@ export type Database = {
           nickname?: string | null
           nickname_lower?: string | null
           nickname_updated_at?: string | null
+          nickname_visibility?:
+            | Database["public"]["Enums"]["nickname_visibility_enum"]
+            | null
           password_changed_at?: string | null
           posts_count?: number | null
           privacy_mode?: string | null
@@ -1257,6 +1336,9 @@ export type Database = {
           nickname?: string | null
           nickname_lower?: string | null
           nickname_updated_at?: string | null
+          nickname_visibility?:
+            | Database["public"]["Enums"]["nickname_visibility_enum"]
+            | null
           password_changed_at?: string | null
           posts_count?: number | null
           privacy_mode?: string | null
@@ -1982,6 +2064,10 @@ export type Database = {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
       }
+      expire_active_boosts: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       generate_unique_handle: {
         Args: { base_nickname: string }
         Returns: string
@@ -2081,6 +2167,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      nickname_visibility_enum: "PUBLIC" | "ANON_ON_POSTS"
       notification_type:
         | "like"
         | "comment"
@@ -2216,6 +2303,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      nickname_visibility_enum: ["PUBLIC", "ANON_ON_POSTS"],
       notification_type: [
         "like",
         "comment",
