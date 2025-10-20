@@ -30,6 +30,7 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [staySignedIn, setStaySignedIn] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [captchaToken, setCaptchaToken] = useState("");
   const [turnstileError, setTurnstileError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -95,7 +96,8 @@ const Auth = () => {
       !!email &&
       passwordValidation.allRulesPassed &&
       passwordsMatch &&
-      !!captchaToken
+      !!captchaToken &&
+      acceptTerms
     );
   };
 
@@ -188,9 +190,11 @@ const Auth = () => {
 
         toast({
           title: t.auth_signup_success,
-          description: t.auth_welcome_message,
+          description: t.auth_check_email_verify,
+          duration: 6000,
         });
-        navigate('/');
+        
+        // Don't auto-navigate - user needs to verify email first
       }
     } catch (error: any) {
       toast({
@@ -363,20 +367,60 @@ const Auth = () => {
           )}
 
           {/* Stay Signed In */}
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="stay-signed-in"
-              checked={staySignedIn}
-              onCheckedChange={(checked) => setStaySignedIn(checked === true)}
-              disabled={isLoading}
-            />
-            <Label
-              htmlFor="stay-signed-in"
-              className="text-sm cursor-pointer select-none"
-            >
-              {isLogin ? "Stay logged in" : t.auth_stay_signed_in}
-            </Label>
+          <div className="flex items-center justify-between space-x-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="stay-signed-in"
+                checked={staySignedIn}
+                onCheckedChange={(checked) => setStaySignedIn(checked === true)}
+                disabled={isLoading}
+              />
+              <Label
+                htmlFor="stay-signed-in"
+                className="text-sm cursor-pointer select-none"
+              >
+                {isLogin ? "Stay logged in" : t.auth_stay_signed_in}
+              </Label>
+            </div>
+            
+            {/* Forgot Password Link - Login Only */}
+            {isLogin && (
+              <button
+                type="button"
+                onClick={() => navigate('/forgot-password')}
+                className="text-xs text-primary hover:underline"
+                disabled={isLoading}
+              >
+                {t.auth_forgot_password}
+              </button>
+            )}
           </div>
+
+          {/* Terms & Privacy - Signup Only */}
+          {!isLogin && (
+            <div className="flex items-start space-x-2">
+              <Checkbox
+                id="accept-terms"
+                checked={acceptTerms}
+                onCheckedChange={(checked) => setAcceptTerms(checked === true)}
+                disabled={isLoading}
+                className="mt-0.5"
+              />
+              <Label
+                htmlFor="accept-terms"
+                className="text-xs cursor-pointer select-none text-muted-foreground leading-relaxed"
+              >
+                By signing up you agree to our{" "}
+                <a href="/terms" target="_blank" className="text-primary hover:underline">
+                  Terms
+                </a>{" "}
+                and{" "}
+                <a href="/privacy" target="_blank" className="text-primary hover:underline">
+                  Privacy Policy
+                </a>
+              </Label>
+            </div>
+          )}
 
           {/* Turnstile CAPTCHA (Signup always, Login after 3 failed attempts) */}
           {(!isLogin || showLoginCaptcha) && (

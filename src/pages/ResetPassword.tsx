@@ -1,0 +1,247 @@
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { AnimatedCard } from "@/components/AnimatedCard";
+import { GradientText } from "@/components/GradientText";
+import { EnhancedButton } from "@/components/EnhancedButton";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Heart, Lock, Loader2, Eye, EyeOff, CheckCircle2, AlertCircle } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { usePasswordValidation, validatePasswordStrength } from "@/hooks/usePasswordValidation";
+import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
+import { PasswordRulesChecklist } from "@/components/PasswordRulesChecklist";
+import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
+
+export default function ResetPassword() {
+  const navigate = useNavigate();
+  const { t } = useLanguage();
+  const [searchParams] = useSearchParams();
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [tokenValid, setTokenValid] = useState(true);
+
+  const passwordValidation = usePasswordValidation(password);
+  const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
+
+  useEffect(() => {
+    // Check if we have the required hash from Supabase
+    const hashFragment = window.location.hash;
+    if (!hashFragment || !hashFragment.includes('access_token=')) {
+      setTokenValid(false);
+      setError(t.auth_reset_token_invalid);
+    }
+  }, [t]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validatePasswordStrength(password)) {
+      setError(t.auth_password_min);
+      return;
+    }
+
+    if (!passwordsMatch) {
+      setError(t.auth_password_match_fail);
+      return;
+    }
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: password,
+      });
+
+      if (updateError) throw updateError;
+
+      setSuccess(true);
+
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        navigate('/auth');
+      }, 2000);
+    } catch (err: any) {
+      setError(err.message || t.auth_error_generic);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (!tokenValid) {
+    return (
+      <div className="min-h-screen bg-gradient-mesh flex items-center justify-center p-3 sm:p-4">
+        <AnimatedCard
+          hover="glow"
+          glass
+          className="w-full max-w-md p-4 sm:p-6 md:p-8 border-primary/20"
+        >
+          <div className="text-center space-y-4">
+            <AlertCircle className="w-16 h-16 mx-auto text-destructive" />
+            <h2 className="text-xl font-bold">{t.auth_reset_token_invalid}</h2>
+            <p className="text-sm text-muted-foreground">{t.auth_reset_token_expired}</p>
+            <EnhancedButton
+              onClick={() => navigate('/forgot-password')}
+              className="w-full"
+            >
+              {t.auth_forgot_password}
+            </EnhancedButton>
+          </div>
+        </AnimatedCard>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-mesh flex items-center justify-center p-3 sm:p-4">
+      <AnimatedCard
+        hover="glow"
+        glass
+        className="w-full max-w-md p-4 sm:p-6 md:p-8 border-primary/20"
+      >
+        {/* Logo & Title */}
+        <div className="text-center mb-6 sm:mb-8 animate-fade-in">
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 mb-3 sm:mb-4">
+            <Heart className="w-6 h-6 sm:w-8 sm:h-8 text-primary animate-heart-beat" fill="currentColor" />
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">
+            <GradientText variant="hero">{t.auth_reset_password_title}</GradientText>
+          </h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            {t.auth_reset_password_desc}
+          </p>
+        </div>
+
+        {success ? (
+          <Alert className="border-green-500/20 bg-green-500/10">
+            <CheckCircle2 className="h-4 w-4 text-green-500" />
+            <AlertDescription className="text-green-600 dark:text-green-400">
+              {t.auth_reset_password_success}
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            {/* New Password Field */}
+            <div className="space-y-2">
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder={t.auth_reset_password_new}
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setError("");
+                  }}
+                  className="pl-10 pr-10"
+                  disabled={isLoading}
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label={showPassword ? t.auth_hide_password : t.auth_show_password}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+
+              {/* Password Strength and Rules */}
+              {password.length > 0 && (
+                <div className="space-y-3 pt-2">
+                  <PasswordStrengthMeter
+                    strength={passwordValidation.strength}
+                    strengthScore={passwordValidation.strengthScore}
+                  />
+                  <PasswordRulesChecklist rules={passwordValidation.rules} />
+                </div>
+              )}
+            </div>
+
+            {/* Confirm Password Field */}
+            <div className="space-y-2">
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
+                <Input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder={t.auth_reset_password_confirm}
+                  value={confirmPassword}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    setError("");
+                  }}
+                  onPaste={(e) => e.preventDefault()}
+                  className="pl-10 pr-10"
+                  disabled={isLoading}
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label={showConfirmPassword ? t.auth_hide_password : t.auth_show_password}
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+
+              {/* Password Match Indicator */}
+              {confirmPassword.length > 0 && (
+                <p className={cn(
+                  "text-xs flex items-center gap-1.5",
+                  passwordsMatch ? "text-green-600 dark:text-green-500" : "text-destructive"
+                )}>
+                  {passwordsMatch ? (
+                    <>
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                      {t.auth_password_match_ok}
+                    </>
+                  ) : (
+                    <>
+                      <span className="w-1.5 h-1.5 rounded-full bg-destructive" />
+                      {t.auth_password_match_fail}
+                    </>
+                  )}
+                </p>
+              )}
+            </div>
+
+            {/* Submit Button */}
+            <EnhancedButton
+              type="submit"
+              className="w-full"
+              disabled={isLoading || !passwordValidation.allRulesPassed || !passwordsMatch}
+              glow
+              lift
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  {t.auth_creating_account}
+                </>
+              ) : (
+                t.auth_reset_password_button
+              )}
+            </EnhancedButton>
+          </form>
+        )}
+      </AnimatedCard>
+    </div>
+  );
+}

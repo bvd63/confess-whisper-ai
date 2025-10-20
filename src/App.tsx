@@ -33,6 +33,9 @@ import Compose from "./pages/Compose";
 import CommunityDetail from "./pages/CommunityDetail";
 import NearbyConfessions from "./pages/NearbyConfessions";
 import Auth from "./pages/Auth";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import EmailVerification from "./pages/EmailVerification";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -107,6 +110,9 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/verify-email" element={<EmailVerification />} />
         <Route path="/explore" element={<Explore />} />
         <Route path="/compose" element={<Compose />} />
         <Route path="/community/:id" element={<CommunityDetail />} />

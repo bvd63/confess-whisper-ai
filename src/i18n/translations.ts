@@ -369,6 +369,30 @@ type Translations = {
   // Auth Captcha
   auth_captcha_required_after_fails: string;
   
+  // Forgot / Reset Password
+  auth_forgot_password: string;
+  auth_forgot_password_title: string;
+  auth_forgot_password_desc: string;
+  auth_forgot_password_button: string;
+  auth_forgot_password_success: string;
+  auth_reset_password_title: string;
+  auth_reset_password_desc: string;
+  auth_reset_password_button: string;
+  auth_reset_password_success: string;
+  auth_reset_password_new: string;
+  auth_reset_password_confirm: string;
+  auth_reset_token_invalid: string;
+  auth_reset_token_expired: string;
+  auth_back_to_login: string;
+  
+  // Email Verification
+  auth_verify_email_title: string;
+  auth_verify_email_success: string;
+  auth_verify_email_error: string;
+  auth_verify_email_desc: string;
+  auth_email_not_verified: string;
+  auth_check_email_verify: string;
+  
   // Common Actions
   common_close: string;
   
@@ -2021,10 +2045,34 @@ export const translations: Record<Language, Translations> = {
     limit_confessions_unlimited: "Unlimited confessions today",
     
     // Auth Captcha
-    auth_captcha_required_after_fails: "Please verify you're human to continue",
-    
-    // Common Actions
-    common_close: "Close",
+  auth_captcha_required_after_fails: "Please verify you're human to continue",
+  
+  // Forgot / Reset Password
+  auth_forgot_password: "Forgot password?",
+  auth_forgot_password_title: "Reset your password",
+  auth_forgot_password_desc: "Enter your email and we'll send reset instructions.",
+  auth_forgot_password_button: "Send reset link",
+  auth_forgot_password_success: "If an account exists, you'll receive reset instructions shortly.",
+  auth_reset_password_title: "Set a new password",
+  auth_reset_password_desc: "Choose a strong password for your account.",
+  auth_reset_password_button: "Update password",
+  auth_reset_password_success: "Password successfully updated. Please sign in.",
+  auth_reset_password_new: "New password",
+  auth_reset_password_confirm: "Confirm new password",
+  auth_reset_token_invalid: "Invalid or expired reset link",
+  auth_reset_token_expired: "This reset link has expired. Please request a new one.",
+  auth_back_to_login: "Back to login",
+  
+  // Email Verification
+  auth_verify_email_title: "Verify your email",
+  auth_verify_email_success: "Email verified successfully!",
+  auth_verify_email_error: "Verification failed. Please try again.",
+  auth_verify_email_desc: "Please check your email to verify your account.",
+  auth_email_not_verified: "Please verify your email to continue",
+  auth_check_email_verify: "Check your email to verify your account",
+  
+  // Common Actions
+  common_close: "Close",
     
     trust_anonymous: "100% Anonymous",
     trust_anonymous_desc: "Your identity remains confidential",
@@ -3048,6 +3096,30 @@ export const translations: Record<Language, Translations> = {
     
     // Auth Captcha
     auth_captcha_required_after_fails: "Por favor verifica que eres humano para continuar",
+    
+    // Forgot / Reset Password
+    auth_forgot_password: "¿Olvidaste tu contraseña?",
+    auth_forgot_password_title: "Restablece tu contraseña",
+    auth_forgot_password_desc: "Ingresa tu correo y te enviaremos las instrucciones.",
+    auth_forgot_password_button: "Enviar enlace de restablecimiento",
+    auth_forgot_password_success: "Si existe una cuenta, recibirás instrucciones pronto.",
+    auth_reset_password_title: "Crea una nueva contraseña",
+    auth_reset_password_desc: "Elige una contraseña segura para tu cuenta.",
+    auth_reset_password_button: "Actualizar contraseña",
+    auth_reset_password_success: "Contraseña actualizada con éxito. Inicia sesión.",
+    auth_reset_password_new: "Nueva contraseña",
+    auth_reset_password_confirm: "Confirmar nueva contraseña",
+    auth_reset_token_invalid: "Enlace de restablecimiento inválido o expirado",
+    auth_reset_token_expired: "Este enlace de restablecimiento ha expirado. Solicita uno nuevo.",
+    auth_back_to_login: "Volver al inicio de sesión",
+    
+    // Email Verification
+    auth_verify_email_title: "Verifica tu correo electrónico",
+    auth_verify_email_success: "¡Correo verificado exitosamente!",
+    auth_verify_email_error: "La verificación falló. Por favor intenta de nuevo.",
+    auth_verify_email_desc: "Por favor revisa tu correo para verificar tu cuenta.",
+    auth_email_not_verified: "Por favor verifica tu correo para continuar",
+    auth_check_email_verify: "Revisa tu correo para verificar tu cuenta",
     
     // Common Actions
     common_close: "Cerrar",
@@ -4322,6 +4394,30 @@ export const translations: Record<Language, Translations> = {
     
     // Auth Captcha
     auth_captcha_required_after_fails: "Bitte bestätigen Sie, dass Sie ein Mensch sind, um fortzufahren",
+    
+    // Forgot / Reset Password
+    auth_forgot_password: "Passwort vergessen?",
+    auth_forgot_password_title: "Passwort zurücksetzen",
+    auth_forgot_password_desc: "Gib deine E-Mail ein und wir senden dir Anweisungen.",
+    auth_forgot_password_button: "Zurücksetzungs-Link senden",
+    auth_forgot_password_success: "Wenn ein Konto existiert, erhältst du bald Anweisungen.",
+    auth_reset_password_title: "Neues Passwort erstellen",
+    auth_reset_password_desc: "Wähle ein sicheres Passwort für dein Konto.",
+    auth_reset_password_button: "Passwort aktualisieren",
+    auth_reset_password_success: "Passwort erfolgreich aktualisiert. Bitte melde dich an.",
+    auth_reset_password_new: "Neues Passwort",
+    auth_reset_password_confirm: "Neues Passwort bestätigen",
+    auth_reset_token_invalid: "Ungültiger oder abgelaufener Zurücksetzungs-Link",
+    auth_reset_token_expired: "Dieser Zurücksetzungs-Link ist abgelaufen. Bitte fordere einen neuen an.",
+    auth_back_to_login: "Zurück zur Anmeldung",
+    
+    // Email Verification
+    auth_verify_email_title: "E-Mail bestätigen",
+    auth_verify_email_success: "E-Mail erfolgreich bestätigt!",
+    auth_verify_email_error: "Bestätigung fehlgeschlagen. Bitte versuche es erneut.",
+    auth_verify_email_desc: "Bitte überprüfe deine E-Mail, um dein Konto zu bestätigen.",
+    auth_email_not_verified: "Bitte bestätige deine E-Mail um fortzufahren",
+    auth_check_email_verify: "Überprüfe deine E-Mail um dein Konto zu bestätigen",
     
     // Common Actions
     common_close: "Schließen",
