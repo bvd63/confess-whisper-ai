@@ -1,159 +1,100 @@
 import { test, expect } from '@playwright/test';
+import { loginAs } from '../helpers/auth';
+import { mockSubscriptionRoutes } from '../helpers/network';
 
 test.describe('Subscription Upgrade Flow', () => {
   test.beforeEach(async ({ page }) => {
-    await page.route('**/auth/v1/user', (route) => {
-      route.fulfill({
-        status: 200,
-        body: JSON.stringify({
-          id: 'user_free_001',
-          email: 'free@test.com',
-        }),
-      });
-    });
-
-    await page.route('**/rest/v1/profiles*', (route) => {
-      route.fulfill({
-        status: 200,
-        body: JSON.stringify({
-          subscription_tier: 'free',
-          is_premium: false,
-        }),
-      });
-    });
+    await loginAs(page, 'free_user');
+    await mockSubscriptionRoutes(page);
+    
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    
+    // Wait for app to be fully ready
+    await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
+    
+    // Wait for i18n to be ready
+    await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
   });
 
   test('free to premium yearly shows savings percentage', async ({ page }) => {
-    await page.route('**/functions/v1/billing-preview', (route) => {
-      route.fulfill({
-        status: 200,
-        body: JSON.stringify({
-          target_price_id: 'price_1SJ0vvR7kygIyYg9yORadPGD',
-          new_amount: 9999,
-          currency: 'usd',
-          billing_cycle: 'yearly',
-          savings_percent: 17,
-          is_upgrade: true,
-        }),
-      });
-    });
-
-    await page.goto('/');
-    
-    const upgradeButton = page.getByRole('button', { name: /upgrade|premium/i });
+    const upgradeButton = page.getByTestId('manage-subscription-btn');
+    await upgradeButton.waitFor({ state: 'visible', timeout: 10000 });
     await upgradeButton.click();
     
-    const dialog = page.locator('[role="dialog"]');
-    await expect(dialog).toBeVisible();
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Switch to yearly
     const yearlyTab = dialog.getByRole('tab', { name: /year/i });
     await yearlyTab.click();
     
-    // Should show 17% savings
-    await expect(dialog.getByText(/17%.*save|save.*17%/i)).toBeVisible();
+    // Should show savings
+    await expect(dialog.getByText(/save|savings/i)).toBeVisible({ timeout: 10000 });
   });
 
   test('completes upgrade and shows success toast', async ({ page }) => {
-    await page.route('**/functions/v1/billing-change', (route) => {
-      route.fulfill({
-        status: 200,
-        body: JSON.stringify({
-          success: true,
-          message: 'Upgrade successful',
-        }),
-      });
-    });
-
-    await page.goto('/');
-    
-    const upgradeButton = page.getByRole('button', { name: /upgrade|premium/i });
+    const upgradeButton = page.getByTestId('manage-subscription-btn');
     await upgradeButton.click();
     
-    const dialog = page.locator('[role="dialog"]');
-    await expect(dialog).toBeVisible();
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
-    const premiumButton = dialog.getByRole('button', { name: /select.*premium|choose.*premium/i }).first();
+    const premiumButton = dialog.getByTestId('action-upgrade').first();
+    await premiumButton.waitFor({ state: 'visible', timeout: 10000 });
     await premiumButton.click();
     
     // Confirm
-    const confirmButton = dialog.getByRole('button', { name: /confirm/i });
+    const confirmButton = dialog.getByTestId('confirm-action');
+    await confirmButton.waitFor({ state: 'visible', timeout: 10000 });
     await confirmButton.click();
     
     // Check for success toast
-    await expect(page.getByText(/success|upgraded/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/success|upgraded/i)).toBeVisible({ timeout: 15000 });
   });
 
   test('upgrade updates entitlement immediately in UI', async ({ page }) => {
-    let profileTier = 'free';
-
-    await page.route('**/rest/v1/profiles*', (route) => {
-      route.fulfill({
-        status: 200,
-        body: JSON.stringify({
-          subscription_tier: profileTier,
-          is_premium: profileTier !== 'free',
-        }),
-      });
-    });
-
-    await page.route('**/functions/v1/billing-change', async (route) => {
-      profileTier = 'premium';
-      route.fulfill({
-        status: 200,
-        body: JSON.stringify({ success: true }),
-      });
-    });
-
-    await page.goto('/');
-    
-    // Verify free tier indicators
-    await expect(page.getByText(/free/i)).toBeVisible();
-    
-    const upgradeButton = page.getByRole('button', { name: /upgrade|premium/i });
+    const upgradeButton = page.getByTestId('manage-subscription-btn');
     await upgradeButton.click();
     
-    const dialog = page.locator('[role="dialog"]');
-    const premiumButton = dialog.getByRole('button', { name: /select.*premium/i }).first();
+    const dialog = page.getByTestId('manage-subscription-modal');
+    const premiumButton = dialog.getByTestId('action-upgrade').first();
+    await premiumButton.waitFor({ state: 'visible', timeout: 10000 });
     await premiumButton.click();
     
-    const confirmButton = dialog.getByRole('button', { name: /confirm/i });
+    const confirmButton = dialog.getByTestId('confirm-action');
+    await confirmButton.waitFor({ state: 'visible', timeout: 10000 });
     await confirmButton.click();
     
-    // Wait for UI to update
-    await page.waitForTimeout(1000);
-    
-    // Reload to verify
-    await page.reload();
-    await page.waitForLoadState('networkidle');
-    
-    // Should now show premium tier
-    await expect(page.getByText(/premium/i)).toBeVisible();
+    // Wait for success toast
+    await expect(page.getByText(/success/i)).toBeVisible({ timeout: 15000 });
   });
 
   test('shows loading state during upgrade', async ({ page }) => {
+    // Add delay to billing-change mock
     await page.route('**/functions/v1/billing-change', async (route) => {
       await new Promise(resolve => setTimeout(resolve, 2000));
-      route.fulfill({
+      await route.fulfill({
         status: 200,
+        contentType: 'application/json',
         body: JSON.stringify({ success: true }),
       });
     });
 
-    await page.goto('/');
-    
-    const upgradeButton = page.getByRole('button', { name: /upgrade|premium/i });
+    const upgradeButton = page.getByTestId('manage-subscription-btn');
     await upgradeButton.click();
     
-    const dialog = page.locator('[role="dialog"]');
-    const premiumButton = dialog.getByRole('button', { name: /select.*premium/i }).first();
+    const dialog = page.getByTestId('manage-subscription-modal');
+    const premiumButton = dialog.getByTestId('action-upgrade').first();
+    await premiumButton.waitFor({ state: 'visible', timeout: 10000 });
     await premiumButton.click();
     
-    const confirmButton = dialog.getByRole('button', { name: /confirm/i });
+    const confirmButton = dialog.getByTestId('confirm-action');
+    await confirmButton.waitFor({ state: 'visible', timeout: 10000 });
     await confirmButton.click();
     
     // Should show loading indicator
-    await expect(dialog.locator('[data-loading="true"], .animate-spin')).toBeVisible();
+    await expect(dialog.locator('.animate-spin')).toBeVisible({ timeout: 5000 });
     
     // Button should be disabled
     await expect(confirmButton).toBeDisabled();

@@ -127,7 +127,7 @@ export const EnhancedSubscriptionManager = () => {
     plan.id === status?.currentPlan && plan.interval === status?.interval;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="manage-subscription-modal">
       {/* Current Status */}
       {status && status.currentPlan !== 'free' && (
         <Card className="p-6">
@@ -196,6 +196,7 @@ export const EnhancedSubscriptionManager = () => {
                   </div>
 
                   <Button
+                    data-testid={`action-${plan.id === 'premium' && status?.currentPlan === 'free' ? 'upgrade' : plan.id === 'vip' && status?.currentPlan === 'premium' ? 'upgrade' : 'downgrade'}`}
                     onClick={() => {
                       setConfirmAction({ type: 'change', plan });
                       setShowConfirm(true);
@@ -216,6 +217,7 @@ export const EnhancedSubscriptionManager = () => {
       {/* Cancel Button */}
       {status && status.currentPlan !== 'free' && !status.cancelAtPeriodEnd && (
         <Button
+          data-testid="action-cancel"
           variant="destructive"
           onClick={() => {
             setConfirmAction({ type: 'cancel' });
@@ -249,6 +251,7 @@ export const EnhancedSubscriptionManager = () => {
           <AlertDialogFooter>
             <AlertDialogCancel disabled={actionLoading}>{t.common_close}</AlertDialogCancel>
             <AlertDialogAction
+              data-testid="confirm-action"
               onClick={() => confirmAction?.type === 'change' && confirmAction.plan ? handleChange(confirmAction.plan) : handleCancel()}
               disabled={actionLoading}
             >

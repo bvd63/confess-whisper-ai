@@ -83,6 +83,7 @@ const AppHeader = ({
             {user ? <>
                 {/* Always show subscription button - Upgrade for free, Manage for paid */}
                 <Button 
+                  data-testid="manage-subscription-btn"
                   onClick={() => {
                     if (subscriptionTier === 'free') {
                       onUpgradeClick?.();

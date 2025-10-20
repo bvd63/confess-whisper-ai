@@ -127,6 +127,7 @@ const AppContent = () => {
   
   return (
     <div className="relative pb-16">
+      <div data-testid="app-ready" style={{ display: 'none' }} />
       <NetworkStatusIndicator />
       <TabNavigationProvider>
         <Routes>

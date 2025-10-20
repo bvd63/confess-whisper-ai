@@ -58,6 +58,10 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
         setLanguageState(detected);
       }
       setIsLoaded(true);
+      // Set i18n ready flag for E2E tests
+      if (typeof window !== 'undefined') {
+        (window as any).__i18nReady = true;
+      }
     };
     loadLanguage();
   }, []);
