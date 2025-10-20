@@ -76,9 +76,18 @@ const AppHeader = ({
             <LanguageSelector />
             <ThemeToggle />
             {user ? <>
-                {!isPremium && <Button onClick={onUpgradeClick} variant="outline" size="sm" className="border-primary/30 hover:bg-primary/10 h-8 px-2">
-                    <Crown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary" />
-                  </Button>}
+                {/* Always show subscription button - Upgrade for free, Manage for paid */}
+                <Button 
+                  onClick={onUpgradeClick} 
+                  variant="outline" 
+                  size="sm" 
+                  className="border-primary/30 hover:bg-primary/10 h-8 px-2"
+                >
+                  <Crown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary" />
+                  <span className="hidden sm:inline text-xs ml-1">
+                    {isPremium ? t.subscription_manage : t.subscription_upgrade}
+                  </span>
+                </Button>
                 <NotificationsDropdown />
                 <Button onClick={handleSignOut} variant="outline" size="sm" className="border-primary/30 hover:bg-primary/10 h-8 px-2 sm:px-3">
                   <LogOut className="w-3 h-3 sm:w-3.5 sm:h-3.5 sm:mr-1" />

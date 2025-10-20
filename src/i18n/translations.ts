@@ -973,6 +973,20 @@ type Translations = {
   subscription_feature_priority_support: string;
   subscription_feature_vip_badge: string;
   
+  // Trial & Subscription Management
+  trial_try_premium: string;
+  trial_add_card_required: string;
+  trial_active: string;
+  subs_manage: string;
+  subs_cancel: string;
+  subs_upgrade: string;
+  subs_downgrade: string;
+  coins_bonus_premium: string;
+  coins_bonus_vip: string;
+  shop_badge_price_free: string;
+  shop_badge_price_premium: string;
+  shop_badge_price_vip: string;
+  
   // Payment
   payment_view_profile: string;
   payment_redirecting: string;
@@ -2308,9 +2322,23 @@ export const translations: Record<Language, Translations> = {
     subscription_feature_image_confessions: "Confessions with images",
     subscription_feature_detailed_stats: "Detailed statistics",
     subscription_feature_priority_support: "Priority support",
-    subscription_feature_vip_badge: "Special VIP badge",
-    
-    payment_view_profile: "View Your Premium Profile",
+  subscription_feature_vip_badge: "Special VIP badge",
+  
+  // Trial & Subscription Management
+  trial_try_premium: "Try Premium free for 3 days",
+  trial_add_card_required: "Add your card to start the free trial",
+  trial_active: "Your Premium trial is active until {date}",
+  subs_manage: "Manage subscription",
+  subs_cancel: "Cancel subscription",
+  subs_upgrade: "Upgrade",
+  subs_downgrade: "Downgrade",
+  coins_bonus_premium: "You received +100 coins for activating Premium.",
+  coins_bonus_vip: "You received +250 coins for activating VIP.",
+  shop_badge_price_free: "Badges cost 25 coins (Free)",
+  shop_badge_price_premium: "Badges cost 50 coins (Premium)",
+  shop_badge_price_vip: "Badges cost 100 coins (VIP)",
+  
+  payment_view_profile: "View Your Premium Profile",
     payment_redirecting: "You will be redirected automatically in a few seconds...",
     
     profile_portal_error: "Error",
@@ -3499,9 +3527,23 @@ export const translations: Record<Language, Translations> = {
     subscription_feature_image_confessions: "Confesiones con imágenes",
     subscription_feature_detailed_stats: "Estadísticas detalladas",
     subscription_feature_priority_support: "Soporte prioritario",
-    subscription_feature_vip_badge: "Insignia VIP especial",
-    
-    payment_view_profile: "Ver Tu Perfil Premium",
+  subscription_feature_vip_badge: "Insignia VIP especial",
+  
+  // Trial & Subscription Management
+  trial_try_premium: "Prueba Premium gratis durante 3 días",
+  trial_add_card_required: "Añade tu tarjeta para iniciar la prueba",
+  trial_active: "Tu prueba Premium está activa hasta {date}",
+  subs_manage: "Gestionar suscripción",
+  subs_cancel: "Cancelar suscripción",
+  subs_upgrade: "Mejorar plan",
+  subs_downgrade: "Reducir plan",
+  coins_bonus_premium: "Has recibido +100 monedas por activar Premium.",
+  coins_bonus_vip: "Has recibido +250 monedas por activar VIP.",
+  shop_badge_price_free: "Las insignias cuestan 25 monedas (Free)",
+  shop_badge_price_premium: "Las insignias cuestan 50 monedas (Premium)",
+  shop_badge_price_vip: "Las insignias cuestan 100 monedas (VIP)",
+  
+  payment_view_profile: "Ver Tu Perfil Premium",
     payment_redirecting: "Serás redirigido automáticamente en unos segundos...",
     
     profile_portal_error: "Error",
@@ -4723,9 +4765,23 @@ export const translations: Record<Language, Translations> = {
     subscription_feature_image_confessions: "Geständnisse mit Bildern",
     subscription_feature_detailed_stats: "Detaillierte Statistiken",
     subscription_feature_priority_support: "Prioritäts-Support",
-    subscription_feature_vip_badge: "Spezielle VIP-Badge",
-    
-    payment_view_profile: "Dein Premium-Profil Anzeigen",
+  subscription_feature_vip_badge: "Spezielle VIP-Badge",
+  
+  // Trial & Subscription Management
+  trial_try_premium: "Premium 3 Tage kostenlos testen",
+  trial_add_card_required: "Füge deine Karte hinzu, um die Testphase zu starten",
+  trial_active: "Deine Premium-Testphase läuft bis {date}",
+  subs_manage: "Abo verwalten",
+  subs_cancel: "Abo kündigen",
+  subs_upgrade: "Upgrade",
+  subs_downgrade: "Downgrade",
+  coins_bonus_premium: "Du hast +100 Coins für die Aktivierung von Premium erhalten.",
+  coins_bonus_vip: "Du hast +250 Coins für die Aktivierung von VIP erhalten.",
+  shop_badge_price_free: "Badges kosten 25 Coins (Free)",
+  shop_badge_price_premium: "Badges kosten 50 Coins (Premium)",
+  shop_badge_price_vip: "Badges kosten 100 Coins (VIP)",
+  
+  payment_view_profile: "Dein Premium-Profil Anzeigen",
     payment_redirecting: "Du wirst in wenigen Sekunden automatisch weitergeleitet...",
     
     profile_portal_error: "Fehler",

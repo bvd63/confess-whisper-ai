@@ -271,6 +271,12 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
             {t.shop_expires_in.replace('{days}', '5')}
           </p>
         )}
+        
+        <p className="text-xs font-semibold text-primary">
+          {userTier === 'free' && '25'}
+          {userTier === 'premium' && '50'}
+          {userTier === 'vip' && '100'}
+        </p>
 
         {expired ? (
           <Button
@@ -338,8 +344,13 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
               {coinsBalance}
             </span>
           </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground">
-            {t.flair_shop_description}
+          <DialogDescription className="text-sm text-muted-foreground space-y-1">
+            <p>{t.flair_shop_description}</p>
+            <p className="text-xs">
+              {userTier === 'free' && t.shop_badge_price_free}
+              {userTier === 'premium' && t.shop_badge_price_premium}
+              {userTier === 'vip' && t.shop_badge_price_vip}
+            </p>
           </DialogDescription>
         </DialogHeader>
 

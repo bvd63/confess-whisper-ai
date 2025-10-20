@@ -41,6 +41,8 @@ import { ProfileEditor } from "@/components/ProfileEditor";
 import { FlairsShop } from "@/components/FlairsShop";
 import { FlairsShopButton } from "@/components/FlairsShopButton";
 import { TrialBanner } from "@/components/TrialBanner";
+import { TrialCTA } from "@/components/TrialCTA";
+import { SubscriptionManager } from "@/components/SubscriptionManager";
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 const Profile = () => {
   const navigate = useNavigate();
@@ -193,6 +195,20 @@ const Profile = () => {
           </TabsList>
 
           <TabsContent value="statistics" className="space-y-6">
+            {/* Trial CTA for free users */}
+            {subscriptionTier === 'free' && !isOnTrial && (
+              <TrialCTA userId={user.id} onTrialStarted={checkSubscription} />
+            )}
+            
+            {/* Subscription Manager for paid users */}
+            {(subscriptionTier === 'premium' || subscriptionTier === 'vip') && (
+              <SubscriptionManager 
+                userId={user.id} 
+                currentTier={subscriptionTier as "free" | "premium" | "vip"}
+                onActionComplete={checkSubscription}
+              />
+            )}
+            
             <UserAnalytics onUpgradeClick={() => setPremiumDialogOpen(true)} />
             <AdvancedAnalytics userId={user.id} />
             <WordCloudViz userId={user.id} />

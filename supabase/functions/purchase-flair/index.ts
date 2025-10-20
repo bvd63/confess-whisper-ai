@@ -72,6 +72,14 @@ serve(async (req) => {
       );
     }
 
+    // Calculate coin cost based on user tier
+    const tierPricing: Record<'free' | 'premium' | 'vip', number> = {
+      free: 25,
+      premium: 50,
+      vip: 100
+    };
+    const flairCost = tierPricing[userTier];
+
     // Check if user already owns this flair
     const { data: existingFlair } = await supabase
       .from('user_flairs')
@@ -94,9 +102,9 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .single();
 
-    if (coinsError || !coinsData || coinsData.balance < flair.cost) {
+    if (coinsError || !coinsData || coinsData.balance < flairCost) {
       return new Response(
-        JSON.stringify({ error: `Insufficient coins. You need ${flair.cost} coins to purchase this flair.` }),
+        JSON.stringify({ error: `Insufficient coins. You need ${flairCost} coins to purchase this flair.` }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -104,7 +112,7 @@ serve(async (req) => {
     // Deduct coins
     const { error: deductError } = await supabase.rpc('deduct_coins', {
       _user_id: user.id,
-      _amount: flair.cost,
+      _amount: flairCost,
       _type: 'flair_purchase',
       _description: `Purchased ${flair.name_key} flair`,
       _reference_id: flairId
@@ -150,7 +158,7 @@ serve(async (req) => {
       JSON.stringify({ 
         success: true,
         flair: { ...purchasedFlair, details: flair },
-        coinsDeducted: flair.cost
+        coinsDeducted: flairCost
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
