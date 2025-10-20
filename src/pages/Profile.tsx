@@ -166,7 +166,7 @@ const Profile = () => {
         
         <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8 animate-fade-in">
           <div className="rounded-full">
-            <User className="h-6 w-6 sm:h-8 sm:w-8 text-primary animate-pulse-glow" />
+            <User className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
           </div>
           <div className="flex-1">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
