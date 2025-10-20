@@ -32,13 +32,20 @@ export default function ResetPassword() {
   const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
 
   useEffect(() => {
-    // Check if we have the required hash from Supabase
+    // Check if we have the required parameters from Supabase
+    const tokenHash = searchParams.get('token_hash');
+    const type = searchParams.get('type');
     const hashFragment = window.location.hash;
-    if (!hashFragment || !hashFragment.includes('access_token=')) {
+    
+    // Modern Supabase uses token_hash in query params OR access_token in hash
+    const hasValidToken = (tokenHash && type === 'recovery') || 
+                          (hashFragment && hashFragment.includes('access_token='));
+    
+    if (!hasValidToken) {
       setTokenValid(false);
       setError(t.auth_reset_token_invalid);
     }
-  }, [t]);
+  }, [t, searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,16 +94,47 @@ export default function ResetPassword() {
           glass
           className="w-full max-w-md p-4 sm:p-6 md:p-8 border-primary/20"
         >
-          <div className="text-center space-y-4">
-            <AlertCircle className="w-16 h-16 mx-auto text-destructive" />
-            <h2 className="text-xl font-bold">{t.auth_reset_token_invalid}</h2>
-            <p className="text-sm text-muted-foreground">{t.auth_reset_token_expired}</p>
-            <EnhancedButton
-              onClick={() => navigate('/forgot-password')}
-              className="w-full"
-            >
-              {t.auth_forgot_password}
-            </EnhancedButton>
+          <div className="text-center space-y-4 sm:space-y-6 animate-fade-in">
+            <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-destructive/10 mb-2">
+              <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-destructive animate-pulse" />
+            </div>
+            
+            <div className="space-y-2">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+                {t.auth_reset_token_invalid || "Invalid or Expired Reset Link"}
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {t.auth_reset_token_expired || "This reset link has expired. Please request a new one."}
+              </p>
+            </div>
+
+            <Alert className="border-primary/20 bg-primary/5 text-left">
+              <AlertDescription className="text-xs sm:text-sm space-y-2">
+                <p className="font-medium">Reset links expire for security reasons:</p>
+                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                  <li>Links are valid for 1 hour</li>
+                  <li>Each link can only be used once</li>
+                  <li>Request a new link if this one expired</li>
+                </ul>
+              </AlertDescription>
+            </Alert>
+
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <EnhancedButton
+                onClick={() => navigate('/forgot-password')}
+                className="flex-1"
+                glow
+              >
+                {t.auth_forgot_password || "Request New Link"}
+              </EnhancedButton>
+              <EnhancedButton
+                onClick={() => navigate('/auth')}
+                variant="outline"
+                className="flex-1"
+              >
+                {t.auth_back_to_login || "Back to Login"}
+              </EnhancedButton>
+            </div>
           </div>
         </AnimatedCard>
       </div>
