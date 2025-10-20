@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useUnreadCount } from "@/hooks/useUnreadCount";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useTabNavigation } from "@/contexts/TabNavigationContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
  * Instagram-style bottom navigation bar with independent tab stacks
@@ -14,13 +15,14 @@ export const InstagramBottomNav = () => {
   const { switchTab, activeTab } = useTabNavigation();
   const { user } = useCurrentUser();
   const { totalUnread } = useUnreadCount(user?.id || null);
+  const { t } = useLanguage();
 
   const navItems = [
-    { tabId: "home" as const, icon: Home, label: "Home", isActive: activeTab === "home" },
-    { tabId: "explore" as const, icon: Search, label: "Explore", isActive: activeTab === "explore" },
+    { tabId: "home" as const, icon: Home, label: t.nav_home, isActive: activeTab === "home" },
+    { tabId: "explore" as const, icon: Search, label: t.nav_explore, isActive: activeTab === "explore" },
     { tabId: "compose" as const, icon: PlusSquare, label: "Compose", isActive: location.pathname === "/compose" },
-    { tabId: "messages" as const, icon: MessageCircle, label: "Messages", badge: totalUnread, isActive: activeTab === "messages" },
-    { tabId: "profile" as const, icon: User, label: "Profile", isActive: activeTab === "profile" },
+    { tabId: "messages" as const, icon: MessageCircle, label: t.nav_messages, badge: totalUnread, isActive: activeTab === "messages" },
+    { tabId: "profile" as const, icon: User, label: t.nav_profile, isActive: activeTab === "profile" },
   ];
 
   const handleTabClick = (tabId: "home" | "explore" | "messages" | "profile" | "compose") => {

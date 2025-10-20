@@ -950,6 +950,12 @@ type Translations = {
   messages_reaction_add: string;
   messages_reaction_remove: string;
   
+  // Bottom Navigation
+  nav_home: string;
+  nav_explore: string;
+  nav_messages: string;
+  nav_profile: string;
+  
   // Profile
   profile_posts: string;
   profile_followers: string;
@@ -2370,6 +2376,12 @@ export const translations: Record<Language, Translations> = {
     messages_reaction_add: "Add reaction",
     messages_reaction_remove: "Remove reaction",
     
+    // Bottom Navigation
+    nav_home: "Home",
+    nav_explore: "Explore",
+    nav_messages: "Messages",
+    nav_profile: "Profile",
+    
     profile_posts: "Posts",
     profile_followers: "Followers",
     profile_following: "Following",
@@ -3634,6 +3646,12 @@ export const translations: Record<Language, Translations> = {
     messages_typing: "está escribiendo...",
     messages_reaction_add: "Añadir reacción",
     messages_reaction_remove: "Quitar reacción",
+    
+    // Bottom Navigation
+    nav_home: "Inicio",
+    nav_explore: "Explorar",
+    nav_messages: "Mensajes",
+    nav_profile: "Perfil",
     
     profile_posts: "Publicaciones",
     profile_followers: "Seguidores",
@@ -4932,6 +4950,12 @@ export const translations: Record<Language, Translations> = {
     messages_typing: "tippt...",
     messages_reaction_add: "Reaktion hinzufügen",
     messages_reaction_remove: "Reaktion entfernen",
+    
+    // Bottom Navigation
+    nav_home: "Start",
+    nav_explore: "Entdecken",
+    nav_messages: "Nachrichten",
+    nav_profile: "Profil",
     
     profile_posts: "Beiträge",
     profile_followers: "Follower",
