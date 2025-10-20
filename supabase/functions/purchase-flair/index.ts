@@ -134,11 +134,11 @@ serve(async (req) => {
       throw new Error('Failed to deduct coins');
     }
 
-    // If equipping, unequip any currently equipped flair
+    // If equipping, unequip any currently equipped flair and unfeatured them
     if (equip) {
       await supabase
         .from('user_flairs')
-        .update({ is_equipped: false })
+        .update({ is_equipped: false, is_featured: false })
         .eq('user_id', user.id)
         .eq('is_equipped', true);
     }
@@ -147,13 +147,15 @@ serve(async (req) => {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 5);
 
-    // Purchase flair
+    // Purchase flair - if equipping, make it featured and public so it shows everywhere
     const { data: purchasedFlair, error: purchaseError } = await supabase
       .from('user_flairs')
       .insert({
         user_id: user.id,
         flair_id: flairId,
         is_equipped: equip,
+        is_featured: equip, // Featured if equipped
+        is_public: equip,    // Public if equipped
         acquired_at: new Date().toISOString(),
         expires_at: expiresAt.toISOString(),
         purchase_scope: purchaseScope,
