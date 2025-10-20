@@ -72,11 +72,34 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
   const loadConversations = async () => {
     try {
       console.log("Loading conversations for user:", currentUserId);
-      // Get conversations where user is a participant
+      
+      // Get all conversations first
+      const { data: allConversations, error: convError } = await supabase
+        .from('conversations')
+        .select('id, deleted_for');
+      
+      if (convError) throw convError;
+      
+      // Filter out conversations where current user is in deleted_for
+      const visibleConversationIds = allConversations
+        ?.filter((conv: any) => {
+          const deletedFor = conv.deleted_for || [];
+          return !deletedFor.includes(currentUserId);
+        })
+        .map((conv: any) => conv.id) || [];
+      
+      if (visibleConversationIds.length === 0) {
+        setConversations([]);
+        setLoading(false);
+        return;
+      }
+      
+      // Get conversations where user is a participant and not soft-deleted
       const { data: participantData, error: participantError } = await supabase
         .from('conversation_participants')
         .select('conversation_id')
-        .eq('user_id', currentUserId);
+        .eq('user_id', currentUserId)
+        .in('conversation_id', visibleConversationIds);
 
       if (participantError) {
         console.error("Error loading participants:", participantError);
@@ -193,10 +216,9 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
 
   const handleDeleteConversation = async (conversationId: string) => {
     try {
-      // Call the database function for soft delete
-      const { error } = await supabase.rpc('soft_delete_conversation', {
-        conv_id: conversationId,
-        user_id: currentUserId,
+      // Call the edge function for soft delete
+      const { error } = await supabase.functions.invoke('soft-delete-conversation', {
+        body: { conversationId },
       });
 
       if (error) throw error;

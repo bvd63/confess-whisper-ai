@@ -541,6 +541,14 @@ type Translations = {
   // Notifications
   notifications_title: string;
   notifications_mark_read: string;
+  notifications_mark_all_read: string;
+  notifications_delete: string;
+  notifications_delete_all: string;
+  notifications_delete_confirm: string;
+  notifications_delete_all_confirm: string;
+  notifications_marked_read: string;
+  notifications_deleted: string;
+  notifications_all_deleted: string;
   notifications_none: string;
   notification_like: string;
   notification_comment: string;
@@ -1250,13 +1258,6 @@ type Translations = {
   qotd_title: string;
   qotd_loading: string;
   
-  // Notifications Actions
-  notifications_mark_all_read: string;
-  notifications_clear_all: string;
-  notifications_delete: string;
-  notification_deleted: string;
-  notifications_cleared: string;
-  
   // Admin Panel
   admin_title: string;
   admin_moderation_queue: string;
@@ -1541,6 +1542,14 @@ export const translations: Record<Language, Translations> = {
     // Notifications
     notifications_title: "Notifications",
     notifications_mark_read: "Mark all as read",
+    notifications_mark_all_read: "Mark all as read",
+    notifications_delete: "Delete notification",
+    notifications_delete_all: "Delete all",
+    notifications_delete_confirm: "Are you sure you want to delete this notification?",
+    notifications_delete_all_confirm: "This will delete all your notifications. This action cannot be undone.",
+    notifications_marked_read: "All marked as read",
+    notifications_deleted: "Notification deleted",
+    notifications_all_deleted: "All notifications deleted",
     notifications_none: "No notifications",
     notification_like: "liked your confession",
     notification_comment: "commented on your confession",
@@ -2523,13 +2532,6 @@ export const translations: Record<Language, Translations> = {
     qotd_title: "Quote of the Day",
     qotd_loading: "Loading quote...",
     
-    // Notifications Actions
-    notifications_mark_all_read: "Mark All as Read",
-    notifications_clear_all: "Clear All",
-    notifications_delete: "Delete Notification",
-    notification_deleted: "Notification deleted",
-    notifications_cleared: "All notifications cleared",
-    
     // Admin Panel
     admin_title: "Admin Dashboard",
     admin_moderation_queue: "Moderation Queue",
@@ -2812,6 +2814,14 @@ export const translations: Record<Language, Translations> = {
     // Notifications
     notifications_title: "Notificaciones",
     notifications_mark_read: "Marcar todas como leídas",
+    notifications_mark_all_read: "Marcar todo como leído",
+    notifications_delete: "Eliminar notificación",
+    notifications_delete_all: "Eliminar todo",
+    notifications_delete_confirm: "¿Estás seguro de que quieres eliminar esta notificación?",
+    notifications_delete_all_confirm: "Esto eliminará todas tus notificaciones. Esta acción no se puede deshacer.",
+    notifications_marked_read: "Todo marcado como leído",
+    notifications_deleted: "Notificación eliminada",
+    notifications_all_deleted: "Todas las notificaciones eliminadas",
     notifications_none: "Sin notificaciones",
     notification_like: "le gustó tu confesión",
     notification_comment: "comentó en tu confesión",
@@ -3796,13 +3806,6 @@ export const translations: Record<Language, Translations> = {
     qotd_title: "Cita del Día",
     qotd_loading: "Cargando cita...",
     
-    // Notifications Actions
-    notifications_mark_all_read: "Marcar Todas como Leídas",
-    notifications_clear_all: "Borrar Todas",
-    notifications_delete: "Eliminar Notificación",
-    notification_deleted: "Notificación eliminada",
-    notifications_cleared: "Todas las notificaciones eliminadas",
-    
     // Admin Panel
     admin_title: "Panel de Administración",
     admin_moderation_queue: "Cola de Moderación",
@@ -4085,6 +4088,14 @@ export const translations: Record<Language, Translations> = {
     // Notifications
     notifications_title: "Benachrichtigungen",
     notifications_mark_read: "Alle als gelesen markieren",
+    notifications_mark_all_read: "Alle als gelesen markieren",
+    notifications_delete: "Benachrichtigung löschen",
+    notifications_delete_all: "Alle löschen",
+    notifications_delete_confirm: "Möchten Sie diese Benachrichtigung wirklich löschen?",
+    notifications_delete_all_confirm: "Dies löscht alle Ihre Benachrichtigungen. Diese Aktion kann nicht rückgängig gemacht werden.",
+    notifications_marked_read: "Alle als gelesen markiert",
+    notifications_deleted: "Benachrichtigung gelöscht",
+    notifications_all_deleted: "Alle Benachrichtigungen gelöscht",
     notifications_none: "Keine Benachrichtigungen",
     notification_like: "hat dein Geständnis geliked",
     notification_comment: "hat dein Geständnis kommentiert",
@@ -5068,13 +5079,6 @@ export const translations: Record<Language, Translations> = {
     // Quote of the Day
     qotd_title: "Zitat des Tages",
     qotd_loading: "Zitat wird geladen...",
-    
-    // Notifications Actions
-    notifications_mark_all_read: "Alle als gelesen markieren",
-    notifications_clear_all: "Alle löschen",
-    notifications_delete: "Benachrichtigung löschen",
-    notification_deleted: "Benachrichtigung gelöscht",
-    notifications_cleared: "Alle Benachrichtigungen gelöscht",
     
     // Admin Panel
     admin_title: "Admin-Dashboard",

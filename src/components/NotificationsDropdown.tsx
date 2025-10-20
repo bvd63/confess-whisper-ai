@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Bell, Heart, MessageSquare, Check } from "lucide-react";
+import { Bell, Heart, MessageSquare, Check, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -12,6 +12,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import { getNicknameCached } from "@/lib/nicknameCache";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 interface Notification {
   id: string;
@@ -28,6 +39,9 @@ const NotificationsDropdown = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteAllDialogOpen, setDeleteAllDialogOpen] = useState(false);
+  const [notificationToDelete, setNotificationToDelete] = useState<string | null>(null);
   const { t } = useLanguage();
   const navigate = useNavigate();
 
@@ -69,9 +83,15 @@ const NotificationsDropdown = () => {
 
       if (error) throw error;
 
+      // Filter out soft-deleted notifications
+      const visibleNotifications = (data || []).filter((notif: any) => {
+        const deletedFor = notif.deleted_for || [];
+        return !deletedFor.includes(user.id);
+      });
+
       // Fetch nicknames (via secure RPC) for users who triggered notifications
       const notificationsWithNicknames = await Promise.all(
-        (data || []).map(async (notification) => {
+        visibleNotifications.map(async (notification) => {
           if (notification.triggered_by) {
             const nickname = await getNicknameCached(notification.triggered_by);
             return {
@@ -92,10 +112,9 @@ const NotificationsDropdown = () => {
 
   const markAsRead = async (notificationId: string) => {
     try {
-      const { error } = await supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('id', notificationId);
+      const { error } = await supabase.functions.invoke('manage-notifications', {
+        body: { action: 'mark_read', notificationId },
+      });
 
       if (error) throw error;
       await loadNotifications();
@@ -106,19 +125,51 @@ const NotificationsDropdown = () => {
 
   const markAllAsRead = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { error } = await supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('user_id', user.id)
-        .eq('is_read', false);
+      const { error } = await supabase.functions.invoke('manage-notifications', {
+        body: { action: 'mark_all_read' },
+      });
 
       if (error) throw error;
+      toast.success(t.notifications_marked_read || 'All marked as read');
       await loadNotifications();
     } catch (error) {
       console.error('Error marking all as read:', error);
+      toast.error(t.error_generic);
+    }
+  };
+
+  const deleteNotification = async (notificationId: string) => {
+    try {
+      const { error } = await supabase.functions.invoke('manage-notifications', {
+        body: { action: 'delete', notificationId },
+      });
+
+      if (error) throw error;
+      toast.success(t.notifications_deleted || 'Notification deleted');
+      await loadNotifications();
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      toast.error(t.error_generic);
+    } finally {
+      setDeleteDialogOpen(false);
+      setNotificationToDelete(null);
+    }
+  };
+
+  const deleteAllNotifications = async () => {
+    try {
+      const { error } = await supabase.functions.invoke('manage-notifications', {
+        body: { action: 'delete_all' },
+      });
+
+      if (error) throw error;
+      toast.success(t.notifications_all_deleted || 'All notifications deleted');
+      await loadNotifications();
+    } catch (error) {
+      console.error('Error deleting all notifications:', error);
+      toast.error(t.error_generic);
+    } finally {
+      setDeleteAllDialogOpen(false);
     }
   };
 
@@ -184,6 +235,7 @@ const NotificationsDropdown = () => {
   };
 
   return (
+    <>
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
@@ -200,17 +252,30 @@ const NotificationsDropdown = () => {
       <PopoverContent className="w-80 p-0" align="end">
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <h3 className="font-semibold">{t.notifications_title}</h3>
-          {unreadCount > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={markAllAsRead}
-              className="h-8 text-xs"
-            >
-              <Check className="w-3 h-3 mr-1" />
-              {t.notifications_mark_read}
-            </Button>
-          )}
+          <div className="flex gap-1">
+            {unreadCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={markAllAsRead}
+                className="h-8 text-xs"
+              >
+                <Check className="w-3 h-3 mr-1" />
+                {t.notifications_mark_all_read}
+              </Button>
+            )}
+            {notifications.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDeleteAllDialogOpen(true)}
+                className="h-8 text-xs text-destructive hover:text-destructive"
+              >
+                <Trash2 className="w-3 h-3 mr-1" />
+                {t.notifications_delete_all}
+              </Button>
+            )}
+          </div>
         </div>
 
         <ScrollArea className="h-[400px]">
@@ -222,48 +287,105 @@ const NotificationsDropdown = () => {
           ) : (
             <div className="divide-y divide-border">
               {notifications.map((notification) => (
-                <button
+                <div
                   key={notification.id}
-                  onClick={() => handleNotificationClick(notification)}
-                  className={`w-full px-4 py-3 text-left hover:bg-muted/50 transition-colors ${
+                  className={`flex items-center group ${
                     !notification.is_read ? 'bg-primary/5' : ''
                   }`}
                 >
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1">
-                      {getNotificationIcon(notification.type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-medium">
-                          @{notification.triggered_by_nickname || t.anonymous_user}
-                        </span>
-                        <span className="text-sm text-muted-foreground">
-                          {getNotificationText(notification)}
-                        </span>
-                        {!notification.is_read && (
-                          <Badge variant="secondary" className="text-xs bg-primary text-primary-foreground">
-                            {t.notification_new}
-                          </Badge>
-                        )}
+                  <button
+                    onClick={() => handleNotificationClick(notification)}
+                    className="flex-1 px-4 py-3 text-left hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1">
+                        {getNotificationIcon(notification.type)}
                       </div>
-                      {notification.comment_content && (
-                        <p className="text-xs text-muted-foreground truncate">
-                          "{notification.comment_content}"
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-sm font-medium">
+                            @{notification.triggered_by_nickname || t.anonymous_user}
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            {getNotificationText(notification)}
+                          </span>
+                          {!notification.is_read && (
+                            <Badge variant="secondary" className="text-xs bg-primary text-primary-foreground">
+                              {t.notification_new}
+                            </Badge>
+                          )}
+                        </div>
+                        {notification.comment_content && (
+                          <p className="text-xs text-muted-foreground truncate">
+                            "{notification.comment_content}"
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {timeAgo(notification.created_at)}
                         </p>
-                      )}
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {timeAgo(notification.created_at)}
-                      </p>
+                      </div>
                     </div>
-                  </div>
-                </button>
+                  </button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="mr-2 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setNotificationToDelete(notification.id);
+                      setDeleteDialogOpen(true);
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               ))}
             </div>
           )}
         </ScrollArea>
       </PopoverContent>
     </Popover>
+
+    <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t.notifications_delete}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {t.notifications_delete_confirm}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{t.common_back}</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => notificationToDelete && deleteNotification(notificationToDelete)}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {t.delete}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+
+    <AlertDialog open={deleteAllDialogOpen} onOpenChange={setDeleteAllDialogOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t.notifications_delete_all}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {t.notifications_delete_all_confirm || 'This will delete all your notifications. This action cannot be undone.'}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{t.common_back}</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={deleteAllNotifications}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {t.delete}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  </>
   );
 };
 

@@ -26,6 +26,7 @@ interface Message {
   sent_at: string | null;
   delivered_at: string | null;
   seen_at: string | null;
+  reactions?: Array<{ userId: string; emoji: string; createdAt: string }>;
   optimistic?: boolean;
   failed?: boolean;
 }
@@ -51,6 +52,8 @@ export const EnhancedMessageThread = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { t } = useLanguage();
   const { subscriptionTier } = usePremiumStatus(otherUserId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -59,7 +62,7 @@ export const EnhancedMessageThread = ({
   useEffect(() => {
     loadMessages();
 
-    // Subscribe to real-time messages
+    // Subscribe to real-time messages & typing
     const channel = supabase
       .channel(`messages-${conversationId}`)
       .on(
@@ -95,12 +98,27 @@ export const EnhancedMessageThread = ({
           );
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'message_typing_status',
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload) => {
+          const typingData = payload.new as any;
+          if (typingData.user_id !== currentUserId) {
+            setIsTyping(typingData.is_typing);
+          }
+        }
+      )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId]);
+  }, [conversationId, currentUserId]);
 
   useEffect(() => {
     scrollToBottom();
@@ -128,7 +146,10 @@ export const EnhancedMessageThread = ({
         } else {
           return !m.deleted_for_recipient;
         }
-      });
+      }).map((m: any) => ({
+        ...m,
+        reactions: Array.isArray(m.reactions) ? m.reactions : []
+      }));
 
       setMessages(visibleMessages);
     } catch (error) {
@@ -254,6 +275,53 @@ export const EnhancedMessageThread = ({
     }
   };
 
+  const handleTyping = async () => {
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    await supabase
+      .from('message_typing_status')
+      .upsert({
+        conversation_id: conversationId,
+        user_id: currentUserId,
+        is_typing: true,
+      });
+
+    typingTimeoutRef.current = setTimeout(async () => {
+      await supabase
+        .from('message_typing_status')
+        .upsert({
+          conversation_id: conversationId,
+          user_id: currentUserId,
+          is_typing: false,
+        });
+    }, 3000);
+  };
+
+  const addReaction = async (messageId: string, emoji: string) => {
+    try {
+      const { error } = await supabase.functions.invoke('manage-reactions', {
+        body: { messageId, emoji, action: 'add' },
+      });
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error adding reaction:', error);
+      toast.error(t.error_generic);
+    }
+  };
+
+  const removeReaction = async (messageId: string, emoji: string) => {
+    try {
+      const { error } = await supabase.functions.invoke('manage-reactions', {
+        body: { messageId, emoji, action: 'remove' },
+      });
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error removing reaction:', error);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
@@ -281,6 +349,9 @@ export const EnhancedMessageThread = ({
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.map((message) => {
           const isOwn = message.sender_id === currentUserId;
+          const reactions = message.reactions || [];
+          const hasReacted = reactions.some(r => r.userId === currentUserId);
+          
           return (
             <div
               key={message.id}
@@ -289,7 +360,7 @@ export const EnhancedMessageThread = ({
               <div className={cn("flex flex-col max-w-[70%]", isOwn && "items-end")}>
                 <div
                   className={cn(
-                    "rounded-2xl px-4 py-2 relative",
+                    "rounded-2xl px-4 py-2 relative group",
                     isOwn
                       ? "bg-primary text-primary-foreground rounded-br-sm"
                       : "bg-muted rounded-bl-sm",
@@ -297,6 +368,31 @@ export const EnhancedMessageThread = ({
                   )}
                 >
                   <p className="text-sm break-words">{message.content}</p>
+                  
+                  {/* Quick reaction picker on hover */}
+                  {!message.optimistic && (
+                    <div className={cn(
+                      "absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity bg-background border border-border rounded-full px-2 py-1 flex gap-1 shadow-lg",
+                      isOwn ? "right-0" : "left-0"
+                    )}>
+                      {['❤️', '👍', '😂', '😮', '😢'].map((emoji) => (
+                        <button
+                          key={emoji}
+                          onClick={() => {
+                            const userReaction = reactions.find(r => r.userId === currentUserId && r.emoji === emoji);
+                            if (userReaction) {
+                              removeReaction(message.id, emoji);
+                            } else {
+                              addReaction(message.id, emoji);
+                            }
+                          }}
+                          className="hover:scale-125 transition-transform text-lg"
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   
                   {isOwn && (
                     <DropdownMenu>
@@ -321,6 +417,40 @@ export const EnhancedMessageThread = ({
                     </DropdownMenu>
                   )}
                 </div>
+
+                {/* Reactions display */}
+                {reactions.length > 0 && (
+                  <div className="flex gap-1 mt-1 flex-wrap">
+                    {Object.entries(
+                      reactions.reduce((acc, r) => {
+                        acc[r.emoji] = (acc[r.emoji] || 0) + 1;
+                        return acc;
+                      }, {} as Record<string, number>)
+                    ).map(([emoji, count]) => {
+                      const userReacted = reactions.some(r => r.emoji === emoji && r.userId === currentUserId);
+                      return (
+                        <button
+                          key={emoji}
+                          onClick={() => {
+                            if (userReacted) {
+                              removeReaction(message.id, emoji);
+                            } else {
+                              addReaction(message.id, emoji);
+                            }
+                          }}
+                          className={cn(
+                            "text-xs px-2 py-0.5 rounded-full border transition-colors",
+                            userReacted
+                              ? "bg-primary/20 border-primary"
+                              : "bg-background border-border hover:border-primary"
+                          )}
+                        >
+                          {emoji} {count > 1 ? count : ''}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
 
                 <div className="flex items-center gap-1 mt-1 px-2">
                   <span
@@ -351,6 +481,20 @@ export const EnhancedMessageThread = ({
             </div>
           );
         })}
+        
+        {/* Typing indicator */}
+        {isTyping && (
+          <div className="flex gap-2 justify-start">
+            <div className="bg-muted rounded-2xl px-4 py-2 rounded-bl-sm">
+              <div className="flex gap-1">
+                <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <div ref={messagesEndRef} />
       </div>
 
@@ -362,7 +506,10 @@ export const EnhancedMessageThread = ({
         <div className="flex gap-2">
           <Input
             value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            onChange={(e) => {
+              setNewMessage(e.target.value);
+              handleTyping();
+            }}
             placeholder={t.messages_type_message}
             disabled={sending}
             className="flex-1 rounded-full"
