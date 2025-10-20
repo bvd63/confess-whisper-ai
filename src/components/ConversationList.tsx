@@ -48,9 +48,9 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
   useEffect(() => {
     loadConversations();
     
-    // Subscribe to real-time updates
-    const channel = supabase
-      .channel('conversations-changes')
+    // Subscribe to real-time updates for both messages and participants
+    const messagesChannel = supabase
+      .channel('conversations-messages-changes')
       .on(
         'postgres_changes',
         {
@@ -64,8 +64,25 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
       )
       .subscribe();
 
+    const participantsChannel = supabase
+      .channel('conversations-participants-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'conversation_participants',
+          filter: `user_id=eq.${currentUserId}`
+        },
+        () => {
+          loadConversations();
+        }
+      )
+      .subscribe();
+
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(messagesChannel);
+      supabase.removeChannel(participantsChannel);
     };
   }, [currentUserId]);
 

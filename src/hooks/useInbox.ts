@@ -123,14 +123,20 @@ export const useInbox = (userId: string | null) => {
 
       setConversations(conversationDetails);
       
-      // Cache the conversations
-      await persistenceManager.set(
-        'conversations',
-        `inbox_${userId}`,
-        conversationDetails
-      );
+      // Try to cache the conversations (non-blocking)
+      try {
+        await persistenceManager.set(
+          'conversations',
+          `inbox_${userId}`,
+          conversationDetails
+        );
+      } catch (cacheError) {
+        console.warn('Failed to cache conversations:', cacheError);
+        // Continue - caching is optional
+      }
     } catch (error) {
       console.error('Error loading conversations:', error);
+      setConversations([]); // Ensure state is set even on error
     } finally {
       setIsLoading(false);
     }
@@ -174,9 +180,9 @@ export const useInbox = (userId: string | null) => {
   useEffect(() => {
     loadConversations();
 
-    // Subscribe to realtime updates
-    const channel = supabase
-      .channel('inbox-updates')
+    // Subscribe to realtime updates for both messages and conversation_participants
+    const messagesChannel = supabase
+      .channel('inbox-messages-updates')
       .on(
         'postgres_changes',
         {
@@ -190,8 +196,24 @@ export const useInbox = (userId: string | null) => {
       )
       .subscribe();
 
+    const participantsChannel = supabase
+      .channel('inbox-participants-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'conversation_participants'
+        },
+        () => {
+          loadConversations();
+        }
+      )
+      .subscribe();
+
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(messagesChannel);
+      supabase.removeChannel(participantsChannel);
     };
   }, [loadConversations]);
 
