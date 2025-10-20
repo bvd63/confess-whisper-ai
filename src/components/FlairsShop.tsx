@@ -273,10 +273,9 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
           </p>
         )}
         
-        <p className="text-xs font-semibold text-primary">
-          {userTier === 'free' && '25'}
-          {userTier === 'premium' && '50'}
-          {userTier === 'vip' && '100'}
+        <p className="text-xs font-semibold text-primary flex items-center gap-1">
+          <Coins className="w-3 h-3" />
+          {flair.cost}
         </p>
 
         {expired ? (
