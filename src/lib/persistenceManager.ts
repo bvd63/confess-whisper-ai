@@ -18,7 +18,7 @@ interface CachedItem<T> {
 
 class PersistenceManager {
   private dbName = 'confessai_storage';
-  private dbVersion = 2;
+  private dbVersion = 3;
   private db: IDBDatabase | null = null;
 
   async init(): Promise<void> {
@@ -34,6 +34,15 @@ class PersistenceManager {
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
 
+        // Recreate conversations store to ensure correct keyPath
+        if (db.objectStoreNames.contains('conversations')) {
+          try {
+            db.deleteObjectStore('conversations');
+          } catch (e) {
+            console.warn('Could not delete conversations store during upgrade:', e);
+          }
+        }
+
         // Create stores for different data types
         if (!db.objectStoreNames.contains('messages')) {
           db.createObjectStore('messages', { keyPath: 'id' });
@@ -41,9 +50,8 @@ class PersistenceManager {
         if (!db.objectStoreNames.contains('drafts')) {
           db.createObjectStore('drafts', { keyPath: 'key' });
         }
-        if (!db.objectStoreNames.contains('conversations')) {
-          db.createObjectStore('conversations', { keyPath: 'key' });
-        }
+        // Ensure conversations has the correct keyPath
+        db.createObjectStore('conversations', { keyPath: 'key' });
         if (!db.objectStoreNames.contains('state')) {
           db.createObjectStore('state', { keyPath: 'key' });
         }

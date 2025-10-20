@@ -42,31 +42,22 @@ const Messages = () => {
     search: location.search
   });
 
-  // Reset to messages list only when route changes away or no user param on /messages
+  // Only clear state when navigating away from /messages
   useEffect(() => {
     const onMessagesRoute = location.pathname.startsWith('/messages');
     console.log('[Messages] Route check:', {
       onMessagesRoute,
-      hasUserParam: !!searchParams.get('user'),
       selectedConversation,
-      pathname: location.pathname
+      pathname: location.pathname,
+      search: location.search
     });
 
     if (!onMessagesRoute) {
-      // Navigated away from messages – clear state
-      setSelectedConversation(null);
-      setOtherUserId(null);
-      setOtherUserNickname(null);
-      return;
-    }
-
-    // On messages root without user param, show list
-    if (onMessagesRoute && !searchParams.get('user')) {
       setSelectedConversation(null);
       setOtherUserId(null);
       setOtherUserNickname(null);
     }
-  }, [location.pathname, searchParams]);
+  }, [location.pathname]);
 
   useEffect(() => {
     if (isLoading) return;

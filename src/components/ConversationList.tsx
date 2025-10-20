@@ -122,7 +122,10 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
         .map((conv: any) => conv.id) || [];
       
       if (visibleConversationIds.length === 0) {
-        setConversations([]);
+        // Preserve existing list on transient empty responses
+        if (conversations.length === 0) {
+          setConversations([]);
+        }
         setLoading(false);
         return;
       }
