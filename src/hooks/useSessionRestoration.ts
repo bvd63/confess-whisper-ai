@@ -25,11 +25,10 @@ export const useSessionRestoration = () => {
         const sessionState = await sessionManager.restoreSession();
         
         if (sessionState) {
-          // Navigate to last route with conversation ID if available
-          if (sessionState.conversationId) {
-            navigate(`${sessionState.route}?user=${sessionState.conversationId}`);
-          } else if (sessionState.route !== window.location.pathname) {
-            navigate(sessionState.route);
+          // Do not auto-redirect into a conversation; only restore the last route root
+          if (sessionState.route !== window.location.pathname || window.location.search) {
+            const target = sessionState.route.startsWith('/messages') ? '/messages' : sessionState.route;
+            navigate(target, { replace: true });
           }
         }
       } catch (error) {

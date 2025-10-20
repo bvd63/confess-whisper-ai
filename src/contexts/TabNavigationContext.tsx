@@ -109,7 +109,8 @@ export const TabNavigationProvider: React.FC<{ children: React.ReactNode }> = ({
         const targetStack = tabStacks[lastTab];
         const lastEntry = targetStack[targetStack.length - 1];
         if (lastEntry && (lastEntry.path !== location.pathname + location.search)) {
-          navigate(lastEntry.path, { replace: true, state: lastEntry.state });
+          const safePath = lastEntry.path.startsWith('/messages') ? '/messages' : lastEntry.path;
+          navigate(safePath, { replace: true, state: lastEntry.state });
           setActiveTab(lastTab);
         }
       }

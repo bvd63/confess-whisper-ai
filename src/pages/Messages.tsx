@@ -137,8 +137,8 @@ const Messages = () => {
     // Track in messages tab stack for in-tab back navigation
     pushToTabStack('messages', `/messages?user=${userId}`);
     
-    // Save session state
-    await sessionManager.saveSessionState('/messages', userId);
+    // Save session state (never persist a specific conversation)
+    await sessionManager.saveSessionState('/messages', null);
   };
 
   const handleBackFromConversation = () => {
