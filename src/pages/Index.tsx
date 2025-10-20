@@ -19,6 +19,7 @@ import { useSubscriptionCheck } from "@/hooks/useSubscriptionCheck";
 import SEOHead from "@/components/SEOHead";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePerformanceBudget } from "@/hooks/usePerformanceBudget";
+import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
 
 // Lazy load heavy components
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
@@ -37,6 +38,7 @@ const Index = () => {
   useMessageNotifications({ userId: user?.id });
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
+  const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showSecondaryContent, setShowSecondaryContent] = useState(false);
   const { toast } = useToast();
@@ -99,6 +101,7 @@ const Index = () => {
       <AppLayout 
         onNewConfession={handleNewConfession}
         onUpgradeClick={() => setIsPremiumDialogOpen(true)}
+        onManageSubscription={() => setManageSubDialogOpen(true)}
       >
       {/* Main Content */}
       <main className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8"
@@ -203,6 +206,11 @@ const Index = () => {
         </div>
       </footer>
       </Suspense>
+
+      <ManageSubscriptionDialog
+        open={manageSubDialogOpen}
+        onOpenChange={setManageSubDialogOpen}
+      />
       
       </AppLayout>
     </>

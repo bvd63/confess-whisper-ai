@@ -11,6 +11,7 @@ import FollowingFeed from "@/components/FollowingFeed";
 import FollowStats from "@/components/FollowStats";
 import AppLayout from "@/components/AppLayout";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
+import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
 
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 const PremiumDialog = lazy(() => import("@/components/PremiumDialog"));
@@ -23,6 +24,7 @@ const Following = () => {
   const { isPremium } = usePremiumStatus(user?.id);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
+  const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -42,6 +44,7 @@ const Following = () => {
     <AppLayout 
       onNewConfession={() => setIsNewConfessionOpen(true)}
       onUpgradeClick={() => setIsPremiumDialogOpen(true)}
+      onManageSubscription={() => setManageSubDialogOpen(true)}
     >
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-4xl pb-24">
         <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8 animate-fade-in">
@@ -80,6 +83,11 @@ const Following = () => {
           onUpgrade={async () => {}}
         />
       </Suspense>
+
+      <ManageSubscriptionDialog
+        open={manageSubDialogOpen}
+        onOpenChange={setManageSubDialogOpen}
+      />
     </AppLayout>
   );
 };

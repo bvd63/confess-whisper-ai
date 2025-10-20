@@ -15,6 +15,7 @@ import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
+import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
 
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 const PremiumDialog = lazy(() => import("@/components/PremiumDialog"));
@@ -42,6 +43,7 @@ const Bookmarks = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
+  const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -130,6 +132,7 @@ const Bookmarks = () => {
     <AppLayout 
       onNewConfession={() => setIsNewConfessionOpen(true)}
       onUpgradeClick={() => setIsPremiumDialogOpen(true)}
+      onManageSubscription={() => setManageSubDialogOpen(true)}
     >
       <main className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
         <div className="flex items-center gap-2 mb-6 sm:mb-8 animate-fade-in">
@@ -187,6 +190,11 @@ const Bookmarks = () => {
           onUpgrade={async () => {}}
         />
       </Suspense>
+
+      <ManageSubscriptionDialog
+        open={manageSubDialogOpen}
+        onOpenChange={setManageSubDialogOpen}
+      />
     </AppLayout>
   );
 };
