@@ -96,13 +96,18 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
 
       await loadSubscriptionStatus();
       onSubscriptionUpdated?.();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error managing subscription:', error);
+      const message = typeof error?.message === 'string' ? error.message : t.error_generic;
       toast({
         title: t.error_generic,
-        description: t.error_generic,
+        description: message,
         variant: "destructive",
       });
+      if (message?.toLowerCase().includes('no stripe customer') || message?.toLowerCase().includes('no active subscription')) {
+        // If user has no subscription, show plan selector next time
+        setShowPlans(true);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -130,9 +135,9 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
     );
   }
 
-  const canUpgrade = status.tier === 'premium' && !status.isTrial;
-  const canDowngrade = status.tier === 'vip' && !status.isTrial;
-  const canReactivate = status.cancelAtPeriodEnd;
+  const canUpgrade = status.tier === 'premium' && !status.isTrial && !!status.currentPeriodEnd;
+  const canDowngrade = status.tier === 'vip' && !status.isTrial && !!status.currentPeriodEnd;
+  const canReactivate = status.cancelAtPeriodEnd && !!status.currentPeriodEnd;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -283,7 +288,7 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
             )}
 
             {/* Cancel Button */}
-            {!status.cancelAtPeriodEnd && !status.isTrial && (
+            {!status.cancelAtPeriodEnd && !status.isTrial && !!status.currentPeriodEnd && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
