@@ -23,7 +23,7 @@ const PaymentSuccess = () => {
 
       try {
         // Check subscription status
-        await supabase.functions.invoke('get-subscription-status');
+        await supabase.functions.invoke('billing-status');
         
         // Award coins bonus for first charge
         const sessionId = searchParams.get('session_id');
