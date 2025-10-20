@@ -187,7 +187,11 @@ const Profile = () => {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="text-lg font-semibold mb-1">
-                    {t.profile} {subscriptionTier === 'free' ? t.profile_plan_free : subscriptionTier === 'vip' ? t.profile_plan_vip : t.profile_plan_premium}
+                    {subscriptionTier === 'vip' 
+                      ? 'Profile VIP' 
+                      : subscriptionTier === 'premium' 
+                      ? 'Profile Premium' 
+                      : `${t.profile} ${t.profile_plan_free}`}
                   </h3>
                   <p className="text-sm text-muted-foreground">
                     {isPremium ? t.subscription_thanks : t.subscription_upgrade_more}
