@@ -64,6 +64,33 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
     }
   };
 
+  const handleOpenCustomerPortal = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('customer-portal');
+      
+      if (error) throw error;
+      
+      if (data?.url) {
+        // Open Stripe Customer Portal in new tab
+        window.open(data.url, '_blank');
+        toast({
+          title: t.common_success || "Success",
+          description: "Opening Stripe portal where you can manage your subscription...",
+        });
+      }
+    } catch (error: any) {
+      console.error('Error opening customer portal:', error);
+      toast({
+        title: t.error_generic,
+        description: error?.message || "Failed to open customer portal",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleAction = async (
     action: 'upgrade' | 'downgrade' | 'cancel' | 'cancel_now' | 'reactivate',
     targetTier?: string
@@ -196,8 +223,41 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
             </div>
           </AnimatedCard>
 
-          {/* Action Buttons */}
+          {/* Stripe Customer Portal Button - Full Management */}
+          {!status.isTrial && (
+            <AnimatedCard className="p-4 bg-gradient-to-r from-primary/10 to-purple-500/10 border-primary/30">
+              <div className="flex items-start gap-3">
+                <CreditCard className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                <div className="flex-1 space-y-2">
+                  <h4 className="font-semibold text-sm">Full Subscription Management</h4>
+                  <p className="text-xs text-muted-foreground">
+                    Access Stripe portal to change plans, update payment method, view invoices, or cancel subscription.
+                  </p>
+                  <Button
+                    onClick={handleOpenCustomerPortal}
+                    disabled={isLoading}
+                    className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white"
+                  >
+                    {isLoading ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <CreditCard className="w-4 h-4 mr-2" />
+                    )}
+                    Open Stripe Portal
+                  </Button>
+                </div>
+              </div>
+            </AnimatedCard>
+          )}
+
+          {/* Quick Action Buttons */}
           <div className="space-y-3">
+            <div className="flex items-center gap-2 px-1">
+              <div className="h-px flex-1 bg-border"></div>
+              <span className="text-xs text-muted-foreground font-medium">Quick Actions</span>
+              <div className="h-px flex-1 bg-border"></div>
+            </div>
+            
             {/* Upgrade Button */}
             {canUpgrade && (
               <AlertDialog>
