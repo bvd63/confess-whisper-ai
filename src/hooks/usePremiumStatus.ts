@@ -10,7 +10,7 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('is_premium, subscription_tier, subscription_ends_at, trial_active, trial_end_date, trial_premium_used')
+        .select('is_premium, subscription_tier, subscription_ends_at, trial_active, trial_end_date, trial_premium_used, subscription_status')
         .eq('user_id', userId)
         .maybeSingle();
 
@@ -18,7 +18,8 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
       return data;
     },
     enabled: !!userId,
-    cacheTTL: 5 * 60 * 1000, // 5 minutes
+    cacheTTL: 0, // No cache - always fetch fresh data
+    staleTime: 0,
   });
 
   const premiumStatus = useMemo(() => {
