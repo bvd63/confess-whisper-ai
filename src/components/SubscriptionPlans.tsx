@@ -352,10 +352,6 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
               />
             ))}
           </div>
-
-          <p className="text-[10px] sm:text-xs text-center text-muted-foreground px-3 sm:px-0">
-            {t.subscription_cancel_anytime}
-          </p>
         </div>
       </DialogContent>
     </Dialog>

@@ -16,13 +16,17 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useState } from "react";
+
 interface AppHeaderProps {
   onNewConfession?: () => void;
   onUpgradeClick?: () => void;
+  onManageSubscription?: () => void;
 }
 const AppHeader = ({
   onNewConfession,
-  onUpgradeClick
+  onUpgradeClick,
+  onManageSubscription
 }: AppHeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -83,7 +87,7 @@ const AppHeader = ({
                     if (subscriptionTier === 'free') {
                       onUpgradeClick?.();
                     } else {
-                      navigate('/profile');
+                      onManageSubscription?.();
                     }
                   }} 
                   variant="outline" 
@@ -92,7 +96,7 @@ const AppHeader = ({
                 >
                   <Crown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary" />
                   <span className="hidden sm:inline text-xs ml-1">
-                    {subscriptionTier === 'free' ? t.subscription_upgrade : t.subscription_manage}
+                    {subscriptionTier === 'free' ? t.subscription_upgrade : t.subs_manage}
                   </span>
                 </Button>
                 <NotificationsDropdown />

@@ -988,6 +988,28 @@ type Translations = {
   shop_badge_price_premium: string;
   shop_badge_price_vip: string;
   
+  // Manage Subscription Dialog
+  subs_manage_title: string;
+  subs_manage_currentPlan: string;
+  subs_manage_renews: string;
+  subs_manage_trialEnds: string;
+  subs_action_upgrade: string;
+  subs_action_downgrade: string;
+  subs_action_cancel: string;
+  subs_action_cancelNow: string;
+  subs_action_cancelAtPeriodEnd: string;
+  subs_action_cancelTrial: string;
+  subs_action_reactivate: string;
+  subs_confirm_title: string;
+  subs_confirm_upgrade: string;
+  subs_confirm_downgrade: string;
+  subs_confirm_cancel_periodEnd: string;
+  subs_confirm_cancel_now: string;
+  subs_confirm_reactivate: string;
+  subs_toast_success: string;
+  subs_note_inline: string;
+  subs_status_cancels: string;
+  
   // Payment
   payment_view_profile: string;
   payment_redirecting: string;
@@ -2340,6 +2362,28 @@ export const translations: Record<Language, Translations> = {
   shop_badge_price_premium: "Badges cost 50 coins (Premium)",
   shop_badge_price_vip: "Badges cost 100 coins (VIP)",
   
+  // Manage Subscription Dialog
+  subs_manage_title: "Manage subscription",
+  subs_manage_currentPlan: "Current plan",
+  subs_manage_renews: "Renews on {date}",
+  subs_manage_trialEnds: "Trial ends on {date}",
+  subs_action_upgrade: "Upgrade",
+  subs_action_downgrade: "Downgrade",
+  subs_action_cancel: "Cancel subscription",
+  subs_action_cancelNow: "Cancel now",
+  subs_action_cancelAtPeriodEnd: "Cancel at period end",
+  subs_action_cancelTrial: "Cancel trial",
+  subs_action_reactivate: "Reactivate",
+  subs_confirm_title: "Confirm action",
+  subs_confirm_upgrade: "Upgrade to {tier} now?",
+  subs_confirm_downgrade: "Downgrade to {tier} now?",
+  subs_confirm_cancel_periodEnd: "Keep benefits until {date}, then cancel. Continue?",
+  subs_confirm_cancel_now: "Cancel immediately and lose benefits now. Continue?",
+  subs_confirm_reactivate: "Reactivate your subscription and continue enjoying premium benefits?",
+  subs_toast_success: "Done!",
+  subs_note_inline: "You can change, cancel, or reactivate your plan here at any time.",
+  subs_status_cancels: "Cancels on",
+  
   payment_view_profile: "View Your Premium Profile",
     payment_redirecting: "You will be redirected automatically in a few seconds...",
     
@@ -3545,6 +3589,28 @@ export const translations: Record<Language, Translations> = {
   shop_badge_price_free: "Las insignias cuestan 25 monedas (Free)",
   shop_badge_price_premium: "Las insignias cuestan 50 monedas (Premium)",
   shop_badge_price_vip: "Las insignias cuestan 100 monedas (VIP)",
+  
+  // Manage Subscription Dialog
+  subs_manage_title: "Gestionar suscripción",
+  subs_manage_currentPlan: "Plan actual",
+  subs_manage_renews: "Se renueva el {date}",
+  subs_manage_trialEnds: "La prueba termina el {date}",
+  subs_action_upgrade: "Mejorar plan",
+  subs_action_downgrade: "Reducir plan",
+  subs_action_cancel: "Cancelar suscripción",
+  subs_action_cancelNow: "Cancelar ahora",
+  subs_action_cancelAtPeriodEnd: "Cancelar al final del período",
+  subs_action_cancelTrial: "Cancelar prueba",
+  subs_action_reactivate: "Reactivar",
+  subs_confirm_title: "Confirmar acción",
+  subs_confirm_upgrade: "¿Mejorar a {tier} ahora?",
+  subs_confirm_downgrade: "¿Reducir a {tier} ahora?",
+  subs_confirm_cancel_periodEnd: "Mantener beneficios hasta {date}, luego cancelar. ¿Continuar?",
+  subs_confirm_cancel_now: "Cancelar de inmediato y perder beneficios ahora. ¿Continuar?",
+  subs_confirm_reactivate: "¿Reactivar tu suscripción y seguir disfrutando de los beneficios premium?",
+  subs_toast_success: "¡Hecho!",
+  subs_note_inline: "Puedes cambiar, cancelar o reactivar tu plan aquí en cualquier momento.",
+  subs_status_cancels: "Se cancela el",
   
   payment_view_profile: "Ver Tu Perfil Premium",
     payment_redirecting: "Serás redirigido automáticamente en unos segundos...",
@@ -4784,6 +4850,28 @@ export const translations: Record<Language, Translations> = {
   shop_badge_price_free: "Badges kosten 25 Coins (Free)",
   shop_badge_price_premium: "Badges kosten 50 Coins (Premium)",
   shop_badge_price_vip: "Badges kosten 100 Coins (VIP)",
+  
+  // Manage Subscription Dialog
+  subs_manage_title: "Abo verwalten",
+  subs_manage_currentPlan: "Aktueller Plan",
+  subs_manage_renews: "Verlängert sich am {date}",
+  subs_manage_trialEnds: "Testphase endet am {date}",
+  subs_action_upgrade: "Upgrade",
+  subs_action_downgrade: "Downgrade",
+  subs_action_cancel: "Abo kündigen",
+  subs_action_cancelNow: "Jetzt kündigen",
+  subs_action_cancelAtPeriodEnd: "Zum Laufzeitende kündigen",
+  subs_action_cancelTrial: "Testphase kündigen",
+  subs_action_reactivate: "Reaktivieren",
+  subs_confirm_title: "Aktion bestätigen",
+  subs_confirm_upgrade: "Jetzt auf {tier} upgraden?",
+  subs_confirm_downgrade: "Jetzt auf {tier} downgraden?",
+  subs_confirm_cancel_periodEnd: "Vorteile bis {date} behalten, dann kündigen. Fortfahren?",
+  subs_confirm_cancel_now: "Sofort kündigen und Vorteile verlieren. Fortfahren?",
+  subs_confirm_reactivate: "Dein Abonnement reaktivieren und weiterhin Premium-Vorteile genießen?",
+  subs_toast_success: "Erledigt!",
+  subs_note_inline: "Du kannst deinen Plan hier jederzeit ändern, kündigen oder reaktivieren.",
+  subs_status_cancels: "Kündigt am",
   
   payment_view_profile: "Dein Premium-Profil Anzeigen",
     payment_redirecting: "Du wirst in wenigen Sekunden automatisch weitergeleitet...",

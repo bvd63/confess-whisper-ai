@@ -42,7 +42,7 @@ import { FlairsShop } from "@/components/FlairsShop";
 import { FlairsShopButton } from "@/components/FlairsShopButton";
 import { TrialBanner } from "@/components/TrialBanner";
 import { TrialCTA } from "@/components/TrialCTA";
-import { SubscriptionManager } from "@/components/SubscriptionManager";
+import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 const Profile = () => {
   const navigate = useNavigate();
@@ -67,6 +67,7 @@ const Profile = () => {
   });
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [premiumDialogOpen, setPremiumDialogOpen] = useState(false);
+  const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [flairsDialogOpen, setFlairsDialogOpen] = useState(false);
   const [passwordChangedAt, setPasswordChangedAt] = useState<string | null>(null);
@@ -158,7 +159,7 @@ const Profile = () => {
     }
   };
   if (!user) return null;
-  return <AppLayout onNewConfession={() => setIsNewConfessionOpen(true)} onUpgradeClick={() => setPremiumDialogOpen(true)}>
+  return <AppLayout onNewConfession={() => setIsNewConfessionOpen(true)} onUpgradeClick={() => setPremiumDialogOpen(true)} onManageSubscription={() => setManageSubDialogOpen(true)}>
       <AchievementToast userId={user.id} />
       <ReferralRewardNotification userId={user.id} />
       
@@ -200,13 +201,19 @@ const Profile = () => {
               <TrialCTA userId={user.id} onTrialStarted={checkSubscription} />
             )}
             
-            {/* Subscription Manager for paid users */}
+            {/* Subscription status display with manage button */}
             {(subscriptionTier === 'premium' || subscriptionTier === 'vip') && (
-              <SubscriptionManager 
-                userId={user.id} 
-                currentTier={subscriptionTier as "free" | "premium" | "vip"}
-                onActionComplete={checkSubscription}
-              />
+              <AnimatedCard className="p-4 sm:p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">{t.subscription_active_plan}</p>
+                    <h3 className="text-xl font-bold">{subscriptionTier === 'premium' ? t.subscription_plan_premium : t.subscription_plan_vip}</h3>
+                  </div>
+                  <Button onClick={() => setManageSubDialogOpen(true)} variant="outline">
+                    {t.subs_manage}
+                  </Button>
+                </div>
+              </AnimatedCard>
             )}
             
             <UserAnalytics onUpgradeClick={() => setPremiumDialogOpen(true)} />
@@ -257,6 +264,12 @@ const Profile = () => {
       <ExportDataDialog open={exportDialogOpen} onOpenChange={setExportDialogOpen} userId={user.id} />
 
       <PremiumDialog open={premiumDialogOpen} onOpenChange={setPremiumDialogOpen} onUpgrade={() => {}} />
+
+      <ManageSubscriptionDialog 
+        open={manageSubDialogOpen} 
+        onOpenChange={setManageSubDialogOpen}
+        onSubscriptionUpdated={checkSubscription}
+      />
 
       <FlairsShop open={flairsDialogOpen} onOpenChange={setFlairsDialogOpen} userId={user.id} />
 
