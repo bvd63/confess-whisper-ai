@@ -1236,6 +1236,51 @@ type Translations = {
   quick_action_search: string;
   quick_action_communities: string;
   quick_action_nearby: string;
+  
+  // Profile Tiers
+  profile_tiers_free: string;
+  profile_tiers_premium: string;
+  profile_tiers_vip: string;
+  profile_tiers_expires: string;
+  profile_tiers_benefits: string;
+  
+  // Perks System
+  perks_title: string;
+  perks_subscription_title: string;
+  perks_badges_title: string;
+  perks_badges_status_active: string;
+  perks_badges_status_expired: string;
+  perks_badges_status_hidden: string;
+  perks_badges_make_public: string;
+  perks_badges_make_private: string;
+  perks_badges_set_featured: string;
+  perks_badges_remove_featured: string;
+  perks_badges_earned_on: string;
+  perks_no_badges: string;
+  
+  // Shop
+  shop_title: string;
+  shop_required_plan_free: string;
+  shop_required_plan_premium: string;
+  shop_required_plan_vip: string;
+  shop_lock_premium: string;
+  shop_lock_vip: string;
+  shop_purchase: string;
+  shop_purchased: string;
+  shop_expires_in: string;
+  shop_expired: string;
+  shop_active_for: string;
+  shop_buy_again: string;
+  shop_coins_balance: string;
+  
+  // Flair Names (Additional)
+  flair_sparkle: string;
+  flair_gem: string;
+  flair_lightning: string;
+  flair_magic: string;
+  
+  // Errors
+  errors_plan_too_low: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -2352,6 +2397,51 @@ export const translations: Record<Language, Translations> = {
     quick_action_search: "Search",
     quick_action_communities: "Communities",
     quick_action_nearby: "Nearby",
+    
+    // Profile Tiers
+    profile_tiers_free: "Free Member",
+    profile_tiers_premium: "Premium Member",
+    profile_tiers_vip: "VIP Member",
+    profile_tiers_expires: "Expires on {date}",
+    profile_tiers_benefits: "View benefits",
+    
+    // Perks System
+    perks_title: "My Perks",
+    perks_subscription_title: "Subscription",
+    perks_badges_title: "Badges & Flairs",
+    perks_badges_status_active: "Active",
+    perks_badges_status_expired: "Expired",
+    perks_badges_status_hidden: "Hidden",
+    perks_badges_make_public: "Make Public",
+    perks_badges_make_private: "Make Private",
+    perks_badges_set_featured: "Set as Featured",
+    perks_badges_remove_featured: "Remove from Featured",
+    perks_badges_earned_on: "Earned on {date}",
+    perks_no_badges: "No badges yet. Start by posting confessions!",
+    
+    // Shop
+    shop_title: "Flairs Shop",
+    shop_required_plan_free: "Available for all",
+    shop_required_plan_premium: "Requires Premium",
+    shop_required_plan_vip: "Requires VIP",
+    shop_lock_premium: "Upgrade to Premium to unlock",
+    shop_lock_vip: "Upgrade to VIP to unlock",
+    shop_purchase: "Purchase",
+    shop_purchased: "Purchased",
+    shop_expires_in: "Expires in {days} days",
+    shop_expired: "Expired",
+    shop_active_for: "Active for 5 days",
+    shop_buy_again: "Buy Again",
+    shop_coins_balance: "Coins: {balance}",
+    
+    // Flair Names (Additional)
+    flair_sparkle: "Sparkle",
+    flair_gem: "Gem",
+    flair_lightning: "Lightning",
+    flair_magic: "Magic",
+    
+    // Errors
+    errors_plan_too_low: "This item requires {plan}",
   },
   es: {
     app_name: "Confess+",
@@ -3468,6 +3558,51 @@ export const translations: Record<Language, Translations> = {
     quick_action_search: "Buscar",
     quick_action_communities: "Comunidades",
     quick_action_nearby: "Cercanas",
+    
+    // Profile Tiers
+    profile_tiers_free: "Miembro Gratis",
+    profile_tiers_premium: "Miembro Premium",
+    profile_tiers_vip: "Miembro VIP",
+    profile_tiers_expires: "Expira el {date}",
+    profile_tiers_benefits: "Ver beneficios",
+    
+    // Perks System
+    perks_title: "Mis Ventajas",
+    perks_subscription_title: "Suscripción",
+    perks_badges_title: "Insignias y Flairs",
+    perks_badges_status_active: "Activo",
+    perks_badges_status_expired: "Expirado",
+    perks_badges_status_hidden: "Oculto",
+    perks_badges_make_public: "Hacer Público",
+    perks_badges_make_private: "Hacer Privado",
+    perks_badges_set_featured: "Destacar",
+    perks_badges_remove_featured: "Quitar de Destacados",
+    perks_badges_earned_on: "Obtenido el {date}",
+    perks_no_badges: "Aún no tienes insignias. ¡Comienza publicando confesiones!",
+    
+    // Shop
+    shop_title: "Tienda de Flairs",
+    shop_required_plan_free: "Disponible para todos",
+    shop_required_plan_premium: "Requiere Premium",
+    shop_required_plan_vip: "Requiere VIP",
+    shop_lock_premium: "Actualiza a Premium para desbloquear",
+    shop_lock_vip: "Actualiza a VIP para desbloquear",
+    shop_purchase: "Comprar",
+    shop_purchased: "Comprado",
+    shop_expires_in: "Expira en {days} días",
+    shop_expired: "Expirado",
+    shop_active_for: "Activo por 5 días",
+    shop_buy_again: "Comprar de nuevo",
+    shop_coins_balance: "Monedas: {balance}",
+    
+    // Flair Names (Additional)
+    flair_sparkle: "Brillo",
+    flair_gem: "Gema",
+    flair_lightning: "Relámpago",
+    flair_magic: "Magia",
+    
+    // Errors
+    errors_plan_too_low: "Este artículo requiere {plan}",
   },
   de: {
     app_name: "Confess+",
@@ -4584,5 +4719,50 @@ export const translations: Record<Language, Translations> = {
     quick_action_search: "Suchen",
     quick_action_communities: "Communities",
     quick_action_nearby: "In der Nähe",
+    
+    // Profile Tiers
+    profile_tiers_free: "Kostenloses Mitglied",
+    profile_tiers_premium: "Premium-Mitglied",
+    profile_tiers_vip: "VIP-Mitglied",
+    profile_tiers_expires: "Läuft ab am {date}",
+    profile_tiers_benefits: "Vorteile ansehen",
+    
+    // Perks System
+    perks_title: "Meine Vorteile",
+    perks_subscription_title: "Abonnement",
+    perks_badges_title: "Abzeichen & Flairs",
+    perks_badges_status_active: "Aktiv",
+    perks_badges_status_expired: "Abgelaufen",
+    perks_badges_status_hidden: "Versteckt",
+    perks_badges_make_public: "Öffentlich machen",
+    perks_badges_make_private: "Privat machen",
+    perks_badges_set_featured: "Als Empfohlen festlegen",
+    perks_badges_remove_featured: "Von Empfohlen entfernen",
+    perks_badges_earned_on: "Erworben am {date}",
+    perks_no_badges: "Noch keine Abzeichen. Beginne damit, etwas zu posten!",
+    
+    // Shop
+    shop_title: "Flairs-Shop",
+    shop_required_plan_free: "Verfügbar für alle",
+    shop_required_plan_premium: "Erfordert Premium",
+    shop_required_plan_vip: "Erfordert VIP",
+    shop_lock_premium: "Upgrade auf Premium zum Freischalten",
+    shop_lock_vip: "Upgrade auf VIP zum Freischalten",
+    shop_purchase: "Kaufen",
+    shop_purchased: "Gekauft",
+    shop_expires_in: "Läuft ab in {days} Tagen",
+    shop_expired: "Abgelaufen",
+    shop_active_for: "Aktiv für 5 Tage",
+    shop_buy_again: "Erneut kaufen",
+    shop_coins_balance: "Münzen: {balance}",
+    
+    // Flair Names (Additional)
+    flair_sparkle: "Funkeln",
+    flair_gem: "Edelstein",
+    flair_lightning: "Blitz",
+    flair_magic: "Magie",
+    
+    // Errors
+    errors_plan_too_low: "Dieses Element erfordert {plan}",
   },
 };

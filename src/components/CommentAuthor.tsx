@@ -1,5 +1,5 @@
 import { useUserDisplayName } from "@/hooks/useUserDisplayName";
-import { SubscriptionBadge } from "./SubscriptionBadge";
+import { BadgeDisplay } from "./BadgeDisplay";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 
 interface CommentAuthorProps {
@@ -14,8 +14,14 @@ export const CommentAuthor = ({ userId, showBadge = true }: CommentAuthorProps) 
   return (
     <div className="flex items-center gap-1.5">
       <span className="font-medium">{displayName}</span>
-      {showBadge && subscriptionTier !== 'free' && (
-        <SubscriptionBadge tier={subscriptionTier} />
+      {showBadge && (
+        <BadgeDisplay 
+          userId={userId} 
+          subscriptionTier={subscriptionTier as "free" | "premium" | "vip"}
+          showSubscription={subscriptionTier !== 'free'}
+          variant="compact"
+          maxBadges={2}
+        />
       )}
     </div>
   );

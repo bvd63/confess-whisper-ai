@@ -50,6 +50,28 @@ serve(async (req) => {
       );
     }
 
+    // Check user's subscription tier
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('subscription_tier')
+      .eq('user_id', user.id)
+      .single();
+
+    const userTier = (profile?.subscription_tier || 'free') as 'free' | 'premium' | 'vip';
+    const requiredTier = (flair.required_plan || 'free') as 'free' | 'premium' | 'vip';
+
+    // Tier hierarchy: free < premium < vip
+    const tierLevel: Record<'free' | 'premium' | 'vip', number> = { free: 0, premium: 1, vip: 2 };
+    if (tierLevel[userTier] < tierLevel[requiredTier]) {
+      return new Response(
+        JSON.stringify({ 
+          error: `This flair requires ${requiredTier} subscription`,
+          requiredPlan: requiredTier 
+        }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Check if user already owns this flair
     const { data: existingFlair } = await supabase
       .from('user_flairs')

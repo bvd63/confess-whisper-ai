@@ -1158,6 +1158,7 @@ export type Database = {
           is_active: boolean
           name_key: string
           rarity: string
+          required_plan: string | null
         }
         Insert: {
           cost?: number
@@ -1167,6 +1168,7 @@ export type Database = {
           is_active?: boolean
           name_key: string
           rarity?: string
+          required_plan?: string | null
         }
         Update: {
           cost?: number
@@ -1176,6 +1178,7 @@ export type Database = {
           is_active?: boolean
           name_key?: string
           rarity?: string
+          required_plan?: string | null
         }
         Relationships: []
       }
@@ -1512,6 +1515,8 @@ export type Database = {
           earned_at: string | null
           expires_at: string | null
           id: string
+          is_featured: boolean | null
+          is_public: boolean | null
           user_id: string
         }
         Insert: {
@@ -1520,6 +1525,8 @@ export type Database = {
           earned_at?: string | null
           expires_at?: string | null
           id?: string
+          is_featured?: boolean | null
+          is_public?: boolean | null
           user_id: string
         }
         Update: {
@@ -1528,6 +1535,8 @@ export type Database = {
           earned_at?: string | null
           expires_at?: string | null
           id?: string
+          is_featured?: boolean | null
+          is_public?: boolean | null
           user_id?: string
         }
         Relationships: [
@@ -1628,6 +1637,8 @@ export type Database = {
           flair_id: string
           id: string
           is_equipped: boolean
+          is_featured: boolean | null
+          is_public: boolean | null
           purchased_at: string
           user_id: string
         }
@@ -1637,6 +1648,8 @@ export type Database = {
           flair_id: string
           id?: string
           is_equipped?: boolean
+          is_featured?: boolean | null
+          is_public?: boolean | null
           purchased_at?: string
           user_id: string
         }
@@ -1646,6 +1659,8 @@ export type Database = {
           flair_id?: string
           id?: string
           is_equipped?: boolean
+          is_featured?: boolean | null
+          is_public?: boolean | null
           purchased_at?: string
           user_id?: string
         }
