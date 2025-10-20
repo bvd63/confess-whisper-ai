@@ -182,18 +182,11 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
     }
   };
 
-  const handleAction = async (
-    action: 'upgrade' | 'downgrade' | 'cancel' | 'cancel_now' | 'reactivate',
-    targetTier?: string
-  ) => {
+  const handleChange = async (targetTier: 'premium' | 'vip') => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('manage-subscription-v2', {
-        body: { 
-          action,
-          targetTier,
-          when: action === 'cancel' ? 'period_end' : action === 'cancel_now' ? 'now' : undefined
-        }
+      const { data, error } = await supabase.functions.invoke('billing-change', {
+        body: { targetTier }
       });
 
       if (error) throw error;
@@ -209,23 +202,90 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
 
       toast({
         title: t.subs_toast_success || t.common_success,
-        description: data.message || t.common_success,
+        description: t.subs_toast_change_success,
       });
 
       await loadSubscriptionStatus();
       onSubscriptionUpdated?.();
     } catch (error: any) {
-      console.error('Error managing subscription:', error);
-      const message = typeof error?.message === 'string' ? error.message : t.error_generic;
+      console.error('Error changing subscription:', error);
       toast({
         title: t.error_generic,
-        description: message,
+        description: error?.message || t.error_generic,
         variant: "destructive",
       });
-      if (message?.toLowerCase().includes('no stripe customer') || message?.toLowerCase().includes('no active subscription')) {
-        // If user has no subscription, show plan selector next time
-        setShowPlans(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancel = async (immediate: boolean = false) => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('billing-cancel', {
+        body: { immediate }
+      });
+
+      if (error) throw error;
+
+      if (data?.error) {
+        toast({
+          title: t.error_generic,
+          description: data.error,
+          variant: "destructive",
+        });
+        return;
       }
+
+      toast({
+        title: t.subs_toast_success || t.common_success,
+        description: immediate ? t.subs_toast_cancel_now_success : t.subs_toast_cancel_success,
+      });
+
+      await loadSubscriptionStatus();
+      onSubscriptionUpdated?.();
+    } catch (error: any) {
+      console.error('Error canceling subscription:', error);
+      toast({
+        title: t.error_generic,
+        description: error?.message || t.error_generic,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleReactivate = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('billing-reactivate');
+
+      if (error) throw error;
+
+      if (data?.error) {
+        toast({
+          title: t.error_generic,
+          description: data.error,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: t.subs_toast_success || t.common_success,
+        description: t.subs_toast_reactivate_success,
+      });
+
+      await loadSubscriptionStatus();
+      onSubscriptionUpdated?.();
+    } catch (error: any) {
+      console.error('Error reactivating subscription:', error);
+      toast({
+        title: t.error_generic,
+        description: error?.message || t.error_generic,
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -254,11 +314,11 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
   }
 
   const isFreeUser = status.tier === 'free' && !status.isTrial;
-  const hasActiveSubscription = (status.tier === 'premium' || status.tier === 'vip') && !status.isTrial;
-  const canUpgrade = status.tier === 'premium' && !status.isTrial && !!status.currentPeriodEnd;
-  const canDowngrade = status.tier === 'vip' && !status.isTrial && !!status.currentPeriodEnd;
-  const canReactivate = status.cancelAtPeriodEnd && !!status.currentPeriodEnd;
+  const hasActiveSubscription = ['premium', 'vip'].includes(status.tier) && !status.cancelAtPeriodEnd;
   const showBuyButton = isFreeUser;
+  const showChangeButton = hasActiveSubscription && !status.isTrial;
+  const showCancelButton = hasActiveSubscription && !status.cancelAtPeriodEnd && !status.isTrial;
+  const showReactivateButton = status.cancelAtPeriodEnd && !!status.currentPeriodEnd;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -414,59 +474,80 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
               </AlertDialog>
             )}
             
-            {/* Upgrade Button */}
-            {canUpgrade && (
+            {/* Change Button - Switch between Premium and VIP */}
+            {showChangeButton && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
                     disabled={isLoading}
                     className="w-full bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white border-0 shadow-glow h-12"
                   >
-                    <ArrowUp className="w-5 h-5 mr-2" />
-                    {t.subs_action_upgrade} VIP
+                    <RotateCcw className="w-5 h-5 mr-2" />
+                    {t.subs_action_change}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>{t.subs_confirm_title}</AlertDialogTitle>
                     <AlertDialogDescription>
-                      {t.subs_confirm_upgrade.replace('{tier}', 'VIP')}
+                      {status.tier === 'premium' 
+                        ? t.subs_confirm_change_to_vip
+                        : t.subs_confirm_change_to_premium
+                      }
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>{t.cancel}</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => handleAction('upgrade', 'vip')}>
-                      {t.subs_action_upgrade}
+                    <AlertDialogCancel disabled={isLoading}>{t.cancel}</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={() => handleChange(status.tier === 'premium' ? 'vip' : 'premium')}
+                      disabled={isLoading}
+                    >
+                      {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                      {t.subs_action_change}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
             )}
 
-            {/* Downgrade Button */}
-            {canDowngrade && (
+            {/* Cancel Button */}
+            {showCancelButton && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
                     disabled={isLoading}
                     variant="outline"
-                    className="w-full h-12"
+                    className="w-full h-12 text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30"
                   >
-                    <ArrowDown className="w-5 h-5 mr-2" />
-                    {t.subs_action_downgrade} Premium
+                    <XCircle className="w-5 h-5 mr-2" />
+                    {t.subs_action_cancel}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>{t.subs_confirm_title}</AlertDialogTitle>
                     <AlertDialogDescription>
-                      {t.subs_confirm_downgrade.replace('{tier}', 'Premium')}
+                      {t.subs_confirm_cancel}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>{t.cancel}</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => handleAction('downgrade', 'premium')}>
-                      {t.subs_action_downgrade}
+                  <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                    <AlertDialogCancel disabled={isLoading}>{t.common_cancel}</AlertDialogCancel>
+                    <Button
+                      onClick={() => handleCancel(true)}
+                      disabled={isLoading}
+                      variant="outline"
+                      className="border-orange-500/50 text-orange-600 hover:bg-orange-500/10"
+                    >
+                      {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                      {t.subs_cancel_immediate}
+                    </Button>
+                    <AlertDialogAction 
+                      onClick={() => handleCancel(false)}
+                      disabled={isLoading}
+                      className="bg-destructive hover:bg-destructive/90"
+                    >
+                      {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                      {t.subs_cancel_at_period_end}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -474,13 +555,12 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
             )}
 
             {/* Reactivate Button */}
-            {canReactivate && (
+            {showReactivateButton && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
                     disabled={isLoading}
-                    variant="default"
-                    className="w-full h-12 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                    className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white border-0 shadow-glow h-12"
                   >
                     <RotateCcw className="w-5 h-5 mr-2" />
                     {t.subs_action_reactivate}
@@ -494,8 +574,9 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>{t.cancel}</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => handleAction('reactivate')}>
+                    <AlertDialogCancel disabled={isLoading}>{t.cancel}</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleReactivate} disabled={isLoading}>
+                      {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                       {t.subs_action_reactivate}
                     </AlertDialogAction>
                   </AlertDialogFooter>
@@ -503,65 +584,6 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
               </AlertDialog>
             )}
 
-            {/* Cancel Button */}
-            {!status.cancelAtPeriodEnd && !status.isTrial && !!status.currentPeriodEnd && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    disabled={isLoading}
-                    variant="destructive"
-                    className="w-full h-12"
-                  >
-                    <XCircle className="w-5 h-5 mr-2" />
-                    {t.subs_action_cancel}
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>{t.subs_confirm_title}</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      {t.subs_confirm_cancel_periodEnd.replace('{date}', status.currentPeriodEnd ? format(new Date(status.currentPeriodEnd), 'PPP') : '')}
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>{t.cancel}</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => handleAction('cancel')}>
-                      {t.subs_action_cancelAtPeriodEnd}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
-
-            {/* Cancel Trial Button */}
-            {status.isTrial && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    disabled={isLoading}
-                    variant="destructive"
-                    className="w-full h-12"
-                  >
-                    <XCircle className="w-5 h-5 mr-2" />
-                    {t.subs_action_cancelTrial}
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>{t.subs_confirm_title}</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      {t.subs_confirm_cancel_now}
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>{t.cancel}</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => handleAction('cancel_now')}>
-                      {t.subs_action_cancelNow}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
           </div>
 
           {/* Inline Note */}

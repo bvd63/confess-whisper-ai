@@ -1056,8 +1056,18 @@ type Translations = {
   subs_confirm_cancel_periodEnd: string;
   subs_confirm_cancel_now: string;
   subs_confirm_reactivate: string;
+  subs_confirm_cancel: string;
+  subs_confirm_change_to_vip: string;
+  subs_confirm_change_to_premium: string;
+  subs_cancel_immediate: string;
+  subs_cancel_at_period_end: string;
   subs_toast_success: string;
+  subs_toast_change_success: string;
+  subs_toast_cancel_success: string;
+  subs_toast_cancel_now_success: string;
+  subs_toast_reactivate_success: string;
   subs_note_inline: string;
+  common_cancel: string;
   subs_status_cancels: string;
   subs_full_management: string;
   subs_portal_description: string;
@@ -2487,8 +2497,18 @@ export const translations: Record<Language, Translations> = {
   subs_confirm_cancel_periodEnd: "Keep benefits until {date}, then cancel. Continue?",
   subs_confirm_cancel_now: "Cancel immediately and lose benefits now. Continue?",
   subs_confirm_reactivate: "Reactivate your subscription and continue enjoying premium benefits?",
+  subs_confirm_cancel: "Are you sure you want to cancel your subscription?",
+  subs_confirm_change_to_vip: "Switch from Premium to VIP? You'll be charged the difference prorated.",
+  subs_confirm_change_to_premium: "Switch from VIP to Premium? You'll receive a prorated credit.",
+  subs_cancel_immediate: "Cancel Now",
+  subs_cancel_at_period_end: "Cancel at Period End",
   subs_toast_success: "Done!",
+  subs_toast_change_success: "Plan changed successfully!",
+  subs_toast_cancel_success: "Subscription will cancel at period end",
+  subs_toast_cancel_now_success: "Subscription canceled immediately",
+  subs_toast_reactivate_success: "Subscription reactivated successfully!",
   subs_note_inline: "You can change, cancel, or reactivate your plan here at any time.",
+  common_cancel: "Cancel",
   subs_status_cancels: "Cancels on",
   subs_full_management: "Full Subscription Management",
   subs_portal_description: "Access Stripe portal to change plans, update payment method, view invoices, or cancel subscription.",
@@ -3772,8 +3792,18 @@ export const translations: Record<Language, Translations> = {
   subs_confirm_cancel_periodEnd: "Mantener beneficios hasta {date}, luego cancelar. ¿Continuar?",
   subs_confirm_cancel_now: "Cancelar de inmediato y perder beneficios ahora. ¿Continuar?",
   subs_confirm_reactivate: "¿Reactivar tu suscripción y seguir disfrutando de los beneficios premium?",
+  subs_confirm_cancel: "¿Está seguro de que desea cancelar su suscripción?",
+  subs_confirm_change_to_vip: "¿Cambiar de Premium a VIP? Se le cobrará la diferencia prorrateada.",
+  subs_confirm_change_to_premium: "¿Cambiar de VIP a Premium? Recibirá un crédito prorrateado.",
+  subs_cancel_immediate: "Cancelar ahora",
+  subs_cancel_at_period_end: "Cancelar al final del período",
   subs_toast_success: "¡Hecho!",
+  subs_toast_change_success: "¡Plan cambiado exitosamente!",
+  subs_toast_cancel_success: "La suscripción se cancelará al final del período",
+  subs_toast_cancel_now_success: "Suscripción cancelada inmediatamente",
+  subs_toast_reactivate_success: "¡Suscripción reactivada exitosamente!",
   subs_note_inline: "Puedes cambiar, cancelar o reactivar tu plan aquí en cualquier momento.",
+  common_cancel: "Cancelar",
   subs_status_cancels: "Se cancela el",
   subs_full_management: "Gestión Completa de Suscripción",
   subs_portal_description: "Accede al portal de Stripe para cambiar planes, actualizar método de pago, ver facturas o cancelar suscripción.",
@@ -5090,8 +5120,18 @@ export const translations: Record<Language, Translations> = {
   subs_confirm_cancel_periodEnd: "Vorteile bis {date} behalten, dann kündigen. Fortfahren?",
   subs_confirm_cancel_now: "Sofort kündigen und Vorteile verlieren. Fortfahren?",
   subs_confirm_reactivate: "Dein Abonnement reaktivieren und weiterhin Premium-Vorteile genießen?",
+  subs_confirm_cancel: "Sind Sie sicher, dass Sie Ihr Abonnement kündigen möchten?",
+  subs_confirm_change_to_vip: "Von Premium auf VIP wechseln? Die Differenz wird anteilig berechnet.",
+  subs_confirm_change_to_premium: "Von VIP auf Premium wechseln? Sie erhalten eine anteilige Gutschrift.",
+  subs_cancel_immediate: "Jetzt kündigen",
+  subs_cancel_at_period_end: "Am Periodenende kündigen",
   subs_toast_success: "Erledigt!",
+  subs_toast_change_success: "Plan erfolgreich geändert!",
+  subs_toast_cancel_success: "Abonnement wird am Periodenende gekündigt",
+  subs_toast_cancel_now_success: "Abonnement sofort gekündigt",
+  subs_toast_reactivate_success: "Abonnement erfolgreich reaktiviert!",
   subs_note_inline: "Du kannst deinen Plan hier jederzeit ändern, kündigen oder reaktivieren.",
+  common_cancel: "Abbrechen",
   subs_status_cancels: "Kündigt am",
   subs_full_management: "Vollständige Abo-Verwaltung",
   subs_portal_description: "Zugriff auf Stripe-Portal, um Pläne zu ändern, Zahlungsmethode zu aktualisieren, Rechnungen anzuzeigen oder Abonnement zu kündigen.",
