@@ -39,8 +39,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: 'premium',
     name: 'Premium',
-    priceMonthly: 9.99,
-    priceYearly: 99.99, // ~17% savings
+    priceMonthly: 4.99,
+    priceYearly: 39.99, // ~33% savings
     stripePriceIdMonthly: 'price_1SJ0vvR7kygIyYg9oT1ju6lQ',
     stripePriceIdYearly: 'price_1SJ0vvR7kygIyYg9yORadPGD',
     isPopular: true,
@@ -57,8 +57,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: 'vip',
     name: 'VIP',
-    priceMonthly: 19.99,
-    priceYearly: 199.99, // ~17% savings
+    priceMonthly: 9.99,
+    priceYearly: 79.99, // ~33% savings
     stripePriceIdMonthly: 'price_1SJ0vwR7kygIyYg9OeCiqV00',
     stripePriceIdYearly: 'price_1SJ0vvR7kygIyYg9BJuciYGd',
     benefits: [
