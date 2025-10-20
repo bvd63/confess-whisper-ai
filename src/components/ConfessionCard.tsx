@@ -168,12 +168,6 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
           onReport={() => setIsReportOpen(true)}
           onDelete={handleDeleteConfession}
         />
-        {isOwner && !boostStatus.isActive && (
-          <BoostConfessionButton 
-            confessionId={confession.id}
-            onBoostSuccess={refetchBoost}
-          />
-        )}
       </div>
 
       {confession.ai_response && (
