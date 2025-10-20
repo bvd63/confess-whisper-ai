@@ -30,6 +30,7 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
         isOnTrial: false,
         trialEndDate: null,
         trialEligible: true, // Default to eligible if no data
+        uiMode: 'free' as const,
       };
     }
 
@@ -56,17 +57,23 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
         trialEndDate,
         trialEligible: false, // Already using trial
         subscriptionEndsAt: endsAt,
+        uiMode: 'premium' as const,
       };
     }
 
+    const isPremiumUser = (hasActivePremium || tier !== 'free') && subscriptionActive;
+    const currentTier = subscriptionActive ? tier : 'free';
+    const isVIPUser = subscriptionActive && tier === 'vip';
+
     return {
-      isPremium: (hasActivePremium || tier !== 'free') && subscriptionActive,
-      subscriptionTier: subscriptionActive ? tier : 'free',
-      isVIP: subscriptionActive && tier === 'vip',
+      isPremium: isPremiumUser,
+      subscriptionTier: currentTier,
+      isVIP: isVIPUser,
       isOnTrial: false,
       trialEndDate: null,
       trialEligible,
       subscriptionEndsAt: endsAt,
+      uiMode: (isPremiumUser || isVIPUser) ? 'premium' as const : 'free' as const,
     };
   }, [data]);
 

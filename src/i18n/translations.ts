@@ -981,6 +981,7 @@ type Translations = {
   trial_cta_disclaimer: string;
   trial_error_used: string;
   trial_error_already_subscribed: string;
+  trial_ended_toast: string;
   trial_active: string;
   subs_manage: string;
   subs_cancel: string;
@@ -1973,10 +1974,10 @@ export const translations: Record<Language, Translations> = {
     plans_paywall_title: "Choose your subscription plan",
     plans_paywall_subtitle: "Compare features and find your best experience.",
     
-    // Trial System
-    trial_offer_title: "Try Premium Free!",
-    trial_offer_desc: "Get full Premium access for 3 days, no credit card required",
-    trial_button_text: "Try 3 Days Free",
+  // Trial System
+  trial_offer_title: "Try Premium Free!",
+  trial_offer_desc: "Enjoy full Premium features for 3 days.",
+  trial_button_text: "Try 3 Days Free",
     trial_already_used_title: "Trial Already Used",
     trial_already_used_desc: "You've already used your free trial.",
     trial_activated_title: "🎉 Premium Trial Activated!",
@@ -2356,9 +2357,10 @@ export const translations: Record<Language, Translations> = {
   trial_cta_title: "Try Premium Free!",
   trial_cta_desc: "Enjoy full Premium for 3 days.",
   trial_cta_button: "Try 3 Days Free",
-  trial_cta_disclaimer: "After 3 days, you'll be charged unless you cancel.",
+  trial_cta_disclaimer: "After 3 days, you'll be charged the Premium plan price unless you cancel.",
   trial_error_used: "You've already used your Premium trial.",
   trial_error_already_subscribed: "You already have an active subscription.",
+  trial_ended_toast: "Your Premium trial ended. You're back to Free.",
   trial_active: "Your Premium trial is active until {date}",
   subs_manage: "Manage subscription",
   subs_cancel: "Cancel subscription",
@@ -3588,9 +3590,10 @@ export const translations: Record<Language, Translations> = {
   trial_cta_title: "¡Prueba Premium gratis!",
   trial_cta_desc: "Disfruta de Premium completo durante 3 días.",
   trial_cta_button: "Prueba 3 días gratis",
-  trial_cta_disclaimer: "Después de 3 días, se te cobrará a menos que canceles.",
+  trial_cta_disclaimer: "Después de 3 días, se te cobrará el precio de Premium a menos que canceles.",
   trial_error_used: "Ya has utilizado tu prueba de Premium.",
   trial_error_already_subscribed: "Ya tienes una suscripción activa.",
+  trial_ended_toast: "Tu prueba de Premium terminó. Has vuelto a Free.",
   trial_active: "Tu prueba Premium está activa hasta {date}",
   subs_manage: "Gestionar suscripción",
   subs_cancel: "Cancelar suscripción",
@@ -4853,9 +4856,10 @@ export const translations: Record<Language, Translations> = {
   trial_cta_title: "Premium gratis testen!",
   trial_cta_desc: "Genieße alle Premium-Funktionen für 3 Tage.",
   trial_cta_button: "3 Tage gratis testen",
-  trial_cta_disclaimer: "Nach 3 Tagen wird abgerechnet, sofern du nicht kündigst.",
+  trial_cta_disclaimer: "Nach 3 Tagen wird der Premium-Preis berechnet, sofern du nicht kündigst.",
   trial_error_used: "Du hast den Premium-Test bereits genutzt.",
   trial_error_already_subscribed: "Du hast bereits ein aktives Abonnement.",
+  trial_ended_toast: "Dein Premium-Test ist beendet. Du bist wieder Free.",
   trial_active: "Deine Premium-Testphase läuft bis {date}",
   subs_manage: "Abo verwalten",
   subs_cancel: "Abo kündigen",

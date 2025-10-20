@@ -307,7 +307,7 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
                       {t.trial_offer_title || "Try Premium Free!"}
                     </h3>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {t.trial_offer_desc || "Get full Premium access for 3 days, no credit card required"}
+                      {t.trial_cta_desc || "Enjoy full Premium features for 3 days."}
                     </p>
                   </div>
                   <Button 

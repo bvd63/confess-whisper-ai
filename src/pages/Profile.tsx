@@ -43,6 +43,7 @@ import { FlairsShopButton } from "@/components/FlairsShopButton";
 import { TrialBanner } from "@/components/TrialBanner";
 import { TrialCTA } from "@/components/TrialCTA";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
+import { useTrialExpiryCheck } from "@/hooks/useTrialExpiryCheck";
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 const Profile = () => {
   const navigate = useNavigate();
@@ -86,6 +87,9 @@ const Profile = () => {
   const {
     toast
   } = useToast();
+  
+  // Check for trial expiry and show notification
+  useTrialExpiryCheck(user?.id || null, isOnTrial);
   useEffect(() => {
     if (user?.id) {
       loadPasswordChangedAt();

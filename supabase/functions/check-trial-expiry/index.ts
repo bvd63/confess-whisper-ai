@@ -30,21 +30,51 @@ serve(async (req) => {
     // Get user's trial status
     const { data: profile, error: profileError } = await supabaseClient
       .from("profiles")
-      .select("trial_active, trial_end_date, subscription_tier")
+      .select("trial_active, trial_end_date, trial_premium_ends_at, subscription_tier")
       .eq("user_id", user.id)
       .single();
 
     if (profileError) throw profileError;
 
-    // Check if trial is active but expired
+    // Check trial_premium_ends_at (new Premium trial system)
+    if (profile.trial_premium_ends_at) {
+      const trialEndDate = new Date(profile.trial_premium_ends_at);
+      const now = new Date();
+
+      if (now > trialEndDate) {
+        console.log(`[CHECK-TRIAL-EXPIRY] Premium trial expired for user ${user.id}, reverting to free`);
+        
+        // Revert to free tier
+        const { error: updateError } = await supabaseClient
+          .from("profiles")
+          .update({
+            trial_active: false,
+            subscription_tier: "free",
+            is_premium: false,
+            trial_premium_ends_at: null
+          })
+          .eq("user_id", user.id);
+
+        if (updateError) throw updateError;
+
+        return new Response(
+          JSON.stringify({ 
+            trialExpired: true,
+            message: "Premium trial expired, reverted to free tier"
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+        );
+      }
+    }
+
+    // Legacy trial check for old trial_end_date field
     if (profile.trial_active && profile.trial_end_date) {
       const trialEndDate = new Date(profile.trial_end_date);
       const now = new Date();
 
       if (now > trialEndDate) {
-        console.log(`[CHECK-TRIAL-EXPIRY] Trial expired for user ${user.id}, reverting to free`);
+        console.log(`[CHECK-TRIAL-EXPIRY] Legacy trial expired for user ${user.id}, reverting to free`);
         
-        // Revert to free tier
         const { error: updateError } = await supabaseClient
           .from("profiles")
           .update({
@@ -59,7 +89,7 @@ serve(async (req) => {
         return new Response(
           JSON.stringify({ 
             trialExpired: true,
-            message: "Trial expired, reverted to free tier"
+            message: "Legacy trial expired, reverted to free tier"
           }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
         );
