@@ -13,7 +13,7 @@ import { createPortal } from "react-dom";
 export const InstagramBottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { switchTab, activeTab } = useTabNavigation();
+  const { switchTab, activeTab, pushToTabStack } = useTabNavigation();
   const { user } = useCurrentUser();
   const { totalUnread } = useUnreadCount(user?.id || null);
   const { t } = useLanguage();
@@ -27,11 +27,14 @@ export const InstagramBottomNav = () => {
   ];
 
   const handleTabClick = (tabId: "home" | "explore" | "messages" | "profile" | "compose") => {
-    console.log('[BottomNav] Tab clicked:', tabId);
+    console.log('[BottomNav] Tab clicked:', tabId, 'current path:', location.pathname);
     
     if (tabId === "compose") {
-      // Compose is not a tab, navigate directly without switching tabs
-      navigate("/compose");
+      // Push compose to home tab stack before navigating
+      pushToTabStack('home', '/compose');
+      // Navigate with push (not replace) to allow going back
+      console.log('[BottomNav] Navigating to /compose');
+      navigate("/compose", { replace: false });
       return;
     }
     

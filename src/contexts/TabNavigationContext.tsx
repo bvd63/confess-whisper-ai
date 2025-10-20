@@ -105,9 +105,10 @@ export const TabNavigationProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     if (newTab && newTab !== activeTab) {
+      console.log('[TabNav] Setting activeTab from route:', { path, newTab, prevTab: activeTab });
       setActiveTab(newTab);
     }
-  }, [location.pathname]);
+  }, [location.pathname, activeTab]);
 
   // Restore last active tab and its last path on resume (sessionStorage present)
   const restoredRef = React.useRef(false);
