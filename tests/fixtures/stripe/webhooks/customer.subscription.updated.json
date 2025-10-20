@@ -1,0 +1,24 @@
+{
+  "id": "evt_test_webhook_005",
+  "object": "event",
+  "type": "customer.subscription.updated",
+  "data": {
+    "object": {
+      "id": "sub_premium_monthly_001",
+      "object": "subscription",
+      "customer": "cus_test_001",
+      "status": "active",
+      "current_period_end": 1731438000,
+      "items": {
+        "data": [
+          {
+            "price": {
+              "id": "price_1SJ0vwR7kygIyYg9OeCiqV00",
+              "product": "prod_vip"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "id": "evt_test_webhook_003",
+  "object": "event",
+  "type": "checkout.session.completed",
+  "data": {
+    "object": {
+      "id": "cs_test_001",
+      "object": "checkout.session",
+      "customer": "cus_test_001",
+      "mode": "subscription",
+      "payment_status": "paid",
+      "status": "complete",
+      "subscription": "sub_premium_monthly_001"
+    }
+  }
+}

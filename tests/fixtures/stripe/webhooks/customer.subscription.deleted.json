@@ -1,0 +1,15 @@
+{
+  "id": "evt_test_webhook_006",
+  "object": "event",
+  "type": "customer.subscription.deleted",
+  "data": {
+    "object": {
+      "id": "sub_premium_monthly_001",
+      "object": "subscription",
+      "customer": "cus_test_001",
+      "status": "canceled",
+      "canceled_at": 1729443600,
+      "ended_at": 1731438000
+    }
+  }
+}

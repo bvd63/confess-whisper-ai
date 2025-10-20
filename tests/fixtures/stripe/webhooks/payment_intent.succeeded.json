@@ -1,0 +1,18 @@
+{
+  "id": "evt_test_webhook_001",
+  "object": "event",
+  "type": "payment_intent.succeeded",
+  "data": {
+    "object": {
+      "id": "pi_test_001",
+      "object": "payment_intent",
+      "amount": 1999,
+      "currency": "usd",
+      "status": "succeeded",
+      "customer": "cus_test_001",
+      "metadata": {
+        "subscription_id": "sub_premium_monthly_001"
+      }
+    }
+  }
+}

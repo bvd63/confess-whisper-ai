@@ -1,0 +1,16 @@
+{
+  "id": "evt_test_webhook_004",
+  "object": "event",
+  "type": "invoice.paid",
+  "data": {
+    "object": {
+      "id": "in_test_001",
+      "object": "invoice",
+      "customer": "cus_test_001",
+      "subscription": "sub_premium_monthly_001",
+      "status": "paid",
+      "amount_paid": 1999,
+      "currency": "usd"
+    }
+  }
+}

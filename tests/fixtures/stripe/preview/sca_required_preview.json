@@ -1,0 +1,15 @@
+{
+  "subscription_id": "sub_premium_monthly_001",
+  "current_price_id": "price_1SJ0vvR7kygIyYg9oT1ju6lQ",
+  "target_price_id": "price_1SJ0vwR7kygIyYg9OeCiqV00",
+  "proration_amount": 350,
+  "new_amount": 1999,
+  "currency": "usd",
+  "billing_cycle": "monthly",
+  "effective_date": "2025-10-20T18:00:00Z",
+  "is_upgrade": true,
+  "savings_percent": 0,
+  "next_billing_date": "2025-11-12T18:00:00Z",
+  "requires_action": true,
+  "client_secret": "pi_test_secret_sca_required"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "evt_test_webhook_002",
+  "object": "event",
+  "type": "payment_intent.requires_action",
+  "data": {
+    "object": {
+      "id": "pi_test_002",
+      "object": "payment_intent",
+      "amount": 1999,
+      "currency": "usd",
+      "status": "requires_action",
+      "customer": "cus_test_001",
+      "client_secret": "pi_test_secret_sca_required",
+      "next_action": {
+        "type": "use_stripe_sdk"
+      },
+      "metadata": {
+        "subscription_id": "sub_premium_monthly_001"
+      }
+    }
+  }
+}
