@@ -63,12 +63,19 @@ serve(async (req) => {
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    let customerId: string;
     if (customers.data.length === 0) {
-      log('warn', '[CUSTOMER-PORTAL] No customer found', { requestId, email: user.email });
-      throw new Error("No Stripe customer found for this user");
+      log('warn', '[CUSTOMER-PORTAL] No customer found, creating one', { requestId, email: user.email });
+      const created = await stripe.customers.create({
+        email: user.email,
+        metadata: { userId: user.id },
+      });
+      customerId = created.id;
+      log('info', '[CUSTOMER-PORTAL] Customer created', { requestId, customerId });
+    } else {
+      customerId = customers.data[0].id;
+      log('info', '[CUSTOMER-PORTAL] Customer found', { requestId, customerId });
     }
-    const customerId = customers.data[0].id;
-    log('info', '[CUSTOMER-PORTAL] Customer found', { requestId, customerId });
 
     const origin = req.headers.get("origin") || "http://localhost:8080";
     const portalSession = await stripe.billingPortal.sessions.create({
