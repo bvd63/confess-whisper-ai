@@ -178,7 +178,7 @@ const NotificationsDropdown = () => {
     
     // For message notifications, navigate to messages
     if (notification.type === 'comment' && notification.triggered_by) {
-      navigate(`/messages?user=${notification.triggered_by}`);
+      navigate('/messages');
       setIsOpen(false);
       return;
     }

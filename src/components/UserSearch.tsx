@@ -42,7 +42,7 @@ const UserSearchResultItem = ({ user, currentUserId, navigate, t }: {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate(`/messages?user=${user.user_id}`)}
+            onClick={() => navigate('/messages')}
             title={t.messages_title}
           >
             <MessageCircle className="w-4 h-4" />

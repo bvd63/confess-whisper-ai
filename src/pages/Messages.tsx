@@ -89,7 +89,7 @@ const Messages = () => {
       setSelectedConversation((convId as string) || null);
       setOtherUserId(targetUserId);
       // Ensure messages tab stack reflects deep-linked conversation
-      pushToTabStack('messages', `/messages?user=${targetUserId}`);
+      pushToTabStack('messages', `/messages`);
     } catch (error) {
       console.error('Error starting conversation:', error);
     }
@@ -131,11 +131,8 @@ const Messages = () => {
     setSelectedConversation(conversationId);
     setOtherUserId(userId);
     
-    // Update URL to reflect conversation state
-    setSearchParams({ user: userId });
-    
     // Track in messages tab stack for in-tab back navigation
-    pushToTabStack('messages', `/messages?user=${userId}`);
+    pushToTabStack('messages', `/messages`);
     
     // Save session state (never persist a specific conversation)
     await sessionManager.saveSessionState('/messages', null);
@@ -146,8 +143,6 @@ const Messages = () => {
     setOtherUserId(null);
     setOtherUserNickname(null);
     
-    // Clear URL params to return to messages list
-    setSearchParams({});
     // Ensure URL is reset to messages root
     navigate('/messages', { replace: true });
     

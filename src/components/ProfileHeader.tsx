@@ -123,7 +123,7 @@ export const ProfileHeader = ({
             </EnhancedButton>
             <EnhancedButton
               variant="outline"
-              onClick={() => navigate(`/messages?user=${userId}`)}
+              onClick={() => navigate('/messages')}
               lift
             >
               <MessageCircle className="w-4 h-4" />

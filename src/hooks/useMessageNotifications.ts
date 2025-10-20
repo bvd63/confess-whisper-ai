@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useNavigate } from 'react-router-dom';
 
 interface UseMessageNotificationsProps {
   userId: string | undefined;
@@ -12,6 +13,7 @@ export const useMessageNotifications = ({ userId, enabled = true }: UseMessageNo
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hasPermission = useRef(false);
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Request notification permission
@@ -65,7 +67,7 @@ export const useMessageNotifications = ({ userId, enabled = true }: UseMessageNo
             action: {
               label: t.notification_view,
               onClick: () => {
-                window.location.href = `/messages?user=${notification.triggered_by}`;
+                navigate('/messages');
               }
             }
           });
