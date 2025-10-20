@@ -11,11 +11,13 @@ import { usePasswordValidation, validatePasswordStrength } from "@/hooks/usePass
 import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
 import { PasswordRulesChecklist } from "@/components/PasswordRulesChecklist";
 import { supabase } from "@/integrations/supabase/client";
+import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
 import { cn } from "@/lib/utils";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { revokeAllSessions } = useEnhancedAuth();
   const [searchParams] = useSearchParams();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -62,13 +64,7 @@ export default function ResetPassword() {
       if (updateError) throw updateError;
 
       // Revoke all existing sessions after password reset for security
-      try {
-        await supabase.rpc('revoke_all_user_sessions', {
-          _user_id: (await supabase.auth.getUser()).data.user?.id
-        });
-      } catch (err) {
-        console.error('Failed to revoke sessions:', err);
-      }
+      await revokeAllSessions();
 
       setSuccess(true);
 
