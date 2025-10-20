@@ -19,10 +19,10 @@ function log(level: string, message: string, context?: any) {
 
 // Stripe price IDs - Single Source of Truth
 const PRICE_IDS = {
-  premium_monthly: "price_1SKGCzR7kygIyYg9DGRcT8Pg",
-  premium_yearly: "price_1SKGCzR7kygIyYg9DGRcT8Pg",
-  vip_monthly: "price_1SKH1TR7kygIyYg9SZ2iH7Kw",
-  vip_yearly: "price_1SKH1TR7kygIyYg9SZ2iH7Kw",
+  premium_monthly: "price_1SJ0vvR7kygIyYg9oT1ju6lQ",
+  premium_yearly: "price_1SJ0vvR7kygIyYg9yORadPGD",
+  vip_monthly: "price_1SJ0vwR7kygIyYg9OeCiqV00",
+  vip_yearly: "price_1SJ0vvR7kygIyYg9BJuciYGd",
 };
 
 serve(async (req) => {

@@ -13,8 +13,8 @@ const logStep = (step: string, details?: any) => {
 };
 
 const STRIPE_PRICE_IDS = {
-  premium: "price_1SKGCzR7kygIyYg9DGRcT8Pg",
-  vip: "price_1SKH1TR7kygIyYg9SZ2iH7Kw",
+  premium: "price_1SJ0vvR7kygIyYg9oT1ju6lQ",
+  vip: "price_1SJ0vwR7kygIyYg9OeCiqV00",
 };
 
 serve(async (req) => {

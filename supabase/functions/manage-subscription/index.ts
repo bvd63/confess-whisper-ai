@@ -98,8 +98,8 @@ serve(async (req) => {
       }
 
       const priceIds = {
-        premium: "price_1SKGCzR7kygIyYg9DGRcT8Pg",
-        vip: "price_1SKGDER7kygIyYg9Vhyb5Vcz"
+        premium: "price_1SJ0vvR7kygIyYg9oT1ju6lQ",
+        vip: "price_1SJ0vwR7kygIyYg9OeCiqV00"
       };
 
       const newPriceId = priceIds[newTier as keyof typeof priceIds];

@@ -76,12 +76,14 @@ serve(async (req) => {
       tier = 'premium'; // During trial, treat as premium
     } else if (stripeSubscription) {
       const priceId = stripeSubscription.items.data[0]?.price.id;
-      const premiumPrice = "price_1SKGCzR7kygIyYg9DGRcT8Pg";
-      const vipPrice = "price_1SKGDER7kygIyYg9Vhyb5Vcz";
+      const premiumMonthly = "price_1SJ0vvR7kygIyYg9oT1ju6lQ";
+      const premiumYearly = "price_1SJ0vvR7kygIyYg9yORadPGD";
+      const vipMonthly = "price_1SJ0vwR7kygIyYg9OeCiqV00";
+      const vipYearly = "price_1SJ0vvR7kygIyYg9BJuciYGd";
       
-      if (priceId === premiumPrice) {
+      if (priceId === premiumMonthly || priceId === premiumYearly) {
         tier = 'premium';
-      } else if (priceId === vipPrice) {
+      } else if (priceId === vipMonthly || priceId === vipYearly) {
         tier = 'vip';
       }
     }

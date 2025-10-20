@@ -68,7 +68,7 @@ serve(async (req) => {
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
     // Get Premium price ID - ALWAYS use Premium for trial
-    const premiumPriceId = "price_1SKGCzR7kygIyYg9DGRcT8Pg";
+    const premiumPriceId = "price_1SJ0vvR7kygIyYg9oT1ju6lQ";
 
     // Check for existing customer
     const customers = await stripe.customers.list({ email: user.email!, limit: 1 });
