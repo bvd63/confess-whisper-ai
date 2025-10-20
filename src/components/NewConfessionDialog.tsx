@@ -159,7 +159,13 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
 
       // Step 2: Get AI response
       const { data: aiData, error: aiError } = await supabase.functions.invoke('ai-confession-response', {
-        body: { confession: content, type: 'basic', language }
+        body: { 
+          confession: content, 
+          category, 
+          imageUrl, 
+          type: 'basic', 
+          language 
+        }
       });
 
       if (aiError) throw aiError;

@@ -90,18 +90,23 @@ serve(async (req) => {
       );
     }
 
-    // Build prompt
-    let prompt = `Provide a deep psychological insight for this confession:\n\n${confession.content}\n\nCategory: ${confession.category}`;
+    // Build message with image if available
+    let userContent: any;
     
     if (confession.image_url) {
-      prompt += `\n\nNote: This confession includes an image. Consider visual context in your analysis.`;
+      userContent = [
+        { 
+          type: 'text', 
+          text: `Provide a deep psychological insight for this confession:\n\n${confession.content}\n\nCategory: ${confession.category}${extraPrompt ? `\n\nAdditional context: ${extraPrompt}` : ''}\n\nProvide empathetic, actionable insights focusing on emotional patterns, underlying motivations, and constructive pathways forward. Analyze the attached image and incorporate observations into your analysis.`
+        },
+        { 
+          type: 'image_url', 
+          image_url: { url: confession.image_url } 
+        }
+      ];
+    } else {
+      userContent = `Provide a deep psychological insight for this confession:\n\n${confession.content}\n\nCategory: ${confession.category}${extraPrompt ? `\n\nAdditional context: ${extraPrompt}` : ''}\n\nProvide empathetic, actionable insights focusing on emotional patterns, underlying motivations, and constructive pathways forward.`;
     }
-    
-    if (extraPrompt) {
-      prompt += `\n\nAdditional context: ${extraPrompt}`;
-    }
-
-    prompt += `\n\nProvide empathetic, actionable insights focusing on emotional patterns, underlying motivations, and constructive pathways forward.`;
 
     // Call Lovable AI
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -115,9 +120,9 @@ serve(async (req) => {
         messages: [
           { 
             role: 'system', 
-            content: 'You are an empathetic AI counselor providing deep psychological insights. Be compassionate, constructive, and focus on emotional well-being.' 
+            content: 'You are an empathetic AI counselor providing deep psychological insights. Be compassionate, constructive, and focus on emotional well-being. When an image is provided, analyze it carefully and integrate your observations into the psychological insight.' 
           },
-          { role: 'user', content: prompt }
+          { role: 'user', content: userContent }
         ],
       }),
     });

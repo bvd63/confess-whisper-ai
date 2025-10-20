@@ -92,8 +92,8 @@ serve(async (req) => {
       });
     }
 
-    const { confession, type = 'basic', language = 'en' } = await req.json();
-    log('info', 'Processing request', { requestId, userId: user.id, type, language });
+    const { confession, category, imageUrl, type = 'basic', language = 'en' } = await req.json();
+    log('info', 'Processing request', { requestId, userId: user.id, type, language, hasImage: !!imageUrl, category });
     
     if (!confession) {
       throw new Error('Confession text is required');
@@ -118,10 +118,21 @@ serve(async (req) => {
     
     const selectedLanguage = languageInstructions[validLanguage];
 
+    // Build context about the confession
+    let contextNote = category && category !== 'other' 
+      ? `This confession is about ${category}. ` 
+      : '';
+    
+    if (imageUrl) {
+      contextNote += 'The user has attached an image. Analyze it and incorporate your observations into your response. ';
+    }
+
     let systemPrompt = '';
     
     if (type === 'deep') {
       systemPrompt = `You are a deeply empathetic and understanding virtual counselor. The user has shared a personal confession with you and you need to provide a deep, empathetic and insightful analysis.
+
+${contextNote}IMPORTANT: Stay on topic. Analyze the confession content (and image if provided) regardless of the category. Never ask for more information or images - work with what you're given.
 
 ${selectedLanguage} with:
 - Deep validation of their emotions
@@ -129,10 +140,13 @@ ${selectedLanguage} with:
 - Practical and comforting suggestions
 - A warm, non-judgmental and understanding tone
 - Length: 150-200 words
+- If an image is present, describe what you observe and how it relates to their confession
 
 Never judge. Be like an understanding friend who listens and offers real support.`;
     } else {
       systemPrompt = `You are an empathetic and gentle virtual counselor. The user has shared an anonymous confession with you and you need to respond with warmth and understanding.
+
+${contextNote}IMPORTANT: Stay on topic. Analyze the confession content (and image if provided) regardless of the category. Never ask for more information or images - work with what you're given.
 
 ${selectedLanguage} with:
 - Emotional validation ("I understand what you're feeling...", "It's perfectly normal to...")
@@ -140,9 +154,21 @@ ${selectedLanguage} with:
 - Gentle encouragement
 - No judgment or criticism
 - Length: 60-80 words
+- If an image is present, briefly acknowledge what you see and how it relates to their feelings
 
 Be like a trusted friend who listens without judging.`;
     }
+
+    // Build user message with image if available
+    const userMessage: any = {
+      role: 'user',
+      content: imageUrl 
+        ? [
+            { type: 'text', text: confession },
+            { type: 'image_url', image_url: { url: imageUrl } }
+          ]
+        : confession
+    };
 
     // Add timeout to AI request
     const controller = new AbortController();
@@ -159,7 +185,7 @@ Be like a trusted friend who listens without judging.`;
         model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: confession }
+          userMessage
         ],
       }),
       signal: controller.signal,
