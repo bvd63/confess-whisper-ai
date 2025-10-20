@@ -19,6 +19,33 @@ const FollowStats = ({
     t
   } = useLanguage();
   if (loading) return null;
-  return;
+  
+  return (
+    <Card className="p-6">
+      <div className="flex items-center gap-6">
+        <div className="flex items-center gap-3 flex-1">
+          <div className="p-3 rounded-full bg-primary/10">
+            <Users className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <p className="text-2xl font-bold">{followersCount}</p>
+            <p className="text-sm text-muted-foreground">{t.profile_followers}</p>
+          </div>
+        </div>
+        
+        <div className="h-12 w-px bg-border" />
+        
+        <div className="flex items-center gap-3 flex-1">
+          <div className="p-3 rounded-full bg-primary/10">
+            <UserPlus className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <p className="text-2xl font-bold">{followingCount}</p>
+            <p className="text-sm text-muted-foreground">{t.profile_following}</p>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
 };
 export default FollowStats;
