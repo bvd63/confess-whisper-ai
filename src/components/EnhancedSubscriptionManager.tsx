@@ -51,16 +51,34 @@ export const EnhancedSubscriptionManager = () => {
   const handleChange = async (plan: PlanWithInterval) => {
     setActionLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('subscription-manage', {
-        body: { 
-          action: 'change', 
-          priceId: plan.priceId,
-          prorationBehavior: 'create_prorations'
+      // If user has no active subscription, create a new one instead of changing
+      if (!status?.currentPlan || status.currentPlan === 'free' || status.status === 'none') {
+        const { data, error } = await supabase.functions.invoke('billing-buy', {
+          body: { 
+            tier: plan.id,
+            cycle: plan.interval
+          }
+        });
+        if (error) throw error;
+        
+        // Redirect to Stripe checkout
+        if (data?.url) {
+          window.open(data.url, '_blank');
+          toast.success('Redirecting to checkout...');
         }
-      });
-      if (error) throw error;
-      toast.success(t.subscription_change_success);
-      await loadStatus();
+      } else {
+        // User has active subscription, change it
+        const { data, error } = await supabase.functions.invoke('subscription-manage', {
+          body: { 
+            action: 'change', 
+            priceId: plan.priceId,
+            prorationBehavior: 'create_prorations'
+          }
+        });
+        if (error) throw error;
+        toast.success(t.subscription_change_success);
+        await loadStatus();
+      }
     } catch (error: any) {
       toast.error(error.message || t.subscription_errors_generic);
     } finally {
