@@ -290,6 +290,7 @@ type Translations = {
   subscription_subscribe_yearly: string;
   subscription_processing: string;
   subscription_cancel_anytime: string;
+  subscription_cancel_confirm: string;
   subscription_benefit_1: string;
   subscription_benefit_2: string;
   subscription_benefit_3: string;
@@ -1900,6 +1901,7 @@ export const translations: Record<Language, Translations> = {
     subscription_subscribe_yearly: "Subscribe Yearly",
     subscription_processing: "Processing...",
     subscription_cancel_anytime: "You can cancel anytime from account settings. No long-term commitments.",
+    subscription_cancel_confirm: "Are you sure you want to cancel your subscription? You'll lose access to all premium features at the end of your billing period.",
     subscription_benefit_1: "Unlimited Deep Insight AI - deep psychological analysis",
     subscription_benefit_2: "Extended and more detailed AI responses",
     subscription_benefit_3: "Ad-free - clean experience",
@@ -2890,6 +2892,7 @@ export const translations: Record<Language, Translations> = {
     subscription_subscribe_yearly: "Suscripción Anual",
     subscription_processing: "Procesando...",
     subscription_cancel_anytime: "Puedes cancelar en cualquier momento desde la configuración de la cuenta. Sin compromisos a largo plazo.",
+    subscription_cancel_confirm: "¿Estás seguro de que quieres cancelar tu suscripción? Perderás el acceso a todas las funciones premium al final de tu período de facturación.",
     subscription_benefit_1: "Deep Insight AI ilimitado - análisis psicológico profundo",
     subscription_benefit_2: "Respuestas de IA extendidas y más detalladas",
     subscription_benefit_3: "Sin anuncios - experiencia limpia",
@@ -4128,6 +4131,7 @@ export const translations: Record<Language, Translations> = {
     subscription_subscribe_yearly: "Jährlich Abonnieren",
     subscription_processing: "Verarbeitung...",
     subscription_cancel_anytime: "Du kannst jederzeit in den Kontoeinstellungen kündigen. Keine langfristigen Verpflichtungen.",
+    subscription_cancel_confirm: "Bist du sicher, dass du dein Abonnement kündigen möchtest? Du verlierst den Zugriff auf alle Premium-Funktionen am Ende deines Abrechnungszeitraums.",
     subscription_benefit_1: "Unbegrenztes Deep Insight AI - tiefgreifende psychologische Analyse",
     subscription_benefit_2: "Erweiterte und detailliertere KI-Antworten",
     subscription_benefit_3: "Werbefrei - sauberes Erlebnis",

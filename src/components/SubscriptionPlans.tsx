@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/translated-dialog";
 import { GradientText } from "@/components/GradientText";
-
-import { Sparkles, Check, Crown, Loader2, Zap } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Sparkles, Check, Crown, Loader2, Zap, ArrowUp, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AnimatedCard } from "./AnimatedCard";
 import { useState, useEffect } from "react";
@@ -180,6 +180,45 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
     }
   };
 
+  const handleManageSubscription = async (action: 'upgrade' | 'cancel') => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('manage-subscription', {
+        body: { 
+          action: action === 'upgrade' ? 'upgrade' : 'cancel',
+          newTier: action === 'upgrade' ? 'vip' : undefined
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.error) {
+        toast({
+          title: t.error_generic,
+          description: data.error,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: t.success,
+        description: data.message || t.success,
+      });
+
+      await loadCurrentSubscription();
+    } catch (error) {
+      console.error('Error managing subscription:', error);
+      toast({
+        title: t.error_generic,
+        description: t.error_generic,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto glass-strong border-primary/30">
@@ -194,6 +233,65 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
         </DialogHeader>
 
         <div className="py-4 sm:py-6 space-y-4 sm:space-y-6">
+          {/* Manage Subscription Section - for paid users */}
+          {(currentTier === 'premium' || currentTier === 'vip') && (
+            <div className="px-3 sm:px-0">
+              <AnimatedCard className="p-4 sm:p-6 bg-gradient-to-br from-background to-primary/5 border-primary/30">
+                <h3 className="text-lg sm:text-xl font-bold mb-4 text-center">
+                  {t.subs_manage || "Manage subscription"}
+                </h3>
+                <p className="text-sm text-muted-foreground text-center mb-4">
+                  {t.subscription_description || "Unlock all features and get a superior experience"}
+                </p>
+                <div className="space-y-3">
+                  {/* Upgrade to VIP button - only for Premium users */}
+                  {currentTier === 'premium' && (
+                    <Button
+                      onClick={() => handleManageSubscription('upgrade')}
+                      disabled={isLoading}
+                      className="w-full bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white border-0 shadow-glow h-12 text-base"
+                    >
+                      {isLoading ? (
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      ) : (
+                        <ArrowUp className="w-5 h-5 mr-2" />
+                      )}
+                      {t.subs_upgrade || "Upgrade"} VIP
+                    </Button>
+                  )}
+                  
+                  {/* Cancel subscription button - for all paid users */}
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        disabled={isLoading}
+                        variant="destructive"
+                        className="w-full h-12 text-base bg-red-500 hover:bg-red-600"
+                      >
+                        <XCircle className="w-5 h-5 mr-2" />
+                        {t.subs_cancel || "Cancel subscription"}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>{t.subs_cancel || "Cancel subscription"}</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          {t.subscription_cancel_confirm || "Are you sure you want to cancel your subscription? You'll lose access to all premium features at the end of your billing period."}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>{t.cancel || "Cancel"}</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleManageSubscription('cancel')}>
+                          {t.subs_cancel || "Cancel subscription"}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </AnimatedCard>
+            </div>
+          )}
+
           {/* Trial Button */}
           {currentTier === 'free' && (
             <div className="px-3 sm:px-0">
