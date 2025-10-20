@@ -186,32 +186,28 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
   const handleManageSubscription = async (action: 'upgrade' | 'cancel') => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('manage-subscription', {
-        body: { 
-          action: action === 'upgrade' ? 'upgrade' : 'cancel',
-          newTier: action === 'upgrade' ? 'vip' : undefined
-        }
-      });
+      // Open Stripe Customer Portal for managing subscription (upgrade/cancel)
+      const { data, error } = await supabase.functions.invoke('customer-portal');
 
       if (error) throw error;
 
-      if (data?.error) {
+      if (data?.url) {
+        toast({
+          title: t.success,
+          description: "Opening subscription portal...",
+        });
+        window.open(data.url, '_blank');
+      } else {
         toast({
           title: t.error_generic,
-          description: data.error,
+          description: t.error_generic,
           variant: "destructive",
         });
-        return;
       }
-
-      toast({
-        title: t.success,
-        description: data.message || t.success,
-      });
 
       await loadCurrentSubscription();
     } catch (error) {
-      console.error('Error managing subscription:', error);
+      console.error('Error opening customer portal:', error);
       toast({
         title: t.error_generic,
         description: t.error_generic,
