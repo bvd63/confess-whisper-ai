@@ -1,10 +1,18 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import NewConfessionDialog from "@/components/NewConfessionDialog";
 
 const Compose = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [open, setOpen] = useState(true);
+
+  // Close dialog and navigate away when location changes away from /compose
+  useEffect(() => {
+    if (location.pathname !== "/compose" && open) {
+      setOpen(false);
+    }
+  }, [location.pathname, open]);
 
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
@@ -14,6 +22,7 @@ const Compose = () => {
   };
 
   const handleConfessionCreated = () => {
+    setOpen(false);
     navigate("/");
   };
 
