@@ -66,14 +66,23 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
   const loadData = async () => {
     setLoading(true);
     try {
-      // Load user tier
+      // Load user tier and trial status
       const { data: profile } = await supabase
         .from('profiles')
-        .select('subscription_tier')
+        .select('subscription_tier, trial_active, trial_premium_ends_at')
         .eq('user_id', userId)
         .maybeSingle();
       
-      setUserTier((profile?.subscription_tier || 'free') as "free" | "premium" | "vip");
+      // If on active Premium trial, treat as premium tier
+      let tier = (profile?.subscription_tier || 'free') as "free" | "premium" | "vip";
+      if (profile?.trial_active && profile?.trial_premium_ends_at) {
+        const trialEndsAt = new Date(profile.trial_premium_ends_at);
+        if (trialEndsAt > new Date()) {
+          tier = 'premium';
+        }
+      }
+      
+      setUserTier(tier);
 
       // Load available flairs
       const { data: flairsData, error: flairsError } = await supabase
