@@ -78,3 +78,6 @@ verify_jwt = true
 
 [functions.purchase-flair]
 verify_jwt = true
+
+[functions.deactivate-expired-flairs]
+verify_jwt = false
