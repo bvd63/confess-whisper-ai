@@ -1,20 +1,19 @@
 import { Home, Search, PlusSquare, MessageCircle, User, Users } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useUnreadCount } from "@/hooks/useUnreadCount";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useTabNavigation } from "@/contexts/TabNavigationContext";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
  * Instagram-style bottom navigation bar with independent tab stacks
  */
 export const InstagramBottomNav = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { switchTab, activeTab } = useTabNavigation();
   const { user } = useCurrentUser();
   const { totalUnread } = useUnreadCount(user?.id || null);
-  const { t } = useLanguage();
 
   const navItems = [
     { tabId: "home" as const, icon: Home, label: "Home", isActive: activeTab === "home" },
@@ -26,12 +25,11 @@ export const InstagramBottomNav = () => {
 
   const handleTabClick = (tabId: "home" | "explore" | "messages" | "profile" | "compose") => {
     if (tabId === "compose") {
-      // Compose is not a tab, just navigate directly
-      switchTab("home");
-      window.location.href = "/compose";
+      // Compose is not a tab, navigate directly without switching tabs
+      navigate("/compose");
       return;
     }
-    // Always switch tab immediately
+    // Always switch tab immediately, even if in a conversation
     switchTab(tabId);
   };
 
