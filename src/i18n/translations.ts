@@ -1368,9 +1368,9 @@ export const translations: Record<Language, Translations> = {
     new_confession: "New Confession",
     premium_upgrade: "Upgrade to Premium",
     
-    placeholder_confession: "Share what's on your mind... (10-2000 characters)",
-    submit: "Submit Anonymously",
-    submitting: "Submitting...",
+  placeholder_confession: "Share what's on your mind... (10-2000 characters)",
+  submit: "Submit confession",
+  submitting: "Submitting...",
     
     ai_reply_title: "AI Response",
     deep_insight_title: "Deep Insight",
@@ -2590,9 +2590,9 @@ export const translations: Record<Language, Translations> = {
     new_confession: "Nueva Confesión",
     premium_upgrade: "Actualizar a Premium",
     
-    placeholder_confession: "Comparte lo que piensas... (10-2000 caracteres)",
-    submit: "Enviar Anónimamente",
-    submitting: "Enviando...",
+  placeholder_confession: "Comparte lo que piensas... (10-2000 caracteres)",
+  submit: "Enviar confesión",
+  submitting: "Enviando...",
     
     ai_reply_title: "Respuesta IA",
     deep_insight_title: "Insight Profundo",
@@ -3814,9 +3814,9 @@ export const translations: Record<Language, Translations> = {
     new_confession: "Neues Geständnis",
     premium_upgrade: "Auf Premium Upgraden",
     
-    placeholder_confession: "Teile, was dich bewegt... (10-2000 Zeichen)",
-    submit: "Anonym Absenden",
-    submitting: "Wird gesendet...",
+  placeholder_confession: "Teile, was dich bewegt... (10-2000 Zeichen)",
+  submit: "Geständnis absenden",
+  submitting: "Wird gesendet...",
     
     ai_reply_title: "KI-Antwort",
     deep_insight_title: "Tiefer Einblick",
