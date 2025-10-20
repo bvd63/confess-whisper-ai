@@ -72,11 +72,6 @@ export const CommunitiesSectionExpanded = () => {
     ?.sort((a, b) => b.member_count - a.member_count)
     .slice(0, 3);
 
-  // Hide section if no communities exist
-  if (!isLoading && (!communities || communities.length === 0)) {
-    return null;
-  }
-
   if (isLoading) {
     return (
       <Card className="mb-6">
@@ -90,6 +85,87 @@ export const CommunitiesSectionExpanded = () => {
           <div className="text-center py-4 text-muted-foreground">
             {t.loading}
           </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Show empty state when no communities exist
+  if (!isLoading && (!communities || communities.length === 0)) {
+    return (
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            {t.home_communities_title}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-center py-8">
+          <Users className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+          <h3 className="text-lg font-semibold mb-2">{t.communities_empty_title || "No Communities Yet"}</h3>
+          <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+            {t.communities_empty_description || "Be the first to create a community and connect with others who share your interests!"}
+          </p>
+          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <Button onClick={() => {
+              if (!user) {
+                navigate('/auth');
+                return;
+              }
+              setIsCreateOpen(true);
+            }}>
+              <Plus className="w-4 h-4 mr-2" />
+              {t.communities_create}
+            </Button>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{t.communities_create}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label>{t.communities_name} *</Label>
+                  <Input
+                    value={newCommunity.name}
+                    onChange={(e) => setNewCommunity({ ...newCommunity, name: e.target.value })}
+                    placeholder={t.communities_name}
+                  />
+                </div>
+                <div>
+                  <Label>{t.communities_slug_label}</Label>
+                  <Input
+                    value={newCommunity.slug}
+                    onChange={(e) => setNewCommunity({ ...newCommunity, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
+                    placeholder={t.communities_slug_placeholder}
+                  />
+                </div>
+                <div>
+                  <Label>{t.communities_description}</Label>
+                  <Textarea
+                    value={newCommunity.description}
+                    onChange={(e) => setNewCommunity({ ...newCommunity, description: e.target.value })}
+                    placeholder={t.communities_description}
+                  />
+                </div>
+                <div>
+                  <Label>{t.communities_category}</Label>
+                  <Select value={newCommunity.category} onValueChange={(v) => setNewCommunity({ ...newCommunity, category: v })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="general">{t.communities_filter_general}</SelectItem>
+                      <SelectItem value="mental-health">{t.communities_filter_mental_health}</SelectItem>
+                      <SelectItem value="relationships">{t.communities_filter_relationships}</SelectItem>
+                      <SelectItem value="work">{t.communities_filter_work}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button onClick={handleCreateCommunity} disabled={isCreating} className="w-full">
+                  {isCreating ? t.communities_creating : t.communities_create}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </CardContent>
       </Card>
     );

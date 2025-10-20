@@ -414,6 +414,8 @@ type Translations = {
   // Communities
   communities_trending: string;
   communities_all: string;
+  communities_empty_title: string;
+  communities_empty_description: string;
   
   // FAQ
   faq_title: string;
@@ -1995,8 +1997,10 @@ export const translations: Record<Language, Translations> = {
     
     search_results: "Search Results",
     
-    communities_trending: "Trending Communities",
-    communities_all: "All Communities",
+  communities_trending: "Trending Communities",
+  communities_all: "All Communities",
+  communities_empty_title: "No Communities Yet",
+  communities_empty_description: "Be the first to create a community and connect with others who share your interests!",
     
     faq_title: "Frequently Asked Questions",
     faq_q1: "Is it really anonymous?",
@@ -2967,8 +2971,10 @@ export const translations: Record<Language, Translations> = {
     
     search_results: "Resultados de búsqueda",
     
-    communities_trending: "Comunidades Populares",
-    communities_all: "Todas las Comunidades",
+  communities_trending: "Comunidades Populares",
+  communities_all: "Todas las Comunidades",
+  communities_empty_title: "Aún No Hay Comunidades",
+  communities_empty_description: "¡Sé el primero en crear una comunidad y conectar con otros que comparten tus intereses!",
     
     faq_title: "Preguntas Frecuentes",
     faq_q1: "¿Es realmente anónimo?",
@@ -4187,8 +4193,10 @@ export const translations: Record<Language, Translations> = {
     
     search_results: "Suchergebnisse",
     
-    communities_trending: "Trending Communities",
-    communities_all: "Alle Communities",
+  communities_trending: "Trending Communities",
+  communities_all: "Alle Communities",
+  communities_empty_title: "Noch Keine Communities",
+  communities_empty_description: "Sei der Erste, der eine Community erstellt und dich mit anderen verbindet, die deine Interessen teilen!",
     
     faq_title: "Häufig gestellte Fragen",
     faq_q1: "Ist es wirklich anonym?",
