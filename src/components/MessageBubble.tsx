@@ -1,5 +1,5 @@
 import { formatDistanceToNow } from 'date-fns';
-import { ReadReceipt } from '@/components/ReadReceipt';
+import { MessageReadReceipt } from '@/components/MessageReadReceipt';
 
 interface MessageBubbleProps {
   message: {
@@ -9,6 +9,9 @@ interface MessageBubbleProps {
     created_at: string;
     read_at: string | null;
     edited_at: string | null;
+    sent_at?: string | null;
+    delivered_at?: string | null;
+    seen_at?: string | null;
   };
   isOwn: boolean;
 }
@@ -32,7 +35,12 @@ export const MessageBubble = ({ message, isOwn }: MessageBubbleProps) => {
         
         <div className={`flex items-center gap-1 mt-1 text-xs text-muted-foreground ${isOwn ? 'justify-end' : 'justify-start'}`}>
           <span>{formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}</span>
-          {isOwn && <ReadReceipt isRead={!!message.read_at} isSent={true} />}
+          <MessageReadReceipt
+            sentAt={message.sent_at || message.created_at}
+            deliveredAt={message.delivered_at}
+            seenAt={message.seen_at}
+            isSentByMe={isOwn}
+          />
         </div>
       </div>
     </div>

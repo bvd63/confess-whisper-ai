@@ -30,7 +30,6 @@ import SearchUsers from "./pages/SearchUsers";
 import Messages from "./pages/Messages";
 import Explore from "./pages/Explore";
 import Compose from "./pages/Compose";
-import Communities from "./pages/Communities";
 import CommunityDetail from "./pages/CommunityDetail";
 import NearbyConfessions from "./pages/NearbyConfessions";
 import Auth from "./pages/Auth";
@@ -110,7 +109,6 @@ const AppContent = () => {
         <Route path="/auth" element={<Auth />} />
         <Route path="/explore" element={<Explore />} />
         <Route path="/compose" element={<Compose />} />
-        <Route path="/communities" element={<Communities />} />
         <Route path="/community/:id" element={<CommunityDetail />} />
         <Route path="/nearby" element={<NearbyConfessions />} />
         <Route path="/profile" element={<Profile />} />

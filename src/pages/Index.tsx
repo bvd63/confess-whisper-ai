@@ -9,6 +9,7 @@ import DailyPrompt from "@/components/DailyPrompt";
 import Leaderboard from "@/components/Leaderboard";
 import { QuoteOfTheDay } from "@/components/QuoteOfTheDay";
 import QuoteOfTheDaySkeleton from "@/components/QuoteOfTheDaySkeleton";
+import { CommunitiesSection } from "@/components/CommunitiesSection";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -127,6 +128,9 @@ const Index = () => {
 
         {/* Daily Prompt */}
         {user && <DailyPrompt onOpenNewConfession={handleNewConfession} />}
+
+        {/* Communities Section */}
+        {showSecondaryContent && <CommunitiesSection />}
 
         {/* Leaderboard */}
         {showSecondaryContent && (

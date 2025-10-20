@@ -32,11 +32,18 @@ export const SearchUsersCard = () => {
     queryFn: async () => {
       if (!debouncedSearch || debouncedSearch.length < 2) return [];
       
-      const { data, error } = await supabase.functions.invoke('search-users', {
-        body: { nickname: debouncedSearch },
-      });
+      // Call edge function with GET and query parameter in URL
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/search-users?nickname=${encodeURIComponent(debouncedSearch)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          },
+        }
+      );
 
-      if (error) throw error;
+      if (!response.ok) throw new Error('Failed to search users');
+      const data = await response.json();
       return data?.users || [];
     },
     enabled: debouncedSearch.length >= 2,

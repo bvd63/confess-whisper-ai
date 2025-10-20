@@ -23,6 +23,9 @@ interface Message {
   sender_id: string;
   created_at: string;
   is_read: boolean;
+  sent_at: string | null;
+  delivered_at: string | null;
+  seen_at: string | null;
   optimistic?: boolean;
   failed?: boolean;
 }
@@ -117,7 +120,17 @@ export const EnhancedMessageThread = ({
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setMessages(data || []);
+
+      // Filter out soft-deleted messages for current user
+      const visibleMessages = (data || []).filter((m: any) => {
+        if (m.sender_id === currentUserId) {
+          return !m.deleted_for_sender;
+        } else {
+          return !m.deleted_for_recipient;
+        }
+      });
+
+      setMessages(visibleMessages);
     } catch (error) {
       console.error('Error loading messages:', error);
     }
@@ -125,12 +138,30 @@ export const EnhancedMessageThread = ({
 
   const markAsRead = async () => {
     try {
-      await supabase
-        .from('messages')
-        .update({ is_read: true })
-        .eq('conversation_id', conversationId)
-        .eq('sender_id', otherUserId)
-        .eq('is_read', false);
+      // Get all unread messages from the other user
+      const unreadMessages = messages
+        .filter(m => m.sender_id === otherUserId && !m.seen_at)
+        .map(m => m.id);
+
+      if (unreadMessages.length === 0) return;
+
+      // Call the mark-messages-read function
+      const { error } = await supabase.functions.invoke('mark-messages-read', {
+        body: {
+          threadId: conversationId,
+          messageIds: unreadMessages,
+        },
+      });
+
+      if (error) throw error;
+
+      // Mark delivered for any messages that don't have delivered_at
+      const { error: deliveredError } = await supabase.rpc('mark_messages_delivered', {
+        thread_id: conversationId,
+        user_id: currentUserId,
+      });
+
+      if (deliveredError) console.error('Error marking delivered:', deliveredError);
     } catch (error) {
       console.error('Error marking messages as read:', error);
     }
@@ -148,6 +179,9 @@ export const EnhancedMessageThread = ({
       sender_id: currentUserId,
       created_at: new Date().toISOString(),
       is_read: false,
+      sent_at: new Date().toISOString(),
+      delivered_at: null,
+      seen_at: null,
       optimistic: true,
     };
 
@@ -302,13 +336,15 @@ export const EnhancedMessageThread = ({
                   </span>
                   
                   {isOwn && !message.optimistic && (
-                    <>
-                      {message.is_read ? (
-                        <CheckCheck className="w-3 h-3 text-primary" />
+                    <div className="flex items-center">
+                      {message.seen_at ? (
+                        <CheckCheck className="w-3 h-3 text-blue-500" />
+                      ) : message.delivered_at ? (
+                        <CheckCheck className="w-3 h-3 text-muted-foreground" />
                       ) : (
                         <Check className="w-3 h-3 text-muted-foreground" />
                       )}
-                    </>
+                    </div>
                   )}
                 </div>
               </div>

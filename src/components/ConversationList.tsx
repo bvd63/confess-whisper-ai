@@ -124,14 +124,23 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
       });
       setOtherUserTiers(tierMap);
 
-      // Get last messages
+      // Get last messages (exclude soft-deleted)
       const { data: messages, error: messagesError } = await supabase
         .from('messages')
-        .select('conversation_id, content, created_at')
+        .select('conversation_id, content, created_at, sender_id, deleted_for_sender, deleted_for_recipient')
         .in('conversation_id', conversationIds)
         .order('created_at', { ascending: false });
 
       if (messagesError) throw messagesError;
+
+      // Filter messages based on soft delete
+      const visibleMessages = messages?.filter(m => {
+        if (m.sender_id === currentUserId) {
+          return !m.deleted_for_sender;
+        } else {
+          return !m.deleted_for_recipient;
+        }
+      });
 
       // Build conversations list (filter out invalid participants)
       const baseList: Conversation[] = conversationIds
@@ -144,7 +153,7 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
           if (!otherParticipant?.user_id) return null;
           
           const profile = profiles?.find(p => p.user_id === otherParticipant.user_id);
-          const lastMsg = messages?.find(m => m.conversation_id === convId);
+          const lastMsg = visibleMessages?.find(m => m.conversation_id === convId);
 
           return {
             id: convId,
@@ -156,7 +165,7 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
             unread_count: 0
           };
         })
-        .filter((c): c is Conversation => c !== null);
+        .filter((c): c is Conversation => c !== null && c.last_message !== null); // Filter out empty conversations
 
       // Fill missing nicknames via RPC (handles any RLS edge cases)
       const conversationsList: Conversation[] = await Promise.all(
@@ -184,19 +193,13 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
 
   const handleDeleteConversation = async (conversationId: string) => {
     try {
-      // Call the database function to delete the conversation
-      const { data, error } = await supabase
-        .rpc('delete_conversation', {
-          _conversation_id: conversationId,
-          _user_id: currentUserId
-        });
+      // Call the database function for soft delete
+      const { error } = await supabase.rpc('soft_delete_conversation', {
+        conv_id: conversationId,
+        user_id: currentUserId,
+      });
 
       if (error) throw error;
-
-      if (!data) {
-        toast.error(t.error_generic);
-        return;
-      }
 
       toast.success(t.messages_deleted);
       await loadConversations();

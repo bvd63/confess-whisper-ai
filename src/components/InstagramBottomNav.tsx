@@ -18,7 +18,6 @@ export const InstagramBottomNav = () => {
   const navItems = [
     { icon: Home, path: "/", label: "Home" },
     { icon: Search, path: "/explore", label: "Explore" },
-    { icon: Users, path: "/communities", label: "Communities" },
     { icon: PlusSquare, path: "/compose", label: "Compose" },
     { icon: MessageCircle, path: "/messages", label: "Messages", badge: totalUnread },
     { icon: User, path: "/profile", label: "Profile" },

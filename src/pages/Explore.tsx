@@ -5,6 +5,7 @@ import AppLayout from "@/components/AppLayout";
 import ConfessionCard from "@/components/ConfessionCard";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { GradientText } from "@/components/GradientText";
+import { SearchUsersCard } from "@/components/SearchUsersCard";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrendingUp, Flame, Clock } from "lucide-react";
@@ -111,6 +112,8 @@ const Explore = () => {
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground">{t.recommended_for_you}</p>
         </div>
+
+        <SearchUsersCard />
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3 mb-4 sm:mb-6 h-auto">
