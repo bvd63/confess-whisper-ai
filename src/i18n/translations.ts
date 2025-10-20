@@ -1170,6 +1170,38 @@ type Translations = {
   subscription_thanks: string;
   subscription_upgrade_more: string;
   subscription_upgrade_premium: string;
+  subscription_current_plan: string;
+  subscription_your_plan: string;
+  subscription_downgrade_to_free: string;
+  subscription_change_to_plan: string;
+  subscription_free: string;
+  subscription_trial_available: string;
+  
+  // Subscription Benefits - Free
+  subscription_benefits_free_confessions: string;
+  subscription_benefits_free_basic_features: string;
+  subscription_benefits_free_community_access: string;
+  subscription_limitations_free_ads: string;
+  subscription_limitations_free_limited_ai: string;
+  subscription_limitations_free_basic_analytics: string;
+  
+  // Subscription Benefits - Premium
+  subscription_benefits_premium_more_confessions: string;
+  subscription_benefits_premium_unlimited_ai: string;
+  subscription_benefits_premium_advanced_analytics: string;
+  subscription_benefits_premium_exclusive_badges: string;
+  subscription_benefits_premium_no_ads: string;
+  subscription_benefits_premium_priority_moderation: string;
+  subscription_benefits_premium_image_confessions: string;
+  
+  // Subscription Benefits - VIP
+  subscription_benefits_vip_unlimited_confessions: string;
+  subscription_benefits_vip_all_premium: string;
+  subscription_benefits_vip_detailed_statistics: string;
+  subscription_benefits_vip_priority_support: string;
+  subscription_benefits_vip_special_badge: string;
+  subscription_benefits_vip_early_access: string;
+  subscription_benefits_vip_custom_themes: string;
   
   // Profile
   profile_achievements: string;
@@ -2251,6 +2283,38 @@ export const translations: Record<Language, Translations> = {
     subscription_thanks: "Thank you for your support!",
     subscription_upgrade_more: "Upgrade for more features",
     subscription_upgrade_premium: "Upgrade to Premium",
+    subscription_current_plan: "Current Plan",
+    subscription_your_plan: "Your Plan",
+    subscription_downgrade_to_free: "Downgrade to Free",
+    subscription_change_to_plan: "Change to {plan}",
+    subscription_free: "Free",
+    subscription_trial_available: "3-Day Free Trial Available",
+    
+    // Subscription Benefits - Free
+    subscription_benefits_free_confessions: "Limited confessions per day",
+    subscription_benefits_free_basic_features: "Basic features",
+    subscription_benefits_free_community_access: "Community access",
+    subscription_limitations_free_ads: "With ads",
+    subscription_limitations_free_limited_ai: "Limited AI responses",
+    subscription_limitations_free_basic_analytics: "Basic analytics only",
+    
+    // Subscription Benefits - Premium
+    subscription_benefits_premium_more_confessions: "More confessions per day",
+    subscription_benefits_premium_unlimited_ai: "Unlimited AI responses",
+    subscription_benefits_premium_advanced_analytics: "Advanced analytics",
+    subscription_benefits_premium_exclusive_badges: "Exclusive badges",
+    subscription_benefits_premium_no_ads: "No ads",
+    subscription_benefits_premium_priority_moderation: "Priority moderation",
+    subscription_benefits_premium_image_confessions: "Image confessions",
+    
+    // Subscription Benefits - VIP
+    subscription_benefits_vip_unlimited_confessions: "Unlimited confessions",
+    subscription_benefits_vip_all_premium: "All Premium benefits",
+    subscription_benefits_vip_detailed_statistics: "Detailed statistics",
+    subscription_benefits_vip_priority_support: "Priority support",
+    subscription_benefits_vip_special_badge: "Special VIP badge",
+    subscription_benefits_vip_early_access: "Early access to features",
+    subscription_benefits_vip_custom_themes: "Custom themes",
     
     badges_your_badges: "Your Badges",
     
@@ -3861,6 +3925,38 @@ export const translations: Record<Language, Translations> = {
     subscription_thanks: "¡Gracias por tu apoyo!",
     subscription_upgrade_more: "Mejora para más funciones",
     subscription_upgrade_premium: "Mejorar a Premium",
+    subscription_current_plan: "Plan Actual",
+    subscription_your_plan: "Tu Plan",
+    subscription_downgrade_to_free: "Cambiar a Gratis",
+    subscription_change_to_plan: "Cambiar a {plan}",
+    subscription_free: "Gratis",
+    subscription_trial_available: "Prueba Gratis de 3 Días Disponible",
+    
+    // Subscription Benefits - Free
+    subscription_benefits_free_confessions: "Confesiones limitadas por día",
+    subscription_benefits_free_basic_features: "Funciones básicas",
+    subscription_benefits_free_community_access: "Acceso a comunidad",
+    subscription_limitations_free_ads: "Con anuncios",
+    subscription_limitations_free_limited_ai: "Respuestas IA limitadas",
+    subscription_limitations_free_basic_analytics: "Solo análisis básicos",
+    
+    // Subscription Benefits - Premium
+    subscription_benefits_premium_more_confessions: "Más confesiones por día",
+    subscription_benefits_premium_unlimited_ai: "Respuestas IA ilimitadas",
+    subscription_benefits_premium_advanced_analytics: "Análisis avanzados",
+    subscription_benefits_premium_exclusive_badges: "Insignias exclusivas",
+    subscription_benefits_premium_no_ads: "Sin anuncios",
+    subscription_benefits_premium_priority_moderation: "Moderación prioritaria",
+    subscription_benefits_premium_image_confessions: "Confesiones con imagen",
+    
+    // Subscription Benefits - VIP
+    subscription_benefits_vip_unlimited_confessions: "Confesiones ilimitadas",
+    subscription_benefits_vip_all_premium: "Todos los beneficios Premium",
+    subscription_benefits_vip_detailed_statistics: "Estadísticas detalladas",
+    subscription_benefits_vip_priority_support: "Soporte prioritario",
+    subscription_benefits_vip_special_badge: "Insignia VIP especial",
+    subscription_benefits_vip_early_access: "Acceso anticipado a funciones",
+    subscription_benefits_vip_custom_themes: "Temas personalizados",
     
     badges_your_badges: "Tus Insignias",
     
@@ -5189,6 +5285,38 @@ export const translations: Record<Language, Translations> = {
     subscription_thanks: "Vielen Dank für Ihre Unterstützung!",
     subscription_upgrade_more: "Upgrade für mehr Funktionen",
     subscription_upgrade_premium: "Auf Premium upgraden",
+    subscription_current_plan: "Aktueller Plan",
+    subscription_your_plan: "Dein Plan",
+    subscription_downgrade_to_free: "Zu Kostenlos wechseln",
+    subscription_change_to_plan: "Zu {plan} wechseln",
+    subscription_free: "Kostenlos",
+    subscription_trial_available: "3-Tägige Testversion Verfügbar",
+    
+    // Subscription Benefits - Free
+    subscription_benefits_free_confessions: "Begrenzte Geständnisse pro Tag",
+    subscription_benefits_free_basic_features: "Grundfunktionen",
+    subscription_benefits_free_community_access: "Community-Zugang",
+    subscription_limitations_free_ads: "Mit Werbung",
+    subscription_limitations_free_limited_ai: "Begrenzte KI-Antworten",
+    subscription_limitations_free_basic_analytics: "Nur Basis-Analysen",
+    
+    // Subscription Benefits - Premium
+    subscription_benefits_premium_more_confessions: "Mehr Geständnisse pro Tag",
+    subscription_benefits_premium_unlimited_ai: "Unbegrenzte KI-Antworten",
+    subscription_benefits_premium_advanced_analytics: "Erweiterte Analysen",
+    subscription_benefits_premium_exclusive_badges: "Exklusive Auszeichnungen",
+    subscription_benefits_premium_no_ads: "Keine Werbung",
+    subscription_benefits_premium_priority_moderation: "Prioritätsmoderation",
+    subscription_benefits_premium_image_confessions: "Bild-Geständnisse",
+    
+    // Subscription Benefits - VIP
+    subscription_benefits_vip_unlimited_confessions: "Unbegrenzte Geständnisse",
+    subscription_benefits_vip_all_premium: "Alle Premium-Vorteile",
+    subscription_benefits_vip_detailed_statistics: "Detaillierte Statistiken",
+    subscription_benefits_vip_priority_support: "Prioritätssupport",
+    subscription_benefits_vip_special_badge: "Spezielle VIP-Auszeichnung",
+    subscription_benefits_vip_early_access: "Früher Zugang zu Funktionen",
+    subscription_benefits_vip_custom_themes: "Individuelle Designs",
     
     badges_your_badges: "Deine Auszeichnungen",
     
