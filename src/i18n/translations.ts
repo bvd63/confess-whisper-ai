@@ -960,6 +960,8 @@ type Translations = {
   subscription_plan_vip: string;
   subscription_manage: string;
   subscription_upgrade: string;
+  upgrade_required: string;
+  required: string;
   subscription_feature_unlimited_ai: string;
   subscription_feature_advanced_analytics: string;
   subscription_feature_exclusive_badges: string;
@@ -1390,12 +1392,14 @@ export const translations: Record<Language, Translations> = {
     boost_not_enough: "Not enough coins to boost.",
     boost_error_active: "A boost is already active for this confession.",
     
-    subscription_tier_free: "Free",
-    subscription_tier_premium: "Premium",
-    subscription_tier_vip: "VIP",
-    subscription_cta_upgrade: "Get a subscription",
-    subscription_upgrade: "Upgrade",
-    subscription_downgrade: "Downgrade",
+  subscription_tier_free: "Free",
+  subscription_tier_premium: "Premium",
+  subscription_tier_vip: "VIP",
+  subscription_cta_upgrade: "Get a subscription",
+  subscription_upgrade: "Upgrade",
+  subscription_downgrade: "Downgrade",
+  upgrade_required: "Upgrade Required",
+  required: "Required",
     
     toast_sent: "Your confession was sent anonymously 💭",
     toast_flagged: "Content not allowed. Please rephrase.",
@@ -2610,12 +2614,14 @@ export const translations: Record<Language, Translations> = {
     boost_not_enough: "No tienes monedas suficientes.",
     boost_error_active: "Ya hay un impulso activo para esta confesión.",
     
-    subscription_tier_free: "Free",
-    subscription_tier_premium: "Premium",
-    subscription_tier_vip: "VIP",
-    subscription_cta_upgrade: "Obtener suscripción",
-    subscription_upgrade: "Mejorar plan",
-    subscription_downgrade: "Bajar plan",
+  subscription_tier_free: "Free",
+  subscription_tier_premium: "Premium",
+  subscription_tier_vip: "VIP",
+  subscription_cta_upgrade: "Obtener suscripción",
+  subscription_upgrade: "Mejorar plan",
+  subscription_downgrade: "Bajar plan",
+  upgrade_required: "Actualización Requerida",
+  required: "Requerido",
     
     toast_sent: "Tu confesión fue enviada anónimamente 💭",
     toast_flagged: "Contenido no permitido. Por favor, reformula.",
@@ -3832,12 +3838,14 @@ export const translations: Record<Language, Translations> = {
     boost_not_enough: "Nicht genug Münzen.",
     boost_error_active: "Für diese Beichte ist bereits ein aktiver Boost vorhanden.",
     
-    subscription_tier_free: "Free",
-    subscription_tier_premium: "Premium",
-    subscription_tier_vip: "VIP",
-    subscription_cta_upgrade: "Abo abschließen",
-    subscription_upgrade: "Upgrade",
-    subscription_downgrade: "Downgrade",
+  subscription_tier_free: "Free",
+  subscription_tier_premium: "Premium",
+  subscription_tier_vip: "VIP",
+  subscription_cta_upgrade: "Abo abschließen",
+  subscription_upgrade: "Upgrade",
+  subscription_downgrade: "Downgrade",
+  upgrade_required: "Upgrade Erforderlich",
+  required: "Erforderlich",
     
     toast_sent: "Dein Geständnis wurde anonym gesendet 💭",
     toast_flagged: "Inhalt nicht erlaubt. Bitte umformulieren.",

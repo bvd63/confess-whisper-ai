@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Coins, Sparkles, Check, ChevronDown } from "lucide-react";
+import { Coins, Sparkles, Check, ChevronDown, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
@@ -221,10 +221,10 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
   const premiumFlairs = flairs.filter(f => f.required_plan === 'premium');
   const vipFlairs = flairs.filter(f => f.required_plan === 'vip');
 
-  // Determine which sections to show based on user tier
+  // Show all sections regardless of user tier
   const showFree = true;
-  const showPremium = userTier === 'premium' || userTier === 'vip';
-  const showVIP = userTier === 'vip';
+  const showPremium = true;
+  const showVIP = true;
 
   const renderFlairCard = (flair: Flair) => {
     const owned = isOwned(flair.id);
@@ -232,28 +232,41 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
     const equipped = isEquipped(flair.id);
     const userFlair = userFlairs.find(uf => uf.flair_id === flair.id);
     const canBuy = canPurchase(flair);
+    const isLocked = !canBuy;
 
     return (
       <Card 
         key={flair.id} 
         className={`p-4 flex flex-col items-center gap-2 relative hover:scale-105 transition-transform ${
           equipped ? 'ring-2 ring-primary' : ''
-        }`}
+        } ${isLocked ? 'opacity-60' : ''}`}
       >
         <Badge className={`absolute top-2 right-2 text-xs ${getRarityColor(flair.rarity)}`}>
           {t[`rarity_${flair.rarity}` as keyof typeof t] || flair.rarity}
         </Badge>
+        
+        {isLocked && (
+          <div className="absolute top-2 left-2">
+            <Lock className="w-4 h-4 text-muted-foreground" />
+          </div>
+        )}
         
         <div className="text-4xl">{flair.icon}</div>
         <p className="text-sm font-medium text-center">
           {t[flair.name_key as keyof typeof t] || flair.name_key}
         </p>
 
+        {isLocked && (
+          <Badge variant="secondary" className="text-[10px]">
+            {flair.required_plan === 'premium' ? t.subscription_plan_premium : t.subscription_plan_vip} {t.required}
+          </Badge>
+        )}
+
         {owned && userFlair?.expires_at && (
           <ExpiryTimer expiresAt={userFlair.expires_at} className="text-[10px]" showIcon={false} />
         )}
 
-        {!owned && !expired && (
+        {!owned && !expired && !isLocked && (
           <p className="text-[10px] text-muted-foreground text-center">
             {t.shop_expires_in.replace('{days}', '5')}
           </p>
@@ -286,6 +299,16 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
               {t.equip}
             </Button>
           )
+        ) : isLocked ? (
+          <Button
+            size="sm"
+            disabled
+            className="w-full gap-1"
+            variant="outline"
+          >
+            <Lock className="w-3 h-3" />
+            {t.upgrade_required}
+          </Button>
         ) : (
           <Button
             size="sm"
