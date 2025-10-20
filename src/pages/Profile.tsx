@@ -57,7 +57,8 @@ const Profile = () => {
     subscriptionTier,
     isVIP,
     isOnTrial,
-    trialEndDate
+    trialEndDate,
+    trialEligible
   } = usePremiumStatus(user?.id);
   const {
     checkSubscription
@@ -196,8 +197,8 @@ const Profile = () => {
           </TabsList>
 
           <TabsContent value="statistics" className="space-y-6">
-            {/* Trial CTA for free users */}
-            {subscriptionTier === 'free' && !isOnTrial && (
+            {/* Trial CTA for free users who haven't used trial */}
+            {subscriptionTier === 'free' && !isOnTrial && trialEligible && (
               <TrialCTA userId={user.id} onTrialStarted={checkSubscription} />
             )}
             

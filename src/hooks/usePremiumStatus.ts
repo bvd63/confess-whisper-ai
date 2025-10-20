@@ -10,7 +10,7 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('is_premium, subscription_tier, subscription_ends_at, trial_active, trial_end_date')
+        .select('is_premium, subscription_tier, subscription_ends_at, trial_active, trial_end_date, trial_premium_used')
         .eq('user_id', userId)
         .maybeSingle();
 
@@ -29,6 +29,7 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
         isVIP: false,
         isOnTrial: false,
         trialEndDate: null,
+        trialEligible: true, // Default to eligible if no data
       };
     }
 
@@ -42,6 +43,9 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
     const endsAt = data.subscription_ends_at;
     const subscriptionActive = !endsAt || new Date(endsAt) > new Date();
 
+    // Trial eligibility: not used yet AND free tier AND not premium
+    const trialEligible = !data.trial_premium_used && tier === 'free' && !hasActivePremium;
+
     // If on valid trial, treat as Premium
     if (trialValid) {
       return {
@@ -50,6 +54,7 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
         isVIP: false,
         isOnTrial: true,
         trialEndDate,
+        trialEligible: false, // Already using trial
         subscriptionEndsAt: endsAt,
       };
     }
@@ -60,6 +65,7 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
       isVIP: subscriptionActive && tier === 'vip',
       isOnTrial: false,
       trialEndDate: null,
+      trialEligible,
       subscriptionEndsAt: endsAt,
     };
   }, [data]);

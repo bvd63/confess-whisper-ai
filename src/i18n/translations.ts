@@ -975,8 +975,12 @@ type Translations = {
   subscription_feature_vip_badge: string;
   
   // Trial & Subscription Management
-  trial_try_premium: string;
-  trial_add_card_required: string;
+  trial_cta_title: string;
+  trial_cta_desc: string;
+  trial_cta_button: string;
+  trial_cta_disclaimer: string;
+  trial_error_used: string;
+  trial_error_already_subscribed: string;
   trial_active: string;
   subs_manage: string;
   subs_cancel: string;
@@ -2349,8 +2353,12 @@ export const translations: Record<Language, Translations> = {
   subscription_feature_vip_badge: "Special VIP badge",
   
   // Trial & Subscription Management
-  trial_try_premium: "Try Premium free for 3 days",
-  trial_add_card_required: "Add your card to start the free trial",
+  trial_cta_title: "Try Premium Free!",
+  trial_cta_desc: "Enjoy full Premium for 3 days.",
+  trial_cta_button: "Try 3 Days Free",
+  trial_cta_disclaimer: "After 3 days, you'll be charged unless you cancel.",
+  trial_error_used: "You've already used your Premium trial.",
+  trial_error_already_subscribed: "You already have an active subscription.",
   trial_active: "Your Premium trial is active until {date}",
   subs_manage: "Manage subscription",
   subs_cancel: "Cancel subscription",
@@ -3577,8 +3585,12 @@ export const translations: Record<Language, Translations> = {
   subscription_feature_vip_badge: "Insignia VIP especial",
   
   // Trial & Subscription Management
-  trial_try_premium: "Prueba Premium gratis durante 3 días",
-  trial_add_card_required: "Añade tu tarjeta para iniciar la prueba",
+  trial_cta_title: "¡Prueba Premium gratis!",
+  trial_cta_desc: "Disfruta de Premium completo durante 3 días.",
+  trial_cta_button: "Prueba 3 días gratis",
+  trial_cta_disclaimer: "Después de 3 días, se te cobrará a menos que canceles.",
+  trial_error_used: "Ya has utilizado tu prueba de Premium.",
+  trial_error_already_subscribed: "Ya tienes una suscripción activa.",
   trial_active: "Tu prueba Premium está activa hasta {date}",
   subs_manage: "Gestionar suscripción",
   subs_cancel: "Cancelar suscripción",
@@ -4838,8 +4850,12 @@ export const translations: Record<Language, Translations> = {
   subscription_feature_vip_badge: "Spezielle VIP-Badge",
   
   // Trial & Subscription Management
-  trial_try_premium: "Premium 3 Tage kostenlos testen",
-  trial_add_card_required: "Füge deine Karte hinzu, um die Testphase zu starten",
+  trial_cta_title: "Premium gratis testen!",
+  trial_cta_desc: "Genieße alle Premium-Funktionen für 3 Tage.",
+  trial_cta_button: "3 Tage gratis testen",
+  trial_cta_disclaimer: "Nach 3 Tagen wird abgerechnet, sofern du nicht kündigst.",
+  trial_error_used: "Du hast den Premium-Test bereits genutzt.",
+  trial_error_already_subscribed: "Du hast bereits ein aktives Abonnement.",
   trial_active: "Deine Premium-Testphase läuft bis {date}",
   subs_manage: "Abo verwalten",
   subs_cancel: "Abo kündigen",

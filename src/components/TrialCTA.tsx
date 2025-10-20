@@ -19,16 +19,20 @@ export const TrialCTA = ({ userId, onTrialStarted }: TrialCTAProps) => {
   const handleStartTrial = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('create-trial-checkout', {
-        body: { tier: 'premium' }
-      });
+      const { data, error } = await supabase.functions.invoke('create-trial-checkout');
 
       if (error) throw error;
 
       if (data?.error) {
+        const errorKey = data.error === 'TRIAL_ALREADY_USED' 
+          ? 'trial_error_used' 
+          : data.error === 'ALREADY_SUBSCRIBED'
+          ? 'trial_error_already_subscribed'
+          : 'error_generic';
+        
         toast({
           title: t.error_generic,
-          description: data.error,
+          description: t[errorKey] || data.message || t.error_generic,
           variant: "destructive",
         });
         return;
@@ -55,22 +59,24 @@ export const TrialCTA = ({ userId, onTrialStarted }: TrialCTAProps) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-xl">
           <Sparkles className="w-5 h-5 text-violet-500" />
-          {t.trial_try_premium}
+          {t.trial_cta_title}
         </CardTitle>
-        <CardDescription className="flex items-center gap-2">
-          <CreditCard className="w-4 h-4" />
-          {t.trial_add_card_required}
+        <CardDescription>
+          {t.trial_cta_desc}
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-3">
         <Button 
           onClick={handleStartTrial} 
           disabled={isLoading}
           className="w-full bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
         >
           <Sparkles className="w-4 h-4 mr-2" />
-          {isLoading ? t.loading : t.trial_try_premium}
+          {isLoading ? t.loading : t.trial_cta_button}
         </Button>
+        <p className="text-xs text-muted-foreground text-center">
+          {t.trial_cta_disclaimer}
+        </p>
       </CardContent>
     </Card>
   );

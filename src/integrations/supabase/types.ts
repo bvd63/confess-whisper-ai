@@ -1314,6 +1314,9 @@ export type Database = {
           total_referrals: number | null
           trial_active: boolean | null
           trial_end_date: string | null
+          trial_premium_ends_at: string | null
+          trial_premium_started_at: string | null
+          trial_premium_used: boolean | null
           user_id: string
         }
         Insert: {
@@ -1347,6 +1350,9 @@ export type Database = {
           total_referrals?: number | null
           trial_active?: boolean | null
           trial_end_date?: string | null
+          trial_premium_ends_at?: string | null
+          trial_premium_started_at?: string | null
+          trial_premium_used?: boolean | null
           user_id: string
         }
         Update: {
@@ -1380,6 +1386,9 @@ export type Database = {
           total_referrals?: number | null
           trial_active?: boolean | null
           trial_end_date?: string | null
+          trial_premium_ends_at?: string | null
+          trial_premium_started_at?: string | null
+          trial_premium_used?: boolean | null
           user_id?: string
         }
         Relationships: []
