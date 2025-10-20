@@ -147,6 +147,8 @@ const Messages = () => {
     
     // Clear URL params to return to messages list
     setSearchParams({});
+    // Ensure URL is reset to messages root
+    navigate('/messages', { replace: true });
     
     // Reset messages tab stack to root
     resetTabStack('messages');
