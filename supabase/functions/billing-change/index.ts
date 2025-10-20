@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@14.21.0";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import Stripe from "https://esm.sh/stripe@18.5.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -10,6 +10,11 @@ const corsHeaders = {
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[BILLING-CHANGE] ${step}${detailsStr}`);
+};
+
+const STRIPE_PRICE_IDS = {
+  premium: "price_1SKGCzR7kygIyYg9DGRcT8Pg",
+  vip: "price_1SKH1TR7kygIyYg9SZ2iH7Kw",
 };
 
 serve(async (req) => {
@@ -47,7 +52,7 @@ serve(async (req) => {
 
     logStep("Target tier", { targetTier });
 
-    const stripe = new Stripe(stripeKey, { apiVersion: "2024-11-20.acacia" });
+    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
     // Get customer
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
@@ -72,11 +77,8 @@ serve(async (req) => {
     const subscriptionItemId = subscription.items.data[0].id;
     logStep("Found active subscription", { subscriptionId: subscription.id });
 
-    // Get target price ID from environment
-    const targetPriceId = targetTier === 'premium' 
-      ? Deno.env.get("STRIPE_PREMIUM_PRICE_ID")
-      : Deno.env.get("STRIPE_VIP_PRICE_ID");
-
+    // Get target price ID from centralized config
+    const targetPriceId = STRIPE_PRICE_IDS[targetTier as keyof typeof STRIPE_PRICE_IDS];
     if (!targetPriceId) {
       throw new Error(`Price ID for ${targetTier} not configured`);
     }
