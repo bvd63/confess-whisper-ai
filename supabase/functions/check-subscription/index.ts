@@ -44,6 +44,48 @@ serve(async (req) => {
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+    
+    // First check for trial status in profiles
+    const { data: profile, error: profileError } = await supabaseClient
+      .from('profiles')
+      .select('trial_premium_ends_at, trial_active, subscription_tier, is_premium, subscription_ends_at, stripe_subscription_id')
+      .eq('user_id', user.id)
+      .single();
+    
+    if (profileError) {
+      logStep("Error fetching profile", { error: profileError.message });
+    }
+    
+    // Check if user has active trial
+    if (profile?.trial_premium_ends_at) {
+      const trialEndDate = new Date(profile.trial_premium_ends_at);
+      const now = new Date();
+      
+      if (now < trialEndDate) {
+        logStep("User has active trial", { endsAt: trialEndDate.toISOString() });
+        
+        // Ensure profile reflects trial as premium
+        await supabaseClient
+          .from('profiles')
+          .update({ 
+            subscription_tier: 'premium',
+            is_premium: true,
+            trial_active: true
+          })
+          .eq('user_id', user.id);
+        
+        return new Response(JSON.stringify({
+          subscribed: true,
+          subscription_tier: 'premium',
+          subscription_end: trialEndDate.toISOString(),
+          onTrial: true
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+    }
+    
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     
     if (customers.data.length === 0) {
@@ -114,16 +156,19 @@ serve(async (req) => {
     } else {
       logStep("No active subscription found");
       
-      // Update profile to free tier
-      await supabaseClient
-        .from('profiles')
-        .update({ 
-          subscription_tier: 'free',
-          is_premium: false,
-          subscription_ends_at: null,
-          stripe_subscription_id: null
-        })
-        .eq('user_id', user.id);
+      // Only update to free if not on trial
+      if (!profile?.trial_premium_ends_at || new Date(profile.trial_premium_ends_at) < new Date()) {
+        await supabaseClient
+          .from('profiles')
+          .update({ 
+            subscription_tier: 'free',
+            is_premium: false,
+            subscription_ends_at: null,
+            stripe_subscription_id: null,
+            trial_active: false
+          })
+          .eq('user_id', user.id);
+      }
     }
 
     return new Response(JSON.stringify({

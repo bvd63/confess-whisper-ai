@@ -9,7 +9,8 @@ export const useSubscriptionCheck = (userId: string | undefined) => {
     if (!userId) return;
 
     try {
-      const { data, error } = await supabase.functions.invoke('check-subscription');
+      // Use get-subscription-status instead of check-subscription for trial support
+      const { data, error } = await supabase.functions.invoke('get-subscription-status');
 
       if (error) {
         console.error('Error checking subscription:', error);
