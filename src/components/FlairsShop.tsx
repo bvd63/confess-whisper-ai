@@ -9,20 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCoins } from "@/hooks/useCoins";
 import { ExpiryTimer } from "@/components/ExpiryTimer";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/translated-dialog";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/translated-dialog";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 interface Flair {
   id: string;
   name_key: string;
@@ -31,7 +19,6 @@ interface Flair {
   rarity: string;
   required_plan?: string;
 }
-
 interface UserFlair {
   id: string;
   flair_id: string;
@@ -40,39 +27,44 @@ interface UserFlair {
   acquired_at: string | null;
   purchase_scope?: string;
 }
-
 interface FlairsShopProps {
   userId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
+export const FlairsShop = ({
+  userId,
+  open,
+  onOpenChange
+}: FlairsShopProps) => {
   const [flairs, setFlairs] = useState<Flair[]>([]);
   const [userFlairs, setUserFlairs] = useState<UserFlair[]>([]);
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState<string | null>(null);
   const [userTier, setUserTier] = useState<"free" | "premium" | "vip">("free");
-  const { toast } = useToast();
-  const { t } = useLanguage();
-  const { balance: coinsBalance, refetch: refetchCoins } = useCoins(userId);
-
+  const {
+    toast
+  } = useToast();
+  const {
+    t
+  } = useLanguage();
+  const {
+    balance: coinsBalance,
+    refetch: refetchCoins
+  } = useCoins(userId);
   useEffect(() => {
     if (open) {
       loadData();
     }
   }, [open, userId]);
-
   const loadData = async () => {
     setLoading(true);
     try {
       // Load user tier and trial status
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('subscription_tier, trial_active, trial_premium_ends_at')
-        .eq('user_id', userId)
-        .maybeSingle();
-      
+      const {
+        data: profile
+      } = await supabase.from('profiles').select('subscription_tier, trial_active, trial_premium_ends_at').eq('user_id', userId).maybeSingle();
+
       // If on active Premium trial, treat as premium tier
       let tier = (profile?.subscription_tier || 'free') as "free" | "premium" | "vip";
       if (profile?.trial_active && profile?.trial_premium_ends_at) {
@@ -81,25 +73,23 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
           tier = 'premium';
         }
       }
-      
       setUserTier(tier);
 
       // Load available flairs
-      const { data: flairsData, error: flairsError } = await supabase
-        .from('profile_flairs')
-        .select('*')
-        .eq('is_active', true)
-        .order('cost', { ascending: true });
-
+      const {
+        data: flairsData,
+        error: flairsError
+      } = await supabase.from('profile_flairs').select('*').eq('is_active', true).order('cost', {
+        ascending: true
+      });
       if (flairsError) throw flairsError;
       setFlairs(flairsData || []);
 
       // Load user's owned flairs
-      const { data: userFlairsData, error: userFlairsError } = await supabase
-        .from('user_flairs')
-        .select('id, flair_id, is_equipped, expires_at, acquired_at, purchase_scope')
-        .eq('user_id', userId);
-
+      const {
+        data: userFlairsData,
+        error: userFlairsError
+      } = await supabase.from('user_flairs').select('id, flair_id, is_equipped, expires_at, acquired_at, purchase_scope').eq('user_id', userId);
       if (userFlairsError) throw userFlairsError;
       setUserFlairs(userFlairsData || []);
 
@@ -111,21 +101,24 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
       setLoading(false);
     }
   };
-
   const handlePurchase = async (flair: Flair) => {
     setPurchasing(flair.id);
     try {
-      const { data, error } = await supabase.functions.invoke('purchase-flair', {
-        body: { flairId: flair.id, equip: true }
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('purchase-flair', {
+        body: {
+          flairId: flair.id,
+          equip: true
+        }
       });
-
       if (error) throw error;
-
       if (data.error) {
         toast({
           title: t.error_generic,
           description: data.error,
-          variant: "destructive",
+          variant: "destructive"
         });
         return;
       }
@@ -134,7 +127,7 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
       const flairName = t[flair.name_key as keyof typeof t] || flair.name_key;
       toast({
         title: `${flair.icon} ${t.flair_purchased_title}`,
-        description: `${flairName} ${t.flair_purchased_description}`,
+        description: `${flairName} ${t.flair_purchased_description}`
       });
 
       // Reload data
@@ -144,46 +137,40 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
       toast({
         title: t.error_generic,
         description: t.flair_purchase_error,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setPurchasing(null);
     }
   };
-
   const handleEquip = async (userFlairId: string) => {
     try {
       // Unequip all first
-      await supabase
-        .from('user_flairs')
-        .update({ is_equipped: false })
-        .eq('user_id', userId)
-        .eq('is_equipped', true);
+      await supabase.from('user_flairs').update({
+        is_equipped: false
+      }).eq('user_id', userId).eq('is_equipped', true);
 
       // Equip selected
-      const { error } = await supabase
-        .from('user_flairs')
-        .update({ is_equipped: true })
-        .eq('id', userFlairId);
-
+      const {
+        error
+      } = await supabase.from('user_flairs').update({
+        is_equipped: true
+      }).eq('id', userFlairId);
       if (error) throw error;
-
       toast({
         title: t.success,
-        description: t.flair_equipped,
+        description: t.flair_equipped
       });
-
       await loadData();
     } catch (error) {
       console.error('Error equipping flair:', error);
       toast({
         title: t.error_generic,
         description: t.error_generic,
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   const isOwned = (flairId: string) => {
     const userFlair = userFlairs.find(uf => uf.flair_id === flairId);
     if (!userFlair) return false;
@@ -195,7 +182,6 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
     }
     return true;
   };
-
   const isExpired = (flairId: string) => {
     const userFlair = userFlairs.find(uf => uf.flair_id === flairId);
     if (!userFlair || !userFlair.expires_at) return false;
@@ -203,26 +189,33 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
     const expiry = new Date(userFlair.expires_at).getTime();
     return expiry <= now;
   };
-
   const isEquipped = (flairId: string) => {
     return userFlairs.some(uf => uf.flair_id === flairId && uf.is_equipped && !isExpired(flairId));
   };
-
   const canPurchase = (flair: Flair) => {
-    const tierLevel: Record<string, number> = { free: 0, premium: 1, vip: 2 };
+    const tierLevel: Record<string, number> = {
+      free: 0,
+      premium: 1,
+      vip: 2
+    };
     const userLevel = tierLevel[userTier] || 0;
     const requiredLevel = tierLevel[flair.required_plan || 'free'] || 0;
     return userLevel >= requiredLevel;
   };
-
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
-      case 'common': return 'bg-gray-500';
-      case 'uncommon': return 'bg-green-500';
-      case 'rare': return 'bg-blue-500';
-      case 'epic': return 'bg-purple-500';
-      case 'legendary': return 'bg-amber-500';
-      default: return 'bg-gray-500';
+      case 'common':
+        return 'bg-gray-500';
+      case 'uncommon':
+        return 'bg-green-500';
+      case 'rare':
+        return 'bg-blue-500';
+      case 'epic':
+        return 'bg-purple-500';
+      case 'legendary':
+        return 'bg-amber-500';
+      default:
+        return 'bg-gray-500';
     }
   };
 
@@ -235,7 +228,6 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
   const showFree = true;
   const showPremium = true;
   const showVIP = true;
-
   const renderFlairCard = (flair: Flair) => {
     const owned = isOwned(flair.id);
     const expired = isExpired(flair.id);
@@ -243,104 +235,53 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
     const userFlair = userFlairs.find(uf => uf.flair_id === flair.id);
     const canBuy = canPurchase(flair);
     const isLocked = !canBuy;
-
-    return (
-      <Card 
-        key={flair.id} 
-        className={`p-4 flex flex-col items-center gap-2 relative hover:scale-105 transition-transform ${
-          equipped ? 'ring-2 ring-primary' : ''
-        } ${isLocked ? 'opacity-60' : ''}`}
-      >
+    return <Card key={flair.id} className={`p-4 flex flex-col items-center gap-2 relative hover:scale-105 transition-transform ${equipped ? 'ring-2 ring-primary' : ''} ${isLocked ? 'opacity-60' : ''}`}>
         <Badge className={`absolute top-2 right-2 text-xs ${getRarityColor(flair.rarity)}`}>
           {t[`rarity_${flair.rarity}` as keyof typeof t] || flair.rarity}
         </Badge>
         
-        {isLocked && (
-          <div className="absolute top-2 left-2">
+        {isLocked && <div className="absolute top-2 left-2">
             <Lock className="w-4 h-4 text-muted-foreground" />
-          </div>
-        )}
+          </div>}
         
         <div className="text-4xl">{flair.icon}</div>
         <p className="text-sm font-medium text-center">
           {t[flair.name_key as keyof typeof t] || flair.name_key}
         </p>
 
-        {isLocked && (
-          <Badge variant="secondary" className="text-[10px]">
+        {isLocked && <Badge variant="secondary" className="text-[10px]">
             {flair.required_plan === 'premium' ? t.subscription_plan_premium : t.subscription_plan_vip} {t.required}
-          </Badge>
-        )}
+          </Badge>}
 
-        {owned && userFlair?.expires_at && (
-          <ExpiryTimer expiresAt={userFlair.expires_at} className="text-[10px]" showIcon={false} />
-        )}
+        {owned && userFlair?.expires_at && <ExpiryTimer expiresAt={userFlair.expires_at} className="text-[10px]" showIcon={false} />}
 
-        {!owned && !expired && !isLocked && (
-          <p className="text-[10px] text-muted-foreground text-center">
+        {!owned && !expired && !isLocked && <p className="text-[10px] text-muted-foreground text-center">
             {t.shop_expires_in.replace('{days}', '5')}
-          </p>
-        )}
+          </p>}
         
         <p className="text-xs font-semibold text-primary flex items-center gap-1">
           <Coins className="w-3 h-3" />
           {flair.cost}
         </p>
 
-        {expired ? (
-          <Button
-            size="sm"
-            onClick={() => handlePurchase(flair)}
-            disabled={purchasing === flair.id || coinsBalance < flair.cost || !canBuy}
-            className="w-full gap-1"
-            variant="outline"
-          >
+        {expired ? <Button size="sm" onClick={() => handlePurchase(flair)} disabled={purchasing === flair.id || coinsBalance < flair.cost || !canBuy} className="w-full gap-1" variant="outline">
             <Coins className="w-3 h-3" />
             {t.buy_again} ({flair.cost})
-          </Button>
-        ) : owned ? (
-          equipped ? (
-            <Button size="sm" variant="outline" disabled className="w-full gap-1">
+          </Button> : owned ? equipped ? <Button size="sm" variant="outline" disabled className="w-full gap-1">
               <Check className="w-3 h-3" />
               {t.equipped}
-            </Button>
-          ) : (
-            <Button 
-              size="sm" 
-              variant="outline" 
-              onClick={() => handleEquip(userFlair!.id)}
-              className="w-full"
-            >
+            </Button> : <Button size="sm" variant="outline" onClick={() => handleEquip(userFlair!.id)} className="w-full">
               {t.equip}
-            </Button>
-          )
-        ) : isLocked ? (
-          <Button
-            size="sm"
-            disabled
-            className="w-full gap-1"
-            variant="outline"
-          >
+            </Button> : isLocked ? <Button size="sm" disabled className="w-full gap-1" variant="outline">
             <Lock className="w-3 h-3" />
             {t.upgrade_required}
-          </Button>
-        ) : (
-          <Button
-            size="sm"
-            onClick={() => handlePurchase(flair)}
-            disabled={purchasing === flair.id || coinsBalance < flair.cost}
-            className="w-full gap-1"
-          >
+          </Button> : <Button size="sm" onClick={() => handlePurchase(flair)} disabled={purchasing === flair.id || coinsBalance < flair.cost} className="w-full gap-1">
             <Coins className="w-3 h-3" />
             {flair.cost}
-          </Button>
-        )}
-      </Card>
-    );
+          </Button>}
+      </Card>;
   };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+  return <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px] max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between text-lg sm:text-xl">
@@ -355,21 +296,13 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground space-y-1">
             <p>{t.flair_shop_description}</p>
-            <p className="text-xs">
-              {userTier === 'free' && t.shop_badge_price_free}
-              {userTier === 'premium' && t.shop_badge_price_premium}
-              {userTier === 'vip' && t.shop_badge_price_vip}
-            </p>
+            
           </DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="h-[400px] sm:h-[500px] pr-4">
-          {loading ? (
-            <div className="text-center py-8 text-muted-foreground">{t.loading}</div>
-          ) : (
-            <Accordion type="multiple" defaultValue={["free", "premium", "vip"]} className="w-full space-y-2">
-              {showFree && freeFlairs.length > 0 && (
-                <AccordionItem value="free" className="border rounded-lg px-4">
+          {loading ? <div className="text-center py-8 text-muted-foreground">{t.loading}</div> : <Accordion type="multiple" defaultValue={["free", "premium", "vip"]} className="w-full space-y-2">
+              {showFree && freeFlairs.length > 0 && <AccordionItem value="free" className="border rounded-lg px-4">
                   <AccordionTrigger className="hover:no-underline">
                     <div className="flex items-center gap-2">
                       <span className="text-lg font-semibold">{t.shop_free_tier}</span>
@@ -381,11 +314,9 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
                       {freeFlairs.map(renderFlairCard)}
                     </div>
                   </AccordionContent>
-                </AccordionItem>
-              )}
+                </AccordionItem>}
 
-              {showPremium && premiumFlairs.length > 0 && (
-                <AccordionItem value="premium" className="border rounded-lg px-4">
+              {showPremium && premiumFlairs.length > 0 && <AccordionItem value="premium" className="border rounded-lg px-4">
                   <AccordionTrigger className="hover:no-underline">
                     <div className="flex items-center gap-2">
                       <span className="text-lg font-semibold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
@@ -399,11 +330,9 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
                       {premiumFlairs.map(renderFlairCard)}
                     </div>
                   </AccordionContent>
-                </AccordionItem>
-              )}
+                </AccordionItem>}
 
-              {showVIP && vipFlairs.length > 0 && (
-                <AccordionItem value="vip" className="border rounded-lg px-4">
+              {showVIP && vipFlairs.length > 0 && <AccordionItem value="vip" className="border rounded-lg px-4">
                   <AccordionTrigger className="hover:no-underline">
                     <div className="flex items-center gap-2">
                       <span className="text-lg font-semibold bg-gradient-to-r from-amber-600 to-yellow-600 bg-clip-text text-transparent">
@@ -417,16 +346,11 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
                       {vipFlairs.map(renderFlairCard)}
                     </div>
                   </AccordionContent>
-                </AccordionItem>
-              )}
-            </Accordion>
-          )}
+                </AccordionItem>}
+            </Accordion>}
 
-          {!loading && flairs.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">{t.shop_empty}</div>
-          )}
+          {!loading && flairs.length === 0 && <div className="text-center py-8 text-muted-foreground">{t.shop_empty}</div>}
         </ScrollArea>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>;
 };
