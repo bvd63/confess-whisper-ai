@@ -130,13 +130,6 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
       {/* Show user badges and streak if available */}
       {confession.user_id && (
         <div className="flex items-center gap-3 mb-3 flex-wrap">
-          <BadgeDisplay 
-            userId={confession.user_id}
-            subscriptionTier={subscriptionTier as 'free' | 'premium' | 'vip'}
-            showSubscription={subscriptionTier !== 'free'}
-            variant="compact"
-            maxBadges={2}
-          />
           <BadgesDisplay userId={confession.user_id} variant="compact" />
           <StreakCounter userId={confession.user_id} variant="compact" />
           <div className="ml-auto">

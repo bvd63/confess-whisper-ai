@@ -7,8 +7,6 @@ import { Send, ArrowLeft, MoreVertical, Check, CheckCheck } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { UserDisplayName } from "./UserDisplayName";
-import { BadgeDisplay } from "./BadgeDisplay";
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -56,7 +54,6 @@ export const EnhancedMessageThread = ({
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { t } = useLanguage();
-  const { subscriptionTier } = usePremiumStatus(otherUserId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { purgeMessage, purgeConversation } = useCachePurgeOnDelete();
 
@@ -352,16 +349,7 @@ export const EnhancedMessageThread = ({
         </Button>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="font-medium">
-              <UserDisplayName userId={otherUserId} maxLength={20} />
-            </h3>
-            <BadgeDisplay 
-              userId={otherUserId}
-              subscriptionTier={subscriptionTier as "free" | "premium" | "vip"}
-              showSubscription={subscriptionTier !== 'free'}
-              variant="compact"
-              maxBadges={2}
-            />
+            <UserDisplayName userId={otherUserId} maxLength={20} showBadges={true} />
           </div>
         </div>
       </div>

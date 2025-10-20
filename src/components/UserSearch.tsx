@@ -9,8 +9,6 @@ import FollowButton from "@/components/FollowButton";
 import { UserDisplayName } from "@/components/UserDisplayName";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/ui/button";
-import { BadgeDisplay } from "@/components/BadgeDisplay";
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 
 interface UserSearchResult {
   user_id: string;
@@ -24,8 +22,6 @@ const UserSearchResultItem = ({ user, currentUserId, navigate, t }: {
   navigate: any; 
   t: any 
 }) => {
-  const { subscriptionTier } = usePremiumStatus(user.user_id);
-  
   return (
     <Card className="p-4">
       <div className="flex items-center justify-between">
@@ -34,20 +30,12 @@ const UserSearchResultItem = ({ user, currentUserId, navigate, t }: {
             <User className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <UserDisplayName 
-                userId={user.user_id}
-                maxLength={20}
-                className="font-medium"
-              />
-              <BadgeDisplay 
-                userId={user.user_id}
-                subscriptionTier={subscriptionTier as "free" | "premium" | "vip"}
-                showSubscription={subscriptionTier !== 'free'}
-                variant="compact"
-                maxBadges={2}
-              />
-            </div>
+            <UserDisplayName 
+              userId={user.user_id}
+              maxLength={20}
+              className="font-medium"
+              showBadges={true}
+            />
           </div>
         </div>
         <div className="flex items-center gap-2">

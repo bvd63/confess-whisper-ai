@@ -4,6 +4,8 @@ import { truncateNickname } from '@/lib/displayName';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { BadgeDisplay } from '@/components/BadgeDisplay';
+import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 
 interface UserDisplayNameProps {
   userId: string | null | undefined;
@@ -11,12 +13,13 @@ interface UserDisplayNameProps {
   maxLength?: number;
   clickable?: boolean;
   showTooltip?: boolean;
+  showBadges?: boolean;
 }
 
 /**
  * Component to display user nickname with proper fallbacks
  * Shows @nickname if available, otherwise "Anonymous"
- * Supports truncation, tooltips, and clickable navigation to profile
+ * Supports truncation, tooltips, clickable navigation to profile, and badges
  */
 export const UserDisplayName = memo(({ 
   userId, 
@@ -24,8 +27,10 @@ export const UserDisplayName = memo(({
   maxLength = 24,
   clickable = true,
   showTooltip = true,
+  showBadges = true,
 }: UserDisplayNameProps) => {
   const { displayName, loading } = useUserDisplayName(userId);
+  const { subscriptionTier } = usePremiumStatus(userId || null);
   const navigate = useNavigate();
 
   if (loading || !userId) {
@@ -44,7 +49,7 @@ export const UserDisplayName = memo(({
   const content = (
     <span
       className={cn(
-        'font-medium',
+        'font-medium inline-flex items-center gap-1',
         clickable && 'cursor-pointer hover:underline',
         className
       )}
@@ -60,6 +65,15 @@ export const UserDisplayName = memo(({
       aria-label={displayName}
     >
       {truncated}
+      {showBadges && userId && (
+        <BadgeDisplay 
+          userId={userId}
+          subscriptionTier={subscriptionTier as "free" | "premium" | "vip"}
+          showSubscription={subscriptionTier !== 'free'}
+          variant="compact"
+          maxBadges={2}
+        />
+      )}
     </span>
   );
 

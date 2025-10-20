@@ -4,8 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { UserDisplayName } from './UserDisplayName';
-import { BadgeDisplay } from './BadgeDisplay';
-import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 
 interface NotificationItemProps {
   notification: {
@@ -25,7 +23,6 @@ interface NotificationItemProps {
 export const NotificationItem = ({ notification, onMarkAsRead, onDelete }: NotificationItemProps) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const { subscriptionTier } = usePremiumStatus(notification.triggered_by || "");
   
   const translations: any = {
     en: {
@@ -88,16 +85,7 @@ export const NotificationItem = ({ notification, onMarkAsRead, onDelete }: Notif
         return (
           <>
             {showNickname && (
-              <>
-                <UserDisplayName userId={notification.triggered_by} clickable={false} className="inline" />
-                <BadgeDisplay 
-                  userId={notification.triggered_by!} 
-                  subscriptionTier={subscriptionTier as "free" | "premium" | "vip"}
-                  showSubscription={subscriptionTier !== 'free'}
-                  variant="compact"
-                  maxBadges={1}
-                />
-              </>
+              <UserDisplayName userId={notification.triggered_by} clickable={false} className="inline" showBadges={true} />
             )}
             {' '}
             {t('liked your confession')}
@@ -107,16 +95,7 @@ export const NotificationItem = ({ notification, onMarkAsRead, onDelete }: Notif
         return (
           <>
             {showNickname && (
-              <>
-                <UserDisplayName userId={notification.triggered_by} clickable={false} className="inline" />
-                <BadgeDisplay 
-                  userId={notification.triggered_by!} 
-                  subscriptionTier={subscriptionTier as "free" | "premium" | "vip"}
-                  showSubscription={subscriptionTier !== 'free'}
-                  variant="compact"
-                  maxBadges={1}
-                />
-              </>
+              <UserDisplayName userId={notification.triggered_by} clickable={false} className="inline" showBadges={true} />
             )}
             {' '}
             {t('commented on your confession')}
@@ -126,16 +105,7 @@ export const NotificationItem = ({ notification, onMarkAsRead, onDelete }: Notif
         return (
           <>
             {showNickname && (
-              <>
-                <UserDisplayName userId={notification.triggered_by} clickable={false} className="inline" />
-                <BadgeDisplay 
-                  userId={notification.triggered_by!} 
-                  subscriptionTier={subscriptionTier as "free" | "premium" | "vip"}
-                  showSubscription={subscriptionTier !== 'free'}
-                  variant="compact"
-                  maxBadges={1}
-                />
-              </>
+              <UserDisplayName userId={notification.triggered_by} clickable={false} className="inline" showBadges={true} />
             )}
             {' '}
             {t('started following you')}

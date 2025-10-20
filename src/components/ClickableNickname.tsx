@@ -2,12 +2,15 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { BadgeDisplay } from "@/components/BadgeDisplay";
+import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 
 interface ClickableNicknameProps {
   userId: string;
   nickname?: string | null;
   className?: string;
   showIcon?: boolean;
+  showBadges?: boolean;
 }
 
 /**
@@ -17,9 +20,11 @@ export const ClickableNickname = ({
   userId, 
   nickname, 
   className,
-  showIcon = false 
+  showIcon = false,
+  showBadges = true
 }: ClickableNicknameProps) => {
   const navigate = useNavigate();
+  const { subscriptionTier } = usePremiumStatus(userId);
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -29,17 +34,28 @@ export const ClickableNickname = ({
   if (!nickname) return null;
 
   return (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={handleClick}
-      className={cn(
-        "h-auto p-1 font-semibold hover:text-primary transition-colors",
-        className
+    <div className="inline-flex items-center gap-1">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleClick}
+        className={cn(
+          "h-auto p-1 font-semibold hover:text-primary transition-colors",
+          className
+        )}
+      >
+        {showIcon && <User className="w-3 h-3 mr-1" />}
+        @{nickname}
+      </Button>
+      {showBadges && (
+        <BadgeDisplay 
+          userId={userId}
+          subscriptionTier={subscriptionTier as "free" | "premium" | "vip"}
+          showSubscription={subscriptionTier !== 'free'}
+          variant="compact"
+          maxBadges={2}
+        />
       )}
-    >
-      {showIcon && <User className="w-3 h-3 mr-1" />}
-      @{nickname}
-    </Button>
+    </div>
   );
 };

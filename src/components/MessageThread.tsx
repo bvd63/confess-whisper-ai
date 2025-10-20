@@ -7,8 +7,6 @@ import { Send, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { UserDisplayName } from "./UserDisplayName";
-import { BadgeDisplay } from "./BadgeDisplay";
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 
 interface Message {
   id: string;
@@ -36,7 +34,6 @@ export const MessageThread = ({
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
   const { t } = useLanguage();
-  const { subscriptionTier } = usePremiumStatus(otherUserId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -122,16 +119,7 @@ export const MessageThread = ({
         </Button>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="font-medium">
-              <UserDisplayName userId={otherUserId} maxLength={20} />
-            </h3>
-            <BadgeDisplay 
-              userId={otherUserId}
-              subscriptionTier={subscriptionTier as "free" | "premium" | "vip"}
-              showSubscription={subscriptionTier !== 'free'}
-              variant="compact"
-              maxBadges={2}
-            />
+            <UserDisplayName userId={otherUserId} maxLength={20} showBadges={true} />
           </div>
           <p className="text-xs text-muted-foreground">{t.messages_conversation_with}</p>
         </div>

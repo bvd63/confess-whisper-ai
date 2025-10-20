@@ -307,27 +307,19 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                   <User className="w-5 h-5 text-primary" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
                       <UserDisplayName 
                         userId={conversation.other_user_id}
                         maxLength={20}
                         clickable={false}
+                        showBadges={true}
                       />
-                      <BadgeDisplay 
-                        userId={conversation.other_user_id} 
-                        subscriptionTier={otherUserTiers[conversation.other_user_id] as "free" | "premium" | "vip" || "free"}
-                        showSubscription={otherUserTiers[conversation.other_user_id] !== 'free'}
-                        variant="compact"
-                        maxBadges={1}
-                      />
-                    </div>
-                    {conversation.unread_count > 0 && (
-                      <span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">
-                        {conversation.unread_count}
-                      </span>
-                    )}
+                      {conversation.unread_count > 0 && (
+                        <span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">
+                          {conversation.unread_count}
+                        </span>
+                      )}
                   </div>
                   {conversation.last_message && (
                     <p className="text-sm text-muted-foreground truncate">

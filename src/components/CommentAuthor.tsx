@@ -1,6 +1,4 @@
-import { useUserDisplayName } from "@/hooks/useUserDisplayName";
-import { BadgeDisplay } from "./BadgeDisplay";
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { UserDisplayName } from "./UserDisplayName";
 
 interface CommentAuthorProps {
   userId: string;
@@ -8,21 +6,12 @@ interface CommentAuthorProps {
 }
 
 export const CommentAuthor = ({ userId, showBadge = true }: CommentAuthorProps) => {
-  const { displayName } = useUserDisplayName(userId);
-  const { subscriptionTier } = usePremiumStatus(userId);
-
   return (
-    <div className="flex items-center gap-1.5">
-      <span className="font-medium">{displayName}</span>
-      {showBadge && (
-        <BadgeDisplay 
-          userId={userId} 
-          subscriptionTier={subscriptionTier as "free" | "premium" | "vip"}
-          showSubscription={subscriptionTier !== 'free'}
-          variant="compact"
-          maxBadges={2}
-        />
-      )}
-    </div>
+    <UserDisplayName 
+      userId={userId}
+      showBadges={showBadge}
+      clickable={true}
+      maxLength={24}
+    />
   );
 };
