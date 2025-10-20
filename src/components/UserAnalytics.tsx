@@ -4,10 +4,10 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { MessageSquare, Heart, FileText, Crown, Settings } from "lucide-react";
+import { Crown, TrendingUp, MessageSquare, Heart, BarChart3, Settings, FileText } from "lucide-react";
 import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { ProfileTierBadge } from "./ProfileTierBadge";
 
 interface UserAnalyticsProps {
   userId?: string;
@@ -182,9 +182,7 @@ const UserAnalytics = ({ userId, onUpgradeClick }: UserAnalyticsProps) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <CardTitle className="text-lg">{t.subscription_title}</CardTitle>
-              <Badge className={`bg-gradient-to-r ${getTierColor()} text-white border-0`}>
-                {getTierLabel()}
-              </Badge>
+              <ProfileTierBadge tier={subscriptionTier as "free" | "premium" | "vip"} />
             </div>
             <Button
               variant={isPremium ? "outline" : "default"}
@@ -200,7 +198,7 @@ const UserAnalytics = ({ userId, onUpgradeClick }: UserAnalyticsProps) => {
               ) : (
                 <>
                   <Crown className="w-4 h-4" />
-                  {t.subscription_cta_upgrade}
+                  {t.subscription_upgrade}
                 </>
               )}
             </Button>

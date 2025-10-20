@@ -204,7 +204,13 @@ const Profile = () => {
 
           <TabsContent value="achievements" className="space-y-6">
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold">{t.badges_your_badges}</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-bold">{t.badges_your_badges}</h2>
+                <FlairsShopButton 
+                  onClick={() => setFlairsDialogOpen(true)} 
+                  tier={subscriptionTier as "free" | "premium" | "vip"}
+                />
+              </div>
               <BadgesDisplay userId={user.id} variant="full" />
             </div>
           </TabsContent>

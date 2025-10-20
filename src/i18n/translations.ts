@@ -121,7 +121,6 @@ type Translations = {
   subscription_tier_premium: string;
   subscription_tier_vip: string;
   subscription_cta_upgrade: string;
-  subscription_upgrade: string;
   subscription_downgrade: string;
   
   // Premium
@@ -407,6 +406,14 @@ type Translations = {
   common_error: string;
   common_help_aria: string;
   common_theme_aria: string;
+  common_view_all: string;
+  
+  // Search
+  search_results: string;
+  
+  // Communities
+  communities_trending: string;
+  communities_all: string;
   
   // FAQ
   faq_title: string;
@@ -946,6 +953,11 @@ type Translations = {
   subscription_choose: string;
   subscription_title: string;
   subscription_description: string;
+  subscription_plan_free: string;
+  subscription_plan_premium: string;
+  subscription_plan_vip: string;
+  subscription_manage: string;
+  subscription_upgrade: string;
   subscription_feature_unlimited_ai: string;
   subscription_feature_advanced_analytics: string;
   subscription_feature_exclusive_badges: string;
@@ -1042,7 +1054,6 @@ type Translations = {
   subscription_yearly_discount: string;
   subscription_thanks: string;
   subscription_upgrade_more: string;
-  subscription_manage: string;
   subscription_upgrade_premium: string;
   
   // Profile
@@ -1980,6 +1991,12 @@ export const translations: Record<Language, Translations> = {
     common_error: "Error",
     common_help_aria: "Help",
     common_theme_aria: "Toggle theme",
+    common_view_all: "View All",
+    
+    search_results: "Search Results",
+    
+    communities_trending: "Trending Communities",
+    communities_all: "All Communities",
     
     faq_title: "Frequently Asked Questions",
     faq_q1: "Is it really anonymous?",
@@ -2081,7 +2098,6 @@ export const translations: Record<Language, Translations> = {
     
     subscription_thanks: "Thank you for your support!",
     subscription_upgrade_more: "Upgrade for more features",
-    subscription_manage: "Manage subscription",
     subscription_upgrade_premium: "Upgrade to Premium",
     
     badges_your_badges: "Your Badges",
@@ -2269,8 +2285,12 @@ export const translations: Record<Language, Translations> = {
     
     subscription_active_plan: "Active Plan",
     subscription_choose: "Choose",
-    subscription_title: "Choose Your Premium Plan",
+    subscription_title: "Your Subscription",
     subscription_description: "Unlock all features and get a superior experience",
+    subscription_plan_free: "Free",
+    subscription_plan_premium: "Premium",
+    subscription_plan_vip: "VIP",
+    subscription_manage: "Manage subscription",
     subscription_feature_unlimited_ai: "Unlimited AI responses",
     subscription_feature_advanced_analytics: "Advanced analytics",
     subscription_feature_exclusive_badges: "Exclusive badges",
@@ -2943,6 +2963,12 @@ export const translations: Record<Language, Translations> = {
     common_error: "Error",
     common_help_aria: "Ayuda",
     common_theme_aria: "Cambiar tema",
+    common_view_all: "Ver Todo",
+    
+    search_results: "Resultados de búsqueda",
+    
+    communities_trending: "Comunidades Populares",
+    communities_all: "Todas las Comunidades",
     
     faq_title: "Preguntas Frecuentes",
     faq_q1: "¿Es realmente anónimo?",
@@ -3446,8 +3472,12 @@ export const translations: Record<Language, Translations> = {
     
     subscription_active_plan: "Plan Activo",
     subscription_choose: "Elegir",
-    subscription_title: "Elige Tu Plan Premium",
+    subscription_title: "Tu suscripción",
     subscription_description: "Desbloquea todas las funciones y obtén una experiencia superior",
+    subscription_plan_free: "Gratis",
+    subscription_plan_premium: "Premium",
+    subscription_plan_vip: "VIP",
+    subscription_manage: "Gestionar suscripción",
     subscription_feature_unlimited_ai: "Respuestas AI ilimitadas",
     subscription_feature_advanced_analytics: "Análisis avanzados",
     subscription_feature_exclusive_badges: "Insignias exclusivas",
@@ -3499,7 +3529,6 @@ export const translations: Record<Language, Translations> = {
     
     subscription_thanks: "¡Gracias por tu apoyo!",
     subscription_upgrade_more: "Mejora para más funciones",
-    subscription_manage: "Gestionar suscripción",
     subscription_upgrade_premium: "Mejorar a Premium",
     
     badges_your_badges: "Tus Insignias",
@@ -4154,6 +4183,12 @@ export const translations: Record<Language, Translations> = {
     common_error: "Fehler",
     common_help_aria: "Hilfe",
     common_theme_aria: "Design wechseln",
+    common_view_all: "Alle anzeigen",
+    
+    search_results: "Suchergebnisse",
+    
+    communities_trending: "Trending Communities",
+    communities_all: "Alle Communities",
     
     faq_title: "Häufig gestellte Fragen",
     faq_q1: "Ist es wirklich anonym?",
@@ -4657,8 +4692,12 @@ export const translations: Record<Language, Translations> = {
     
     subscription_active_plan: "Aktiver Plan",
     subscription_choose: "Wählen",
-    subscription_title: "Wähle Deinen Premium-Plan",
+    subscription_title: "Dein Abonnement",
     subscription_description: "Schalte alle Funktionen frei und erhalte ein überlegenes Erlebnis",
+    subscription_plan_free: "Free",
+    subscription_plan_premium: "Premium",
+    subscription_plan_vip: "VIP",
+    subscription_manage: "Abo verwalten",
     subscription_feature_unlimited_ai: "Unbegrenzte KI-Antworten",
     subscription_feature_advanced_analytics: "Erweiterte Analysen",
     subscription_feature_exclusive_badges: "Exklusive Abzeichen",
@@ -4710,7 +4749,6 @@ export const translations: Record<Language, Translations> = {
     
     subscription_thanks: "Vielen Dank für Ihre Unterstützung!",
     subscription_upgrade_more: "Upgrade für mehr Funktionen",
-    subscription_manage: "Abonnement verwalten",
     subscription_upgrade_premium: "Auf Premium upgraden",
     
     badges_your_badges: "Deine Auszeichnungen",

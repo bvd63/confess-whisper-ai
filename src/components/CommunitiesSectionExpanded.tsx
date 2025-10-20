@@ -1,0 +1,240 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useCommunities, useCommunityMembers } from "@/hooks/useCommunities";
+import { CommunityCard } from "@/components/CommunityCard";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Users, Plus, TrendingUp, Search } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+
+export const CommunitiesSectionExpanded = () => {
+  const { t } = useLanguage();
+  const navigate = useNavigate();
+  const { user } = useCurrentUser();
+  const { communities, isLoading, createCommunity, isCreating } = useCommunities("all");
+  const { toast } = useToast();
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const [newCommunity, setNewCommunity] = useState({
+    name: "",
+    description: "",
+    category: "general",
+    slug: "",
+    is_private: false,
+  });
+
+  const handleCreateCommunity = () => {
+    if (!user) {
+      navigate('/auth');
+      toast({
+        title: t.error_auth,
+        description: t.error_auth,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!newCommunity.name || !newCommunity.slug) {
+      toast({
+        title: t.error_generic,
+        description: t.validation_required_field,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    createCommunity(newCommunity);
+    setIsCreateOpen(false);
+    setNewCommunity({
+      name: "",
+      description: "",
+      category: "general",
+      slug: "",
+      is_private: false,
+    });
+  };
+
+  const filteredCommunities = communities?.filter(c =>
+    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Get trending communities (sorted by member count)
+  const trendingCommunities = communities
+    ?.sort((a, b) => b.member_count - a.member_count)
+    .slice(0, 3);
+
+  // Hide section if no communities exist
+  if (!isLoading && (!communities || communities.length === 0)) {
+    return null;
+  }
+
+  if (isLoading) {
+    return (
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            {t.home_communities_title}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-4 text-muted-foreground">
+            {t.loading}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="mb-6">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            {t.home_communities_title}
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/communities')}
+          >
+            {t.common_view_all}
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Search and Create */}
+        <div className="flex gap-2">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder={t.search_placeholder}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <Button onClick={() => {
+              if (!user) {
+                navigate('/auth');
+                return;
+              }
+              setIsCreateOpen(true);
+            }}>
+              <Plus className="w-4 h-4 mr-2" />
+              {t.communities_create}
+            </Button>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{t.communities_create}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label>{t.communities_name} *</Label>
+                  <Input
+                    value={newCommunity.name}
+                    onChange={(e) => setNewCommunity({ ...newCommunity, name: e.target.value })}
+                    placeholder={t.communities_name}
+                  />
+                </div>
+                <div>
+                  <Label>{t.communities_slug_label}</Label>
+                  <Input
+                    value={newCommunity.slug}
+                    onChange={(e) => setNewCommunity({ ...newCommunity, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
+                    placeholder={t.communities_slug_placeholder}
+                  />
+                </div>
+                <div>
+                  <Label>{t.communities_description}</Label>
+                  <Textarea
+                    value={newCommunity.description}
+                    onChange={(e) => setNewCommunity({ ...newCommunity, description: e.target.value })}
+                    placeholder={t.communities_description}
+                  />
+                </div>
+                <div>
+                  <Label>{t.communities_category}</Label>
+                  <Select value={newCommunity.category} onValueChange={(v) => setNewCommunity({ ...newCommunity, category: v })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="general">{t.communities_filter_general}</SelectItem>
+                      <SelectItem value="mental-health">{t.communities_filter_mental_health}</SelectItem>
+                      <SelectItem value="relationships">{t.communities_filter_relationships}</SelectItem>
+                      <SelectItem value="work">{t.communities_filter_work}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button onClick={handleCreateCommunity} disabled={isCreating} className="w-full">
+                  {isCreating ? t.communities_creating : t.communities_create}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        {/* Trending Section */}
+        {trendingCommunities && trendingCommunities.length > 0 && (
+          <div>
+            <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+              <TrendingUp className="w-4 h-4" />
+              {t.communities_trending}
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {trendingCommunities.map((community) => (
+                <CommunityCard key={community.id} community={community} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Filtered Communities Grid */}
+        {searchQuery && (
+          <div>
+            <h3 className="text-sm font-semibold mb-3">
+              {t.search_results}
+            </h3>
+            {filteredCommunities && filteredCommunities.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredCommunities.slice(0, 6).map((community) => (
+                  <CommunityCard key={community.id} community={community} />
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground py-4">
+                {t.communities_not_found}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* All Communities (when no search) */}
+        {!searchQuery && communities && communities.length > 3 && (
+          <div>
+            <h3 className="text-sm font-semibold mb-3">
+              {t.communities_all}
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {communities.slice(0, 6).map((community) => (
+                <CommunityCard key={community.id} community={community} />
+              ))}
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
