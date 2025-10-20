@@ -30,6 +30,7 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [currentTier, setCurrentTier] = useState("free");
+  const [isTrial, setIsTrial] = useState(false);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("yearly");
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -71,6 +72,7 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
       const trialValid = profile.trial_active && profile.trial_end_date && new Date(profile.trial_end_date) > new Date();
       const tier = trialValid ? 'premium' : (profile.subscription_tier || 'free');
       setCurrentTier(tier);
+      setIsTrial(!!trialValid);
     }
   };
 
@@ -233,7 +235,7 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
 
         <div className="py-4 sm:py-6 space-y-4 sm:space-y-6">
           {/* Manage Subscription Section - for paid users */}
-          {(currentTier === 'premium' || currentTier === 'vip') && (
+          {(currentTier === 'premium' || currentTier === 'vip') && !isTrial && (
             <div className="px-3 sm:px-0">
               <AnimatedCard className="p-4 sm:p-6 bg-gradient-to-br from-background to-primary/5 border-primary/30">
                 <h3 className="text-lg sm:text-xl font-bold mb-4 text-center">
