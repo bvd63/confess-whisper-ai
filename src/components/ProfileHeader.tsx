@@ -1,6 +1,6 @@
 import { EnhancedButton } from "@/components/EnhancedButton";
 import { AnimatedCard } from "@/components/AnimatedCard";
-
+import { UserDisplayName } from "@/components/UserDisplayName";
 import { MessageCircle, UserPlus, UserMinus, Settings } from "lucide-react";
 import { useFollowSystem } from "@/hooks/useFollowSystem";
 import { useNavigate } from "react-router-dom";
@@ -37,16 +37,15 @@ export const ProfileHeader = ({
   const { subscriptionTier } = usePremiumStatus(userId);
   
   const isOwnProfile = currentUserId === userId;
-  const displayName = nickname || t.confession_anonymous;
 
   return (
     <AnimatedCard hover="lift" glass className="p-4 border-b border-border/50">
       {/* Avatar and Stats Row */}
       <div className="flex items-center gap-4">
           <Avatar className="w-20 h-20 border-2 border-primary/20 shadow-glow">
-            <AvatarImage src={avatarUrl || undefined} alt={displayName} />
+            <AvatarImage src={avatarUrl || undefined} alt={nickname || t.confession_anonymous} />
             <AvatarFallback className="text-2xl font-bold bg-gradient-to-br from-primary/20 to-primary/10">
-              {displayName.charAt(0).toUpperCase()}
+              {(nickname || t.confession_anonymous).charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
 
@@ -69,7 +68,13 @@ export const ProfileHeader = ({
       {/* Name and Bio */}
       <div className="mt-3">
         <div className="flex items-center gap-2 mb-1">
-          <h2 className="font-bold text-lg">@{displayName}</h2>
+          <h2 className="font-bold text-lg">
+            <UserDisplayName 
+              userId={userId}
+              maxLength={24}
+              clickable={false}
+            />
+          </h2>
           <SubscriptionBadge tier={subscriptionTier as 'free' | 'premium' | 'vip'} variant="compact" />
         </div>
         {stats.isFollowedBy && !isOwnProfile && (

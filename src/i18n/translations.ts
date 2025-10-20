@@ -835,6 +835,11 @@ type Translations = {
   validation_nickname_reserved: string;
   validation_nickname_not_available: string;
   nickname_days_remaining: string;
+  nickname_current: string;
+  nickname_visibility: string;
+  nickname_public_desc: string;
+  nickname_private_desc: string;
+  settings_updated: string;
   search_users: string;
   search_users_placeholder: string;
   no_users_found: string;
@@ -2067,6 +2072,11 @@ export const translations: Record<Language, Translations> = {
     validation_nickname_not_available: "This nickname is not available",
     
     nickname_days_remaining: "days remaining until you can change your nickname",
+    nickname_current: "Current nickname",
+    nickname_visibility: "Nickname Visibility",
+    nickname_public_desc: "Others can see your nickname",
+    nickname_private_desc: "Only you can see your nickname",
+    settings_updated: "Settings updated successfully",
     search_users: "Search Users",
     search_users_placeholder: "Search by nickname...",
     no_users_found: "No users found",
@@ -3144,6 +3154,11 @@ export const translations: Record<Language, Translations> = {
     validation_nickname_not_available: "Este apodo no está disponible",
     
     nickname_days_remaining: "días restantes hasta que puedas cambiar tu apodo",
+    nickname_current: "Apodo actual",
+    nickname_visibility: "Visibilidad del apodo",
+    nickname_public_desc: "Otros pueden ver tu apodo",
+    nickname_private_desc: "Solo tú puedes ver tu apodo",
+    settings_updated: "Configuración actualizada con éxito",
     search_users: "Buscar Usuarios",
     search_users_placeholder: "Buscar por apodo...",
     no_users_found: "No se encontraron usuarios",
@@ -4255,6 +4270,11 @@ export const translations: Record<Language, Translations> = {
     validation_nickname_not_available: "Dieser Spitzname ist nicht verfügbar",
     
     nickname_days_remaining: "Tage verbleibend, bis du deinen Spitznamen ändern kannst",
+    nickname_current: "Aktueller Spitzname",
+    nickname_visibility: "Spitzname Sichtbarkeit",
+    nickname_public_desc: "Andere können deinen Spitznamen sehen",
+    nickname_private_desc: "Nur du kannst deinen Spitznamen sehen",
+    settings_updated: "Einstellungen erfolgreich aktualisiert",
     search_users: "Benutzer Suchen",
     search_users_placeholder: "Nach Spitznamen suchen...",
     no_users_found: "Keine Benutzer gefunden",

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Search, User, MessageCircle } from "lucide-react";
 import FollowButton from "@/components/FollowButton";
+import { UserDisplayName } from "@/components/UserDisplayName";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/ui/button";
 
@@ -94,7 +95,11 @@ export const UserSearch = ({ currentUserId }: UserSearchProps) => {
                   <User className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="font-medium">@{user.nickname}</p>
+                  <UserDisplayName 
+                    userId={user.user_id}
+                    maxLength={20}
+                    className="font-medium"
+                  />
                 </div>
               </div>
               <div className="flex items-center gap-2">

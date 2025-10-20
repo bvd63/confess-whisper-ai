@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ConversationActions } from '@/components/ConversationActions';
+import { UserDisplayName } from '@/components/UserDisplayName';
 import { formatDistanceToNow } from 'date-fns';
 import { VolumeX } from 'lucide-react';
 
@@ -74,9 +75,12 @@ export const EnhancedConversationList = ({
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className={`font-medium truncate ${conversation.unread_count > 0 ? 'text-foreground' : 'text-muted-foreground'}`}>
-                    {conversation.participant_nickname || 'Anonymous'}
-                  </span>
+                  <UserDisplayName 
+                    userId={conversation.participant_id}
+                    maxLength={20}
+                    clickable={false}
+                    className={conversation.unread_count > 0 ? 'text-foreground' : 'text-muted-foreground'}
+                  />
                   {isMuted && <VolumeX className="h-3 w-3 text-muted-foreground" />}
                 </div>
                 

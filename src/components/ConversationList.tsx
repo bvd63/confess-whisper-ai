@@ -6,6 +6,7 @@ import { MessageCircle, User, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getNicknameCached } from "@/lib/nicknameCache";
 import { toast } from "sonner";
+import { UserDisplayName } from "@/components/UserDisplayName";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -239,9 +240,11 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-medium truncate">
-                      @{conversation.other_user_nickname || t.confession_anonymous}
-                    </span>
+                    <UserDisplayName 
+                      userId={conversation.other_user_id}
+                      maxLength={20}
+                      clickable={false}
+                    />
                     {conversation.unread_count > 0 && (
                       <span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">
                         {conversation.unread_count}
