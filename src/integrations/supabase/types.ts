@@ -85,7 +85,7 @@ export type Database = {
       }
       auth_sessions: {
         Row: {
-          created_at: string
+          created_at: string | null
           device_id: string | null
           expires_at: string
           id: string
@@ -98,7 +98,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           device_id?: string | null
           expires_at: string
           id?: string
@@ -111,7 +111,7 @@ export type Database = {
           user_id: string
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           device_id?: string | null
           expires_at?: string
           id?: string
@@ -200,24 +200,24 @@ export type Database = {
       }
       captcha_requirements: {
         Row: {
-          created_at: string
+          created_at: string | null
           email: string
           id: string
-          reason: string
+          reason: string | null
           required_until: string
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           email: string
           id?: string
-          reason: string
+          reason?: string | null
           required_until: string
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           email?: string
           id?: string
-          reason?: string
+          reason?: string | null
           required_until?: string
         }
         Relationships: []
@@ -895,27 +895,30 @@ export type Database = {
       }
       failed_login_attempts: {
         Row: {
-          attempted_at: string
+          attempted_at: string | null
+          created_at: string | null
           email: string
           failure_reason: string | null
           id: string
-          ip_address: string
+          ip_address: string | null
           user_agent: string | null
         }
         Insert: {
-          attempted_at?: string
+          attempted_at?: string | null
+          created_at?: string | null
           email: string
           failure_reason?: string | null
           id?: string
-          ip_address: string
+          ip_address?: string | null
           user_agent?: string | null
         }
         Update: {
-          attempted_at?: string
+          attempted_at?: string | null
+          created_at?: string | null
           email?: string
           failure_reason?: string | null
           id?: string
-          ip_address?: string
+          ip_address?: string | null
           user_agent?: string | null
         }
         Relationships: []
@@ -1541,7 +1544,7 @@ export type Database = {
       }
       security_events: {
         Row: {
-          created_at: string
+          created_at: string | null
           event_data: Json | null
           event_type: string
           id: string
@@ -1550,7 +1553,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           event_data?: Json | null
           event_type: string
           id?: string
@@ -1559,7 +1562,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           event_data?: Json | null
           event_type?: string
           id?: string

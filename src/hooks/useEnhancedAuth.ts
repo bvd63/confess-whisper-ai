@@ -28,7 +28,7 @@ export const useEnhancedAuth = () => {
 
   const checkCaptchaRequired = async (email: string): Promise<boolean> => {
     try {
-      const { data, error } = await supabase.functions.invoke('enhanced-auth', {
+      const { data, error } = await supabase.functions.invoke('enhanced-auth?action=check-captcha-required', {
         body: { email },
       });
 
@@ -55,7 +55,7 @@ export const useEnhancedAuth = () => {
         ...sessionMetadata,
       };
 
-      const { data, error } = await supabase.functions.invoke('enhanced-auth?action=enhanced-login', {
+      const { data, error } = await supabase.functions.invoke('enhanced-auth', {
         body: {
           email,
           password,
@@ -64,20 +64,21 @@ export const useEnhancedAuth = () => {
         },
       });
 
-      if (error) {
-        const errorMessage = data?.messageKey ? t[data.messageKey as keyof typeof t] as string : t.auth_invalid_credentials;
+      if (error || data?.error) {
+        const errorMessage = data?.messageKey ? t[data.messageKey.replace(/\./g, '_') as keyof typeof t] as string : t.auth_invalid_credentials;
         toast({
           title: t.common_error,
           description: errorMessage,
           variant: 'destructive',
         });
-        return { error };
+        return { error: error || data?.error };
       }
 
       // Store refresh token securely
       if (data.refreshToken) {
         localStorage.setItem('refresh_token', data.refreshToken);
         localStorage.setItem('device_id', metadata.deviceId!);
+        localStorage.setItem('stay_signed_in', String(metadata.stayConnected));
       }
 
       toast({
