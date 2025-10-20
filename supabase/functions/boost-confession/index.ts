@@ -59,15 +59,20 @@ serve(async (req) => {
     // Check if already boosted and active
     const { data: existingBoost } = await supabase
       .from('confession_boosts')
-      .select('id, boost_until')
+      .select('id, ends_at, status')
       .eq('confession_id', confessionId)
-      .gt('boost_until', new Date().toISOString())
+      .eq('status', 'ACTIVE')
       .single();
 
     if (existingBoost) {
+      const secondsRemaining = Math.floor((new Date(existingBoost.ends_at).getTime() - Date.now()) / 1000);
       return new Response(
-        JSON.stringify({ error: 'This confession is already boosted' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ 
+          error: 'This confession is already boosted',
+          secondsRemaining,
+          endsAt: existingBoost.ends_at
+        }),
+        { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -99,14 +104,16 @@ serve(async (req) => {
       throw new Error('Failed to deduct coins');
     }
 
-    // Create boost entry (1 hour boost)
-    const boostUntil = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
+    // Create boost entry (24 hours boost)
+    const boostUntil = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours from now
     const { data: boostData, error: boostError } = await supabase
       .from('confession_boosts')
       .insert({
         confession_id: confessionId,
         user_id: user.id,
-        boost_until: boostUntil.toISOString()
+        coins_spent: 15,
+        status: 'ACTIVE',
+        ends_at: boostUntil.toISOString()
       })
       .select()
       .single();
@@ -119,7 +126,11 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true,
-        boost: boostData,
+        boost: {
+          id: boostData.id,
+          endsAt: boostData.ends_at,
+          secondsRemaining: 24 * 60 * 60
+        },
         coinsDeducted: 15
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
