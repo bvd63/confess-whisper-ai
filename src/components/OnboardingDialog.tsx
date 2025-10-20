@@ -48,7 +48,7 @@ const OnboardingDialog = ({ open, onComplete }: OnboardingDialogProps) => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={() => {}}>
+    <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onComplete(); }}>
       <DialogContent className="sm:max-w-md">
         <DialogTitle className="sr-only">{currentStep.title}</DialogTitle>
         <DialogDescription className="sr-only">{currentStep.description}</DialogDescription>
