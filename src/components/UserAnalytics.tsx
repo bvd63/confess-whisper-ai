@@ -222,7 +222,9 @@ const UserAnalytics = ({ userId, onUpgradeClick }: UserAnalyticsProps) => {
         </Card>
       ))}
     </div>
+    </div>
   );
 };
+
 
 export default UserAnalytics;
