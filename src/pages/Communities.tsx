@@ -14,6 +14,7 @@ import { useCommunities } from "@/hooks/useCommunities";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
 
 const Communities = () => {
   const [category, setCategory] = useState<string>("all");
@@ -22,6 +23,7 @@ const Communities = () => {
   const { communities, isLoading, createCommunity, isCreating } = useCommunities(category);
   const { toast } = useToast();
   const { t } = useLanguage();
+  const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
 
   const [newCommunity, setNewCommunity] = useState({
     name: "",
@@ -58,7 +60,8 @@ const Communities = () => {
   );
 
   return (
-    <AppLayout>
+    <>
+    <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
       <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
         {/* Header */}
         <div className="mb-8 text-center">
@@ -171,6 +174,8 @@ const Communities = () => {
         )}
       </div>
     </AppLayout>
+    <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    </>
   );
 };
 

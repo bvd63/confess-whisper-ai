@@ -13,6 +13,7 @@ import { AnimatedCard } from "@/components/AnimatedCard";
 import { NetworkStatusIndicator } from "@/components/NetworkStatusIndicator";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { sessionManager } from "@/lib/sessionManager";
+import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
 
 
 const Messages = () => {
@@ -24,6 +25,7 @@ const Messages = () => {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [otherUserId, setOtherUserId] = useState<string | null>(null);
   const [otherUserNickname, setOtherUserNickname] = useState<string | null>(null);
+  const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const startedRef = useRef(false);
   
   // Restore scroll position when returning to conversation list
@@ -109,7 +111,8 @@ const Messages = () => {
   }
 
   return (
-    <AppLayout>
+    <>
+    <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
       <NetworkStatusIndicator />
       <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 pb-24">
         <AnimatedCard className="overflow-hidden" hover="none">
@@ -145,6 +148,8 @@ const Messages = () => {
       
       
     </AppLayout>
+    <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    </>
   );
 };
 

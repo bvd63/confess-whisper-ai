@@ -11,6 +11,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useNavigate } from 'react-router-dom';
 import { Shield, AlertTriangle, CheckCircle, XCircle, Eye } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { ManageSubscriptionDialog } from '@/components/ManageSubscriptionDialog';
 
 export default function Admin() {
   const { user } = useCurrentUser();
@@ -19,6 +20,7 @@ export default function Admin() {
   const { language } = useLanguage();
   const queryClient = useQueryClient();
   const [selectedTab, setSelectedTab] = useState('queue');
+  const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   
   const translations: any = {
     en: {
@@ -225,7 +227,8 @@ export default function Admin() {
   }
 
   return (
-    <AppLayout>
+    <>
+    <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
       <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
           <Shield className="h-8 w-8 text-primary" />
@@ -364,5 +367,7 @@ export default function Admin() {
         </Tabs>
       </div>
     </AppLayout>
+    <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    </>
   );
 }

@@ -7,18 +7,24 @@ import { Navigate } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ManageSubscriptionDialog } from '@/components/ManageSubscriptionDialog';
+import { useState } from 'react';
 
 const SystemMonitor = () => {
   const { user, isLoading: userLoading } = useCurrentUser();
   const { isAdmin, loading: roleLoading } = useUserRole(user?.id || '');
+  const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
 
   if (userLoading || roleLoading) {
     return (
-      <AppLayout>
+      <>
+      <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
         <div className="container mx-auto p-6">
           <div className="text-center">Loading...</div>
         </div>
       </AppLayout>
+      <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+      </>
     );
   }
 
@@ -28,7 +34,8 @@ const SystemMonitor = () => {
 
   if (!isAdmin) {
     return (
-      <AppLayout>
+      <>
+      <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
         <div className="container mx-auto p-6">
           <Alert variant="destructive">
             <Shield className="h-4 w-4" />
@@ -38,11 +45,14 @@ const SystemMonitor = () => {
           </Alert>
         </div>
       </AppLayout>
+      <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+      </>
     );
   }
 
   return (
-    <AppLayout>
+    <>
+    <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
       <div className="container mx-auto p-6">
         <h1 className="text-2xl font-bold mb-6">System Monitor</h1>
         <Tabs defaultValue="persistence" className="w-full">
@@ -59,6 +69,8 @@ const SystemMonitor = () => {
         </Tabs>
       </div>
     </AppLayout>
+    <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    </>
   );
 };
 

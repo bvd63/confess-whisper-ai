@@ -12,6 +12,7 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import ConfessionCard from "@/components/ConfessionCard";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
 
 const NearbyConfessions = () => {
   const [radius, setRadius] = useState<number>(50);
@@ -21,9 +22,11 @@ const NearbyConfessions = () => {
   const { data: confessions, isLoading, error } = useNearbyConfessions({ radiusKm: radius });
   const { isPremium } = usePremiumStatus(user?.id);
   const { t } = useLanguage();
+  const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
 
   return (
-    <AppLayout>
+    <>
+    <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
       <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
         {/* Header */}
         <div className="mb-8 text-center">
@@ -121,6 +124,8 @@ const NearbyConfessions = () => {
         )}
       </div>
     </AppLayout>
+    <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    </>
   );
 };
 

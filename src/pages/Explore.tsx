@@ -16,6 +16,7 @@ import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 import { useToast } from "@/hooks/use-toast";
+import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
 
 const Explore = () => {
   const { t } = useLanguage();
@@ -24,6 +25,7 @@ const Explore = () => {
   useAnalyticsTracking(user?.id || null);
   const { isPremium } = usePremiumStatus(user?.id);
   const { toast } = useToast();
+  const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
 
   // Fetch hot/trending confessions
   const { data: hotConfessions, isLoading: loadingHot } = useQuery({
@@ -104,7 +106,8 @@ const Explore = () => {
   };
 
   return (
-    <AppLayout>
+    <>
+    <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
       <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
         <div className="mb-6 sm:mb-8 animate-fade-in">
           <h1 className="text-2xl sm:text-3xl font-bold mb-2">
@@ -147,6 +150,8 @@ const Explore = () => {
       
       <InstagramBottomNav />
     </AppLayout>
+    <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    </>
   );
 };
 

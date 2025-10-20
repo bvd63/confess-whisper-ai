@@ -10,6 +10,7 @@ import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrialBanner } from "@/components/TrialBanner";
 import { TierProfileCard } from "@/components/TierProfileCard";
+import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
 
 interface UserProfileData {
   nickname: string;
@@ -25,6 +26,7 @@ const UserProfile = () => {
   const [confessionsCount, setConfessionsCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [premiumDialogOpen, setPremiumDialogOpen] = useState(false);
+  const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -70,29 +72,36 @@ const UserProfile = () => {
 
   if (isLoading) {
     return (
-      <AppLayout>
+      <>
+      <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
         <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
           <Skeleton className="h-32 w-full mb-4 sm:mb-6" />
           <Skeleton className="h-64 w-full" />
         </div>
         <InstagramBottomNav />
       </AppLayout>
+      <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+      </>
     );
   }
 
   if (!profile) {
     return (
-      <AppLayout>
+      <>
+      <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
         <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 text-center pb-24">
           <p className="text-sm sm:text-base text-muted-foreground">User not found</p>
         </div>
         <InstagramBottomNav />
       </AppLayout>
+      <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+      </>
     );
   }
 
   return (
-    <AppLayout>
+    <>
+    <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
       <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
         {isOnTrial && trialEndDate && currentUser.id === userId && (
           <TrialBanner trialEndDate={trialEndDate} />
@@ -120,6 +129,8 @@ const UserProfile = () => {
       
       <InstagramBottomNav />
     </AppLayout>
+    <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    </>
   );
 };
 
