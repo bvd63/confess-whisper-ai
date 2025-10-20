@@ -152,27 +152,30 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('activate-trial');
+      const { data, error } = await supabase.functions.invoke('create-trial-checkout');
 
       if (error) throw error;
 
-      if (data?.alreadyUsed) {
+      if (data?.error) {
+        const errorKey = data.error === 'TRIAL_ALREADY_USED' 
+          ? 'trial_error_used' 
+          : data.error === 'ALREADY_SUBSCRIBED'
+          ? 'trial_error_already_subscribed'
+          : 'error_generic';
+        
         toast({
-          title: t.trial_already_used_title || "Trial Already Used",
-          description: t.trial_already_used_desc || "You've already used your free trial.",
+          title: t.error_generic,
+          description: t[errorKey] || data.message || t.error_generic,
           variant: "destructive",
         });
         return;
       }
 
-      toast({
-        title: t.trial_activated_title || "🎉 Premium Trial Activated!",
-        description: t.trial_activated_desc || "Enjoy 3 days of Premium features for free!",
-      });
-
-      // Reload to update UI
-      await loadCurrentSubscription();
-      onOpenChange(false);
+      if (data?.url) {
+        window.open(data.url, '_blank');
+        await loadCurrentSubscription();
+        onOpenChange(false);
+      }
     } catch (error) {
       console.error('Error activating trial:', error);
       toast({
