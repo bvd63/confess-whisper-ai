@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { getNicknameCached } from "@/lib/nicknameCache";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -22,6 +22,7 @@ const Messages = () => {
   const { markConversationAsRead } = useInbox(user?.id || null);
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { activeTab, resetTabStack } = useTabNavigation();
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
@@ -33,14 +34,36 @@ const Messages = () => {
   // Restore scroll position when returning to conversation list
   useScrollRestoration(!selectedConversation);
 
+  console.log('[Messages] Render state:', {
+    activeTab,
+    selectedConversation,
+    otherUserId,
+    pathname: location.pathname,
+    search: location.search
+  });
+
   // Reset to messages list when returning to messages tab from another tab
   useEffect(() => {
-    if (activeTab === 'messages' && !searchParams.get('user')) {
+    console.log('[Messages] Active tab changed:', {
+      activeTab,
+      hasUserParam: !!searchParams.get('user'),
+      selectedConversation,
+      pathname: location.pathname
+    });
+
+    // Clear conversation state when not on messages tab
+    if (activeTab !== 'messages') {
+      console.log('[Messages] Not on messages tab, clearing conversation state');
+      setSelectedConversation(null);
+      setOtherUserId(null);
+      setOtherUserNickname(null);
+    } else if (activeTab === 'messages' && !searchParams.get('user')) {
+      console.log('[Messages] On messages tab without user param, clearing conversation');
       setSelectedConversation(null);
       setOtherUserId(null);
       setOtherUserNickname(null);
     }
-  }, [activeTab, searchParams]);
+  }, [activeTab, searchParams, location.pathname]);
 
   useEffect(() => {
     if (isLoading) return;

@@ -96,21 +96,33 @@ export const TabNavigationProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [location.pathname]);
 
   const switchTab = useCallback((tabId: TabId) => {
-    // If switching away from messages while in a conversation, reset messages stack
+    console.log('[TabNav] switchTab called:', { 
+      from: activeTab, 
+      to: tabId, 
+      isInConversation,
+      currentPath: location.pathname,
+      currentSearch: location.search
+    });
+
+    // If switching away from messages while in a conversation, clear the URL first
     if (activeTab === 'messages' && tabId !== 'messages' && isInConversation) {
+      console.log('[TabNav] Resetting messages stack and clearing conversation');
       setTabStacks(prev => ({
         ...prev,
         messages: [{ path: '/messages' }],
       }));
     }
 
-    // Navigate to the last path in the target tab's stack
+    // Get target path and navigate
     const targetStack = tabStacks[tabId];
     const targetPath = targetStack[targetStack.length - 1];
     
-    navigate(targetPath.path, { state: targetPath.state });
+    console.log('[TabNav] Navigating to:', targetPath.path);
+    
+    // Use replace instead of push to avoid history issues
+    navigate(targetPath.path, { replace: true, state: targetPath.state });
     setActiveTab(tabId);
-  }, [activeTab, isInConversation, tabStacks, navigate]);
+  }, [activeTab, isInConversation, tabStacks, navigate, location]);
 
   const getTabPath = useCallback((tabId: TabId): string => {
     const stack = tabStacks[tabId];
