@@ -31,6 +31,17 @@ serve(async (req) => {
 
     const { flairId, equip = true } = await req.json();
 
+    // Check if user is on trial to determine purchase scope
+    const { data: profileCheck } = await supabase
+      .from('profiles')
+      .select('trial_premium_ends_at')
+      .eq('user_id', user.id)
+      .single();
+
+    const isOnTrial = profileCheck?.trial_premium_ends_at && 
+                      new Date(profileCheck.trial_premium_ends_at) > new Date();
+    const purchaseScope = isOnTrial ? 'TRIAL' : 'OWNED';
+
     if (!flairId) {
       throw new Error('Flair ID is required');
     }
@@ -145,6 +156,7 @@ serve(async (req) => {
         is_equipped: equip,
         acquired_at: new Date().toISOString(),
         expires_at: expiresAt.toISOString(),
+        purchase_scope: purchaseScope,
       })
       .select()
       .single();

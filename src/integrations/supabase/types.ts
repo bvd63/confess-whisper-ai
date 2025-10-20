@@ -389,6 +389,7 @@ export type Database = {
           created_at: string
           ends_at: string
           id: string
+          purchase_scope: string | null
           starts_at: string | null
           status: string
           updated_at: string | null
@@ -401,6 +402,7 @@ export type Database = {
           created_at?: string
           ends_at: string
           id?: string
+          purchase_scope?: string | null
           starts_at?: string | null
           status?: string
           updated_at?: string | null
@@ -413,6 +415,7 @@ export type Database = {
           created_at?: string
           ends_at?: string
           id?: string
+          purchase_scope?: string | null
           starts_at?: string | null
           status?: string
           updated_at?: string | null
@@ -1757,6 +1760,7 @@ export type Database = {
           is_equipped: boolean
           is_featured: boolean | null
           is_public: boolean | null
+          purchase_scope: string | null
           purchased_at: string
           user_id: string
         }
@@ -1768,6 +1772,7 @@ export type Database = {
           is_equipped?: boolean
           is_featured?: boolean | null
           is_public?: boolean | null
+          purchase_scope?: string | null
           purchased_at?: string
           user_id: string
         }
@@ -1779,6 +1784,7 @@ export type Database = {
           is_equipped?: boolean
           is_featured?: boolean | null
           is_public?: boolean | null
+          purchase_scope?: string | null
           purchased_at?: string
           user_id?: string
         }
@@ -2205,6 +2211,10 @@ export type Database = {
         Returns: undefined
       }
       revoke_all_user_sessions: {
+        Args: { _user_id: string }
+        Returns: undefined
+      }
+      revoke_trial_purchases: {
         Args: { _user_id: string }
         Returns: undefined
       }

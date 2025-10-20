@@ -44,6 +44,15 @@ serve(async (req) => {
       if (now > trialEndDate) {
         console.log(`[CHECK-TRIAL-EXPIRY] Premium trial expired for user ${user.id}, reverting to free`);
         
+        // Revoke trial purchases first
+        const { error: revokeError } = await supabaseClient.rpc('revoke_trial_purchases', {
+          _user_id: user.id
+        });
+
+        if (revokeError) {
+          console.error('[CHECK-TRIAL-EXPIRY] Error revoking trial purchases:', revokeError);
+        }
+
         // Revert to free tier
         const { error: updateError } = await supabaseClient
           .from("profiles")
@@ -60,7 +69,8 @@ serve(async (req) => {
         return new Response(
           JSON.stringify({ 
             trialExpired: true,
-            message: "Premium trial expired, reverted to free tier"
+            message: "Premium trial expired, reverted to free tier",
+            trialPurchasesRevoked: !revokeError
           }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
         );
@@ -75,6 +85,15 @@ serve(async (req) => {
       if (now > trialEndDate) {
         console.log(`[CHECK-TRIAL-EXPIRY] Legacy trial expired for user ${user.id}, reverting to free`);
         
+        // Revoke trial purchases first
+        const { error: revokeError } = await supabaseClient.rpc('revoke_trial_purchases', {
+          _user_id: user.id
+        });
+
+        if (revokeError) {
+          console.error('[CHECK-TRIAL-EXPIRY] Error revoking trial purchases:', revokeError);
+        }
+
         const { error: updateError } = await supabaseClient
           .from("profiles")
           .update({
@@ -89,7 +108,8 @@ serve(async (req) => {
         return new Response(
           JSON.stringify({ 
             trialExpired: true,
-            message: "Legacy trial expired, reverted to free tier"
+            message: "Legacy trial expired, reverted to free tier",
+            trialPurchasesRevoked: !revokeError
           }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
         );
