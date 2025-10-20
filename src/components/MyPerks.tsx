@@ -20,6 +20,7 @@ interface UserPerk {
   is_featured: boolean;
   flair_id?: string;
   badge_id?: string;
+  purchase_scope?: string;
 }
 
 interface MyPerksProps {
@@ -50,6 +51,7 @@ export const MyPerks = ({ userId, subscriptionTier, subscriptionEndsAt }: MyPerk
           expires_at,
           is_public,
           is_featured,
+          purchase_scope,
           profile_flairs!inner(
             icon,
             name_key
@@ -87,6 +89,7 @@ export const MyPerks = ({ userId, subscriptionTier, subscriptionEndsAt }: MyPerk
           expires_at: f.expires_at,
           is_public: f.is_public,
           is_featured: f.is_featured,
+          purchase_scope: f.purchase_scope,
         })),
         ...(badges || []).map((b: any) => ({
           id: b.id,
@@ -205,7 +208,14 @@ export const MyPerks = ({ userId, subscriptionTier, subscriptionEndsAt }: MyPerk
                     <div className="flex items-center gap-3">
                       <span className="text-3xl">{perk.icon}</span>
                       <div>
-                        <p className="font-medium">{perkName}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">{perkName}</p>
+                          {perk.purchase_scope === 'TRIAL' && (
+                            <Badge variant="outline" className="text-[10px] px-1">
+                              {t.trial_purchase || 'Trial'}
+                            </Badge>
+                          )}
+                        </div>
                         <p className="text-xs text-muted-foreground">
                           {t.perks_badges_earned_on.replace("{date}", format(new Date(perk.acquired_at), "PP"))}
                         </p>

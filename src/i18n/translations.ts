@@ -347,6 +347,13 @@ type Translations = {
   trial_activation_error: string;
   trial_banner_title: string;
   trial_banner_days_remaining: string;
+  trial_banner_desc: string;
+  trial_banner_cta: string;
+  trial_banner_disclaimer: string;
+  trial_error_used: string;
+  trial_error_already_subscribed: string;
+  trial_ended_toast: string;
+  trial_purchase: string;
   
   // Confession Limits
   limit_reached_title: string;
@@ -979,9 +986,6 @@ type Translations = {
   trial_cta_desc: string;
   trial_cta_button: string;
   trial_cta_disclaimer: string;
-  trial_error_used: string;
-  trial_error_already_subscribed: string;
-  trial_ended_toast: string;
   trial_active: string;
   subs_manage: string;
   subs_cancel: string;
@@ -1985,6 +1989,13 @@ export const translations: Record<Language, Translations> = {
     trial_activation_error: "Could not activate trial. Please try again.",
     trial_banner_title: "🎉 Premium Trial Active",
     trial_banner_days_remaining: "{days} days remaining",
+    trial_banner_desc: "Enjoy full Premium features for 3 days.",
+    trial_banner_cta: "Try 3 Days Free",
+    trial_banner_disclaimer: "After 3 days, you'll be charged the Premium plan price unless you cancel.",
+    trial_error_used: "You've already used your Premium trial.",
+    trial_error_already_subscribed: "You already have an active subscription.",
+    trial_ended_toast: "Your Premium trial ended. You're back to Free.",
+    trial_purchase: "Trial",
     
     // Confession Limits
     limit_reached_title: "Daily Limit Reached",
@@ -2358,9 +2369,6 @@ export const translations: Record<Language, Translations> = {
   trial_cta_desc: "Enjoy full Premium for 3 days.",
   trial_cta_button: "Try 3 Days Free",
   trial_cta_disclaimer: "After 3 days, you'll be charged the Premium plan price unless you cancel.",
-  trial_error_used: "You've already used your Premium trial.",
-  trial_error_already_subscribed: "You already have an active subscription.",
-  trial_ended_toast: "Your Premium trial ended. You're back to Free.",
   trial_active: "Your Premium trial is active until {date}",
   subs_manage: "Manage subscription",
   subs_cancel: "Cancel subscription",
@@ -3003,6 +3011,13 @@ export const translations: Record<Language, Translations> = {
     trial_activation_error: "No se pudo activar la prueba. Inténtalo de nuevo.",
     trial_banner_title: "🎉 Prueba Premium Activa",
     trial_banner_days_remaining: "{days} días restantes",
+    trial_banner_desc: "Disfruta todas las funciones Premium por 3 días.",
+    trial_banner_cta: "Prueba 3 días gratis",
+    trial_banner_disclaimer: "Después de 3 días, se te cobrará el precio de Premium a menos que canceles.",
+    trial_error_used: "Ya has utilizado tu prueba de Premium.",
+    trial_error_already_subscribed: "Ya tienes una suscripción activa.",
+    trial_ended_toast: "Tu prueba de Premium terminó. Has vuelto a Free.",
+    trial_purchase: "Prueba",
     
     // Confession Limits
     limit_reached_title: "Límite Diario Alcanzado",
@@ -3591,9 +3606,6 @@ export const translations: Record<Language, Translations> = {
   trial_cta_desc: "Disfruta de Premium completo durante 3 días.",
   trial_cta_button: "Prueba 3 días gratis",
   trial_cta_disclaimer: "Después de 3 días, se te cobrará el precio de Premium a menos que canceles.",
-  trial_error_used: "Ya has utilizado tu prueba de Premium.",
-  trial_error_already_subscribed: "Ya tienes una suscripción activa.",
-  trial_ended_toast: "Tu prueba de Premium terminó. Has vuelto a Free.",
   trial_active: "Tu prueba Premium está activa hasta {date}",
   subs_manage: "Gestionar suscripción",
   subs_cancel: "Cancelar suscripción",
@@ -4269,6 +4281,13 @@ export const translations: Record<Language, Translations> = {
     trial_activation_error: "Testversion konnte nicht aktiviert werden. Bitte versuche es erneut.",
     trial_banner_title: "🎉 Premium-Testversion Aktiv",
     trial_banner_days_remaining: "{days} Tage verbleibend",
+    trial_banner_desc: "Erlebe alle Premium-Funktionen für 3 Tage.",
+    trial_banner_cta: "3 Tage gratis testen",
+    trial_banner_disclaimer: "Nach 3 Tagen wird der Premium-Preis berechnet, sofern du nicht kündigst.",
+    trial_error_used: "Du hast den Premium-Test bereits genutzt.",
+    trial_error_already_subscribed: "Du hast bereits ein aktives Abonnement.",
+    trial_ended_toast: "Dein Premium-Test ist beendet. Du bist wieder Free.",
+    trial_purchase: "Testversion",
     
     // Confession Limits
     limit_reached_title: "Tageslimit Erreicht",
@@ -4857,9 +4876,6 @@ export const translations: Record<Language, Translations> = {
   trial_cta_desc: "Genieße alle Premium-Funktionen für 3 Tage.",
   trial_cta_button: "3 Tage gratis testen",
   trial_cta_disclaimer: "Nach 3 Tagen wird der Premium-Preis berechnet, sofern du nicht kündigst.",
-  trial_error_used: "Du hast den Premium-Test bereits genutzt.",
-  trial_error_already_subscribed: "Du hast bereits ein aktives Abonnement.",
-  trial_ended_toast: "Dein Premium-Test ist beendet. Du bist wieder Free.",
   trial_active: "Deine Premium-Testphase läuft bis {date}",
   subs_manage: "Abo verwalten",
   subs_cancel: "Abo kündigen",

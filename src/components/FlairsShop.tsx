@@ -38,6 +38,7 @@ interface UserFlair {
   is_equipped: boolean;
   expires_at: string | null;
   acquired_at: string | null;
+  purchase_scope?: string;
 }
 
 interface FlairsShopProps {
@@ -87,7 +88,7 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
       // Load user's owned flairs
       const { data: userFlairsData, error: userFlairsError } = await supabase
         .from('user_flairs')
-        .select('*')
+        .select('id, flair_id, is_equipped, expires_at, acquired_at, purchase_scope')
         .eq('user_id', userId);
 
       if (userFlairsError) throw userFlairsError;

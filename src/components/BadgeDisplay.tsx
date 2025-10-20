@@ -77,6 +77,7 @@ export const BadgeDisplay = ({
           acquired_at,
           expires_at,
           is_featured,
+          purchase_scope,
           profile_flairs!inner(
             icon,
             name_key
