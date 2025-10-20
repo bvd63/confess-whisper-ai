@@ -111,9 +111,14 @@ export const EnhancedMessageThread = ({
           filter: `conversation_id=eq.${conversationId}`,
         },
         (payload) => {
-          const typingData = payload.new as any;
+          // Guard against DELETE events where payload.new is undefined
+          const typingData: any = (payload as any).new || (payload as any).old;
+          if (!typingData) {
+            setIsTyping(false);
+            return;
+          }
           if (typingData.user_id !== currentUserId) {
-            setIsTyping(typingData.is_typing);
+            setIsTyping(!!typingData.is_typing);
           }
         }
       )
@@ -349,7 +354,7 @@ export const EnhancedMessageThread = ({
         </Button>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <UserDisplayName userId={otherUserId} maxLength={20} showBadges={true} />
+            <UserDisplayName userId={otherUserId} maxLength={20} showBadges={true} clickable={false} />
           </div>
         </div>
       </div>

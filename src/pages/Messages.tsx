@@ -42,28 +42,31 @@ const Messages = () => {
     search: location.search
   });
 
-  // Reset to messages list when returning to messages tab from another tab
+  // Reset to messages list only when route changes away or no user param on /messages
   useEffect(() => {
-    console.log('[Messages] Active tab changed:', {
-      activeTab,
+    const onMessagesRoute = location.pathname.startsWith('/messages');
+    console.log('[Messages] Route check:', {
+      onMessagesRoute,
       hasUserParam: !!searchParams.get('user'),
       selectedConversation,
       pathname: location.pathname
     });
 
-    // Clear conversation state when not on messages tab
-    if (activeTab !== 'messages') {
-      console.log('[Messages] Not on messages tab, clearing conversation state');
+    if (!onMessagesRoute) {
+      // Navigated away from messages – clear state
       setSelectedConversation(null);
       setOtherUserId(null);
       setOtherUserNickname(null);
-    } else if (activeTab === 'messages' && !searchParams.get('user')) {
-      console.log('[Messages] On messages tab without user param, clearing conversation');
+      return;
+    }
+
+    // On messages root without user param, show list
+    if (onMessagesRoute && !searchParams.get('user')) {
       setSelectedConversation(null);
       setOtherUserId(null);
       setOtherUserNickname(null);
     }
-  }, [activeTab, searchParams, location.pathname]);
+  }, [location.pathname, searchParams]);
 
   useEffect(() => {
     if (isLoading) return;
