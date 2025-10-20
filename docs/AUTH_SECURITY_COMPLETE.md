@@ -164,7 +164,7 @@ Supabase automatically sends localized emails based on user's browser language:
 - Graceful logout with notification
 - Optional "Stay logged in" override
 
-## 📋 Configuration
+## 🔧 Configuration
 
 ### Supabase Auth Settings (via Lovable Cloud)
 ```
@@ -172,6 +172,7 @@ Email confirmation: ENABLED ✅
 Auto-confirm email: DISABLED ✅
 Allow signups: ENABLED ✅
 Anonymous signups: DISABLED ✅
+JWT expiry: 3600 seconds (1 hour) ✅
 ```
 
 ### Environment Variables Required
@@ -183,7 +184,26 @@ TURNSTILE_SECRET=<your-cloudflare-secret> (in Supabase secrets)
 ### Edge Function Configuration
 ```toml
 [functions.enhanced-auth]
-verify_jwt = true
+verify_jwt = false  # Handles both authenticated and unauthenticated actions
+
+[functions.cleanup-auth-data]
+verify_jwt = false  # Cron job for cleanup
+```
+
+### Cron Jobs (Recommended)
+Set up these cron jobs via Supabase dashboard or pg_cron:
+```sql
+-- Run daily at 2 AM to clean up expired auth data
+SELECT cron.schedule(
+  'cleanup-auth-data',
+  '0 2 * * *',
+  $$
+  SELECT net.http_post(
+    url:='https://your-project.supabase.co/functions/v1/cleanup-auth-data',
+    headers:='{"Content-Type": "application/json", "Authorization": "Bearer YOUR_ANON_KEY"}'::jsonb
+  ) as request_id;
+  $$
+);
 ```
 
 ## 🧪 Testing Checklist
@@ -265,22 +285,56 @@ verify_jwt = true
 - Regularly review security logs
 - Update CAPTCHA keys if compromised
 - Adjust rate limits based on usage
-- Clean up old security events (30+ days)
 - Monitor new device login patterns
+- Cron job `cleanup-auth-data` runs daily to:
+  - Remove expired sessions
+  - Delete old failed login attempts (30+ days)
+  - Clear expired CAPTCHA requirements
+  - Archive old security events (90+ days)
 
 ## 📊 Database Tables Used
 
 ### Security Tables
+- `auth_sessions` - Session management with device tracking
+  - Columns: id, user_id, token_hash, device_id, user_agent, ip_address, created_at, expires_at, last_refreshed_at, revoked_at, stay_connected
+  - Indexes: user_id, token_hash, device_id
+  - RLS: Users can view their own, service role full access
+
 - `failed_login_attempts` - Track failed logins
+  - Columns: id, email, ip_address, user_agent, attempted_at, failure_reason
+  - Indexes: email + attempted_at, ip_address + attempted_at
+  - RLS: Service role only
+
 - `captcha_requirements` - Dynamic CAPTCHA enforcement
-- `auth_sessions` - Session management
+  - Columns: id, email, required_until, reason
+  - Index: email + required_until
+  - RLS: Service role only
+
 - `security_events` - Audit log
+  - Columns: id, user_id, event_type, event_data, ip_address, user_agent, created_at
+  - Indexes: user_id + created_at, event_type + created_at
+  - RLS: Users can view their own, service role full access
 
 ### Functions Used
 - `is_captcha_required(_email)` - Check if CAPTCHA needed
 - `get_failed_login_count(_email, _minutes)` - Count failures
 - `log_security_event(...)` - Log security events
 - `revoke_all_user_sessions(_user_id)` - Revoke all sessions
+
+### Edge Functions
+- `enhanced-auth` - Main authentication handler with actions:
+  - check-captcha-required
+  - enhanced-login
+  - validate-signup
+  - revoke-session
+  - revoke-all-sessions
+  - list-sessions
+  
+- `cleanup-auth-data` - Daily cron job for maintenance:
+  - Removes expired sessions
+  - Deletes old failed attempts (30+ days)
+  - Clears expired CAPTCHA requirements
+  - Archives old security events (90+ days)
 
 ## 🎯 Success Criteria Met
 
