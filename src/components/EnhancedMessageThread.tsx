@@ -228,6 +228,10 @@ export const EnhancedMessageThread = ({
     setMessages((prev) => [...prev, optimisticMessage]);
     const messageContent = newMessage.trim();
     setNewMessage("");
+    // Ensure keyboard/input is dismissed so navigation remains accessible
+    if (typeof document !== 'undefined' && document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
     setSending(true);
 
     try {

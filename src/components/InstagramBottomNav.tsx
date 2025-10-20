@@ -39,7 +39,7 @@ export const InstagramBottomNav = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-[200] pointer-events-auto glass-strong border-t border-border/50 safe-area-inset-bottom shadow-elegant">
+    <nav className="fixed bottom-0 left-0 right-0 z-[9999] pointer-events-auto glass-strong border-t border-border/50 safe-area-inset-bottom shadow-elegant">
       <div className="flex items-center justify-around h-16 max-w-screen-xl mx-auto px-4">
         {navItems.map((item, index) => {
           const Icon = item.icon;
