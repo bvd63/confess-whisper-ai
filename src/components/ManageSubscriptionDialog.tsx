@@ -49,11 +49,19 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data, error } = await supabase.functions.invoke('get-subscription-status');
-      
+      const { data, error } = await supabase.functions.invoke('billing-status');
       if (error) throw error;
-      
-      setStatus(data);
+
+      const mapped = {
+        tier: data.current_plan || 'free',
+        isTrial: data.status === 'trialing',
+        currentPeriodEnd: data.current_period_end || null,
+        trialEnd: data.status === 'trialing' ? data.current_period_end : null,
+        cancelAtPeriodEnd: !!data.cancel_at_period_end,
+        paymentMethodLast4: null,
+      } as SubscriptionStatus;
+
+      setStatus(mapped);
       
       // Check trial eligibility from profile
       const { data: profile } = await supabase
@@ -317,11 +325,11 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
   }
 
   const isFreeUser = status.tier === 'free' && !status.isTrial;
-  const hasActiveSubscription = ['premium', 'vip'].includes(status.tier) && !status.cancelAtPeriodEnd;
+  const hasActiveSubscription = ['premium', 'vip'].includes(status.tier) && !!status.currentPeriodEnd && !status.isTrial;
   const showBuyButton = isFreeUser;
-  const showChangeButton = hasActiveSubscription && !status.isTrial;
-  const showCancelButton = hasActiveSubscription && !status.cancelAtPeriodEnd && !status.isTrial;
-  const showReactivateButton = status.cancelAtPeriodEnd && !!status.currentPeriodEnd;
+  const showChangeButton = hasActiveSubscription;
+  const showCancelButton = hasActiveSubscription && !status.cancelAtPeriodEnd;
+  const showReactivateButton = !isFreeUser && status.cancelAtPeriodEnd && !!status.currentPeriodEnd;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
