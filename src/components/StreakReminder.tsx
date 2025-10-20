@@ -21,6 +21,13 @@ const StreakReminder = ({ userId }: StreakReminderProps) => {
   }, [userId]);
 
   const checkStreakStatus = async () => {
+    // Check if reminder was dismissed in this session
+    const dismissed = sessionStorage.getItem(`streak-reminder-dismissed-${userId}`);
+    if (dismissed === 'true') {
+      setShowReminder(false);
+      return;
+    }
+
     const { data } = await supabase
       .from('user_streaks')
       .select('current_streak, last_confession_date')
@@ -37,6 +44,12 @@ const StreakReminder = ({ userId }: StreakReminderProps) => {
       setStreak(data.current_streak);
       setShowReminder(true);
     }
+  };
+
+  const handleDismiss = () => {
+    // Store dismissal in sessionStorage (clears on logout/login)
+    sessionStorage.setItem(`streak-reminder-dismissed-${userId}`, 'true');
+    setShowReminder(false);
   };
 
   if (!showReminder) return null;
@@ -67,7 +80,7 @@ const StreakReminder = ({ userId }: StreakReminderProps) => {
           variant="ghost"
           size="icon"
           className="h-8 w-8"
-          onClick={() => setShowReminder(false)}
+          onClick={handleDismiss}
         >
           <X className="w-4 h-4" />
         </Button>
