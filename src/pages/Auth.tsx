@@ -18,11 +18,13 @@ import { usePasswordValidation, validatePasswordStrength } from "@/hooks/usePass
 import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
 import { PasswordRulesChecklist } from "@/components/PasswordRulesChecklist";
 import { cn } from "@/lib/utils";
+import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
 
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useLanguage();
+  const { enhancedLogin, checkCaptchaRequired } = useEnhancedAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -110,10 +112,30 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
+        // Check if CAPTCHA is required for this email
+        const captchaRequired = await checkCaptchaRequired(email.trim());
+        
+        if (captchaRequired && !captchaToken) {
+          setShowLoginCaptcha(true);
+          toast({
+            title: t.auth_error,
+            description: t.auth_captcha_failed,
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        // Use enhanced login for better security and session tracking
+        const { data, error } = await enhancedLogin(
+          email.trim(),
           password,
-        });
+          captchaToken,
+          {
+            stayConnected: staySignedIn,
+            deviceId: localStorage.getItem('device_id') || undefined,
+          }
+        );
 
         if (error) {
           // Increment failed attempts and show captcha after 3 attempts
@@ -122,32 +144,18 @@ const Auth = () => {
           if (newAttempts >= 3) {
             setShowLoginCaptcha(true);
           }
-          
-          if (error.message.includes("Invalid login credentials")) {
-            throw new Error(t.auth_invalid_credentials);
-          }
           throw error;
         }
 
         // Reset failed attempts on successful login
         setFailedLoginAttempts(0);
         setShowLoginCaptcha(false);
-        
-        // Store stay logged in preference
-        if (staySignedIn) {
-          localStorage.setItem('stay_logged_in', 'true');
-        }
 
-        toast({
-          title: t.auth_login_success,
-          description: t.auth_welcome_back,
-        });
         navigate('/');
       } else {
         // Server-side validation before signup
-        const { data: validationResult, error: validationError } = await supabase.functions.invoke('enhanced-auth', {
+        const { data: validationResult, error: validationError } = await supabase.functions.invoke('enhanced-auth?action=validate-signup', {
           body: { 
-            action: 'validate-signup',
             email: email.trim(),
             password,
             captchaToken,
@@ -156,7 +164,7 @@ const Auth = () => {
 
         if (validationError || validationResult?.error) {
           const errorMsg = validationResult?.messageKey 
-            ? t[validationResult.messageKey as keyof typeof t] as string 
+            ? t[validationResult.messageKey.replace(/\./g, '_') as keyof typeof t] as string 
             : t.auth_error_generic;
           throw new Error(errorMsg);
         }
