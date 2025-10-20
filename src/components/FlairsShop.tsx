@@ -114,9 +114,11 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
         return;
       }
 
+      // Success toast with flair details
+      const flairName = t[flair.name_key as keyof typeof t] || flair.name_key;
       toast({
-        title: t.flair_purchased_title,
-        description: t.flair_purchased_description,
+        title: `${flair.icon} ${t.flair_purchased_title}`,
+        description: `${flairName} ${t.flair_purchased_description}`,
       });
 
       // Reload data

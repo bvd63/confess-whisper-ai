@@ -162,7 +162,7 @@ export const BadgeDisplay = ({
           <TooltipProvider key={badge.id}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className="inline-flex items-center justify-center w-6 h-6 text-lg cursor-help">
+                <span className="inline-flex items-center justify-center w-6 h-6 text-lg cursor-help transition-transform hover:scale-110 hover:drop-shadow-lg">
                   {badge.icon}
                 </span>
               </TooltipTrigger>

@@ -292,6 +292,57 @@ All colors MUST be HSL.
     }
   }
 
+  /* Badge hover animations */
+  .badge-hover {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .badge-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  }
+
+  .badge-glow {
+    position: relative;
+  }
+
+  .badge-glow::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: linear-gradient(45deg, 
+      rgba(139, 92, 246, 0.2), 
+      rgba(168, 85, 247, 0.2),
+      rgba(236, 72, 153, 0.2)
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+  }
+
+  .badge-glow:hover::after {
+    opacity: 1;
+  }
+
+  /* VIP badge special glow */
+  .badge-vip-glow::after {
+    background: linear-gradient(45deg,
+      rgba(245, 158, 11, 0.3),
+      rgba(234, 179, 8, 0.3),
+      rgba(234, 88, 12, 0.3)
+    );
+  }
+
+  /* Premium badge special glow */
+  .badge-premium-glow::after {
+    background: linear-gradient(45deg,
+      rgba(139, 92, 246, 0.3),
+      rgba(168, 85, 247, 0.3),
+      rgba(236, 72, 153, 0.3)
+    );
+  }
+
   /* Optimize animations for mobile */
   @media (prefers-reduced-motion: reduce) {
     * {

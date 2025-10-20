@@ -28,13 +28,13 @@ export const ProfileTierBadge = ({
         return {
           label: t.profile_tiers_premium,
           icon: Star,
-          className: "bg-gradient-to-r from-violet-500 to-purple-500 text-white border-violet-400 shadow-md shadow-violet-500/50 animate-pulse",
+          className: "bg-gradient-to-r from-violet-500 to-purple-500 text-white border-violet-400 shadow-md shadow-violet-500/50 animate-pulse badge-hover badge-glow badge-premium-glow",
         };
       case "vip":
         return {
           label: t.profile_tiers_vip,
           icon: Crown,
-          className: "bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-white border-amber-400 shadow-lg shadow-amber-500/50 animate-pulse",
+          className: "bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-white border-amber-400 shadow-lg shadow-amber-500/50 animate-pulse badge-hover badge-glow badge-vip-glow",
         };
     }
   };
@@ -46,7 +46,7 @@ export const ProfileTierBadge = ({
   return (
     <Badge 
       className={cn(
-        "relative font-semibold",
+        "relative font-semibold cursor-default",
         isCompact ? "text-xs px-2 py-0.5" : "text-sm px-3 py-1",
         config.className,
         className
