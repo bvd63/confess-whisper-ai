@@ -1188,9 +1188,11 @@ export type Database = {
           following_count: number | null
           handle: string | null
           id: string
+          is_nickname_public: boolean | null
           is_premium: boolean | null
           is_shadow_banned: boolean | null
           nickname: string | null
+          nickname_lower: string | null
           nickname_updated_at: string | null
           password_changed_at: string | null
           posts_count: number | null
@@ -1216,9 +1218,11 @@ export type Database = {
           following_count?: number | null
           handle?: string | null
           id?: string
+          is_nickname_public?: boolean | null
           is_premium?: boolean | null
           is_shadow_banned?: boolean | null
           nickname?: string | null
+          nickname_lower?: string | null
           nickname_updated_at?: string | null
           password_changed_at?: string | null
           posts_count?: number | null
@@ -1244,9 +1248,11 @@ export type Database = {
           following_count?: number | null
           handle?: string | null
           id?: string
+          is_nickname_public?: boolean | null
           is_premium?: boolean | null
           is_shadow_banned?: boolean | null
           nickname?: string | null
+          nickname_lower?: string | null
           nickname_updated_at?: string | null
           password_changed_at?: string | null
           posts_count?: number | null
@@ -2044,6 +2050,10 @@ export type Database = {
       revoke_all_user_sessions: {
         Args: { _user_id: string }
         Returns: undefined
+      }
+      validate_nickname: {
+        Args: { nick: string }
+        Returns: boolean
       }
     }
     Enums: {

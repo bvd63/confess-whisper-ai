@@ -1,6 +1,6 @@
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useUserDisplayName } from "@/hooks/useUserDisplayName";
 import { SubscriptionBadge } from "./SubscriptionBadge";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 
 interface CommentAuthorProps {
   userId: string;
@@ -8,18 +8,14 @@ interface CommentAuthorProps {
 }
 
 export const CommentAuthor = ({ userId, showBadge = true }: CommentAuthorProps) => {
+  const { displayName } = useUserDisplayName(userId);
   const { subscriptionTier } = usePremiumStatus(userId);
-  const { t } = useLanguage();
 
   return (
     <div className="flex items-center gap-1.5">
-      <span>{t.confession_anonymous}</span>
-      {showBadge && (
-        <SubscriptionBadge 
-          tier={subscriptionTier as 'free' | 'premium' | 'vip'} 
-          variant="inline" 
-          showTooltip={true}
-        />
+      <span className="font-medium">{displayName}</span>
+      {showBadge && subscriptionTier !== 'free' && (
+        <SubscriptionBadge tier={subscriptionTier} />
       )}
     </div>
   );

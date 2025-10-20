@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Send, ArrowLeft, MoreVertical, Check, CheckCheck } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { UserDisplayName } from "./UserDisplayName";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -224,7 +225,9 @@ export const EnhancedMessageThread = ({
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div className="flex-1">
-          <h3 className="font-medium">@{otherUserNickname || t.confession_anonymous}</h3>
+          <h3 className="font-medium">
+            <UserDisplayName userId={otherUserId} maxLength={20} />
+          </h3>
         </div>
       </div>
 

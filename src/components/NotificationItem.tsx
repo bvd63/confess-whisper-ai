@@ -3,11 +3,13 @@ import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { UserDisplayName } from './UserDisplayName';
 
 interface NotificationItemProps {
   notification: {
     id: string;
     type: 'like' | 'comment' | 'follow' | 'message' | 'badge_earned' | 'deep_insight' | 'streak_milestone';
+    triggered_by: string | null;
     triggered_by_nickname: string | null;
     confession_id: string | null;
     comment_content: string | null;
@@ -75,15 +77,34 @@ export const NotificationItem = ({ notification, onMarkAsRead, onDelete }: Notif
   };
 
   const getMessage = () => {
-    const nickname = notification.triggered_by_nickname || t('someone');
+    const showNickname = notification.triggered_by && 
+      ['like', 'comment', 'follow'].includes(notification.type);
     
     switch (notification.type) {
       case 'like':
-        return `${nickname} ${t('liked your confession')}`;
+        return (
+          <>
+            {showNickname && <UserDisplayName userId={notification.triggered_by} clickable={false} className="inline" />}
+            {' '}
+            {t('liked your confession')}
+          </>
+        );
       case 'comment':
-        return `${nickname} ${t('commented on your confession')}`;
+        return (
+          <>
+            {showNickname && <UserDisplayName userId={notification.triggered_by} clickable={false} className="inline" />}
+            {' '}
+            {t('commented on your confession')}
+          </>
+        );
       case 'follow':
-        return `${nickname} ${t('started following you')}`;
+        return (
+          <>
+            {showNickname && <UserDisplayName userId={notification.triggered_by} clickable={false} className="inline" />}
+            {' '}
+            {t('started following you')}
+          </>
+        );
       case 'badge_earned':
         return t('You earned a new badge!');
       case 'deep_insight':

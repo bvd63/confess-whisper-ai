@@ -822,6 +822,18 @@ type Translations = {
   nickname_taken: string;
   nickname_invalid: string;
   nickname_cooldown: string;
+  
+  // Common
+  common_anonymous: string;
+  
+  // Nickname validation
+  validation_nickname_too_short: string;
+  validation_nickname_too_long: string;
+  validation_nickname_invalid_chars: string;
+  validation_nickname_invalid_underscores: string;
+  validation_nickname_double_underscores: string;
+  validation_nickname_reserved: string;
+  validation_nickname_not_available: string;
   nickname_days_remaining: string;
   search_users: string;
   search_users_placeholder: string;
@@ -2041,8 +2053,19 @@ export const translations: Record<Language, Translations> = {
     nickname_updated: "Nickname updated successfully",
     nickname_error: "Error updating nickname",
     nickname_taken: "This nickname is already taken",
-    nickname_invalid: "Nickname must be 3-20 characters (letters, numbers, _, .)",
+    nickname_invalid: "Nickname must be 3-24 characters (letters, numbers, _)",
     nickname_cooldown: "You can only change your nickname once every 21 days",
+    
+    common_anonymous: "Anonymous",
+    
+    validation_nickname_too_short: "Nickname must be at least 3 characters",
+    validation_nickname_too_long: "Nickname cannot exceed 24 characters",
+    validation_nickname_invalid_chars: "Nickname can only contain letters, numbers, and underscores",
+    validation_nickname_invalid_underscores: "Nickname cannot start or end with an underscore",
+    validation_nickname_double_underscores: "Nickname cannot contain double underscores",
+    validation_nickname_reserved: "This nickname is reserved and cannot be used",
+    validation_nickname_not_available: "This nickname is not available",
+    
     nickname_days_remaining: "days remaining until you can change your nickname",
     search_users: "Search Users",
     search_users_placeholder: "Search by nickname...",
@@ -3107,8 +3130,19 @@ export const translations: Record<Language, Translations> = {
     nickname_updated: "Apodo actualizado exitosamente",
     nickname_error: "Error al actualizar apodo",
     nickname_taken: "Este apodo ya está en uso",
-    nickname_invalid: "El apodo debe tener 3-20 caracteres (letras, números, _, .)",
+    nickname_invalid: "El apodo debe tener 3-24 caracteres (letras, números, _)",
     nickname_cooldown: "Solo puedes cambiar tu apodo una vez cada 21 días",
+    
+    common_anonymous: "Anónimo",
+    
+    validation_nickname_too_short: "El apodo debe tener al menos 3 caracteres",
+    validation_nickname_too_long: "El apodo no puede exceder 24 caracteres",
+    validation_nickname_invalid_chars: "El apodo solo puede contener letras, números y guiones bajos",
+    validation_nickname_invalid_underscores: "El apodo no puede comenzar o terminar con un guion bajo",
+    validation_nickname_double_underscores: "El apodo no puede contener guiones bajos dobles",
+    validation_nickname_reserved: "Este apodo está reservado y no se puede usar",
+    validation_nickname_not_available: "Este apodo no está disponible",
+    
     nickname_days_remaining: "días restantes hasta que puedas cambiar tu apodo",
     search_users: "Buscar Usuarios",
     search_users_placeholder: "Buscar por apodo...",
@@ -4207,8 +4241,19 @@ export const translations: Record<Language, Translations> = {
     nickname_updated: "Spitzname erfolgreich aktualisiert",
     nickname_error: "Fehler beim Aktualisieren des Spitznamens",
     nickname_taken: "Dieser Spitzname ist bereits vergeben",
-    nickname_invalid: "Spitzname muss 3-20 Zeichen haben (Buchstaben, Zahlen, _, .)",
+    nickname_invalid: "Spitzname muss 3-24 Zeichen haben (Buchstaben, Zahlen, _)",
     nickname_cooldown: "Du kannst deinen Spitznamen nur alle 21 Tage ändern",
+    
+    common_anonymous: "Anonym",
+    
+    validation_nickname_too_short: "Spitzname muss mindestens 3 Zeichen haben",
+    validation_nickname_too_long: "Spitzname darf 24 Zeichen nicht überschreiten",
+    validation_nickname_invalid_chars: "Spitzname darf nur Buchstaben, Zahlen und Unterstriche enthalten",
+    validation_nickname_invalid_underscores: "Spitzname darf nicht mit einem Unterstrich beginnen oder enden",
+    validation_nickname_double_underscores: "Spitzname darf keine doppelten Unterstriche enthalten",
+    validation_nickname_reserved: "Dieser Spitzname ist reserviert und kann nicht verwendet werden",
+    validation_nickname_not_available: "Dieser Spitzname ist nicht verfügbar",
+    
     nickname_days_remaining: "Tage verbleibend, bis du deinen Spitznamen ändern kannst",
     search_users: "Benutzer Suchen",
     search_users_placeholder: "Nach Spitznamen suchen...",
