@@ -141,3 +141,6 @@ verify_jwt = true
 
 [functions.billing-status]
 verify_jwt = true
+
+[functions.subscription-manage]
+verify_jwt = true
