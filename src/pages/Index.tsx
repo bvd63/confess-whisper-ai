@@ -8,14 +8,11 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import AppLayout from "@/components/AppLayout";
 import ConfessionFeed from "@/components/ConfessionFeed";
 import ConfessionSkeleton from "@/components/ConfessionSkeleton";
-import SocialProofStats from "@/components/SocialProofStats";
 import FeatureHighlight from "@/components/FeatureHighlight";
 import DailyPrompt from "@/components/DailyPrompt";
 import Leaderboard from "@/components/Leaderboard";
 import RecommendedConfessions from "@/components/RecommendedConfessions";
 import SearchBar from "@/components/SearchBar";
-import FollowStats from "@/components/FollowStats";
-import FollowStatsSkeleton from "@/components/FollowStatsSkeleton";
 import { QuoteOfTheDay } from "@/components/QuoteOfTheDay";
 import QuoteOfTheDaySkeleton from "@/components/QuoteOfTheDaySkeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -283,22 +280,6 @@ const Index = () => {
 
         {/* Daily Prompt */}
         {user && viewMode === 'feed' && <DailyPrompt onOpenNewConfession={handleNewConfession} />}
-
-        {/* Follow Stats */}
-        {user && viewMode === 'feed' && (
-          <div className="mb-4 sm:mb-6">
-            <Suspense fallback={<FollowStatsSkeleton />}>
-              <FollowStats userId={user.id} />
-            </Suspense>
-          </div>
-        )}
-
-        {/* Social Proof Stats */}
-        {showSecondaryContent && (
-          <div className="hidden sm:block">
-            <SocialProofStats stats={{}} />
-          </div>
-        )}
 
         {/* Leaderboard */}
         {showSecondaryContent && (
