@@ -80,10 +80,35 @@ serve(async (req) => {
       });
     }
 
+    // For all other actions, need to check if user is on trial first
+    const { data: profile } = await supabaseClient
+      .from('profiles')
+      .select('trial_active, trial_premium_ends_at')
+      .eq('user_id', user.id)
+      .single();
+
+    // Check if on active trial
+    if (profile?.trial_active && profile?.trial_premium_ends_at) {
+      const trialEndsAt = new Date(profile.trial_premium_ends_at);
+      if (trialEndsAt > new Date()) {
+        return new Response(JSON.stringify({
+          error: "Cannot modify trial subscription. Please wait until trial ends or cancel it first.",
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        });
+      }
+    }
+
     // For all other actions, need Stripe customer
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     if (customers.data.length === 0) {
-      throw new Error("No Stripe customer found");
+      return new Response(JSON.stringify({
+        error: "No Stripe customer found. Please subscribe first.",
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
     }
 
     const customerId = customers.data[0].id;
@@ -96,7 +121,12 @@ serve(async (req) => {
     });
 
     if (subscriptions.data.length === 0) {
-      throw new Error("No active subscription found");
+      return new Response(JSON.stringify({
+        error: "No active subscription found. Please subscribe first.",
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
     }
 
     const subscription = subscriptions.data[0];

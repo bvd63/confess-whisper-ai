@@ -86,14 +86,28 @@ serve(async (req) => {
       }
     }
 
+    // Get payment method info
+    let paymentMethodLast4 = null;
+    if (stripeSubscription) {
+      const paymentMethodId = stripeSubscription.default_payment_method;
+      if (paymentMethodId && typeof paymentMethodId === 'string') {
+        const paymentMethod = await stripe.paymentMethods.retrieve(paymentMethodId);
+        if (paymentMethod.card) {
+          paymentMethodLast4 = paymentMethod.card.last4;
+        }
+      }
+    }
+
     const response = {
       tier,
-      onTrial,
-      trialEndsAt: trialEndsAt?.toISOString() || null,
-      trialEligible,
-      subscriptionEnd: stripeSubscription?.current_period_end 
+      isTrial: onTrial, // Match expected field name
+      trialEnd: trialEndsAt?.toISOString() || null, // Match expected field name
+      currentPeriodEnd: stripeSubscription?.current_period_end 
         ? new Date(stripeSubscription.current_period_end * 1000).toISOString() 
-        : null,
+        : null, // Match expected field name
+      cancelAtPeriodEnd: stripeSubscription?.cancel_at_period_end || false,
+      paymentMethodLast4,
+      trialEligible, // Keep for other components
     };
 
     console.log(`[SUBSCRIPTION-STATUS] User ${user.id} status:`, response);
