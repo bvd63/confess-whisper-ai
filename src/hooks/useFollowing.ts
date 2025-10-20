@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useOptimizedQuery } from "./useOptimizedQuery";
 
@@ -39,6 +39,34 @@ export const useFollowing = ({ userId }: UseFollowingOptions) => {
 
   const following = followingData || [];
   const followers = followersData || [];
+
+  // Subscribe to realtime updates for follows
+  useEffect(() => {
+    if (!userId) return;
+
+    const channel = supabase
+      .channel('follow-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_follows',
+          filter: `follower_id=eq.${userId},following_id=eq.${userId}`,
+        },
+        (payload) => {
+          console.log('[FOLLOW-REALTIME] Change detected:', payload);
+          // Refetch both followers and following on any change
+          refetchFollowing();
+          refetchFollowers();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, refetchFollowing, refetchFollowers]);
 
   const isFollowing = useMemo(() => {
     return (targetUserId: string) => following.includes(targetUserId);

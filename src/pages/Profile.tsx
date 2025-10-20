@@ -206,6 +206,8 @@ const Profile = () => {
               <TrialCTA userId={user.id} onTrialStarted={checkSubscription} />
             )}
             
+            <FollowStats userId={user.id} />
+            
             <UserAnalytics 
               onUpgradeClick={() => setPremiumDialogOpen(true)}
               onManageSubscription={() => setManageSubDialogOpen(true)}
