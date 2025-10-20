@@ -201,22 +201,10 @@ const Profile = () => {
               <TrialCTA userId={user.id} onTrialStarted={checkSubscription} />
             )}
             
-            {/* Subscription status display with manage button */}
-            {(subscriptionTier === 'premium' || subscriptionTier === 'vip') && (
-              <AnimatedCard className="p-4 sm:p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">{t.subscription_active_plan}</p>
-                    <h3 className="text-xl font-bold">{subscriptionTier === 'premium' ? t.subscription_plan_premium : t.subscription_plan_vip}</h3>
-                  </div>
-                  <Button onClick={() => setManageSubDialogOpen(true)} variant="outline">
-                    {t.subs_manage}
-                  </Button>
-                </div>
-              </AnimatedCard>
-            )}
-            
-            <UserAnalytics onUpgradeClick={() => setPremiumDialogOpen(true)} />
+            <UserAnalytics 
+              onUpgradeClick={() => setPremiumDialogOpen(true)}
+              onManageSubscription={() => setManageSubDialogOpen(true)}
+            />
             <AdvancedAnalytics userId={user.id} />
             <WordCloudViz userId={user.id} />
           </TabsContent>

@@ -4,17 +4,18 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Crown, TrendingUp, MessageSquare, Heart, BarChart3, Settings, FileText } from "lucide-react";
+import { Crown, MessageSquare, Heart, Settings, FileText } from "lucide-react";
 import { Button } from "./ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { ProfileTierBadge } from "./ProfileTierBadge";
 interface UserAnalyticsProps {
   userId?: string;
   onUpgradeClick?: () => void;
+  onManageSubscription?: () => void;
 }
 const UserAnalytics = ({
   userId,
-  onUpgradeClick
+  onUpgradeClick,
+  onManageSubscription
 }: UserAnalyticsProps) => {
   const {
     t
@@ -26,20 +27,15 @@ const UserAnalytics = ({
     subscriptionTier,
     isPremium
   } = usePremiumStatus(userId || user?.id);
-  const {
-    toast
-  } = useToast();
   const [stats, setStats] = useState({
     totalConfessions: 0,
     totalLikes: 0,
     totalComments: 0
   });
-  const [hasStripeSubscription, setHasStripeSubscription] = useState(false);
   const targetUserId = userId || user?.id;
   useEffect(() => {
     if (targetUserId) {
       fetchUserStats();
-      checkStripeSubscription();
 
       // Set up real-time subscription for confessions updates
       const channel = supabase.channel('user-stats-changes').on('postgres_changes', {
@@ -55,44 +51,12 @@ const UserAnalytics = ({
       };
     }
   }, [targetUserId]);
-  const checkStripeSubscription = async () => {
-    if (!targetUserId) return;
-    try {
-      const {
-        data
-      } = await supabase.from('profiles').select('stripe_subscription_id').eq('user_id', targetUserId).single();
-      setHasStripeSubscription(!!data?.stripe_subscription_id && !data.stripe_subscription_id.startsWith('manual_'));
-    } catch (error) {
-      console.error("Error checking subscription:", error);
-    }
-  };
-  const handleManageSubscription = async () => {
-    if (!isPremium || !hasStripeSubscription) {
+  const handleManageSubscription = () => {
+    if (!isPremium) {
       onUpgradeClick?.();
       return;
     }
-    try {
-      const {
-        data,
-        error
-      } = await supabase.functions.invoke('customer-portal');
-      if (error) throw error;
-      if (data?.url) {
-        window.open(data.url, '_blank');
-      } else {
-        toast({
-          title: t.error_generic,
-          description: t.subscription_manage,
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error('Error opening customer portal:', error);
-      toast({
-        title: t.error_generic,
-        variant: "destructive"
-      });
-    }
+    onManageSubscription?.();
   };
   const fetchUserStats = async () => {
     if (!targetUserId) return;
@@ -141,26 +105,6 @@ const UserAnalytics = ({
     icon: MessageSquare,
     color: "text-blue-500"
   }];
-  const getTierLabel = () => {
-    switch (subscriptionTier) {
-      case 'vip':
-        return t.subscription_tier_vip;
-      case 'premium':
-        return t.subscription_tier_premium;
-      default:
-        return t.subscription_tier_free;
-    }
-  };
-  const getTierColor = () => {
-    switch (subscriptionTier) {
-      case 'vip':
-        return 'from-purple-500 to-amber-500';
-      case 'premium':
-        return 'from-primary to-primary/70';
-      default:
-        return 'from-muted-foreground to-muted-foreground/70';
-    }
-  };
   return <div className="space-y-4">
       {/* Subscription Card */}
       <Card className="border-primary/20">
@@ -173,10 +117,10 @@ const UserAnalytics = ({
             <Button variant={isPremium ? "outline" : "default"} size="sm" onClick={handleManageSubscription} className="gap-2">
               {isPremium ? <>
                   <Settings className="w-4 h-4" />
-                  {t.subscription_manage}
+                  {t.subs_manage}
                 </> : <>
                   <Crown className="w-4 h-4" />
-                  {t.subscription_upgrade}
+                  {t.subs_upgrade}
                 </>}
             </Button>
           </div>
