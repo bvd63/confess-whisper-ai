@@ -1,42 +1,22 @@
-import { useState, useEffect, lazy, Suspense, useCallback } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { EnhancedButton } from "@/components/EnhancedButton";
 import { GradientText } from "@/components/GradientText";
-import { Sparkles, TrendingUp, Clock, Filter } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import AppLayout from "@/components/AppLayout";
-import ConfessionFeed from "@/components/ConfessionFeed";
-import ConfessionSkeleton from "@/components/ConfessionSkeleton";
 import FeatureHighlight from "@/components/FeatureHighlight";
 import DailyPrompt from "@/components/DailyPrompt";
 import Leaderboard from "@/components/Leaderboard";
-import RecommendedConfessions from "@/components/RecommendedConfessions";
-import SearchBar from "@/components/SearchBar";
 import { QuoteOfTheDay } from "@/components/QuoteOfTheDay";
 import QuoteOfTheDaySkeleton from "@/components/QuoteOfTheDaySkeleton";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useMessageNotifications } from "@/hooks/useMessageNotifications";
-import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useSubscriptionCheck } from "@/hooks/useSubscriptionCheck";
-import { useConfessions } from "@/hooks/useConfessions";
-import { useConfessionSearch } from "@/hooks/useConfessionSearch";
-import { useRateLimitHandler } from "@/components/RateLimitNotification";
-import { useDebounce } from "@/hooks/useDebounce";
 import SEOHead from "@/components/SEOHead";
-import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Loader2 } from "lucide-react";
-import { NetworkStatusIndicator } from "@/components/NetworkStatusIndicator";
-import { useScrollRestoration } from "@/hooks/useScrollRestoration";
-
-import { OnboardingWelcome } from "@/components/OnboardingWelcome";
 import { usePerformanceBudget } from "@/hooks/usePerformanceBudget";
 
 // Lazy load heavy components
@@ -54,49 +34,15 @@ const Index = () => {
   const { isPremium } = usePremiumStatus(user?.id);
   useSubscriptionCheck(user?.id);
   useMessageNotifications({ userId: user?.id });
-  const { likedConfessions, bookmarkedConfessions, reloadLikes, reloadBookmarks } = useConfessionInteractions({ userId: user?.id || null });
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
-  const [sortBy, setSortBy] = useState<'recent' | 'popular'>('recent');
-  const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [viewMode, setViewMode] = useState<'feed' | 'search'>('feed');
   const [showSecondaryContent, setShowSecondaryContent] = useState(false);
   const { toast } = useToast();
-  const { RateLimitUI } = useRateLimitHandler();
   const isMobile = useIsMobile();
-  
-  // Restore scroll position on feed
-  useScrollRestoration(viewMode === 'feed');
   
   // Monitor performance budget
   usePerformanceBudget();
-
-  // Pull to refresh functionality for mobile
-  const handleRefresh = async () => {
-    await Promise.all([reloadConfessions(), reloadLikes(), reloadBookmarks()]);
-    trackEvent('pull_to_refresh');
-  };
-
-  const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
-    onRefresh: handleRefresh,
-    threshold: 80,
-    disabled: !isMobile || viewMode === 'search',
-  });
-
-  // Debounce filter changes to avoid excessive queries
-  const debouncedSortBy = useDebounce(sortBy, 300);
-  const debouncedCategoryFilter = useDebounce(categoryFilter, 300);
-
-  // Use the optimized confessions hook with debounced values
-  const { confessions, isLoading, reload: reloadConfessions } = useConfessions({
-    sortBy: debouncedSortBy,
-    categoryFilter: debouncedCategoryFilter,
-    limit: 20,
-  });
-
-  // Search hook
-  const { confessions: searchResults, loading: searchLoading, hasSearched, search, clear: clearSearch } = useConfessionSearch();
 
   useEffect(() => {
     // Track page view
@@ -141,62 +87,10 @@ const Index = () => {
     }
   };
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    toast({
-      title: t.success_logout,
-      description: t.success_logout,
-    });
+  const handleUpgradeToPremium = () => {
+    setIsPremiumDialogOpen(false);
+    navigate('/profile');
   };
-
-  const handleReport = useCallback(async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from('confessions')
-        .update({ is_reported: true })
-        .eq('id', id);
-
-      if (error) throw error;
-
-      trackEvent('confession_reported', { confession_id: id });
-
-      toast({
-        title: t.success_reported,
-        description: t.success_reported,
-      });
-    } catch (error) {
-      console.error('Error reporting confession:', error);
-      toast({
-        title: t.error_generic,
-        description: t.error_generic,
-        variant: "destructive",
-      });
-    }
-  }, [trackEvent, toast, t]);
-
-  const handleUpgradeToPremium = useCallback(async () => {
-    toast({
-      title: t.ui_upgrading,
-      description: t.ui_payment_redirect,
-    });
-    
-    setTimeout(async () => {
-      if (user) {
-        const { error } = await supabase
-          .from('profiles')
-          .update({ is_premium: true })
-          .eq('user_id', user.id);
-
-        if (!error) {
-          setIsPremiumDialogOpen(false);
-          toast({
-            title: t.ui_welcome_premium,
-            description: t.ui_premium_access,
-          });
-        }
-      }
-    }, 1500);
-  }, [user, toast, t]);
 
   return (
     <>
@@ -205,32 +99,9 @@ const Index = () => {
         onNewConfession={handleNewConfession}
         onUpgradeClick={() => setIsPremiumDialogOpen(true)}
       >
-      <NetworkStatusIndicator />
-
-      {/* Main Content with Pull to Refresh */}
-      <main 
-        ref={containerRef}
-        className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 relative touch-manipulation smooth-scroll"
+      {/* Main Content */}
+      <main className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8"
       >
-        {/* Pull to Refresh Indicator */}
-        {isMobile && pullDistance > 0 && (
-          <div 
-            className="absolute top-0 left-0 right-0 flex items-center justify-center transition-all duration-200 pointer-events-none z-10"
-            style={{ 
-              height: `${Math.min(pullDistance, 80)}px`,
-              opacity: pullDistance / 80 
-            }}
-          >
-            <div className="flex flex-col items-center gap-1">
-              <Loader2 
-                className={`w-5 h-5 text-primary ${isRefreshing || isTriggered ? 'animate-spin' : ''}`} 
-              />
-              <span className="text-xs text-muted-foreground">
-                {isRefreshing ? t.ui_refreshing || 'Refreshing...' : isTriggered ? t.ui_release_to_refresh || 'Release to refresh' : t.ui_pull_to_refresh || 'Pull to refresh'}
-              </span>
-            </div>
-          </div>
-        )}
         {/* Welcome Section */}
         <div className="mb-6 sm:mb-8 text-center animate-fade-in">
           <div className="inline-flex items-center gap-2 mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 glass rounded-full border border-primary/20">
@@ -248,38 +119,14 @@ const Index = () => {
         </div>
 
         {/* Quote of the Day */}
-        {user && viewMode === 'feed' && (
+        {user && (
           <Suspense fallback={<QuoteOfTheDaySkeleton />}>
             <QuoteOfTheDay />
           </Suspense>
         )}
 
-
-        {/* Search Bar */}
-        <div className="mb-4 sm:mb-6 animate-fade-in">
-          <SearchBar 
-            onSearch={(query, filters) => {
-              setViewMode('search');
-              search(query, filters);
-            }}
-          />
-          {hasSearched && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => {
-                setViewMode('feed');
-                clearSearch();
-              }}
-              className="mt-2"
-            >
-              {t.index_back_to_feed}
-            </Button>
-          )}
-        </div>
-
         {/* Daily Prompt */}
-        {user && viewMode === 'feed' && <DailyPrompt onOpenNewConfession={handleNewConfession} />}
+        {user && <DailyPrompt onOpenNewConfession={handleNewConfession} />}
 
         {/* Leaderboard */}
         {showSecondaryContent && (
@@ -290,76 +137,8 @@ const Index = () => {
 
         {/* Feature Highlights */}
         {showSecondaryContent && (
-          <div className="hidden sm:block">
-            <FeatureHighlight />
-          </div>
+          <FeatureHighlight />
         )}
-
-        {/* Recommended Confessions */}
-        {user && showSecondaryContent && (
-          <div className="my-4 sm:my-6">
-            <RecommendedConfessions 
-              userId={user.id} 
-              currentCategory={categoryFilter !== 'all' ? categoryFilter : undefined}
-            />
-          </div>
-        )}
-
-        {/* Filters - Show only in feed mode */}
-        {viewMode === 'feed' && confessions.length > 0 && (
-          <div className="mb-4 sm:mb-6 space-y-3 sm:space-y-4 animate-fade-in">
-            {/* Category Filter */}
-            <div className="flex items-center gap-2 sm:gap-3 justify-center px-2">
-              <Filter className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground flex-shrink-0" />
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-full sm:w-[200px] border-primary/20 focus:border-primary/40 bg-background/50 h-9 text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="z-50 bg-background">
-                  <SelectItem value="all">{t.all_categories}</SelectItem>
-                  <SelectItem value="relationships">{t.category_relationships}</SelectItem>
-                  <SelectItem value="work">{t.category_work}</SelectItem>
-                  <SelectItem value="family">{t.category_family}</SelectItem>
-                  <SelectItem value="health">{t.category_health}</SelectItem>
-                  <SelectItem value="money">{t.category_money}</SelectItem>
-                  <SelectItem value="other">{t.category_other}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            {/* Sort Tabs */}
-            <div className="flex justify-center px-2">
-              <Tabs value={sortBy} onValueChange={(value) => setSortBy(value as 'recent' | 'popular')} className="w-full max-w-md">
-                <TabsList className="grid w-full grid-cols-2 bg-muted/50 h-9">
-                  <TabsTrigger value="recent" className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
-                    <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className="hidden xs:inline">{t.ui_recent}</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="popular" className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
-                    <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className="hidden xs:inline">{t.ui_popular}</span>
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </div>
-          </div>
-        )}
-
-        {/* Confessions Feed or Search Results */}
-        <ConfessionFeed
-          confessions={viewMode === 'search' ? searchResults : confessions}
-          isLoading={viewMode === 'search' ? searchLoading : isLoading}
-          isPremium={isPremium}
-          likedConfessions={likedConfessions}
-          bookmarkedConfessions={bookmarkedConfessions}
-          onReport={handleReport}
-          onUpgradeClick={() => setIsPremiumDialogOpen(true)}
-          onInsightGenerated={reloadConfessions}
-          onLikeChange={reloadLikes}
-          onCommentChange={reloadConfessions}
-          onBookmarkChange={reloadBookmarks}
-          onNewConfession={handleNewConfession}
-        />
       </main>
 
       {/* Dialogs with Suspense for lazy loading */}
@@ -368,7 +147,6 @@ const Index = () => {
           open={isNewConfessionOpen}
           onOpenChange={setIsNewConfessionOpen}
           onConfessionCreated={() => {
-            reloadConfessions();
             trackEvent('confession_created');
           }}
         />
@@ -389,7 +167,7 @@ const Index = () => {
       </Suspense>
       
       {/* FAQ Section with Suspense */}
-      <Suspense fallback={<ConfessionSkeleton />}>
+      <Suspense fallback={null}>
         <div id="faq-section" className="mt-16">
           <FAQ />
         </div>
@@ -421,10 +199,6 @@ const Index = () => {
         </div>
       </footer>
       </Suspense>
-      
-      {/* Rate Limit Notification */}
-      {RateLimitUI}
-      
       
       </AppLayout>
     </>
