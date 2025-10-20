@@ -100,6 +100,7 @@ const Leaderboard = () => {
                   userId={leader.user_id}
                   maxLength={20}
                   className="inline"
+                  clickable={false}
                 />
               </p>
               <p className="text-xs text-muted-foreground">
