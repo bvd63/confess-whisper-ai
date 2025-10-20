@@ -24,7 +24,7 @@ const Messages = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { activeTab, resetTabStack } = useTabNavigation();
+  const { activeTab, resetTabStack, pushToTabStack, popFromTabStack } = useTabNavigation();
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [otherUserId, setOtherUserId] = useState<string | null>(null);
   const [otherUserNickname, setOtherUserNickname] = useState<string | null>(null);
@@ -130,6 +130,9 @@ const Messages = () => {
     // Update URL to reflect conversation state
     setSearchParams({ user: userId });
     
+    // Track in messages tab stack for in-tab back navigation
+    pushToTabStack('messages', `/messages?user=${userId}`);
+    
     // Save session state
     await sessionManager.saveSessionState('/messages', userId);
   };
@@ -144,10 +147,9 @@ const Messages = () => {
     // Ensure URL is reset to messages root
     navigate('/messages', { replace: true });
     
-    // Reset messages tab stack to root
-    resetTabStack('messages');
+    // Pop back to list within tab stack
+    popFromTabStack('messages');
   };
-
   if (isLoading) {
     return null;
   }

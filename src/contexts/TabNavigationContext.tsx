@@ -95,6 +95,28 @@ export const TabNavigationProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [location.pathname]);
 
+  // Restore last active tab and its last path on resume (sessionStorage present)
+  const restoredRef = React.useRef(false);
+  useEffect(() => {
+    if (restoredRef.current) return;
+    restoredRef.current = true;
+    try {
+      const lastTab = sessionStorage.getItem(LAST_TAB_KEY) as TabId | null;
+      const hasStacks = sessionStorage.getItem(TAB_STACKS_KEY);
+      // If resuming (sessionStorage present) and currently at home root, navigate to last tab path
+      if (lastTab && hasStacks && location.pathname === TAB_ROUTES.home) {
+        const targetStack = tabStacks[lastTab];
+        const lastEntry = targetStack[targetStack.length - 1];
+        if (lastEntry && (lastEntry.path !== location.pathname + location.search)) {
+          navigate(lastEntry.path, { replace: true, state: lastEntry.state });
+          setActiveTab(lastTab);
+        }
+      }
+    } catch (e) {
+      console.warn('Tab restore skipped:', e);
+    }
+  }, []);
+
   const switchTab = useCallback((tabId: TabId) => {
     console.log('[TabNav] switchTab called:', { 
       from: activeTab, 
