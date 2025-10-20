@@ -9,6 +9,7 @@ import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrialBanner } from "@/components/TrialBanner";
+import { TierProfileCard } from "@/components/TierProfileCard";
 
 interface UserProfileData {
   nickname: string;
@@ -19,7 +20,7 @@ const UserProfile = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const { user: currentUser } = useCurrentUser();
-  const { isPremium, isOnTrial, trialEndDate } = usePremiumStatus(currentUser?.id);
+  const { isPremium, isOnTrial, trialEndDate, subscriptionTier } = usePremiumStatus(currentUser?.id);
   const [profile, setProfile] = useState<UserProfileData | null>(null);
   const [confessionsCount, setConfessionsCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -97,12 +98,14 @@ const UserProfile = () => {
           <TrialBanner trialEndDate={trialEndDate} />
         )}
         
-        <ProfileHeader
-          userId={userId!}
-          currentUserId={currentUser.id}
-          nickname={profile.nickname}
-          confessionsCount={confessionsCount}
-        />
+        <TierProfileCard tier={subscriptionTier as "free" | "premium" | "vip"} className="mb-6">
+          <ProfileHeader
+            userId={userId!}
+            currentUserId={currentUser.id}
+            nickname={profile.nickname}
+            confessionsCount={confessionsCount}
+          />
+        </TierProfileCard>
 
         <div className="mt-8">
           <ProfileTabs 

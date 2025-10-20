@@ -40,6 +40,7 @@ import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { ProfileEditor } from "@/components/ProfileEditor";
 import { FlairsShop } from "@/components/FlairsShop";
 import { TrialBanner } from "@/components/TrialBanner";
+import { MyPerks } from "@/components/MyPerks";
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 const Profile = () => {
   const navigate = useNavigate();
@@ -174,10 +175,11 @@ const Profile = () => {
         <StreakReminder userId={user.id} />
 
         <Tabs defaultValue="statistics" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
-          <TabsList className={`grid w-full ${isModerator ? 'grid-cols-3 sm:grid-cols-5' : 'grid-cols-2 sm:grid-cols-4'} h-auto`}>
+          <TabsList className={`grid w-full ${isModerator ? 'grid-cols-3 sm:grid-cols-6' : 'grid-cols-3 sm:grid-cols-5'} h-auto`}>
             <TabsTrigger value="statistics" className="text-xs sm:text-sm py-2">{t.profile_statistics}</TabsTrigger>
             <TabsTrigger value="confessions" className="text-xs sm:text-sm py-2">{t.profile_my_confessions}</TabsTrigger>
             <TabsTrigger value="achievements" className="text-xs sm:text-sm py-2">{t.profile_achievements}</TabsTrigger>
+            <TabsTrigger value="perks" className="text-xs sm:text-sm py-2">{t.perks_title}</TabsTrigger>
             <TabsTrigger value="settings" className="text-xs sm:text-sm py-2">{t.profile_settings}</TabsTrigger>
             {isModerator && <TabsTrigger value="moderation" className="text-xs sm:text-sm py-2">{t.profile_moderation}</TabsTrigger>}
           </TabsList>
@@ -233,6 +235,14 @@ const Profile = () => {
               <h2 className="text-2xl font-bold">{t.badges_your_badges}</h2>
               <BadgesDisplay userId={user.id} variant="full" />
             </div>
+          </TabsContent>
+
+          <TabsContent value="perks" className="space-y-6">
+            <MyPerks 
+              userId={user.id} 
+              subscriptionTier={subscriptionTier as "free" | "premium" | "vip"}
+              subscriptionEndsAt={undefined}
+            />
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">

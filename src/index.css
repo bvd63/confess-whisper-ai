@@ -265,6 +265,32 @@ All colors MUST be HSL.
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+  
+  /* Pulse glow animation */
+  @keyframes pulse-glow {
+    0%, 100% {
+      filter: drop-shadow(0 0 8px hsl(var(--primary) / 0.5));
+      opacity: 1;
+    }
+    50% {
+      filter: drop-shadow(0 0 16px hsl(var(--primary) / 0.8));
+      opacity: 0.9;
+    }
+  }
+  
+  .animate-pulse-glow {
+    animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  /* Shimmer animation for VIP/Premium effects */
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
 
   /* Optimize animations for mobile */
   @media (prefers-reduced-motion: reduce) {

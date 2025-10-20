@@ -23,6 +23,7 @@ interface Flair {
   icon: string;
   cost: number;
   rarity: string;
+  required_plan?: string;
 }
 
 interface UserFlair {
@@ -44,6 +45,7 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
   const [userFlairs, setUserFlairs] = useState<UserFlair[]>([]);
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState<string | null>(null);
+  const [userTier, setUserTier] = useState<"free" | "premium" | "vip">("free");
   const { toast } = useToast();
   const { t } = useLanguage();
   const { balance: coinsBalance, refetch: refetchCoins } = useCoins(userId);
@@ -57,6 +59,15 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
   const loadData = async () => {
     setLoading(true);
     try {
+      // Load user tier
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('subscription_tier')
+        .eq('user_id', userId)
+        .maybeSingle();
+      
+      setUserTier((profile?.subscription_tier || 'free') as "free" | "premium" | "vip");
+
       // Load available flairs
       const { data: flairsData, error: flairsError } = await supabase
         .from('profile_flairs')
@@ -179,6 +190,13 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
     return userFlairs.some(uf => uf.flair_id === flairId && uf.is_equipped && !isExpired(flairId));
   };
 
+  const canPurchase = (flair: Flair) => {
+    const tierLevel: Record<string, number> = { free: 0, premium: 1, vip: 2 };
+    const userLevel = tierLevel[userTier] || 0;
+    const requiredLevel = tierLevel[flair.required_plan || 'free'] || 0;
+    return userLevel >= requiredLevel;
+  };
+
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
       case 'common': return 'bg-gray-500';
@@ -252,7 +270,7 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
                       <Button
                         size="sm"
                         onClick={() => handlePurchase(flair)}
-                        disabled={purchasing === flair.id || coinsBalance < flair.cost}
+                        disabled={purchasing === flair.id || coinsBalance < flair.cost || !canPurchase(flair)}
                         className="w-full gap-1"
                         variant="outline"
                       >
@@ -275,6 +293,10 @@ export const FlairsShop = ({ userId, open, onOpenChange }: FlairsShopProps) => {
                           {t.equip}
                         </Button>
                       )
+                    ) : !canPurchase(flair) ? (
+                      <div className="w-full text-center p-2 bg-muted/50 rounded text-[10px] text-muted-foreground">
+                        {flair.required_plan === 'premium' ? t.shop_lock_premium : t.shop_lock_vip}
+                      </div>
                     ) : (
                       <Button
                         size="sm"

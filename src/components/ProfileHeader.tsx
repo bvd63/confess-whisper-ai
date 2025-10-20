@@ -6,8 +6,10 @@ import { useFollowSystem } from "@/hooks/useFollowSystem";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { SubscriptionBadge } from "@/components/SubscriptionBadge";
+import { ProfileTierBadge } from "@/components/ProfileTierBadge";
+import { BadgeDisplay } from "@/components/BadgeDisplay";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { cn } from "@/lib/utils";
 
 interface ProfileHeaderProps {
   userId: string;
@@ -38,11 +40,37 @@ export const ProfileHeader = ({
   
   const isOwnProfile = currentUserId === userId;
 
+  // Tier-based visual styles
+  const getTierStyles = () => {
+    switch (subscriptionTier) {
+      case "vip":
+        return {
+          cardClass: "bg-gradient-to-br from-amber-500/10 via-yellow-500/10 to-amber-600/10 border-amber-500/30 shadow-xl shadow-amber-500/20",
+          avatarClass: "ring-4 ring-amber-500/50 shadow-lg shadow-amber-500/50",
+          glowClass: "animate-pulse",
+        };
+      case "premium":
+        return {
+          cardClass: "bg-gradient-to-br from-violet-500/10 via-purple-500/10 to-pink-500/10 border-violet-500/30 shadow-lg shadow-violet-500/20",
+          avatarClass: "ring-4 ring-violet-500/50 shadow-lg shadow-violet-500/50",
+          glowClass: "animate-pulse",
+        };
+      default:
+        return {
+          cardClass: "",
+          avatarClass: "border-2 border-primary/20",
+          glowClass: "",
+        };
+    }
+  };
+
+  const tierStyles = getTierStyles();
+
   return (
-    <AnimatedCard hover="lift" glass className="p-4 border-b border-border/50">
+    <AnimatedCard hover="lift" glass className={cn("p-4 border-b border-border/50", tierStyles.cardClass)}>
       {/* Avatar and Stats Row */}
       <div className="flex items-center gap-4">
-          <Avatar className="w-20 h-20 border-2 border-primary/20 shadow-glow">
+          <Avatar className={cn("w-20 h-20 shadow-glow", tierStyles.avatarClass, tierStyles.glowClass)}>
             <AvatarImage src={avatarUrl || undefined} alt={nickname || t.confession_anonymous} />
             <AvatarFallback className="text-2xl font-bold bg-gradient-to-br from-primary/20 to-primary/10">
               {(nickname || t.confession_anonymous).charAt(0).toUpperCase()}
@@ -67,7 +95,7 @@ export const ProfileHeader = ({
 
       {/* Name and Bio */}
       <div className="mt-3">
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-2 mb-1 flex-wrap">
           <h2 className="font-bold text-lg">
             <UserDisplayName 
               userId={userId}
@@ -75,7 +103,13 @@ export const ProfileHeader = ({
               clickable={false}
             />
           </h2>
-          <SubscriptionBadge tier={subscriptionTier as 'free' | 'premium' | 'vip'} variant="compact" />
+          <BadgeDisplay
+            userId={userId}
+            subscriptionTier={subscriptionTier as "free" | "premium" | "vip"}
+            showSubscription={true}
+            variant="compact"
+            maxBadges={2}
+          />
         </div>
         {stats.isFollowedBy && !isOwnProfile && (
           <span className="text-xs text-muted-foreground">{t.profile_follows_you || "Follows you"}</span>

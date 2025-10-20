@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { getNicknameCached } from "@/lib/nicknameCache";
 import { toast } from "sonner";
 import { UserDisplayName } from "@/components/UserDisplayName";
+import { BadgeDisplay } from "@/components/BadgeDisplay";
+import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,6 +41,7 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
   const [loading, setLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [conversationToDelete, setConversationToDelete] = useState<string | null>(null);
+  const [otherUserTiers, setOtherUserTiers] = useState<Record<string, string>>({});
   const { t } = useLanguage();
   const navigate = useNavigate();
 
@@ -106,13 +109,20 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
       const uniqueOtherUserIds = [...new Set(otherUserIds)];
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('user_id, nickname')
+        .select('user_id, nickname, subscription_tier')
         .in('user_id', uniqueOtherUserIds);
 
       if (profilesError) {
         console.error('Error loading profiles:', profilesError);
         // Continue without profiles rather than throwing
       }
+
+      // Build tier mapping
+      const tierMap: Record<string, string> = {};
+      profiles?.forEach(p => {
+        tierMap[p.user_id] = p.subscription_tier || 'free';
+      });
+      setOtherUserTiers(tierMap);
 
       // Get last messages
       const { data: messages, error: messagesError } = await supabase
@@ -240,11 +250,20 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
-                    <UserDisplayName 
-                      userId={conversation.other_user_id}
-                      maxLength={20}
-                      clickable={false}
-                    />
+                    <div className="flex items-center">
+                      <UserDisplayName 
+                        userId={conversation.other_user_id}
+                        maxLength={20}
+                        clickable={false}
+                      />
+                      <BadgeDisplay 
+                        userId={conversation.other_user_id} 
+                        subscriptionTier={otherUserTiers[conversation.other_user_id] as "free" | "premium" | "vip" || "free"}
+                        showSubscription={otherUserTiers[conversation.other_user_id] !== 'free'}
+                        variant="compact"
+                        maxBadges={1}
+                      />
+                    </div>
                     {conversation.unread_count > 0 && (
                       <span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">
                         {conversation.unread_count}
