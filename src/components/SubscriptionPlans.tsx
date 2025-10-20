@@ -62,12 +62,15 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('subscription_tier')
+      .select('subscription_tier, trial_active, trial_end_date')
       .eq('user_id', user.id)
       .single();
     
     if (profile) {
-      setCurrentTier(profile.subscription_tier || 'free');
+      // If user is on active trial, treat them as premium for UI purposes
+      const trialValid = profile.trial_active && profile.trial_end_date && new Date(profile.trial_end_date) > new Date();
+      const tier = trialValid ? 'premium' : (profile.subscription_tier || 'free');
+      setCurrentTier(tier);
     }
   };
 
@@ -292,7 +295,7 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
             </div>
           )}
 
-          {/* Trial Button */}
+          {/* Trial Button - only show for truly free users (not on trial) */}
           {currentTier === 'free' && (
             <div className="px-3 sm:px-0">
               <AnimatedCard className="p-4 bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border-amber-500/30">
