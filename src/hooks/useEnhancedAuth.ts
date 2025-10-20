@@ -74,7 +74,15 @@ export const useEnhancedAuth = () => {
         return { error: error || data?.error };
       }
 
-      // Store refresh token securely
+      // Ensure browser auth session is set so the app recognizes the login
+      if (data?.session?.access_token && data?.session?.refresh_token) {
+        await supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        });
+      }
+
+      // Store refresh token securely (custom session tracking)
       if (data.refreshToken) {
         localStorage.setItem('refresh_token', data.refreshToken);
         localStorage.setItem('device_id', metadata.deviceId!);
