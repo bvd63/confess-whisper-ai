@@ -52,7 +52,7 @@ const OnboardingDialog = ({ open, onComplete }: OnboardingDialogProps) => {
       <DialogContent className="sm:max-w-md">
         <DialogTitle className="sr-only">{currentStep.title}</DialogTitle>
         <DialogDescription className="sr-only">{currentStep.description}</DialogDescription>
-        <div className="absolute top-4 right-4">
+        <div className="absolute top-4 right-16">
           <LanguageSelector />
         </div>
         <div className="py-6 space-y-6 text-center">
