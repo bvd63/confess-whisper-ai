@@ -203,13 +203,6 @@ const Profile = () => {
             </AnimatedCard>
 
           <FollowStats userId={user.id} />
-          
-          <div className="pt-4">
-            <Button onClick={() => setExportDialogOpen(true)} variant="outline" className="w-full">
-              {t.export_my_data}
-            </Button>
-          </div>
-          
           <StreakCounter userId={user.id} variant="full" />
           <CoinsDisplay userId={user.id} variant="full" />
           <UserAnalytics />
@@ -240,6 +233,12 @@ const Profile = () => {
             </div>
             <ReferralSystem userId={user.id} />
             <BlockedUsers userId={user.id} />
+            
+            <div className="pt-4">
+              <Button onClick={() => setExportDialogOpen(true)} variant="outline" className="w-full">
+                {t.export_my_data}
+              </Button>
+            </div>
           </TabsContent>
 
           {isModerator && <TabsContent value="moderation" className="space-y-6">
