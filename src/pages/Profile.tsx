@@ -73,6 +73,7 @@ const Profile = () => {
     handle: string | null;
     privacy_mode: string | null;
     nickname_updated_at: string | null;
+    stripe_subscription_id: string | null;
   } | null>(null);
   const {
     isModerator
@@ -91,7 +92,7 @@ const Profile = () => {
       const {
         data,
         error
-      } = await supabase.from('profiles').select('nickname, bio, handle, privacy_mode, nickname_updated_at').eq('user_id', user!.id).single();
+      } = await supabase.from('profiles').select('nickname, bio, handle, privacy_mode, nickname_updated_at, stripe_subscription_id').eq('user_id', user!.id).single();
       if (error) throw error;
       setProfileData(data);
     } catch (error) {
@@ -197,12 +198,16 @@ const Profile = () => {
                     {isPremium ? t.subscription_thanks : t.subscription_upgrade_more}
                   </p>
                 </div>
-                {isPremium ? <EnhancedButton onClick={handleManageSubscription} variant="outline" lift>
+                {isPremium && profileData?.stripe_subscription_id && !profileData.stripe_subscription_id.startsWith('manual_') ? (
+                  <EnhancedButton onClick={handleManageSubscription} variant="outline" lift>
                     <Settings className="w-4 h-4 mr-2" />
                     {t.subscription_manage}
-                  </EnhancedButton> : <EnhancedButton onClick={() => setPremiumDialogOpen(true)} glow shine>
+                  </EnhancedButton>
+                ) : !isPremium ? (
+                  <EnhancedButton onClick={() => setPremiumDialogOpen(true)} glow shine>
                     {t.subscription_upgrade_premium}
-                  </EnhancedButton>}
+                  </EnhancedButton>
+                ) : null}
               </div>
             </AnimatedCard>
 
