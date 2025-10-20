@@ -80,6 +80,10 @@ const AppHeader = ({
                     <Crown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary" />
                   </Button>}
                 <NotificationsDropdown />
+                <Button onClick={handleSignOut} variant="outline" size="sm" className="border-primary/30 hover:bg-primary/10 h-8 px-2 sm:px-3">
+                  <LogOut className="w-3 h-3 sm:w-3.5 sm:h-3.5 sm:mr-1" />
+                  <span className="hidden sm:inline text-xs">{t.logout}</span>
+                </Button>
               </> : <Button onClick={() => navigate('/auth')} variant="outline" size="sm" className="border-primary/30 hover:bg-primary/10 h-8 px-2 sm:px-3">
                 <LogIn className="w-3 h-3 sm:w-3.5 sm:h-3.5 sm:mr-1" />
                 <span className="hidden sm:inline text-xs">{t.login}</span>
