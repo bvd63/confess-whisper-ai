@@ -54,7 +54,7 @@ const DailyPrompt = ({
   return <AnimatedCard hover="glow" gradient className="p-4 sm:p-5 md:p-6 border-primary/20 mb-4 sm:mb-6">
       <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
         <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-          <Sparkles className="w-5 h-5 text-primary animate-pulse-glow" />
+          <Sparkles className="w-5 h-5 text-primary" />
         </div>
         
         <div className="flex-1 w-full sm:w-auto">
