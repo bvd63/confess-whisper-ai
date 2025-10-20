@@ -1,4 +1,4 @@
-import { Dialog, DialogContent } from "@/components/ui/translated-dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/translated-dialog";
 import { Button } from "@/components/ui/button";
 import { Heart, Shield, Sparkles, ArrowRight } from "lucide-react";
 import { useState } from "react";
@@ -50,6 +50,8 @@ const OnboardingDialog = ({ open, onComplete }: OnboardingDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={() => {}}>
       <DialogContent className="sm:max-w-md">
+        <DialogTitle className="sr-only">{currentStep.title}</DialogTitle>
+        <DialogDescription className="sr-only">{currentStep.description}</DialogDescription>
         <div className="absolute top-4 right-4">
           <LanguageSelector />
         </div>
