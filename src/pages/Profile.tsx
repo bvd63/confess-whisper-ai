@@ -116,15 +116,26 @@ const Profile = () => {
         data,
         error
       } = await supabase.functions.invoke('customer-portal');
+      
       if (error) throw error;
+      
+      if (data?.error) {
+        toast({
+          title: "Subscription Not Found",
+          description: "You don't have an active subscription to manage. Please upgrade to premium first.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
       if (data?.url) {
         window.open(data.url, '_blank');
       }
     } catch (error) {
       console.error('Error opening customer portal:', error);
       toast({
-        title: t.profile_portal_error,
-        description: t.profile_portal_error_desc,
+        title: "Unable to Open Portal",
+        description: "Please make sure you have an active subscription. Contact support if this persists.",
         variant: "destructive"
       });
     }
