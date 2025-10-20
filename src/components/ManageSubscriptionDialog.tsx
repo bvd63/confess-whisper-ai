@@ -183,12 +183,15 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
   };
 
   const handleChange = async (targetTier: 'premium' | 'vip') => {
+    console.log('[CHANGE] Starting change to:', targetTier);
     setIsLoading(true);
     try {
+      console.log('[CHANGE] Invoking billing-change function');
       const { data, error } = await supabase.functions.invoke('billing-change', {
         body: { targetTier }
       });
 
+      console.log('[CHANGE] Response:', { data, error });
       if (error) throw error;
 
       if (data?.error) {

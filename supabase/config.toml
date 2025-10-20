@@ -126,3 +126,18 @@ verify_jwt = false
 
 [functions.manage-subscription]
 verify_jwt = true
+
+[functions.billing-buy]
+verify_jwt = true
+
+[functions.billing-change]
+verify_jwt = true
+
+[functions.billing-cancel]
+verify_jwt = true
+
+[functions.billing-reactivate]
+verify_jwt = true
+
+[functions.billing-status]
+verify_jwt = true
