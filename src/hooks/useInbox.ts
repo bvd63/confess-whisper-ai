@@ -55,15 +55,21 @@ export const useInbox = (userId: string | null) => {
         return;
       }
 
-      // Get conversation details with updated_at for sorting
+      // Get conversation details with updated_at for sorting, excluding soft-deleted ones
       const conversationIds = participants.map(p => p.conversation_id);
-      const { data: conversationsData, error: conversationsError } = await supabase
+      const { data: allConversationsData, error: conversationsError } = await supabase
         .from('conversations')
-        .select('id, updated_at')
+        .select('id, updated_at, deleted_for')
         .in('id', conversationIds)
         .order('updated_at', { ascending: false });
 
       if (conversationsError) throw conversationsError;
+
+      // Filter out conversations where current user is in deleted_for array
+      const conversationsData = allConversationsData?.filter((conv: any) => {
+        const deletedFor = conv.deleted_for || [];
+        return !deletedFor.includes(userId);
+      }) || [];
 
       // Use the ordered conversations list
       const orderedParticipants = conversationsData?.map(conv => 
@@ -180,7 +186,7 @@ export const useInbox = (userId: string | null) => {
   useEffect(() => {
     loadConversations();
 
-    // Subscribe to realtime updates for both messages and conversation_participants
+    // Subscribe to realtime updates for messages, participants, and conversation changes
     const messagesChannel = supabase
       .channel('inbox-messages-updates')
       .on(
@@ -211,9 +217,25 @@ export const useInbox = (userId: string | null) => {
       )
       .subscribe();
 
+    const conversationsChannel = supabase
+      .channel('inbox-conversations-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'conversations'
+        },
+        () => {
+          loadConversations();
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(messagesChannel);
       supabase.removeChannel(participantsChannel);
+      supabase.removeChannel(conversationsChannel);
     };
   }, [loadConversations]);
 
