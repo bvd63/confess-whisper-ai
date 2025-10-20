@@ -241,6 +241,28 @@ const Profile = () => {
             <ReferralSystem userId={user.id} />
             <BlockedUsers userId={user.id} />
             
+            {/* Auth Testing Dashboard Link */}
+            <AnimatedCard hover="lift" glass className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-sm flex items-center gap-2">
+                    <Settings className="w-4 h-4" />
+                    Security Testing
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Manage sessions and test authentication features
+                  </p>
+                </div>
+                <EnhancedButton
+                  onClick={() => navigate('/auth-test')}
+                  variant="outline"
+                  size="sm"
+                >
+                  Open Dashboard
+                </EnhancedButton>
+              </div>
+            </AnimatedCard>
+            
             <div className="pt-4">
               <Button onClick={() => setExportDialogOpen(true)} variant="outline" className="w-full">
                 {t.export_my_data}

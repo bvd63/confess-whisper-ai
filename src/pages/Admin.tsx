@@ -232,10 +232,19 @@ export default function Admin() {
       <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
           <Shield className="h-8 w-8 text-primary" />
-          <div>
+          <div className="flex-1">
             <h1 className="text-2xl font-bold">{t('Admin Dashboard')}</h1>
             <p className="text-sm text-muted-foreground">{t('Manage content moderation and reports')}</p>
           </div>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => navigate('/auth-test')}
+            className="gap-2"
+          >
+            <Shield className="w-4 h-4" />
+            <span className="hidden sm:inline">Auth Testing</span>
+          </Button>
         </div>
 
         <Tabs value={selectedTab} onValueChange={setSelectedTab}>
