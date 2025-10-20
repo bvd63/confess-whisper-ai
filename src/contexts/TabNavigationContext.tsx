@@ -60,7 +60,10 @@ export const TabNavigationProvider: React.FC<{ children: React.ReactNode }> = ({
         const sanitized = (['home','explore','messages','profile'] as TabId[]).reduce((acc, tab) => {
           const stack = Array.isArray(parsed[tab]) && parsed[tab]!.length > 0 ? parsed[tab]! : defaults[tab];
           const last = stack[stack.length - 1];
-          if (tab !== 'messages' && last?.path?.startsWith('/messages')) {
+          if (
+            (tab !== 'messages' && last?.path?.startsWith('/messages')) ||
+            last?.path?.startsWith('/compose')
+          ) {
             acc[tab] = defaults[tab];
           } else {
             acc[tab] = stack;
@@ -94,7 +97,7 @@ export const TabNavigationProvider: React.FC<{ children: React.ReactNode }> = ({
     const path = location.pathname;
     let newTab: TabId | null = null;
 
-    if (path === '/' || path.startsWith('/compose') || path.startsWith('/community/') || path.startsWith('/nearby')) {
+    if (path === '/' || path.startsWith('/community/') || path.startsWith('/nearby')) {
       newTab = 'home';
     } else if (path.startsWith('/explore') || path.startsWith('/search-users')) {
       newTab = 'explore';
