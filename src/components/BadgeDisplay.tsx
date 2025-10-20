@@ -36,6 +36,35 @@ export const BadgeDisplay = ({
 
   useEffect(() => {
     loadBadges();
+
+    // Subscribe to real-time updates for this user's badges/flairs
+    const channel = supabase
+      .channel(`user-badges-${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_flairs',
+          filter: `user_id=eq.${userId}`
+        },
+        () => loadBadges()
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_badges',
+          filter: `user_id=eq.${userId}`
+        },
+        () => loadBadges()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [userId]);
 
   const loadBadges = async () => {

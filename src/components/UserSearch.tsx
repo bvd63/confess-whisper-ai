@@ -9,11 +9,65 @@ import FollowButton from "@/components/FollowButton";
 import { UserDisplayName } from "@/components/UserDisplayName";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/ui/button";
+import { BadgeDisplay } from "@/components/BadgeDisplay";
+import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 
 interface UserSearchResult {
   user_id: string;
   nickname: string | null;
+  subscription_tier?: string;
 }
+
+const UserSearchResultItem = ({ user, currentUserId, navigate, t }: { 
+  user: UserSearchResult; 
+  currentUserId: string; 
+  navigate: any; 
+  t: any 
+}) => {
+  const { subscriptionTier } = usePremiumStatus(user.user_id);
+  
+  return (
+    <Card className="p-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <User className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <UserDisplayName 
+                userId={user.user_id}
+                maxLength={20}
+                className="font-medium"
+              />
+              <BadgeDisplay 
+                userId={user.user_id}
+                subscriptionTier={subscriptionTier as "free" | "premium" | "vip"}
+                showSubscription={subscriptionTier !== 'free'}
+                variant="compact"
+                maxBadges={2}
+              />
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate(`/messages?user=${user.user_id}`)}
+            title={t.messages_title}
+          >
+            <MessageCircle className="w-4 h-4" />
+          </Button>
+          <FollowButton
+            targetUserId={user.user_id}
+            currentUserId={currentUserId}
+          />
+        </div>
+      </div>
+    </Card>
+  );
+};
 
 interface UserSearchProps {
   currentUserId: string;
@@ -88,36 +142,13 @@ export const UserSearch = ({ currentUserId }: UserSearchProps) => {
 
       <div className="space-y-2">
         {results.map((user) => (
-          <Card key={user.user_id} className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <User className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <UserDisplayName 
-                    userId={user.user_id}
-                    maxLength={20}
-                    className="font-medium"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate(`/messages?user=${user.user_id}`)}
-                  title={t.messages_title}
-                >
-                  <MessageCircle className="w-4 h-4" />
-                </Button>
-                <FollowButton
-                  targetUserId={user.user_id}
-                  currentUserId={currentUserId}
-                />
-              </div>
-            </div>
-          </Card>
+          <UserSearchResultItem 
+            key={user.user_id}
+            user={user}
+            currentUserId={currentUserId}
+            navigate={navigate}
+            t={t}
+          />
         ))}
       </div>
     </div>

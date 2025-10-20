@@ -1960,6 +1960,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      deactivate_expired_perks: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       deduct_coins: {
         Args: {
           _amount: number
