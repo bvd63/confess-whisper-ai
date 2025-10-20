@@ -40,29 +40,20 @@ const DeepInsightDialog = ({
 
     setIsGenerating(true);
     try {
-      const { data: aiData, error: aiError } = await supabase.functions.invoke('ai-confession-response', {
-        body: { confession: confession.content, type: 'deep', language }
+      const { data, error } = await supabase.functions.invoke('deep-insight', {
+        body: { confessionId: confession.id, action: 'run' }
       });
 
-      if (aiError) throw aiError;
+      if (error) throw error;
 
-      const deepInsight = aiData?.response;
-      setInsight(deepInsight);
-
-      // Update confession with deep insight
-      const { error: updateError } = await supabase
-        .from('confessions')
-        .update({ ai_deep_insight: deepInsight })
-        .eq('id', confession.id);
-
-      if (updateError) throw updateError;
-
-      toast({
-        title: t.deep_insight_success,
-        description: t.deep_insight_description,
-      });
-
-      onInsightGenerated();
+      if (data?.insight?.text) {
+        setInsight(data.insight.text);
+        toast({
+          title: t.deep_insight_success,
+          description: t.deep_insight_description,
+        });
+        onInsightGenerated();
+      }
 
     } catch (error) {
       console.error('Error generating deep insight:', error);
@@ -73,6 +64,33 @@ const DeepInsightDialog = ({
       });
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const resetInsight = () => {
+    setInsight("");
+  };
+
+  const deleteInsight = async () => {
+    try {
+      const { error } = await supabase.functions.invoke('deep-insight', {
+        body: { confessionId: confession.id, action: 'delete' }
+      });
+
+      if (error) throw error;
+
+      setInsight("");
+      toast({
+        title: t.insight_delete,
+        description: t.deep_insight_success,
+      });
+      onInsightGenerated();
+    } catch (error) {
+      console.error('Error deleting insight:', error);
+      toast({
+        title: t.error_generic,
+        variant: "destructive",
+      });
     }
   };
 
@@ -100,14 +118,51 @@ const DeepInsightDialog = ({
 
           {/* Deep Insight */}
           {insight ? (
-            <div className="p-3 sm:p-5 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg border border-primary/20 animate-slide-up">
-              <div className="flex items-center gap-2 mb-2 sm:mb-3 text-primary">
-                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="text-sm sm:text-base font-medium">{t.deep_insight_title}</span>
+            <div className="space-y-3">
+              <div className="p-3 sm:p-5 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg border border-primary/20 animate-slide-up">
+                <div className="flex items-center gap-2 mb-2 sm:mb-3 text-primary">
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-sm sm:text-base font-medium">{t.deep_insight_title}</span>
+                </div>
+                <p className="text-sm sm:text-base text-foreground/90 leading-relaxed whitespace-pre-line">
+                  {insight}
+                </p>
               </div>
-              <p className="text-sm sm:text-base text-foreground/90 leading-relaxed whitespace-pre-line">
-                {insight}
-              </p>
+              <div className="flex gap-2">
+                <Button
+                  onClick={resetInsight}
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                >
+                  {t.insight_reset}
+                </Button>
+                <Button
+                  onClick={generateDeepInsight}
+                  disabled={isGenerating}
+                  size="sm"
+                  className="flex-1"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 mr-2 animate-spin" />
+                      {t.submitting}
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                      {t.insight_run}
+                    </>
+                  )}
+                </Button>
+                <Button
+                  onClick={deleteInsight}
+                  variant="destructive"
+                  size="sm"
+                >
+                  {t.insight_delete}
+                </Button>
+              </div>
             </div>
           ) : (
             <div className="text-center py-6 sm:py-8">

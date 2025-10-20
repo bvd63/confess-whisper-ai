@@ -97,6 +97,32 @@ type Translations = {
   deep_insight_premium: string;
   deep_insight_description: string;
   deep_insight_success: string;
+  insight_title: string;
+  insight_run: string;
+  insight_reset: string;
+  insight_delete: string;
+  
+  // User Display
+  user_anonymous: string;
+  
+  // Boost Confession
+  boost_cta: string;
+  boost_price: string;
+  boost_active: string;
+  boost_badge: string;
+  boost_confirm: string;
+  boost_expiry_in: string;
+  boost_reboost: string;
+  boost_not_enough: string;
+  boost_error_active: string;
+  
+  // Subscription Management (new keys only)
+  subscription_tier_free: string;
+  subscription_tier_premium: string;
+  subscription_tier_vip: string;
+  subscription_cta_upgrade: string;
+  subscription_upgrade: string;
+  subscription_downgrade: string;
   
   // Premium
   premium_member: string;
@@ -1315,6 +1341,29 @@ export const translations: Record<Language, Translations> = {
     ai_reply_title: "AI Response",
     deep_insight_title: "Deep Insight",
     generate_insight: "Generate Deep Insight",
+    insight_title: "Deep Insight",
+    insight_run: "Run",
+    insight_reset: "Reset",
+    insight_delete: "Delete Insight",
+    
+    user_anonymous: "Anonymous",
+    
+    boost_cta: "Boost Confession",
+    boost_price: "{price} coins",
+    boost_active: "Boost active",
+    boost_badge: "Boosted",
+    boost_confirm: "Your confession was boosted for 24h.",
+    boost_expiry_in: "Expires in {time}",
+    boost_reboost: "Reboost",
+    boost_not_enough: "Not enough coins to boost.",
+    boost_error_active: "A boost is already active for this confession.",
+    
+    subscription_tier_free: "Free",
+    subscription_tier_premium: "Premium",
+    subscription_tier_vip: "VIP",
+    subscription_cta_upgrade: "Get a subscription",
+    subscription_upgrade: "Upgrade",
+    subscription_downgrade: "Downgrade",
     
     toast_sent: "Your confession was sent anonymously 💭",
     toast_flagged: "Content not allowed. Please rephrase.",
@@ -2482,6 +2531,29 @@ export const translations: Record<Language, Translations> = {
     ai_reply_title: "Respuesta IA",
     deep_insight_title: "Insight Profundo",
     generate_insight: "Generar Insight Profundo",
+    insight_title: "Deep Insight",
+    insight_run: "Ejecutar",
+    insight_reset: "Reiniciar",
+    insight_delete: "Eliminar Insight",
+    
+    user_anonymous: "Anónimo",
+    
+    boost_cta: "Impulsar confesión",
+    boost_price: "{price} monedas",
+    boost_active: "Impulso activo",
+    boost_badge: "Impulsada",
+    boost_confirm: "Tu confesión fue impulsada por 24h.",
+    boost_expiry_in: "Expira en {time}",
+    boost_reboost: "Reimpulsar",
+    boost_not_enough: "No tienes monedas suficientes.",
+    boost_error_active: "Ya hay un impulso activo para esta confesión.",
+    
+    subscription_tier_free: "Free",
+    subscription_tier_premium: "Premium",
+    subscription_tier_vip: "VIP",
+    subscription_cta_upgrade: "Obtener suscripción",
+    subscription_upgrade: "Mejorar plan",
+    subscription_downgrade: "Bajar plan",
     
     toast_sent: "Tu confesión fue enviada anónimamente 💭",
     toast_flagged: "Contenido no permitido. Por favor, reformula.",
@@ -3651,6 +3723,29 @@ export const translations: Record<Language, Translations> = {
     ai_reply_title: "KI-Antwort",
     deep_insight_title: "Tiefer Einblick",
     generate_insight: "Tiefen Einblick Generieren",
+    insight_title: "Deep Insight",
+    insight_run: "Ausführen",
+    insight_reset: "Zurücksetzen",
+    insight_delete: "Insight löschen",
+    
+    user_anonymous: "Anonym",
+    
+    boost_cta: "Beichte boosten",
+    boost_price: "{price} Münzen",
+    boost_active: "Boost aktiv",
+    boost_badge: "Geboostet",
+    boost_confirm: "Deine Beichte wurde für 24h geboostet.",
+    boost_expiry_in: "Läuft ab in {time}",
+    boost_reboost: "Erneut boosten",
+    boost_not_enough: "Nicht genug Münzen.",
+    boost_error_active: "Für diese Beichte ist bereits ein aktiver Boost vorhanden.",
+    
+    subscription_tier_free: "Free",
+    subscription_tier_premium: "Premium",
+    subscription_tier_vip: "VIP",
+    subscription_cta_upgrade: "Abo abschließen",
+    subscription_upgrade: "Upgrade",
+    subscription_downgrade: "Downgrade",
     
     toast_sent: "Dein Geständnis wurde anonym gesendet 💭",
     toast_flagged: "Inhalt nicht erlaubt. Bitte umformulieren.",

@@ -1,16 +1,30 @@
 import { memo, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Tag } from "lucide-react";
+import { MessageCircle, Tag, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getUserDisplayName } from "@/lib/userDisplayName";
 
 interface ConfessionHeaderProps {
   category: string;
   createdAt: string;
+  authorNicknameSnapshot?: string | null;
+  authorVisibilitySnapshot?: string | null;
+  isBoosted?: boolean;
 }
 
-const ConfessionHeader = memo(({ category, createdAt }: ConfessionHeaderProps) => {
+const ConfessionHeader = memo(({ 
+  category, 
+  createdAt, 
+  authorNicknameSnapshot, 
+  authorVisibilitySnapshot,
+  isBoosted 
+}: ConfessionHeaderProps) => {
   const { t } = useLanguage();
+  
+  const displayName = useMemo(() => {
+    return getUserDisplayName(authorNicknameSnapshot, authorVisibilitySnapshot, t.user_anonymous);
+  }, [authorNicknameSnapshot, authorVisibilitySnapshot, t.user_anonymous]);
   
   const getCategoryLabel = useMemo(() => {
     const categoryMap: Record<string, string> = {
@@ -38,7 +52,13 @@ const ConfessionHeader = memo(({ category, createdAt }: ConfessionHeaderProps) =
   return (
     <div className="flex items-center gap-2 text-muted-foreground text-sm flex-wrap">
       <MessageCircle className="w-4 h-4" />
-      <span>{t.confession_anonymous} • {timeAgo}</span>
+      <span>{displayName} • {timeAgo}</span>
+      {isBoosted && (
+        <Badge variant="default" className="text-xs gap-1 bg-gradient-to-r from-primary to-primary/80">
+          <Zap className="w-3 h-3 fill-current" />
+          {t.boost_badge}
+        </Badge>
+      )}
       <Badge variant="secondary" className="text-xs gap-1 bg-primary/10 text-primary border-primary/20">
         <Tag className="w-3 h-3" />
         {getCategoryLabel}

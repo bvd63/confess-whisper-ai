@@ -2,27 +2,36 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { MessageSquare, Heart, FileText } from "lucide-react";
+import { MessageSquare, Heart, FileText, Crown, Settings } from "lucide-react";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 interface UserAnalyticsProps {
   userId?: string;
+  onUpgradeClick?: () => void;
 }
 
-const UserAnalytics = ({ userId }: UserAnalyticsProps) => {
+const UserAnalytics = ({ userId, onUpgradeClick }: UserAnalyticsProps) => {
   const { t } = useLanguage();
   const { user } = useCurrentUser();
+  const { subscriptionTier, isPremium } = usePremiumStatus(userId || user?.id);
+  const { toast } = useToast();
   const [stats, setStats] = useState({
     totalConfessions: 0,
     totalLikes: 0,
     totalComments: 0,
   });
+  const [hasStripeSubscription, setHasStripeSubscription] = useState(false);
 
   const targetUserId = userId || user?.id;
 
   useEffect(() => {
     if (targetUserId) {
       fetchUserStats();
+      checkStripeSubscription();
       
       // Set up real-time subscription for confessions updates
       const channel = supabase
@@ -46,6 +55,50 @@ const UserAnalytics = ({ userId }: UserAnalyticsProps) => {
       };
     }
   }, [targetUserId]);
+
+  const checkStripeSubscription = async () => {
+    if (!targetUserId) return;
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('stripe_subscription_id')
+        .eq('user_id', targetUserId)
+        .single();
+      
+      setHasStripeSubscription(!!data?.stripe_subscription_id && !data.stripe_subscription_id.startsWith('manual_'));
+    } catch (error) {
+      console.error("Error checking subscription:", error);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    if (!isPremium || !hasStripeSubscription) {
+      onUpgradeClick?.();
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('customer-portal');
+      
+      if (error) throw error;
+      
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      } else {
+        toast({
+          title: t.error_generic,
+          description: t.subscription_manage,
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error opening customer portal:', error);
+      toast({
+        title: t.error_generic,
+        variant: "destructive"
+      });
+    }
+  };
 
   const fetchUserStats = async () => {
     if (!targetUserId) return;
@@ -105,8 +158,58 @@ const UserAnalytics = ({ userId }: UserAnalyticsProps) => {
     },
   ];
 
+  const getTierLabel = () => {
+    switch (subscriptionTier) {
+      case 'vip': return t.subscription_tier_vip;
+      case 'premium': return t.subscription_tier_premium;
+      default: return t.subscription_tier_free;
+    }
+  };
+
+  const getTierColor = () => {
+    switch (subscriptionTier) {
+      case 'vip': return 'from-purple-500 to-amber-500';
+      case 'premium': return 'from-primary to-primary/70';
+      default: return 'from-muted-foreground to-muted-foreground/70';
+    }
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+    <div className="space-y-4">
+      {/* Subscription Card */}
+      <Card className="border-primary/20">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <CardTitle className="text-lg">{t.subscription_title}</CardTitle>
+              <Badge className={`bg-gradient-to-r ${getTierColor()} text-white border-0`}>
+                {getTierLabel()}
+              </Badge>
+            </div>
+            <Button
+              variant={isPremium ? "outline" : "default"}
+              size="sm"
+              onClick={handleManageSubscription}
+              className="gap-2"
+            >
+              {isPremium ? (
+                <>
+                  <Settings className="w-4 h-4" />
+                  {t.subscription_manage}
+                </>
+              ) : (
+                <>
+                  <Crown className="w-4 h-4" />
+                  {t.subscription_cta_upgrade}
+                </>
+              )}
+            </Button>
+          </div>
+        </CardHeader>
+      </Card>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
       {statCards.map((stat) => (
         <Card key={stat.title}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">

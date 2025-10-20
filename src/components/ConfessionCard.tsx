@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { EnhancedButton } from "@/components/EnhancedButton";
 import { MessageCircle, Sparkles } from "lucide-react";
@@ -13,7 +13,9 @@ import BadgesDisplay from "./BadgesDisplay";
 import FollowButton from "./FollowButton";
 import StreakCounter from "./StreakCounter";
 import { BadgeDisplay } from "./BadgeDisplay";
+import { BoostConfessionButton } from "./BoostConfessionButton";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useBoostStatus } from "@/hooks/useBoostStatus";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -34,6 +36,8 @@ interface ConfessionCardProps {
     created_at: string;
     image_url?: string | null;
     image_blurred?: boolean;
+    author_nickname_snapshot?: string | null;
+    author_visibility_snapshot?: string | null;
   };
   isPremium: boolean;
   isLiked?: boolean;
@@ -56,6 +60,8 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   const { t } = useLanguage();
   const { purgeConfession } = useCachePurgeOnDelete();
   const { subscriptionTier } = usePremiumStatus(confession.user_id || null);
+  const { boostStatus, refetch: refetchBoost } = useBoostStatus(confession.id);
+  const isOwner = user?.id === confession.user_id;
 
   const handleDeleteConfession = async () => {
     if (!user || confession.user_id !== user.id) return;
@@ -98,6 +104,9 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         <ConfessionHeader 
           category={confession.category} 
           createdAt={confession.created_at}
+          authorNicknameSnapshot={confession.author_nickname_snapshot}
+          authorVisibilitySnapshot={confession.author_visibility_snapshot}
+          isBoosted={boostStatus.isActive}
         />
       </div>
 
@@ -145,19 +154,27 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
       </div>
 
       {/* Interaction Buttons */}
-      <ConfessionActions
-        confessionId={confession.id}
-        confessionUserId={confession.user_id}
-        currentUserId={user?.id || null}
-        likesCount={confession.likes_count || 0}
-        isLiked={initialIsLiked || false}
-        isBookmarked={initialIsBookmarked || false}
-        onLikeChange={onLikeChange || (() => {})}
-        onBookmarkChange={onBookmarkChange || (() => {})}
-        onShare={() => setIsShareOpen(true)}
-        onReport={() => setIsReportOpen(true)}
-        onDelete={handleDeleteConfession}
-      />
+      <div className="flex items-center gap-2 flex-wrap">
+        <ConfessionActions
+          confessionId={confession.id}
+          confessionUserId={confession.user_id}
+          currentUserId={user?.id || null}
+          likesCount={confession.likes_count || 0}
+          isLiked={initialIsLiked || false}
+          isBookmarked={initialIsBookmarked || false}
+          onLikeChange={onLikeChange || (() => {})}
+          onBookmarkChange={onBookmarkChange || (() => {})}
+          onShare={() => setIsShareOpen(true)}
+          onReport={() => setIsReportOpen(true)}
+          onDelete={handleDeleteConfession}
+        />
+        {isOwner && !boostStatus.isActive && (
+          <BoostConfessionButton 
+            confessionId={confession.id}
+            onBoostSuccess={refetchBoost}
+          />
+        )}
+      </div>
 
       {confession.ai_response && (
         <>

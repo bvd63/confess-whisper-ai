@@ -1,19 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, Coins } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Zap, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
 interface BoostConfessionButtonProps {
   confessionId: string;
@@ -72,33 +63,28 @@ export const BoostConfessionButton = ({ confessionId, onBoostSuccess }: BoostCon
         disabled={isLoading}
         className="gap-2"
       >
-        <TrendingUp className="w-4 h-4" />
-        <span className="hidden sm:inline">{t.boost_confession}</span>
-        <span className="flex items-center gap-1 text-yellow-600">
-          <Coins className="w-3 h-3" />
-          15
-        </span>
+        <Zap className="w-4 h-4" />
+        {t.boost_cta}
       </Button>
 
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              {t.boost_confession}
+              <Zap className="w-5 h-5 text-primary" />
+              {t.boost_cta}
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-2">
-              <p>{t.boost_confirmation_description}</p>
-              <div className="flex items-center gap-2 text-yellow-600 font-semibold">
-                <Coins className="w-4 h-4" />
-                <span>{t.boost_cost}</span>
+              <p>{t.boost_confirm}</p>
+              <div className="font-semibold text-primary">
+                {t.boost_price.replace("{price}", "15")}
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t.cancel}</AlertDialogCancel>
+            <AlertDialogCancel>{t.common_close}</AlertDialogCancel>
             <AlertDialogAction onClick={handleBoost} disabled={isLoading}>
-              {isLoading ? t.processing : t.boost_now}
+              {isLoading ? t.submitting : t.boost_cta}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
