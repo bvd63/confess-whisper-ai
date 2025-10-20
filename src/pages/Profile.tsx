@@ -168,9 +168,18 @@ const Profile = () => {
           <div className="rounded-full">
             <User className="h-6 w-6 sm:h-8 sm:w-8 text-primary animate-pulse-glow" />
           </div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
-            <GradientText variant="hero">{t.profile_title}</GradientText>
-          </h1>
+          <div className="flex-1">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
+              <GradientText variant="hero">{t.profile_title}</GradientText>
+            </h1>
+            {/* Show active equipped flairs */}
+            <div className="mt-2">
+              <BadgesDisplay 
+                userId={user.id} 
+                variant="compact"
+              />
+            </div>
+          </div>
         </div>
 
         <StreakReminder userId={user.id} />
@@ -215,10 +224,11 @@ const Profile = () => {
             </AnimatedCard>
 
           <FollowStats userId={user.id} />
-          <div className="pt-4">
-            <Button onClick={() => setFlairsDialogOpen(true)} variant="outline" className="w-full">
-              {t.flairs_shop}
-            </Button>
+          <div className="pt-4 flex justify-center">
+            <FlairsShopButton 
+              onClick={() => setFlairsDialogOpen(true)} 
+              tier={subscriptionTier as "free" | "premium" | "vip"}
+            />
           </div>
           <StreakCounter userId={user.id} variant="full" />
           <CoinsDisplay userId={user.id} variant="full" />

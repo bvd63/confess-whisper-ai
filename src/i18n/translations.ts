@@ -790,14 +790,10 @@ type Translations = {
   flair_equipped: string;
   equipped: string;
   equip: string;
-  buy_again: string;
   shop_free_tier: string;
   shop_premium_tier: string;
   shop_vip_tier: string;
-  shop_lock_premium: string;
-  shop_lock_vip: string;
   shop_empty: string;
-  shop_expires_in: string;
   shop_buy: string;
   shop_open: string;
   rarity_common: string;
@@ -817,6 +813,7 @@ type Translations = {
   flair_rocket: string;
   flair_rainbow: string;
   flair_unicorn: string;
+  flair_moon: string;
   
   // UI General Additions
   loading: string;
@@ -2087,10 +2084,17 @@ export const translations: Record<Language, Translations> = {
     flair_equipped: "Flair equipped successfully",
     equipped: "Equipped",
     equip: "Equip",
+    shop_free_tier: "Free Flairs",
+    shop_premium_tier: "Premium Flairs",
+    shop_vip_tier: "VIP Flairs",
+    shop_empty: "No flairs available for your plan",
+    shop_buy: "Buy",
+    shop_open: "Open Flairs Shop",
     rarity_common: "Common",
     rarity_uncommon: "Uncommon",
     rarity_rare: "Rare",
     rarity_epic: "Epic",
+    rarity_legendary: "Legendary",
     
     flair_star: "Star",
     flair_fire: "Fire",
@@ -2102,6 +2106,7 @@ export const translations: Record<Language, Translations> = {
     flair_rocket: "Rocket",
     flair_rainbow: "Rainbow",
     flair_unicorn: "Unicorn",
+    flair_moon: "Moon",
     
     loading: "Loading...",
     success: "Success",
@@ -3214,10 +3219,17 @@ export const translations: Record<Language, Translations> = {
     flair_equipped: "Insignia equipada exitosamente",
     equipped: "Equipada",
     equip: "Equipar",
+    shop_free_tier: "Insignias Gratis",
+    shop_premium_tier: "Insignias Premium",
+    shop_vip_tier: "Insignias VIP",
+    shop_empty: "No hay insignias disponibles para tu plan",
+    shop_buy: "Comprar",
+    shop_open: "Abrir Tienda de Insignias",
     rarity_common: "Común",
     rarity_uncommon: "Poco Común",
     rarity_rare: "Rara",
     rarity_epic: "Épica",
+    rarity_legendary: "Legendaria",
     
     flair_star: "Estrella",
     flair_fire: "Fuego",
@@ -3229,6 +3241,7 @@ export const translations: Record<Language, Translations> = {
     flair_rocket: "Cohete",
     flair_rainbow: "Arcoíris",
     flair_unicorn: "Unicornio",
+    flair_moon: "Luna",
     
     loading: "Cargando...",
     success: "Éxito",
@@ -4375,10 +4388,17 @@ export const translations: Record<Language, Translations> = {
     flair_equipped: "Abzeichen erfolgreich ausgerüstet",
     equipped: "Ausgerüstet",
     equip: "Ausrüsten",
+    shop_free_tier: "Kostenlose Abzeichen",
+    shop_premium_tier: "Premium-Abzeichen",
+    shop_vip_tier: "VIP-Abzeichen",
+    shop_empty: "Keine Abzeichen für deinen Plan verfügbar",
+    shop_buy: "Kaufen",
+    shop_open: "Abzeichen-Shop öffnen",
     rarity_common: "Gewöhnlich",
     rarity_uncommon: "Ungewöhnlich",
     rarity_rare: "Selten",
     rarity_epic: "Episch",
+    rarity_legendary: "Legendär",
     
     flair_star: "Stern",
     flair_fire: "Feuer",
@@ -4390,6 +4410,7 @@ export const translations: Record<Language, Translations> = {
     flair_rocket: "Rakete",
     flair_rainbow: "Regenbogen",
     flair_unicorn: "Einhorn",
+    flair_moon: "Mond",
     
     loading: "Laden...",
     success: "Erfolg",
