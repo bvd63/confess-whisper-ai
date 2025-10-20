@@ -169,16 +169,12 @@ export const TabNavigationProvider: React.FC<{ children: React.ReactNode }> = ({
       setTabStacks(prev => ({ ...prev, [tabId]: [{ path: TAB_ROUTES[tabId] }] }));
       navigate(TAB_ROUTES[tabId], { replace: true });
       setActiveTab(tabId);
-      // Persist safe route
-      sessionManager.saveSessionState(TAB_ROUTES[tabId], null);
       return;
     }
     
     // Use replace instead of push to avoid history issues between tabs
     navigate(targetPath.path, { replace: true, state: targetPath.state });
     setActiveTab(tabId);
-    // Persist last route without conversation details
-    sessionManager.saveSessionState(targetPath.path, null);
   }, [activeTab, isInConversation, tabStacks, navigate, location]);
 
   const getTabPath = useCallback((tabId: TabId): string => {
