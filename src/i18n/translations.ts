@@ -1203,6 +1203,43 @@ type Translations = {
   subscription_benefits_vip_early_access: string;
   subscription_benefits_vip_custom_themes: string;
   
+  // Subscription Management (New keys for interval management)
+  subscription_current_status: string;
+  subscription_interval_monthly: string;
+  subscription_interval_yearly: string;
+  subscription_per_month_short: string;
+  subscription_per_year_short: string;
+  subscription_savings_badge: string;
+  subscription_compare_plans: string;
+  subscription_benefits_title: string;
+  subscription_actions_change: string;
+  subscription_actions_cancel: string;
+  subscription_actions_reactivate: string;
+  subscription_confirm_change_title: string;
+  subscription_confirm_change_body: string;
+  subscription_confirm_cancel_title: string;
+  subscription_confirm_cancel_body_now: string;
+  subscription_confirm_cancel_body_period_end: string;
+  subscription_confirm_reactivate_title: string;
+  subscription_status_active: string;
+  subscription_status_canceled: string;
+  subscription_status_trialing: string;
+  subscription_status_past_due: string;
+  subscription_errors_generic: string;
+  subscription_errors_not_eligible: string;
+  subscription_errors_requires_action: string;
+  subscription_trial_countdown: string;
+  subscription_trial_used: string;
+  subscription_next_billing_date: string;
+  subscription_cancel_ends_at: string;
+  subscription_change_interval: string;
+  subscription_change_success: string;
+  subscription_cancel_success: string;
+  subscription_reactivate_success: string;
+  subscription_not_available: string;
+  subscription_proration_info: string;
+  subscription_downgrade_period_end: string;
+  
   // Profile
   profile_achievements: string;
   profile_moods: string;
@@ -2315,6 +2352,43 @@ export const translations: Record<Language, Translations> = {
     subscription_benefits_vip_special_badge: "Special VIP badge",
     subscription_benefits_vip_early_access: "Early access to features",
     subscription_benefits_vip_custom_themes: "Custom themes",
+    
+    // Subscription Management
+    subscription_current_status: "Current Status",
+    subscription_interval_monthly: "Monthly",
+    subscription_interval_yearly: "Yearly",
+    subscription_per_month_short: "/mo",
+    subscription_per_year_short: "/yr",
+    subscription_savings_badge: "Save {percent}%",
+    subscription_compare_plans: "Compare Plans",
+    subscription_benefits_title: "Benefits",
+    subscription_actions_change: "Change Plan",
+    subscription_actions_cancel: "Cancel Subscription",
+    subscription_actions_reactivate: "Reactivate Subscription",
+    subscription_confirm_change_title: "Change Your Plan",
+    subscription_confirm_change_body: "You are about to change to {plan} {interval}. Your new rate will be ${price}{suffix}. {prorationNote}",
+    subscription_confirm_cancel_title: "Cancel Subscription",
+    subscription_confirm_cancel_body_now: "Your subscription will end immediately and you will lose access to premium features now.",
+    subscription_confirm_cancel_body_period_end: "Your subscription will remain active until {date}, then you'll return to the Free plan.",
+    subscription_confirm_reactivate_title: "Reactivate Subscription",
+    subscription_status_active: "Active",
+    subscription_status_canceled: "Canceled",
+    subscription_status_trialing: "Trial",
+    subscription_status_past_due: "Past Due",
+    subscription_errors_generic: "An error occurred. Please try again.",
+    subscription_errors_not_eligible: "You are not eligible for this action.",
+    subscription_errors_requires_action: "Additional action required to complete this operation.",
+    subscription_trial_countdown: "{days} days left in trial",
+    subscription_trial_used: "Trial already used",
+    subscription_next_billing_date: "Next billing: {date}",
+    subscription_cancel_ends_at: "Ends: {date}",
+    subscription_change_interval: "Change Billing",
+    subscription_change_success: "Plan changed successfully!",
+    subscription_cancel_success: "Subscription canceled successfully",
+    subscription_reactivate_success: "Subscription reactivated successfully!",
+    subscription_not_available: "Not available",
+    subscription_proration_info: "You'll be charged a prorated amount today.",
+    subscription_downgrade_period_end: "Your plan will change at the end of the current period.",
     
     badges_your_badges: "Your Badges",
     
@@ -3958,6 +4032,43 @@ export const translations: Record<Language, Translations> = {
     subscription_benefits_vip_early_access: "Acceso anticipado a funciones",
     subscription_benefits_vip_custom_themes: "Temas personalizados",
     
+    // Subscription Management
+    subscription_current_status: "Estado Actual",
+    subscription_interval_monthly: "Mensual",
+    subscription_interval_yearly: "Anual",
+    subscription_per_month_short: "/mes",
+    subscription_per_year_short: "/año",
+    subscription_savings_badge: "Ahorra {percent}%",
+    subscription_compare_plans: "Comparar Planes",
+    subscription_benefits_title: "Beneficios",
+    subscription_actions_change: "Cambiar Plan",
+    subscription_actions_cancel: "Cancelar Suscripción",
+    subscription_actions_reactivate: "Reactivar Suscripción",
+    subscription_confirm_change_title: "Cambiar Tu Plan",
+    subscription_confirm_change_body: "Cambiarás a {plan} {interval}. Tu nueva tarifa será ${price}{suffix}. {prorationNote}",
+    subscription_confirm_cancel_title: "Cancelar Suscripción",
+    subscription_confirm_cancel_body_now: "Tu suscripción finalizará inmediatamente.",
+    subscription_confirm_cancel_body_period_end: "Tu suscripción permanecerá activa hasta {date}.",
+    subscription_confirm_reactivate_title: "Reactivar Suscripción",
+    subscription_status_active: "Activo",
+    subscription_status_canceled: "Cancelado",
+    subscription_status_trialing: "Prueba",
+    subscription_status_past_due: "Vencido",
+    subscription_errors_generic: "Ocurrió un error. Inténtalo de nuevo.",
+    subscription_errors_not_eligible: "No eres elegible para esta acción.",
+    subscription_errors_requires_action: "Se requiere acción adicional.",
+    subscription_trial_countdown: "{days} días restantes en la prueba",
+    subscription_trial_used: "Prueba ya utilizada",
+    subscription_next_billing_date: "Próxima facturación: {date}",
+    subscription_cancel_ends_at: "Finaliza: {date}",
+    subscription_change_interval: "Cambiar Facturación",
+    subscription_change_success: "¡Plan cambiado exitosamente!",
+    subscription_cancel_success: "Suscripción cancelada exitosamente",
+    subscription_reactivate_success: "¡Suscripción reactivada!",
+    subscription_not_available: "No disponible",
+    subscription_proration_info: "Se te cobrará un monto prorrateado hoy.",
+    subscription_downgrade_period_end: "Tu plan cambiará al final del período actual.",
+    
     badges_your_badges: "Tus Insignias",
     
     export_my_data: "Exportar mis datos",
@@ -5317,6 +5428,43 @@ export const translations: Record<Language, Translations> = {
     subscription_benefits_vip_special_badge: "Spezielle VIP-Auszeichnung",
     subscription_benefits_vip_early_access: "Früher Zugang zu Funktionen",
     subscription_benefits_vip_custom_themes: "Individuelle Designs",
+    
+    // Subscription Management
+    subscription_current_status: "Aktueller Status",
+    subscription_interval_monthly: "Monatlich",
+    subscription_interval_yearly: "Jährlich",
+    subscription_per_month_short: "/Monat",
+    subscription_per_year_short: "/Jahr",
+    subscription_savings_badge: "{percent}% sparen",
+    subscription_compare_plans: "Pläne Vergleichen",
+    subscription_benefits_title: "Vorteile",
+    subscription_actions_change: "Plan Ändern",
+    subscription_actions_cancel: "Abo Kündigen",
+    subscription_actions_reactivate: "Abo Reaktivieren",
+    subscription_confirm_change_title: "Plan Ändern",
+    subscription_confirm_change_body: "Du wechselst zu {plan} {interval}. Dein neuer Preis beträgt ${price}{suffix}. {prorationNote}",
+    subscription_confirm_cancel_title: "Abo Kündigen",
+    subscription_confirm_cancel_body_now: "Dein Abo endet sofort.",
+    subscription_confirm_cancel_body_period_end: "Dein Abo bleibt bis {date} aktiv.",
+    subscription_confirm_reactivate_title: "Abo Reaktivieren",
+    subscription_status_active: "Aktiv",
+    subscription_status_canceled: "Gekündigt",
+    subscription_status_trialing: "Testversion",
+    subscription_status_past_due: "Überfällig",
+    subscription_errors_generic: "Ein Fehler ist aufgetreten.",
+    subscription_errors_not_eligible: "Du bist nicht berechtigt.",
+    subscription_errors_requires_action: "Zusätzliche Aktion erforderlich.",
+    subscription_trial_countdown: "{days} Tage verbleibend",
+    subscription_trial_used: "Testversion bereits genutzt",
+    subscription_next_billing_date: "Nächste Abrechnung: {date}",
+    subscription_cancel_ends_at: "Endet: {date}",
+    subscription_change_interval: "Abrechnung Ändern",
+    subscription_change_success: "Plan erfolgreich geändert!",
+    subscription_cancel_success: "Abo erfolgreich gekündigt",
+    subscription_reactivate_success: "Abo erfolgreich reaktiviert!",
+    subscription_not_available: "Nicht verfügbar",
+    subscription_proration_info: "Dir wird heute ein anteiliger Betrag berechnet.",
+    subscription_downgrade_period_end: "Dein Plan wird am Ende geändert.",
     
     badges_your_badges: "Deine Auszeichnungen",
     

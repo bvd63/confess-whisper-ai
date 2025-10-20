@@ -1,3 +1,5 @@
+export type BillingInterval = 'monthly' | 'yearly';
+
 export interface SubscriptionPlan {
   id: 'free' | 'premium' | 'vip';
   name: string;
@@ -8,6 +10,13 @@ export interface SubscriptionPlan {
   isPopular?: boolean;
   benefits: string[];
   limitations?: string[];
+}
+
+export interface PlanWithInterval extends SubscriptionPlan {
+  interval: BillingInterval;
+  price: number;
+  priceId: string;
+  savingsPercent?: number;
 }
 
 export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
@@ -31,7 +40,9 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     id: 'premium',
     name: 'Premium',
     priceMonthly: 9.99,
+    priceYearly: 99.99, // ~17% savings
     stripePriceIdMonthly: 'price_1SKGCzR7kygIyYg9DGRcT8Pg',
+    stripePriceIdYearly: 'price_1SKGCzR7kygIyYg9DGRcT8Pg', // Update with actual yearly price ID
     isPopular: true,
     benefits: [
       'subscription_benefits_premium_more_confessions',
@@ -47,7 +58,9 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     id: 'vip',
     name: 'VIP',
     priceMonthly: 19.99,
+    priceYearly: 199.99, // ~17% savings
     stripePriceIdMonthly: 'price_1SKH1TR7kygIyYg9SZ2iH7Kw',
+    stripePriceIdYearly: 'price_1SKH1TR7kygIyYg9SZ2iH7Kw', // Update with actual yearly price ID
     benefits: [
       'subscription_benefits_vip_unlimited_confessions',
       'subscription_benefits_vip_all_premium',
@@ -76,4 +89,44 @@ export function canDowngradeTo(currentPlan: string, targetPlan: string): boolean
   const currentIndex = plans.indexOf(currentPlan);
   const targetIndex = plans.indexOf(targetPlan);
   return targetIndex < currentIndex && currentIndex > 0;
+}
+
+export function calculateSavings(monthlyPrice: number, yearlyPrice: number): number {
+  if (monthlyPrice === 0 || yearlyPrice === 0) return 0;
+  const annualMonthly = monthlyPrice * 12;
+  if (yearlyPrice >= annualMonthly) return 0;
+  return Math.round(((annualMonthly - yearlyPrice) / annualMonthly) * 100);
+}
+
+export function getPlansForInterval(interval: BillingInterval): PlanWithInterval[] {
+  return SUBSCRIPTION_PLANS.filter(plan => {
+    const hasInterval = interval === 'monthly' 
+      ? plan.stripePriceIdMonthly 
+      : plan.stripePriceIdYearly;
+    return hasInterval;
+  }).map(plan => {
+    const isYearly = interval === 'yearly';
+    const price = isYearly ? (plan.priceYearly ?? plan.priceMonthly) : plan.priceMonthly;
+    const priceId = isYearly ? (plan.stripePriceIdYearly ?? plan.stripePriceIdMonthly) : plan.stripePriceIdMonthly;
+    
+    const savingsPercent = isYearly && plan.priceYearly && plan.priceMonthly
+      ? calculateSavings(plan.priceMonthly, plan.priceYearly)
+      : undefined;
+    
+    return {
+      ...plan,
+      interval,
+      price,
+      priceId,
+      savingsPercent,
+    };
+  });
+}
+
+export function hasInterval(planId: string, interval: BillingInterval): boolean {
+  const plan = getPlanById(planId);
+  if (!plan) return false;
+  return interval === 'monthly' 
+    ? !!plan.stripePriceIdMonthly 
+    : !!plan.stripePriceIdYearly;
 }
