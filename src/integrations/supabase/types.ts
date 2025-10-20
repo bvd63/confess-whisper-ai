@@ -2241,6 +2241,10 @@ export type Database = {
         Args: { conv_id: string; user_id: string }
         Returns: undefined
       }
+      trigger_auth_cleanup: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       validate_nickname: {
         Args: { nick: string }
         Returns: boolean
