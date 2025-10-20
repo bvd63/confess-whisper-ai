@@ -203,6 +203,11 @@ const Profile = () => {
             </AnimatedCard>
 
           <FollowStats userId={user.id} />
+          <div className="pt-4">
+            <Button onClick={() => setFlairsDialogOpen(true)} variant="outline" className="w-full">
+              {t.flairs_shop}
+            </Button>
+          </div>
           <StreakCounter userId={user.id} variant="full" />
           <CoinsDisplay userId={user.id} variant="full" />
           <UserAnalytics />
@@ -226,11 +231,6 @@ const Profile = () => {
             <EmailDisplay email={user.email || ''} />
             <PasswordChange userId={user.id} passwordChangedAt={passwordChangedAt} />
             <UserPreferences userId={user.id} />
-            <div className="pt-4">
-              <Button onClick={() => setFlairsDialogOpen(true)} variant="outline" className="w-full">
-                {t.flairs_shop}
-              </Button>
-            </div>
             <ReferralSystem userId={user.id} />
             <BlockedUsers userId={user.id} />
             
