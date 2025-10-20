@@ -776,18 +776,30 @@ export type Database = {
       conversations: {
         Row: {
           created_at: string
+          deleted_for_user_a: boolean | null
+          deleted_for_user_b: boolean | null
           id: string
           updated_at: string
+          user_a_id: string | null
+          user_b_id: string | null
         }
         Insert: {
           created_at?: string
+          deleted_for_user_a?: boolean | null
+          deleted_for_user_b?: boolean | null
           id?: string
           updated_at?: string
+          user_a_id?: string | null
+          user_b_id?: string | null
         }
         Update: {
           created_at?: string
+          deleted_for_user_a?: boolean | null
+          deleted_for_user_b?: boolean | null
           id?: string
           updated_at?: string
+          user_a_id?: string | null
+          user_b_id?: string | null
         }
         Relationships: []
       }
@@ -939,33 +951,48 @@ export type Database = {
           content: string
           conversation_id: string
           created_at: string
+          deleted_for_recipient: boolean | null
+          deleted_for_sender: boolean | null
+          delivered_at: string | null
           edited_at: string | null
           id: string
           is_read: boolean
           read_at: string | null
+          seen_at: string | null
           sender_id: string
+          sent_at: string | null
           updated_at: string
         }
         Insert: {
           content: string
           conversation_id: string
           created_at?: string
+          deleted_for_recipient?: boolean | null
+          deleted_for_sender?: boolean | null
+          delivered_at?: string | null
           edited_at?: string | null
           id?: string
           is_read?: boolean
           read_at?: string | null
+          seen_at?: string | null
           sender_id: string
+          sent_at?: string | null
           updated_at?: string
         }
         Update: {
           content?: string
           conversation_id?: string
           created_at?: string
+          deleted_for_recipient?: boolean | null
+          deleted_for_sender?: boolean | null
+          delivered_at?: string | null
           edited_at?: string | null
           id?: string
           is_read?: boolean
           read_at?: string | null
+          seen_at?: string | null
           sender_id?: string
+          sent_at?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -2072,6 +2099,10 @@ export type Database = {
         Args: { base_nickname: string }
         Returns: string
       }
+      get_conversation_partner: {
+        Args: { conv_id: string; current_user_id: string }
+        Returns: string
+      }
       get_daily_confession_count: {
         Args: { _user_id: string }
         Returns: number
@@ -2152,12 +2183,24 @@ export type Database = {
         }
         Returns: undefined
       }
+      mark_messages_delivered: {
+        Args: { thread_id: string; user_id: string }
+        Returns: undefined
+      }
+      mark_messages_seen: {
+        Args: { message_ids: string[]; thread_id: string; user_id: string }
+        Returns: undefined
+      }
       refresh_hot_confessions: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
       revoke_all_user_sessions: {
         Args: { _user_id: string }
+        Returns: undefined
+      }
+      soft_delete_conversation: {
+        Args: { conv_id: string; user_id: string }
         Returns: undefined
       }
       validate_nickname: {

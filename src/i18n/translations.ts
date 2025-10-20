@@ -890,7 +890,13 @@ type Translations = {
   messages_deleted: string;
   messages_delete_conversation: string;
   messages_delete_conversation_confirm: string;
+  messages_delete_conversation_title: string;
   messages_retry: string;
+  messages_input_placeholder: string;
+  messages_empty: string;
+  messages_seen: string;
+  messages_delivered: string;
+  messages_sent: string;
   
   // Profile
   profile_posts: string;
@@ -899,6 +905,19 @@ type Translations = {
   profile_follows_you: string;
   profile_follow: string;
   profile_unfollow: string;
+
+  // Explore - Search Users
+  explore_search_card_title: string;
+  explore_search_card_placeholder: string;
+  explore_search_card_follow: string;
+  explore_search_card_unfollow: string;
+  explore_search_card_message: string;
+  explore_search_card_no_results: string;
+
+  // Home - Communities
+  home_communities_title: string;
+  home_communities_join: string;
+  home_communities_leave: string;
   
   // Following Feed
   following_feed_loading: string;
@@ -2201,8 +2220,14 @@ export const translations: Record<Language, Translations> = {
     messages_delete_confirm: "Delete this message?",
     messages_deleted: "Message deleted",
     messages_delete_conversation: "Delete conversation",
-    messages_delete_conversation_confirm: "Are you sure you want to delete this conversation?",
+    messages_delete_conversation_confirm: "Are you sure you want to delete this conversation? This action cannot be undone.",
+    messages_delete_conversation_title: "Delete Conversation",
     messages_retry: "Retry",
+    messages_input_placeholder: "Type a message...",
+    messages_empty: "No messages yet",
+    messages_seen: "Seen",
+    messages_delivered: "Delivered",
+    messages_sent: "Sent",
     
     profile_posts: "Posts",
     profile_followers: "Followers",
@@ -2210,6 +2235,19 @@ export const translations: Record<Language, Translations> = {
     profile_follows_you: "Follows you",
     profile_follow: "Follow",
     profile_unfollow: "Unfollow",
+    
+    // Explore - Search Users
+    explore_search_card_title: "Find Users",
+    explore_search_card_placeholder: "Search by nickname...",
+    explore_search_card_follow: "Follow",
+    explore_search_card_unfollow: "Unfollow",
+    explore_search_card_message: "Message",
+    explore_search_card_no_results: "No users found",
+    
+    // Home - Communities
+    home_communities_title: "Communities",
+    home_communities_join: "Join",
+    home_communities_leave: "Leave",
     
     following_feed_loading: "Loading feed...",
     following_feed_start: "Start following users to see their confessions here",
@@ -3359,8 +3397,14 @@ export const translations: Record<Language, Translations> = {
     messages_delete_confirm: "¿Eliminar este mensaje?",
     messages_deleted: "Mensaje eliminado",
     messages_delete_conversation: "Eliminar conversación",
-    messages_delete_conversation_confirm: "¿Estás seguro de que quieres eliminar esta conversación?",
+    messages_delete_conversation_confirm: "¿Estás seguro de que quieres eliminar esta conversación? Esta acción no se puede deshacer.",
+    messages_delete_conversation_title: "Eliminar Conversación",
     messages_retry: "Reintentar",
+    messages_input_placeholder: "Escribe un mensaje...",
+    messages_empty: "No hay mensajes aún",
+    messages_seen: "Visto",
+    messages_delivered: "Entregado",
+    messages_sent: "Enviado",
     
     profile_posts: "Publicaciones",
     profile_followers: "Seguidores",
@@ -3368,6 +3412,19 @@ export const translations: Record<Language, Translations> = {
     profile_follows_you: "Te sigue",
     profile_follow: "Seguir",
     profile_unfollow: "Dejar de seguir",
+    
+    // Explore - Search Users
+    explore_search_card_title: "Buscar Usuarios",
+    explore_search_card_placeholder: "Buscar por apodo...",
+    explore_search_card_follow: "Seguir",
+    explore_search_card_unfollow: "Dejar de seguir",
+    explore_search_card_message: "Mensaje",
+    explore_search_card_no_results: "No se encontraron usuarios",
+    
+    // Home - Communities
+    home_communities_title: "Comunidades",
+    home_communities_join: "Unirse",
+    home_communities_leave: "Salir",
     
     following_feed_loading: "Cargando feed...",
     following_feed_start: "Comienza a seguir usuarios para ver sus confesiones aquí",
@@ -4551,8 +4608,14 @@ export const translations: Record<Language, Translations> = {
     messages_delete_confirm: "Diese Nachricht löschen?",
     messages_deleted: "Nachricht gelöscht",
     messages_delete_conversation: "Konversation löschen",
-    messages_delete_conversation_confirm: "Möchtest du diese Konversation wirklich löschen?",
+    messages_delete_conversation_confirm: "Möchtest du diese Konversation wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    messages_delete_conversation_title: "Konversation löschen",
     messages_retry: "Erneut versuchen",
+    messages_input_placeholder: "Nachricht eingeben...",
+    messages_empty: "Noch keine Nachrichten",
+    messages_seen: "Gesehen",
+    messages_delivered: "Zugestellt",
+    messages_sent: "Gesendet",
     
     profile_posts: "Beiträge",
     profile_followers: "Follower",
@@ -4560,6 +4623,19 @@ export const translations: Record<Language, Translations> = {
     profile_follows_you: "Folgt dir",
     profile_follow: "Folgen",
     profile_unfollow: "Nicht mehr folgen",
+    
+    // Explore - Search Users
+    explore_search_card_title: "Benutzer finden",
+    explore_search_card_placeholder: "Nach Spitznamen suchen...",
+    explore_search_card_follow: "Folgen",
+    explore_search_card_unfollow: "Nicht mehr folgen",
+    explore_search_card_message: "Nachricht",
+    explore_search_card_no_results: "Keine Benutzer gefunden",
+    
+    // Home - Communities
+    home_communities_title: "Gemeinschaften",
+    home_communities_join: "Beitreten",
+    home_communities_leave: "Verlassen",
     
     following_feed_loading: "Lade Feed...",
     following_feed_start: "Beginne Benutzern zu folgen, um ihre Geständnisse hier zu sehen",
