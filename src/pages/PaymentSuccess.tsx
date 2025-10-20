@@ -1,32 +1,59 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CheckCircle, Crown, Sparkles } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const { user } = useCurrentUser();
+  const { subscriptionTier } = usePremiumStatus(user?.id);
 
   useEffect(() => {
-    // Check subscription status immediately after successful payment
-    const checkSubscription = async () => {
+    const processPayment = async () => {
+      if (!user) return;
+
       try {
+        // Check subscription status
         await supabase.functions.invoke('check-subscription');
+        
+        // Award coins bonus for first charge
+        const sessionId = searchParams.get('session_id');
+        if (sessionId && subscriptionTier && subscriptionTier !== 'free') {
+          const { data, error } = await supabase.functions.invoke('award-subscription-coins', {
+            body: { 
+              userId: user.id, 
+              tier: subscriptionTier,
+              isFirstCharge: true 
+            }
+          });
+
+          if (!error && data?.awarded) {
+            toast({
+              title: t.coins_bonus_premium,
+              description: `You received ${data.amount} coins as a welcome bonus!`,
+            });
+          }
+        }
+
         toast({
-          title: "Abonament activat!",
-          description: "Beneficiile tale Premium sunt acum active",
+          title: "Subscription Activated!",
+          description: "Your Premium benefits are now active",
         });
       } catch (error) {
-        console.error('Error checking subscription:', error);
+        console.error('Error processing payment:', error);
       }
     };
 
-    checkSubscription();
+    processPayment();
 
     // Auto-redirect after 5 seconds
     const timer = setTimeout(() => {
@@ -34,7 +61,7 @@ const PaymentSuccess = () => {
     }, 5000);
 
     return () => clearTimeout(timer);
-  }, [navigate, toast]);
+  }, [navigate, toast, user, subscriptionTier, searchParams, t]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-background flex items-center justify-center p-4">

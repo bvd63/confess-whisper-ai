@@ -33,7 +33,8 @@ const AppHeader = ({
     user
   } = useCurrentUser();
   const {
-    isPremium
+    isPremium,
+    subscriptionTier
   } = usePremiumStatus(user?.id);
   const {
     toast
@@ -78,14 +79,20 @@ const AppHeader = ({
             {user ? <>
                 {/* Always show subscription button - Upgrade for free, Manage for paid */}
                 <Button 
-                  onClick={onUpgradeClick} 
+                  onClick={() => {
+                    if (subscriptionTier === 'free') {
+                      onUpgradeClick?.();
+                    } else {
+                      navigate('/profile');
+                    }
+                  }} 
                   variant="outline" 
                   size="sm" 
                   className="border-primary/30 hover:bg-primary/10 h-8 px-2"
                 >
                   <Crown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary" />
                   <span className="hidden sm:inline text-xs ml-1">
-                    {isPremium ? t.subscription_manage : t.subscription_upgrade}
+                    {subscriptionTier === 'free' ? t.subscription_upgrade : t.subscription_manage}
                   </span>
                 </Button>
                 <NotificationsDropdown />
