@@ -45,22 +45,35 @@ export const TabNavigationProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Track navigation stacks per tab
   const [tabStacks, setTabStacks] = useState<Record<TabId, TabStack[]>>(() => {
-    try {
-      const stored = sessionStorage.getItem(TAB_STACKS_KEY);
-      if (stored) {
-        return JSON.parse(stored);
-      }
-    } catch (e) {
-      console.error('Failed to parse tab stacks:', e);
-    }
-    
-    // Default: each tab has its root path
-    return {
+    const defaults: Record<TabId, TabStack[]> = {
       home: [{ path: '/' }],
       explore: [{ path: '/explore' }],
       messages: [{ path: '/messages' }],
       profile: [{ path: '/profile' }],
     };
+
+    try {
+      const stored = sessionStorage.getItem(TAB_STACKS_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored) as Partial<Record<TabId, TabStack[]>>;
+        // Sanitize: ensure each tab has its own stack and never points to /messages unless it's the messages tab
+        const sanitized = (['home','explore','messages','profile'] as TabId[]).reduce((acc, tab) => {
+          const stack = Array.isArray(parsed[tab]) && parsed[tab]!.length > 0 ? parsed[tab]! : defaults[tab];
+          const last = stack[stack.length - 1];
+          if (tab !== 'messages' && last?.path?.startsWith('/messages')) {
+            acc[tab] = defaults[tab];
+          } else {
+            acc[tab] = stack;
+          }
+          return acc;
+        }, {} as Record<TabId, TabStack[]>);
+        return sanitized;
+      }
+    } catch (e) {
+      console.error('Failed to parse tab stacks:', e);
+    }
+
+    return defaults;
   });
 
   // Check if currently in a conversation
@@ -146,6 +159,14 @@ export const TabNavigationProvider: React.FC<{ children: React.ReactNode }> = ({
     // Get target path and navigate
     const targetStack = tabStacks[tabId];
     const targetPath = targetStack[targetStack.length - 1];
+
+    // Guard: if a non-messages tab accidentally points to /messages, reset it to its root
+    if (tabId !== 'messages' && targetPath?.path?.startsWith('/messages')) {
+      setTabStacks(prev => ({ ...prev, [tabId]: [{ path: TAB_ROUTES[tabId] }] }));
+      navigate(TAB_ROUTES[tabId], { replace: true });
+      setActiveTab(tabId);
+      return;
+    }
     
     // Use replace instead of push to avoid history issues between tabs
     navigate(targetPath.path, { replace: true, state: targetPath.state });
