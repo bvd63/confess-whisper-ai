@@ -45,7 +45,7 @@ serve(async (req) => {
           message: "Trial already used",
           alreadyUsed: true 
         }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
     }
 
