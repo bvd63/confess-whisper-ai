@@ -17,12 +17,12 @@ function log(level: string, message: string, context?: any) {
   console.log(JSON.stringify(logEntry));
 }
 
-// Stripe price IDs - TODO: Replace with actual Stripe price IDs
+// Stripe price IDs - Single Source of Truth
 const PRICE_IDS = {
-  premium_monthly: "price_1RDW1rBxB9KrJa0kFtPtpnFx",
-  premium_yearly: "price_1RDW1rBxB9KrJa0kqMCgLDnA",
-  vip_monthly: "price_1RDW2CBxB9KrJa0kz9mLQgTf",
-  vip_yearly: "price_1RDW2CBxB9KrJa0ko0N6M5zC",
+  premium_monthly: "price_1SKGCzR7kygIyYg9DGRcT8Pg",
+  premium_yearly: "price_1SKGCzR7kygIyYg9DGRcT8Pg",
+  vip_monthly: "price_1SKH1TR7kygIyYg9SZ2iH7Kw",
+  vip_yearly: "price_1SKH1TR7kygIyYg9SZ2iH7Kw",
 };
 
 serve(async (req) => {

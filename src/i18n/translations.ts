@@ -1065,6 +1065,14 @@ type Translations = {
   subs_quick_actions: string;
   subs_portal_opening: string;
   subs_portal_failed: string;
+  subs_action_buy: string;
+  subs_action_change: string;
+  subs_confirm_buy: string;
+  subs_toast_buy_success: string;
+  subs_buy_select_plan: string;
+  subs_buy_trial_available: string;
+  subs_error_already_subscribed: string;
+  subs_error_no_trial: string;
   
   // Payment
   payment_view_profile: string;
@@ -2488,6 +2496,14 @@ export const translations: Record<Language, Translations> = {
   subs_quick_actions: "Quick Actions",
   subs_portal_opening: "Opening Stripe portal where you can manage your subscription...",
   subs_portal_failed: "Failed to open customer portal",
+  subs_action_buy: "Buy Subscription",
+  subs_action_change: "Change Plan",
+  subs_confirm_buy: "Start a new {tier} subscription?",
+  subs_toast_buy_success: "Subscription purchase started",
+  subs_buy_select_plan: "Select a Plan",
+  subs_buy_trial_available: "3-Day Free Trial Available",
+  subs_error_already_subscribed: "You already have an active subscription",
+  subs_error_no_trial: "Trial already used or subscription active",
   
   payment_view_profile: "View Your Premium Profile",
     payment_redirecting: "You will be redirected automatically in a few seconds...",
@@ -3765,6 +3781,14 @@ export const translations: Record<Language, Translations> = {
   subs_quick_actions: "Acciones Rápidas",
   subs_portal_opening: "Abriendo portal de Stripe donde puedes gestionar tu suscripción...",
   subs_portal_failed: "Error al abrir el portal de cliente",
+  subs_action_buy: "Comprar Suscripción",
+  subs_action_change: "Cambiar Plan",
+  subs_confirm_buy: "¿Iniciar una nueva suscripción {tier}?",
+  subs_toast_buy_success: "Compra de suscripción iniciada",
+  subs_buy_select_plan: "Seleccionar un Plan",
+  subs_buy_trial_available: "Prueba Gratis de 3 Días Disponible",
+  subs_error_already_subscribed: "Ya tienes una suscripción activa",
+  subs_error_no_trial: "Prueba ya usada o suscripción activa",
   
   payment_view_profile: "Ver Tu Perfil Premium",
     payment_redirecting: "Serás redirigido automáticamente en unos segundos...",
@@ -5075,6 +5099,14 @@ export const translations: Record<Language, Translations> = {
   subs_quick_actions: "Schnellaktionen",
   subs_portal_opening: "Öffne Stripe-Portal, wo du dein Abonnement verwalten kannst...",
   subs_portal_failed: "Kundenportal konnte nicht geöffnet werden",
+  subs_action_buy: "Abonnement Kaufen",
+  subs_action_change: "Plan Ändern",
+  subs_confirm_buy: "Neues {tier}-Abonnement starten?",
+  subs_toast_buy_success: "Abonnementkauf gestartet",
+  subs_buy_select_plan: "Plan Auswählen",
+  subs_buy_trial_available: "3-Tägige Testversion Verfügbar",
+  subs_error_already_subscribed: "Du hast bereits ein aktives Abonnement",
+  subs_error_no_trial: "Testphase bereits genutzt oder Abonnement aktiv",
   
   payment_view_profile: "Dein Premium-Profil Anzeigen",
     payment_redirecting: "Du wirst in wenigen Sekunden automatisch weitergeleitet...",
