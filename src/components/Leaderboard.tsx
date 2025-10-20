@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AnimatedCard } from "@/components/AnimatedCard";
-
+import { UserDisplayName } from "@/components/UserDisplayName";
 import { Trophy, TrendingUp } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -95,7 +95,13 @@ const Leaderboard = () => {
             </Avatar>
 
             <div className="flex-1">
-              <p className="text-sm font-medium">{t.anonymous_user} #{leader.user_id.substring(0, 8)}</p>
+              <p className="text-sm font-medium">
+                <UserDisplayName 
+                  userId={leader.user_id}
+                  maxLength={20}
+                  className="inline"
+                />
+              </p>
               <p className="text-xs text-muted-foreground">
                 {leader.confessions_count} {t.leaderboard_confessions} • {leader.total_likes} {t.leaderboard_reactions}
               </p>

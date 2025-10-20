@@ -43,7 +43,7 @@ export const UserSearch = ({ currentUserId }: UserSearchProps) => {
         .from("profiles")
         .select("user_id, nickname")
         .not("nickname", "is", null)
-        .ilike("nickname", `%${query}%`)
+        .ilike("nickname_lower", `%${query.toLowerCase()}%`)
         .neq("user_id", currentUserId)
         .limit(20);
 
