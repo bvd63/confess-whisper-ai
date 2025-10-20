@@ -55,7 +55,7 @@ export const useEnhancedAuth = () => {
         ...sessionMetadata,
       };
 
-      const { data, error } = await supabase.functions.invoke('enhanced-auth', {
+      const { data, error } = await supabase.functions.invoke('enhanced-auth?action=enhanced-login', {
         body: {
           email,
           password,
