@@ -14,6 +14,7 @@ import { NetworkStatusIndicator } from "@/components/NetworkStatusIndicator";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { sessionManager } from "@/lib/sessionManager";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
+import { useTabNavigation } from "@/contexts/TabNavigationContext";
 
 
 const Messages = () => {
@@ -21,7 +22,8 @@ const Messages = () => {
   const { markConversationAsRead } = useInbox(user?.id || null);
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { activeTab, resetTabStack } = useTabNavigation();
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [otherUserId, setOtherUserId] = useState<string | null>(null);
   const [otherUserNickname, setOtherUserNickname] = useState<string | null>(null);
@@ -30,6 +32,15 @@ const Messages = () => {
   
   // Restore scroll position when returning to conversation list
   useScrollRestoration(!selectedConversation);
+
+  // Reset to messages list when returning to messages tab from another tab
+  useEffect(() => {
+    if (activeTab === 'messages' && !searchParams.get('user')) {
+      setSelectedConversation(null);
+      setOtherUserId(null);
+      setOtherUserNickname(null);
+    }
+  }, [activeTab, searchParams]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -99,8 +110,23 @@ const Messages = () => {
     setSelectedConversation(conversationId);
     setOtherUserId(userId);
     
+    // Update URL to reflect conversation state
+    setSearchParams({ user: userId });
+    
     // Save session state
     await sessionManager.saveSessionState('/messages', userId);
+  };
+
+  const handleBackFromConversation = () => {
+    setSelectedConversation(null);
+    setOtherUserId(null);
+    setOtherUserNickname(null);
+    
+    // Clear URL params to return to messages list
+    setSearchParams({});
+    
+    // Reset messages tab stack to root
+    resetTabStack('messages');
   };
 
   if (isLoading) {
@@ -135,11 +161,7 @@ const Messages = () => {
                 currentUserId={user.id}
                 otherUserId={otherUserId!}
                 otherUserNickname={otherUserNickname}
-                onBack={() => {
-                  setSelectedConversation(null);
-                  setOtherUserId(null);
-                  setOtherUserNickname(null);
-                }}
+                onBack={handleBackFromConversation}
               />
             </div>
           )}

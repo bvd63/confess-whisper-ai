@@ -3,6 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from 'next-themes';
 import { LanguageProvider } from '@/contexts/LanguageContext';
+import { TabNavigationProvider } from '@/contexts/TabNavigationContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ErrorBoundary from "./components/ErrorBoundary";
 import { InstagramBottomNav } from "./components/InstagramBottomNav";
@@ -127,33 +128,35 @@ const AppContent = () => {
   return (
     <div className="relative pb-16">
       <NetworkStatusIndicator />
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/auth-test" element={<AuthTest />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/verify-email" element={<EmailVerification />} />
-        <Route path="/explore" element={<Explore />} />
-        <Route path="/compose" element={<Compose />} />
-        <Route path="/community/:id" element={<CommunityDetail />} />
-        <Route path="/nearby" element={<NearbyConfessions />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/u/:handle" element={<UserProfile />} />
-        <Route path="/user/:userId" element={<UserProfile />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/system-monitor" element={<SystemMonitor />} />
-        <Route path="/bookmarks" element={<Bookmarks />} />
-        <Route path="/following" element={<Following />} />
-        <Route path="/search-users" element={<SearchUsers />} />
-        <Route path="/messages" element={<Messages />} />
-        <Route path="/payment-success" element={<PaymentSuccess />} />
-        <Route path="/payment-canceled" element={<PaymentCanceled />} />
-        <Route path="/privacy" element={<PrivacyPolicy />} />
-        <Route path="/terms" element={<TermsOfService />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      <InstagramBottomNav />
+      <TabNavigationProvider>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/auth-test" element={<AuthTest />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/verify-email" element={<EmailVerification />} />
+          <Route path="/explore" element={<Explore />} />
+          <Route path="/compose" element={<Compose />} />
+          <Route path="/community/:id" element={<CommunityDetail />} />
+          <Route path="/nearby" element={<NearbyConfessions />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/u/:handle" element={<UserProfile />} />
+          <Route path="/user/:userId" element={<UserProfile />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/system-monitor" element={<SystemMonitor />} />
+          <Route path="/bookmarks" element={<Bookmarks />} />
+          <Route path="/following" element={<Following />} />
+          <Route path="/search-users" element={<SearchUsers />} />
+          <Route path="/messages" element={<Messages />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-canceled" element={<PaymentCanceled />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <InstagramBottomNav />
+      </TabNavigationProvider>
     </div>
   );
 };
