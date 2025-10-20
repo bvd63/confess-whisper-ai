@@ -145,16 +145,19 @@ export const FlairsShop = ({
   };
   const handleEquip = async (userFlairId: string) => {
     try {
-      // Unequip all first
+      // Unequip all first (also unfeaturing them)
       await supabase.from('user_flairs').update({
-        is_equipped: false
+        is_equipped: false,
+        is_featured: false
       }).eq('user_id', userId).eq('is_equipped', true);
 
-      // Equip selected
+      // Equip selected and make it featured + public so it shows everywhere
       const {
         error
       } = await supabase.from('user_flairs').update({
-        is_equipped: true
+        is_equipped: true,
+        is_featured: true,
+        is_public: true
       }).eq('id', userFlairId);
       if (error) throw error;
       toast({

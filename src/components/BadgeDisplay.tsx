@@ -69,7 +69,7 @@ export const BadgeDisplay = ({
 
   const loadBadges = async () => {
     try {
-      // Load featured flairs
+      // Load equipped flairs (equipped flairs are automatically featured and public)
       const { data: flairs } = await supabase
         .from("user_flairs")
         .select(`
@@ -77,6 +77,7 @@ export const BadgeDisplay = ({
           acquired_at,
           expires_at,
           is_featured,
+          is_equipped,
           purchase_scope,
           profile_flairs!inner(
             icon,
@@ -85,7 +86,7 @@ export const BadgeDisplay = ({
         `)
         .eq("user_id", userId)
         .eq("is_public", true)
-        .eq("is_featured", true)
+        .eq("is_equipped", true)
         .order("acquired_at", { ascending: false })
         .limit(maxBadges);
 
