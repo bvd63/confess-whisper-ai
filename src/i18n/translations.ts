@@ -914,6 +914,9 @@ type Translations = {
   messages_seen: string;
   messages_delivered: string;
   messages_sent: string;
+  messages_typing: string;
+  messages_reaction_add: string;
+  messages_reaction_remove: string;
   
   // Profile
   profile_posts: string;
@@ -2306,6 +2309,9 @@ export const translations: Record<Language, Translations> = {
     messages_seen: "Seen",
     messages_delivered: "Delivered",
     messages_sent: "Sent",
+    messages_typing: "is typing...",
+    messages_reaction_add: "Add reaction",
+    messages_reaction_remove: "Remove reaction",
     
     profile_posts: "Posts",
     profile_followers: "Followers",
@@ -3543,6 +3549,9 @@ export const translations: Record<Language, Translations> = {
     messages_seen: "Visto",
     messages_delivered: "Entregado",
     messages_sent: "Enviado",
+    messages_typing: "está escribiendo...",
+    messages_reaction_add: "Añadir reacción",
+    messages_reaction_remove: "Quitar reacción",
     
     profile_posts: "Publicaciones",
     profile_followers: "Seguidores",
@@ -4813,6 +4822,9 @@ export const translations: Record<Language, Translations> = {
     messages_seen: "Gesehen",
     messages_delivered: "Zugestellt",
     messages_sent: "Gesendet",
+    messages_typing: "tippt...",
+    messages_reaction_add: "Reaktion hinzufügen",
+    messages_reaction_remove: "Reaktion entfernen",
     
     profile_posts: "Beiträge",
     profile_followers: "Follower",

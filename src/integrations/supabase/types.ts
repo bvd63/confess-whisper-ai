@@ -779,6 +779,7 @@ export type Database = {
       conversations: {
         Row: {
           created_at: string
+          deleted_for: Json | null
           deleted_for_user_a: boolean | null
           deleted_for_user_b: boolean | null
           id: string
@@ -788,6 +789,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          deleted_for?: Json | null
           deleted_for_user_a?: boolean | null
           deleted_for_user_b?: boolean | null
           id?: string
@@ -797,6 +799,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          deleted_for?: Json | null
           deleted_for_user_a?: boolean | null
           deleted_for_user_b?: boolean | null
           id?: string
@@ -951,6 +954,7 @@ export type Database = {
       }
       messages: {
         Row: {
+          client_message_id: string | null
           content: string
           conversation_id: string
           created_at: string
@@ -960,6 +964,7 @@ export type Database = {
           edited_at: string | null
           id: string
           is_read: boolean
+          reactions: Json | null
           read_at: string | null
           seen_at: string | null
           sender_id: string
@@ -967,6 +972,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          client_message_id?: string | null
           content: string
           conversation_id: string
           created_at?: string
@@ -976,6 +982,7 @@ export type Database = {
           edited_at?: string | null
           id?: string
           is_read?: boolean
+          reactions?: Json | null
           read_at?: string | null
           seen_at?: string | null
           sender_id: string
@@ -983,6 +990,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          client_message_id?: string | null
           content?: string
           conversation_id?: string
           created_at?: string
@@ -992,6 +1000,7 @@ export type Database = {
           edited_at?: string | null
           id?: string
           is_read?: boolean
+          reactions?: Json | null
           read_at?: string | null
           seen_at?: string | null
           sender_id?: string
@@ -1170,6 +1179,7 @@ export type Database = {
           confession_id: string | null
           created_at: string
           deleted_at: string | null
+          deleted_for: Json | null
           id: string
           is_read: boolean
           triggered_by: string | null
@@ -1181,6 +1191,7 @@ export type Database = {
           confession_id?: string | null
           created_at?: string
           deleted_at?: string | null
+          deleted_for?: Json | null
           id?: string
           is_read?: boolean
           triggered_by?: string | null
@@ -1192,6 +1203,7 @@ export type Database = {
           confession_id?: string | null
           created_at?: string
           deleted_at?: string | null
+          deleted_for?: Json | null
           id?: string
           is_read?: boolean
           triggered_by?: string | null
@@ -2182,6 +2194,10 @@ export type Database = {
       }
       is_confession_owner: {
         Args: { _confession_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_conversation_deleted_for_user: {
+        Args: { conv_id: string; user_id: string }
         Returns: boolean
       }
       is_conversation_participant: {
