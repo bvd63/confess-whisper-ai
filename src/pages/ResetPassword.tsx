@@ -61,6 +61,15 @@ export default function ResetPassword() {
 
       if (updateError) throw updateError;
 
+      // Revoke all existing sessions after password reset for security
+      try {
+        await supabase.rpc('revoke_all_user_sessions', {
+          _user_id: (await supabase.auth.getUser()).data.user?.id
+        });
+      } catch (err) {
+        console.error('Failed to revoke sessions:', err);
+      }
+
       setSuccess(true);
 
       // Redirect to login after 2 seconds

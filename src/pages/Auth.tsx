@@ -132,6 +132,11 @@ const Auth = () => {
         // Reset failed attempts on successful login
         setFailedLoginAttempts(0);
         setShowLoginCaptcha(false);
+        
+        // Store stay logged in preference
+        if (staySignedIn) {
+          localStorage.setItem('stay_logged_in', 'true');
+        }
 
         toast({
           title: t.auth_login_success,
@@ -173,6 +178,11 @@ const Auth = () => {
             throw new Error(t.auth_email_exists);
           }
           throw error;
+        }
+
+        // Store stay logged in preference for later
+        if (staySignedIn) {
+          localStorage.setItem('stay_logged_in', 'true');
         }
 
         // Process referral code if exists

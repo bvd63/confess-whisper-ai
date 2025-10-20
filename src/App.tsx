@@ -14,7 +14,9 @@ import { NetworkStatusIndicator } from '@/components/NetworkStatusIndicator';
 import { useAuthRefresh } from '@/hooks/useAuthRefresh';
 import { useSessionRestoration } from '@/hooks/useSessionRestoration';
 import { useBackgroundSync } from '@/hooks/useBackgroundSync';
-import { useEffect } from 'react';
+import { useDeviceTracking } from '@/hooks/useDeviceTracking';
+import { useInactivityLogout } from '@/hooks/useInactivityLogout';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { persistenceManager } from '@/lib/persistenceManager';
 import { dataValidator } from '@/lib/dataValidator';
@@ -45,9 +47,18 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
+  const [stayLoggedIn, setStayLoggedIn] = useState(() => {
+    return localStorage.getItem('stay_logged_in') === 'true';
+  });
+
   useAuthRefresh(); // Auto JWT refresh
   useSessionRestoration(); // Auto session restoration
   useBackgroundSync(); // Background sync on focus
+  useDeviceTracking(); // Track device logins and notify
+  useInactivityLogout({ 
+    enabled: !stayLoggedIn, // Only auto-logout if user didn't check "stay logged in"
+    inactivityTimeout: 30 * 60 * 1000, // 30 minutes
+  });
   
   // Clear cache on logout and run health checks
   useEffect(() => {
@@ -55,7 +66,15 @@ const AppContent = () => {
       if (event === 'SIGNED_OUT') {
         syncScheduler.stopPeriodicSync();
         await persistenceManager.clearAllUserData().catch(console.error);
+        localStorage.removeItem('stay_logged_in');
+        setStayLoggedIn(false);
       } else if (event === 'SIGNED_IN' && session?.user) {
+        // Check if user has stay_logged_in preference
+        const userMeta = session.user.user_metadata;
+        const staySignedIn = userMeta?.staySignedIn || false;
+        localStorage.setItem('stay_logged_in', staySignedIn.toString());
+        setStayLoggedIn(staySignedIn);
+        
         // Start periodic sync
         syncScheduler.startPeriodicSync(session.user.id);
         
