@@ -122,8 +122,12 @@ export const TabNavigationProvider: React.FC<{ children: React.ReactNode }> = ({
         const targetStack = tabStacks[lastTab];
         const lastEntry = targetStack[targetStack.length - 1];
         if (lastEntry && (lastEntry.path !== location.pathname + location.search)) {
-          const safePath = lastEntry.path.startsWith('/messages') ? '/messages' : lastEntry.path;
-          navigate(safePath, { replace: true, state: lastEntry.state });
+          // Do NOT auto-redirect into Messages; just set active tab to keep user control
+          if (lastEntry.path.startsWith('/messages')) {
+            setActiveTab('messages');
+            return;
+          }
+          navigate(lastEntry.path, { replace: true, state: lastEntry.state });
           setActiveTab(lastTab);
         }
       }

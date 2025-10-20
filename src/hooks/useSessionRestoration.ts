@@ -25,10 +25,11 @@ export const useSessionRestoration = () => {
         const sessionState = await sessionManager.restoreSession();
         
         if (sessionState) {
-          // Do not auto-redirect into a conversation; only restore the last route root
+          // Do not auto-redirect into conversations or messages; keep user where they are
           if (sessionState.route !== window.location.pathname || window.location.search) {
-            const target = sessionState.route.startsWith('/messages') ? '/messages' : sessionState.route;
-            navigate(target, { replace: true });
+            if (!sessionState.route.startsWith('/messages')) {
+              navigate(sessionState.route, { replace: true });
+            }
           }
         }
       } catch (error) {
