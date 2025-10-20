@@ -7,15 +7,11 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-function log(level: string, message: string, context?: any) {
-  const logEntry = {
-    timestamp: new Date().toISOString(),
-    level,
-    message,
-    ...context,
-  };
-  console.log(JSON.stringify(logEntry));
-}
+const log = (level: string, message: string, context?: any) => {
+  const timestamp = new Date().toISOString();
+  const contextStr = context ? ` - ${JSON.stringify(context)}` : '';
+  console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}${contextStr}`);
+};
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -23,64 +19,82 @@ serve(async (req) => {
   }
 
   try {
-    log('info', '[GET-SUBSCRIPTION-STATUS] Function started');
+    log("info", "get-subscription-status function started");
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
+    if (!stripeKey) {
+      throw new Error("STRIPE_SECRET_KEY is not set");
+    }
+    log("info", "Stripe key verified");
 
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
     );
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header provided");
+    if (!authHeader) {
+      throw new Error("No authorization header provided");
+    }
+    log("info", "Authorization header found");
 
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    
     if (userError) throw new Error(`Authentication error: ${userError.message}`);
     const user = userData.user;
-    if (!user?.email) throw new Error("User not authenticated");
+    if (!user?.email) throw new Error("User not authenticated or email not available");
     
-    log('info', '[GET-SUBSCRIPTION-STATUS] User authenticated', { userId: user.id });
+    log("info", "User authenticated", { userId: user.id, email: user.email });
 
-    // Check profile for trial status
-    const { data: profile } = await supabaseClient
+    // Check for active trial in profiles
+    const { data: profile, error: profileError } = await supabaseClient
       .from('profiles')
-      .select('subscription_tier, trial_active, trial_end_date')
+      .select('trial_active, trial_end_date, subscription_tier, subscription_cancel_at_period_end')
       .eq('user_id', user.id)
       .single();
 
-    const trialValid = profile?.trial_active && profile?.trial_end_date && new Date(profile.trial_end_date) > new Date();
-
-    // If on trial, return trial status
-    if (trialValid) {
-      log('info', '[GET-SUBSCRIPTION-STATUS] User on trial');
-      return new Response(JSON.stringify({
-        tier: 'premium',
-        isTrial: true,
-        currentPeriodEnd: null,
-        trialEnd: profile.trial_end_date,
-        cancelAtPeriodEnd: false,
-        paymentMethodLast4: null,
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
+    if (profileError) {
+      log("error", "Profile fetch error", { error: profileError.message });
     }
 
+    // If trial is active and valid
+    if (profile?.trial_active && profile.trial_end_date) {
+      const trialEnd = new Date(profile.trial_end_date);
+      if (trialEnd > new Date()) {
+        log("info", "Active trial found", { trialEnd: profile.trial_end_date });
+        return new Response(JSON.stringify({
+          tier: 'premium',
+          isTrial: true,
+          trialEnd: profile.trial_end_date,
+          currentPeriodEnd: null,
+          cancelAtPeriodEnd: false,
+          paymentMethodLast4: null
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+    }
+
+    // Check Stripe for subscription
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     
+    const customers = await stripe.customers.list({
+      email: user.email,
+      limit: 1,
+    });
+
     if (customers.data.length === 0) {
-      log('info', '[GET-SUBSCRIPTION-STATUS] No customer found, user is free');
+      log("info", "No Stripe customer found - returning free tier");
       return new Response(JSON.stringify({
         tier: 'free',
         isTrial: false,
-        currentPeriodEnd: null,
         trialEnd: null,
+        currentPeriodEnd: null,
         cancelAtPeriodEnd: false,
-        paymentMethodLast4: null,
+        paymentMethodLast4: null
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
@@ -88,21 +102,23 @@ serve(async (req) => {
     }
 
     const customerId = customers.data[0].id;
+    log("info", "Stripe customer found", { customerId });
+
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
-      status: "all",
+      status: "active",
       limit: 1,
     });
 
     if (subscriptions.data.length === 0) {
-      log('info', '[GET-SUBSCRIPTION-STATUS] No subscription found');
+      log("info", "No active subscription found");
       return new Response(JSON.stringify({
-        tier: 'free',
+        tier: profile?.subscription_tier || 'free',
         isTrial: false,
-        currentPeriodEnd: null,
         trialEnd: null,
-        cancelAtPeriodEnd: false,
-        paymentMethodLast4: null,
+        currentPeriodEnd: null,
+        cancelAtPeriodEnd: profile?.subscription_cancel_at_period_end || false,
+        paymentMethodLast4: null
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
@@ -112,38 +128,46 @@ serve(async (req) => {
     const subscription = subscriptions.data[0];
     const priceId = subscription.items.data[0].price.id;
     
-    // Determine tier from price
-    let tier = 'free';
-    if (priceId.includes('premium')) tier = 'premium';
-    if (priceId.includes('vip')) tier = 'vip';
+    // Map price ID to tier
+    let tier = 'premium';
+    if (priceId.includes('vip')) {
+      tier = 'vip';
+    }
 
-    // Get payment method
+    log("info", "Active subscription found", { 
+      subscriptionId: subscription.id, 
+      tier,
+      currentPeriodEnd: subscription.current_period_end 
+    });
+
+    // Get payment method details
     let paymentMethodLast4 = null;
     if (subscription.default_payment_method) {
       try {
-        const pm = await stripe.paymentMethods.retrieve(subscription.default_payment_method as string);
-        paymentMethodLast4 = pm.card?.last4 || null;
-      } catch (e) {
-        log('warn', '[GET-SUBSCRIPTION-STATUS] Could not retrieve payment method');
+        const paymentMethod = await stripe.paymentMethods.retrieve(
+          subscription.default_payment_method as string
+        );
+        paymentMethodLast4 = paymentMethod.card?.last4 || null;
+      } catch (error) {
+        log("warn", "Could not retrieve payment method", { error });
       }
     }
 
-    log('info', '[GET-SUBSCRIPTION-STATUS] Subscription found', { tier, status: subscription.status });
-
     return new Response(JSON.stringify({
-      tier: subscription.status === 'active' ? tier : 'free',
+      tier,
       isTrial: false,
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString(),
       trialEnd: null,
+      currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString(),
       cancelAtPeriodEnd: subscription.cancel_at_period_end || false,
-      paymentMethodLast4,
+      paymentMethodLast4
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
+
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    log('error', '[GET-SUBSCRIPTION-STATUS] Error occurred', { error: errorMessage });
+    log("error", "Error in get-subscription-status", { message: errorMessage });
     return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,

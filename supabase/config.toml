@@ -111,3 +111,18 @@ verify_jwt = true
 
 [functions.analytics-event]
 verify_jwt = true
+
+[functions.get-subscription-status]
+verify_jwt = true
+
+[functions.manage-subscription-v2]
+verify_jwt = true
+
+[functions.award-subscription-coins]
+verify_jwt = false
+
+[functions.manage-subscription]
+verify_jwt = true
+
+[functions.create-trial-checkout]
+verify_jwt = true
