@@ -9,8 +9,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ArrowUp, ArrowDown, XCircle, RotateCcw, Loader2, Crown, CreditCard, Calendar, ShoppingCart, Zap } from "lucide-react";
 import { format } from "date-fns";
-import SubscriptionPlans from "./SubscriptionPlans";
+import { SubscriptionPlansGrid } from "./SubscriptionPlansGrid";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ManageSubscriptionDialogProps {
   open: boolean;
@@ -302,15 +303,22 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
     }
   };
 
-  // If free user, show plan picker
-  if (showPlans) {
-    return (
-      <SubscriptionPlans 
-        open={open} 
-        onOpenChange={onOpenChange}
-      />
-    );
-  }
+  const handlePlanSelect = async (planId: string) => {
+    if (planId === 'free') {
+      // Downgrade to free - this is a cancel action
+      await handleCancel(false);
+    } else if (planId === status?.tier) {
+      // Already on this plan, do nothing
+      return;
+    } else if (status?.tier === 'free') {
+      // Buying from free
+      setSelectedBuyTier(planId as 'premium' | 'vip');
+      setShowBuyDialog(true);
+    } else {
+      // Changing between premium/vip
+      await handleChange(planId as 'premium' | 'vip');
+    }
+  };
 
   if (!status) {
     return (
@@ -333,18 +341,73 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto glass-strong border-primary/30">
+      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto glass-strong border-primary/30">
         <DialogHeader>
           <DialogTitle className="text-xl sm:text-2xl flex items-center gap-2">
             <Crown className="w-5 h-5 sm:w-6 sm:h-6 text-primary animate-pulse-glow" />
             <GradientText variant="hero">{t.subs_manage_title}</GradientText>
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
-            {t.subs_note_inline}
+            {t.subscription_choose_plan}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <Tabs defaultValue="plans" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="plans">{t.subscription_choose_plan}</TabsTrigger>
+            <TabsTrigger value="status">{t.subs_manage_currentPlan}</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="plans" className="space-y-6 py-4">
+            {/* Plans Grid */}
+            <SubscriptionPlansGrid
+              currentPlan={status?.tier || 'free'}
+              onSelectPlan={handlePlanSelect}
+              isLoading={isLoading}
+              canChangePlan={!status?.isTrial}
+              trialEligible={trialEligible}
+            />
+
+            {/* Buy Dialog for confirmation */}
+            <AlertDialog open={showBuyDialog} onOpenChange={setShowBuyDialog}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t.subs_buy_select_plan}</AlertDialogTitle>
+                  <AlertDialogDescription className="space-y-4">
+                    <p>{t.subs_confirm_buy.replace('{tier}', selectedBuyTier.toUpperCase())}</p>
+                    
+                    {trialEligible && (
+                      <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                        <p className="text-sm text-amber-600 dark:text-amber-400 font-medium flex items-center gap-2">
+                          <Zap className="w-4 h-4" />
+                          {t.subs_buy_trial_available}
+                        </p>
+                      </div>
+                    )}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                  {trialEligible && (
+                    <Button
+                      onClick={handleTrialStart}
+                      disabled={isLoading}
+                      className="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600"
+                    >
+                      {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Zap className="w-4 h-4 mr-2" />}
+                      Try 3 Days Free
+                    </Button>
+                  )}
+                  <AlertDialogCancel disabled={isLoading}>{t.cancel}</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleBuy} disabled={isLoading}>
+                    {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    {t.subs_action_buy}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </TabsContent>
+
+          <TabsContent value="status" className="space-y-6 py-4">
           {/* Current Status Card */}
           <AnimatedCard className="p-6 bg-gradient-to-br from-background to-primary/5 border-primary/30">
             <div className="space-y-4">
@@ -601,7 +664,8 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
           <p className="text-xs text-center text-muted-foreground px-4">
             {t.subs_note_inline}
           </p>
-        </div>
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
