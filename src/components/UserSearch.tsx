@@ -93,21 +93,24 @@ export const UserSearch = ({ currentUserId }: UserSearchProps) => {
     setLoading(true);
     try {
       console.log("Searching for users with query:", query);
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("user_id, nickname")
-        .not("nickname", "is", null)
-        .ilike("nickname_lower", `%${query.toLowerCase()}%`)
-        .neq("user_id", currentUserId)
-        .limit(20);
+      const { data, error } = await supabase.functions.invoke('search-users', {
+        body: { nickname: query }
+      });
 
       if (error) {
         console.error("Search error:", error);
         throw error;
       }
 
-      console.log("Search results:", data);
-      setResults(data || []);
+      const users = (data as any)?.users || [];
+      const mapped = users.map((u: any) => ({
+        user_id: u.id,
+        nickname: u.nickname,
+        subscription_tier: u.subscriptionTier,
+      }));
+
+      console.log("Search results (edge):", mapped);
+      setResults(mapped);
     } catch (error) {
       console.error("Error searching users:", error);
       setResults([]);

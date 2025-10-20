@@ -25,10 +25,25 @@ serve(async (req) => {
     const { data: { user } } = await supabaseClient.auth.getUser();
     if (!user) throw new Error('Unauthorized');
 
-    const url = new URL(req.url);
-    const nickname = url.searchParams.get('nickname') || '';
+    // Support both GET query param and POST body
+    let nickname = '';
+    try {
+      if (req.method !== 'GET') {
+        const body = await req.json().catch(() => null);
+        nickname = (body?.nickname ?? '').toString();
+      }
+    } catch (_) {
+      // ignore body parse errors
+    }
 
-    if (nickname.length < 2) {
+    if (!nickname) {
+      const url = new URL(req.url);
+      nickname = url.searchParams.get('nickname') || '';
+    }
+
+    const query = nickname.trim();
+
+    if (query.length < 2) {
       return new Response(JSON.stringify({ users: [] }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
