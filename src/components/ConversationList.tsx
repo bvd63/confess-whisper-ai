@@ -48,7 +48,7 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
   useEffect(() => {
     loadConversations();
     
-    // Subscribe to real-time updates for both messages and participants
+    // Subscribe to real-time updates for messages, participants, and conversations
     const messagesChannel = supabase
       .channel('conversations-messages-changes')
       .on(
@@ -80,9 +80,25 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
       )
       .subscribe();
 
+    const conversationsChannel = supabase
+      .channel('conversations-table-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'conversations'
+        },
+        () => {
+          loadConversations();
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(messagesChannel);
       supabase.removeChannel(participantsChannel);
+      supabase.removeChannel(conversationsChannel);
     };
   }, [currentUserId]);
 
@@ -236,7 +252,12 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
 
       if (error) throw error;
 
+      // Immediately remove from local state for instant UI feedback
+      setConversations(prev => prev.filter(c => c.id !== conversationId));
+      
       toast.success(t.messages_deleted);
+      
+      // Reload to ensure sync with backend
       await loadConversations();
     } catch (error) {
       console.error('Error deleting conversation:', error);
