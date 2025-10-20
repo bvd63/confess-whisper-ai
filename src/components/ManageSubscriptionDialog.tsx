@@ -76,14 +76,14 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
         window.open(data.url, '_blank');
         toast({
           title: t.common_success || "Success",
-          description: "Opening Stripe portal where you can manage your subscription...",
+          description: t.subs_portal_opening,
         });
       }
     } catch (error: any) {
       console.error('Error opening customer portal:', error);
       toast({
         title: t.error_generic,
-        description: error?.message || "Failed to open customer portal",
+        description: error?.message || t.subs_portal_failed,
         variant: "destructive",
       });
     } finally {
@@ -229,9 +229,9 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
               <div className="flex items-start gap-3">
                 <CreditCard className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                 <div className="flex-1 space-y-2">
-                  <h4 className="font-semibold text-sm">Full Subscription Management</h4>
+                  <h4 className="font-semibold text-sm">{t.subs_full_management}</h4>
                   <p className="text-xs text-muted-foreground">
-                    Access Stripe portal to change plans, update payment method, view invoices, or cancel subscription.
+                    {t.subs_portal_description}
                   </p>
                   <Button
                     onClick={handleOpenCustomerPortal}
@@ -243,7 +243,7 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
                     ) : (
                       <CreditCard className="w-4 h-4 mr-2" />
                     )}
-                    Open Stripe Portal
+                    {t.subs_open_portal}
                   </Button>
                 </div>
               </div>
@@ -254,7 +254,7 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
           <div className="space-y-3">
             <div className="flex items-center gap-2 px-1">
               <div className="h-px flex-1 bg-border"></div>
-              <span className="text-xs text-muted-foreground font-medium">Quick Actions</span>
+              <span className="text-xs text-muted-foreground font-medium">{t.subs_quick_actions}</span>
               <div className="h-px flex-1 bg-border"></div>
             </div>
             

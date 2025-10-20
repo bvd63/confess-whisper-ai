@@ -1059,6 +1059,12 @@ type Translations = {
   subs_toast_success: string;
   subs_note_inline: string;
   subs_status_cancels: string;
+  subs_full_management: string;
+  subs_portal_description: string;
+  subs_open_portal: string;
+  subs_quick_actions: string;
+  subs_portal_opening: string;
+  subs_portal_failed: string;
   
   // Payment
   payment_view_profile: string;
@@ -2476,6 +2482,12 @@ export const translations: Record<Language, Translations> = {
   subs_toast_success: "Done!",
   subs_note_inline: "You can change, cancel, or reactivate your plan here at any time.",
   subs_status_cancels: "Cancels on",
+  subs_full_management: "Full Subscription Management",
+  subs_portal_description: "Access Stripe portal to change plans, update payment method, view invoices, or cancel subscription.",
+  subs_open_portal: "Open Stripe Portal",
+  subs_quick_actions: "Quick Actions",
+  subs_portal_opening: "Opening Stripe portal where you can manage your subscription...",
+  subs_portal_failed: "Failed to open customer portal",
   
   payment_view_profile: "View Your Premium Profile",
     payment_redirecting: "You will be redirected automatically in a few seconds...",
@@ -3747,6 +3759,12 @@ export const translations: Record<Language, Translations> = {
   subs_toast_success: "¡Hecho!",
   subs_note_inline: "Puedes cambiar, cancelar o reactivar tu plan aquí en cualquier momento.",
   subs_status_cancels: "Se cancela el",
+  subs_full_management: "Gestión Completa de Suscripción",
+  subs_portal_description: "Accede al portal de Stripe para cambiar planes, actualizar método de pago, ver facturas o cancelar suscripción.",
+  subs_open_portal: "Abrir Portal de Stripe",
+  subs_quick_actions: "Acciones Rápidas",
+  subs_portal_opening: "Abriendo portal de Stripe donde puedes gestionar tu suscripción...",
+  subs_portal_failed: "Error al abrir el portal de cliente",
   
   payment_view_profile: "Ver Tu Perfil Premium",
     payment_redirecting: "Serás redirigido automáticamente en unos segundos...",
@@ -5051,6 +5069,12 @@ export const translations: Record<Language, Translations> = {
   subs_toast_success: "Erledigt!",
   subs_note_inline: "Du kannst deinen Plan hier jederzeit ändern, kündigen oder reaktivieren.",
   subs_status_cancels: "Kündigt am",
+  subs_full_management: "Vollständige Abo-Verwaltung",
+  subs_portal_description: "Zugriff auf Stripe-Portal, um Pläne zu ändern, Zahlungsmethode zu aktualisieren, Rechnungen anzuzeigen oder Abonnement zu kündigen.",
+  subs_open_portal: "Stripe-Portal Öffnen",
+  subs_quick_actions: "Schnellaktionen",
+  subs_portal_opening: "Öffne Stripe-Portal, wo du dein Abonnement verwalten kannst...",
+  subs_portal_failed: "Kundenportal konnte nicht geöffnet werden",
   
   payment_view_profile: "Dein Premium-Profil Anzeigen",
     payment_redirecting: "Du wirst in wenigen Sekunden automatisch weitergeleitet...",
