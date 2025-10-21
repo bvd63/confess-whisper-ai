@@ -12,6 +12,10 @@ import QuoteOfTheDaySkeleton from "@/components/QuoteOfTheDaySkeleton";
 import { CommunitiesSectionExpanded } from "@/components/CommunitiesSectionExpanded";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { DailyReward } from "@/components/DailyReward";
+import { FeatureComparison } from "@/components/FeatureComparison";
+import { PremiumTeaser } from "@/components/PremiumTeaser";
+import StreakCounter from "@/components/StreakCounter";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useMessageNotifications } from "@/hooks/useMessageNotifications";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
@@ -122,6 +126,14 @@ const Index = () => {
           </p>
         </div>
 
+        {/* Daily Reward & Streak */}
+        {user && (
+          <div className="space-y-4">
+            <DailyReward userId={user.id} />
+            <StreakCounter userId={user.id} variant="full" />
+          </div>
+        )}
+
         {/* Quote of the Day */}
         {user && (
           <Suspense fallback={<QuoteOfTheDaySkeleton />}>
@@ -131,6 +143,15 @@ const Index = () => {
 
         {/* Daily Prompt */}
         {user && <DailyPrompt onOpenNewConfession={handleNewConfession} />}
+
+        {/* Premium Teaser for Free Users */}
+        {user && !isPremium && showSecondaryContent && (
+          <PremiumTeaser
+            feature={t.teaser_feature}
+            description={t.teaser_description}
+            onUpgrade={() => setIsPremiumDialogOpen(true)}
+          />
+        )}
 
         {/* Communities Section */}
         {showSecondaryContent && <CommunitiesSectionExpanded />}
@@ -145,6 +166,11 @@ const Index = () => {
         {/* Feature Highlights */}
         {showSecondaryContent && (
           <FeatureHighlight />
+        )}
+
+        {/* Feature Comparison */}
+        {showSecondaryContent && !user && (
+          <FeatureComparison onUpgrade={() => setIsPremiumDialogOpen(true)} />
         )}
       </main>
 
