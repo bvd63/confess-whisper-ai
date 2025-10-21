@@ -21,7 +21,7 @@ const PasswordResetPage = () => {
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success(t.passwordReset.emailSent);
+      toast.success(t.passwordReset_emailSent);
     }
   };
 
@@ -29,18 +29,18 @@ const PasswordResetPage = () => {
     <div className="flex items-center justify-center min-h-screen">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>{t.passwordReset.title}</CardTitle>
+          <CardTitle>{t.passwordReset_title}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <Input
               type="email"
-              placeholder={t.passwordReset.emailPlaceholder}
+              placeholder={t.passwordReset_emailPlaceholder}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
             <Button onClick={handlePasswordReset} disabled={loading} className="w-full">
-              {loading ? t.passwordReset.loading : t.passwordReset.submitButton}
+              {loading ? t.passwordReset_loading : t.passwordReset_submitButton}
             </Button>
           </div>
         </CardContent>

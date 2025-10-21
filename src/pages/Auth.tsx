@@ -137,8 +137,8 @@ const Auth = () => {
         }
 
         toast({
-          title: t.auth_success || "Success",
-          description: t.auth_login_success || "Welcome back!",
+          title: t.auth_success,
+          description: t.auth_login_success,
         });
 
         navigate('/');

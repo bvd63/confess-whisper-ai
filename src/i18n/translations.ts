@@ -250,6 +250,14 @@ type Translations = {
   auth_password_too_short: string;
   auth_password_weak: string;
   auth_validation_passed: string;
+  auth_success: string;
+  
+  // Password Reset
+  passwordReset_title: string;
+  passwordReset_emailSent: string;
+  passwordReset_emailPlaceholder: string;
+  passwordReset_submitButton: string;
+  passwordReset_loading: string;
   
   // Common
   common_success: string;
@@ -2077,6 +2085,14 @@ export const translations: Record<Language, Translations> = {
     auth_password_too_short: "Password must be at least 10 characters",
     auth_password_weak: "Password does not meet security requirements",
     auth_validation_passed: "Validation successful",
+    auth_success: "Success!",
+    
+    // Password Reset
+    passwordReset_title: "Reset Password",
+    passwordReset_emailSent: "Password reset email sent! Check your inbox.",
+    passwordReset_emailPlaceholder: "Enter your email address",
+    passwordReset_submitButton: "Send Reset Link",
+    passwordReset_loading: "Sending...",
     
     common_success: "Success",
     common_something_went_wrong: "Something went wrong. Please try again.",
@@ -3273,6 +3289,14 @@ export const translations: Record<Language, Translations> = {
     auth_password_too_short: "La contraseña debe tener al menos 10 caracteres",
     auth_password_weak: "La contraseña no cumple con los requisitos de seguridad",
     auth_validation_passed: "Validación exitosa",
+    auth_success: "¡Éxito!",
+    
+    // Password Reset
+    passwordReset_title: "Restablecer Contraseña",
+    passwordReset_emailSent: "¡Correo de restablecimiento enviado! Revisa tu bandeja de entrada.",
+    passwordReset_emailPlaceholder: "Ingresa tu dirección de correo",
+    passwordReset_submitButton: "Enviar Enlace de Restablecimiento",
+    passwordReset_loading: "Enviando...",
     
     common_success: "Éxito",
     common_something_went_wrong: "Algo salió mal. Por favor, inténtalo de nuevo.",
@@ -4717,6 +4741,14 @@ export const translations: Record<Language, Translations> = {
     auth_password_too_short: "Passwort muss mindestens 10 Zeichen haben",
     auth_password_weak: "Passwort erfüllt nicht die Sicherheitsanforderungen",
     auth_validation_passed: "Validierung erfolgreich",
+    auth_success: "Erfolg!",
+    
+    // Password Reset
+    passwordReset_title: "Passwort Zurücksetzen",
+    passwordReset_emailSent: "Passwort-Reset-E-Mail gesendet! Überprüfe deinen Posteingang.",
+    passwordReset_emailPlaceholder: "Gib deine E-Mail-Adresse ein",
+    passwordReset_submitButton: "Reset-Link Senden",
+    passwordReset_loading: "Wird gesendet...",
     
     common_success: "Erfolg",
     common_something_went_wrong: "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
