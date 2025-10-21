@@ -168,7 +168,6 @@ const AppContent = () => {
 
 function App() {
   const { user, loading } = useAuth();
-  const { language } = useLanguage();
 
   useEffect(() => {
     const supabase = getSupabase();
@@ -196,25 +195,17 @@ function App() {
   }
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-      <LanguageProvider>
-        <QueryClientProvider client={queryClient}>
-          <ErrorBoundary>
-            <TooltipProvider>
-              <Sonner />
-              <BrowserRouter>
-                <AnalyticsProvider>
-                  <AppContent />
-                  <SystemNotifications />
-                  <PerformanceIndicator />
-                  <InstallPrompt />
-                </AnalyticsProvider>
-              </BrowserRouter>
-            </TooltipProvider>
-          </ErrorBoundary>
-        </QueryClientProvider>
-      </LanguageProvider>
-    </ThemeProvider>
+    <TooltipProvider>
+      <Sonner />
+      <BrowserRouter>
+        <AnalyticsProvider>
+          <AppContent />
+          <SystemNotifications />
+          <PerformanceIndicator />
+          <InstallPrompt />
+        </AnalyticsProvider>
+      </BrowserRouter>
+    </TooltipProvider>
   );
 }
 
