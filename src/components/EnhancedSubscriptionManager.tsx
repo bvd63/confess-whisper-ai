@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -35,12 +35,11 @@ export const EnhancedSubscriptionManager = () => {
 
   const loadStatus = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('subscription-manage', {
-        body: { action: 'status' }
-      });
+      const supabase = getSupabase();
+      const { data, error } = await supabase.functions.invoke('billing-status');
       if (error) throw error;
       setStatus(data);
-      if (data.interval) setInterval(data.interval);
+      if (data?.interval) setInterval(data.interval);
     } catch (error) {
       console.error('Error loading status:', error);
     } finally {
@@ -51,6 +50,7 @@ export const EnhancedSubscriptionManager = () => {
   const handleChange = async (plan: PlanWithInterval) => {
     setActionLoading(true);
     try {
+      const supabase = getSupabase();
       // If user has no active subscription, create a new one instead of changing
       if (!status?.currentPlan || status.currentPlan === 'free' || status.status === 'none') {
         const { data, error } = await supabase.functions.invoke('billing-buy', {
@@ -68,9 +68,8 @@ export const EnhancedSubscriptionManager = () => {
         }
       } else {
         // User has active subscription, change it
-        const { data, error } = await supabase.functions.invoke('subscription-manage', {
+        const { data, error } = await supabase.functions.invoke('billing-change', {
           body: { 
-            action: 'change', 
             priceId: plan.priceId,
             prorationBehavior: 'create_prorations'
           }
@@ -90,8 +89,9 @@ export const EnhancedSubscriptionManager = () => {
   const handleCancel = async () => {
     setActionLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('subscription-manage', {
-        body: { action: 'cancel', effective: 'period_end' }
+      const supabase = getSupabase();
+      const { data, error } = await supabase.functions.invoke('billing-cancel', {
+        body: { effective: 'period_end' }
       });
       if (error) throw error;
       toast.success(t.subscription_cancel_success);
@@ -107,9 +107,8 @@ export const EnhancedSubscriptionManager = () => {
   const handleReactivate = async () => {
     setActionLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('subscription-manage', {
-        body: { action: 'reactivate' }
-      });
+      const supabase = getSupabase();
+      const { data, error } = await supabase.functions.invoke('billing-reactivate');
       if (error) throw error;
       toast.success(t.subscription_reactivate_success);
       await loadStatus();

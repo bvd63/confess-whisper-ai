@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabase } from "@/lib/supabaseClient";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { UserX, Trash2 } from "lucide-react";
@@ -17,10 +17,11 @@ interface BlockedUsersProps {
 }
 
 const BlockedUsers = ({ userId }: BlockedUsersProps) => {
+  const supabase = getSupabase();
+  const { t, language } = useLanguage();
   const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const { t, language } = useLanguage();
 
   useEffect(() => {
     loadBlockedUsers();

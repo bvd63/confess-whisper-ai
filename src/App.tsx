@@ -2,7 +2,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from 'next-themes';
-import { LanguageProvider } from '@/contexts/LanguageContext';
+import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext';
 import { TabNavigationProvider } from '@/contexts/TabNavigationContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -12,13 +12,14 @@ import { SystemNotifications } from '@/components/SystemNotifications';
 import { PerformanceIndicator } from '@/components/PerformanceIndicator';
 import { InstallPrompt } from '@/components/InstallPrompt';
 import { NetworkStatusIndicator } from '@/components/NetworkStatusIndicator';
+import { useAuth } from '@/hooks/useAuth';
 import { useAuthRefresh } from '@/hooks/useAuthRefresh';
 import { useSessionRestoration } from '@/hooks/useSessionRestoration';
 import { useBackgroundSync } from '@/hooks/useBackgroundSync';
 import { useDeviceTracking } from '@/hooks/useDeviceTracking';
 import { useInactivityLogout } from '@/hooks/useInactivityLogout';
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { getSupabase } from "./lib/supabaseClient";
 import { persistenceManager } from '@/lib/persistenceManager';
 import { dataValidator } from '@/lib/dataValidator';
 import { syncScheduler } from '@/lib/syncScheduler';
@@ -37,6 +38,7 @@ import CommunityDetail from "./pages/CommunityDetail";
 import NearbyConfessions from "./pages/NearbyConfessions";
 import Auth from "./pages/Auth";
 import AuthTest from "./pages/AuthTest";
+import SupabaseTest from "./pages/SupabaseTest";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import EmailVerification from "./pages/EmailVerification";
@@ -64,6 +66,7 @@ const AppContent = () => {
   
   // Clear cache on logout and run health checks
   useEffect(() => {
+    const supabase = getSupabase();
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_OUT') {
         syncScheduler.stopPeriodicSync();
@@ -134,6 +137,7 @@ const AppContent = () => {
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/auth-test" element={<AuthTest />} />
+          <Route path="/supabase-test" element={<SupabaseTest />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/verify-email" element={<EmailVerification />} />
@@ -162,26 +166,56 @@ const AppContent = () => {
   );
 };
 
-const App = () => (
-  <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-    <LanguageProvider>
-      <QueryClientProvider client={queryClient}>
-        <ErrorBoundary>
-          <TooltipProvider>
-            <Sonner />
-            <BrowserRouter>
-              <AnalyticsProvider>
-                <AppContent />
-                <SystemNotifications />
-                <PerformanceIndicator />
-                <InstallPrompt />
-              </AnalyticsProvider>
-            </BrowserRouter>
-          </TooltipProvider>
-        </ErrorBoundary>
-      </QueryClientProvider>
-    </LanguageProvider>
-  </ThemeProvider>
-);
+function App() {
+  const { user, loading } = useAuth();
+  const { language } = useLanguage();
+
+  useEffect(() => {
+    const supabase = getSupabase();
+    const setInitialLocation = async () => {
+      if (user) {
+        const { data: profile, error } = await supabase
+          .from("profiles")
+          .select("location")
+          .eq("id", user.id)
+          .single();
+
+        if (error) {
+          console.error("Error fetching profile:", error);
+        } else if (profile?.location) {
+          // If location exists, set it in the context or state
+          console.log("Location found:", profile.location);
+        }
+      }
+    };
+    setInitialLocation();
+  }, [user]);
+
+  if (loading) {
+    return null; // or a loading spinner
+  }
+
+  return (
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+      <LanguageProvider>
+        <QueryClientProvider client={queryClient}>
+          <ErrorBoundary>
+            <TooltipProvider>
+              <Sonner />
+              <BrowserRouter>
+                <AnalyticsProvider>
+                  <AppContent />
+                  <SystemNotifications />
+                  <PerformanceIndicator />
+                  <InstallPrompt />
+                </AnalyticsProvider>
+              </BrowserRouter>
+            </TooltipProvider>
+          </ErrorBoundary>
+        </QueryClientProvider>
+      </LanguageProvider>
+    </ThemeProvider>
+  );
+}
 
 export default App;

@@ -1,0 +1,13 @@
+// ... existing code ...
+const SettingsPage = () => {
+  const { t } = useLanguage();
+  const { user } = useAuth();
+
+  if (!user) {
+// ... existing code ...
+// ... existing code ...
+const Settings = ({ userId }: { userId: string }) => {
+  const supabase = getSupabase();
+  const { t } = useLanguage();
+  const [notifications, setNotifications] = useState(true);
+// ... existing code ...

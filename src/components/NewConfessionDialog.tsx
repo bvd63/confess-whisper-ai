@@ -4,7 +4,7 @@ import { EnhancedButton } from "@/components/EnhancedButton";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Send, Sparkles, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabase } from "@/lib/supabaseClient";
 import { z } from "zod";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -35,7 +35,8 @@ interface NewConfessionDialogProps {
   onConfessionCreated: () => void;
 }
 
-const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewConfessionDialogProps) => {
+export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }: NewConfessionDialogProps) {
+  const supabase = getSupabase();
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("other");
   const [mood, setMood] = useState<{ mood: string; intensity: number } | null>(null);

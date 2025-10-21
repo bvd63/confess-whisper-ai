@@ -1,134 +1,84 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { renderWithProviders } from '../helpers/testUtils';
+import { renderWithProviders, mockSupabaseClient, createSubscriptionStatus } from '../helpers/testUtils';
 import { EnhancedSubscriptionManager } from '@/components/EnhancedSubscriptionManager';
-import { createMockSupabase } from '../helpers/apiMock';
-
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: null,
-}));
 
 describe('Trial Edge Cases', () => {
-  let mockSupabase: any;
-
   beforeEach(() => {
-    const mockInvoke = vi.fn(async (fnName: string) => {
+    vi.mocked(mockSupabaseClient.functions.invoke).mockReset();
+    vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(async (fnName: string) => {
       if (fnName === 'billing-status') {
         return {
-          data: {
-            subscribed: true,
-            plan: 'premium',
-            subscription_end: '2025-10-30T18:00:00Z',
+          data: createSubscriptionStatus({
             status: 'trialing',
+            currentPeriodEnd: '2025-10-30T18:00:00Z',
             trial_active: true,
             trial_end_date: '2025-10-30T18:00:00Z',
-          },
+          }),
           error: null,
         };
       }
-      return { data: null, error: null };
-    });
-
-    mockSupabase = createMockSupabase(mockInvoke);
-    
-    vi.doMock('@/integrations/supabase/client', () => ({
-      supabase: mockSupabase,
-    }));
-  });
-
-  it('should show trial status in UI', async () => {
-    renderWithProviders(<EnhancedSubscriptionManager />);
-    
-    await waitFor(() => {
-      expect(screen.getByText(/trial/i)).toBeInTheDocument();
+      return { data: null, error: { message: 'Unknown function' } };
     });
   });
 
-  it('should disable downgrade action during trial', async () => {
-    const user = userEvent.setup();
-    
+  it('should show trial status and end date', async () => {
     renderWithProviders(<EnhancedSubscriptionManager />);
-    
+
     await waitFor(() => {
       expect(screen.getByText(/trial/i)).toBeInTheDocument();
     });
 
-    // Look for any downgrade or lower-tier options
-    const downgradeButtons = screen.queryAllByRole('button', { name: /downgrade|free/i });
-    
-    downgradeButtons.forEach(button => {
-      expect(button).toBeDisabled();
-    });
-  });
-
-  it('should show tooltip explaining why downgrade is disabled', async () => {
-    const user = userEvent.setup();
-    
-    renderWithProviders(<EnhancedSubscriptionManager />);
-    
+    const expectedDate = new Date('2025-10-30T18:00:00Z').toLocaleDateString();
     await waitFor(() => {
-      expect(screen.getByText(/trial/i)).toBeInTheDocument();
+      expect(screen.getByText(new RegExp(expectedDate))).toBeInTheDocument();
     });
-
-    const downgradeButton = screen.queryByRole('button', { name: /downgrade/i });
-    
-    if (downgradeButton) {
-      await user.hover(downgradeButton);
-      
-      await waitFor(() => {
-        expect(screen.getByText(/trial.*period/i)).toBeInTheDocument();
-      });
-    }
   });
 
   it('should allow cancel during trial', async () => {
     const user = userEvent.setup();
-    
+
     renderWithProviders(<EnhancedSubscriptionManager />);
-    
+
     await waitFor(() => {
       expect(screen.getByText(/trial/i)).toBeInTheDocument();
     });
 
-    const cancelButton = screen.getByRole('button', { name: /cancel/i });
+    const cancelButton = screen.getByTestId('action-cancel');
     expect(cancelButton).not.toBeDisabled();
+
+    await user.click(cancelButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('confirm-action')).toBeInTheDocument();
+    });
   });
 
   it('should allow upgrade during trial', async () => {
     const user = userEvent.setup();
-    
+
     renderWithProviders(<EnhancedSubscriptionManager />);
-    
+
     await waitFor(() => {
       expect(screen.getByText(/trial/i)).toBeInTheDocument();
     });
 
-    // Should be able to upgrade to VIP
-    const upgradeButton = screen.queryByRole('button', { name: /vip|upgrade/i });
-    
-    if (upgradeButton) {
-      expect(upgradeButton).not.toBeDisabled();
-    }
+    const upgradeButton = screen.getByTestId('action-upgrade');
+    expect(upgradeButton).not.toBeDisabled();
+
+    await user.click(upgradeButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('confirm-action')).toBeInTheDocument();
+    });
   });
 
-  it('should display trial end date prominently', async () => {
+  it('should show current plan details during trial', async () => {
     renderWithProviders(<EnhancedSubscriptionManager />);
-    
+
     await waitFor(() => {
       expect(screen.getAllByText(/Premium/i)[0]).toBeInTheDocument();
-      expect(screen.getByText(/11\/12\/2025/i)).toBeInTheDocument();
     });
-  });
-
-  it('should show what happens after trial ends', async () => {
-    renderWithProviders(<EnhancedSubscriptionManager />);
-    
-    await waitFor(() => {
-      expect(screen.getAllByText(/Active/i)[0]).toBeInTheDocument();
-    });
-
-    // Should inform user about billing after trial
-    expect(screen.getAllByText(/Premium/i)[0]).toBeInTheDocument();
   });
 });

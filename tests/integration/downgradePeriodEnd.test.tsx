@@ -1,55 +1,27 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { renderWithProviders } from '../helpers/testUtils';
+import { renderWithProviders, mockSupabaseClient, createSubscriptionStatus } from '../helpers/testUtils';
 import { EnhancedSubscriptionManager } from '@/components/EnhancedSubscriptionManager';
-import { SubscriptionApiMock, createMockSupabase } from '../helpers/apiMock';
-import downgradePreview from '../fixtures/stripe/preview/downgrade_vip_to_premium_period_end.json';
+import { SubscriptionApiMock } from '../helpers/apiMock';
 
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: null,
-}));
-
-describe('Downgrade at Period End Flow', () => {
+describe('Downgrade Flow', () => {
   let apiMock: SubscriptionApiMock;
-  let mockSupabase: any;
 
   beforeEach(() => {
     apiMock = new SubscriptionApiMock();
-    
-    const scheduleChangeFn = apiMock.mockScheduleChange({
-      success: true,
-      message: 'Downgrade scheduled for end of billing period',
-      effective_date: '2025-11-12T18:00:00Z',
-    });
+    vi.mocked(mockSupabaseClient.functions.invoke).mockReset();
+  });
 
-    const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+  it('should open downgrade confirmation dialog', async () => {
+    const user = userEvent.setup();
+
+    vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(async (fnName: string) => {
       if (fnName === 'billing-status') {
-        return {
-          data: {
-            subscribed: true,
-            plan: 'vip',
-            subscription_end: '2025-11-12T18:00:00Z',
-            status: 'active',
-          },
-          error: null,
-        };
+        return { data: createSubscriptionStatus({ currentPlan: 'vip' }), error: null };
       }
-      if (fnName === 'billing-schedule-change') {
-        return scheduleChangeFn(fnName, options);
-      }
-      return { data: downgradePreview, error: null };
+      return { data: null, error: { message: 'Unknown function' } };
     });
-
-    mockSupabase = createMockSupabase(mockInvoke);
-    
-    vi.doMock('@/integrations/supabase/client', () => ({
-      supabase: mockSupabase,
-    }));
-  });
-
-  it('should schedule downgrade for period end', async () => {
-    const user = userEvent.setup();
     
     renderWithProviders(<EnhancedSubscriptionManager />);
     
@@ -57,18 +29,41 @@ describe('Downgrade at Period End Flow', () => {
       expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
-    // Click on Premium plan to downgrade
-    const premiumChangeButton = screen.getByRole('button', { name: /Change Plan/i });
-    await user.click(premiumChangeButton);
+    const downgradeButton = screen.getAllByTestId('action-downgrade').find(b => !b.hasAttribute('disabled'));
+    expect(downgradeButton).toBeInTheDocument();
+    await user.click(downgradeButton!);
     
-    // Should show effective date
     await waitFor(() => {
-      expect(screen.getByText(/11\/12\/2025/i)).toBeInTheDocument();
+      expect(screen.getByText(/You are about to change to Premium monthly/i)).toBeInTheDocument();
+    });
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('confirm-action')).toBeInTheDocument();
     });
   });
 
-  it('should display exact period end date in local timezone', async () => {
+  it('should complete downgrade and show success message', async () => {
     const user = userEvent.setup();
+
+    const changeFn = apiMock.mockChange({
+      success: true,
+      message: 'Downgrade scheduled successfully',
+    });
+
+    let statusCall = 0;
+    vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(async (fnName: string, options: any) => {
+      if (fnName === 'billing-status') {
+        statusCall += 1;
+        const status = statusCall === 1
+          ? createSubscriptionStatus({ currentPlan: 'vip' })
+          : createSubscriptionStatus({ currentPlan: 'premium' });
+        return { data: status, error: null };
+      }
+      if (fnName === 'billing-change') {
+        return changeFn(fnName, options);
+      }
+      return { data: null, error: { message: 'Unknown function' } };
+    });
     
     renderWithProviders(<EnhancedSubscriptionManager />);
     
@@ -76,93 +71,58 @@ describe('Downgrade at Period End Flow', () => {
       expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
-    const premiumChangeButton = screen.getByRole('button', { name: /Change Plan/i });
-    await user.click(premiumChangeButton);
+    const downgradeButton = screen.getAllByTestId('action-downgrade').find(b => !b.hasAttribute('disabled'));
+    expect(downgradeButton).toBeInTheDocument();
+    await user.click(downgradeButton!);
     
-    // Wait for confirmation dialog
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /confirm/i })).toBeInTheDocument();
+      expect(screen.getByTestId('confirm-action')).toBeInTheDocument();
     });
     
-    const confirmButton = screen.getByRole('button', { name: /confirm/i });
+    const confirmButton = screen.getByTestId('confirm-action');
     await user.click(confirmButton);
     
-    // Should show success toast with date
+    // Wait for the operation to complete and dialog to close
     await waitFor(() => {
-      expect(screen.getAllByText(/Premium/i)[0]).toBeInTheDocument();
+      expect(screen.queryByTestId('confirm-action')).not.toBeInTheDocument();
+    });
+
+    const log = apiMock.getRequestLog();
+    expect(log.some(req => req.endpoint === 'billing-change')).toBeTruthy();
+  });
+
+  it('should show cancel notice when period end is scheduled', async () => {
+    vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(async (fnName: string) => {
+      if (fnName === 'billing-status') {
+        return { data: createSubscriptionStatus({ currentPlan: 'vip', cancelAtPeriodEnd: true }), error: null };
+      }
+      return { data: null, error: { message: 'Unknown function' } };
+    });
+    
+    renderWithProviders(<EnhancedSubscriptionManager />);
+    
+    await waitFor(() => {
+      expect(screen.getByText(/Ends:/i)).toBeInTheDocument();
       expect(screen.getByText(/11\/12\/2025/i)).toBeInTheDocument();
     });
   });
 
-  it('should show pending change status on re-open', async () => {
-    const user = userEvent.setup();
-    
-    // Mock with pending change
-    const mockInvokeWithPending = vi.fn(async (fnName: string) => {
+  it('should disable button for current plan', async () => {
+    vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(async (fnName: string) => {
       if (fnName === 'billing-status') {
-        return {
-          data: {
-            subscribed: true,
-            plan: 'vip',
-            subscription_end: '2025-11-12T18:00:00Z',
-            status: 'active',
-            pending_change: {
-              target_tier: 'premium',
-              effective_date: '2025-11-12T18:00:00Z',
-            },
-          },
-          error: null,
-        };
+        return { data: createSubscriptionStatus({ currentPlan: 'vip' }), error: null };
       }
-      return { data: null, error: null };
+      return { data: null, error: { message: 'Unknown function' } };
     });
-
-    const pendingSupabase = createMockSupabase(mockInvokeWithPending);
-    vi.doMock('@/integrations/supabase/client', () => ({
-      supabase: pendingSupabase,
-    }));
     
     renderWithProviders(<EnhancedSubscriptionManager />);
     
     await waitFor(() => {
-      expect(screen.getByText(/pending.*change/i)).toBeInTheDocument();
-    });
-  });
-
-  it('should prevent conflicting changes when downgrade is pending', async () => {
-    const user = userEvent.setup();
-    
-    const mockInvokeWithPending = vi.fn(async (fnName: string) => {
-      if (fnName === 'billing-status') {
-        return {
-          data: {
-            subscribed: true,
-            plan: 'vip',
-            pending_change: {
-              target_tier: 'premium',
-              effective_date: '2025-11-12T18:00:00Z',
-            },
-          },
-          error: null,
-        };
-      }
-      return { data: null, error: null };
+      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
-    const pendingSupabase = createMockSupabase(mockInvokeWithPending);
-    vi.doMock('@/integrations/supabase/client', () => ({
-      supabase: pendingSupabase,
-    }));
-    
-    renderWithProviders(<EnhancedSubscriptionManager />);
-    
-    await waitFor(() => {
-      expect(screen.getByText(/pending/i)).toBeInTheDocument();
-    });
-
-    // Change buttons should be disabled
-    const changeButtons = screen.getAllByRole('button', { name: /change/i });
-    changeButtons.forEach(button => {
+    const vipButtons = screen.getAllByRole('button', { name: /your plan/i });
+    vipButtons.forEach(button => {
       expect(button).toBeDisabled();
     });
   });

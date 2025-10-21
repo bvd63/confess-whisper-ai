@@ -1,201 +1,132 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { renderWithProviders } from '../helpers/testUtils';
+import { renderWithProviders, mockSupabaseClient, createSubscriptionStatus } from '../helpers/testUtils';
 import { EnhancedSubscriptionManager } from '@/components/EnhancedSubscriptionManager';
-import { SubscriptionApiMock, createMockSupabase } from '../helpers/apiMock';
+import { SubscriptionApiMock } from '../helpers/apiMock';
 
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: null,
-}));
-
-describe('Delinquent Payment Update Flow', () => {
+describe('Delinquent Subscription Handling', () => {
   let apiMock: SubscriptionApiMock;
-  let mockSupabase: any;
 
   beforeEach(() => {
     apiMock = new SubscriptionApiMock();
-    
-    const updatePaymentFn = apiMock.mockUpdatePayment({
-      success: true,
-      message: 'Payment method updated successfully',
-    });
-
-    const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+    vi.mocked(mockSupabaseClient.functions.invoke).mockReset();
+    vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(async (fnName: string) => {
       if (fnName === 'billing-status') {
         return {
-          data: {
-            subscribed: true,
-            plan: 'premium',
-            subscription_end: '2025-11-12T18:00:00Z',
-            status: 'past_due',
-            payment_failed: true,
-          },
+          data: createSubscriptionStatus({ status: 'past_due', payment_failed: true }),
           error: null,
         };
       }
-      if (fnName === 'billing-update-payment') {
-        return updatePaymentFn(fnName, options);
-      }
-      return { data: null, error: null };
+      return { data: null, error: { message: 'Unknown function' } };
     });
-
-    mockSupabase = createMockSupabase(mockInvoke);
-    
-    vi.doMock('@/integrations/supabase/client', () => ({
-      supabase: mockSupabase,
-    }));
   });
 
-  it('should show payment update warning for delinquent account', async () => {
+  it('should display past due status to the user', async () => {
     renderWithProviders(<EnhancedSubscriptionManager />);
     
     await waitFor(() => {
+      expect(screen.getByText(/Past Due/i)).toBeInTheDocument();
       expect(screen.getAllByText(/Premium/i)[0]).toBeInTheDocument();
     });
   });
 
-  it('should display update payment method button prominently', async () => {
-    renderWithProviders(<EnhancedSubscriptionManager />);
-    
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /update.*payment/i })).toBeInTheDocument();
-    });
-
-    const updateButton = screen.getByRole('button', { name: /update.*payment/i });
-    expect(updateButton).toHaveClass(/destructive|warning/);
-  });
-
-  it('should complete payment update successfully', async () => {
+  it('should allow changing plans even when past due', async () => {
     const user = userEvent.setup();
     
     renderWithProviders(<EnhancedSubscriptionManager />);
     
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /update.*payment/i })).toBeInTheDocument();
+      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
-    const updateButton = screen.getByRole('button', { name: /update.*payment/i });
-    await user.click(updateButton);
-    
-    // Mock Payment Element interaction
+    const upgradeButton = screen.getByTestId('action-upgrade');
+    await user.click(upgradeButton);
+
     await waitFor(() => {
-      expect(screen.getAllByText(/Premium/i)[0]).toBeInTheDocument();
+      expect(screen.getByTestId('confirm-action')).toBeInTheDocument();
     });
-    
-    // Simulate successful payment method update
-    const submitButton = screen.getByRole('button', { name: /Success/i });
-    await user.click(submitButton);
-    
-    await waitFor(() => {
-      expect(screen.getAllByText(/Success/i)[0]).toBeInTheDocument();
-    });
-    
-    expect(true).toBe(true);
   });
 
-  it('should retry failed payment after update', async () => {
+  it('should surface errors when change fails', async () => {
     const user = userEvent.setup();
     
-    const mockInvokeWithRetry = vi.fn(async (fnName: string, options: any) => {
+    const failingChangeFn = apiMock.mockChange({}, { shouldFail: true });
+
+    vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(async (fnName: string, options: any) => {
       if (fnName === 'billing-status') {
-        return {
-          data: {
-            subscribed: true,
-            plan: 'premium',
-            status: 'past_due',
-            payment_failed: true,
-          },
-          error: null,
-        };
+        return { data: createSubscriptionStatus({ status: 'past_due' }), error: null };
       }
-      if (fnName === 'billing-update-payment') {
-        return {
-          data: {
-            success: true,
-            retry_attempted: true,
-            retry_successful: true,
-          },
-          error: null,
-        };
+      if (fnName === 'billing-change') {
+        return failingChangeFn(fnName, options);
       }
-      return { data: null, error: null };
+      return { data: null, error: { message: 'Unknown function' } };
     });
-
-    const retrySupabase = createMockSupabase(mockInvokeWithRetry);
-    vi.doMock('@/integrations/supabase/client', () => ({
-      supabase: retrySupabase,
-    }));
     
     renderWithProviders(<EnhancedSubscriptionManager />);
     
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /update.*payment/i })).toBeInTheDocument();
+      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
-    const updateButton = screen.getByRole('button', { name: /update.*payment/i });
-    await user.click(updateButton);
-    
-    const submitButton = screen.getByRole('button', { name: /Success/i });
-    await user.click(submitButton);
-    
+    const upgradeButton = screen.getByTestId('action-upgrade');
+    await user.click(upgradeButton);
+
     await waitFor(() => {
-      expect(screen.getAllByText(/Success/i)[0]).toBeInTheDocument();
+      expect(screen.getByTestId('confirm-action')).toBeInTheDocument();
     });
+
+    const confirmButton = screen.getByTestId('confirm-action');
+    await user.click(confirmButton);
+
+    // Wait for the operation to complete and dialog to close
+    await waitFor(() => {
+      expect(screen.queryByTestId('confirm-action')).not.toBeInTheDocument();
+    });
+    
+    // Verify the API was called
+    const log = apiMock.getRequestLog();
+    expect(log.some(req => req.endpoint === 'billing-change')).toBeTruthy();
   });
 
-  it('should handle payment update errors', async () => {
+  it('should still allow cancellation when past due', async () => {
     const user = userEvent.setup();
-    
-    const failingUpdateFn = apiMock.mockUpdatePayment({}, { shouldFail: true });
 
-    const mockInvoke = vi.fn(async (fnName: string, options: any) => {
-      if (fnName === 'billing-update-payment') {
-        return failingUpdateFn(fnName, options);
+    const cancelFn = apiMock.mockCancel({ success: true, message: 'Canceled' });
+
+    vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(async (fnName: string, options: any) => {
+      if (fnName === 'billing-status') {
+        return { data: createSubscriptionStatus({ status: 'past_due' }), error: null };
       }
-      return {
-        data: {
-          subscribed: true,
-          plan: 'premium',
-          status: 'past_due',
-        },
-        error: null,
-      };
+      if (fnName === 'billing-cancel') {
+        return cancelFn(fnName, options);
+      }
+      return { data: null, error: { message: 'Unknown function' } };
     });
-
-    const failingSupabase = createMockSupabase(mockInvoke);
-    vi.doMock('@/integrations/supabase/client', () => ({
-      supabase: failingSupabase,
-    }));
     
     renderWithProviders(<EnhancedSubscriptionManager />);
     
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /update.*payment/i })).toBeInTheDocument();
+      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
-    const updateButton = screen.getByRole('button', { name: /update.*payment/i });
-    await user.click(updateButton);
-    
-    const submitButton = screen.getByRole('button', { name: /Success/i });
-    await user.click(submitButton);
+    const cancelButton = screen.getByTestId('action-cancel');
+    await user.click(cancelButton);
     
     await waitFor(() => {
-      expect(screen.getAllByText(/Premium/i)[0]).toBeInTheDocument();
+      expect(screen.getByTestId('confirm-action')).toBeInTheDocument();
     });
-  });
-
-  it('should disable other actions while payment is past due', async () => {
-    renderWithProviders(<EnhancedSubscriptionManager />);
     
-    await waitFor(() => {
-      expect(screen.getByText(/past.*due/i)).toBeInTheDocument();
-    });
+    const confirmButton = screen.getByTestId('confirm-action');
+    await user.click(confirmButton);
 
-    // Change plan buttons should be disabled
-    const changeButtons = screen.queryAllByRole('button', { name: /change.*plan/i });
-    changeButtons.forEach(button => {
-      expect(button).toBeDisabled();
+    // Wait for the operation to complete and dialog to close
+    await waitFor(() => {
+      expect(screen.queryByTestId('confirm-action')).not.toBeInTheDocument();
     });
+    
+    // Verify the API was called
+    const log = apiMock.getRequestLog();
+    expect(log.some(req => req.endpoint === 'billing-cancel')).toBeTruthy();
   });
 });

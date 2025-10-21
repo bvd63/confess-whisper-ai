@@ -14,13 +14,14 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabase } from "@/lib/supabaseClient";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
-export default function AuthTest() {
+const AuthTest = () => {
+  const supabase = getSupabase();
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { toast } = useToast();
@@ -127,23 +128,30 @@ export default function AuthTest() {
     setIsCleaningUp(true);
     setCleanupResult("");
     try {
-      const { data, error } = await supabase.rpc('trigger_auth_cleanup');
+      const { data, error } = await supabase.rpc('auth_maintenance_cleanup');
       if (error) throw error;
-      setCleanupResult("✅ Cleanup completed successfully!");
+      setCleanupResult(`Cleanup successful! Result: ${JSON.stringify(data)}`);
       toast({
         title: "Cleanup Complete",
-        description: "Authentication data has been cleaned up",
+        description: "Authentication data has been cleaned up.",
       });
     } catch (error: any) {
-      setCleanupResult(`❌ Error: ${error.message}`);
+      setCleanupResult(`Cleanup failed: ${error.message}`);
       toast({
-        title: "Error",
+        title: "Cleanup Error",
         description: error.message,
         variant: "destructive",
       });
     } finally {
       setIsCleaningUp(false);
     }
+  };
+
+  const handleTriggerCleanup = async () => {
+    const supabase = getSupabase();
+    const { data, error } = await supabase.rpc('trigger_auth_cleanup');
+    console.log('Cleanup triggered:', { data, error });
+    alert('Cleanup function invoked. Check console.');
   };
 
   if (userLoading) {
@@ -432,3 +440,5 @@ export default function AuthTest() {
     </div>
   );
 }
+
+export default AuthTest;

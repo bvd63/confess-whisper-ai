@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Heart, Mail, Lock, Loader2, Sparkles, Eye, EyeOff, AlertCircle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabase } from "@/lib/supabaseClient";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -18,13 +18,12 @@ import { usePasswordValidation, validatePasswordStrength } from "@/hooks/usePass
 import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
 import { PasswordRulesChecklist } from "@/components/PasswordRulesChecklist";
 import { cn } from "@/lib/utils";
-import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
 
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useLanguage();
-  const { enhancedLogin, checkCaptchaRequired } = useEnhancedAuth();
+  const supabase = getSupabase();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -69,36 +68,34 @@ const Auth = () => {
     }
 
     if (!isLogin) {
-      if (!validatePasswordStrength(password)) {
-        newErrors.password = t.auth_password_min;
+      // Simplified password validation - just check minimum length
+      if (password.length < 8) {
+        newErrors.password = "Password must be at least 8 characters";
       }
 
       if (!passwordsMatch) {
         newErrors.confirmPassword = t.auth_password_match_fail;
       }
 
-      if (!captchaToken) {
-        newErrors.captcha = t.auth_captcha_failed;
-      }
+      // CAPTCHA not required for now
+      // if (!captchaToken) {
+      //   newErrors.captcha = t.auth_captcha_failed;
+      // }
     }
 
     setErrors(newErrors);
-    return !newErrors.email && !newErrors.password && !newErrors.confirmPassword && !newErrors.captcha;
+    return !newErrors.email && !newErrors.password && !newErrors.confirmPassword;
   };
 
   const isFormValid = (): boolean => {
     if (isLogin) {
       const basicValid = !!email && !!password;
-      if (showLoginCaptcha) {
-        return basicValid && !!captchaToken;
-      }
       return basicValid;
     }
     return (
       !!email &&
-      passwordValidation.allRulesPassed &&
+      password.length >= 8 &&
       passwordsMatch &&
-      !!captchaToken &&
       acceptTerms
     );
   };
@@ -111,31 +108,14 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
+      const supabase = getSupabase();
+      
       if (isLogin) {
-        // Check if CAPTCHA is required for this email
-        const captchaRequired = await checkCaptchaRequired(email.trim());
-        
-        if (captchaRequired && !captchaToken) {
-          setShowLoginCaptcha(true);
-          toast({
-            title: t.auth_error,
-            description: t.auth_captcha_failed,
-            variant: "destructive",
-          });
-          setIsLoading(false);
-          return;
-        }
-
-        // Use enhanced login for better security and session tracking
-        const { data, error } = await enhancedLogin(
-          email.trim(),
+        // Simple login with Supabase Auth
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
           password,
-          captchaToken,
-          {
-            stayConnected: staySignedIn,
-            deviceId: localStorage.getItem('device_id') || undefined,
-          }
-        );
+        });
 
         if (error) {
           // Increment failed attempts and show captcha after 3 attempts
@@ -151,25 +131,19 @@ const Auth = () => {
         setFailedLoginAttempts(0);
         setShowLoginCaptcha(false);
 
-        navigate('/');
-      } else {
-        // Server-side validation before signup
-        const { data: validationResult, error: validationError } = await supabase.functions.invoke('enhanced-auth?action=validate-signup', {
-          body: { 
-            email: email.trim(),
-            password,
-            captchaToken,
-          },
-        });
-
-        if (validationError || validationResult?.error) {
-          const errorMsg = validationResult?.messageKey 
-            ? t[validationResult.messageKey.replace(/\./g, '_') as keyof typeof t] as string 
-            : t.auth_error_generic;
-          throw new Error(errorMsg);
+        // Store stay logged in preference
+        if (staySignedIn) {
+          localStorage.setItem('stay_logged_in', 'true');
         }
 
-        // Proceed with signup after validation passes
+        toast({
+          title: t.auth_success || "Success",
+          description: t.auth_login_success || "Welcome back!",
+        });
+
+        navigate('/');
+      } else {
+        // Simple signup with Supabase Auth
         const { error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
@@ -215,10 +189,12 @@ const Auth = () => {
         // Don't auto-navigate - user needs to verify email first
       }
     } catch (error: any) {
+      console.error('Auth error:', error);
       toast({
         title: t.auth_error,
-        description: error.message || t.auth_error_generic,
+        description: error.message || error.error_description || t.auth_error_generic,
         variant: "destructive",
+        duration: 5000,
       });
     } finally {
       setIsLoading(false);
@@ -556,4 +532,8 @@ const Auth = () => {
   );
 };
 
-export default Auth;
+const AuthPage = () => {
+  return <Auth />;
+};
+
+export default AuthPage;

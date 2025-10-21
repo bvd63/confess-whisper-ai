@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { getSupabase } from "@/lib/supabaseClient";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,6 +65,7 @@ export const PasswordChange = ({ userId, passwordChangedAt }: PasswordChangeProp
 
     setLoading(true);
     try {
+      const supabase = getSupabase();
       const { error } = await supabase.auth.updateUser({
         password: newPassword
       });

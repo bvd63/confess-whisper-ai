@@ -1,28 +1,29 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { renderWithProviders } from '../helpers/testUtils';
+import { renderWithProviders, mockSupabaseClient, createSubscriptionStatus } from '../helpers/testUtils';
 import { EnhancedSubscriptionManager } from '@/components/EnhancedSubscriptionManager';
-import { createMockSupabase } from '../helpers/apiMock';
 import scaPreview from '../fixtures/stripe/preview/sca_required_preview.json';
 
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: null,
-}));
-
 describe('SCA (Strong Customer Authentication) Flow', () => {
-  let mockSupabase: any;
+  const expectStatusLoaded = async () => {
+    await waitFor(() => {
+      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
+    });
+  };
+
+  const findVipChangeButton = () => {
+    const changePlanButtons = screen.getAllByRole('button', { name: /Change Plan/i });
+    const upgradeButton = changePlanButtons.find(btn => btn.getAttribute('data-testid') === 'action-upgrade');
+    return upgradeButton ?? changePlanButtons[changePlanButtons.length - 1];
+  };
 
   beforeEach(() => {
-    const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+    vi.mocked(mockSupabaseClient.functions.invoke).mockReset();
+    vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(async (fnName: string, options: any) => {
       if (fnName === 'billing-status') {
         return {
-          data: {
-            subscribed: true,
-            plan: 'premium',
-            subscription_end: '2025-11-12T18:00:00Z',
-            status: 'active',
-          },
+          data: createSubscriptionStatus(),
           error: null,
         };
       }
@@ -39,28 +40,20 @@ describe('SCA (Strong Customer Authentication) Flow', () => {
           error: null,
         };
       }
-      return { data: null, error: null };
+      return { data: null, error: { message: 'Unknown function' } };
     });
-
-    mockSupabase = createMockSupabase(mockInvoke);
-    
-    vi.doMock('@/integrations/supabase/client', () => ({
-      supabase: mockSupabase,
-    }));
   });
 
   it('should detect when SCA is required', async () => {
     const user = userEvent.setup();
-    
-    renderWithProviders(<EnhancedSubscriptionManager />);
-    
-    await waitFor(() => {
-      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
-    });
 
-    const vipButton = screen.getByRole('button', { name: /Change Plan/i });
+    renderWithProviders(<EnhancedSubscriptionManager />);
+
+    await expectStatusLoaded();
+
+    const vipButton = findVipChangeButton();
     await user.click(vipButton);
-    
+
     await waitFor(() => {
       expect(screen.getAllByText(/Premium/i)[0]).toBeInTheDocument();
     });
@@ -68,19 +61,21 @@ describe('SCA (Strong Customer Authentication) Flow', () => {
 
   it('should show SCA prompt to user', async () => {
     const user = userEvent.setup();
-    
+
     renderWithProviders(<EnhancedSubscriptionManager />);
-    
+
+    await expectStatusLoaded();
+
+    const vipButton = findVipChangeButton();
+    await user.click(vipButton);
+
     await waitFor(() => {
-      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
+      expect(screen.getByTestId('confirm-action')).toBeInTheDocument();
     });
 
-    const vipButton = screen.getByRole('button', { name: /Change Plan/i });
-    await user.click(vipButton);
-    
-    const confirmButton = screen.getByRole('button', { name: /confirm/i });
+    const confirmButton = screen.getByTestId('confirm-action');
     await user.click(confirmButton);
-    
+
     await waitFor(() => {
       expect(screen.getAllByText(/Active/i)[0]).toBeInTheDocument();
     });
@@ -88,12 +83,18 @@ describe('SCA (Strong Customer Authentication) Flow', () => {
 
   it('should handle successful SCA completion', async () => {
     const user = userEvent.setup();
-    
-    // Mock SCA success
-    const mockInvokeWithSuccess = vi.fn(async (fnName: string) => {
+
+    let changeInvocation = 0;
+    const mockInvokeWithSuccess = vi.fn(async (fnName: string, options: any) => {
+      if (fnName === 'billing-status') {
+        return {
+          data: createSubscriptionStatus(),
+          error: null,
+        };
+      }
       if (fnName === 'billing-change') {
-        // First call requires action
-        if (!mockInvokeWithSuccess.mock.calls.length || mockInvokeWithSuccess.mock.calls.length === 1) {
+        changeInvocation += 1;
+        if (changeInvocation === 1) {
           return {
             data: {
               requires_action: true,
@@ -102,7 +103,6 @@ describe('SCA (Strong Customer Authentication) Flow', () => {
             error: null,
           };
         }
-        // Second call after SCA succeeds
         return {
           data: {
             success: true,
@@ -111,42 +111,45 @@ describe('SCA (Strong Customer Authentication) Flow', () => {
           error: null,
         };
       }
-      return {
-        data: {
-          subscribed: true,
-          plan: 'premium',
-        },
-        error: null,
-      };
+      if (fnName === 'billing-preview') {
+        return { data: scaPreview, error: null };
+      }
+      return { data: null, error: { message: 'Unknown function' } };
     });
 
-    const scaSupabase = createMockSupabase(mockInvokeWithSuccess);
-    vi.doMock('@/integrations/supabase/client', () => ({
-      supabase: scaSupabase,
-    }));
-    
+    vi.mocked(mockSupabaseClient.functions.invoke).mockReset();
+    vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(mockInvokeWithSuccess);
+
     renderWithProviders(<EnhancedSubscriptionManager />);
-    
+
+    await expectStatusLoaded();
+
+    const vipButton = findVipChangeButton();
+    await user.click(vipButton);
+
     await waitFor(() => {
-      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
+      expect(screen.getByTestId('confirm-action')).toBeInTheDocument();
     });
 
-    const vipButton = screen.getByRole('button', { name: /Change Plan/i });
-    await user.click(vipButton);
-    
-    const confirmButton = screen.getByRole('button', { name: /confirm/i });
+    const confirmButton = screen.getByTestId('confirm-action');
     await user.click(confirmButton);
-    
-    // Simulate SCA completion
+
+    // Wait for the operation to complete and dialog to close
     await waitFor(() => {
-      expect(screen.getAllByText(/Success/i)[0]).toBeInTheDocument();
+      expect(screen.queryByTestId('confirm-action')).not.toBeInTheDocument();
     });
   });
 
   it('should handle SCA failure', async () => {
     const user = userEvent.setup();
-    
-    const mockInvokeWithFailure = vi.fn(async (fnName: string) => {
+
+    const mockInvokeWithFailure = vi.fn(async (fnName: string, options: any) => {
+      if (fnName === 'billing-status') {
+        return {
+          data: createSubscriptionStatus(),
+          error: null,
+        };
+      }
       if (fnName === 'billing-change') {
         return {
           data: {
@@ -157,33 +160,29 @@ describe('SCA (Strong Customer Authentication) Flow', () => {
           error: null,
         };
       }
-      return {
-        data: {
-          subscribed: true,
-          plan: 'premium',
-        },
-        error: null,
-      };
+      if (fnName === 'billing-preview') {
+        return { data: scaPreview, error: null };
+      }
+      return { data: null, error: { message: 'Unknown function' } };
     });
 
-    const failSupabase = createMockSupabase(mockInvokeWithFailure);
-    vi.doMock('@/integrations/supabase/client', () => ({
-      supabase: failSupabase,
-    }));
-    
+    vi.mocked(mockSupabaseClient.functions.invoke).mockReset();
+    vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(mockInvokeWithFailure);
+
     renderWithProviders(<EnhancedSubscriptionManager />);
-    
+
+    await expectStatusLoaded();
+
+    const vipButton = findVipChangeButton();
+    await user.click(vipButton);
+
     await waitFor(() => {
-      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
+      expect(screen.getByTestId('confirm-action')).toBeInTheDocument();
     });
 
-    const vipButton = screen.getByRole('button', { name: /Change Plan/i });
-    await user.click(vipButton);
-    
-    const confirmButton = screen.getByRole('button', { name: /confirm/i });
+    const confirmButton = screen.getByTestId('confirm-action');
     await user.click(confirmButton);
-    
-    // User cancels or fails SCA
+
     await waitFor(() => {
       expect(screen.getAllByText(/Premium/i)[0]).toBeInTheDocument();
     });
@@ -191,19 +190,21 @@ describe('SCA (Strong Customer Authentication) Flow', () => {
 
   it('should allow retry after SCA failure', async () => {
     const user = userEvent.setup();
-    
+
     renderWithProviders(<EnhancedSubscriptionManager />);
-    
+
+    await expectStatusLoaded();
+
+    const vipButton = findVipChangeButton();
+    await user.click(vipButton);
+
     await waitFor(() => {
-      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
+      expect(screen.getByTestId('confirm-action')).toBeInTheDocument();
     });
 
-    const vipButton = screen.getByRole('button', { name: /Change Plan/i });
-    await user.click(vipButton);
-    
-    const confirmButton = screen.getByRole('button', { name: /confirm/i });
+    const confirmButton = screen.getByTestId('confirm-action');
     await user.click(confirmButton);
-    
+
     await waitFor(() => {
       const retryButton = screen.queryByRole('button', { name: /try again|retry/i });
       if (retryButton) {

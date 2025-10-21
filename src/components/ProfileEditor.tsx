@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { supabase } from '@/integrations/supabase/client';
+import { getSupabase } from "@/lib/supabaseClient";
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, User, Clock } from 'lucide-react';
 import { useProfileHandle } from '@/hooks/useProfileHandle';
@@ -99,6 +99,7 @@ export const ProfileEditor = ({
         updateData.nickname_updated_at = new Date().toISOString();
       }
 
+      const supabase = getSupabase();
       const { error } = await supabase
         .from('profiles')
         .update(updateData)
@@ -134,6 +135,7 @@ export const ProfileEditor = ({
         privacy_mode: privacyMode
       };
 
+      const supabase = getSupabase();
       const { error } = await supabase
         .from('profiles')
         .update(updateData)

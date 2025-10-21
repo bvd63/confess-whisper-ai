@@ -4,69 +4,32 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { vi } from 'vitest';
+import { mockSupabaseClient } from '../setup/supabase-mock';
 
-// Complete Supabase mock for subscription tests
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    auth: {
-      getUser: vi.fn().mockResolvedValue({
-        data: { user: { id: 'test-user', email: 'test@example.com' } },
-        error: null
-      }),
-      getSession: vi.fn().mockResolvedValue({
-        data: { session: { user: { id: 'test-user' } } },
-        error: null
-      }),
-      onAuthStateChange: vi.fn(() => ({
-        data: { subscription: { unsubscribe: vi.fn() } }
-      }))
-    },
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          single: vi.fn().mockResolvedValue({
-            data: {
-              id: 'test-subscription',
-              status: 'PREMIUM',
-              current_period_end: '2025-11-12T18:00:00Z',
-              plan_name: 'premium'
-            },
-            error: null
-          }),
-          maybeSingle: vi.fn().mockResolvedValue({
-            data: {
-              id: 'test-subscription',
-              status: 'PREMIUM',
-              current_period_end: '2025-11-12T18:00:00Z',
-              plan_name: 'premium'
-            },
-            error: null
-          })
-        })),
-        order: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockReturnThis()
-      })),
-      insert: vi.fn(() => ({
-        select: vi.fn().mockResolvedValue({ data: [], error: null })
-      })),
-      update: vi.fn(() => ({
-        eq: vi.fn().mockResolvedValue({ data: [], error: null })
-      })),
-      delete: vi.fn(() => ({
-        eq: vi.fn().mockResolvedValue({ data: [], error: null })
-      }))
-    })),
-    functions: {
-      invoke: vi.fn().mockResolvedValue({ data: null, error: null })
-    },
-    storage: {
-      from: vi.fn(() => ({
-        upload: vi.fn().mockResolvedValue({ data: {}, error: null }),
-        download: vi.fn().mockResolvedValue({ data: new Blob(), error: null })
-      }))
-    }
-  }
-}));
+// Mock Supabase at the module level with a default implementation
+// Individual tests can override the functions.invoke mock via vi.mocked()
+export interface SubscriptionStatusMock {
+  currentPlan: string;
+  interval: 'monthly' | 'yearly' | null;
+  status: string;
+  cancelAtPeriodEnd: boolean;
+  currentPeriodEnd?: string;
+  canReactivate: boolean;
+  priceId?: string;
+  [key: string]: any;
+}
+
+export const createSubscriptionStatus = (overrides: Partial<SubscriptionStatusMock> = {}): SubscriptionStatusMock => ({
+  currentPlan: 'premium',
+  interval: 'monthly',
+  status: 'active',
+  cancelAtPeriodEnd: false,
+  currentPeriodEnd: '2025-11-12T18:00:00Z',
+  canReactivate: false,
+  ...overrides,
+});
+
+export { mockSupabaseClient };
 
 const createTestQueryClient = () =>
   new QueryClient({
@@ -78,29 +41,19 @@ const createTestQueryClient = () =>
     },
   });
 
-interface AllTheProvidersProps {
-  children: ReactNode;
-}
-
-export function AllTheProviders({ children }: AllTheProvidersProps) {
-  const queryClient = createTestQueryClient();
-
+const AllTheProviders = ({ children }: { children: ReactNode }) => {
+  const testQueryClient = createTestQueryClient();
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <LanguageProvider>
-          {children}
-        </LanguageProvider>
-      </BrowserRouter>
-    </QueryClientProvider>
+    <BrowserRouter>
+      <QueryClientProvider client={testQueryClient}>
+        <LanguageProvider>{children}</LanguageProvider>
+      </QueryClientProvider>
+    </BrowserRouter>
   );
-}
+};
 
-export function renderWithProviders(
-  ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>
-) {
-  return render(ui, { wrapper: AllTheProviders, ...options });
-}
+const customRender = (ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) =>
+  render(ui, { wrapper: AllTheProviders, ...options });
 
 export * from '@testing-library/react';
+export { customRender as renderWithProviders };
