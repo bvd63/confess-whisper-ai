@@ -12,7 +12,6 @@ import QuoteOfTheDaySkeleton from "@/components/QuoteOfTheDaySkeleton";
 import { CommunitiesSectionExpanded } from "@/components/CommunitiesSectionExpanded";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import { DailyReward } from "@/components/DailyReward";
 import { FeatureComparison } from "@/components/FeatureComparison";
 import { PremiumTeaser } from "@/components/PremiumTeaser";
 import StreakCounter from "@/components/StreakCounter";
@@ -126,13 +125,8 @@ const Index = () => {
           </p>
         </div>
 
-        {/* Daily Reward & Streak */}
-        {user && (
-          <div className="space-y-4">
-            <DailyReward userId={user.id} />
-            <StreakCounter userId={user.id} variant="full" />
-          </div>
-        )}
+        {/* Streak Counter */}
+        {user && <StreakCounter userId={user.id} variant="full" />}
 
         {/* Quote of the Day */}
         {user && (
