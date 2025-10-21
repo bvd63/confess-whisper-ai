@@ -4,7 +4,7 @@ let _c: SupabaseClient | null = null;
 
 export function getSupabase(): SupabaseClient {
   if (_c) return _c;
-  _c = createClient(import.meta.env.VITE_SUPABASE_URL!, import.meta.env.VITE_SUPABASE_ANON_KEY!);
+  _c = createClient(import.meta.env.VITE_SUPABASE_URL!, import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY!);
   return _c;
 }
 
