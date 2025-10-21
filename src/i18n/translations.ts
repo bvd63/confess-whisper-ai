@@ -701,6 +701,36 @@ type Translations = {
   follow_error: string;
   follow_error_desc: string;
   
+  // Daily Rewards
+  reward_daily_title: string;
+  reward_daily_desc: string;
+  reward_claim: string;
+  reward_claimed: string;
+  reward_claimed_desc: string;
+  
+  // Premium Teasers
+  teaser_feature: string;
+  teaser_description: string;
+  teaser_unlock: string;
+  teaser_explore_feature: string;
+  teaser_explore_description: string;
+  
+  // Feature Comparison
+  comparison_title: string;
+  comparison_feature: string;
+  comparison_daily_confessions: string;
+  comparison_ai_responses: string;
+  comparison_deep_insights: string;
+  comparison_analytics: string;
+  comparison_boost: string;
+  comparison_priority_support: string;
+  comparison_custom_badge: string;
+  comparison_unlimited: string;
+  comparison_upgrade_now: string;
+  
+  // Trending Hashtags
+  hashtags_trending: string;
+  
   // Mood Tracker
   mood_how_feeling: string;
   mood_intensity: string;
@@ -2953,6 +2983,36 @@ export const translations: Record<Language, Translations> = {
     confession_content: "Confession Content",
     error_network: "Network error",
     error_validation: "Validation error",
+    
+    // Daily Rewards
+    reward_daily_title: "Daily Login Reward",
+    reward_daily_desc: "Claim your free coins!",
+    reward_claim: "Claim",
+    reward_claimed: "Reward Claimed!",
+    reward_claimed_desc: "You received 10 coins for logging in today",
+    
+    // Premium Teasers
+    teaser_feature: "Unlock Premium Features",
+    teaser_description: "Get unlimited insights, priority support, and exclusive perks",
+    teaser_unlock: "Unlock Premium",
+    teaser_explore_feature: "Discover More Content",
+    teaser_explore_description: "Premium users get access to exclusive trending content and advanced search",
+    
+    // Feature Comparison
+    comparison_title: "Compare Plans",
+    comparison_feature: "Feature",
+    comparison_daily_confessions: "Daily Confessions",
+    comparison_ai_responses: "AI Responses",
+    comparison_deep_insights: "Deep Insights",
+    comparison_analytics: "Advanced Analytics",
+    comparison_boost: "Boost Confessions",
+    comparison_priority_support: "Priority Support",
+    comparison_custom_badge: "Custom Badge",
+    comparison_unlimited: "Unlimited",
+    comparison_upgrade_now: "Upgrade Now",
+    
+    // Trending Hashtags
+    hashtags_trending: "Trending Hashtags",
   },
   es: {
     app_name: "Confess+",
@@ -4367,6 +4427,36 @@ export const translations: Record<Language, Translations> = {
     confession_content: "Contenido de Confesión",
     error_network: "Error de red",
     error_validation: "Error de validación",
+    
+    // Daily Rewards
+    reward_daily_title: "Recompensa de Inicio Diario",
+    reward_daily_desc: "¡Reclama tus monedas gratis!",
+    reward_claim: "Reclamar",
+    reward_claimed: "¡Recompensa Reclamada!",
+    reward_claimed_desc: "Recibiste 10 monedas por iniciar sesión hoy",
+    
+    // Premium Teasers
+    teaser_feature: "Desbloquea Funciones Premium",
+    teaser_description: "Obtén información ilimitada, soporte prioritario y ventajas exclusivas",
+    teaser_unlock: "Desbloquear Premium",
+    teaser_explore_feature: "Descubre Más Contenido",
+    teaser_explore_description: "Los usuarios premium tienen acceso a contenido exclusivo en tendencia y búsqueda avanzada",
+    
+    // Feature Comparison
+    comparison_title: "Comparar Planes",
+    comparison_feature: "Característica",
+    comparison_daily_confessions: "Confesiones Diarias",
+    comparison_ai_responses: "Respuestas IA",
+    comparison_deep_insights: "Análisis Profundo",
+    comparison_analytics: "Análisis Avanzado",
+    comparison_boost: "Impulsar Confesiones",
+    comparison_priority_support: "Soporte Prioritario",
+    comparison_custom_badge: "Insignia Personalizada",
+    comparison_unlimited: "Ilimitado",
+    comparison_upgrade_now: "Actualizar Ahora",
+    
+    // Trending Hashtags
+    hashtags_trending: "Hashtags en Tendencia",
   },
   de: {
     app_name: "Confess+",
@@ -5781,5 +5871,35 @@ export const translations: Record<Language, Translations> = {
     confession_content: "Geständnis Inhalt",
     error_network: "Netzwerkfehler",
     error_validation: "Validierungsfehler",
+    
+    // Daily Rewards
+    reward_daily_title: "Tägliche Login-Belohnung",
+    reward_daily_desc: "Hol dir deine kostenlosen Münzen!",
+    reward_claim: "Einlösen",
+    reward_claimed: "Belohnung Erhalten!",
+    reward_claimed_desc: "Du hast 10 Münzen für deine heutige Anmeldung erhalten",
+    
+    // Premium Teasers
+    teaser_feature: "Premium-Funktionen Freischalten",
+    teaser_description: "Erhalte unbegrenzte Einblicke, vorrangigen Support und exklusive Vorteile",
+    teaser_unlock: "Premium Freischalten",
+    teaser_explore_feature: "Entdecke Mehr Inhalte",
+    teaser_explore_description: "Premium-Nutzer haben Zugriff auf exklusive Trendinhalte und erweiterte Suche",
+    
+    // Feature Comparison
+    comparison_title: "Pläne Vergleichen",
+    comparison_feature: "Funktion",
+    comparison_daily_confessions: "Tägliche Geständnisse",
+    comparison_ai_responses: "KI-Antworten",
+    comparison_deep_insights: "Tiefenanalyse",
+    comparison_analytics: "Erweiterte Analysen",
+    comparison_boost: "Geständnisse Boosten",
+    comparison_priority_support: "Prioritärer Support",
+    comparison_custom_badge: "Benutzerdefiniertes Abzeichen",
+    comparison_unlimited: "Unbegrenzt",
+    comparison_upgrade_now: "Jetzt Upgraden",
+    
+    // Trending Hashtags
+    hashtags_trending: "Trending Hashtags",
   },
 };

@@ -17,6 +17,8 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 import { useToast } from "@/hooks/use-toast";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
+import { TrendingHashtags } from "@/components/TrendingHashtags";
+import { PremiumTeaser } from "@/components/PremiumTeaser";
 
 const Explore = () => {
   const { t } = useLanguage();
@@ -117,6 +119,22 @@ const Explore = () => {
         </div>
 
         <SearchUsersCard />
+
+        {/* Trending Hashtags */}
+        <div className="mb-6">
+          <TrendingHashtags />
+        </div>
+
+        {/* Premium Teaser for Free Users */}
+        {user && !isPremium && (
+          <div className="mb-6">
+            <PremiumTeaser
+              feature={t.teaser_explore_feature}
+              description={t.teaser_explore_description}
+              onUpgrade={() => setManageSubDialogOpen(true)}
+            />
+          </div>
+        )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3 mb-4 sm:mb-6 h-auto">

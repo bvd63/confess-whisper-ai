@@ -56,12 +56,12 @@ const StreakCounter = ({ userId, variant = "compact" }: StreakCounterProps) => {
   }
 
   return (
-    <Card className="p-4 sm:p-6">
+    <Card className="p-4 sm:p-6 bg-gradient-to-br from-orange-500/5 to-yellow-500/5 border-orange-500/20">
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <h3 className="text-base sm:text-lg font-semibold">{t.streak_your}</h3>
         <Flame className={cn(
           "w-5 h-5 sm:w-6 sm:h-6",
-          streak.current_streak >= 7 ? "text-orange-500 animate-pulse" : "text-yellow-500"
+          streak.current_streak >= 7 ? "text-orange-500 animate-pulse-glow" : "text-yellow-500"
         )} />
       </div>
       
