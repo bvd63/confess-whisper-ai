@@ -18,7 +18,7 @@ export const NetworkStatusIndicator = () => {
           <Alert variant="destructive" className="mb-2">
             <WifiOff className="h-4 w-4" />
             <AlertDescription>
-              You are offline. Messages will be sent when connection is restored.
+              {t.network_offline || "You are offline. Messages will be sent when connection is restored."}
             </AlertDescription>
           </Alert>
         )}
@@ -27,7 +27,7 @@ export const NetworkStatusIndicator = () => {
           <Alert className="mb-2 bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800">
             <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             <AlertDescription className="text-blue-800 dark:text-blue-200">
-              Syncing {queuedOperations} pending operation(s)...
+              {t.network_syncing?.replace('{count}', String(queuedOperations)) || `Syncing ${queuedOperations} pending operation(s)...`}
             </AlertDescription>
           </Alert>
         )}

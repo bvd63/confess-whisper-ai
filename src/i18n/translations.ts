@@ -745,6 +745,27 @@ type Translations = {
   install: string;
   not_now: string;
   
+  // Onboarding
+  onboarding_anonymous_desc: string;
+  onboarding_social_title: string;
+  onboarding_social_desc: string;
+  onboarding_messages_title: string;
+  onboarding_messages_desc: string;
+  onboarding_ai_title: string;
+  onboarding_ai_desc: string;
+  onboarding_welcome_title: string;
+  onboarding_welcome_desc: string;
+  onboarding_privacy_title: string;
+  onboarding_privacy_desc: string;
+  onboarding_terms_desc: string;
+  
+  // Network Status
+  network_offline: string;
+  network_syncing: string;
+  
+  // Common (continued)
+  common_continue: string;
+  
   // Mood Tracker
   mood_how_feeling: string;
   mood_intensity: string;
@@ -3041,6 +3062,27 @@ export const translations: Record<Language, Translations> = {
     install_app_description: "Add ConfessAI to your home screen for a better experience",
     install: "Install",
     not_now: "Not Now",
+    
+    // Onboarding
+    onboarding_anonymous_desc: "Your identity is protected. Share freely without fear.",
+    onboarding_social_title: "Social Features",
+    onboarding_social_desc: "Follow users, like confessions, and build your community.",
+    onboarding_messages_title: "Direct Messages",
+    onboarding_messages_desc: "Connect privately with others in the community.",
+    onboarding_ai_title: "AI Insights",
+    onboarding_ai_desc: "Get thoughtful AI responses to your confessions.",
+    onboarding_welcome_title: "Welcome to Your Safe Space",
+    onboarding_welcome_desc: "A place where you can share your thoughts anonymously and connect with others",
+    onboarding_privacy_title: "Your Privacy Matters",
+    onboarding_privacy_desc: "We use end-to-end encryption and never share your data. Your confessions remain anonymous unless you choose otherwise.",
+    onboarding_terms_desc: "By continuing, you agree to our Terms of Service and Privacy Policy. You can delete your data at any time from your profile settings.",
+    
+    // Network Status
+    network_offline: "You are offline. Messages will be sent when connection is restored.",
+    network_syncing: "Syncing {count} pending operation(s)...",
+    
+    // Common (continued)
+    common_continue: "Continue",
   },
   es: {
     app_name: "Confess+",
@@ -4499,6 +4541,27 @@ export const translations: Record<Language, Translations> = {
     install_app_description: "Agrega ConfessAI a tu pantalla de inicio para una mejor experiencia",
     install: "Instalar",
     not_now: "Ahora No",
+    
+    // Onboarding
+    onboarding_anonymous_desc: "Tu identidad está protegida. Comparte libremente sin miedo.",
+    onboarding_social_title: "Funciones Sociales",
+    onboarding_social_desc: "Sigue usuarios, da me gusta a confesiones y construye tu comunidad.",
+    onboarding_messages_title: "Mensajes Directos",
+    onboarding_messages_desc: "Conéctate privadamente con otros en la comunidad.",
+    onboarding_ai_title: "Perspectivas IA",
+    onboarding_ai_desc: "Obtén respuestas reflexivas de IA a tus confesiones.",
+    onboarding_welcome_title: "Bienvenido a Tu Espacio Seguro",
+    onboarding_welcome_desc: "Un lugar donde puedes compartir tus pensamientos de forma anónima y conectarte con otros",
+    onboarding_privacy_title: "Tu Privacidad Importa",
+    onboarding_privacy_desc: "Usamos cifrado de extremo a extremo y nunca compartimos tus datos. Tus confesiones permanecen anónimas a menos que elijas lo contrario.",
+    onboarding_terms_desc: "Al continuar, aceptas nuestros Términos de Servicio y Política de Privacidad. Puedes eliminar tus datos en cualquier momento desde la configuración de tu perfil.",
+    
+    // Network Status
+    network_offline: "Estás desconectado. Los mensajes se enviarán cuando se restaure la conexión.",
+    network_syncing: "Sincronizando {count} operación(es) pendiente(s)...",
+    
+    // Common (continued)
+    common_continue: "Continuar",
   },
   de: {
     app_name: "Confess+",
@@ -5957,5 +6020,26 @@ export const translations: Record<Language, Translations> = {
     install_app_description: "Füge ConfessAI zu deinem Startbildschirm hinzu für ein besseres Erlebnis",
     install: "Installieren",
     not_now: "Nicht Jetzt",
+    
+    // Onboarding
+    onboarding_anonymous_desc: "Deine Identität ist geschützt. Teile frei ohne Angst.",
+    onboarding_social_title: "Soziale Funktionen",
+    onboarding_social_desc: "Folge Benutzern, like Geständnisse und baue deine Community auf.",
+    onboarding_messages_title: "Direktnachrichten",
+    onboarding_messages_desc: "Verbinde dich privat mit anderen in der Community.",
+    onboarding_ai_title: "KI-Einblicke",
+    onboarding_ai_desc: "Erhalte durchdachte KI-Antworten auf deine Geständnisse.",
+    onboarding_welcome_title: "Willkommen in Deinem Sicheren Raum",
+    onboarding_welcome_desc: "Ein Ort, an dem du deine Gedanken anonym teilen und dich mit anderen verbinden kannst",
+    onboarding_privacy_title: "Deine Privatsphäre Zählt",
+    onboarding_privacy_desc: "Wir verwenden Ende-zu-Ende-Verschlüsselung und teilen niemals deine Daten. Deine Geständnisse bleiben anonym, es sei denn, du entscheidest dich anders.",
+    onboarding_terms_desc: "Durch Fortfahren stimmst du unseren Nutzungsbedingungen und Datenschutzrichtlinien zu. Du kannst deine Daten jederzeit in deinen Profileinstellungen löschen.",
+    
+    // Network Status
+    network_offline: "Du bist offline. Nachrichten werden gesendet, sobald die Verbindung wiederhergestellt ist.",
+    network_syncing: "Synchronisiere {count} ausstehende Operation(en)...",
+    
+    // Common (continued)
+    common_continue: "Weiter",
   },
 };
