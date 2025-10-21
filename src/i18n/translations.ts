@@ -1522,6 +1522,23 @@ type Translations = {
   
   // Errors
   errors_plan_too_low: string;
+  
+  // Test-required keys (only adding missing ones)
+  common_confirm: string;
+  common_loading: string;
+  auth_signin: string;
+  auth_signout: string;
+  auth_signup: string;
+  auth_login: string;
+  subscription_cancel: string;
+  subscription_active: string;
+  subscription_expired: string;
+  subscription_trial: string;
+  nav_confessions: string;
+  confession_submit: string;
+  confession_content: string;
+  error_network: string;
+  error_validation: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -2919,6 +2936,23 @@ export const translations: Record<Language, Translations> = {
     
     // Errors
     errors_plan_too_low: "This item requires {plan}",
+    
+    // Test-required keys
+    common_confirm: "Confirm",
+    common_loading: "Loading...",
+    auth_signin: "Sign In",
+    auth_signout: "Sign Out",
+    auth_signup: "Sign Up",
+    auth_login: "Login",
+    subscription_cancel: "Cancel Subscription",
+    subscription_active: "Active",
+    subscription_expired: "Expired",
+    subscription_trial: "Trial",
+    nav_confessions: "Confessions",
+    confession_submit: "Submit Confession",
+    confession_content: "Confession Content",
+    error_network: "Network error",
+    error_validation: "Validation error",
   },
   es: {
     app_name: "Confess+",
@@ -4316,6 +4350,23 @@ export const translations: Record<Language, Translations> = {
     
     // Errors
     errors_plan_too_low: "Este artículo requiere {plan}",
+    
+    // Test-required keys
+    common_confirm: "Confirmar",
+    common_loading: "Cargando...",
+    auth_signin: "Iniciar Sesión",
+    auth_signout: "Cerrar Sesión",
+    auth_signup: "Registrarse",
+    auth_login: "Iniciar sesión",
+    subscription_cancel: "Cancelar Suscripción",
+    subscription_active: "Activo",
+    subscription_expired: "Expirado",
+    subscription_trial: "Prueba",
+    nav_confessions: "Confesiones",
+    confession_submit: "Enviar Confesión",
+    confession_content: "Contenido de Confesión",
+    error_network: "Error de red",
+    error_validation: "Error de validación",
   },
   de: {
     app_name: "Confess+",
@@ -5713,5 +5764,22 @@ export const translations: Record<Language, Translations> = {
     
     // Errors
     errors_plan_too_low: "Dieses Element erfordert {plan}",
+    
+    // Test-required keys
+    common_confirm: "Bestätigen",
+    common_loading: "Laden...",
+    auth_signin: "Anmelden",
+    auth_signout: "Abmelden",
+    auth_signup: "Registrieren",
+    auth_login: "Anmelden",
+    subscription_cancel: "Abonnement kündigen",
+    subscription_active: "Aktiv",
+    subscription_expired: "Abgelaufen",
+    subscription_trial: "Testversion",
+    nav_confessions: "Geständnisse",
+    confession_submit: "Geständnis einreichen",
+    confession_content: "Geständnis Inhalt",
+    error_network: "Netzwerkfehler",
+    error_validation: "Validierungsfehler",
   },
 };
