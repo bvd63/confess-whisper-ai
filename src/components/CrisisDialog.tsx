@@ -50,22 +50,16 @@ export const CrisisDialog = ({ isOpen, onClose }: CrisisDialogProps) => {
         <AlertDialogHeader>
           <AlertDialogTitle className="text-2xl flex items-center gap-2">
             <Phone className="w-6 h-6 text-primary" />
-            {language === 'en' && "You're Not Alone"}
-            {language === 'es' && "No Estás Solo"}
-            {language === 'de' && "Du Bist Nicht Allein"}
+            {t.you_are_not_alone_message}
           </AlertDialogTitle>
           <AlertDialogDescription className="text-base leading-relaxed space-y-3">
             <p className="text-foreground font-medium">
-              {language === 'en' && "If you're having thoughts of self-harm or suicide, please reach out for help. Trained professionals are available 24/7 to support you."}
-              {language === 'es' && "Si tienes pensamientos de autolesión o suicidio, por favor busca ayuda. Profesionales capacitados están disponibles 24/7 para apoyarte."}
-              {language === 'de' && "Wenn du Gedanken an Selbstverletzung oder Suizid hast, suche bitte Hilfe. Geschulte Fachkräfte sind rund um die Uhr für dich da."}
+              {t.crisis_message_text}
             </p>
 
             <div className="bg-muted/50 rounded-lg p-4 space-y-3 mt-4">
               <p className="font-semibold text-foreground">
-                {language === 'en' && "Crisis Resources:"}
-                {language === 'es' && "Recursos de Crisis:"}
-                {language === 'de' && "Krisenressourcen:"}
+                {t.crisis_support_title}:
               </p>
               
               {currentResources.map((resource, index) => (
@@ -86,8 +80,8 @@ export const CrisisDialog = ({ isOpen, onClose }: CrisisDialogProps) => {
                     >
                       <ExternalLink className="w-3 h-3" />
                       {language === 'en' && "Visit website"}
-                      {language === 'es' && "Visitar sitio web"}
-                      {language === 'de' && "Website besuchen"}
+                      {language === 'es' && "Visitar sitio"}
+                      {language === 'de' && "Website"}
                     </a>
                   )}
                 </div>
@@ -95,9 +89,7 @@ export const CrisisDialog = ({ isOpen, onClose }: CrisisDialogProps) => {
             </div>
 
             <p className="text-sm text-muted-foreground mt-4">
-              {language === 'en' && "Remember: Crisis hotlines are confidential, free, and staffed by people who care."}
-              {language === 'es' && "Recuerda: Las líneas de crisis son confidenciales, gratuitas y atendidas por personas que se preocupan."}
-              {language === 'de' && "Denk daran: Krisenhotlines sind vertraulich, kostenlos und werden von Menschen betreut, denen du wichtig bist."}
+              {t.crisis_hint}
             </p>
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -105,7 +97,7 @@ export const CrisisDialog = ({ isOpen, onClose }: CrisisDialogProps) => {
           <Button onClick={onClose} className="w-full">
             {language === 'en' && "I Understand"}
             {language === 'es' && "Entiendo"}
-            {language === 'de' && "Ich Verstehe"}
+            {language === 'de' && "Verstehe"}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

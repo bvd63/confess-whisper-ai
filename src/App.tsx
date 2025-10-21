@@ -48,8 +48,6 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
-
 const AppContent = () => {
   const [stayLoggedIn, setStayLoggedIn] = useState(() => {
     return localStorage.getItem('stay_logged_in') === 'true';

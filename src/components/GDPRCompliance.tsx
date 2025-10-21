@@ -31,11 +31,7 @@ export const GDPRCompliance = () => {
 
     try {
       await exportUserData(user.id);
-      toast.success(
-        language === 'en' ? 'Data exported successfully' :
-        language === 'es' ? 'Datos exportados exitosamente' :
-        'Daten erfolgreich exportiert'
-      );
+      toast.success(t.export_data_success_toast);
     } catch (error) {
       toast.error(t.error_generic);
     }
@@ -46,11 +42,7 @@ export const GDPRCompliance = () => {
 
     try {
       await deleteAccount(user.id);
-      toast.success(
-        language === 'en' ? 'Account deleted successfully' :
-        language === 'es' ? 'Cuenta eliminada exitosamente' :
-        'Konto erfolgreich gelöscht'
-      );
+      toast.success(t.account_deleted_toast);
       // Redirect handled by deleteAccount hook
     } catch (error) {
       toast.error(t.error_generic);
@@ -65,15 +57,9 @@ export const GDPRCompliance = () => {
         <div className="flex items-start gap-4">
           <Download className="w-5 h-5 text-primary mt-1" />
           <div className="flex-1">
-            <h3 className="font-semibold mb-2">
-              {language === 'en' && "Export Your Data"}
-              {language === 'es' && "Exportar Tus Datos"}
-              {language === 'de' && "Deine Daten Exportieren"}
-            </h3>
+            <h3 className="font-semibold mb-2">{t.export_data}</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              {language === 'en' && "Download a copy of all your data including confessions, comments, messages, and preferences."}
-              {language === 'es' && "Descarga una copia de todos tus datos incluyendo confesiones, comentarios, mensajes y preferencias."}
-              {language === 'de' && "Lade eine Kopie all deiner Daten herunter, einschließlich Beichten, Kommentare, Nachrichten und Einstellungen."}
+              {t.export_data_description_text}
             </p>
             <Button
               variant="outline"
@@ -82,9 +68,7 @@ export const GDPRCompliance = () => {
               className="w-full sm:w-auto"
             >
               <Download className="w-4 h-4 mr-2" />
-              {language === 'en' && "Export Data"}
-              {language === 'es' && "Exportar Datos"}
-              {language === 'de' && "Daten Exportieren"}
+              {t.export_data}
             </Button>
           </div>
         </div>
@@ -96,14 +80,10 @@ export const GDPRCompliance = () => {
           <Trash2 className="w-5 h-5 text-destructive mt-1" />
           <div className="flex-1">
             <h3 className="font-semibold mb-2 text-destructive">
-              {language === 'en' && "Delete Account"}
-              {language === 'es' && "Eliminar Cuenta"}
-              {language === 'de' && "Konto Löschen"}
+              {t.delete_account}
             </h3>
             <p className="text-sm text-muted-foreground mb-4">
-              {language === 'en' && "Permanently delete your account and all associated data. This action cannot be undone."}
-              {language === 'es' && "Elimina permanentemente tu cuenta y todos los datos asociados. Esta acción no se puede deshacer."}
-              {language === 'de' && "Lösche dein Konto und alle zugehörigen Daten dauerhaft. Diese Aktion kann nicht rückgängig gemacht werden."}
+              {t.delete_account_description}
             </p>
             <Button
               variant="destructive"
@@ -112,9 +92,7 @@ export const GDPRCompliance = () => {
               className="w-full sm:w-auto"
             >
               <Trash2 className="w-4 h-4 mr-2" />
-              {language === 'en' && "Delete Account"}
-              {language === 'es' && "Eliminar Cuenta"}
-              {language === 'de' && "Konto Löschen"}
+              {t.delete_account}
             </Button>
           </div>
         </div>
@@ -126,16 +104,10 @@ export const GDPRCompliance = () => {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-destructive" />
-              {language === 'en' && "Delete Account?"}
-              {language === 'es' && "¿Eliminar Cuenta?"}
-              {language === 'de' && "Konto Löschen?"}
+              {t.delete_account_confirm_dialog}
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-3">
-              <p>
-                {language === 'en' && "This will permanently delete:"}
-                {language === 'es' && "Esto eliminará permanentemente:"}
-                {language === 'de' && "Dies wird dauerhaft löschen:"}
-              </p>
+              <p>{t.delete_account_warning_full}</p>
               <ul className="list-disc list-inside text-sm space-y-1 text-foreground">
                 <li>
                   {language === 'en' && "All your confessions and comments"}
@@ -158,26 +130,17 @@ export const GDPRCompliance = () => {
                   {language === 'de' && "Alle Erfolge und Streaks"}
                 </li>
               </ul>
-              <p className="text-destructive font-semibold">
-                {language === 'en' && "This action cannot be undone."}
-                {language === 'es' && "Esta acción no se puede deshacer."}
-                {language === 'de' && "Diese Aktion kann nicht rückgängig gemacht werden."}
-              </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>
-              {language === 'en' && "Cancel"}
-              {language === 'es' && "Cancelar"}
-              {language === 'de' && "Abbrechen"}
+              {t.common_cancel || "Cancel"}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteAccount}
               className="bg-destructive hover:bg-destructive/90"
             >
-              {language === 'en' && "Delete Forever"}
-              {language === 'es' && "Eliminar Para Siempre"}
-              {language === 'de' && "Für Immer Löschen"}
+              {t.delete_confirm}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
