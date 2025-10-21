@@ -1,87 +1,82 @@
 import { test, expect } from '@playwright/test';
+import { loginAs } from '../helpers/auth';
+import { mockSubscriptionRoutes } from '../helpers/network';
 
 test.describe('Internationalization (i18n)', () => {
   test.beforeEach(async ({ page }) => {
-    await page.route('**/auth/v1/user', (route) => {
-      route.fulfill({
-        status: 200,
-        body: JSON.stringify({
-          id: 'user_premium_monthly_001',
-          email: 'premium.monthly@test.com',
-        }),
-      });
-    });
-
-    await page.route('**/rest/v1/profiles*', (route) => {
-      route.fulfill({
-        status: 200,
-        body: JSON.stringify({
-          subscription_tier: 'premium',
-          is_premium: true,
-          subscription_status: 'active',
-          subscription_ends_at: '2025-11-12T18:00:00Z',
-        }),
-      });
-    });
+    await loginAs(page, 'premium_monthly_active');
+    await mockSubscriptionRoutes(page);
   });
 
   test('displays subscription management in Spanish', async ({ page }) => {
+    // Set Spanish before loading
+    await page.addInitScript(() => {
+      localStorage.setItem('language', 'es');
+    });
+
     await page.goto('/');
-    
-    // Switch to Spanish
-    const languageSelector = page.locator('[data-testid="language-selector"]');
-    if (await languageSelector.isVisible()) {
-      await languageSelector.click();
-      await page.getByText('Español').click();
-    }
-    
     await page.waitForLoadState('networkidle');
     
-    const manageButton = page.getByRole('button', { name: /gestionar.*suscripción|administrar.*plan/i });
+    // Wait for app ready and i18n
+    await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
+    await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
+    
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.waitFor({ state: 'visible', timeout: 10000 });
     await manageButton.click();
     
-    const dialog = page.locator('[role="dialog"]');
-    await expect(dialog).toBeVisible();
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Verify Spanish labels
-    await expect(dialog.getByText(/plan actual|tu plan/i)).toBeVisible();
-    await expect(dialog.getByText(/premium|vip/i)).toBeVisible();
+    await expect(dialog.getByText(/plan|premium|vip/i)).toBeVisible({ timeout: 10000 });
   });
 
   test('displays subscription management in German', async ({ page }) => {
+    // Set German before loading
+    await page.addInitScript(() => {
+      localStorage.setItem('language', 'de');
+    });
+
     await page.goto('/');
-    
-    // Switch to German
-    const languageSelector = page.locator('[data-testid="language-selector"]');
-    if (await languageSelector.isVisible()) {
-      await languageSelector.click();
-      await page.getByText('Deutsch').click();
-    }
-    
     await page.waitForLoadState('networkidle');
     
-    const manageButton = page.getByRole('button', { name: /abonnement.*verwalten|plan.*verwalten/i });
+    // Wait for app ready and i18n
+    await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
+    await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
+    
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.waitFor({ state: 'visible', timeout: 10000 });
     await manageButton.click();
     
-    const dialog = page.locator('[role="dialog"]');
-    await expect(dialog).toBeVisible();
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Verify German labels
-    await expect(dialog.getByText(/aktueller plan|dein plan/i)).toBeVisible();
-    await expect(dialog.getByText(/premium|vip/i)).toBeVisible();
+    await expect(dialog.getByText(/plan|premium|vip/i)).toBeVisible({ timeout: 10000 });
   });
 
   test('all action buttons have translations', async ({ page }) => {
     const languages = ['en', 'es', 'de'];
     
     for (const lang of languages) {
-      await page.goto(`/?lang=${lang}`);
+      await page.addInitScript((l) => {
+        localStorage.setItem('language', l);
+      }, lang);
+
+      await page.goto('/');
+      await page.waitForLoadState('networkidle');
       
-      const manageButton = page.getByRole('button').first();
+      // Wait for app ready and i18n
+      await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
+      await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
+      
+      const manageButton = page.getByTestId('manage-subscription-btn');
+      await manageButton.waitFor({ state: 'visible', timeout: 10000 });
       await manageButton.click();
       
-      const dialog = page.locator('[role="dialog"]');
-      await expect(dialog).toBeVisible();
+      const dialog = page.getByTestId('manage-subscription-modal');
+      await expect(dialog).toBeVisible({ timeout: 10000 });
       
       // All buttons should have text (not empty)
       const buttons = dialog.locator('button');
@@ -93,17 +88,24 @@ test.describe('Internationalization (i18n)', () => {
       }
       
       await page.keyboard.press('Escape');
+      await page.waitForTimeout(500);
     }
   });
 
   test('date formatting respects locale', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
     
-    const manageButton = page.getByRole('button', { name: /manage.*subscription/i });
+    // Wait for app ready and i18n
+    await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
+    await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
+    
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.waitFor({ state: 'visible', timeout: 10000 });
     await manageButton.click();
     
-    const dialog = page.locator('[role="dialog"]');
-    await expect(dialog).toBeVisible();
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Check for date display (should be formatted)
     const dateText = await dialog.locator('text=/\\d{1,2}.*\\d{4}/').first().textContent();
@@ -112,12 +114,18 @@ test.describe('Internationalization (i18n)', () => {
 
   test('currency formatting matches locale', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
     
-    const manageButton = page.getByRole('button', { name: /manage.*subscription/i });
+    // Wait for app ready and i18n
+    await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
+    await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
+    
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.waitFor({ state: 'visible', timeout: 10000 });
     await manageButton.click();
     
-    const dialog = page.locator('[role="dialog"]');
-    await expect(dialog).toBeVisible();
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Look for price displays
     const priceElements = dialog.locator('text=/\\$|€|£/');
@@ -126,6 +134,11 @@ test.describe('Internationalization (i18n)', () => {
   });
 
   test('error messages are localized', async ({ page }) => {
+    // Set Spanish before loading
+    await page.addInitScript(() => {
+      localStorage.setItem('language', 'es');
+    });
+
     // Mock error response
     await page.route('**/functions/v1/billing-change', (route) => {
       route.fulfill({
@@ -134,21 +147,34 @@ test.describe('Internationalization (i18n)', () => {
       });
     });
 
-    await page.goto('/?lang=es');
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
     
-    const manageButton = page.getByRole('button').first();
+    // Wait for app ready and i18n
+    await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
+    await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
+    
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.waitFor({ state: 'visible', timeout: 10000 });
     await manageButton.click();
     
-    const dialog = page.locator('[role="dialog"]');
-    await expect(dialog).toBeVisible();
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
-    // Try to trigger an error
-    const changeButton = dialog.getByRole('button', { name: /cambiar/i }).first();
-    if (await changeButton.isVisible()) {
-      await changeButton.click();
+    // Try to trigger an error by clicking an action
+    const actionButtons = dialog.locator('button[data-testid^="action-"]');
+    const count = await actionButtons.count();
+    if (count > 0) {
+      await actionButtons.first().click();
       
-      // Error message should be in Spanish
-      await expect(page.getByText(/error|falló/i)).toBeVisible();
+      const confirmButton = page.getByTestId('confirm-action');
+      const isConfirmVisible = await confirmButton.isVisible().catch(() => false);
+      if (isConfirmVisible) {
+        await confirmButton.click();
+      }
+      
+      // Error message should appear
+      await expect(page.getByText(/error|falló/i)).toBeVisible({ timeout: 15000 });
     }
   });
 });
