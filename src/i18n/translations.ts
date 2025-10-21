@@ -739,6 +739,12 @@ type Translations = {
   // Trending Hashtags
   hashtags_trending: string;
   
+  // Install Prompt
+  install_app: string;
+  install_app_description: string;
+  install: string;
+  not_now: string;
+  
   // Mood Tracker
   mood_how_feeling: string;
   mood_intensity: string;
@@ -3029,6 +3035,12 @@ export const translations: Record<Language, Translations> = {
     
     // Trending Hashtags
     hashtags_trending: "Trending Hashtags",
+    
+    // Install Prompt
+    install_app: "Install App",
+    install_app_description: "Add ConfessAI to your home screen for a better experience",
+    install: "Install",
+    not_now: "Not Now",
   },
   es: {
     app_name: "Confess+",
@@ -4481,6 +4493,12 @@ export const translations: Record<Language, Translations> = {
     
     // Trending Hashtags
     hashtags_trending: "Hashtags en Tendencia",
+    
+    // Install Prompt
+    install_app: "Instalar Aplicación",
+    install_app_description: "Agrega ConfessAI a tu pantalla de inicio para una mejor experiencia",
+    install: "Instalar",
+    not_now: "Ahora No",
   },
   de: {
     app_name: "Confess+",
@@ -5933,5 +5951,11 @@ export const translations: Record<Language, Translations> = {
     
     // Trending Hashtags
     hashtags_trending: "Trending Hashtags",
+    
+    // Install Prompt
+    install_app: "App Installieren",
+    install_app_description: "Füge ConfessAI zu deinem Startbildschirm hinzu für ein besseres Erlebnis",
+    install: "Installieren",
+    not_now: "Nicht Jetzt",
   },
 };

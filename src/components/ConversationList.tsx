@@ -104,7 +104,7 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
 
   const loadConversations = async () => {
     try {
-      console.log("Loading conversations for user:", currentUserId);
+      
       
       // Get all conversations first
       const { data: allConversations, error: convError } = await supabase
@@ -141,7 +141,7 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
         console.error("Error loading participants:", participantError);
         throw participantError;
       }
-      console.log("Participant data:", participantData);
+      
 
       if (!participantData || participantData.length === 0) {
         setConversations([]);

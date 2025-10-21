@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Download, X } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -9,6 +10,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export const InstallPrompt = () => {
+  const { t } = useLanguage();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
 
@@ -34,11 +36,7 @@ export const InstallPrompt = () => {
     if (!deferredPrompt) return;
 
     deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    
-    if (outcome === 'accepted') {
-      console.log('PWA installed');
-    }
+    await deferredPrompt.userChoice;
     
     setDeferredPrompt(null);
     setShowPrompt(false);
@@ -66,17 +64,17 @@ export const InstallPrompt = () => {
         </div>
         <div className="flex-1">
           <h3 className="font-semibold mb-1">
-            Install App
+            {t.install_app || "Install App"}
           </h3>
           <p className="text-sm text-muted-foreground mb-3">
-            Add ConfessAI to your home screen for a better experience
+            {t.install_app_description || "Add ConfessAI to your home screen for a better experience"}
           </p>
           <div className="flex gap-2">
             <Button onClick={handleInstall} size="sm" className="flex-1">
-              Install
+              {t.install || "Install"}
             </Button>
             <Button onClick={handleDismiss} variant="outline" size="sm">
-              Not Now
+              {t.not_now || "Not Now"}
             </Button>
           </div>
         </div>

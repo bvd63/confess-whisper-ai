@@ -27,7 +27,7 @@ export const InstagramBottomNav = () => {
   ];
 
   const handleTabClick = (tabId: "home" | "explore" | "messages" | "profile" | "compose") => {
-    console.log('[BottomNav] Tab clicked:', tabId);
+    
     
     if (tabId === "compose") {
       // Compose is not a tab, navigate directly without switching tabs
