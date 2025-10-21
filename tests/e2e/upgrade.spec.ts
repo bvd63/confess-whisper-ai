@@ -4,6 +4,7 @@ import { mockSubscriptionRoutes } from '../helpers/network';
 
 test.describe('Subscription Upgrade Flow', () => {
   test.beforeEach(async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
     await loginAs(page, 'free_user');
     await mockSubscriptionRoutes(page);
     

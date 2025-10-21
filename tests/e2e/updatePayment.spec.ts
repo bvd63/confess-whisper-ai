@@ -4,6 +4,7 @@ import { mockSubscriptionRoutes } from '../helpers/network';
 
 test.describe('Update Payment Method Flow', () => {
   test.beforeEach(async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
     await loginAs(page, 'delinquent_premium');
     await mockSubscriptionRoutes(page);
     

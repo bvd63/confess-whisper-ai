@@ -4,6 +4,7 @@ import { mockSubscriptionRoutes } from '../helpers/network';
 
 test.describe('Manage Subscription Header Visibility', () => {
   test('authenticated user sees header button', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
     await loginAs(page, 'premium_monthly_active');
     await mockSubscriptionRoutes(page);
 
@@ -20,6 +21,7 @@ test.describe('Manage Subscription Header Visibility', () => {
   });
 
   test('unauthenticated user does not see header button', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
     // Don't call loginAs - leave user unauthenticated
     await page.route('**/auth/v1/user', (route) => {
       route.fulfill({
@@ -39,6 +41,7 @@ test.describe('Manage Subscription Header Visibility', () => {
   });
 
   test('free tier user sees upgrade option in header', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
     await loginAs(page, 'free_user');
     await mockSubscriptionRoutes(page);
 

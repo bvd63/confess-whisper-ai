@@ -4,6 +4,7 @@ import { mockSubscriptionRoutes } from '../helpers/network';
 
 test.describe('Internationalization (i18n)', () => {
   test.beforeEach(async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
     await loginAs(page, 'premium_monthly_active');
     await mockSubscriptionRoutes(page);
   });
