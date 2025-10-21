@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { vi } from 'vitest';
 
-// Mock Supabase client
+// Complete Supabase mock for subscription tests
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     auth: {
@@ -16,7 +16,10 @@ vi.mock('@/integrations/supabase/client', () => ({
       getSession: vi.fn().mockResolvedValue({
         data: { session: { user: { id: 'test-user' } } },
         error: null
-      })
+      }),
+      onAuthStateChange: vi.fn(() => ({
+        data: { subscription: { unsubscribe: vi.fn() } }
+      }))
     },
     from: vi.fn(() => ({
       select: vi.fn(() => ({
@@ -29,10 +32,39 @@ vi.mock('@/integrations/supabase/client', () => ({
               plan_name: 'premium'
             },
             error: null
+          }),
+          maybeSingle: vi.fn().mockResolvedValue({
+            data: {
+              id: 'test-subscription',
+              status: 'PREMIUM',
+              current_period_end: '2025-11-12T18:00:00Z',
+              plan_name: 'premium'
+            },
+            error: null
           })
-        }))
+        })),
+        order: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockReturnThis()
+      })),
+      insert: vi.fn(() => ({
+        select: vi.fn().mockResolvedValue({ data: [], error: null })
+      })),
+      update: vi.fn(() => ({
+        eq: vi.fn().mockResolvedValue({ data: [], error: null })
+      })),
+      delete: vi.fn(() => ({
+        eq: vi.fn().mockResolvedValue({ data: [], error: null })
       }))
-    }))
+    })),
+    functions: {
+      invoke: vi.fn().mockResolvedValue({ data: null, error: null })
+    },
+    storage: {
+      from: vi.fn(() => ({
+        upload: vi.fn().mockResolvedValue({ data: {}, error: null }),
+        download: vi.fn().mockResolvedValue({ data: new Blob(), error: null })
+      }))
+    }
   }
 }));
 

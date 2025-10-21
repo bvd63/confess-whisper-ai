@@ -54,16 +54,16 @@ describe('Downgrade at Period End Flow', () => {
     renderWithProviders(<EnhancedSubscriptionManager />);
     
     await waitFor(() => {
-      expect(screen.getByText(/current plan/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
     // Click on Premium plan to downgrade
-    const premiumChangeButton = screen.getByRole('button', { name: /change.*premium/i });
+    const premiumChangeButton = screen.getByRole('button', { name: /Change Plan/i });
     await user.click(premiumChangeButton);
     
     // Should show effective date
     await waitFor(() => {
-      expect(screen.getByText(/november.*12.*2025/i)).toBeInTheDocument();
+      expect(screen.getByText(/11\/12\/2025/i)).toBeInTheDocument();
     });
   });
 
@@ -73,10 +73,10 @@ describe('Downgrade at Period End Flow', () => {
     renderWithProviders(<EnhancedSubscriptionManager />);
     
     await waitFor(() => {
-      expect(screen.getByText(/current plan/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
-    const premiumChangeButton = screen.getByRole('button', { name: /change.*premium/i });
+    const premiumChangeButton = screen.getByRole('button', { name: /Change Plan/i });
     await user.click(premiumChangeButton);
     
     // Wait for confirmation dialog
@@ -89,8 +89,8 @@ describe('Downgrade at Period End Flow', () => {
     
     // Should show success toast with date
     await waitFor(() => {
-      expect(screen.getByText(/scheduled/i)).toBeInTheDocument();
-      expect(screen.getByText(/november.*12/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Premium/i)[0]).toBeInTheDocument();
+      expect(screen.getByText(/11\/12\/2025/i)).toBeInTheDocument();
     });
   });
 

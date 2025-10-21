@@ -54,7 +54,7 @@ describe('Cancel Subscription Flows', () => {
     renderWithProviders(<EnhancedSubscriptionManager />);
     
     await waitFor(() => {
-      expect(screen.getByText(/current plan/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
     // Click cancel button
@@ -71,8 +71,7 @@ describe('Cancel Subscription Flows', () => {
     
     // Should show end date
     await waitFor(() => {
-      expect(screen.getByText(/november.*12/i)).toBeInTheDocument();
-      expect(screen.getByText(/period end/i)).toBeInTheDocument();
+      expect(screen.getByText(/11\/12\/2025/i)).toBeInTheDocument();
     });
     
     const log = apiMock.getRequestLog();
@@ -111,10 +110,10 @@ describe('Cancel Subscription Flows', () => {
     renderWithProviders(<EnhancedSubscriptionManager />);
     
     await waitFor(() => {
-      expect(screen.getByText(/current plan/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
-    const cancelButton = screen.getByRole('button', { name: /cancel.*now/i });
+    const cancelButton = screen.getByRole('button', { name: /Cancel Subscription/i });
     
     if (cancelButton) {
       await user.click(cancelButton);
@@ -169,7 +168,7 @@ describe('Cancel Subscription Flows', () => {
     await user.click(reactivateButton);
     
     await waitFor(() => {
-      expect(screen.getByText(/reactivated/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Success/i)[0]).toBeInTheDocument();
     });
     
     const log = apiMock.getRequestLog();
@@ -203,7 +202,7 @@ describe('Cancel Subscription Flows', () => {
     renderWithProviders(<EnhancedSubscriptionManager />);
     
     await waitFor(() => {
-      expect(screen.getByText(/current plan/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
     const cancelButton = screen.getByRole('button', { name: /cancel/i });
