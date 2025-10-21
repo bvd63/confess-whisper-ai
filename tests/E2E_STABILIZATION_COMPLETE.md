@@ -145,26 +145,28 @@ Login as different user types:
 ✅ **i18n tests don't flake** - `__i18nReady` flag prevents race conditions  
 ✅ **Traces/videos on failure** - Configured in Playwright config  
 
-## Next Steps
+## All Test Files Updated ✅
 
-### Update Remaining Test Files
+All E2E test files have been successfully migrated to use the new helpers and patterns:
 
-Other E2E specs should be updated to use the new helpers:
+- ✅ `tests/e2e/upgrade.spec.ts` - Upgrade flows with savings calculation
+- ✅ `tests/e2e/downgrade.spec.ts` - Downgrade scheduling and pending changes
+- ✅ `tests/e2e/cancel.spec.ts` - Cancellation and reactivation flows
+- ✅ `tests/e2e/updatePayment.spec.ts` - Delinquent account payment updates
+- ✅ `tests/e2e/i18n.spec.ts` - Multi-language support (EN/ES/DE)
+- ✅ `tests/e2e/a11y.spec.ts` - Accessibility compliance testing
+- ✅ `tests/e2e/headerVisibility.spec.ts` - Auth-based UI visibility
 
-- `tests/e2e/downgrade.spec.ts`
-- `tests/e2e/cancel.spec.ts`
-- `tests/e2e/updatePayment.spec.ts`
-- `tests/e2e/i18n.spec.ts`
-- `tests/e2e/a11y.spec.ts`
-- `tests/e2e/headerVisibility.spec.ts`
+### Applied Pattern
 
-### Pattern to Follow
+All files now follow this structure:
 
-1. Replace manual route mocking with `mockSubscriptionRoutes(page)`
-2. Replace manual auth setup with `loginAs(page, 'fixture_key')`
-3. Add app ready waits: `getByTestId('app-ready')` and `__i18nReady`
-4. Replace text selectors with test IDs where available
-5. Use generous timeouts (10-15s) for all assertions
+1. ✅ Use `loginAs(page, 'fixture_key')` for authentication
+2. ✅ Use `mockSubscriptionRoutes(page)` for API mocking
+3. ✅ Wait for `app-ready` and `__i18nReady` before interactions
+4. ✅ Use stable `data-testid` selectors instead of text
+5. ✅ Apply generous timeouts (10-15s) for all assertions
+6. ✅ Handle edge cases gracefully with proper error checking
 
 ## Documentation
 
