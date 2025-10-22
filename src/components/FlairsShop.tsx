@@ -350,7 +350,7 @@ export const FlairsShop = ({
           <ExpiryTimer expiresAt={userFlair.expires_at} className="text-[10px]" showIcon={false} />
         )}
 
-        {owned && onCooldown && vipCooldownEnd && (
+        {onCooldown && vipCooldownEnd && (
           <ExpiryTimer expiresAt={vipCooldownEnd.toISOString()} className="text-[10px]" showIcon={false} />
         )}
 
@@ -389,7 +389,7 @@ export const FlairsShop = ({
                 </Button>
               )
             )
-          ) : isLocked ? <Button size="sm" disabled className="w-full gap-1" variant="outline">
+) : isLocked ? <Button size="sm" disabled className="w-full gap-1" variant="outline">
             <Lock className="w-3 h-3" />
             {t.upgrade_required}
           </Button> : <Button size="sm" onClick={() => handlePurchase(flair)} disabled={purchasing === flair.id || coinsBalance < flair.cost} className="w-full gap-1">
