@@ -2150,13 +2150,6 @@ export type Database = {
         Args: { base_nickname: string }
         Returns: string
       }
-      get_confession_awards: {
-        Args: { confession_id_param: string }
-        Returns: {
-          award_count: number
-          award_type: string
-        }[]
-      }
       get_conversation_partner: {
         Args: { conv_id: string; current_user_id: string }
         Returns: string

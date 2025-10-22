@@ -19,12 +19,13 @@ export const AwardDisplay = ({ confessionId }: AwardDisplayProps) => {
     queryKey: ['confessionAwards', confessionId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .rpc('get_confession_awards', { confession_id_param: confessionId });
+        .rpc('get_confession_awards' as any, { confession_id_param: confessionId });
 
       if (error) throw error;
 
       // Convert array to object with counts
-      const counts = (data || []).reduce((acc: Record<string, number>, award: any) => {
+      const awardsArray = Array.isArray(data) ? data : [];
+      const counts = awardsArray.reduce((acc: Record<string, number>, award: any) => {
         acc[award.award_type] = parseInt(award.award_count);
         return acc;
       }, {} as Record<string, number>);
@@ -50,7 +51,7 @@ export const AwardDisplay = ({ confessionId }: AwardDisplayProps) => {
             className="flex items-center gap-1 px-2 py-1 rounded-full bg-secondary/50"
           >
             <Icon className={cn('w-4 h-4', award.color)} />
-            <span className="text-xs font-semibold">{count}</span>
+            <span className="text-xs font-semibold">{String(count)}</span>
           </div>
         );
       })}
