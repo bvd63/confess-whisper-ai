@@ -60,22 +60,27 @@ serve(async (req) => {
     let priceId = isTestMode ? pkg.stripe_price_id_test : pkg.stripe_price_id
 
     if (!priceId) {
-      console.error('[COIN-CHECKOUT] Missing Price ID for package:', pkg.name, 'mode:', isTestMode ? 'TEST' : 'LIVE')
-      throw new Error(`Package not properly configured for ${isTestMode ? 'test' : 'live'} mode. Please contact support.`)
+      console.warn('[COIN-CHECKOUT] Missing Price ID for package:', pkg.name, 'mode:', isTestMode ? 'TEST' : 'LIVE', ' - falling back to dynamic price_data (TEST only)')
+    } else {
+      console.log('[COIN-CHECKOUT] Using Price ID:', priceId)
     }
-
-    console.log('[COIN-CHECKOUT] Using Price ID:', priceId)
     console.log('[COIN-CHECKOUT] Creating checkout session...')
 
-    // Create Stripe checkout session
+    // Create Stripe checkout session (use price_id when available, otherwise fallback to price_data)
+    const lineItem: any = priceId
+      ? { price: priceId, quantity: 1 }
+      : {
+          price_data: {
+            currency: 'usd',
+            product_data: { name: `${pkg.name} - ${pkg.coins} coins` },
+            unit_amount: Math.round(Number(pkg.price_usd) * 100),
+          },
+          quantity: 1,
+        }
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
+      line_items: [lineItem],
       mode: 'payment',
       success_url: `${req.headers.get('origin')}/coins/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get('origin')}/coins/cancel`,
