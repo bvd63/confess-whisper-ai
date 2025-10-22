@@ -12,9 +12,12 @@ const logStep = (step: string, details?: any) => {
   console.log(`[BILLING-STATUS] ${step}${detailsStr}`);
 };
 
+// Price IDs for both test and live mode
 const STRIPE_PRICE_IDS = {
-  premium: "price_1SJ0vvR7kygIyYg9oT1ju6lQ",
-  vip: "price_1SJ0vwR7kygIyYg9OeCiqV00",
+  premium_live: "price_1SJ0vvR7kygIyYg9oT1ju6lQ",
+  premium_yearly_live: "price_1SJ0vvR7kygIyYg9yORadPGD",
+  vip_live: "price_1SJ0vwR7kygIyYg9OeCiqV00",
+  vip_yearly_live: "price_1SJ0vvR7kygIyYg9BJuciYGd",
 };
 
 serve(async (req) => {
@@ -74,22 +77,21 @@ serve(async (req) => {
     if (subscriptions.data.length === 0) {
       logStep("No subscriptions found");
       
-      // Update local database
+      // Update local database - use correct column names
       await supabaseClient
         .from('profiles')
         .update({
-          current_plan: 'free',
-          status: 'none',
-          cancel_at_period_end: false,
+          subscription_tier: 'free',
+          subscription_status: 'none',
+          subscription_cancel_at_period_end: false,
           stripe_customer_id: customerId,
-          last_sync_at: new Date().toISOString(),
         })
-        .eq('id', user.id);
+        .eq('user_id', user.id);
 
       return new Response(
         JSON.stringify({ 
-          current_plan: 'free',
-          status: 'none',
+          subscription_tier: 'free',
+          subscription_status: 'none',
           cancel_at_period_end: false,
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
@@ -102,14 +104,29 @@ serve(async (req) => {
       status: subscription.status
     });
 
-    // Determine tier from price using centralized config
+    // Determine tier from price - check product name from metadata
     const priceId = subscription.items.data[0].price.id;
+    const productId = subscription.items.data[0].price.product;
     
-    let tier = 'premium'; // default
-    if (priceId === STRIPE_PRICE_IDS.vip) {
+    let tier = 'free';
+    
+    // Check if VIP or Premium based on price ID patterns or product metadata
+    // Since we're using dynamic prices in test mode, check the subscription metadata
+    const planName = subscription.metadata?.plan_name?.toLowerCase() || '';
+    
+    if (planName.includes('vip')) {
       tier = 'vip';
-    } else if (priceId === STRIPE_PRICE_IDS.premium) {
+    } else if (planName.includes('premium')) {
       tier = 'premium';
+    } else {
+      // Fallback: check live mode price IDs
+      if (Object.values(STRIPE_PRICE_IDS).includes(priceId)) {
+        if (priceId.includes('vip') || priceId === STRIPE_PRICE_IDS.vip_live || priceId === STRIPE_PRICE_IDS.vip_yearly_live) {
+          tier = 'vip';
+        } else {
+          tier = 'premium';
+        }
+      }
     }
 
     // If subscription is not active, set to free
@@ -117,28 +134,33 @@ serve(async (req) => {
       tier = 'free';
     }
 
-    logStep("Determined tier", { tier, status: subscription.status });
+    logStep("Determined tier", { tier, status: subscription.status, planName, priceId });
 
-    // Update local database
-    await supabaseClient
+    // Update local database with correct column names
+    const { error: updateError } = await supabaseClient
       .from('profiles')
       .update({
-        current_plan: tier,
-        status: subscription.status,
-        cancel_at_period_end: subscription.cancel_at_period_end,
+        subscription_tier: tier,
+        subscription_status: subscription.status,
+        subscription_cancel_at_period_end: subscription.cancel_at_period_end,
+        subscription_ends_at: new Date(subscription.current_period_end * 1000).toISOString(),
         stripe_customer_id: customerId,
         stripe_subscription_id: subscription.id,
-        current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-        last_sync_at: new Date().toISOString(),
       })
-      .eq('id', user.id);
+      .eq('user_id', user.id);
+
+    if (updateError) {
+      logStep("Error updating profile", { error: updateError });
+    } else {
+      logStep("Profile updated successfully", { tier });
+    }
 
     return new Response(
       JSON.stringify({ 
-        current_plan: tier,
-        status: subscription.status,
+        subscription_tier: tier,
+        subscription_status: subscription.status,
         cancel_at_period_end: subscription.cancel_at_period_end,
-        current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+        subscription_ends_at: new Date(subscription.current_period_end * 1000).toISOString(),
         stripe_subscription_id: subscription.id,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
