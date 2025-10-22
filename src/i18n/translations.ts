@@ -1178,6 +1178,13 @@ type Translations = {
   subs_manage_trialEnds: string;
   subs_action_upgrade: string;
   subs_action_downgrade: string;
+  
+  // Subscription Flow Messages
+  payment_processing_wait: string;
+  upgrade_processing_now: string;
+  downgrade_scheduled_next_period: string;
+  already_on_this_plan: string;
+  invalid_target_plan: string;
   subs_action_cancel: string;
   subs_action_cancelNow: string;
   subs_action_cancelAtPeriodEnd: string;

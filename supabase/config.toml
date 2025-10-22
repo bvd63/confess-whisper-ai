@@ -168,3 +168,15 @@ verify_jwt = true
 
 [functions.soft-delete-conversation]
 verify_jwt = true
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.subscription-upgrade]
+verify_jwt = true
+
+[functions.subscription-downgrade]
+verify_jwt = true
+
+[functions.billing-confirm]
+verify_jwt = true
