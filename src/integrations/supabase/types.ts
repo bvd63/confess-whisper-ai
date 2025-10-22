@@ -1312,7 +1312,6 @@ export type Database = {
           is_nickname_public: boolean | null
           is_premium: boolean | null
           is_shadow_banned: boolean | null
-          last_daily_reward: string | null
           nickname: string | null
           nickname_lower: string | null
           nickname_updated_at: string | null
@@ -1349,7 +1348,6 @@ export type Database = {
           is_nickname_public?: boolean | null
           is_premium?: boolean | null
           is_shadow_banned?: boolean | null
-          last_daily_reward?: string | null
           nickname?: string | null
           nickname_lower?: string | null
           nickname_updated_at?: string | null
@@ -1386,7 +1384,6 @@ export type Database = {
           is_nickname_public?: boolean | null
           is_premium?: boolean | null
           is_shadow_banned?: boolean | null
-          last_daily_reward?: string | null
           nickname?: string | null
           nickname_lower?: string | null
           nickname_updated_at?: string | null

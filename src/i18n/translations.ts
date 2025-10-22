@@ -1605,6 +1605,28 @@ type Translations = {
   confession_content: string;
   error_network: string;
   error_validation: string;
+  
+  // Coin System
+  coins_balance: string;
+  coins_get_more: string;
+  coins_shop_title: string;
+  coins_shop_subtitle: string;
+  coins_best_value: string;
+  coins_per_coin: string;
+  coins_buy_now: string;
+  coins_processing: string;
+  coins_secure_payment: string;
+  coins_instant_delivery: string;
+  coins_satisfaction: string;
+  coins_purchase_error: string;
+  coins_purchase_success_title: string;
+  coins_purchase_success_message: string;
+  coins_purchase_cancelled_title: string;
+  coins_purchase_cancelled_message: string;
+  coins_go_home: string;
+  coins_visit_store: string;
+  coins_try_again: string;
+  coins_most_popular: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -3085,6 +3107,28 @@ export const translations: Record<Language, Translations> = {
     
     // Common (continued)
     common_continue: "Continue",
+    
+    // Coin System
+    coins_balance: "Balance",
+    coins_get_more: "Get Coins",
+    coins_shop_title: "Coin Shop",
+    coins_shop_subtitle: "Purchase coins to unlock premium features",
+    coins_best_value: "Best Value",
+    coins_per_coin: "per coin",
+    coins_buy_now: "Buy Now",
+    coins_processing: "Processing...",
+    coins_secure_payment: "🔒 Secure Payment",
+    coins_instant_delivery: "⚡ Instant Delivery",
+    coins_satisfaction: "✓ 100% Satisfaction",
+    coins_purchase_error: "Purchase failed. Please try again.",
+    coins_purchase_success_title: "Purchase Successful!",
+    coins_purchase_success_message: "Your coins have been added to your account",
+    coins_purchase_cancelled_title: "Purchase Cancelled",
+    coins_purchase_cancelled_message: "Your payment was cancelled. No charges were made.",
+    coins_go_home: "Go Home",
+    coins_visit_store: "Visit Store",
+    coins_try_again: "Try Again",
+    coins_most_popular: "Most Popular",
   },
   es: {
     app_name: "Confess+",
@@ -4565,6 +4609,28 @@ export const translations: Record<Language, Translations> = {
     
     // Common (continued)
     common_continue: "Continuar",
+    
+    // Coin System
+    coins_balance: "Saldo",
+    coins_get_more: "Obtener Monedas",
+    coins_shop_title: "Tienda de Monedas",
+    coins_shop_subtitle: "Compra monedas para desbloquear funciones premium",
+    coins_best_value: "Mejor Valor",
+    coins_per_coin: "por moneda",
+    coins_buy_now: "Comprar Ahora",
+    coins_processing: "Procesando...",
+    coins_secure_payment: "🔒 Pago Seguro",
+    coins_instant_delivery: "⚡ Entrega Instantánea",
+    coins_satisfaction: "✓ 100% Satisfacción",
+    coins_purchase_error: "Compra fallida. Por favor intenta de nuevo.",
+    coins_purchase_success_title: "¡Compra Exitosa!",
+    coins_purchase_success_message: "Tus monedas han sido agregadas a tu cuenta",
+    coins_purchase_cancelled_title: "Compra Cancelada",
+    coins_purchase_cancelled_message: "Tu pago fue cancelado. No se realizaron cargos.",
+    coins_go_home: "Ir a Inicio",
+    coins_visit_store: "Visitar Tienda",
+    coins_try_again: "Intentar de Nuevo",
+    coins_most_popular: "Más Popular",
   },
   de: {
     app_name: "Confess+",
@@ -6045,5 +6111,27 @@ export const translations: Record<Language, Translations> = {
     
     // Common (continued)
     common_continue: "Weiter",
+    
+    // Coin System
+    coins_balance: "Guthaben",
+    coins_get_more: "Münzen Holen",
+    coins_shop_title: "Münzladen",
+    coins_shop_subtitle: "Kaufe Münzen um Premium-Funktionen freizuschalten",
+    coins_best_value: "Bestes Angebot",
+    coins_per_coin: "pro Münze",
+    coins_buy_now: "Jetzt Kaufen",
+    coins_processing: "Wird verarbeitet...",
+    coins_secure_payment: "🔒 Sichere Zahlung",
+    coins_instant_delivery: "⚡ Sofortige Lieferung",
+    coins_satisfaction: "✓ 100% Zufriedenheit",
+    coins_purchase_error: "Kauf fehlgeschlagen. Bitte versuche es erneut.",
+    coins_purchase_success_title: "Kauf Erfolgreich!",
+    coins_purchase_success_message: "Deine Münzen wurden deinem Konto hinzugefügt",
+    coins_purchase_cancelled_title: "Kauf Abgebrochen",
+    coins_purchase_cancelled_message: "Deine Zahlung wurde abgebrochen. Es wurden keine Gebühren erhoben.",
+    coins_go_home: "Zur Startseite",
+    coins_visit_store: "Laden Besuchen",
+    coins_try_again: "Erneut Versuchen",
+    coins_most_popular: "Am Beliebtesten",
   },
 };

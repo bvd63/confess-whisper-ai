@@ -8,6 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import ThemeToggle from "@/components/ThemeToggle";
 import NotificationsDropdown from "@/components/NotificationsDropdown";
 import CoinsDisplay from "@/components/CoinsDisplay";
+import CoinBalance from "@/components/coins/CoinBalance";
 import StreakCounter from "@/components/StreakCounter";
 import { SyncStatusIndicator } from "@/components/SyncStatusIndicator";
 import { supabase } from "@/integrations/supabase/client";
@@ -81,6 +82,7 @@ const AppHeader = ({
             <LanguageSelector />
             <ThemeToggle />
             {user ? <>
+                <CoinBalance />
                 {/* Always show subscription button - Upgrade for free, Manage for paid */}
                 <Button 
                   data-testid="manage-subscription-btn"
