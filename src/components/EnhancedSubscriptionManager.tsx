@@ -38,10 +38,23 @@ export const EnhancedSubscriptionManager = () => {
       const supabase = getSupabase();
       const { data, error } = await supabase.functions.invoke('billing-status');
       if (error) throw error;
-      setStatus(data);
-      if (data?.interval) setInterval(data.interval);
+      
+      // Ensure data has required properties with defaults
+      const statusData: SubscriptionStatus | null = data ? {
+        currentPlan: data.currentPlan || 'free',
+        interval: data.interval || null,
+        status: data.status || 'inactive',
+        cancelAtPeriodEnd: data.cancelAtPeriodEnd || false,
+        currentPeriodEnd: data.currentPeriodEnd,
+        canReactivate: data.canReactivate || false,
+        priceId: data.priceId,
+      } : null;
+      
+      setStatus(statusData);
+      if (statusData?.interval) setInterval(statusData.interval);
     } catch (error) {
       console.error('Error loading status:', error);
+      toast.error(t.subscription_error || 'Failed to load subscription status');
     } finally {
       setLoading(false);
     }
@@ -128,13 +141,13 @@ export const EnhancedSubscriptionManager = () => {
   return (
     <div className="space-y-6" data-testid="manage-subscription-modal">
       {/* Current Status */}
-      {status && status.currentPlan !== 'free' && (
+      {status && status.currentPlan && status.currentPlan !== 'free' && (
         <Card className="p-6">
           <div className="flex justify-between items-center">
             <div>
               <h3 className="text-lg font-semibold">{t.subscription_current_status}</h3>
               <p className="text-muted-foreground">
-                {status.currentPlan.toUpperCase()} - {status.interval === 'monthly' ? t.subscription_interval_monthly : t.subscription_interval_yearly}
+                {status.currentPlan?.toUpperCase() || 'UNKNOWN'} - {status.interval === 'monthly' ? t.subscription_interval_monthly : t.subscription_interval_yearly}
               </p>
               {status.currentPeriodEnd && (
                 <p className="text-sm text-muted-foreground">
