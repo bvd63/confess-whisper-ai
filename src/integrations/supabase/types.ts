@@ -1614,6 +1614,78 @@ export type Database = {
         }
         Relationships: []
       }
+      stripe_processed_events: {
+        Row: {
+          created_at: string | null
+          id: string
+          type: string
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          type: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      subscription_audit: {
+        Row: {
+          action: string
+          created_at: string | null
+          data: Json | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscription_change_requests: {
+        Row: {
+          action: string
+          created_at: string | null
+          id: string
+          status: string
+          target_price_id: string
+          target_tier: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          id?: string
+          status?: string
+          target_price_id: string
+          target_tier: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          id?: string
+          status?: string
+          target_price_id?: string
+          target_tier?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscription_entitlements: {
         Row: {
           ai_insights_quota: number | null

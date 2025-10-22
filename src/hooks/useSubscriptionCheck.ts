@@ -1,45 +1,34 @@
 import { useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 export const useSubscriptionCheck = (userId: string | undefined) => {
-  const { toast } = useToast();
-
   const checkSubscription = useCallback(async () => {
-    if (!userId) return;
+    if (!userId) return null;
 
     try {
-      // Use billing-status for subscription management
-      const { data, error } = await supabase.functions.invoke('billing-status');
+      // Check entitlements from database
+      const { data: entitlement, error } = await supabase
+        .from('subscription_entitlements')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
 
-      if (error) {
-        console.error('Error checking subscription:', error);
-        return;
+      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows
+        console.error('Error checking subscription entitlements:', error);
+        return null;
       }
 
-      if (data) {
-        console.log('Subscription status updated:', data);
-      }
+      return entitlement;
     } catch (error) {
       console.error('Error in subscription check:', error);
+      return null;
     }
   }, [userId]);
 
   // Check on mount and when userId changes
   useEffect(() => {
     checkSubscription();
-    
-    // Also check trial expiry
-    const checkTrialExpiry = async () => {
-      if (!userId) return;
-      try {
-        await supabase.functions.invoke('check-trial-expiry');
-      } catch (error) {
-        console.error('Error checking trial expiry:', error);
-      }
-    };
-    checkTrialExpiry();
-  }, [checkSubscription, userId]);
+  }, [checkSubscription]);
 
   // Check every 5 minutes
   useEffect(() => {
