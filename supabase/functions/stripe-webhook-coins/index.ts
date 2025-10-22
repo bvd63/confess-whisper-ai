@@ -1,14 +1,14 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { serve } from 'https://deno.land/std@0.190.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import Stripe from 'https://esm.sh/stripe@14.10.0?target=deno'
+import Stripe from 'https://esm.sh/stripe@18.5.0'
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
-  apiVersion: '2023-10-16',
+  apiVersion: '2025-08-27.basil',
 })
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, stripe-signature',
 }
 
 serve(async (req) => {
@@ -17,29 +17,47 @@ serve(async (req) => {
   }
 
   try {
+    console.log('[STRIPE-WEBHOOK-COINS] Webhook received')
+    
     const signature = req.headers.get('stripe-signature')
     if (!signature) {
+      console.error('[STRIPE-WEBHOOK-COINS] Missing signature')
       throw new Error('No signature')
     }
 
     const body = await req.text()
     const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')
 
+    if (!webhookSecret) {
+      console.error('[STRIPE-WEBHOOK-COINS] STRIPE_WEBHOOK_SECRET not configured')
+      throw new Error('Webhook secret not configured')
+    }
+
+    console.log('[STRIPE-WEBHOOK-COINS] Verifying webhook signature...')
     const event = stripe.webhooks.constructEvent(
       body,
       signature,
-      webhookSecret || ''
+      webhookSecret
     )
+
+    console.log('[STRIPE-WEBHOOK-COINS] Event type:', event.type)
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session
 
+      console.log('[STRIPE-WEBHOOK-COINS] Session completed:', session.id)
+      console.log('[STRIPE-WEBHOOK-COINS] Metadata:', session.metadata)
+
       const userId = session.metadata?.user_id
+      const packageId = session.metadata?.package_id
       const coins = parseInt(session.metadata?.coins || '0')
 
       if (!userId || !coins) {
-        throw new Error('Missing metadata')
+        console.error('[STRIPE-WEBHOOK-COINS] Missing metadata - userId:', userId, 'coins:', coins)
+        throw new Error('Missing user_id or coins in metadata')
       }
+
+      console.log('[STRIPE-WEBHOOK-COINS] Awarding', coins, 'coins to user', userId)
 
       // Create admin client (bypasses RLS)
       const supabaseAdmin = createClient(
@@ -47,26 +65,21 @@ serve(async (req) => {
         Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
       )
 
-      // Add coins to user's balance via transaction
-      const { error: txError } = await supabaseAdmin
-        .from('transactions')
-        .insert({
-          user_id: userId,
-          amount: coins,
-          type: 'purchase',
-          description: `Purchased ${coins} coins via Stripe`,
-          metadata: {
-            stripe_session_id: session.id,
-            payment_intent_id: session.payment_intent,
-          },
-        })
+      // Use the award_coins database function
+      const { error: awardError } = await supabaseAdmin.rpc('award_coins', {
+        _user_id: userId,
+        _amount: coins,
+        _type: 'coin_purchase',
+        _description: `Purchased ${coins} coins via Stripe`,
+        _reference_id: packageId || null
+      })
 
-      if (txError) {
-        console.error('Transaction error:', txError)
-        throw txError
+      if (awardError) {
+        console.error('[STRIPE-WEBHOOK-COINS] Error awarding coins:', awardError)
+        throw awardError
       }
 
-      console.log(`Added ${coins} coins to user ${userId}`)
+      console.log('[STRIPE-WEBHOOK-COINS] Successfully awarded', coins, 'coins to user', userId)
     }
 
     return new Response(
@@ -77,9 +90,10 @@ serve(async (req) => {
       }
     )
   } catch (error) {
-    console.error('Webhook error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.error('[STRIPE-WEBHOOK-COINS] Error:', errorMessage, error)
     return new Response(
-      JSON.stringify({ error: (error as Error).message }),
+      JSON.stringify({ error: errorMessage }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
