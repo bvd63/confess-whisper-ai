@@ -116,6 +116,7 @@ serve(async (req) => {
           subscription_status: 'none',
           subscription_cancel_at_period_end: false,
           stripe_customer_id: customerId,
+          is_premium: false, // Set is_premium to false when no subscription
         })
         .eq('user_id', user.id);
 
@@ -160,6 +161,7 @@ serve(async (req) => {
         subscription_ends_at: endsAt,
         stripe_customer_id: customerId,
         stripe_subscription_id: subscription.id,
+        is_premium: tier !== 'free', // Update is_premium based on tier
       })
       .eq('user_id', user.id);
 
