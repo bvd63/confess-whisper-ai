@@ -57,9 +57,26 @@ export default function CoinShop({ open, onOpenChange }: CoinShopProps) {
 
       if (error) throw error;
 
-      // Redirect to Stripe Checkout
+      // Redirect to Stripe Checkout (new tab to avoid iframe/X-Frame-Options issues)
       if (data?.url) {
-        window.location.href = data.url;
+        try {
+          toast.info('Opening secure Stripe Checkout...');
+          const win = window.open(data.url, '_blank', 'noopener,noreferrer');
+          if (!win) {
+            // Popup blocked – force top-level navigation as fallback
+            if (window.top) {
+              window.top.location.href = data.url;
+            } else {
+              window.location.href = data.url;
+            }
+          }
+        } catch {
+          if (window.top) {
+            window.top.location.href = data.url;
+          } else {
+            window.location.href = data.url;
+          }
+        }
       }
     } catch (error) {
       console.error('Purchase error:', error);
