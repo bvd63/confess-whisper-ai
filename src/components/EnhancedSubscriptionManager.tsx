@@ -157,7 +157,7 @@ export const EnhancedSubscriptionManager = () => {
               )}
             </div>
             <Badge variant={status.status === 'active' ? 'default' : 'secondary'}>
-              {t[`subscription_status_${status.status}` as keyof typeof t] || status.status}
+              {status.status ? (t[`subscription_status_${status.status}` as keyof typeof t] || status.status.toUpperCase()) : 'UNKNOWN'}
             </Badge>
           </div>
           {status.canReactivate && (

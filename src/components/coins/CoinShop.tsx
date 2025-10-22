@@ -26,18 +26,14 @@ export default function CoinShop({ open, onOpenChange }: CoinShopProps) {
   const { t } = useLanguage();
   const [loading, setLoading] = useState<string | null>(null);
 
-  const { data: packages } = useQuery({
-    queryKey: ['coin-packages'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('coin_packages')
-        .select('*')
-        .order('display_order');
-      
-      if (error) throw error;
-      return data as CoinPackage[];
-    }
-  });
+  // Mock data until coin_packages table is created
+  const packages: CoinPackage[] = [
+    { id: '1', name: 'Starter', coins: 100, price_usd: 0.99, discount_percentage: 0, is_popular: false, display_order: 1 },
+    { id: '2', name: 'Popular', coins: 500, price_usd: 4.99, discount_percentage: 10, is_popular: true, display_order: 2 },
+    { id: '3', name: 'Value', coins: 1000, price_usd: 8.99, discount_percentage: 15, is_popular: false, display_order: 3 },
+    { id: '4', name: 'Premium', coins: 2500, price_usd: 19.99, discount_percentage: 20, is_popular: false, display_order: 4 },
+    { id: '5', name: 'Whale', coins: 5000, price_usd: 34.99, discount_percentage: 25, is_popular: false, display_order: 5 },
+  ];
 
   const handlePurchase = async (packageId: string, priceUsd: number) => {
     setLoading(packageId);
