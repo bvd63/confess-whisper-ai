@@ -233,8 +233,6 @@ export type Database = {
           is_popular: boolean
           name: string
           price_usd: number
-          stripe_price_id: string | null
-          stripe_price_id_test: string | null
           updated_at: string
         }
         Insert: {
@@ -247,8 +245,6 @@ export type Database = {
           is_popular?: boolean
           name: string
           price_usd: number
-          stripe_price_id?: string | null
-          stripe_price_id_test?: string | null
           updated_at?: string
         }
         Update: {
@@ -261,8 +257,6 @@ export type Database = {
           is_popular?: boolean
           name?: string
           price_usd?: number
-          stripe_price_id?: string | null
-          stripe_price_id_test?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -2111,16 +2105,26 @@ export type Database = {
       }
     }
     Functions: {
-      award_coins: {
-        Args: {
-          _amount: number
-          _description?: string
-          _reference_id?: string
-          _type: string
-          _user_id: string
-        }
-        Returns: undefined
-      }
+      award_coins:
+        | {
+            Args: {
+              p_amount: number
+              p_description?: string
+              p_session_id: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              _amount: number
+              _description?: string
+              _reference_id?: string
+              _type: string
+              _user_id: string
+            }
+            Returns: undefined
+          }
       calculate_trending_score: {
         Args: {
           comments: number
@@ -2155,13 +2159,6 @@ export type Database = {
       generate_unique_handle: {
         Args: { base_nickname: string }
         Returns: string
-      }
-      get_confession_awards: {
-        Args: { confession_id_param: string }
-        Returns: {
-          award_count: number
-          award_type: string
-        }[]
       }
       get_conversation_partner: {
         Args: { conv_id: string; current_user_id: string }
