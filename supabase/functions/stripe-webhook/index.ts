@@ -97,31 +97,24 @@ serve(async (req) => {
           
           logStep("Processing checkout session", { userId, sessionId: session.id });
 
-          // Update profiles table with Stripe customer ID
+          // Update profiles table with Stripe customer ID and provisional status
           if (session.customer) {
             await supabaseAdmin
               .from("profiles")
               .update({
                 stripe_customer_id: session.customer as string,
+                stripe_subscription_id: session.subscription as string,
+                subscription_tier: "premium",
+                subscription_status: "active",
               })
               .eq("user_id", userId);
+            
+            logStep("Profile updated with subscription info", { 
+              userId, 
+              customerId: session.customer,
+              subscriptionId: session.subscription 
+            });
           }
-
-          // Create provisional entitlement
-          await supabaseAdmin.from("subscription_entitlements").upsert({
-            user_id: userId,
-            stripe_customer_id: session.customer as string,
-            stripe_subscription_id: session.subscription as string,
-            tier: "premium",
-            status: "trialing",
-          });
-
-          // Log audit
-          await supabaseAdmin.from("subscription_audit").insert({
-            user_id: userId,
-            action: "checkout_completed",
-            data: { session_id: session.id },
-          });
 
           logStep("Checkout completed", { userId, sessionId: session.id });
         }
@@ -153,35 +146,28 @@ serve(async (req) => {
         
         logStep("Processing payment for user", { userId: profile.user_id, tier, priceId });
 
-        // Update entitlements
-        await supabaseAdmin.from("subscription_entitlements").upsert({
-          user_id: profile.user_id,
-          tier,
-          status: "active",
-          current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-          stripe_subscription_id: subscriptionId,
-          stripe_customer_id: invoice.customer as string,
-        });
-
-        // Update profiles table
-        await supabaseAdmin
+        // Update profiles table with subscription info
+        const { error: updateError } = await supabaseAdmin
           .from("profiles")
           .update({
             is_premium: tier !== "free",
             subscription_tier: tier,
             subscription_status: "active",
             subscription_ends_at: new Date(subscription.current_period_end * 1000).toISOString(),
+            stripe_subscription_id: subscriptionId,
           })
           .eq("user_id", profile.user_id);
 
-        // Log audit
-        await supabaseAdmin.from("subscription_audit").insert({
-          user_id: profile.user_id,
-          action: "payment_succeeded",
-          data: { tier, invoice_id: invoice.id },
-        });
+        if (updateError) {
+          logStep("ERROR updating profile", { error: updateError, userId: profile.user_id });
+        }
 
-        logStep("Payment succeeded - user benefits updated", { userId: profile.user_id, tier, isPremium: tier !== 'free' });
+        logStep("Payment succeeded - user benefits updated", { 
+          userId: profile.user_id, 
+          tier, 
+          isPremium: tier !== 'free',
+          subscriptionEnds: new Date(subscription.current_period_end * 1000).toISOString()
+        });
         break;
       }
 
@@ -222,35 +208,29 @@ serve(async (req) => {
         
         logStep("Processing subscription update", { userId: profile.user_id, tier, status, priceId });
 
-        // Update entitlements
-        await supabaseAdmin.from("subscription_entitlements").upsert({
-          user_id: profile.user_id,
-          tier,
-          status,
-          current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-          stripe_subscription_id: subscription.id,
-          stripe_customer_id: subscription.customer as string,
-        });
-
         // Update profiles table
-        await supabaseAdmin
+        const { error: updateError } = await supabaseAdmin
           .from("profiles")
           .update({
             is_premium: tier !== "free" && status === "active",
             subscription_tier: tier,
             subscription_status: status,
             subscription_ends_at: new Date(subscription.current_period_end * 1000).toISOString(),
+            stripe_subscription_id: subscription.id,
           })
           .eq("user_id", profile.user_id);
 
-        // Log audit
-        await supabaseAdmin.from("subscription_audit").insert({
-          user_id: profile.user_id,
-          action: "subscription_updated",
-          data: { tier, status, subscription_id: subscription.id },
-        });
+        if (updateError) {
+          logStep("ERROR updating profile", { error: updateError, userId: profile.user_id });
+        }
 
-        logStep("Subscription updated - user benefits updated", { userId: profile.user_id, tier, status, isPremium: tier !== 'free' && status === 'active' });
+        logStep("Subscription updated - user benefits updated", { 
+          userId: profile.user_id, 
+          tier, 
+          status, 
+          isPremium: tier !== 'free' && status === 'active',
+          subscriptionEnds: new Date(subscription.current_period_end * 1000).toISOString()
+        });
         break;
       }
 
@@ -271,30 +251,20 @@ serve(async (req) => {
         
         logStep("Processing subscription deletion", { userId: profile.user_id });
 
-        // Update entitlements
-        await supabaseAdmin
-          .from("subscription_entitlements")
-          .update({
-            status: "canceled",
-          })
-          .eq("user_id", profile.user_id);
-
         // Update profiles table
-        await supabaseAdmin
+        const { error: updateError } = await supabaseAdmin
           .from("profiles")
           .update({
             is_premium: false,
             subscription_tier: "free",
             subscription_status: "canceled",
+            stripe_subscription_id: null,
           })
           .eq("user_id", profile.user_id);
 
-        // Log audit
-        await supabaseAdmin.from("subscription_audit").insert({
-          user_id: profile.user_id,
-          action: "subscription_deleted",
-          data: { subscription_id: subscription.id },
-        });
+        if (updateError) {
+          logStep("ERROR updating profile", { error: updateError, userId: profile.user_id });
+        }
 
         logStep("Subscription deleted - benefits removed", { userId: profile.user_id });
         break;
@@ -323,33 +293,7 @@ serve(async (req) => {
           .eq("status", "pending")
           .single();
 
-        if (pendingDowngrade) {
-          // Apply downgrade
-          await stripe.subscriptions.update(subscriptionId, {
-            items: [
-              {
-                id: (await stripe.subscriptions.retrieve(subscriptionId)).items.data[0].id,
-                price: pendingDowngrade.target_price_id,
-              },
-            ],
-            proration_behavior: "none",
-          });
-
-          // Mark as applied
-          await supabaseAdmin
-            .from("subscription_change_requests")
-            .update({ status: "applied" })
-            .eq("id", pendingDowngrade.id);
-
-          // Log audit
-          await supabaseAdmin.from("subscription_audit").insert({
-            user_id: profile.user_id,
-            action: "downgrade_scheduled_applied",
-            data: { target_tier: pendingDowngrade.target_tier },
-          });
-
-          logStep("Downgrade applied", { userId: profile.user_id, targetTier: pendingDowngrade.target_tier });
-        }
+        // Note: Downgrades would be handled here if subscription_change_requests table exists
         break;
       }
     }
