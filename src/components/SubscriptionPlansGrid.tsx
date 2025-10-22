@@ -123,12 +123,12 @@ export const SubscriptionPlansGrid = ({
                 <h3 className="text-2xl font-bold text-white">{plan.name}</h3>
               </div>
               <div className="mb-2">
-                <span className="text-5xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                <span className="text-5xl font-bold text-white">
                   ${plan.price}
                 </span>
                 <span className="text-gray-400 text-lg ml-2">/per month</span>
               </div>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-400">
                 Billed annually (${(plan.price * 12).toFixed(2)}/per year)
               </p>
             </div>
@@ -140,7 +140,7 @@ export const SubscriptionPlansGrid = ({
                   <div className="w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/benefit:bg-purple-500/30 transition-colors">
                     <Check className="w-3.5 h-3.5 text-purple-400" />
                   </div>
-                  <span className="text-sm text-gray-300 leading-relaxed">{t[benefit as keyof typeof t] || benefit}</span>
+                  <span className="text-sm text-white/90 leading-relaxed">{t[benefit as keyof typeof t] || benefit}</span>
                 </div>
               ))}
             </div>
