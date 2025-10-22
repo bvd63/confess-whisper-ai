@@ -59,8 +59,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     name: 'VIP',
     priceMonthly: 9.99,
     priceYearly: 79.99, // ~33% savings
-    stripePriceIdMonthly: 'price_1SJ0vwR7kygIyYg9OeCiqV00',
-    stripePriceIdYearly: 'price_1SJ0vvR7kygIyYg9BJuciYGd',
+    stripePriceIdMonthly: 'price_1SL42cR7kygIyYg9LFEBp8uz',
+    stripePriceIdYearly: 'price_1SL42zR7kygIyYg9IZrd2ExW',
     benefits: [
       'subscription_benefits_vip_unlimited_confessions',
       'subscription_benefits_vip_all_premium',

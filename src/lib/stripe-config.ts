@@ -18,10 +18,10 @@ export const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KE
  * Get them from: Stripe Dashboard → Products → [Your Product] → Pricing
  */
 export const STRIPE_PRICE_IDS = {
-  premium_monthly: "price_1SJ0vvR7kygIyYg9oT1ju6lQ",  // Replace with your Premium Monthly Price ID
-  premium_yearly: "price_1SJ0vvR7kygIyYg9yORadPGD",   // Replace with your Premium Yearly Price ID
-  vip_monthly: "price_1SJ0vwR7kygIyYg9OeCiqV00",      // Replace with your VIP Monthly Price ID
-  vip_yearly: "price_1SJ0vvR7kygIyYg9BJuciYGd",       // Replace with your VIP Yearly Price ID
+  premium_monthly: "price_1SIVqFR7kygIyYg9Ai1tJ2AI",  // Test mode Premium Monthly
+  premium_yearly: "price_1SIVqeR7kygIyYg9FizFMLRx",   // Test mode Premium Yearly
+  vip_monthly: "price_1SL42cR7kygIyYg9LFEBp8uz",      // Test mode VIP Monthly
+  vip_yearly: "price_1SL42zR7kygIyYg9IZrd2ExW",       // Test mode VIP Yearly
 } as const;
 
 export const SUBSCRIPTION_TIERS = {
