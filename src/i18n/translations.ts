@@ -2294,7 +2294,7 @@ export const translations: Record<Language, Translations> = {
     ui_refreshing: "Refreshing...",
     
     subscription_premium_title: "Confess+ Premium",
-    subscription_choose_plan: "Choose the plan that suits you best",
+    subscription_choose_plan: "Choose {plan}",
     subscription_monthly: "Monthly",
     subscription_yearly: "Yearly",
     subscription_per_month: "per month",
@@ -3665,7 +3665,7 @@ export const translations: Record<Language, Translations> = {
     ui_refreshing: "Actualizando...",
     
     subscription_premium_title: "Confess+ Premium",
-    subscription_choose_plan: "Elige el plan que mejor se adapte a ti",
+    subscription_choose_plan: "Elegir {plan}",
     subscription_monthly: "Mensual",
     subscription_yearly: "Anual",
     subscription_per_month: "por mes",
@@ -5285,7 +5285,7 @@ export const translations: Record<Language, Translations> = {
     ui_refreshing: "Aktualisiert...",
     
     subscription_premium_title: "Confess+ Premium",
-    subscription_choose_plan: "Wähle den Plan, der am besten zu dir passt",
+    subscription_choose_plan: "Wähle {plan}",
     subscription_monthly: "Monatlich",
     subscription_yearly: "Jährlich",
     subscription_per_month: "pro Monat",

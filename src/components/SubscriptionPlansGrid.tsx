@@ -42,13 +42,11 @@ export const SubscriptionPlansGrid = ({
   };
 
   const getButtonText = (plan: any) => {
-    if (plan.id === currentPlan && plan.interval === currentInterval) {
-      return t.subscription_current_plan;
-    }
+    // Always show "Choose [Plan]" regardless of current subscription
     if (plan.id === 'free') {
       return t.subscription_downgrade_to_free;
     }
-    return t.subscription_change_to_plan.replace('{plan}', plan.name);
+    return t.subscription_choose_plan.replace('{plan}', plan.name);
   };
 
   const isCurrentPlan = (plan: any) => plan.id === currentPlan && plan.interval === currentInterval;
@@ -88,11 +86,7 @@ export const SubscriptionPlansGrid = ({
         {plans.map((plan: any) => (
           <Card
             key={`${plan.id}-${plan.interval}`}
-            className={`p-6 relative ${
-              isCurrentPlan(plan)
-                ? 'border-2 border-primary shadow-glow bg-gradient-to-br from-primary/5 to-primary/10'
-                : 'border border-border'
-            }`}
+            className="p-6 relative border border-border"
           >
             {/* Popular Badge */}
             {plan.isPopular && (
@@ -108,12 +102,6 @@ export const SubscriptionPlansGrid = ({
               </Badge>
             )}
 
-            {/* Current Plan Badge */}
-            {isCurrentPlan(plan) && (
-              <Badge className="absolute -top-3 right-4 bg-gradient-to-r from-primary to-primary/80">
-                {t.subscription_your_plan}
-              </Badge>
-            )}
 
             {/* Plan Header */}
             <div className="text-center mb-6">
@@ -162,7 +150,7 @@ export const SubscriptionPlansGrid = ({
             {/* Action Button */}
             <Button
               onClick={() => onSelectPlan(plan.id, plan.priceId)}
-              disabled={isLoading || isCurrentPlan(plan) || !canChangePlan}
+              disabled={isLoading || !canChangePlan}
               className={`w-full ${
                 plan.isPopular
                   ? 'bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600'
@@ -170,7 +158,6 @@ export const SubscriptionPlansGrid = ({
                   ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600'
                   : ''
               }`}
-              variant={isCurrentPlan(plan) ? 'outline' : 'default'}
             >
               {getButtonText(plan)}
             </Button>
