@@ -233,6 +233,8 @@ export type Database = {
           is_popular: boolean
           name: string
           price_usd: number
+          stripe_price_id: string | null
+          stripe_price_id_test: string | null
           updated_at: string
         }
         Insert: {
@@ -245,6 +247,8 @@ export type Database = {
           is_popular?: boolean
           name: string
           price_usd: number
+          stripe_price_id?: string | null
+          stripe_price_id_test?: string | null
           updated_at?: string
         }
         Update: {
@@ -257,6 +261,8 @@ export type Database = {
           is_popular?: boolean
           name?: string
           price_usd?: number
+          stripe_price_id?: string | null
+          stripe_price_id_test?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -2149,6 +2155,13 @@ export type Database = {
       generate_unique_handle: {
         Args: { base_nickname: string }
         Returns: string
+      }
+      get_confession_awards: {
+        Args: { confession_id_param: string }
+        Returns: {
+          award_count: number
+          award_type: string
+        }[]
       }
       get_conversation_partner: {
         Args: { conv_id: string; current_user_id: string }

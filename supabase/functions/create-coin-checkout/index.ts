@@ -52,47 +52,20 @@ serve(async (req) => {
     }
     console.log('[COIN-CHECKOUT] Package found:', pkg.name, pkg.price_usd)
 
-    // Check if we have a stripe_price_id, if not create it
-    let priceId = pkg.stripe_price_id
+    // Determine if we're in test mode by checking if Stripe key starts with sk_test
+    const isTestMode = Deno.env.get('STRIPE_SECRET_KEY')?.startsWith('sk_test_') || false
+    console.log('[COIN-CHECKOUT] Stripe mode:', isTestMode ? 'TEST' : 'LIVE')
+
+    // Use test or live Price ID based on environment
+    let priceId = isTestMode ? pkg.stripe_price_id_test : pkg.stripe_price_id
 
     if (!priceId) {
-      console.log('[COIN-CHECKOUT] Creating Stripe product for package:', pkg.name)
-      
-      // Create product in Stripe
-      const product = await stripe.products.create({
-        name: `${pkg.coins} Coins - ${pkg.name} Pack`,
-        description: `Get ${pkg.coins} coins${pkg.discount_percentage > 0 ? ` with ${pkg.discount_percentage}% discount` : ''}`,
-        metadata: {
-          package_id: packageId,
-          coins: pkg.coins.toString(),
-        },
-      })
-      console.log('[COIN-CHECKOUT] Product created:', product.id)
-
-      // Create price in Stripe
-      const price = await stripe.prices.create({
-        product: product.id,
-        unit_amount: Math.round(pkg.price_usd * 100), // Convert to cents
-        currency: 'usd',
-        metadata: {
-          package_id: packageId,
-          coins: pkg.coins.toString(),
-        },
-      })
-      console.log('[COIN-CHECKOUT] Price created:', price.id)
-
-      priceId = price.id
-
-      // Save Stripe Price ID to database for future use
-      await supabaseClient
-        .from('coin_packages')
-        .update({ stripe_price_id: priceId })
-        .eq('id', packageId)
-      
-      console.log('[COIN-CHECKOUT] Price ID saved to database')
+      console.error('[COIN-CHECKOUT] Missing Price ID for package:', pkg.name, 'mode:', isTestMode ? 'TEST' : 'LIVE')
+      throw new Error(`Package not properly configured for ${isTestMode ? 'test' : 'live'} mode. Please contact support.`)
     }
 
-    console.log('[COIN-CHECKOUT] Creating checkout session with price:', priceId)
+    console.log('[COIN-CHECKOUT] Using Price ID:', priceId)
+    console.log('[COIN-CHECKOUT] Creating checkout session...')
 
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
