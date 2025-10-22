@@ -44,6 +44,7 @@ import { TrialBanner } from "@/components/TrialBanner";
 import { TrialCTA } from "@/components/TrialCTA";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
 import { useTrialExpiryCheck } from "@/hooks/useTrialExpiryCheck";
+import { SyncSubscriptionButton } from "@/components/SyncSubscriptionButton";
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 const Profile = () => {
   const navigate = useNavigate();
@@ -213,6 +214,13 @@ const Profile = () => {
             {/* Trial CTA for free users who haven't used trial */}
             {subscriptionTier === 'free' && !isOnTrial && trialEligible && (
               <TrialCTA userId={user.id} onTrialStarted={checkSubscription} />
+            )}
+            
+            {/* Sync Subscription Button (temporary fix for webhook issues) */}
+            {profileData?.stripe_subscription_id && (
+              <div className="flex justify-end mb-4">
+                <SyncSubscriptionButton onSyncComplete={checkSubscription} />
+              </div>
             )}
             
             <FollowStats userId={user.id} />
