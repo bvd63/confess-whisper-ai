@@ -178,10 +178,8 @@ export const FlairsShop = ({
   };
 
   const getCooldownRemaining = (flairId: string) => {
-    const flair = flairs.find(f => f.id === flairId);
     const end = getCooldownEnd(flairId);
-    // Only VIP flairs (rarity: rare) have cooldown
-    if (!flair || flair.rarity !== 'rare' || !end) return null;
+    if (!end) return null;
 
     const now = new Date();
     if (now < end) {
@@ -213,17 +211,13 @@ export const FlairsShop = ({
         is_featured: false
       }).eq('user_id', userId).eq('is_equipped', true);
 
-      // Equip selected and make it featured + public so it shows everywhere
-      // Update last_equipped_at for VIP flairs
+      // Update last_equipped_at for ALL flairs (not just VIP)
       const updateData: any = {
         is_equipped: true,
         is_featured: true,
-        is_public: true
+        is_public: true,
+        last_equipped_at: new Date().toISOString()
       };
-
-      if (flair && flair.rarity === 'rare') {
-        updateData.last_equipped_at = new Date().toISOString();
-      }
 
       const {
         error
@@ -307,7 +301,6 @@ export const FlairsShop = ({
     const userFlair = userFlairs.find(uf => uf.flair_id === flair.id);
     const canBuy = canPurchase(flair);
     const isLocked = !canBuy;
-    const isVip = flair.rarity === 'rare';
     const cooldownDays = getCooldownRemaining(flair.id);
     const onCooldown = cooldownDays !== null;
     const cooldownEnd = getCooldownEnd(flair.id);
