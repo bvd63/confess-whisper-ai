@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Coins, CreditCard, RefreshCw, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import { useCoins } from '@/hooks/useCoins';
+import { SUBSCRIPTION_PLANS } from '@/lib/subscription-plans';
 
 type TestResult = {
   success: boolean;
@@ -123,13 +124,16 @@ export default function TestPayments() {
 
   const testSubscriptionPlans = async () => {
     return runTest('Subscription Plans', async () => {
-      const { data, error } = await supabase
-        .from('subscription_plans')
-        .select('id, tier, name, price_monthly, price_yearly')
-        .order('price_monthly', { ascending: true });
-      
-      if (error) throw error;
-      return data;
+      // Plans are defined in code, not in database
+      const plans = SUBSCRIPTION_PLANS.filter(p => p.id !== 'free');
+      return plans.map(p => ({
+        id: p.id,
+        name: p.name,
+        price_monthly: p.priceMonthly,
+        price_yearly: p.priceYearly || null,
+        stripe_monthly: p.stripePriceIdMonthly,
+        stripe_yearly: p.stripePriceIdYearly || null
+      }));
     });
   };
 
@@ -138,7 +142,7 @@ export default function TestPayments() {
       const { data, error } = await supabase.functions.invoke('billing-buy', {
         body: { 
           tier: 'premium',
-          interval: 'monthly'
+          cycle: 'monthly'
         }
       });
       
