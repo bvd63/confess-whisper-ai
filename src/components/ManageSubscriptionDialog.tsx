@@ -55,12 +55,26 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
 
     setIsProcessing(true);
     try {
-      // Always create a new checkout session for plan changes
+      // If user already has a subscription and is upgrading (e.g., premium -> vip), update existing sub
+      if (currentPlan !== 'free' && currentPlan === 'premium' && planId === 'vip') {
+        const { data, error } = await supabase.functions.invoke('subscription-upgrade', {
+          body: { targetPriceId: priceId }
+        });
+        if (error) throw error;
+
+        toast.success('Subscription upgraded to VIP');
+        await loadSubscriptionStatus();
+        onSubscriptionUpdated?.();
+        onOpenChange(false);
+        return;
+      }
+
+      // Otherwise, create a new checkout session (free -> premium/vip, or other changes via checkout)
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-        body: { 
-          priceId, 
-          planName: planId, 
-          billingCycle: interval 
+        body: {
+          priceId,
+          planName: planId,
+          billingCycle: interval
         }
       });
 
@@ -72,7 +86,7 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
         onOpenChange(false);
       }
     } catch (error: any) {
-      console.error('Error creating checkout:', error);
+      console.error('Error processing subscription change:', error);
       toast.error(error.message || t.subscription_errors_generic);
     } finally {
       setIsProcessing(false);
