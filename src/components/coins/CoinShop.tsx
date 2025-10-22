@@ -41,28 +41,47 @@ export default function CoinShop({ open, onOpenChange }: CoinShopProps) {
   });
 
   const handlePurchase = async (packageId: string, priceUsd: number) => {
+    console.log('=== COIN PURCHASE DEBUG START ===');
+    console.log('Package ID:', packageId);
+    console.log('Price USD:', priceUsd);
+    
     setLoading(packageId);
     
     try {
+      console.log('Getting session...');
       const { data: { session } } = await supabase.auth.getSession();
+      console.log('Session exists:', !!session);
+      
       if (!session) {
+        console.log('No session found, showing auth error');
         toast.error(t.auth_login || 'Please sign in to purchase coins');
         return;
       }
 
+      console.log('Calling create-coin-checkout function...');
       // Call Stripe checkout Edge Function
       const { data, error } = await supabase.functions.invoke('create-coin-checkout', {
         body: { packageId, priceUsd }
       });
 
-      if (error) throw error;
+      console.log('Function response - data:', data);
+      console.log('Function response - error:', error);
+
+      if (error) {
+        console.log('Error from function:', error);
+        throw error;
+      }
 
       // Redirect to Stripe Checkout
       if (data?.url) {
+        console.log('Redirecting to:', data.url);
         window.location.href = data.url;
+      } else {
+        console.log('No URL in response data');
+        throw new Error('No checkout URL received');
       }
     } catch (error) {
-      console.error('Purchase error:', error);
+      console.error('=== PURCHASE ERROR ===', error);
       toast.error(t.coins_purchase_error || 'Failed to create checkout session');
     } finally {
       setLoading(null);
