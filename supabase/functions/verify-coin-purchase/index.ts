@@ -48,23 +48,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Check if coins were already awarded for this session
-    const { data: existingTransaction } = await supabaseAdmin
-      .from('coin_transactions')
-      .select('id')
-      .eq('reference_id', sessionId)
-      .maybeSingle()
-
-    if (existingTransaction) {
-      console.log('[VERIFY-COIN-PURCHASE] Coins already awarded for this session')
-      return new Response(
-        JSON.stringify({ success: true, already_awarded: true }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 200,
-        }
-      )
-    }
+    // Duplicate check moved below after retrieving session (uses package_id)
 
     // Retrieve the session from Stripe
     const session = await stripe.checkout.sessions.retrieve(sessionId)
@@ -88,15 +72,31 @@ serve(async (req) => {
       throw new Error('User ID mismatch')
     }
 
-    const coins = parseInt(session.metadata?.coins || '0')
-    const packageId = session.metadata?.package_id
+    const coins = parseInt(session.metadata?.coins || '0');
+    const packageId = session.metadata?.package_id as string | null;
 
     if (!coins) {
-      console.error('[VERIFY-COIN-PURCHASE] Missing coins metadata')
-      throw new Error('Missing coins in session metadata')
+      console.error('[VERIFY-COIN-PURCHASE] Missing coins metadata');
+      throw new Error('Missing coins in session metadata');
     }
 
-    console.log('[VERIFY-COIN-PURCHASE] Awarding', coins, 'coins to user', user.id)
+    // Duplicate check by package_id (reference_id stores package_id)
+    if (packageId) {
+      const { data: existingTransaction } = await supabaseAdmin
+        .from('coin_transactions')
+        .select('id')
+        .eq('reference_id', packageId)
+        .maybeSingle();
+      if (existingTransaction) {
+        console.log('[VERIFY-COIN-PURCHASE] Coins already awarded for this package purchase');
+        return new Response(
+          JSON.stringify({ success: true, already_awarded: true }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+        );
+      }
+    }
+
+    console.log('[VERIFY-COIN-PURCHASE] Awarding', coins, 'coins to user', user.id);
 
     // Award coins using the database function
     const { error: awardError } = await supabaseAdmin.rpc('award_coins', {
@@ -104,7 +104,7 @@ serve(async (req) => {
       _amount: coins,
       _type: 'coin_purchase',
       _description: `Purchased ${coins} coins via Stripe (fallback)`,
-      _reference_id: sessionId // Use session_id as reference to prevent duplicates
+      _reference_id: packageId || null
     })
 
     if (awardError) {
