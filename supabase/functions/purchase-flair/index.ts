@@ -83,27 +83,35 @@ serve(async (req) => {
       );
     }
 
-    // Calculate coin cost based on user tier
-    const tierPricing: Record<'free' | 'premium' | 'vip', number> = {
-      free: 25,
-      premium: 50,
-      vip: 100
-    };
-    const flairCost = tierPricing[userTier];
+    // Use the flair's defined cost instead of tier-based pricing
+    const flairCost = flair.cost;
 
-    // Check if user already owns this flair
+    // Check if user already owns this flair (active/non-expired)
     const { data: existingFlair } = await supabase
       .from('user_flairs')
-      .select('id')
+      .select('id, expires_at')
       .eq('user_id', user.id)
       .eq('flair_id', flairId)
       .single();
 
+    // If user owns it and it's not expired, don't allow re-purchase
     if (existingFlair) {
-      return new Response(
-        JSON.stringify({ error: 'You already own this flair' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      const now = new Date();
+      const expiryDate = existingFlair.expires_at ? new Date(existingFlair.expires_at) : null;
+      
+      // If not expired (or no expiry date set), block purchase
+      if (!expiryDate || expiryDate > now) {
+        return new Response(
+          JSON.stringify({ error: 'You already own this flair' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      // If expired, delete the old entry so we can create a new one
+      await supabase
+        .from('user_flairs')
+        .delete()
+        .eq('id', existingFlair.id);
     }
 
     // Check and deduct coins
