@@ -1650,6 +1650,19 @@ type Translations = {
   coins_award_success: string;
   coins_award_creator_earns: string;
   coins_award_appreciation: string;
+  
+  // Boosts
+  coins_boost_title: string;
+  coins_boost_basic: string;
+  coins_boost_super: string;
+  coins_boost_pin: string;
+  coins_boost_activate: string;
+  coins_boost_active: string;
+  coins_boost_expires: string;
+  coins_boost_description: string;
+  coins_boost_duration: string;
+  coins_boost_success: string;
+  coins_boost_already_active: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -3175,6 +3188,19 @@ export const translations: Record<Language, Translations> = {
     coins_award_success: "Award given! The creator earned {amount} coins",
     coins_award_creator_earns: "Creator earns",
     coins_award_appreciation: "Show your appreciation! The creator will receive 50% of the award value.",
+    
+    // Boosts
+    coins_boost_title: "Boost Your Confession",
+    coins_boost_basic: "Basic Boost",
+    coins_boost_super: "Super Boost",
+    coins_boost_pin: "Profile Pin",
+    coins_boost_activate: "Activate Boost",
+    coins_boost_active: "Boost Active",
+    coins_boost_expires: "Expires in {hours} hours",
+    coins_boost_description: "Boost your confession to reach more people and get more engagement!",
+    coins_boost_duration: "Duration",
+    coins_boost_success: "{name} activated for {duration}!",
+    coins_boost_already_active: "This confession already has an active boost",
   },
   es: {
     app_name: "Confess+",
@@ -4700,6 +4726,19 @@ export const translations: Record<Language, Translations> = {
     coins_award_success: "¡Premio otorgado! El creador ganó {amount} monedas",
     coins_award_creator_earns: "El creador gana",
     coins_award_appreciation: "¡Muestra tu aprecio! El creador recibirá el 50% del valor del premio.",
+    
+    // Boosts
+    coins_boost_title: "Impulsa Tu Confesión",
+    coins_boost_basic: "Impulso Básico",
+    coins_boost_super: "Super Impulso",
+    coins_boost_pin: "Fijar en Perfil",
+    coins_boost_activate: "Activar Impulso",
+    coins_boost_active: "Impulso Activo",
+    coins_boost_expires: "Expira en {hours} horas",
+    coins_boost_description: "¡Impulsa tu confesión para llegar a más personas y obtener más interacción!",
+    coins_boost_duration: "Duración",
+    coins_boost_success: "¡{name} activado por {duration}!",
+    coins_boost_already_active: "Esta confesión ya tiene un impulso activo",
   },
   de: {
     app_name: "Confess+",
@@ -6225,5 +6264,18 @@ export const translations: Record<Language, Translations> = {
     coins_award_success: "Award vergeben! Der Ersteller erhielt {amount} Münzen",
     coins_award_creator_earns: "Ersteller erhält",
     coins_award_appreciation: "Zeige deine Wertschätzung! Der Ersteller erhält 50% des Award-Werts.",
+    
+    // Boosts
+    coins_boost_title: "Dein Geständnis Boosten",
+    coins_boost_basic: "Basis Boost",
+    coins_boost_super: "Super Boost",
+    coins_boost_pin: "Profil Anpinnen",
+    coins_boost_activate: "Boost Aktivieren",
+    coins_boost_active: "Boost Aktiv",
+    coins_boost_expires: "Läuft in {hours} Stunden ab",
+    coins_boost_description: "Booste dein Geständnis um mehr Menschen zu erreichen und mehr Engagement zu erhalten!",
+    coins_boost_duration: "Dauer",
+    coins_boost_success: "{name} für {duration} aktiviert!",
+    coins_boost_already_active: "Dieses Geständnis hat bereits einen aktiven Boost",
   },
 };

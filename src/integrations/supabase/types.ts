@@ -2086,30 +2086,12 @@ export type Database = {
         }
         Returns: number
       }
-      can_user_post_confession: {
-        Args: { _user_id: string }
-        Returns: Json
-      }
-      cleanup_expired_rate_limits: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      cleanup_expired_sessions: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      cleanup_old_failed_attempts: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      deactivate_expired_flairs: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      deactivate_expired_perks: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      can_user_post_confession: { Args: { _user_id: string }; Returns: Json }
+      cleanup_expired_rate_limits: { Args: never; Returns: undefined }
+      cleanup_expired_sessions: { Args: never; Returns: undefined }
+      cleanup_old_failed_attempts: { Args: never; Returns: undefined }
+      deactivate_expired_flairs: { Args: never; Returns: undefined }
+      deactivate_expired_perks: { Args: never; Returns: undefined }
       deduct_coins: {
         Args: {
           _amount: number
@@ -2124,10 +2106,7 @@ export type Database = {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
       }
-      expire_active_boosts: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      expire_active_boosts: { Args: never; Returns: undefined }
       generate_unique_handle: {
         Args: { base_nickname: string }
         Returns: string
@@ -2170,10 +2149,7 @@ export type Database = {
         Args: { _user1: string; _user2: string }
         Returns: string
       }
-      get_user_nickname: {
-        Args: { _target_user_id: string }
-        Returns: string
-      }
+      get_user_nickname: { Args: { _target_user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2197,10 +2173,7 @@ export type Database = {
         Args: { acquired_at: string; expires_at: string }
         Returns: boolean
       }
-      is_captcha_required: {
-        Args: { _email: string }
-        Returns: boolean
-      }
+      is_captcha_required: { Args: { _email: string }; Returns: boolean }
       is_community_admin: {
         Args: { _community_id: string; _user_id: string }
         Returns: boolean
@@ -2235,30 +2208,18 @@ export type Database = {
         Args: { message_ids: string[]; thread_id: string; user_id: string }
         Returns: undefined
       }
-      refresh_hot_confessions: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      refresh_hot_confessions: { Args: never; Returns: undefined }
       revoke_all_user_sessions: {
         Args: { _user_id: string }
         Returns: undefined
       }
-      revoke_trial_purchases: {
-        Args: { _user_id: string }
-        Returns: undefined
-      }
+      revoke_trial_purchases: { Args: { _user_id: string }; Returns: undefined }
       soft_delete_conversation: {
         Args: { conv_id: string; user_id: string }
         Returns: undefined
       }
-      trigger_auth_cleanup: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
-      validate_nickname: {
-        Args: { nick: string }
-        Returns: boolean
-      }
+      trigger_auth_cleanup: { Args: never; Returns: Json }
+      validate_nickname: { Args: { nick: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
