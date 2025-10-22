@@ -34,7 +34,7 @@ serve(async (req) => {
     }
 
     console.log('[STRIPE-WEBHOOK-COINS] Verifying webhook signature...')
-    const event = stripe.webhooks.constructEvent(
+    const event = await stripe.webhooks.constructEventAsync(
       body,
       signature,
       webhookSecret
