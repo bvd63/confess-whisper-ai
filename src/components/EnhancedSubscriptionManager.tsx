@@ -158,7 +158,7 @@ export const EnhancedSubscriptionManager = () => {
 
       if (targetLevel > currentLevel) {
         // Upgrade - immediate with proration
-        const { data, error } = await supabase.functions.invoke('billing-upgrade', {
+        const { data, error } = await supabase.functions.invoke('subscription-upgrade', {
           body: { targetPriceId }
         });
         if (error) throw error;
@@ -166,7 +166,7 @@ export const EnhancedSubscriptionManager = () => {
         toast.success(t.upgrade_success);
       } else if (targetLevel < currentLevel) {
         // Downgrade - scheduled for next period
-        const { data, error } = await supabase.functions.invoke('billing-downgrade', {
+        const { data, error } = await supabase.functions.invoke('subscription-downgrade', {
           body: { targetPriceId }
         });
         if (error) throw error;
