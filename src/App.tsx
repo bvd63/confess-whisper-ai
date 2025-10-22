@@ -46,6 +46,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
 import CoinPurchaseSuccess from "./pages/coins/Success";
 import CoinPurchaseCancel from "./pages/coins/Cancel";
+import TestPayments from "./pages/TestPayments";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import NotFound from "./pages/NotFound";
@@ -158,6 +159,7 @@ const AppContent = () => {
           <Route path="/payment-canceled" element={<PaymentCanceled />} />
           <Route path="/coins/success" element={<CoinPurchaseSuccess />} />
           <Route path="/coins/cancel" element={<CoinPurchaseCancel />} />
+          <Route path="/test-payments" element={<TestPayments />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="*" element={<NotFound />} />
@@ -171,26 +173,7 @@ const AppContent = () => {
 function App() {
   const { user, loading } = useAuth();
 
-  useEffect(() => {
-    const supabase = getSupabase();
-    const setInitialLocation = async () => {
-      if (user) {
-        const { data: profile, error } = await supabase
-          .from("profiles")
-          .select("location")
-          .eq("id", user.id)
-          .single();
-
-        if (error) {
-          console.error("Error fetching profile:", error);
-        } else if (profile?.location) {
-          // If location exists, set it in the context or state
-          console.log("Location found:", profile.location);
-        }
-      }
-    };
-    setInitialLocation();
-  }, [user]);
+  // Location functionality removed - column doesn't exist in profiles table
 
   if (loading) {
     return null; // or a loading spinner
