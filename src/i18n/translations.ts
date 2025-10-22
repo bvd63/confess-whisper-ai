@@ -859,6 +859,7 @@ type Translations = {
   // Streak Reminder
   streak_reminder_text: string;
   streak_post_now: string;
+  streak_keep_your_streak: string;
   
   // Draft Manager
   draft_deleted: string;
@@ -1968,6 +1969,7 @@ export const translations: Record<Language, Translations> = {
     
     streak_reminder_text: "You have a {count} day streak! Post a confession today to keep it.",
     streak_post_now: "Post now",
+    streak_keep_your_streak: "Keep your streak! 🔥",
     
     moderation_reject_title: "Reject confession",
     moderation_reject_description: "Provide a reason for rejecting this confession",
@@ -3813,6 +3815,7 @@ export const translations: Record<Language, Translations> = {
     
     streak_reminder_text: "¡Tienes una racha de {count} días! Publica una confesión hoy para mantenerla.",
     streak_post_now: "Publicar ahora",
+    streak_keep_your_streak: "¡Mantén tu racha! 🔥",
     
     moderation_reject_title: "Rechazar confesión",
     moderation_reject_description: "Proporciona una razón para rechazar esta confesión",
@@ -5292,6 +5295,7 @@ export const translations: Record<Language, Translations> = {
     
     streak_reminder_text: "Du hast eine {count}-Tage-Serie! Poste heute ein Geständnis, um sie zu behalten.",
     streak_post_now: "Jetzt posten",
+    streak_keep_your_streak: "Behalte deine Serie! 🔥",
     
     moderation_reject_title: "Geständnis ablehnen",
     moderation_reject_description: "Gib einen Grund für die Ablehnung dieses Geständnisses an",

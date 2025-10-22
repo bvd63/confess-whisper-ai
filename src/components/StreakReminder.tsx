@@ -62,7 +62,7 @@ const StreakReminder = ({ userId }: StreakReminderProps) => {
         </div>
 
         <div className="flex-1">
-          <h4 className="font-semibold mb-1">Keep your streak! 🔥</h4>
+          <h4 className="font-semibold mb-1">{t.streak_keep_your_streak}</h4>
           <p className="text-sm text-muted-foreground mb-3">
             {t.streak_reminder_text.replace('{count}', streak.toString())}
           </p>
