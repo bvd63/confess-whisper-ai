@@ -206,18 +206,6 @@ export const FlairsShop = ({
         return;
       }
 
-      // Check cooldown for VIP flairs (rarity: rare) - per-flair cooldown
-      if (flair && flair.rarity === 'rare') {
-        const days = getCooldownRemaining(flair.id);
-        if (days !== null) {
-          toast({
-            title: "Cooldown Active",
-            description: `This VIP badge can be equipped again in ${days} ${days === 1 ? 'day' : 'days'}.`,
-            variant: "destructive"
-          });
-          return;
-        }
-      }
 
       // Unequip all first (also unfeaturing them)
       await supabase.from('user_flairs').update({
@@ -372,11 +360,6 @@ export const FlairsShop = ({
                 <Button size="sm" disabled className="w-full gap-1" variant="outline">
                   <Lock className="w-3 h-3" />
                   {t.upgrade_required}
-                </Button>
-              ) : onCooldown ? (
-                <Button size="sm" disabled className="w-full gap-1" variant="outline">
-                  <Lock className="w-3 h-3" />
-                  {cooldownDays}d Cooldown
                 </Button>
               ) : (
                 <Button size="sm" variant="outline" onClick={() => handleEquip(userFlair!.id)} className="w-full">
