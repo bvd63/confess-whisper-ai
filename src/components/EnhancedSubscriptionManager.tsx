@@ -90,7 +90,8 @@ export const EnhancedSubscriptionManager = () => {
 
   const handleChange = async (plan: PlanWithInterval) => {
     try {
-      const targetPriceId = getPriceIdForTier(plan.id as 'premium' | 'vip', plan.interval);
+      // Use the priceId from the selected plan directly
+      const targetPriceId = plan.priceId;
       if (!targetPriceId) {
         toast.error('Invalid plan configuration');
         return;
@@ -99,7 +100,7 @@ export const EnhancedSubscriptionManager = () => {
       // If user has no active subscription, create a new one
       if (!status?.currentPlan || status.currentPlan === 'free') {
         const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-          body: { priceId: targetPriceId }
+          body: { priceId: targetPriceId, planName: plan.id, billingCycle: plan.interval }
         });
         if (error) throw error;
         
@@ -112,7 +113,7 @@ export const EnhancedSubscriptionManager = () => {
       }
 
       // Determine if upgrade or downgrade
-      const tierHierarchy = { free: 0, premium: 1, vip: 2 };
+      const tierHierarchy = { free: 0, premium: 1, vip: 2 } as const;
       const currentLevel = tierHierarchy[status.currentPlan as keyof typeof tierHierarchy] || 0;
       const targetLevel = tierHierarchy[plan.id as keyof typeof tierHierarchy] || 0;
 
