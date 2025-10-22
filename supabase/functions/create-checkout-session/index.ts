@@ -101,6 +101,12 @@ serve(async (req) => {
       mode: "subscription",
       success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/payment-canceled`,
+      metadata: {
+        userId: user.id,
+        user_id: user.id,
+        plan_name: planName || "",
+        billing_cycle: billingCycle || "",
+      },
       subscription_data: {
         metadata: {
           user_id: user.id,
