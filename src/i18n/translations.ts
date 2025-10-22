@@ -939,6 +939,48 @@ type Translations = {
   customization_error: string;
   insufficient_coins: string;
   
+  // Engagement Features
+  highlight_comment: string;
+  highlight_comment_description: string;
+  highlight_comment_success_title: string;
+  highlight_comment_success_description: string;
+  highlight_comment_error: string;
+  highlight_comment_features: string;
+  highlight_comment_feature_1: string;
+  highlight_comment_feature_2: string;
+  highlight_comment_feature_3: string;
+  highlight_comment_cost: string;
+  highlight_now: string;
+  ai_makeover: string;
+  ai_makeover_description: string;
+  ai_makeover_features: string;
+  ai_makeover_feature_1: string;
+  ai_makeover_feature_2: string;
+  ai_makeover_feature_3: string;
+  ai_makeover_feature_4: string;
+  ai_makeover_cost: string;
+  ai_makeover_error: string;
+  ai_makeover_applied_title: string;
+  ai_makeover_applied_description: string;
+  original_content: string;
+  improved_content: string;
+  edit_improved_content: string;
+  generate_makeover: string;
+  apply_changes: string;
+  applying: string;
+  custom_background: string;
+  custom_background_description: string;
+  background_applied_title: string;
+  background_applied_description: string;
+  background_error: string;
+  your_balance: string;
+  coins: string;
+  free: string;
+  current: string;
+  already_applied: string;
+  cost: string;
+  apply_background: string;
+  
   // Polish Confession
   polish_confession: string;
   polishing: string;
@@ -2642,6 +2684,47 @@ export const translations: Record<Language, Translations> = {
     customization_error: "Failed to apply customization",
     insufficient_coins: "Not enough coins",
     
+    highlight_comment: "Highlight Comment",
+    highlight_comment_description: "Make your comment stand out with a golden highlight for 24 hours.",
+    highlight_comment_success_title: "Comment Highlighted!",
+    highlight_comment_success_description: "Your comment will be highlighted for 24 hours",
+    highlight_comment_error: "Failed to highlight comment",
+    highlight_comment_features: "Highlight Features:",
+    highlight_comment_feature_1: "Golden border and background",
+    highlight_comment_feature_2: "Stays at top of comments",
+    highlight_comment_feature_3: "Active for 24 hours",
+    highlight_comment_cost: "Cost: {cost} coins",
+    highlight_now: "Highlight Now",
+    ai_makeover: "AI Makeover",
+    ai_makeover_description: "Let AI improve your confession with better writing, clarity, and emotional impact.",
+    ai_makeover_features: "AI Makeover Features:",
+    ai_makeover_feature_1: "Improves writing quality and grammar",
+    ai_makeover_feature_2: "Enhances emotional impact",
+    ai_makeover_feature_3: "Maintains your original message",
+    ai_makeover_feature_4: "You can edit before applying",
+    ai_makeover_cost: "Cost: {cost} coins",
+    ai_makeover_error: "Failed to generate makeover",
+    ai_makeover_applied_title: "Makeover Applied!",
+    ai_makeover_applied_description: "Your confession has been updated",
+    original_content: "Original Content",
+    improved_content: "Improved Content",
+    edit_improved_content: "Edit the improved content before applying...",
+    generate_makeover: "Generate Makeover",
+    apply_changes: "Apply Changes",
+    applying: "Applying...",
+    custom_background: "Custom Background",
+    custom_background_description: "Choose a beautiful gradient background for your confession.",
+    background_applied_title: "Background Applied!",
+    background_applied_description: "Your confession now has a custom background",
+    background_error: "Failed to apply background",
+    your_balance: "Your Balance",
+    coins: "coins",
+    free: "Free",
+    current: "Current",
+    already_applied: "Already Applied",
+    cost: "Cost",
+    apply_background: "Apply Background",
+    
     polish_confession: "Polish Confession",
     polishing: "Polishing...",
     polish_success_title: "Confession Polished!",
@@ -4101,6 +4184,47 @@ export const translations: Record<Language, Translations> = {
     equip_badge_success: "¡Insignia equipada!",
     customization_error: "Error al aplicar personalización",
     insufficient_coins: "Monedas insuficientes",
+    
+    highlight_comment: "Destacar Comentario",
+    highlight_comment_description: "Haz que tu comentario se destaque con un resaltado dorado durante 24 horas.",
+    highlight_comment_success_title: "¡Comentario Destacado!",
+    highlight_comment_success_description: "Tu comentario será destacado durante 24 horas",
+    highlight_comment_error: "Error al destacar comentario",
+    highlight_comment_features: "Características de Destacado:",
+    highlight_comment_feature_1: "Borde y fondo dorado",
+    highlight_comment_feature_2: "Se mantiene en la parte superior de comentarios",
+    highlight_comment_feature_3: "Activo durante 24 horas",
+    highlight_comment_cost: "Costo: {cost} monedas",
+    highlight_now: "Destacar Ahora",
+    ai_makeover: "Transformación IA",
+    ai_makeover_description: "Deja que la IA mejore tu confesión con mejor redacción, claridad e impacto emocional.",
+    ai_makeover_features: "Características de Transformación IA:",
+    ai_makeover_feature_1: "Mejora la calidad de escritura y gramática",
+    ai_makeover_feature_2: "Aumenta el impacto emocional",
+    ai_makeover_feature_3: "Mantiene tu mensaje original",
+    ai_makeover_feature_4: "Puedes editar antes de aplicar",
+    ai_makeover_cost: "Costo: {cost} monedas",
+    ai_makeover_error: "Error al generar transformación",
+    ai_makeover_applied_title: "¡Transformación Aplicada!",
+    ai_makeover_applied_description: "Tu confesión ha sido actualizada",
+    original_content: "Contenido Original",
+    improved_content: "Contenido Mejorado",
+    edit_improved_content: "Edita el contenido mejorado antes de aplicar...",
+    generate_makeover: "Generar Transformación",
+    apply_changes: "Aplicar Cambios",
+    applying: "Aplicando...",
+    custom_background: "Fondo Personalizado",
+    custom_background_description: "Elige un hermoso fondo degradado para tu confesión.",
+    background_applied_title: "¡Fondo Aplicado!",
+    background_applied_description: "Tu confesión ahora tiene un fondo personalizado",
+    background_error: "Error al aplicar fondo",
+    your_balance: "Tu Saldo",
+    coins: "monedas",
+    free: "Gratis",
+    current: "Actual",
+    already_applied: "Ya Aplicado",
+    cost: "Costo",
+    apply_background: "Aplicar Fondo",
     
     polish_confession: "Mejorar Confesión",
     polishing: "Mejorando...",
@@ -5663,6 +5787,47 @@ export const translations: Record<Language, Translations> = {
     equip_badge_success: "Abzeichen ausgerüstet!",
     customization_error: "Fehler beim Anwenden der Anpassung",
     insufficient_coins: "Nicht genug Münzen",
+    
+    highlight_comment: "Kommentar Hervorheben",
+    highlight_comment_description: "Hebe deinen Kommentar mit einer goldenen Hervorhebung für 24 Stunden hervor.",
+    highlight_comment_success_title: "Kommentar Hervorgehoben!",
+    highlight_comment_success_description: "Dein Kommentar wird 24 Stunden hervorgehoben",
+    highlight_comment_error: "Fehler beim Hervorheben des Kommentars",
+    highlight_comment_features: "Hervorhebungs-Funktionen:",
+    highlight_comment_feature_1: "Goldener Rahmen und Hintergrund",
+    highlight_comment_feature_2: "Bleibt oben in den Kommentaren",
+    highlight_comment_feature_3: "24 Stunden aktiv",
+    highlight_comment_cost: "Kosten: {cost} Münzen",
+    highlight_now: "Jetzt Hervorheben",
+    ai_makeover: "KI-Verbesserung",
+    ai_makeover_description: "Lass KI dein Geständnis mit besserer Schreibweise, Klarheit und emotionaler Wirkung verbessern.",
+    ai_makeover_features: "KI-Verbesserungs-Funktionen:",
+    ai_makeover_feature_1: "Verbessert Schreibqualität und Grammatik",
+    ai_makeover_feature_2: "Erhöht emotionale Wirkung",
+    ai_makeover_feature_3: "Bewahrt deine ursprüngliche Botschaft",
+    ai_makeover_feature_4: "Du kannst vor dem Anwenden bearbeiten",
+    ai_makeover_cost: "Kosten: {cost} Münzen",
+    ai_makeover_error: "Fehler beim Generieren der Verbesserung",
+    ai_makeover_applied_title: "Verbesserung Angewendet!",
+    ai_makeover_applied_description: "Dein Geständnis wurde aktualisiert",
+    original_content: "Original-Inhalt",
+    improved_content: "Verbesserter Inhalt",
+    edit_improved_content: "Bearbeite den verbesserten Inhalt vor dem Anwenden...",
+    generate_makeover: "Verbesserung Generieren",
+    apply_changes: "Änderungen Anwenden",
+    applying: "Anwenden...",
+    custom_background: "Benutzerdefinierter Hintergrund",
+    custom_background_description: "Wähle einen schönen Verlaufshintergrund für dein Geständnis.",
+    background_applied_title: "Hintergrund Angewendet!",
+    background_applied_description: "Dein Geständnis hat jetzt einen benutzerdefinierten Hintergrund",
+    background_error: "Fehler beim Anwenden des Hintergrunds",
+    your_balance: "Dein Guthaben",
+    coins: "Münzen",
+    free: "Kostenlos",
+    current: "Aktuell",
+    already_applied: "Bereits Angewendet",
+    cost: "Kosten",
+    apply_background: "Hintergrund Anwenden",
     
     polish_confession: "Geständnis Verbessern",
     polishing: "Verbessern...",
