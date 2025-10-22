@@ -231,7 +231,7 @@ describe('Translation System', () => {
       const jsonSize = JSON.stringify(translations).length;
       const KB = jsonSize / 1024;
 
-      expect(KB).toBeLessThan(200); // Should be < 200KB
+      expect(KB).toBeLessThan(220); // Should be < 220KB (increased for coin system translations)
     });
   });
 });
