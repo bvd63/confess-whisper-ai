@@ -1,8 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
 
 export default function CoinPurchaseSuccess() {
@@ -10,34 +12,86 @@ export default function CoinPurchaseSuccess() {
   const [searchParams] = useSearchParams();
   const { t } = useLanguage();
   const sessionId = searchParams.get('session_id');
+  const [verifying, setVerifying] = useState(true);
+  const [coinsAwarded, setCoinsAwarded] = useState<number | null>(null);
 
   useEffect(() => {
-    // Trigger confetti celebration
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 }
-    });
-    
-    // Trigger multiple bursts
-    setTimeout(() => {
+    const verifyPurchase = async () => {
+      if (!sessionId) {
+        setVerifying(false);
+        return;
+      }
+
+      try {
+        console.log('[SUCCESS PAGE] Verifying purchase for session:', sessionId);
+        
+        const { data, error } = await supabase.functions.invoke('verify-coin-purchase', {
+          body: { sessionId }
+        });
+
+        if (error) {
+          console.error('[SUCCESS PAGE] Verification error:', error);
+          toast.error('Failed to verify purchase');
+        } else if (data?.success) {
+          console.log('[SUCCESS PAGE] Verification result:', data);
+          if (data.already_awarded) {
+            console.log('[SUCCESS PAGE] Coins were already awarded');
+          } else {
+            console.log('[SUCCESS PAGE] Coins awarded:', data.coins_awarded);
+            setCoinsAwarded(data.coins_awarded);
+          }
+        }
+      } catch (err) {
+        console.error('[SUCCESS PAGE] Verification failed:', err);
+      } finally {
+        setVerifying(false);
+      }
+    };
+
+    verifyPurchase();
+  }, [sessionId]);
+
+  useEffect(() => {
+    if (!verifying) {
+      // Trigger confetti celebration
       confetti({
-        particleCount: 50,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0 }
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
       });
-    }, 250);
-    
-    setTimeout(() => {
-      confetti({
-        particleCount: 50,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1 }
-      });
-    }, 400);
-  }, []);
+      
+      // Trigger multiple bursts
+      setTimeout(() => {
+        confetti({
+          particleCount: 50,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 }
+        });
+      }, 250);
+      
+      setTimeout(() => {
+        confetti({
+          particleCount: 50,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 }
+        });
+      }, 400);
+    }
+  }, [verifying]);
+
+  if (verifying) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20">
+        <div className="max-w-md w-full text-center space-y-6 bg-card p-8 rounded-2xl shadow-xl border-2 border-yellow-500/50">
+          <Loader2 className="w-16 h-16 animate-spin text-yellow-500 mx-auto" />
+          <h2 className="text-xl font-semibold">Verifying purchase...</h2>
+          <p className="text-muted-foreground">Please wait while we confirm your coins</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20">
@@ -52,6 +106,14 @@ export default function CoinPurchaseSuccess() {
         <h1 className="text-3xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
           {t.coins_purchase_success_title || '🎉 Purchase Successful!'}
         </h1>
+        
+        {coinsAwarded && (
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 border border-yellow-200 dark:border-yellow-800">
+            <p className="text-lg font-semibold text-yellow-900 dark:text-yellow-100">
+              +{coinsAwarded} coins added to your account! 🪙
+            </p>
+          </div>
+        )}
         
         <p className="text-muted-foreground">
           {t.coins_purchase_success_message || 'Your coins have been added to your account. You can now use them to unlock premium features!'}

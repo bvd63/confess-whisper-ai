@@ -151,6 +151,9 @@ verify_jwt = true
 [functions.stripe-webhook-coins]
 verify_jwt = false
 
+[functions.verify-coin-purchase]
+verify_jwt = true
+
 [functions.manage-reactions]
 verify_jwt = true
 
