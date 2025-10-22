@@ -3,12 +3,10 @@
 // This file intentionally provides very small, permissive declarations (useful for editor only).
 
 declare function serve(handler: (req: any) => Promise<Response> | Response): void;
-declare module '*://*';
+
 declare namespace Deno {
   // minimal subset used by our functions
-  export namespace env {
-    export function get(name: string): string | undefined;
-  }
+  export function get(name: string): string | undefined;
 }
 
 // `serve` used by Supabase Edge Functions runtime

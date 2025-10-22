@@ -64,11 +64,11 @@ serve(async (req) => {
       .from('user_follows')
       .select('following_id')
       .eq('follower_id', user.id)
-      .in('following_id', profiles?.map(p => p.user_id) || []);
+      .in('following_id', profiles?.map((p: any) => p.user_id) || []);
 
-    const followingIds = new Set(followData?.map(f => f.following_id) || []);
+    const followingIds = new Set(followData?.map((f: any) => f.following_id) || []);
 
-    const users = profiles?.map(p => ({
+    const users = profiles?.map((p: any) => ({
       id: p.user_id,
       nickname: p.nickname,
       bio: p.bio,
