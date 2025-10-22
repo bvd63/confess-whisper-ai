@@ -6,7 +6,14 @@ export const useSubscriptionCheck = (userId: string | undefined) => {
     if (!userId) return null;
 
     try {
-      // Check entitlements from database
+      // 1) Trigger backend verification against Stripe (updates profiles table)
+      try {
+        await supabase.functions.invoke('check-subscription');
+      } catch (fnErr) {
+        console.error('Error invoking check-subscription function:', fnErr);
+      }
+
+      // 2) Read current entitlements (if table exists)
       const { data: entitlement, error } = await supabase
         .from('subscription_entitlements')
         .select('*')

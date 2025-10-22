@@ -59,7 +59,8 @@ const Profile = () => {
     isVIP,
     isOnTrial,
     trialEndDate,
-    trialEligible
+    trialEligible,
+    refetch
   } = usePremiumStatus(user?.id);
   const {
     checkSubscription
@@ -163,6 +164,14 @@ const Profile = () => {
       navigate('/auth');
     }
   };
+  // Ensure profile reflects latest subscription from Stripe on profile load
+  useEffect(() => {
+    (async () => {
+      await checkSubscription();
+      await refetch();
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkSubscription, refetch]);
   if (!user) return null;
   return <AppLayout onNewConfession={() => setIsNewConfessionOpen(true)} onUpgradeClick={() => setPremiumDialogOpen(true)} onManageSubscription={() => setManageSubDialogOpen(true)}>
       <AchievementToast userId={user.id} />
