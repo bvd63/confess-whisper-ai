@@ -2,9 +2,7 @@ import { serve } from 'https://deno.land/std@0.190.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import Stripe from 'https://esm.sh/stripe@18.5.0'
 
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
-  apiVersion: '2025-08-27.basil',
-})
+// Initialize Stripe per-request to always pick up latest secret (moved inside handler)
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -52,8 +50,10 @@ serve(async (req) => {
     }
     console.log('[COIN-CHECKOUT] Package found:', pkg.name, pkg.price_usd)
 
-    // Determine if we're in test mode by checking if Stripe key starts with sk_test
-    const isTestMode = Deno.env.get('STRIPE_SECRET_KEY')?.startsWith('sk_test_') || false
+    // Load Stripe secret and determine mode (default to TEST unless explicitly live)
+    const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') || ''
+    const isTestMode = stripeKey.startsWith('sk_live_') ? false : true
+    const stripe = new Stripe(stripeKey, { apiVersion: '2025-08-27.basil' })
     console.log('[COIN-CHECKOUT] Stripe mode:', isTestMode ? 'TEST' : 'LIVE')
 
     // Use test or live Price ID based on environment
