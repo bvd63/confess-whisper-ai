@@ -170,6 +170,13 @@ export const FlairsShop = ({
       setPurchasing(null);
     }
   };
+  const getCooldownEnd = (flairId: string): Date => {
+    const userFlair = userFlairs.find(uf => uf.flair_id === flairId);
+    if (!userFlair?.last_equipped_at) return new Date(0);
+    const lastEquipped = new Date(userFlair.last_equipped_at);
+    return new Date(lastEquipped.getTime() + 5 * 24 * 60 * 60 * 1000); // 5 days
+  };
+
   const getCooldownRemaining = (flairId: string) => {
     const userFlair = userFlairs.find(uf => uf.flair_id === flairId);
     const flair = flairs.find(f => f.id === flairId);
@@ -179,8 +186,7 @@ export const FlairsShop = ({
       return null;
     }
 
-    const lastEquipped = new Date(userFlair.last_equipped_at);
-    const cooldownEnd = new Date(lastEquipped.getTime() + 5 * 24 * 60 * 60 * 1000); // 5 days
+    const cooldownEnd = getCooldownEnd(flairId);
     const now = new Date();
     
     if (now < cooldownEnd) {
@@ -339,11 +345,13 @@ export const FlairsShop = ({
             {flair.required_plan === 'premium' ? t.subscription_plan_premium : t.subscription_plan_vip} {t.required}
           </Badge>}
 
-        {owned && userFlair?.expires_at && <ExpiryTimer expiresAt={userFlair.expires_at} className="text-[10px]" showIcon={false} />}
+        {owned && !onCooldown && userFlair?.expires_at && <ExpiryTimer expiresAt={userFlair.expires_at} className="text-[10px]" showIcon={false} />}
 
-        {onCooldown && <Badge variant="secondary" className="text-[10px]">
-            Cooldown: {cooldownDays} {cooldownDays === 1 ? 'day' : 'days'}
-          </Badge>}
+        {owned && onCooldown && (
+          <p className="text-[10px] text-muted-foreground">
+            Cooldown: {cooldownDays}d {Math.floor(((getCooldownEnd(flair.id).getTime() - new Date().getTime()) / (1000 * 60 * 60)) % 24)}h
+          </p>
+        )}
 
         {!owned && !expired && !isLocked && <p className="text-[10px] text-muted-foreground text-center">
             {t.shop_expires_in.replace('{days}', '5')}
