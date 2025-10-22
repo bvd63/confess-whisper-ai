@@ -92,10 +92,10 @@ export const SubscriptionPlansGrid = ({
         {filteredPlans.map((plan: any) => (
           <Card
             key={`${plan.id}-${plan.interval}`}
-            className={`p-8 relative bg-[#13141f] border transition-all duration-200 ${
+            className={`p-8 relative bg-[#13141f] border transition-all duration-300 hover:scale-[1.02] ${
               plan.id === 'vip'
-                ? 'border-purple-500/30'
-                : 'border-[#1a1b2e]'
+                ? 'border-purple-500/30 hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]'
+                : 'border-[#1a1b2e] hover:border-purple-500/30 hover:shadow-[0_0_20px_rgba(168,85,247,0.1)]'
             }`}
           >
             {/* Active Badge for VIP if current plan */}
@@ -117,14 +117,16 @@ export const SubscriptionPlansGrid = ({
 
 
             {/* Plan Header */}
-            <div className="mb-6">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-2xl">{plan.id === 'vip' ? '✨' : '👑'}</span>
+            <div className="mb-8">
+              <div className="flex items-center gap-3 mb-6">
+                <span className="text-3xl">{plan.id === 'vip' ? '👑' : '✨'}</span>
                 <h3 className="text-2xl font-bold text-white">{plan.name}</h3>
               </div>
               <div className="mb-2">
-                <span className="text-4xl font-bold text-purple-400">${plan.price}</span>
-                <span className="text-gray-400 ml-1">/per month</span>
+                <span className="text-5xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  ${plan.price}
+                </span>
+                <span className="text-gray-400 text-lg ml-2">/per month</span>
               </div>
               <p className="text-sm text-gray-500">
                 Billed annually (${(plan.price * 12).toFixed(2)}/per year)
@@ -132,11 +134,13 @@ export const SubscriptionPlansGrid = ({
             </div>
 
             {/* Benefits List */}
-            <div className="space-y-3 mb-8">
+            <div className="space-y-4 mb-8">
               {plan.benefits.map((benefit: string, index: number) => (
-                <div key={index} className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-purple-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm text-gray-300">{t[benefit as keyof typeof t] || benefit}</span>
+                <div key={index} className="flex items-start gap-3 group/benefit">
+                  <div className="w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/benefit:bg-purple-500/30 transition-colors">
+                    <Check className="w-3.5 h-3.5 text-purple-400" />
+                  </div>
+                  <span className="text-sm text-gray-300 leading-relaxed">{t[benefit as keyof typeof t] || benefit}</span>
                 </div>
               ))}
             </div>
@@ -145,12 +149,12 @@ export const SubscriptionPlansGrid = ({
             <Button
               onClick={() => onSelectPlan(plan.id, plan.priceId)}
               disabled={isLoading || !canChangePlan || isCurrentPlan(plan)}
-              className={`w-full py-6 rounded-lg font-semibold transition-all ${
+              className={`w-full py-6 rounded-lg font-semibold transition-all duration-300 ${
                 isCurrentPlan(plan)
-                  ? 'bg-purple-600 hover:bg-purple-600 text-white cursor-default'
+                  ? 'bg-purple-600 hover:bg-purple-600 text-white cursor-default shadow-lg shadow-purple-500/30'
                   : plan.id === 'vip'
-                  ? 'bg-purple-600 hover:bg-purple-700 text-white'
-                  : 'bg-transparent border-2 border-white hover:bg-white text-white hover:text-black'
+                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 hover:scale-[1.02]'
+                  : 'bg-transparent border-2 border-white hover:bg-white text-white hover:text-black hover:scale-[1.02]'
               }`}
             >
               {isCurrentPlan(plan) ? 'Active Plan' : getButtonText(plan)}
