@@ -15,15 +15,31 @@ const PaymentSuccess = () => {
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const { user } = useCurrentUser();
-  const { subscriptionTier } = usePremiumStatus(user?.id);
+  const { subscriptionTier, refetch } = usePremiumStatus(user?.id);
 
   useEffect(() => {
     const processPayment = async () => {
       if (!user) return;
 
       try {
-        // Check subscription status
-        await supabase.functions.invoke('billing-status');
+        // Check subscription status and update backend
+        const { error: statusError } = await supabase.functions.invoke('billing-status');
+        
+        if (statusError) {
+          console.error('Error checking subscription status:', statusError);
+          toast({
+            title: "Please refresh the page",
+            description: "We're updating your subscription status",
+            variant: "default",
+          });
+          return;
+        }
+
+        // Wait a moment for the database to update
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Refetch premium status to get updated subscription tier
+        await refetch();
         
         // Award coins bonus for first charge
         const sessionId = searchParams.get('session_id');
@@ -46,7 +62,7 @@ const PaymentSuccess = () => {
 
         toast({
           title: "Subscription Activated!",
-          description: "Your Premium benefits are now active",
+          description: "Your Premium benefits are now active. Redirecting...",
         });
       } catch (error) {
         console.error('Error processing payment:', error);
@@ -61,7 +77,7 @@ const PaymentSuccess = () => {
     }, 5000);
 
     return () => clearTimeout(timer);
-  }, [navigate, toast, user, subscriptionTier, searchParams, t]);
+  }, [navigate, toast, user, subscriptionTier, searchParams, t, refetch]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-background flex items-center justify-center p-4">

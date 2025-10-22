@@ -14,10 +14,41 @@ const logStep = (step: string, details?: any) => {
 
 // Price IDs for both test and live mode
 const STRIPE_PRICE_IDS = {
-  premium_live: "price_1SJ0vvR7kygIyYg9oT1ju6lQ",
+  // Test mode
+  premium_monthly_test: "price_1SIVqFR7kygIyYg9Ai1tJ2AI",
+  premium_yearly_test: "price_1SIVqeR7kygIyYg9FizFMLRx",
+  vip_monthly_test: "price_1SL42cR7kygIyYg9LFEBp8uz",
+  vip_yearly_test: "price_1SL42zR7kygIyYg9IZrd2ExW",
+  // Live mode
+  premium_monthly_live: "price_1SJ0vvR7kygIyYg9oT1ju6lQ",
   premium_yearly_live: "price_1SJ0vvR7kygIyYg9yORadPGD",
-  vip_live: "price_1SJ0vwR7kygIyYg9OeCiqV00",
+  vip_monthly_live: "price_1SJ0vwR7kygIyYg9OeCiqV00",
   vip_yearly_live: "price_1SJ0vvR7kygIyYg9BJuciYGd",
+};
+
+const getTierFromPriceId = (priceId: string): string => {
+  // Check if it's a VIP price
+  if (
+    priceId === STRIPE_PRICE_IDS.vip_monthly_test ||
+    priceId === STRIPE_PRICE_IDS.vip_yearly_test ||
+    priceId === STRIPE_PRICE_IDS.vip_monthly_live ||
+    priceId === STRIPE_PRICE_IDS.vip_yearly_live
+  ) {
+    return 'vip';
+  }
+  
+  // Check if it's a Premium price
+  if (
+    priceId === STRIPE_PRICE_IDS.premium_monthly_test ||
+    priceId === STRIPE_PRICE_IDS.premium_yearly_test ||
+    priceId === STRIPE_PRICE_IDS.premium_monthly_live ||
+    priceId === STRIPE_PRICE_IDS.premium_yearly_live
+  ) {
+    return 'premium';
+  }
+  
+  // Default to free if price not recognized
+  return 'free';
 };
 
 serve(async (req) => {
@@ -104,46 +135,29 @@ serve(async (req) => {
       status: subscription.status
     });
 
-    // Determine tier from price - check product name from metadata
+    // Determine tier from price ID
     const priceId = subscription.items.data[0].price.id;
-    const productId = subscription.items.data[0].price.product;
-    
-    let tier = 'free';
-    
-    // Check if VIP or Premium based on price ID patterns or product metadata
-    // Since we're using dynamic prices in test mode, check the subscription metadata
-    const planName = subscription.metadata?.plan_name?.toLowerCase() || '';
-    
-    if (planName.includes('vip')) {
-      tier = 'vip';
-    } else if (planName.includes('premium')) {
-      tier = 'premium';
-    } else {
-      // Fallback: check live mode price IDs
-      if (Object.values(STRIPE_PRICE_IDS).includes(priceId)) {
-        if (priceId.includes('vip') || priceId === STRIPE_PRICE_IDS.vip_live || priceId === STRIPE_PRICE_IDS.vip_yearly_live) {
-          tier = 'vip';
-        } else {
-          tier = 'premium';
-        }
-      }
-    }
+    let tier = getTierFromPriceId(priceId);
 
     // If subscription is not active, set to free
     if (!['active', 'trialing'].includes(subscription.status)) {
       tier = 'free';
     }
 
-    logStep("Determined tier", { tier, status: subscription.status, planName, priceId });
+    logStep("Determined tier", { tier, status: subscription.status, priceId });
 
     // Update local database with correct column names
+    const endsAt = subscription.current_period_end 
+      ? new Date(subscription.current_period_end * 1000).toISOString()
+      : null;
+
     const { error: updateError } = await supabaseClient
       .from('profiles')
       .update({
         subscription_tier: tier,
         subscription_status: subscription.status,
         subscription_cancel_at_period_end: subscription.cancel_at_period_end,
-        subscription_ends_at: new Date(subscription.current_period_end * 1000).toISOString(),
+        subscription_ends_at: endsAt,
         stripe_customer_id: customerId,
         stripe_subscription_id: subscription.id,
       })
@@ -160,7 +174,7 @@ serve(async (req) => {
         subscription_tier: tier,
         subscription_status: subscription.status,
         cancel_at_period_end: subscription.cancel_at_period_end,
-        subscription_ends_at: new Date(subscription.current_period_end * 1000).toISOString(),
+        subscription_ends_at: endsAt,
         stripe_subscription_id: subscription.id,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
