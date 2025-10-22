@@ -51,43 +51,57 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
   };
 
   const handleSelectPlan = async (planId: string, priceId: string) => {
-    if (!priceId || planId === currentPlan) return;
+    if (!priceId) return;
+
+    // If selecting the exact same tier and interval, do nothing
+    if (planId === currentPlan && interval === currentInterval) return;
 
     setIsProcessing(true);
     try {
-      // Always go through Stripe Checkout (consistent flow like Free → Premium)
-      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-        body: {
-          priceId,
-          planName: planId,
-          billingCycle: interval,
-        },
-      });
+      // Decide flow based on current tier
+      const levels = { free: 0, premium: 1, vip: 2 } as const;
+      const cur = levels[(currentPlan as keyof typeof levels) || 'free'] ?? 0;
+      const tgt = levels[(planId as keyof typeof levels) || 'free'] ?? 0;
 
-      if (error) {
-        // Handle specific error codes
-        if (error.message?.includes('ALREADY_SUBSCRIBED') || error.message?.includes('already have')) {
-          toast.error(t.subscription_already_subscribed);
-          return;
+      // New subscription from free → checkout
+      if (cur === 0) {
+        const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+          body: { priceId, planName: planId, billingCycle: interval },
+        });
+        if (error) throw error;
+        if (data?.url) {
+          window.open(data.url, '_blank');
+          toast.success('Redirecting to checkout...');
+          onOpenChange(false);
         }
-        throw error;
+        return;
       }
 
-      if (data?.url) {
-        window.open(data.url, '_blank');
-        toast.success('Redirecting to checkout...');
+      // Upgrade or switch price immediately (proration)
+      if (tgt > cur || (tgt === cur && interval !== currentInterval)) {
+        const { error } = await supabase.functions.invoke('subscription-upgrade', {
+          body: { targetPriceId: priceId },
+        });
+        if (error) throw error;
+        toast.success(t.upgrade_success || 'Upgrade applied');
         onOpenChange(false);
+        return;
+      }
+
+      // Downgrade (usually at period end)
+      if (tgt < cur) {
+        const { error } = await supabase.functions.invoke('subscription-downgrade', {
+          body: { targetPriceId: priceId },
+        });
+        if (error) throw error;
+        toast.success(t.downgrade_scheduled_next_period || 'Downgrade scheduled');
+        onOpenChange(false);
+        return;
       }
     } catch (error: any) {
       console.error('Error processing subscription change:', error);
-      const errorMessage = error.message || t.subscription_errors_generic || 'An error occurred';
-      
-      // Check if it's an "already subscribed" error
-      if (errorMessage.includes('ALREADY_SUBSCRIBED') || errorMessage.includes('already have')) {
-        toast.error(t.subscription_already_subscribed);
-      } else {
-        toast.error(errorMessage);
-      }
+      const msg = error?.message || t.subscription_errors_generic || 'An error occurred';
+      toast.error(msg);
     } finally {
       setIsProcessing(false);
     }
