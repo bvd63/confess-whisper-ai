@@ -26,14 +26,19 @@ export default function CoinShop({ open, onOpenChange }: CoinShopProps) {
   const { t } = useLanguage();
   const [loading, setLoading] = useState<string | null>(null);
 
-  // Mock data until coin_packages table is created
-  const packages: CoinPackage[] = [
-    { id: '1', name: 'Starter', coins: 100, price_usd: 0.99, discount_percentage: 0, is_popular: false, display_order: 1 },
-    { id: '2', name: 'Popular', coins: 500, price_usd: 4.99, discount_percentage: 10, is_popular: true, display_order: 2 },
-    { id: '3', name: 'Value', coins: 1000, price_usd: 8.99, discount_percentage: 15, is_popular: false, display_order: 3 },
-    { id: '4', name: 'Premium', coins: 2500, price_usd: 19.99, discount_percentage: 20, is_popular: false, display_order: 4 },
-    { id: '5', name: 'Whale', coins: 5000, price_usd: 34.99, discount_percentage: 25, is_popular: false, display_order: 5 },
-  ];
+  const { data: packages, isLoading } = useQuery({
+    queryKey: ['coin-packages'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('coin_packages')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order');
+      
+      if (error) throw error;
+      return data as CoinPackage[];
+    }
+  });
 
   const handlePurchase = async (packageId: string, priceUsd: number) => {
     setLoading(packageId);
@@ -89,8 +94,13 @@ export default function CoinShop({ open, onOpenChange }: CoinShopProps) {
           </p>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mt-6">
-          {packages?.map((pkg) => (
+        {isLoading ? (
+          <div className="flex justify-center items-center py-8">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mt-6">
+            {packages?.map((pkg) => (
             <div
               key={pkg.id}
               className={`relative p-6 rounded-xl border-2 transition-all hover:scale-105 ${
@@ -152,7 +162,8 @@ export default function CoinShop({ open, onOpenChange }: CoinShopProps) {
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        )}
 
         <div className="mt-6 p-4 bg-muted rounded-lg">
           <p className="text-sm text-center text-muted-foreground">
