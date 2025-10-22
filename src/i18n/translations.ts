@@ -3340,6 +3340,13 @@ export const translations: Record<Language, Translations> = {
     coins_boost_duration: "Duration",
     coins_boost_success: "{name} activated for {duration}!",
     coins_boost_already_active: "This confession already has an active boost",
+    
+    // Subscription flow messages
+    payment_processing_wait: "Processing your subscription… please wait",
+    upgrade_processing_now: "Upgrading your plan…",
+    downgrade_scheduled_next_period: "Your downgrade is scheduled for the next billing period.",
+    already_on_this_plan: "You are already on this plan.",
+    invalid_target_plan: "Invalid target plan.",
   },
   es: {
     app_name: "Confess+",
@@ -4943,6 +4950,13 @@ export const translations: Record<Language, Translations> = {
     coins_boost_duration: "Duración",
     coins_boost_success: "¡{name} activado por {duration}!",
     coins_boost_already_active: "Esta confesión ya tiene un impulso activo",
+    
+    // Subscription flow messages
+    payment_processing_wait: "Procesando tu suscripción… por favor espera",
+    upgrade_processing_now: "Actualizando tu plan…",
+    downgrade_scheduled_next_period: "Tu cambio a un plan inferior se aplicará en el próximo ciclo de facturación.",
+    already_on_this_plan: "Ya estás en este plan.",
+    invalid_target_plan: "Plan de destino no válido.",
   },
   de: {
     app_name: "Confess+",
@@ -6546,5 +6560,12 @@ export const translations: Record<Language, Translations> = {
     coins_boost_duration: "Dauer",
     coins_boost_success: "{name} für {duration} aktiviert!",
     coins_boost_already_active: "Dieses Geständnis hat bereits einen aktiven Boost",
+    
+    // Subscription flow messages
+    payment_processing_wait: "Abonnement wird verarbeitet… bitte warten",
+    upgrade_processing_now: "Dein Tarif wird aktualisiert…",
+    downgrade_scheduled_next_period: "Dein Downgrade ist für den nächsten Abrechnungszeitraum geplant.",
+    already_on_this_plan: "Du nutzt bereits diesen Tarif.",
+    invalid_target_plan: "Ungültiger Zieltarif.",
   },
 };
