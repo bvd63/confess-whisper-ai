@@ -10,6 +10,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SubscriptionCard from "./SubscriptionCard";
+import type { SubscriptionTier, BillingCycle } from "@/lib/stripe-config";
+import { getPriceIdForTier } from "@/lib/stripe-config";
 
 interface SubscriptionPlansProps {
   open: boolean;
@@ -92,9 +94,15 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
       const plan = plans.find(p => p.id === planId);
       if (!plan) return;
 
-      const priceId = cycle === 'monthly' 
-        ? plan.stripe_price_id_monthly 
-        : plan.stripe_price_id_yearly;
+      // Prefer configured Stripe Price IDs to avoid live/test mismatches
+      const tier: SubscriptionTier = plan.name.toLowerCase().includes('vip')
+        ? 'vip'
+        : (plan.name.toLowerCase().includes('premium') ? 'premium' : 'free');
+
+      const priceIdFromConfig = getPriceIdForTier(tier, cycle as BillingCycle);
+      const priceId = priceIdFromConfig ?? (cycle === 'monthly'
+        ? plan.stripe_price_id_monthly
+        : plan.stripe_price_id_yearly);
 
       if (!priceId) {
         toast({
