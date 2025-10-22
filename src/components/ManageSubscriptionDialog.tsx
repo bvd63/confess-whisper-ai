@@ -114,22 +114,30 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
   };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto animate-fade-in">
-        <DialogHeader className="space-y-3">
-          <DialogTitle className="text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-            {t.subscription_title}
-          </DialogTitle>
-          <p className="text-muted-foreground text-center">
-            {t.subscription_description || "Choose the perfect plan for your needs"}
+      <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto animate-fade-in border-2 border-primary/20 shadow-2xl">
+        <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 via-purple-500/5 to-pink-500/5 pointer-events-none"></div>
+        <DialogHeader className="space-y-4 relative z-10 pb-6 border-b border-primary/10">
+          <div className="flex items-center justify-center gap-3">
+            <span className="text-4xl">✨</span>
+            <DialogTitle className="text-4xl font-black bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent tracking-tight">
+              {t.subscription_title}
+            </DialogTitle>
+            <span className="text-4xl">✨</span>
+          </div>
+          <p className="text-muted-foreground text-center text-lg font-medium max-w-2xl mx-auto">
+            {t.subscription_description || "Choose the perfect plan for your needs and unlock premium features"}
           </p>
         </DialogHeader>
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-12 space-y-4">
-            <Loader2 className="w-12 h-12 animate-spin text-primary" />
-            <p className="text-sm text-muted-foreground">Loading plans...</p>
+          <div className="flex flex-col items-center justify-center py-20 space-y-6">
+            <div className="relative">
+              <Loader2 className="w-16 h-16 animate-spin text-primary" />
+              <div className="absolute inset-0 w-16 h-16 bg-primary/20 rounded-full blur-xl animate-pulse"></div>
+            </div>
+            <p className="text-base text-muted-foreground font-semibold">Loading amazing plans...</p>
           </div>
         ) : (
-          <div className="animate-scale-in">
+          <div className="animate-scale-in relative z-10 pt-6">
             <SubscriptionPlansGrid
               currentPlan={currentPlan}
               currentInterval={currentInterval}
