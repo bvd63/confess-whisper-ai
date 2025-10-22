@@ -44,36 +44,36 @@ export const EnhancedSubscriptionManager = () => {
     }
 
     try {
-      // Fetch subscription entitlements
-      const { data: entitlement, error } = await supabase
-        .from('subscription_entitlements')
-        .select('*')
+      // Fetch subscription status from profiles (main source of truth)
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('subscription_tier, subscription_status, subscription_ends_at, stripe_subscription_id, is_premium')
         .eq('user_id', user.id)
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') throw error;
 
-      // Determine interval from Stripe price ID or default to monthly
+      // Determine interval from subscription_ends_at or stripe_subscription_id
       let detectedInterval: BillingInterval = 'monthly';
-      if (entitlement?.stripe_subscription_id) {
-        // Check if price ID contains 'yearly' or 'annual'
-        const priceId = entitlement.stripe_subscription_id || '';
-        if (priceId.includes('yearly') || priceId.includes('annual')) {
+      if (profile?.stripe_subscription_id) {
+        // Check if subscription ID suggests yearly billing
+        const subId = profile.stripe_subscription_id || '';
+        if (subId.includes('yearly') || subId.includes('annual')) {
           detectedInterval = 'yearly';
         }
       }
 
       // Check if subscription is still valid
-      const isActive = entitlement?.valid_until 
-        ? new Date(entitlement.valid_until) > new Date()
+      const isActive = profile?.subscription_ends_at 
+        ? new Date(profile.subscription_ends_at) > new Date()
         : false;
 
       const statusData: SubscriptionStatus = {
-        currentPlan: entitlement?.tier || 'free',
+        currentPlan: (profile?.subscription_tier || 'free') as string,
         interval: detectedInterval,
-        status: isActive ? 'active' : 'inactive',
-        cancelAtPeriodEnd: false, // Not tracked in new system yet
-        currentPeriodEnd: entitlement?.valid_until || undefined,
+        status: isActive && profile?.subscription_status === 'active' ? 'active' : profile?.subscription_status || 'inactive',
+        cancelAtPeriodEnd: false,
+        currentPeriodEnd: profile?.subscription_ends_at || undefined,
         canReactivate: false,
         priceId: undefined,
       };
