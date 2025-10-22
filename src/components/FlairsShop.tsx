@@ -145,6 +145,18 @@ export const FlairsShop = ({
   };
   const handleEquip = async (userFlairId: string) => {
     try {
+      // Prevent equipping flairs above current subscription tier
+      const ownedFlair = userFlairs.find(uf => uf.id === userFlairId);
+      const flair = flairs.find(f => f.id === ownedFlair?.flair_id);
+      if (flair && !canPurchase(flair)) {
+        toast({
+          title: t.upgrade_required,
+          description: flair.required_plan === 'vip' ? t.shop_lock_vip : t.shop_lock_premium,
+          variant: "destructive"
+        });
+        return;
+      }
+
       // Unequip all first (also unfeaturing them)
       await supabase.from('user_flairs').update({
         is_equipped: false,
@@ -270,12 +282,25 @@ export const FlairsShop = ({
         {expired ? <Button size="sm" onClick={() => handlePurchase(flair)} disabled={purchasing === flair.id || coinsBalance < flair.cost || !canBuy} className="w-full gap-1" variant="outline">
             <Coins className="w-3 h-3" />
             {t.buy_again} ({flair.cost})
-          </Button> : owned ? equipped ? <Button size="sm" variant="outline" disabled className="w-full gap-1">
-              <Check className="w-3 h-3" />
-              {t.equipped}
-            </Button> : <Button size="sm" variant="outline" onClick={() => handleEquip(userFlair!.id)} className="w-full">
-              {t.equip}
-            </Button> : isLocked ? <Button size="sm" disabled className="w-full gap-1" variant="outline">
+          </Button> : owned ? (
+            equipped ? (
+              <Button size="sm" variant="outline" disabled className="w-full gap-1">
+                <Check className="w-3 h-3" />
+                {t.equipped}
+              </Button>
+            ) : (
+              isLocked ? (
+                <Button size="sm" disabled className="w-full gap-1" variant="outline">
+                  <Lock className="w-3 h-3" />
+                  {t.upgrade_required}
+                </Button>
+              ) : (
+                <Button size="sm" variant="outline" onClick={() => handleEquip(userFlair!.id)} className="w-full">
+                  {t.equip}
+                </Button>
+              )
+            )
+          ) : isLocked ? <Button size="sm" disabled className="w-full gap-1" variant="outline">
             <Lock className="w-3 h-3" />
             {t.upgrade_required}
           </Button> : <Button size="sm" onClick={() => handlePurchase(flair)} disabled={purchasing === flair.id || coinsBalance < flair.cost} className="w-full gap-1">
