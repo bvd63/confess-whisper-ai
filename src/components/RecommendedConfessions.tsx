@@ -59,8 +59,9 @@ const RecommendedConfessions = ({ userId, currentCategory }: RecommendedConfessi
       // Find most liked categories
       const categoryCount = new Map<string, number>();
       userLikes.forEach(like => {
-        if (like.confessions?.category) {
-          const cat = like.confessions.category as string;
+        const confession = Array.isArray(like.confessions) ? like.confessions[0] : like.confessions;
+        if (confession?.category) {
+          const cat = confession.category as string;
           categoryCount.set(cat, (categoryCount.get(cat) || 0) + 1);
         }
       });

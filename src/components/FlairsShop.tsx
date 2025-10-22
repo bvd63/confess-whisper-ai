@@ -58,6 +58,32 @@ export const FlairsShop = ({
       loadData();
     }
   }, [open, userId]);
+
+  // Real-time listener for user_flairs updates
+  useEffect(() => {
+    if (!userId || !open) return;
+
+    const channel = supabase
+      .channel(`user-flairs-${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_flairs',
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload) => {
+          console.log('[FlairsShop] Real-time update:', payload);
+          loadData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, open]);
   const loadData = async () => {
     setLoading(true);
     try {
