@@ -114,24 +114,35 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
   };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{t.subscription_title}</DialogTitle>
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto bg-[#0a0b14] border-[#1a1b2e] text-white">
+        <DialogHeader className="space-y-2">
+          <DialogTitle className="flex items-center justify-center gap-2 text-2xl font-semibold text-white">
+            <span className="text-purple-500">👑</span>
+            {t.subscription_title}
+          </DialogTitle>
+          <p className="text-center text-sm text-gray-400">
+            Compare features and find your best experience.
+          </p>
         </DialogHeader>
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin" />
+            <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
           </div>
         ) : (
-          <SubscriptionPlansGrid
-            currentPlan={currentPlan}
-            currentInterval={currentInterval}
-            onSelectPlan={handleSelectPlan}
-            isLoading={isProcessing}
-            canChangePlan={true}
-            interval={interval}
-            onIntervalChange={setInterval}
-          />
+          <>
+            <SubscriptionPlansGrid
+              currentPlan={currentPlan}
+              currentInterval={currentInterval}
+              onSelectPlan={handleSelectPlan}
+              isLoading={isProcessing}
+              canChangePlan={true}
+              interval={interval}
+              onIntervalChange={setInterval}
+            />
+            <p className="text-center text-xs text-gray-500 mt-6">
+              You can cancel anytime from account settings. No long-term commitments.
+            </p>
+          </>
         )}
       </DialogContent>
     </Dialog>
