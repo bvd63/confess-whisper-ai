@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -10,10 +10,11 @@ const log = (level: string, message: string, data?: any) => {
   console.log(JSON.stringify({ level, message, data, timestamp: new Date().toISOString() }));
 };
 
-const getTierFromPriceId = (priceId: string): string => {
-  if (priceId.includes('vip')) return 'vip';
-  if (priceId.includes('premium')) return 'premium';
-  return 'free';
+const PRICE_ID_TO_TIER: Record<string, "premium" | "vip"> = {
+  "price_1SIVqFR7kygIyYg9Ai1tJ2AI": "premium",
+  "price_1SIVqeR7kygIyYg9FizFMLRx": "premium",
+  "price_1SL42cR7kygIyYg9LFEBp8uz": "vip",
+  "price_1SL42zR7kygIyYg9IZrd2ExW": "vip",
 };
 
 const tierHierarchy: Record<string, number> = {
@@ -56,20 +57,23 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Get user's current tier
-    const { data: entitlement } = await supabaseAdmin
-      .from("subscription_entitlements")
-      .select("tier")
+    // Get user's current tier from profiles (source of truth)
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("subscription_tier")
       .eq("user_id", user.id)
       .single();
 
-    const targetTier = getTierFromPriceId(targetPriceId);
-    const currentTier = entitlement?.tier || "free";
+    const targetTier = PRICE_ID_TO_TIER[targetPriceId] || "premium";
+    const currentTier = profile?.subscription_tier || "free";
+
+    log("info", "Comparing tiers", { currentTier, targetTier });
 
     // Validate it's actually a downgrade
     if (tierHierarchy[targetTier] >= tierHierarchy[currentTier]) {
+      log("error", "Invalid downgrade target", { currentTier, targetTier });
       return new Response(
-        JSON.stringify({ error: "invalid_target", message: "Target must be a lower tier" }),
+        JSON.stringify({ error: "invalid_target", message: `Cannot downgrade from ${currentTier} to ${targetTier}` }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 400,
@@ -111,6 +115,7 @@ serve(async (req) => {
         success: true,
         message: "downgrade_scheduled",
         target_tier: targetTier,
+        current_tier: currentTier,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
