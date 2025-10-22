@@ -3,7 +3,8 @@ import { EnhancedButton } from "@/components/EnhancedButton";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { UserDisplayName } from "@/components/UserDisplayName";
 import { GiftCoinsDialog } from "@/components/coins/GiftCoinsDialog";
-import { MessageCircle, UserPlus, UserMinus, Settings, Gift } from "lucide-react";
+import { ProfileCustomization } from "@/components/coins/ProfileCustomization";
+import { MessageCircle, UserPlus, UserMinus, Settings, Gift, Sparkles } from "lucide-react";
 import { useFollowSystem } from "@/hooks/useFollowSystem";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -36,6 +37,7 @@ export const ProfileHeader = ({
   const { t } = useLanguage();
   const { stats, isProcessing, toggleFollow } = useFollowSystem(currentUserId, userId);
   const [isGiftDialogOpen, setIsGiftDialogOpen] = useState(false);
+  const [isCustomizationOpen, setIsCustomizationOpen] = useState(false);
   
   const isOwnProfile = currentUserId === userId;
 
@@ -93,15 +95,26 @@ export const ProfileHeader = ({
       {/* Action Buttons */}
       <div className="flex gap-2">
         {isOwnProfile ? (
-          <EnhancedButton
-            variant="outline"
-            className="flex-1"
-            onClick={onEditProfile || (() => navigate("/profile"))}
-            lift
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            {t.settings || "Edit Profile"}
-          </EnhancedButton>
+          <>
+            <EnhancedButton
+              variant="outline"
+              className="flex-1"
+              onClick={onEditProfile || (() => navigate("/profile"))}
+              lift
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              {t.settings || "Edit Profile"}
+            </EnhancedButton>
+            <EnhancedButton
+              variant="outline"
+              onClick={() => setIsCustomizationOpen(true)}
+              lift
+              glow
+            >
+              <Sparkles className="w-4 h-4" />
+            </EnhancedButton>
+          </>
+        
         ) : (
           <>
             <EnhancedButton
@@ -148,6 +161,12 @@ export const ProfileHeader = ({
         onOpenChange={setIsGiftDialogOpen}
         recipientId={userId}
         recipientName={nickname || "User"}
+      />
+
+      <ProfileCustomization
+        open={isCustomizationOpen}
+        onOpenChange={setIsCustomizationOpen}
+        userId={userId}
       />
     </AnimatedCard>
   );

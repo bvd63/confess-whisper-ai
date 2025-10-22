@@ -914,6 +914,31 @@ type Translations = {
   boost_cost: string;
   boost_now: string;
   
+  // Profile Customization
+  customize_profile: string;
+  themes: string;
+  badges: string;
+  theme_default: string;
+  theme_ocean: string;
+  theme_sunset: string;
+  theme_forest: string;
+  theme_galaxy: string;
+  theme_royal: string;
+  badge_star: string;
+  badge_fire: string;
+  badge_heart: string;
+  badge_rocket: string;
+  badge_gem: string;
+  badge_crown: string;
+  owned: string;
+  purchase_for: string;
+  purchase_theme_success: string;
+  purchase_badge_success: string;
+  equip_theme_success: string;
+  equip_badge_success: string;
+  customization_error: string;
+  insufficient_coins: string;
+  
   // Polish Confession
   polish_confession: string;
   polishing: string;
@@ -2593,6 +2618,30 @@ export const translations: Record<Language, Translations> = {
     boost_cost: "Cost: 15 coins",
     boost_now: "Boost Now",
     
+    customize_profile: "Customize Profile",
+    themes: "Themes",
+    badges: "Badges",
+    theme_default: "Default",
+    theme_ocean: "Ocean",
+    theme_sunset: "Sunset",
+    theme_forest: "Forest",
+    theme_galaxy: "Galaxy",
+    theme_royal: "Royal",
+    badge_star: "Star",
+    badge_fire: "Fire",
+    badge_heart: "Heart",
+    badge_rocket: "Rocket",
+    badge_gem: "Gem",
+    badge_crown: "Crown",
+    owned: "Owned",
+    purchase_for: "Purchase for",
+    purchase_theme_success: "Theme purchased successfully!",
+    purchase_badge_success: "Badge purchased successfully!",
+    equip_theme_success: "Theme equipped!",
+    equip_badge_success: "Badge equipped!",
+    customization_error: "Failed to apply customization",
+    insufficient_coins: "Not enough coins",
+    
     polish_confession: "Polish Confession",
     polishing: "Polishing...",
     polish_success_title: "Confession Polished!",
@@ -4028,6 +4077,30 @@ export const translations: Record<Language, Translations> = {
     boost_confirmation_description: "Impulsa esta confesión para hacerla más visible durante 1 hora.",
     boost_cost: "Costo: 15 monedas",
     boost_now: "Impulsar Ahora",
+    
+    customize_profile: "Personalizar Perfil",
+    themes: "Temas",
+    badges: "Insignias",
+    theme_default: "Predeterminado",
+    theme_ocean: "Océano",
+    theme_sunset: "Atardecer",
+    theme_forest: "Bosque",
+    theme_galaxy: "Galaxia",
+    theme_royal: "Real",
+    badge_star: "Estrella",
+    badge_fire: "Fuego",
+    badge_heart: "Corazón",
+    badge_rocket: "Cohete",
+    badge_gem: "Gema",
+    badge_crown: "Corona",
+    owned: "Propiedad",
+    purchase_for: "Comprar por",
+    purchase_theme_success: "¡Tema comprado exitosamente!",
+    purchase_badge_success: "¡Insignia comprada exitosamente!",
+    equip_theme_success: "¡Tema equipado!",
+    equip_badge_success: "¡Insignia equipada!",
+    customization_error: "Error al aplicar personalización",
+    insufficient_coins: "Monedas insuficientes",
     
     polish_confession: "Mejorar Confesión",
     polishing: "Mejorando...",
@@ -5566,6 +5639,30 @@ export const translations: Record<Language, Translations> = {
     boost_confirmation_description: "Booste dieses Geständnis, um es 1 Stunde lang sichtbarer zu machen.",
     boost_cost: "Kosten: 15 Münzen",
     boost_now: "Jetzt Boosten",
+    
+    customize_profile: "Profil Anpassen",
+    themes: "Themen",
+    badges: "Abzeichen",
+    theme_default: "Standard",
+    theme_ocean: "Ozean",
+    theme_sunset: "Sonnenuntergang",
+    theme_forest: "Wald",
+    theme_galaxy: "Galaxie",
+    theme_royal: "Königlich",
+    badge_star: "Stern",
+    badge_fire: "Feuer",
+    badge_heart: "Herz",
+    badge_rocket: "Rakete",
+    badge_gem: "Edelstein",
+    badge_crown: "Krone",
+    owned: "Besessen",
+    purchase_for: "Kaufen für",
+    purchase_theme_success: "Thema erfolgreich gekauft!",
+    purchase_badge_success: "Abzeichen erfolgreich gekauft!",
+    equip_theme_success: "Thema ausgerüstet!",
+    equip_badge_success: "Abzeichen ausgerüstet!",
+    customization_error: "Fehler beim Anwenden der Anpassung",
+    insufficient_coins: "Nicht genug Münzen",
     
     polish_confession: "Geständnis Verbessern",
     polishing: "Verbessern...",
