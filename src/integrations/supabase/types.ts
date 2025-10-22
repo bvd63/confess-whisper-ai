@@ -1686,6 +1686,45 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_conflict_logs: {
+        Row: {
+          canceled_subscription_id: string
+          conflict_type: string
+          created_at: string
+          existing_status: string | null
+          id: string
+          kept_subscription_id: string
+          new_status: string | null
+          payload: Json | null
+          resolution_reason: string | null
+          user_id: string
+        }
+        Insert: {
+          canceled_subscription_id: string
+          conflict_type: string
+          created_at?: string
+          existing_status?: string | null
+          id?: string
+          kept_subscription_id: string
+          new_status?: string | null
+          payload?: Json | null
+          resolution_reason?: string | null
+          user_id: string
+        }
+        Update: {
+          canceled_subscription_id?: string
+          conflict_type?: string
+          created_at?: string
+          existing_status?: string | null
+          id?: string
+          kept_subscription_id?: string
+          new_status?: string | null
+          payload?: Json | null
+          resolution_reason?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscription_entitlements: {
         Row: {
           ai_insights_quota: number | null

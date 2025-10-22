@@ -62,9 +62,29 @@ serve(async (req) => {
     // Get or create Stripe customer
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("stripe_customer_id")
+      .select("stripe_customer_id, stripe_subscription_id, subscription_status")
       .eq("user_id", user.id)
       .single();
+
+    // CHECKOUT GUARD: Block if user already has active subscription
+    const blockStatuses = ['active', 'trialing', 'incomplete', 'past_due', 'unpaid'];
+    if (profile?.stripe_subscription_id && blockStatuses.includes(profile.subscription_status || '')) {
+      logStep("ERROR: User already has active subscription", {
+        userId: user.id,
+        subscriptionId: profile.stripe_subscription_id,
+        status: profile.subscription_status
+      });
+      return new Response(
+        JSON.stringify({ 
+          error: "You already have an active subscription. Use Upgrade, Downgrade, or Cancel instead.",
+          code: "ALREADY_SUBSCRIBED"
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 409,
+        }
+      );
+    }
 
     let customerId = profile?.stripe_customer_id;
 

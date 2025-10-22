@@ -122,6 +122,10 @@ type Translations = {
   subscription_tier_vip: string;
   subscription_cta_upgrade: string;
   subscription_downgrade: string;
+  subscription_single_active_policy: string;
+  subscription_already_subscribed: string;
+  subscription_conflict_resolved_keep_new: string;
+  subscription_conflict_resolved_keep_old: string;
   
   // Premium
   premium_member: string;
@@ -1790,6 +1794,10 @@ export const translations: Record<Language, Translations> = {
   subscription_cta_upgrade: "Get a subscription",
   subscription_upgrade: "Upgrade",
   subscription_downgrade: "Downgrade",
+  subscription_single_active_policy: "Only one active subscription is allowed. Use Upgrade, Downgrade or Cancel.",
+  subscription_already_subscribed: "You already have a subscription. Use Upgrade, Downgrade, or Cancel.",
+  subscription_conflict_resolved_keep_new: "Your plan was updated to the latest purchase and the old plan was canceled.",
+  subscription_conflict_resolved_keep_old: "Your existing plan remains active; the new purchase was canceled.",
   upgrade_required: "Upgrade Required",
   required: "Required",
     
@@ -3402,6 +3410,10 @@ export const translations: Record<Language, Translations> = {
   subscription_cta_upgrade: "Obtener suscripción",
   subscription_upgrade: "Mejorar plan",
   subscription_downgrade: "Bajar plan",
+  subscription_single_active_policy: "Solo se permite una suscripción activa. Usa Mejorar, Bajar o Cancelar.",
+  subscription_already_subscribed: "Ya tienes una suscripción. Usa Mejorar, Bajar o Cancelar.",
+  subscription_conflict_resolved_keep_new: "Tu plan se actualizó a la última compra y el plan antiguo fue cancelado.",
+  subscription_conflict_resolved_keep_old: "Tu plan existente permanece activo; la nueva compra fue cancelada.",
   upgrade_required: "Actualización Requerida",
   required: "Requerido",
     
@@ -5016,6 +5028,10 @@ export const translations: Record<Language, Translations> = {
   subscription_cta_upgrade: "Abo abschließen",
   subscription_upgrade: "Upgrade",
   subscription_downgrade: "Downgrade",
+  subscription_single_active_policy: "Nur ein aktives Abonnement ist erlaubt. Verwenden Sie Upgrade, Downgrade oder Kündigen.",
+  subscription_already_subscribed: "Sie haben bereits ein Abonnement. Verwenden Sie Upgrade, Downgrade oder Kündigen.",
+  subscription_conflict_resolved_keep_new: "Ihr Plan wurde auf den letzten Kauf aktualisiert und der alte Plan wurde gekündigt.",
+  subscription_conflict_resolved_keep_old: "Ihr bestehender Plan bleibt aktiv; der neue Kauf wurde storniert.",
   upgrade_required: "Upgrade Erforderlich",
   required: "Erforderlich",
     
