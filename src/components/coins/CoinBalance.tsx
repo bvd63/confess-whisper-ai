@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Coins, Plus } from 'lucide-react';
@@ -20,35 +20,44 @@ export default function CoinBalance() {
         .from('user_coins')
         .select('balance')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error) return 0;
       return data?.balance || 0;
     },
-    refetchInterval: 30000, // Refresh every 30s
+    refetchInterval: 10000, // Refresh every 10s
   });
 
-  // Listen for coin balance updates
-  useState(() => {
-    const channel = supabase
-      .channel('coin-balance-updates')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'transactions',
-        },
-        () => {
-          refetch();
-        }
-      )
-      .subscribe();
+  // Listen for coin balance updates on user_coins table
+  useEffect(() => {
+    const setupRealtime = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-    return () => {
-      supabase.removeChannel(channel);
+      const channel = supabase
+        .channel(`coin-balance-${user.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'user_coins',
+            filter: `user_id=eq.${user.id}`,
+          },
+          () => {
+            console.log('[CoinBalance] Realtime update received, refetching...');
+            refetch();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     };
-  });
+
+    setupRealtime();
+  }, [refetch]);
 
   return (
     <>

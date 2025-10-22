@@ -6,11 +6,13 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function CoinPurchaseSuccess() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { t } = useLanguage();
+  const queryClient = useQueryClient();
   const sessionId = searchParams.get('session_id');
   const [verifying, setVerifying] = useState(true);
   const [coinsAwarded, setCoinsAwarded] = useState<number | null>(null);
@@ -40,6 +42,16 @@ export default function CoinPurchaseSuccess() {
             console.log('[SUCCESS PAGE] Coins awarded:', data.coins_awarded);
             setCoinsAwarded(data.coins_awarded);
           }
+          
+          // Force refetch user_coins to trigger realtime update
+          await supabase
+            .from('user_coins')
+            .select('balance')
+            .single();
+          
+          // Invalidate React Query cache for coin balance
+          queryClient.invalidateQueries({ queryKey: ['coin-balance'] });
+          queryClient.invalidateQueries({ queryKey: ['coinBalance'] });
         }
       } catch (err) {
         console.error('[SUCCESS PAGE] Verification failed:', err);
