@@ -117,16 +117,31 @@ export const EnhancedSubscriptionManager = () => {
       const currentLevel = tierHierarchy[status.currentPlan as keyof typeof tierHierarchy] || 0;
       const targetLevel = tierHierarchy[plan.id as keyof typeof tierHierarchy] || 0;
 
-      let result;
+      toast.loading(t.processing_request);
+
       if (targetLevel > currentLevel) {
-        result = await upgradeSubscription(targetPriceId);
-      } else {
-        result = await downgradeSubscription(targetPriceId);
+        // Upgrade - immediate with proration
+        const { data, error } = await supabase.functions.invoke('billing-upgrade', {
+          body: { targetPriceId }
+        });
+        if (error) throw error;
+        toast.dismiss();
+        toast.success(t.upgrade_success);
+      } else if (targetLevel < currentLevel) {
+        // Downgrade - scheduled for next period
+        const { data, error } = await supabase.functions.invoke('billing-downgrade', {
+          body: { targetPriceId }
+        });
+        if (error) throw error;
+        toast.dismiss();
+        toast.success(t.downgrade_scheduled_next_period);
       }
 
-      if (result.success) {
-        await loadStatus();
-      }
+      await loadStatus();
+      toast.success(t.request_done);
+    } catch (error: any) {
+      toast.dismiss();
+      toast.error(error.message || t.subscription_errors_generic);
     } finally {
       setShowConfirm(false);
     }
@@ -134,13 +149,16 @@ export const EnhancedSubscriptionManager = () => {
 
   const handleCancel = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('billing-cancel', {
-        body: { effective: 'period_end' }
-      });
+      toast.loading(t.processing_request);
+      
+      const { data, error } = await supabase.functions.invoke('billing-cancel');
       if (error) throw error;
-      toast.success(t.subscription_cancel_success);
+      
+      toast.dismiss();
+      toast.success(t.cancel_scheduled);
       await loadStatus();
     } catch (error: any) {
+      toast.dismiss();
       toast.error(error.message || t.subscription_errors_generic);
     } finally {
       setShowConfirm(false);

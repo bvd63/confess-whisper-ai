@@ -40,82 +40,42 @@ serve(async (req) => {
 
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const { immediate } = await req.json();
-    const isImmediate = immediate === true;
-
-    logStep("Cancel type", { immediate: isImmediate });
+    logStep("Cancel request");
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-    // Get customer
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    if (customers.data.length === 0) {
-      throw new Error("No Stripe customer found");
-    }
-    const customerId = customers.data[0].id;
-    logStep("Found customer", { customerId });
+    // Get user's profile with subscription info
+    const { data: profile } = await supabaseClient
+      .from("profiles")
+      .select("stripe_subscription_id")
+      .eq("user_id", user.id)
+      .single();
 
-    // Get active subscription
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      status: 'active',
-      limit: 1,
-    });
-
-    if (subscriptions.data.length === 0) {
+    if (!profile?.stripe_subscription_id) {
       throw new Error("No active subscription found");
     }
 
-    const subscription = subscriptions.data[0];
-    logStep("Found active subscription", { subscriptionId: subscription.id });
+    logStep("Found subscription", { subscriptionId: profile.stripe_subscription_id });
 
-    let updatedSubscription;
-    if (isImmediate) {
-      // Cancel immediately
-      updatedSubscription = await stripe.subscriptions.cancel(subscription.id);
-      logStep("Subscription canceled immediately", { subscriptionId: subscription.id });
-      
-      // Update local database
-      await supabaseClient
-        .from('profiles')
-        .update({
-          current_plan: 'free',
-          status: 'canceled',
-          cancel_at_period_end: false,
-          last_sync_at: new Date().toISOString(),
-        })
-        .eq('id', user.id);
-    } else {
-      // Cancel at period end
-      updatedSubscription = await stripe.subscriptions.update(subscription.id, {
-        cancel_at_period_end: true,
-      });
-      logStep("Subscription set to cancel at period end", { 
-        subscriptionId: subscription.id,
-        periodEnd: new Date(updatedSubscription.current_period_end * 1000).toISOString()
-      });
+    // Cancel subscription at period end
+    await stripe.subscriptions.update(profile.stripe_subscription_id, {
+      cancel_at_period_end: true,
+    });
 
-      // Update local database
-      await supabaseClient
-        .from('profiles')
-        .update({
-          cancel_at_period_end: true,
-          last_sync_at: new Date().toISOString(),
-        })
-        .eq('id', user.id);
-    }
+    logStep("Subscription set to cancel at period end");
+
+    // Update profile
+    await supabaseClient
+      .from("profiles")
+      .update({
+        subscription_status: "canceled_pending",
+      })
+      .eq("user_id", user.id);
 
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         success: true,
-        subscription: {
-          id: updatedSubscription.id,
-          canceled: true,
-          immediate: isImmediate,
-          current_period_end: updatedSubscription.current_period_end 
-            ? new Date(updatedSubscription.current_period_end * 1000).toISOString()
-            : null,
-        }
+        message: "cancel_scheduled",
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     );

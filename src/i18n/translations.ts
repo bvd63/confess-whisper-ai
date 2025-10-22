@@ -1182,7 +1182,11 @@ type Translations = {
   // Subscription Flow Messages
   payment_processing_wait: string;
   upgrade_processing_now: string;
+  upgrade_success: string;
   downgrade_scheduled_next_period: string;
+  cancel_scheduled: string;
+  processing_request: string;
+  request_done: string;
   already_on_this_plan: string;
   invalid_target_plan: string;
   subs_action_cancel: string;
@@ -3344,7 +3348,11 @@ export const translations: Record<Language, Translations> = {
     // Subscription flow messages
     payment_processing_wait: "Processing your subscription… please wait",
     upgrade_processing_now: "Upgrading your plan…",
+    upgrade_success: "Plan upgraded successfully",
     downgrade_scheduled_next_period: "Your downgrade is scheduled for the next billing period.",
+    cancel_scheduled: "Your subscription will end at the end of this billing period.",
+    processing_request: "Processing your request…",
+    request_done: "Done!",
     already_on_this_plan: "You are already on this plan.",
     invalid_target_plan: "Invalid target plan.",
   },
@@ -4954,7 +4962,11 @@ export const translations: Record<Language, Translations> = {
     // Subscription flow messages
     payment_processing_wait: "Procesando tu suscripción… por favor espera",
     upgrade_processing_now: "Actualizando tu plan…",
-    downgrade_scheduled_next_period: "Tu cambio a un plan inferior se aplicará en el próximo ciclo de facturación.",
+    upgrade_success: "Plan actualizado correctamente",
+    downgrade_scheduled_next_period: "Tu cambio de plan se aplicará en el próximo ciclo de facturación.",
+    cancel_scheduled: "Tu suscripción finalizará al final de este ciclo de facturación.",
+    processing_request: "Procesando tu solicitud…",
+    request_done: "¡Listo!",
     already_on_this_plan: "Ya estás en este plan.",
     invalid_target_plan: "Plan de destino no válido.",
   },
@@ -6564,7 +6576,11 @@ export const translations: Record<Language, Translations> = {
     // Subscription flow messages
     payment_processing_wait: "Abonnement wird verarbeitet… bitte warten",
     upgrade_processing_now: "Dein Tarif wird aktualisiert…",
-    downgrade_scheduled_next_period: "Dein Downgrade ist für den nächsten Abrechnungszeitraum geplant.",
+    upgrade_success: "Tarif erfolgreich aktualisiert",
+    downgrade_scheduled_next_period: "Dein Downgrade wird im nächsten Abrechnungszeitraum wirksam.",
+    cancel_scheduled: "Dein Abonnement endet am Ende dieses Abrechnungszeitraums.",
+    processing_request: "Anfrage wird verarbeitet…",
+    request_done: "Fertig!",
     already_on_this_plan: "Du nutzt bereits diesen Tarif.",
     invalid_target_plan: "Ungültiger Zieltarif.",
   },

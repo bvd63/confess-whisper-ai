@@ -178,20 +178,24 @@ serve(async (req) => {
 
         // Map Stripe status to our status
         let status: string;
-        switch (subscription.status) {
-          case "active":
-          case "trialing":
-            status = "active";
-            break;
-          case "past_due":
-          case "unpaid":
-            status = "past_due";
-            break;
-          case "canceled":
-            status = "canceled";
-            break;
-          default:
-            status = subscription.status;
+        if (subscription.cancel_at_period_end) {
+          status = "canceled_pending";
+        } else {
+          switch (subscription.status) {
+            case "active":
+            case "trialing":
+              status = "active";
+              break;
+            case "past_due":
+            case "unpaid":
+              status = "past_due";
+              break;
+            case "canceled":
+              status = "canceled";
+              break;
+            default:
+              status = subscription.status;
+          }
         }
 
         // Find user by customer ID
@@ -206,13 +210,13 @@ serve(async (req) => {
           break;
         }
         
-        logStep("Processing subscription update", { userId: profile.user_id, tier, status, priceId });
+        logStep("Processing subscription update", { userId: profile.user_id, tier, status, priceId, cancelAtPeriodEnd: subscription.cancel_at_period_end });
 
         // Update profiles table
         const { error: updateError } = await supabaseAdmin
           .from("profiles")
           .update({
-            is_premium: tier !== "free" && status === "active",
+            is_premium: tier !== "free" && (status === "active" || status === "canceled_pending"),
             subscription_tier: tier,
             subscription_status: status,
             subscription_ends_at: new Date(subscription.current_period_end * 1000).toISOString(),
@@ -227,7 +231,7 @@ serve(async (req) => {
         logStep("Subscription updated - user benefits updated", { 
           userId: profile.user_id, 
           tier, 
-          status, 
+          status,
           isPremium: tier !== 'free' && status === 'active',
           subscriptionEnds: new Date(subscription.current_period_end * 1000).toISOString()
         });
@@ -291,9 +295,36 @@ serve(async (req) => {
           .select("*")
           .eq("user_id", profile.user_id)
           .eq("status", "pending")
+          .eq("action", "downgrade")
           .single();
 
-        // Note: Downgrades would be handled here if subscription_change_requests table exists
+        if (pendingDowngrade) {
+          logStep("Processing pending downgrade", { userId: profile.user_id, targetPriceId: pendingDowngrade.target_price_id });
+
+          // Apply downgrade to Stripe subscription
+          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+          const currentItemId = subscription.items.data[0].id;
+
+          await stripe.subscriptions.update(subscriptionId, {
+            items: [
+              {
+                id: currentItemId,
+                price: pendingDowngrade.target_price_id,
+              },
+            ],
+            proration_behavior: "none",
+            billing_cycle_anchor: "unchanged",
+          });
+
+          // Mark request as applied
+          await supabaseAdmin
+            .from("subscription_change_requests")
+            .update({ status: "applied" })
+            .eq("id", pendingDowngrade.id);
+
+          logStep("Downgrade applied", { userId: profile.user_id });
+        }
+
         break;
       }
     }
