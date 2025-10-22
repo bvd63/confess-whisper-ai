@@ -244,7 +244,7 @@ serve(async (req) => {
         // Find user by customer ID
         const { data: profile } = await supabaseAdmin
           .from("profiles")
-          .select("user_id")
+          .select("user_id, stripe_subscription_id, subscription_status, subscription_cancel_at_period_end")
           .eq("stripe_customer_id", invoice.customer as string)
           .single();
 
@@ -255,7 +255,97 @@ serve(async (req) => {
         
         logStep("Processing payment for user", { userId: profile.user_id, tier, priceId });
 
-        // Update profiles table with subscription info
+        // CONFLICT RESOLVER: Check for conflicting subscription
+        const activeLike = ['active', 'trialing', 'incomplete', 'past_due'];
+        const delinquentLike = ['past_due', 'unpaid', 'canceled'];
+        const newIsActiveish = activeLike.includes(subscription.status);
+
+        if (profile.stripe_subscription_id && 
+            profile.stripe_subscription_id !== subscriptionId && 
+            activeLike.includes(profile.subscription_status || '')) {
+          
+          // Conflict detected
+          const existingIsDelinquent = delinquentLike.includes(profile.subscription_status || '');
+          const existingWillEnd = profile.subscription_cancel_at_period_end === true;
+          const preferNew = existingIsDelinquent || (existingWillEnd && newIsActiveish);
+
+          if (preferNew) {
+            // ✅ Keep NEW subscription, cancel OLD one
+            logStep("CONFLICT on invoice.payment_succeeded: Keeping NEW, canceling OLD", {
+              userId: profile.user_id,
+              oldSubId: profile.stripe_subscription_id,
+              newSubId: subscriptionId
+            });
+
+            try {
+              await stripe.subscriptions.cancel(profile.stripe_subscription_id, {
+                invoice_now: false,
+                prorate: false
+              });
+            } catch (cancelError) {
+              logStep("Failed to cancel old subscription", { error: cancelError });
+              try {
+                await stripe.subscriptions.update(profile.stripe_subscription_id, {
+                  cancel_at_period_end: true
+                });
+              } catch (updateError) {
+                logStep("Failed to update old subscription", { error: updateError });
+              }
+            }
+
+            await supabaseAdmin.from("subscription_conflict_logs").insert({
+              user_id: profile.user_id,
+              conflict_type: 'KEEP_NEW',
+              kept_subscription_id: subscriptionId,
+              canceled_subscription_id: profile.stripe_subscription_id,
+              existing_status: profile.subscription_status,
+              new_status: subscription.status,
+              resolution_reason: existingIsDelinquent ? 'existing_delinquent' : 'existing_cancel_pending',
+              payload: { priceId, tier, event: 'invoice.payment_succeeded' }
+            });
+
+          } else {
+            // ❌ Keep OLD subscription, cancel NEW one
+            logStep("CONFLICT on invoice.payment_succeeded: Keeping OLD, canceling NEW", {
+              userId: profile.user_id,
+              oldSubId: profile.stripe_subscription_id,
+              newSubId: subscriptionId
+            });
+
+            try {
+              await stripe.subscriptions.cancel(subscriptionId, {
+                invoice_now: false,
+                prorate: false
+              });
+            } catch (cancelError) {
+              logStep("Failed to cancel new subscription", { error: cancelError });
+              try {
+                await stripe.subscriptions.update(subscriptionId, {
+                  cancel_at_period_end: true
+                });
+              } catch (updateError) {
+                logStep("Failed to update new subscription", { error: updateError });
+              }
+            }
+
+            await supabaseAdmin.from("subscription_conflict_logs").insert({
+              user_id: profile.user_id,
+              conflict_type: 'KEEP_OLD',
+              kept_subscription_id: profile.stripe_subscription_id,
+              canceled_subscription_id: subscriptionId,
+              existing_status: profile.subscription_status,
+              new_status: subscription.status,
+              resolution_reason: 'default_keep_old',
+              payload: { priceId, tier, event: 'invoice.payment_succeeded' }
+            });
+
+            // Do NOT update profile
+            logStep("Skipping profile update - keeping old subscription");
+            break;
+          }
+        }
+
+        // No conflict or keeping NEW - proceed with update
         const { error: updateError } = await supabaseAdmin
           .from("profiles")
           .update({
@@ -264,6 +354,7 @@ serve(async (req) => {
             subscription_status: "active",
             subscription_ends_at: new Date(subscription.current_period_end * 1000).toISOString(),
             stripe_subscription_id: subscriptionId,
+            subscription_cancel_at_period_end: false,
           })
           .eq("user_id", profile.user_id);
 

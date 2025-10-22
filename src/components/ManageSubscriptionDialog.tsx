@@ -64,7 +64,14 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Handle specific error codes
+        if (error.message?.includes('ALREADY_SUBSCRIBED') || error.message?.includes('already have')) {
+          toast.error(t.subscription_already_subscribed);
+          return;
+        }
+        throw error;
+      }
 
       if (data?.url) {
         window.open(data.url, '_blank');
@@ -73,7 +80,14 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
       }
     } catch (error: any) {
       console.error('Error processing subscription change:', error);
-      toast.error(error.message || t.subscription_errors_generic);
+      const errorMessage = error.message || t.subscription_errors_generic || 'An error occurred';
+      
+      // Check if it's an "already subscribed" error
+      if (errorMessage.includes('ALREADY_SUBSCRIBED') || errorMessage.includes('already have')) {
+        toast.error(t.subscription_already_subscribed);
+      } else {
+        toast.error(errorMessage);
+      }
     } finally {
       setIsProcessing(false);
     }

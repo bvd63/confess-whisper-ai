@@ -18,6 +18,7 @@ import { useSessionRestoration } from '@/hooks/useSessionRestoration';
 import { useBackgroundSync } from '@/hooks/useBackgroundSync';
 import { useDeviceTracking } from '@/hooks/useDeviceTracking';
 import { useInactivityLogout } from '@/hooks/useInactivityLogout';
+import { useSubscriptionConflictCheck } from '@/hooks/useSubscriptionConflictCheck';
 import { useEffect, useState } from 'react';
 import { getSupabase } from "./lib/supabaseClient";
 import { persistenceManager } from '@/lib/persistenceManager';
@@ -52,6 +53,7 @@ import TermsOfService from "./pages/TermsOfService";
 import NotFound from "./pages/NotFound";
 
 const AppContent = () => {
+  const { user } = useAuth();
   const [stayLoggedIn, setStayLoggedIn] = useState(() => {
     return localStorage.getItem('stay_logged_in') === 'true';
   });
@@ -64,6 +66,7 @@ const AppContent = () => {
     enabled: !stayLoggedIn, // Only auto-logout if user didn't check "stay logged in"
     inactivityTimeout: 30 * 60 * 1000, // 30 minutes
   });
+  useSubscriptionConflictCheck(user?.id); // Check for subscription conflicts
   
   // Clear cache on logout and run health checks
   useEffect(() => {
