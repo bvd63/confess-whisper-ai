@@ -17,6 +17,8 @@ import { BoostConfessionButton } from "./BoostConfessionButton";
 import { AwardPicker } from "./coins/AwardPicker";
 import { AwardDisplay } from "./coins/AwardDisplay";
 import { BoostDialog } from "./coins/BoostDialog";
+import { AIMakeoverDialog } from "./coins/AIMakeoverDialog";
+import { ConfessionBackgroundDialog } from "./coins/ConfessionBackgroundDialog";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useBoostStatus } from "@/hooks/useBoostStatus";
 import { supabase } from "@/integrations/supabase/client";
@@ -59,6 +61,8 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [isAwardPickerOpen, setIsAwardPickerOpen] = useState(false);
   const [isBoostDialogOpen, setIsBoostDialogOpen] = useState(false);
+  const [isAIMakeoverOpen, setIsAIMakeoverOpen] = useState(false);
+  const [isBackgroundDialogOpen, setIsBackgroundDialogOpen] = useState(false);
   const [commentsCount, setCommentsCount] = useState(confession.comments_count || 0);
   const { user } = useCurrentUser();
   const { toast } = useToast();
@@ -159,14 +163,26 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
       {/* Interaction Buttons */}
       <div className="flex items-center gap-2 flex-wrap">
         {user && isOwner && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsBoostDialogOpen(true)}
-            className="text-xs"
-          >
-            ⚡ Boost
-          </Button>
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsBoostDialogOpen(true)}
+              className="text-xs"
+            >
+              ⚡ Boost
+            </Button>
+            <AIMakeoverDialog
+              confessionId={confession.id}
+              originalContent={confession.content}
+              isOwner={isOwner}
+            />
+            <ConfessionBackgroundDialog
+              confessionId={confession.id}
+              isOwner={isOwner}
+              currentBackground={undefined}
+            />
+          </>
         )}
         {user && !isOwner && (
           <Button

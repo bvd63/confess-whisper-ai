@@ -10,6 +10,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { CommentAuthor } from "./CommentAuthor";
+import { HighlightCommentButton } from "./coins/HighlightCommentButton";
 
 interface Comment {
   id: string;
@@ -206,16 +207,25 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                       <span>•</span>
                       <span>{timeAgo(comment.created_at)}</span>
                     </div>
-                    {(user?.id === comment.user_id || user?.id === confessionOwnerId) && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(comment.id)}
-                        className="h-5 sm:h-6 px-1.5 sm:px-2 text-muted-foreground hover:text-destructive"
-                      >
-                        <Trash2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                      </Button>
-                    )}
+                    <div className="flex items-center gap-1">
+                      {user?.id === comment.user_id && (
+                        <HighlightCommentButton
+                          commentId={comment.id}
+                          isOwner={user?.id === comment.user_id}
+                          isHighlighted={false}
+                        />
+                      )}
+                      {(user?.id === comment.user_id || user?.id === confessionOwnerId) && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(comment.id)}
+                          className="h-5 sm:h-6 px-1.5 sm:px-2 text-muted-foreground hover:text-destructive"
+                        >
+                          <Trash2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                   <p className="text-xs sm:text-sm text-foreground leading-relaxed">{comment.content}</p>
                 </div>
