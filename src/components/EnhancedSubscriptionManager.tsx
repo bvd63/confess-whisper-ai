@@ -35,6 +35,43 @@ export const EnhancedSubscriptionManager = () => {
 
   useEffect(() => {
     loadStatus();
+    
+    // Set up real-time subscription for instant updates
+    if (!user?.id) return;
+
+    const channel = supabase
+      .channel('subscription-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          console.log('[Real-time] Profile updated:', payload);
+          loadStatus();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'subscription_change_requests',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          console.log('[Real-time] Subscription change request updated:', payload);
+          loadStatus();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   const loadStatus = async () => {

@@ -179,7 +179,7 @@ export default function TestPayments() {
         return { note: 'Already on highest tier (VIP)' };
       }
 
-      const { data, error } = await supabase.functions.invoke('billing-upgrade', {
+      const { data, error } = await supabase.functions.invoke('subscription-upgrade', {
         body: { targetPriceId }
       });
       
@@ -201,7 +201,7 @@ export default function TestPayments() {
         return { note: 'Cannot downgrade from current tier', currentTier };
       }
 
-      const { data, error } = await supabase.functions.invoke('billing-downgrade', {
+      const { data, error } = await supabase.functions.invoke('subscription-downgrade', {
         body: { targetPriceId }
       });
       
