@@ -26,7 +26,7 @@ export default function CoinShop({ open, onOpenChange }: CoinShopProps) {
   const { t } = useLanguage();
   const [loading, setLoading] = useState<string | null>(null);
 
-  const { data: packages, isLoading } = useQuery({
+  const { data: packages } = useQuery({
     queryKey: ['coin-packages'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -40,48 +40,29 @@ export default function CoinShop({ open, onOpenChange }: CoinShopProps) {
     }
   });
 
-  const handlePurchase = async (packageId: string, priceUsd: number) => {
-    console.log('=== COIN PURCHASE DEBUG START ===');
-    console.log('Package ID:', packageId);
-    console.log('Price USD:', priceUsd);
-    
+  const handlePurchase = async (packageId: string) => {
     setLoading(packageId);
     
     try {
-      console.log('Getting session...');
       const { data: { session } } = await supabase.auth.getSession();
-      console.log('Session exists:', !!session);
-      
       if (!session) {
-        console.log('No session found, showing auth error');
         toast.error(t.auth_login || 'Please sign in to purchase coins');
         return;
       }
 
-      console.log('Calling create-coin-checkout function...');
       // Call Stripe checkout Edge Function
       const { data, error } = await supabase.functions.invoke('create-coin-checkout', {
-        body: { packageId, priceUsd }
+        body: { packageId }
       });
 
-      console.log('Function response - data:', data);
-      console.log('Function response - error:', error);
-
-      if (error) {
-        console.log('Error from function:', error);
-        throw error;
-      }
+      if (error) throw error;
 
       // Redirect to Stripe Checkout
       if (data?.url) {
-        console.log('Redirecting to:', data.url);
         window.location.href = data.url;
-      } else {
-        console.log('No URL in response data');
-        throw new Error('No checkout URL received');
       }
     } catch (error) {
-      console.error('=== PURCHASE ERROR ===', error);
+      console.error('Purchase error:', error);
       toast.error(t.coins_purchase_error || 'Failed to create checkout session');
     } finally {
       setLoading(null);
@@ -113,13 +94,8 @@ export default function CoinShop({ open, onOpenChange }: CoinShopProps) {
           </p>
         </DialogHeader>
 
-        {isLoading ? (
-          <div className="flex justify-center items-center py-8">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mt-6">
-            {packages?.map((pkg) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mt-6">
+          {packages?.map((pkg) => (
             <div
               key={pkg.id}
               className={`relative p-6 rounded-xl border-2 transition-all hover:scale-105 ${
@@ -161,7 +137,7 @@ export default function CoinShop({ open, onOpenChange }: CoinShopProps) {
                 </div>
 
                 <Button
-                  onClick={() => handlePurchase(pkg.id, pkg.price_usd)}
+                  onClick={() => handlePurchase(pkg.id)}
                   disabled={loading === pkg.id}
                   className={`w-full ${
                     pkg.is_popular
@@ -181,8 +157,7 @@ export default function CoinShop({ open, onOpenChange }: CoinShopProps) {
               </div>
             </div>
           ))}
-          </div>
-        )}
+        </div>
 
         <div className="mt-6 p-4 bg-muted rounded-lg">
           <p className="text-sm text-center text-muted-foreground">

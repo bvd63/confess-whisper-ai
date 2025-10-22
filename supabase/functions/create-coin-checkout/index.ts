@@ -32,9 +32,9 @@ serve(async (req) => {
       throw new Error('Unauthorized')
     }
 
-    const { packageId, priceUsd } = await req.json()
+    const { packageId } = await req.json()
 
-    // Get package details
+    // Get package details from database
     const { data: pkg, error: pkgError } = await supabaseClient
       .from('coin_packages')
       .select('*')
@@ -45,19 +45,50 @@ serve(async (req) => {
       throw new Error('Package not found')
     }
 
+    // Create or get Stripe product & price dynamically
+    let priceId = pkg.stripe_price_id
+
+    if (!priceId) {
+      console.log(`Creating Stripe product for package: ${pkg.name}`)
+      
+      // Create product in Stripe
+      const product = await stripe.products.create({
+        name: `${pkg.coins} Coins - ${pkg.name} Pack`,
+        description: `Get ${pkg.coins} coins${pkg.discount_percentage > 0 ? ` with ${pkg.discount_percentage}% discount` : ''}`,
+        metadata: {
+          package_id: packageId,
+          coins: pkg.coins.toString(),
+        },
+      })
+
+      // Create price in Stripe
+      const price = await stripe.prices.create({
+        product: product.id,
+        unit_amount: Math.round(pkg.price_usd * 100), // Convert to cents
+        currency: 'usd',
+        metadata: {
+          package_id: packageId,
+          coins: pkg.coins.toString(),
+        },
+      })
+
+      priceId = price.id
+
+      // Save Stripe Price ID to database for future use
+      await supabaseClient
+        .from('coin_packages')
+        .update({ stripe_price_id: priceId })
+        .eq('id', packageId)
+      
+      console.log(`Created Stripe price: ${priceId} for package: ${pkg.name}`)
+    }
+
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
         {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: `${pkg.coins} Coins - ${pkg.name} Pack`,
-              description: `Get ${pkg.coins} coins for your ConfessAI account`,
-            },
-            unit_amount: Math.round(priceUsd * 100), // Convert to cents
-          },
+          price: priceId,
           quantity: 1,
         },
       ],
