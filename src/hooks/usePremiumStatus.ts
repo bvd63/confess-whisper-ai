@@ -43,6 +43,32 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
     staleTime: 0,
   });
 
+  // Real-time subscription to profile changes
+  useEffect(() => {
+    if (!userId) return;
+
+    const channel = supabase
+      .channel(`profile-changes-${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `user_id=eq.${userId}`,
+        },
+        () => {
+          console.log('[usePremiumStatus] Profile updated, refetching...');
+          refetch();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, refetch]);
+
   const premiumStatus = useMemo(() => {
     if (!data) {
       return {
