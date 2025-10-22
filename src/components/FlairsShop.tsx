@@ -170,32 +170,31 @@ export const FlairsShop = ({
       setPurchasing(null);
     }
   };
-  const getCooldownEnd = (flairId: string): Date => {
-    const userFlair = userFlairs.find(uf => uf.flair_id === flairId);
-    if (!userFlair?.last_equipped_at) return new Date(0);
-    const lastEquipped = new Date(userFlair.last_equipped_at);
-    return new Date(lastEquipped.getTime() + 5 * 24 * 60 * 60 * 1000); // 5 days
+  // Global VIP cooldown helpers (apply to all VIP flairs)
+  const getVipCooldownEndGlobal = (): Date | null => {
+    const rareEquips = userFlairs.filter((uf) => {
+      const flair = flairs.find((f) => f.id === uf.flair_id);
+      return flair?.rarity === 'rare' && !!uf.last_equipped_at;
+    });
+    if (rareEquips.length === 0) return null;
+    const latest = rareEquips
+      .map((uf) => new Date(uf.last_equipped_at as string))
+      .sort((a, b) => b.getTime() - a.getTime())[0];
+    return new Date(latest.getTime() + 5 * 24 * 60 * 60 * 1000);
   };
 
-  const getCooldownRemaining = (flairId: string) => {
-    const userFlair = userFlairs.find(uf => uf.flair_id === flairId);
-    const flair = flairs.find(f => f.id === flairId);
-    
-    // Only VIP flairs (rarity: rare) have cooldown
-    if (!flair || flair.rarity !== 'rare' || !userFlair?.last_equipped_at) {
-      return null;
-    }
+  const isVipCooldownActive = (): boolean => {
+    const end = getVipCooldownEndGlobal();
+    return !!(end && new Date() < end);
+  };
 
-    const cooldownEnd = getCooldownEnd(flairId);
+  const getVipCooldownDaysRemaining = (): number | null => {
+    const end = getVipCooldownEndGlobal();
+    if (!end) return null;
     const now = new Date();
-    
-    if (now < cooldownEnd) {
-      const msRemaining = cooldownEnd.getTime() - now.getTime();
-      const daysRemaining = Math.ceil(msRemaining / (24 * 60 * 60 * 1000));
-      return daysRemaining;
-    }
-    
-    return null;
+    if (now >= end) return null;
+    const ms = end.getTime() - now.getTime();
+    return Math.ceil(ms / (24 * 60 * 60 * 1000));
   };
 
   const handleEquip = async (userFlairId: string) => {
@@ -212,13 +211,13 @@ export const FlairsShop = ({
         return;
       }
 
-      // Check cooldown for VIP flairs (rarity: rare)
+      // Check cooldown for VIP flairs (rarity: rare) - global cooldown across all VIP badges
       if (flair && flair.rarity === 'rare') {
-        const cooldownDays = getCooldownRemaining(flair.id);
-        if (cooldownDays !== null) {
+        if (isVipCooldownActive()) {
+          const days = getVipCooldownDaysRemaining() ?? 0;
           toast({
             title: "Cooldown Active",
-            description: `This VIP badge can be equipped again in ${cooldownDays} ${cooldownDays === 1 ? 'day' : 'days'}.`,
+            description: `This VIP badge can be equipped again in ${days} ${days === 1 ? 'day' : 'days'}.`,
             variant: "destructive"
           });
           return;
@@ -325,8 +324,10 @@ export const FlairsShop = ({
     const userFlair = userFlairs.find(uf => uf.flair_id === flair.id);
     const canBuy = canPurchase(flair);
     const isLocked = !canBuy;
-    const cooldownDays = getCooldownRemaining(flair.id);
-    const onCooldown = cooldownDays !== null;
+    const isVip = flair.rarity === 'rare';
+    const cooldownDays = isVip ? getVipCooldownDaysRemaining() : null;
+    const onCooldown = isVip && cooldownDays !== null;
+    const vipCooldownEnd = isVip ? getVipCooldownEndGlobal() : null;
     return <Card key={flair.id} className={`p-4 flex flex-col items-center gap-2 relative hover:scale-105 transition-transform ${equipped ? 'ring-2 ring-primary' : ''} ${isLocked ? 'opacity-60' : ''}`}>
         <Badge className={`absolute top-2 right-2 text-xs ${getRarityColor(flair.rarity)}`}>
           {t[`rarity_${flair.rarity}` as keyof typeof t] || flair.rarity}
@@ -349,8 +350,8 @@ export const FlairsShop = ({
           <ExpiryTimer expiresAt={userFlair.expires_at} className="text-[10px]" showIcon={false} />
         )}
 
-        {owned && onCooldown && (
-          <ExpiryTimer expiresAt={getCooldownEnd(flair.id).toISOString()} className="text-[10px]" showIcon={false} />
+        {owned && onCooldown && vipCooldownEnd && (
+          <ExpiryTimer expiresAt={vipCooldownEnd.toISOString()} className="text-[10px]" showIcon={false} />
         )}
 
         {!owned && !expired && !isLocked && <p className="text-[10px] text-muted-foreground text-center">
@@ -411,7 +412,7 @@ export const FlairsShop = ({
             </span>
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground space-y-1">
-            <p>{t.flair_shop_description}</p>
+            <span>{t.flair_shop_description}</span>
             
           </DialogDescription>
         </DialogHeader>
