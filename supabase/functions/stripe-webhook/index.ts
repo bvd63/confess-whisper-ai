@@ -97,22 +97,29 @@ serve(async (req) => {
           
           logStep("Processing checkout session", { userId, sessionId: session.id });
 
-          // Update profiles table with Stripe customer ID and provisional status
-          if (session.customer) {
+          // Get subscription to determine tier
+          if (session.customer && session.subscription) {
+            const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+            const priceId = subscription.items.data[0]?.price.id;
+            const tier = getTierFromPriceId(priceId);
+
             await supabaseAdmin
               .from("profiles")
               .update({
                 stripe_customer_id: session.customer as string,
                 stripe_subscription_id: session.subscription as string,
-                subscription_tier: "premium",
+                subscription_tier: tier,
                 subscription_status: "active",
+                is_premium: tier !== "free",
               })
               .eq("user_id", userId);
             
             logStep("Profile updated with subscription info", { 
               userId, 
               customerId: session.customer,
-              subscriptionId: session.subscription 
+              subscriptionId: session.subscription,
+              tier,
+              priceId
             });
           }
 
