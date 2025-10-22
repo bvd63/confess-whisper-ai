@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { EnhancedButton } from "@/components/EnhancedButton";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { UserDisplayName } from "@/components/UserDisplayName";
-import { MessageCircle, UserPlus, UserMinus, Settings } from "lucide-react";
+import { GiftCoinsDialog } from "@/components/coins/GiftCoinsDialog";
+import { MessageCircle, UserPlus, UserMinus, Settings, Gift } from "lucide-react";
 import { useFollowSystem } from "@/hooks/useFollowSystem";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -33,6 +35,7 @@ export const ProfileHeader = ({
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { stats, isProcessing, toggleFollow } = useFollowSystem(currentUserId, userId);
+  const [isGiftDialogOpen, setIsGiftDialogOpen] = useState(false);
   
   const isOwnProfile = currentUserId === userId;
 
@@ -128,9 +131,24 @@ export const ProfileHeader = ({
             >
               <MessageCircle className="w-4 h-4" />
             </EnhancedButton>
+            <EnhancedButton
+              variant="outline"
+              onClick={() => setIsGiftDialogOpen(true)}
+              lift
+              glow
+            >
+              <Gift className="w-4 h-4" />
+            </EnhancedButton>
           </>
         )}
       </div>
+
+      <GiftCoinsDialog
+        open={isGiftDialogOpen}
+        onOpenChange={setIsGiftDialogOpen}
+        recipientId={userId}
+        recipientName={nickname || "User"}
+      />
     </AnimatedCard>
   );
 };

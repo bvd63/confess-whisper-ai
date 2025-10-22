@@ -14,6 +14,8 @@ import FollowButton from "./FollowButton";
 import StreakCounter from "./StreakCounter";
 import { BadgeDisplay } from "./BadgeDisplay";
 import { BoostConfessionButton } from "./BoostConfessionButton";
+import { AwardPicker } from "./coins/AwardPicker";
+import { AwardDisplay } from "./coins/AwardDisplay";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useBoostStatus } from "@/hooks/useBoostStatus";
 import { supabase } from "@/integrations/supabase/client";
@@ -54,6 +56,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   const [isDeepInsightOpen, setIsDeepInsightOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
+  const [isAwardPickerOpen, setIsAwardPickerOpen] = useState(false);
   const [commentsCount, setCommentsCount] = useState(confession.comments_count || 0);
   const { user } = useCurrentUser();
   const { toast } = useToast();
@@ -141,6 +144,11 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         </div>
       )}
 
+      {/* Awards Display */}
+      <div className="mb-3">
+        <AwardDisplay confessionId={confession.id} />
+      </div>
+
       {/* Reactions */}
       <div className="mb-3">
         <ReactionPicker confessionId={confession.id} userId={user?.id} />
@@ -148,6 +156,16 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
 
       {/* Interaction Buttons */}
       <div className="flex items-center gap-2 flex-wrap">
+        {user && !isOwner && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsAwardPickerOpen(true)}
+            className="text-xs"
+          >
+            🏆 Give Award
+          </Button>
+        )}
         <ConfessionActions
           confessionId={confession.id}
           confessionUserId={confession.user_id}
@@ -220,6 +238,12 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         onOpenChange={setIsReportOpen}
         confessionId={confession.id}
         userId={user?.id || null}
+      />
+
+      <AwardPicker
+        open={isAwardPickerOpen}
+        onOpenChange={setIsAwardPickerOpen}
+        confessionId={confession.id}
       />
     </AnimatedCard>
   );

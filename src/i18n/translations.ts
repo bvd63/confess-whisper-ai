@@ -1627,6 +1627,29 @@ type Translations = {
   coins_visit_store: string;
   coins_try_again: string;
   coins_most_popular: string;
+  
+  // Gift Coins
+  coins_gift_title: string;
+  coins_gift_amount: string;
+  coins_gift_message: string;
+  coins_gift_anonymous: string;
+  coins_gift_anonymous_fee: string;
+  coins_gift_platform_fee: string;
+  coins_gift_total: string;
+  coins_gift_send: string;
+  coins_gift_success: string;
+  coins_gift_insufficient: string;
+  
+  // Awards
+  coins_award_title: string;
+  coins_award_star: string;
+  coins_award_heart: string;
+  coins_award_fire: string;
+  coins_award_diamond: string;
+  coins_award_give: string;
+  coins_award_success: string;
+  coins_award_creator_earns: string;
+  coins_award_appreciation: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -3129,6 +3152,29 @@ export const translations: Record<Language, Translations> = {
     coins_visit_store: "Visit Store",
     coins_try_again: "Try Again",
     coins_most_popular: "Most Popular",
+    
+    // Gift Coins
+    coins_gift_title: "Gift Coins",
+    coins_gift_amount: "Amount",
+    coins_gift_message: "Message (Optional)",
+    coins_gift_anonymous: "Send Anonymously",
+    coins_gift_anonymous_fee: "+50 coins fee",
+    coins_gift_platform_fee: "Platform fee (5%)",
+    coins_gift_total: "Total cost",
+    coins_gift_send: "Send Gift",
+    coins_gift_success: "Successfully gifted {amount} coins!",
+    coins_gift_insufficient: "Insufficient coins. You need {amount} coins",
+    
+    // Awards
+    coins_award_title: "Give an Award",
+    coins_award_star: "Star",
+    coins_award_heart: "Heart",
+    coins_award_fire: "Fire",
+    coins_award_diamond: "Diamond",
+    coins_award_give: "Give Award",
+    coins_award_success: "Award given! The creator earned {amount} coins",
+    coins_award_creator_earns: "Creator earns",
+    coins_award_appreciation: "Show your appreciation! The creator will receive 50% of the award value.",
   },
   es: {
     app_name: "Confess+",
@@ -4631,6 +4677,29 @@ export const translations: Record<Language, Translations> = {
     coins_visit_store: "Visitar Tienda",
     coins_try_again: "Intentar de Nuevo",
     coins_most_popular: "Más Popular",
+    
+    // Gift Coins
+    coins_gift_title: "Regalar Monedas",
+    coins_gift_amount: "Cantidad",
+    coins_gift_message: "Mensaje (Opcional)",
+    coins_gift_anonymous: "Enviar Anónimamente",
+    coins_gift_anonymous_fee: "+50 monedas de tarifa",
+    coins_gift_platform_fee: "Tarifa de plataforma (5%)",
+    coins_gift_total: "Costo total",
+    coins_gift_send: "Enviar Regalo",
+    coins_gift_success: "¡{amount} monedas regaladas exitosamente!",
+    coins_gift_insufficient: "Monedas insuficientes. Necesitas {amount} monedas",
+    
+    // Awards
+    coins_award_title: "Dar un Premio",
+    coins_award_star: "Estrella",
+    coins_award_heart: "Corazón",
+    coins_award_fire: "Fuego",
+    coins_award_diamond: "Diamante",
+    coins_award_give: "Dar Premio",
+    coins_award_success: "¡Premio otorgado! El creador ganó {amount} monedas",
+    coins_award_creator_earns: "El creador gana",
+    coins_award_appreciation: "¡Muestra tu aprecio! El creador recibirá el 50% del valor del premio.",
   },
   de: {
     app_name: "Confess+",
@@ -6133,5 +6202,28 @@ export const translations: Record<Language, Translations> = {
     coins_visit_store: "Laden Besuchen",
     coins_try_again: "Erneut Versuchen",
     coins_most_popular: "Am Beliebtesten",
+    
+    // Gift Coins
+    coins_gift_title: "Münzen Verschenken",
+    coins_gift_amount: "Betrag",
+    coins_gift_message: "Nachricht (Optional)",
+    coins_gift_anonymous: "Anonym Senden",
+    coins_gift_anonymous_fee: "+50 Münzen Gebühr",
+    coins_gift_platform_fee: "Plattformgebühr (5%)",
+    coins_gift_total: "Gesamtkosten",
+    coins_gift_send: "Geschenk Senden",
+    coins_gift_success: "{amount} Münzen erfolgreich verschenkt!",
+    coins_gift_insufficient: "Unzureichende Münzen. Du brauchst {amount} Münzen",
+    
+    // Awards
+    coins_award_title: "Ein Award Vergeben",
+    coins_award_star: "Stern",
+    coins_award_heart: "Herz",
+    coins_award_fire: "Feuer",
+    coins_award_diamond: "Diamant",
+    coins_award_give: "Award Vergeben",
+    coins_award_success: "Award vergeben! Der Ersteller erhielt {amount} Münzen",
+    coins_award_creator_earns: "Ersteller erhält",
+    coins_award_appreciation: "Zeige deine Wertschätzung! Der Ersteller erhält 50% des Award-Werts.",
   },
 };
