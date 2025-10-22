@@ -233,7 +233,6 @@ export type Database = {
           is_popular: boolean
           name: string
           price_usd: number
-          stripe_price_id: string | null
           updated_at: string
         }
         Insert: {
@@ -246,7 +245,6 @@ export type Database = {
           is_popular?: boolean
           name: string
           price_usd: number
-          stripe_price_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -259,7 +257,6 @@ export type Database = {
           is_popular?: boolean
           name?: string
           price_usd?: number
-          stripe_price_id?: string | null
           updated_at?: string
         }
         Relationships: []
