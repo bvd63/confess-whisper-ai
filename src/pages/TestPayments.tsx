@@ -166,6 +166,59 @@ export default function TestPayments() {
     });
   };
 
+  const testUpgradeSubscription = async () => {
+    return runTest('Upgrade Subscription', async () => {
+      const { data: statusData } = await supabase.functions.invoke('billing-status');
+      const currentTier = statusData?.subscription_tier || 'free';
+
+      // Determine target tier for upgrade
+      let targetPriceId: string;
+      if (currentTier === 'free' || currentTier === 'premium') {
+        targetPriceId = SUBSCRIPTION_PLANS.find(p => p.id === 'vip')?.stripePriceIdMonthly || '';
+      } else {
+        return { note: 'Already on highest tier (VIP)' };
+      }
+
+      const { data, error } = await supabase.functions.invoke('billing-upgrade', {
+        body: { targetPriceId }
+      });
+      
+      if (error) throw error;
+      return { message: 'Upgrade successful', newTier: 'vip', ...data };
+    });
+  };
+
+  const testDowngradeSubscription = async () => {
+    return runTest('Downgrade Subscription', async () => {
+      const { data: statusData } = await supabase.functions.invoke('billing-status');
+      const currentTier = statusData?.subscription_tier || 'free';
+
+      // Determine target tier for downgrade
+      let targetPriceId: string;
+      if (currentTier === 'vip') {
+        targetPriceId = SUBSCRIPTION_PLANS.find(p => p.id === 'premium')?.stripePriceIdMonthly || '';
+      } else {
+        return { note: 'Cannot downgrade from current tier', currentTier };
+      }
+
+      const { data, error } = await supabase.functions.invoke('billing-downgrade', {
+        body: { targetPriceId }
+      });
+      
+      if (error) throw error;
+      return { message: 'Downgrade scheduled at period end', targetTier: 'premium', ...data };
+    });
+  };
+
+  const testCancelSubscription = async () => {
+    return runTest('Cancel Subscription', async () => {
+      const { data, error } = await supabase.functions.invoke('billing-cancel');
+      
+      if (error) throw error;
+      return { message: 'Subscription will be canceled at period end', ...data };
+    });
+  };
+
   const testCustomerPortal = async () => {
     return runTest('Customer Portal', async () => {
       const { data, error } = await supabase.functions.invoke('customer-portal');
@@ -187,6 +240,9 @@ export default function TestPayments() {
     await testSubscriptionStatus();
     await testSubscriptionPlans();
     await testCreateSubscriptionCheckout();
+    await testUpgradeSubscription();
+    await testDowngradeSubscription();
+    await testCancelSubscription();
     await testCustomerPortal();
   };
 
@@ -401,6 +457,42 @@ export default function TestPayments() {
               {renderTestResult('Create Subscription Checkout')}
 
               <Button
+                onClick={testUpgradeSubscription}
+                disabled={loading !== null}
+                variant="outline"
+                className="w-full justify-start text-green-600"
+                size="sm"
+              >
+                {loading === 'Upgrade Subscription' && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                4. Test Upgrade (Premium → VIP)
+              </Button>
+              {renderTestResult('Upgrade Subscription')}
+
+              <Button
+                onClick={testDowngradeSubscription}
+                disabled={loading !== null}
+                variant="outline"
+                className="w-full justify-start text-orange-600"
+                size="sm"
+              >
+                {loading === 'Downgrade Subscription' && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                5. Test Downgrade (VIP → Premium)
+              </Button>
+              {renderTestResult('Downgrade Subscription')}
+
+              <Button
+                onClick={testCancelSubscription}
+                disabled={loading !== null}
+                variant="outline"
+                className="w-full justify-start text-red-600"
+                size="sm"
+              >
+                {loading === 'Cancel Subscription' && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                6. Test Cancel Subscription
+              </Button>
+              {renderTestResult('Cancel Subscription')}
+
+              <Button
                 onClick={testCustomerPortal}
                 disabled={loading !== null}
                 variant="outline"
@@ -408,7 +500,7 @@ export default function TestPayments() {
                 size="sm"
               >
                 {loading === 'Customer Portal' && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                4. Test Customer Portal
+                7. Test Customer Portal
               </Button>
               {renderTestResult('Customer Portal')}
             </div>
