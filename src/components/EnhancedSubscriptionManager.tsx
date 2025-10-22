@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getSupabase } from "@/lib/supabaseClient";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,6 +9,9 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { getPlansForInterval, type BillingInterval, type PlanWithInterval } from "@/lib/subscription-plans";
 import { Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useSubscriptionActions } from "@/hooks/useSubscriptionActions";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { getPriceIdForTier } from "@/lib/stripe-config";
 
 interface SubscriptionStatus {
   currentPlan: string;
@@ -22,36 +25,61 @@ interface SubscriptionStatus {
 
 export const EnhancedSubscriptionManager = () => {
   const { t } = useLanguage();
+  const { user } = useCurrentUser();
+  const { upgradeSubscription, downgradeSubscription, isLoading: actionLoading } = useSubscriptionActions();
   const [interval, setInterval] = useState<BillingInterval>('monthly');
   const [status, setStatus] = useState<SubscriptionStatus | null>(null);
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmAction, setConfirmAction] = useState<{ type: string; plan?: PlanWithInterval } | null>(null);
 
   useEffect(() => {
     loadStatus();
-  }, []);
+  }, [user]);
 
   const loadStatus = async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
     try {
-      const supabase = getSupabase();
-      const { data, error } = await supabase.functions.invoke('billing-status');
-      if (error) throw error;
-      
-      // Ensure data has required properties with defaults
-      const statusData: SubscriptionStatus | null = data ? {
-        currentPlan: data.currentPlan || 'free',
-        interval: data.interval || null,
-        status: data.status || 'inactive',
-        cancelAtPeriodEnd: data.cancelAtPeriodEnd || false,
-        currentPeriodEnd: data.currentPeriodEnd,
-        canReactivate: data.canReactivate || false,
-        priceId: data.priceId,
-      } : null;
-      
+      // Fetch subscription entitlements
+      const { data: entitlement, error } = await supabase
+        .from('subscription_entitlements')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') throw error;
+
+      // Determine interval from Stripe price ID or default to monthly
+      let detectedInterval: BillingInterval = 'monthly';
+      if (entitlement?.stripe_subscription_id) {
+        // Check if price ID contains 'yearly' or 'annual'
+        const priceId = entitlement.stripe_subscription_id || '';
+        if (priceId.includes('yearly') || priceId.includes('annual')) {
+          detectedInterval = 'yearly';
+        }
+      }
+
+      // Check if subscription is still valid
+      const isActive = entitlement?.valid_until 
+        ? new Date(entitlement.valid_until) > new Date()
+        : false;
+
+      const statusData: SubscriptionStatus = {
+        currentPlan: entitlement?.tier || 'free',
+        interval: detectedInterval,
+        status: isActive ? 'active' : 'inactive',
+        cancelAtPeriodEnd: false, // Not tracked in new system yet
+        currentPeriodEnd: entitlement?.valid_until || undefined,
+        canReactivate: false,
+        priceId: undefined,
+      };
+
       setStatus(statusData);
-      if (statusData?.interval) setInterval(statusData.interval);
+      setInterval(detectedInterval);
     } catch (error) {
       console.error('Error loading status:', error);
       toast.error(t.subscription_error || 'Failed to load subscription status');
@@ -61,16 +89,17 @@ export const EnhancedSubscriptionManager = () => {
   };
 
   const handleChange = async (plan: PlanWithInterval) => {
-    setActionLoading(true);
     try {
-      const supabase = getSupabase();
-      // If user has no active subscription, create a new one instead of changing
-      if (!status?.currentPlan || status.currentPlan === 'free' || status.status === 'none') {
-        const { data, error } = await supabase.functions.invoke('billing-buy', {
-          body: { 
-            tier: plan.id,
-            cycle: plan.interval
-          }
+      const targetPriceId = getPriceIdForTier(plan.id as 'premium' | 'vip', plan.interval);
+      if (!targetPriceId) {
+        toast.error('Invalid plan configuration');
+        return;
+      }
+
+      // If user has no active subscription, create a new one
+      if (!status?.currentPlan || status.currentPlan === 'free') {
+        const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+          body: { priceId: targetPriceId }
         });
         if (error) throw error;
         
@@ -79,30 +108,31 @@ export const EnhancedSubscriptionManager = () => {
           window.open(data.url, '_blank');
           toast.success('Redirecting to checkout...');
         }
+        return;
+      }
+
+      // Determine if upgrade or downgrade
+      const tierHierarchy = { free: 0, premium: 1, vip: 2 };
+      const currentLevel = tierHierarchy[status.currentPlan as keyof typeof tierHierarchy] || 0;
+      const targetLevel = tierHierarchy[plan.id as keyof typeof tierHierarchy] || 0;
+
+      let result;
+      if (targetLevel > currentLevel) {
+        result = await upgradeSubscription(targetPriceId);
       } else {
-        // User has active subscription, change it
-        const { data, error } = await supabase.functions.invoke('billing-change', {
-          body: { 
-            priceId: plan.priceId,
-            prorationBehavior: 'create_prorations'
-          }
-        });
-        if (error) throw error;
-        toast.success(t.subscription_change_success);
+        result = await downgradeSubscription(targetPriceId);
+      }
+
+      if (result.success) {
         await loadStatus();
       }
-    } catch (error: any) {
-      toast.error(error.message || t.subscription_errors_generic);
     } finally {
-      setActionLoading(false);
       setShowConfirm(false);
     }
   };
 
   const handleCancel = async () => {
-    setActionLoading(true);
     try {
-      const supabase = getSupabase();
       const { data, error } = await supabase.functions.invoke('billing-cancel', {
         body: { effective: 'period_end' }
       });
@@ -112,23 +142,7 @@ export const EnhancedSubscriptionManager = () => {
     } catch (error: any) {
       toast.error(error.message || t.subscription_errors_generic);
     } finally {
-      setActionLoading(false);
       setShowConfirm(false);
-    }
-  };
-
-  const handleReactivate = async () => {
-    setActionLoading(true);
-    try {
-      const supabase = getSupabase();
-      const { data, error } = await supabase.functions.invoke('billing-reactivate');
-      if (error) throw error;
-      toast.success(t.subscription_reactivate_success);
-      await loadStatus();
-    } catch (error: any) {
-      toast.error(error.message || t.subscription_errors_generic);
-    } finally {
-      setActionLoading(false);
     }
   };
 
@@ -160,11 +174,6 @@ export const EnhancedSubscriptionManager = () => {
               {status.status ? (t[`subscription_status_${status.status}` as keyof typeof t] || status.status.toUpperCase()) : 'UNKNOWN'}
             </Badge>
           </div>
-          {status.canReactivate && (
-            <Button onClick={handleReactivate} className="mt-4 w-full" disabled={actionLoading}>
-              {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : t.subscription_actions_reactivate}
-            </Button>
-          )}
         </Card>
       )}
 
