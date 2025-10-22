@@ -1,9 +1,9 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { serve } from 'https://deno.land/std@0.190.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import Stripe from 'https://esm.sh/stripe@14.10.0?target=deno'
+import Stripe from 'https://esm.sh/stripe@18.5.0'
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
-  apiVersion: '2023-10-16',
+  apiVersion: '2025-08-27.basil',
 })
 
 const corsHeaders = {
@@ -17,6 +17,8 @@ serve(async (req) => {
   }
 
   try {
+    console.log('[COIN-CHECKOUT] Function started')
+    
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -29,10 +31,13 @@ serve(async (req) => {
 
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
     if (userError || !user) {
+      console.error('[COIN-CHECKOUT] Auth error:', userError)
       throw new Error('Unauthorized')
     }
+    console.log('[COIN-CHECKOUT] User authenticated:', user.id)
 
     const { packageId } = await req.json()
+    console.log('[COIN-CHECKOUT] Package ID:', packageId)
 
     // Get package details from database
     const { data: pkg, error: pkgError } = await supabaseClient
@@ -42,14 +47,16 @@ serve(async (req) => {
       .single()
 
     if (pkgError || !pkg) {
+      console.error('[COIN-CHECKOUT] Package error:', pkgError)
       throw new Error('Package not found')
     }
+    console.log('[COIN-CHECKOUT] Package found:', pkg.name, pkg.price_usd)
 
-    // Create or get Stripe product & price dynamically
+    // Check if we have a stripe_price_id, if not create it
     let priceId = pkg.stripe_price_id
 
     if (!priceId) {
-      console.log(`Creating Stripe product for package: ${pkg.name}`)
+      console.log('[COIN-CHECKOUT] Creating Stripe product for package:', pkg.name)
       
       // Create product in Stripe
       const product = await stripe.products.create({
@@ -60,6 +67,7 @@ serve(async (req) => {
           coins: pkg.coins.toString(),
         },
       })
+      console.log('[COIN-CHECKOUT] Product created:', product.id)
 
       // Create price in Stripe
       const price = await stripe.prices.create({
@@ -71,6 +79,7 @@ serve(async (req) => {
           coins: pkg.coins.toString(),
         },
       })
+      console.log('[COIN-CHECKOUT] Price created:', price.id)
 
       priceId = price.id
 
@@ -80,8 +89,10 @@ serve(async (req) => {
         .update({ stripe_price_id: priceId })
         .eq('id', packageId)
       
-      console.log(`Created Stripe price: ${priceId} for package: ${pkg.name}`)
+      console.log('[COIN-CHECKOUT] Price ID saved to database')
     }
+
+    console.log('[COIN-CHECKOUT] Creating checkout session with price:', priceId)
 
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
@@ -103,6 +114,8 @@ serve(async (req) => {
       },
     })
 
+    console.log('[COIN-CHECKOUT] Session created:', session.id)
+
     return new Response(
       JSON.stringify({ url: session.url }),
       {
@@ -112,6 +125,7 @@ serve(async (req) => {
     )
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+    console.error('[COIN-CHECKOUT] Error:', errorMessage, error)
     return new Response(
       JSON.stringify({ error: errorMessage }),
       {
