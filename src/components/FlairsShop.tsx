@@ -26,6 +26,7 @@ interface UserFlair {
   expires_at: string | null;
   acquired_at: string | null;
   purchase_scope?: string;
+  last_equipped_at: string | null;
 }
 interface FlairsShopProps {
   userId: string;
@@ -89,7 +90,7 @@ export const FlairsShop = ({
       const {
         data: userFlairsData,
         error: userFlairsError
-      } = await supabase.from('user_flairs').select('id, flair_id, is_equipped, expires_at, acquired_at, purchase_scope').eq('user_id', userId);
+      } = await supabase.from('user_flairs').select('id, flair_id, is_equipped, expires_at, acquired_at, purchase_scope, last_equipped_at').eq('user_id', userId);
       if (userFlairsError) throw userFlairsError;
       setUserFlairs(userFlairsData || []);
 
@@ -143,6 +144,28 @@ export const FlairsShop = ({
       setPurchasing(null);
     }
   };
+  const getCooldownRemaining = (flairId: string) => {
+    const userFlair = userFlairs.find(uf => uf.flair_id === flairId);
+    const flair = flairs.find(f => f.id === flairId);
+    
+    // Only VIP flairs (rarity: rare) have cooldown
+    if (!flair || flair.rarity !== 'rare' || !userFlair?.last_equipped_at) {
+      return null;
+    }
+
+    const lastEquipped = new Date(userFlair.last_equipped_at);
+    const cooldownEnd = new Date(lastEquipped.getTime() + 5 * 24 * 60 * 60 * 1000); // 5 days
+    const now = new Date();
+    
+    if (now < cooldownEnd) {
+      const msRemaining = cooldownEnd.getTime() - now.getTime();
+      const daysRemaining = Math.ceil(msRemaining / (24 * 60 * 60 * 1000));
+      return daysRemaining;
+    }
+    
+    return null;
+  };
+
   const handleEquip = async (userFlairId: string) => {
     try {
       // Prevent equipping flairs above current subscription tier
@@ -157,6 +180,19 @@ export const FlairsShop = ({
         return;
       }
 
+      // Check cooldown for VIP flairs (rarity: rare)
+      if (flair && flair.rarity === 'rare') {
+        const cooldownDays = getCooldownRemaining(flair.id);
+        if (cooldownDays !== null) {
+          toast({
+            title: "Cooldown Active",
+            description: `This VIP badge can be equipped again in ${cooldownDays} ${cooldownDays === 1 ? 'day' : 'days'}.`,
+            variant: "destructive"
+          });
+          return;
+        }
+      }
+
       // Unequip all first (also unfeaturing them)
       await supabase.from('user_flairs').update({
         is_equipped: false,
@@ -164,13 +200,20 @@ export const FlairsShop = ({
       }).eq('user_id', userId).eq('is_equipped', true);
 
       // Equip selected and make it featured + public so it shows everywhere
-      const {
-        error
-      } = await supabase.from('user_flairs').update({
+      // Update last_equipped_at for VIP flairs
+      const updateData: any = {
         is_equipped: true,
         is_featured: true,
         is_public: true
-      }).eq('id', userFlairId);
+      };
+
+      if (flair && flair.rarity === 'rare') {
+        updateData.last_equipped_at = new Date().toISOString();
+      }
+
+      const {
+        error
+      } = await supabase.from('user_flairs').update(updateData).eq('id', userFlairId);
       if (error) throw error;
       toast({
         title: t.success,
@@ -250,6 +293,8 @@ export const FlairsShop = ({
     const userFlair = userFlairs.find(uf => uf.flair_id === flair.id);
     const canBuy = canPurchase(flair);
     const isLocked = !canBuy;
+    const cooldownDays = getCooldownRemaining(flair.id);
+    const onCooldown = cooldownDays !== null;
     return <Card key={flair.id} className={`p-4 flex flex-col items-center gap-2 relative hover:scale-105 transition-transform ${equipped ? 'ring-2 ring-primary' : ''} ${isLocked ? 'opacity-60' : ''}`}>
         <Badge className={`absolute top-2 right-2 text-xs ${getRarityColor(flair.rarity)}`}>
           {t[`rarity_${flair.rarity}` as keyof typeof t] || flair.rarity}
@@ -269,6 +314,10 @@ export const FlairsShop = ({
           </Badge>}
 
         {owned && userFlair?.expires_at && <ExpiryTimer expiresAt={userFlair.expires_at} className="text-[10px]" showIcon={false} />}
+
+        {onCooldown && <Badge variant="secondary" className="text-[10px]">
+            Cooldown: {cooldownDays} {cooldownDays === 1 ? 'day' : 'days'}
+          </Badge>}
 
         {!owned && !expired && !isLocked && <p className="text-[10px] text-muted-foreground text-center">
             {t.shop_expires_in.replace('{days}', '5')}
@@ -293,6 +342,11 @@ export const FlairsShop = ({
                 <Button size="sm" disabled className="w-full gap-1" variant="outline">
                   <Lock className="w-3 h-3" />
                   {t.upgrade_required}
+                </Button>
+              ) : onCooldown ? (
+                <Button size="sm" disabled className="w-full gap-1" variant="outline">
+                  <Lock className="w-3 h-3" />
+                  {cooldownDays}d Cooldown
                 </Button>
               ) : (
                 <Button size="sm" variant="outline" onClick={() => handleEquip(userFlair!.id)} className="w-full">

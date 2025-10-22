@@ -1985,6 +1985,7 @@ export type Database = {
           is_equipped: boolean
           is_featured: boolean | null
           is_public: boolean | null
+          last_equipped_at: string | null
           purchase_scope: string | null
           purchased_at: string
           user_id: string
@@ -1997,6 +1998,7 @@ export type Database = {
           is_equipped?: boolean
           is_featured?: boolean | null
           is_public?: boolean | null
+          last_equipped_at?: string | null
           purchase_scope?: string | null
           purchased_at?: string
           user_id: string
@@ -2009,6 +2011,7 @@ export type Database = {
           is_equipped?: boolean
           is_featured?: boolean | null
           is_public?: boolean | null
+          last_equipped_at?: string | null
           purchase_scope?: string | null
           purchased_at?: string
           user_id?: string
