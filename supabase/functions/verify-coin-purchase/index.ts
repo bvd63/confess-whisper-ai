@@ -73,38 +73,36 @@ serve(async (req) => {
     }
 
     const coins = parseInt(session.metadata?.coins || '0');
-    const packageId = session.metadata?.package_id as string | null;
 
     if (!coins) {
       console.error('[VERIFY-COIN-PURCHASE] Missing coins metadata');
       throw new Error('Missing coins in session metadata');
     }
 
-    // Duplicate check by package_id (reference_id stores package_id)
-    if (packageId) {
-      const { data: existingTransaction } = await supabaseAdmin
-        .from('coin_transactions')
-        .select('id')
-        .eq('reference_id', packageId)
-        .maybeSingle();
-      if (existingTransaction) {
-        console.log('[VERIFY-COIN-PURCHASE] Coins already awarded for this package purchase');
-        return new Response(
-          JSON.stringify({ success: true, already_awarded: true }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-        );
-      }
+    // Duplicate check by session_id (unique per transaction)
+    const { data: existingTransaction } = await supabaseAdmin
+      .from('coin_transactions')
+      .select('id')
+      .eq('reference_id', sessionId)
+      .maybeSingle();
+      
+    if (existingTransaction) {
+      console.log('[VERIFY-COIN-PURCHASE] Coins already awarded for this session');
+      return new Response(
+        JSON.stringify({ success: true, already_awarded: true }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      );
     }
 
     console.log('[VERIFY-COIN-PURCHASE] Awarding', coins, 'coins to user', user.id);
 
-    // Award coins using the database function
+    // Award coins using the database function with session_id as reference
     const { error: awardError } = await supabaseAdmin.rpc('award_coins', {
       _user_id: user.id,
       _amount: coins,
       _type: 'coin_purchase',
       _description: `Purchased ${coins} coins via Stripe (fallback)`,
-      _reference_id: packageId || null
+      _reference_id: sessionId
     })
 
     if (awardError) {

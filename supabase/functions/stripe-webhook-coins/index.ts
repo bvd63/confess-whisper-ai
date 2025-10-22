@@ -65,13 +65,31 @@ serve(async (req) => {
         Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
       )
 
-      // Use the award_coins database function
+      // Check for duplicate by session_id (unique per transaction)
+      const { data: existingTransaction } = await supabaseAdmin
+        .from('coin_transactions')
+        .select('id')
+        .eq('reference_id', session.id)
+        .maybeSingle()
+
+      if (existingTransaction) {
+        console.log('[STRIPE-WEBHOOK-COINS] Coins already awarded for session:', session.id)
+        return new Response(
+          JSON.stringify({ received: true, already_awarded: true }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200,
+          }
+        )
+      }
+
+      // Use the award_coins database function with session_id as reference
       const { error: awardError } = await supabaseAdmin.rpc('award_coins', {
         _user_id: userId,
         _amount: coins,
         _type: 'coin_purchase',
         _description: `Purchased ${coins} coins via Stripe`,
-        _reference_id: packageId || null
+        _reference_id: session.id
       })
 
       if (awardError) {
