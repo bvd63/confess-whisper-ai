@@ -72,7 +72,7 @@ export const GiftCoinsDialog = ({
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.rpc('gift_coins', {
+      const { data, error } = await (supabase.rpc as any)('gift_coins', {
         receiver_id: recipientId,
         amount: giftAmount,
         is_anonymous: isAnonymous,

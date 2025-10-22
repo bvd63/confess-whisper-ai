@@ -86,7 +86,7 @@ export const AwardPicker = ({ open, onOpenChange, confessionId }: AwardPickerPro
 
     setLoading(true);
     try {
-      const { error } = await supabase.rpc('give_award', {
+      const { error } = await (supabase.rpc as any)('give_award', {
         confession_id: confessionId,
         award_type: selectedAward.type,
       });
