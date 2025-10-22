@@ -1312,6 +1312,7 @@ export type Database = {
           is_nickname_public: boolean | null
           is_premium: boolean | null
           is_shadow_banned: boolean | null
+          last_daily_reward: string | null
           nickname: string | null
           nickname_lower: string | null
           nickname_updated_at: string | null
@@ -1348,6 +1349,7 @@ export type Database = {
           is_nickname_public?: boolean | null
           is_premium?: boolean | null
           is_shadow_banned?: boolean | null
+          last_daily_reward?: string | null
           nickname?: string | null
           nickname_lower?: string | null
           nickname_updated_at?: string | null
@@ -1384,6 +1386,7 @@ export type Database = {
           is_nickname_public?: boolean | null
           is_premium?: boolean | null
           is_shadow_banned?: boolean | null
+          last_daily_reward?: string | null
           nickname?: string | null
           nickname_lower?: string | null
           nickname_updated_at?: string | null
@@ -2128,6 +2131,13 @@ export type Database = {
       generate_unique_handle: {
         Args: { base_nickname: string }
         Returns: string
+      }
+      get_confession_awards: {
+        Args: { confession_id_param: string }
+        Returns: {
+          award_count: number
+          award_type: string
+        }[]
       }
       get_conversation_partner: {
         Args: { conv_id: string; current_user_id: string }
