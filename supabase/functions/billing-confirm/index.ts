@@ -101,7 +101,10 @@ serve(async (req) => {
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     const priceId = subscription.items.data[0]?.price?.id || "";
     const tier = PRICE_ID_TO_TIER[priceId] || "free";
-    const endsAtISO = new Date(subscription.current_period_end * 1000).toISOString();
+    const endEpoch = (subscription as any)?.current_period_end;
+    const endsAtISO = typeof endEpoch === 'number' && !Number.isNaN(endEpoch)
+      ? new Date(endEpoch * 1000).toISOString()
+      : null;
 
     // Persist on profile
     const { error: updateError } = await supabaseAdmin

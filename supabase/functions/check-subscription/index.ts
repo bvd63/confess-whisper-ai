@@ -128,19 +128,22 @@ serve(async (req) => {
 
     if (hasActiveSub) {
       const subscription = subscriptions.data[0];
-      subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+      const endEpoch = (subscription as any)?.current_period_end;
+      subscriptionEnd = typeof endEpoch === 'number' && !Number.isNaN(endEpoch)
+        ? new Date(endEpoch * 1000).toISOString()
+        : null;
       logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
       
-      // Map price IDs to tiers
-      const priceId = subscription.items.data[0]?.price.id;
+      // Map price IDs to tiers (kept in sync with src/lib/subscription-plans.ts)
+      const priceId = subscription.items.data[0]?.price.id as string | undefined;
       const PRICE_TO_TIER_MAP: Record<string, string> = {
-        'price_1SJ0vvR7kygIyYg9oT1ju6lQ': 'premium', // Premium monthly
-        'price_1SJ0vvR7kygIyYg9yORadPGD': 'premium', // Premium yearly
-        'price_1SJ0vwR7kygIyYg9OeCiqV00': 'vip',     // VIP monthly
-        'price_1SJ0vvR7kygIyYg9BJuciYGd': 'vip',     // VIP yearly
+        'price_1SIVqFR7kygIyYg9Ai1tJ2AI': 'premium', // Premium monthly
+        'price_1SIVqeR7kygIyYg9FizFMLRx': 'premium', // Premium yearly
+        'price_1SL42cR7kygIyYg9LFEBp8uz': 'vip',     // VIP monthly
+        'price_1SL42zR7kygIyYg9IZrd2ExW': 'vip',     // VIP yearly
       };
       
-      subscriptionTier = PRICE_TO_TIER_MAP[priceId] || subscription.metadata?.plan_name?.toLowerCase() || 'premium';
+      subscriptionTier = PRICE_TO_TIER_MAP[priceId ?? ''] || subscription.metadata?.plan_name?.toLowerCase() || 'premium';
       logStep("Determined subscription tier", { priceId, tier: subscriptionTier });
       
       // Update profile with subscription info
