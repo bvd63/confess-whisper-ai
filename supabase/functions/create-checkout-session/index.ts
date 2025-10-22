@@ -71,15 +71,49 @@ serve(async (req) => {
     }
 
     const origin = req.headers.get("origin") || "http://localhost:8080";
+    
+    // Check if price exists in Stripe, fallback to price_data for test mode
+    let lineItem: any;
+    const isTestMode = (Deno.env.get("STRIPE_SECRET_KEY") || "").includes("_test_");
+    
+    try {
+      // Try to retrieve the price to check if it exists
+      await stripe.prices.retrieve(priceId);
+      lineItem = { price: priceId, quantity: 1 };
+      log('info', '[CREATE-CHECKOUT] Using existing price ID', { requestId, priceId });
+    } catch (priceError) {
+      // Price doesn't exist in this mode, use price_data fallback (test mode only)
+      if (isTestMode) {
+        log('warn', '[CREATE-CHECKOUT] Price ID not found, using price_data fallback', { requestId, priceId });
+        
+        // Parse price from database or use defaults
+        const priceAmount = billingCycle === 'monthly' 
+          ? (planName?.toLowerCase().includes('vip') ? 999 : 499)
+          : (planName?.toLowerCase().includes('vip') ? 7999 : 3999);
+        
+        lineItem = {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: `${planName} - ${billingCycle}`,
+            },
+            unit_amount: priceAmount,
+            recurring: {
+              interval: billingCycle === 'monthly' ? 'month' : 'year',
+            },
+          },
+          quantity: 1,
+        };
+      } else {
+        // In live mode, price must exist
+        throw new Error(`Price ID ${priceId} not found in Stripe`);
+      }
+    }
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
+      line_items: [lineItem],
       mode: "subscription",
       success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/payment-canceled`,
