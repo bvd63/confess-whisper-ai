@@ -407,8 +407,10 @@ export const FlairsShop = ({
               {showPremium && premiumFlairs.length > 0 && <AccordionItem value="premium" className="border rounded-lg px-4">
                   <AccordionTrigger className="hover:no-underline">
                     <div className="flex items-center gap-2">
-                      <span className="text-lg font-semibold">{t.shop_premium_tier}</span>
-                      <Badge variant="secondary">{premiumFlairs.length}</Badge>
+                      <span className="text-lg font-semibold bg-gradient-to-r from-violet-500 to-purple-500 bg-clip-text text-transparent">
+                        {t.shop_premium_tier}
+                      </span>
+                      <Badge className="bg-gradient-to-r from-violet-500 to-purple-500 text-white border-0">{premiumFlairs.length}</Badge>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent>
@@ -421,8 +423,10 @@ export const FlairsShop = ({
               {showVIP && vipFlairs.length > 0 && <AccordionItem value="vip" className="border rounded-lg px-4">
                   <AccordionTrigger className="hover:no-underline">
                     <div className="flex items-center gap-2">
-                      <span className="text-lg font-semibold">{t.shop_vip_tier}</span>
-                      <Badge variant="secondary">{vipFlairs.length}</Badge>
+                      <span className="text-lg font-semibold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
+                        {t.shop_vip_tier}
+                      </span>
+                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">{vipFlairs.length}</Badge>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent>
