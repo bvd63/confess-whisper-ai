@@ -52,18 +52,14 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
 
   const handleSelectPlan = async (planId: string, priceId: string) => {
     if (!priceId) return;
-
-    // If selecting the exact same tier and interval, do nothing
     if (planId === currentPlan && interval === currentInterval) return;
 
     setIsProcessing(true);
     try {
-      // Decide flow based on current tier
       const levels = { free: 0, premium: 1, vip: 2 } as const;
       const cur = levels[(currentPlan as keyof typeof levels) || 'free'] ?? 0;
       const tgt = levels[(planId as keyof typeof levels) || 'free'] ?? 0;
 
-      // New subscription from free → checkout
       if (cur === 0) {
         const { data, error } = await supabase.functions.invoke('create-checkout-session', {
           body: { priceId, planName: planId, billingCycle: interval },
@@ -77,18 +73,28 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
         return;
       }
 
-      // Upgrade or switch price immediately (proration)
       if (tgt > cur || (tgt === cur && interval !== currentInterval)) {
-        const { error } = await supabase.functions.invoke('subscription-upgrade', {
-          body: { targetPriceId: priceId },
+        const { data, error } = await supabase.functions.invoke('billing-upgrade', {
+          body: { newPriceId: priceId },
         });
         if (error) throw error;
-        toast.success(t.upgrade_success || 'Upgrade applied');
+
+        toast.success(t.webhookLag || 'Upgrade received. Syncing your account…');
+        
+        await loadSubscriptionStatus();
+        
+        const end = Date.now() + 10000;
+        while (Date.now() < end) {
+          await new Promise(r => setTimeout(r, 1000));
+          await loadSubscriptionStatus();
+          if (currentPlan === planId) break;
+        }
+        
         onOpenChange(false);
+        onSubscriptionUpdated?.();
         return;
       }
 
-      // Downgrade (usually at period end)
       if (tgt < cur) {
         const { error } = await supabase.functions.invoke('subscription-downgrade', {
           body: { targetPriceId: priceId },
@@ -100,7 +106,7 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
       }
     } catch (error: any) {
       console.error('Error processing subscription change:', error);
-      const msg = error?.message || t.subscription_errors_generic || 'An error occurred';
+      const msg = error?.message || t.subscription_errors_generic || t.upgradeFailed || 'An error occurred';
       toast.error(msg);
     } finally {
       setIsProcessing(false);

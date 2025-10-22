@@ -1191,6 +1191,8 @@ type Translations = {
   cancel_scheduled: string;
   processing_request: string;
   request_done: string;
+  upgradeFailed: string;
+  webhookLag: string;
   already_on_this_plan: string;
   invalid_target_plan: string;
   subs_action_cancel: string;
@@ -3361,6 +3363,8 @@ export const translations: Record<Language, Translations> = {
     cancel_scheduled: "Your subscription will end at the end of this billing period.",
     processing_request: "Processing your request…",
     request_done: "Done!",
+    upgradeFailed: "Upgrade failed. Please try again.",
+    webhookLag: "Upgrade received. Syncing your account…",
     already_on_this_plan: "You are already on this plan.",
     invalid_target_plan: "Invalid target plan.",
   },
@@ -4979,6 +4983,8 @@ export const translations: Record<Language, Translations> = {
     cancel_scheduled: "Tu suscripción finalizará al final de este ciclo de facturación.",
     processing_request: "Procesando tu solicitud…",
     request_done: "¡Listo!",
+    upgradeFailed: "Error en la actualización. Inténtalo de nuevo.",
+    webhookLag: "Actualización recibida. Sincronizando tu cuenta…",
     already_on_this_plan: "Ya estás en este plan.",
     invalid_target_plan: "Plan de destino no válido.",
   },
@@ -6597,6 +6603,8 @@ export const translations: Record<Language, Translations> = {
     cancel_scheduled: "Dein Abonnement endet am Ende dieses Abrechnungszeitraums.",
     processing_request: "Anfrage wird verarbeitet…",
     request_done: "Fertig!",
+    upgradeFailed: "Upgrade fehlgeschlagen. Bitte versuche es erneut.",
+    webhookLag: "Upgrade empfangen. Konto wird synchronisiert…",
     already_on_this_plan: "Du nutzt bereits diesen Tarif.",
     invalid_target_plan: "Ungültiger Zieltarif.",
   },

@@ -1614,6 +1614,21 @@ export type Database = {
         }
         Relationships: []
       }
+      stripe_events: {
+        Row: {
+          created_at: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
       stripe_processed_events: {
         Row: {
           created_at: string | null
@@ -1794,6 +1809,48 @@ export type Database = {
           price_yearly?: number
           stripe_price_id_monthly?: string | null
           stripe_price_id_yearly?: string | null
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          cadence: string
+          cancel_at_period_end: boolean
+          current_period_end: string
+          current_period_start: string
+          pending_change: Json | null
+          price_id: string
+          status: string
+          stripe_customer_id: string
+          stripe_subscription_id: string | null
+          tier: string
+          user_id: string
+        }
+        Insert: {
+          cadence: string
+          cancel_at_period_end?: boolean
+          current_period_end: string
+          current_period_start: string
+          pending_change?: Json | null
+          price_id: string
+          status: string
+          stripe_customer_id: string
+          stripe_subscription_id?: string | null
+          tier: string
+          user_id: string
+        }
+        Update: {
+          cadence?: string
+          cancel_at_period_end?: boolean
+          current_period_end?: string
+          current_period_start?: string
+          pending_change?: Json | null
+          price_id?: string
+          status?: string
+          stripe_customer_id?: string
+          stripe_subscription_id?: string | null
+          tier?: string
+          user_id?: string
         }
         Relationships: []
       }
