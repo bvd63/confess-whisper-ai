@@ -139,6 +139,21 @@ export default function TestPayments() {
 
   const testCreateSubscriptionCheckout = async () => {
     return runTest('Create Subscription Checkout', async () => {
+      // First check current status to avoid 500 when a subscription already exists
+      const { data: statusData, error: statusError } = await supabase.functions.invoke('billing-status');
+      if (statusError) throw statusError;
+
+      if (statusData?.subscription_status === 'active') {
+        // If already subscribed, return a helpful message and portal link instead of failing
+        const { data: portalData } = await supabase.functions.invoke('customer-portal');
+        return {
+          note: 'Already has an active subscription. Use the Customer Portal to manage the plan.',
+          current_tier: statusData.subscription_tier,
+          cancel_at_period_end: statusData.cancel_at_period_end ?? false,
+          manage_url: portalData?.url || null,
+        };
+      }
+
       const { data, error } = await supabase.functions.invoke('billing-buy', {
         body: { 
           tier: 'premium',
