@@ -83,6 +83,10 @@ serve(async (req) => {
       billing_cycle_anchor: "now",
     });
 
+    // Ensure we have a valid current_period_end (some API responses may omit it on immediate proration)
+    const refreshedSubscription = await stripe.subscriptions.retrieve(profile.stripe_subscription_id);
+    const periodEnd = refreshedSubscription.current_period_end || updatedSubscription.current_period_end || null;
+
     const newTier = PRICE_ID_TO_TIER[targetPriceId] || "premium";
 
     // Update profiles table
@@ -92,7 +96,7 @@ serve(async (req) => {
         is_premium: true,
         subscription_tier: newTier,
         subscription_status: "active",
-        subscription_ends_at: new Date(updatedSubscription.current_period_end * 1000).toISOString(),
+        subscription_ends_at: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
       })
       .eq("user_id", user.id);
 
