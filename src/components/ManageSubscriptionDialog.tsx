@@ -55,27 +55,13 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
 
     setIsProcessing(true);
     try {
-      // If user already has a subscription and is upgrading (e.g., premium -> vip), update existing sub
-      if (currentPlan !== 'free' && currentPlan === 'premium' && planId === 'vip') {
-        const { data, error } = await supabase.functions.invoke('subscription-upgrade', {
-          body: { targetPriceId: priceId }
-        });
-        if (error) throw error;
-
-        toast.success('Subscription upgraded to VIP');
-        await loadSubscriptionStatus();
-        onSubscriptionUpdated?.();
-        onOpenChange(false);
-        return;
-      }
-
-      // Otherwise, create a new checkout session (free -> premium/vip, or other changes via checkout)
+      // Always go through Stripe Checkout (consistent flow like Free → Premium)
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
         body: {
           priceId,
           planName: planId,
-          billingCycle: interval
-        }
+          billingCycle: interval,
+        },
       });
 
       if (error) throw error;
@@ -92,7 +78,6 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
       setIsProcessing(false);
     }
   };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
