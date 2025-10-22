@@ -114,24 +114,32 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
   };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{t.subscription_title}</DialogTitle>
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto animate-fade-in">
+        <DialogHeader className="space-y-3">
+          <DialogTitle className="text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+            {t.subscription_title}
+          </DialogTitle>
+          <p className="text-muted-foreground text-center">
+            {t.subscription_description || "Choose the perfect plan for your needs"}
+          </p>
         </DialogHeader>
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin" />
+          <div className="flex flex-col items-center justify-center py-12 space-y-4">
+            <Loader2 className="w-12 h-12 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">Loading plans...</p>
           </div>
         ) : (
-          <SubscriptionPlansGrid
-            currentPlan={currentPlan}
-            currentInterval={currentInterval}
-            onSelectPlan={handleSelectPlan}
-            isLoading={isProcessing}
-            canChangePlan={true}
-            interval={interval}
-            onIntervalChange={setInterval}
-          />
+          <div className="animate-scale-in">
+            <SubscriptionPlansGrid
+              currentPlan={currentPlan}
+              currentInterval={currentInterval}
+              onSelectPlan={handleSelectPlan}
+              isLoading={isProcessing}
+              canChangePlan={true}
+              interval={interval}
+              onIntervalChange={setInterval}
+            />
+          </div>
         )}
       </DialogContent>
     </Dialog>

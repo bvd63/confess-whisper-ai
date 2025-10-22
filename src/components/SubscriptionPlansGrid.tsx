@@ -55,67 +55,94 @@ export const SubscriptionPlansGrid = ({
     <div className="space-y-6">
       {/* Interval Tabs */}
       {onIntervalChange && (
-        <div className="flex justify-center">
-          <div className="inline-flex rounded-lg border bg-muted p-1">
+        <div className="flex justify-center animate-fade-in">
+          <div className="inline-flex rounded-xl border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-purple-500/5 p-1.5 shadow-lg">
             <button
               onClick={() => onIntervalChange('monthly')}
-              className={`px-6 py-2 rounded-md transition-colors ${
+              className={`px-8 py-3 rounded-lg transition-all duration-300 font-semibold ${
                 interval === 'monthly'
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-gradient-to-r from-violet-500 to-purple-500 text-white shadow-lg scale-105'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
               }`}
             >
               {t.subscription_interval_monthly}
             </button>
             <button
               onClick={() => onIntervalChange('yearly')}
-              className={`px-6 py-2 rounded-md transition-colors ${
+              className={`px-8 py-3 rounded-lg transition-all duration-300 font-semibold relative ${
                 interval === 'yearly'
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-gradient-to-r from-violet-500 to-purple-500 text-white shadow-lg scale-105'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
               }`}
             >
               {t.subscription_interval_yearly}
+              <span className="absolute -top-2 -right-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-2 py-0.5 rounded-full">
+                Save 20%
+              </span>
             </button>
           </div>
         </div>
       )}
 
       {/* Plans Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
         {plans.map((plan: any) => (
           <Card
             key={`${plan.id}-${plan.interval}`}
-            className="p-6 relative border border-border"
+            className={`p-6 relative border-2 transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
+              plan.isPopular 
+                ? 'border-violet-500 shadow-lg shadow-violet-500/20' 
+                : plan.id === 'vip'
+                ? 'border-amber-500 shadow-lg shadow-amber-500/20'
+                : 'border-border hover:border-primary/50'
+            }`}
           >
             {/* Popular Badge */}
             {plan.isPopular && (
-              <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-500 to-purple-500">
-                {t.subscription_most_popular}
+              <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-500 to-purple-500 text-white border-0 shadow-lg animate-pulse px-4 py-1">
+                ⭐ {t.subscription_most_popular}
               </Badge>
             )}
 
             {/* Savings Badge */}
             {plan.savingsPercent && plan.savingsPercent > 0 && (
-              <Badge className="absolute -top-3 right-4 bg-gradient-to-r from-green-500 to-emerald-500">
-                {t.subscription_savings_badge.replace('{percent}', plan.savingsPercent.toString())}
+              <Badge className="absolute -top-3 right-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 shadow-lg px-3 py-1">
+                💰 {t.subscription_savings_badge.replace('{percent}', plan.savingsPercent.toString())}
               </Badge>
             )}
 
 
             {/* Plan Header */}
             <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 mb-3">
-                {getPlanIcon(plan.id)}
+              <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 transition-all duration-300 ${
+                plan.isPopular 
+                  ? 'bg-gradient-to-br from-violet-500 to-purple-500 shadow-lg shadow-violet-500/50' 
+                  : plan.id === 'vip'
+                  ? 'bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg shadow-amber-500/50'
+                  : 'bg-gradient-to-br from-primary/20 to-primary/10'
+              }`}>
+                <span className={plan.isPopular || plan.id === 'vip' ? 'text-white' : ''}>
+                  {getPlanIcon(plan.id)}
+                </span>
               </div>
-              <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-              <div className="text-3xl font-bold">
+              <h3 className={`text-2xl font-bold mb-3 ${
+                plan.isPopular 
+                  ? 'bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent' 
+                  : plan.id === 'vip'
+                  ? 'bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent'
+                  : ''
+              }`}>
+                {plan.name}
+              </h3>
+              <div className="text-4xl font-bold">
                 {plan.price === 0 ? (
-                  t.subscription_free
+                  <span className="text-2xl">{t.subscription_free}</span>
                 ) : (
                   <>
-                    ${plan.price}
-                    <span className="text-sm text-muted-foreground font-normal">
+                    <span className={plan.isPopular || plan.id === 'vip' ? 'bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent' : ''}>
+                      ${plan.price}
+                    </span>
+                    <span className="text-base text-muted-foreground font-normal block mt-1">
                       {plan.interval === 'monthly' ? t.subscription_per_month_short : t.subscription_per_year_short}
                     </span>
                   </>
@@ -140,9 +167,9 @@ export const SubscriptionPlansGrid = ({
 
             {/* Trial Badge */}
             {trialEligible && plan.id === 'premium' && plan.interval === 'monthly' && (
-              <div className="mb-4 p-2 bg-amber-500/10 border border-amber-500/30 rounded-lg text-center">
-                <p className="text-sm text-amber-600 dark:text-amber-400 font-medium">
-                  {t.subscription_trial_available}
+              <div className="mb-4 p-3 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-2 border-amber-500/30 rounded-xl text-center animate-pulse">
+                <p className="text-sm text-amber-600 dark:text-amber-400 font-semibold">
+                  🎁 {t.subscription_trial_available}
                 </p>
               </div>
             )}
@@ -151,12 +178,12 @@ export const SubscriptionPlansGrid = ({
             <Button
               onClick={() => onSelectPlan(plan.id, plan.priceId)}
               disabled={isLoading || !canChangePlan}
-              className={`w-full ${
+              className={`w-full transition-all duration-300 hover:scale-105 hover:shadow-xl font-semibold text-base py-6 ${
                 plan.isPopular
-                  ? 'bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600'
+                  ? 'bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white shadow-lg shadow-violet-500/50'
                   : plan.id === 'vip'
-                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600'
-                  : ''
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg shadow-amber-500/50'
+                  : 'hover:bg-primary/90'
               }`}
             >
               {getButtonText(plan)}
