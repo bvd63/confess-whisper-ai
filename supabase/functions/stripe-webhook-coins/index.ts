@@ -69,7 +69,7 @@ serve(async (req) => {
       const { data: existingTransaction } = await supabaseAdmin
         .from('coin_transactions')
         .select('id')
-        .eq('reference_id', session.id)
+        .ilike('description', `%${session.id}%`)
         .maybeSingle()
 
       if (existingTransaction) {
@@ -85,11 +85,10 @@ serve(async (req) => {
 
       // Use the award_coins database function with session_id as reference
       const { error: awardError } = await supabaseAdmin.rpc('award_coins', {
-        _user_id: userId,
-        _amount: coins,
-        _type: 'coin_purchase',
-        _description: `Purchased ${coins} coins via Stripe`,
-        _reference_id: session.id
+        p_user_id: userId,
+        p_amount: coins,
+        p_session_id: session.id,
+        p_description: `Purchased ${coins} coins via Stripe`
       })
 
       if (awardError) {
