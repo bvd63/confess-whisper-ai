@@ -18,6 +18,7 @@ const PaymentSuccess = () => {
   const { subscriptionTier, refetch } = usePremiumStatus(user?.id);
   const [isProcessing, setIsProcessing] = useState(true);
   const [processingMessage, setProcessingMessage] = useState<string>('');
+  const [activatedTier, setActivatedTier] = useState<'premium' | 'vip' | null>(null);
 
   useEffect(() => {
     const pollBillingConfirmation = async () => {
@@ -57,6 +58,7 @@ const PaymentSuccess = () => {
 
           // If active, entitlements are confirmed
           if (data?.active && data?.tier) {
+            setActivatedTier(data.tier);
             await refetch();
             
             // Award coins bonus for first charge
@@ -77,7 +79,7 @@ const PaymentSuccess = () => {
 
             toast({
               title: "Subscription Activated!",
-              description: "Your Premium benefits are now active. Redirecting...",
+              description: `Your ${data.tier === 'vip' ? 'VIP' : 'Premium'} benefits are now active. Redirecting...`,
             });
             return true;
           }
@@ -127,7 +129,7 @@ const PaymentSuccess = () => {
         </h1>
 
         <p className="text-muted-foreground mb-6">
-          {isProcessing ? processingMessage : t.payment_success_desc}
+          {isProcessing ? processingMessage : `Your ${(activatedTier === 'vip' ? 'VIP' : 'Premium')} account has been successfully activated.`}
         </p>
 
         <div className="space-y-3 mb-8">
@@ -149,7 +151,7 @@ const PaymentSuccess = () => {
           onClick={() => navigate("/profile")}
           className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
         >
-          {t.payment_view_profile}
+          {`View Your ${(activatedTier === 'vip' ? 'VIP' : 'Premium')} Profile`}
         </Button>
 
         <p className="text-xs text-muted-foreground mt-4">
