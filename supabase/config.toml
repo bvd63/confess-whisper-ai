@@ -49,6 +49,9 @@ verify_jwt = true
 [functions.create-checkout-session]
 verify_jwt = true
 
+[functions.create-coin-checkout]
+verify_jwt = true
+
 [functions.create-trial-checkout]
 verify_jwt = true
 
@@ -143,4 +146,22 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.subscription-manage]
+verify_jwt = true
+
+[functions.stripe-webhook-coins]
+verify_jwt = false
+
+[functions.manage-reactions]
+verify_jwt = true
+
+[functions.manage-notifications]
+verify_jwt = true
+
+[functions.mark-message-delivered]
+verify_jwt = true
+
+[functions.mark-message-seen]
+verify_jwt = true
+
+[functions.soft-delete-conversation]
 verify_jwt = true
