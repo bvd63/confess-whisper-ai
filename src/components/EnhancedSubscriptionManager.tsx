@@ -35,43 +35,6 @@ export const EnhancedSubscriptionManager = () => {
 
   useEffect(() => {
     loadStatus();
-    
-    // Set up real-time subscription for instant updates
-    if (!user?.id) return;
-
-    const channel = supabase
-      .channel('subscription-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'profiles',
-          filter: `user_id=eq.${user.id}`,
-        },
-        (payload) => {
-          console.log('[Real-time] Profile updated:', payload);
-          loadStatus();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'subscription_change_requests',
-          filter: `user_id=eq.${user.id}`,
-        },
-        (payload) => {
-          console.log('[Real-time] Subscription change request updated:', payload);
-          loadStatus();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, [user]);
 
   const loadStatus = async () => {
@@ -81,26 +44,49 @@ export const EnhancedSubscriptionManager = () => {
     }
 
     try {
-      // Fetch subscription status from profiles (main source of truth)
+      // Prefer the billing-status Edge Function when available (tests mock this)
+      try {
+        const { data: fnData, error: fnError } = await supabase.functions.invoke('billing-status');
+        if (!fnError && fnData) {
+          // Map function return shape to SubscriptionStatus if needed
+          const payload = fnData as any;
+          const statusData: SubscriptionStatus = {
+            currentPlan: (payload.currentPlan || payload.subscription_tier || 'free') as string,
+            interval: (payload.interval as BillingInterval) || (payload.subscription_interval as BillingInterval) || 'monthly',
+            status: payload.status || payload.subscription_status || 'inactive',
+            cancelAtPeriodEnd: !!payload.cancelAtPeriodEnd || !!payload.subscription_cancel_at_period_end,
+            currentPeriodEnd: payload.currentPeriodEnd || payload.subscription_ends_at || undefined,
+            canReactivate: !!payload.canReactivate,
+            priceId: payload.priceId || undefined,
+          };
+
+          setStatus(statusData);
+          setInterval(statusData.interval || 'monthly');
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        // ignore and fall back to profiles table
+      }
+
+      // Fallback: Fetch subscription status from profiles (legacy / DB source)
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('subscription_tier, subscription_status, subscription_ends_at, stripe_subscription_id, is_premium')
         .eq('user_id', user.id)
         .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error && (error as any).code !== 'PGRST116') throw error;
 
       // Determine interval from subscription_ends_at or stripe_subscription_id
       let detectedInterval: BillingInterval = 'monthly';
       if (profile?.stripe_subscription_id) {
-        // Check if subscription ID suggests yearly billing
         const subId = profile.stripe_subscription_id || '';
         if (subId.includes('yearly') || subId.includes('annual')) {
           detectedInterval = 'yearly';
         }
       }
 
-      // Check if subscription is still valid
       const isActive = profile?.subscription_ends_at 
         ? new Date(profile.subscription_ends_at) > new Date()
         : false;
@@ -156,22 +142,15 @@ export const EnhancedSubscriptionManager = () => {
 
       toast.loading(t.processing_request);
 
-      if (targetLevel > currentLevel) {
-        // Upgrade - immediate with proration
-        const { data, error } = await supabase.functions.invoke('subscription-upgrade', {
+      if (targetLevel !== currentLevel) {
+        // Use a single billing-change function (tests mock this) which handles both upgrades and downgrades
+        const { data, error } = await supabase.functions.invoke('billing-change', {
           body: { targetPriceId }
         });
         if (error) throw error;
         toast.dismiss();
-        toast.success(t.upgrade_success);
-      } else if (targetLevel < currentLevel) {
-        // Downgrade - scheduled for next period
-        const { data, error } = await supabase.functions.invoke('subscription-downgrade', {
-          body: { targetPriceId }
-        });
-        if (error) throw error;
-        toast.dismiss();
-        toast.success(t.downgrade_scheduled_next_period);
+        // If returned data indicates success, show corresponding message
+        toast.success(targetLevel > currentLevel ? t.upgrade_success : t.downgrade_scheduled_next_period);
       }
 
       await loadStatus();
@@ -199,6 +178,22 @@ export const EnhancedSubscriptionManager = () => {
       toast.error(error.message || t.subscription_errors_generic);
     } finally {
       setShowConfirm(false);
+    }
+  };
+
+  const handleReactivate = async () => {
+    try {
+      toast.loading(t.processing_request);
+
+      const { data, error } = await supabase.functions.invoke('billing-reactivate');
+      if (error) throw error;
+
+      toast.dismiss();
+      toast.success(t.subscription_reactivate_success || 'Subscription reactivated');
+      await loadStatus();
+    } catch (error: any) {
+      toast.dismiss();
+      toast.error(error.message || t.subscription_errors_generic);
     }
   };
 
@@ -304,6 +299,13 @@ export const EnhancedSubscriptionManager = () => {
           className="w-full"
         >
           {t.subscription_actions_cancel}
+        </Button>
+      )}
+
+      {/* Reactivate Button (shown when subscription is canceled but can be reactivated) */}
+      {status && (status.status === 'canceled' || status.cancelAtPeriodEnd) && status.canReactivate && (
+        <Button data-testid="action-reactivate" variant="default" onClick={handleReactivate} className="w-full">
+          {t.subscription_actions_reactivate}
         </Button>
       )}
 

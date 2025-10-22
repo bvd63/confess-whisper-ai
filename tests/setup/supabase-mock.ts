@@ -8,60 +8,81 @@ vi.mock('@/lib/persistenceManager', () => ({
   }
 }));
 
-// Create a single shared mock that will be used everywhere
-export const supabaseMock = {
-  from: vi.fn(() => ({
-    select: vi.fn(() => ({
-      eq: vi.fn(() => ({
-        single: vi.fn().mockResolvedValue({
-          data: null,
-          error: null
-        }),
-        maybeSingle: vi.fn().mockResolvedValue({
-          data: null,
-          error: null
-        })
-      })),
-      order: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockReturnThis()
-    })),
-    insert: vi.fn(() => ({
-      select: vi.fn().mockResolvedValue({ data: [], error: null })
-    })),
-    update: vi.fn(() => ({
-      eq: vi.fn().mockResolvedValue({ data: [], error: null })
-    })),
-    delete: vi.fn(() => ({
-      eq: vi.fn().mockResolvedValue({ data: [], error: null })
-    }))
-  })),
-  auth: {
-    getSession: vi.fn(async () => ({ 
-      data: { 
-        session: {
-          user: { id: 'test-user', email: 'test@example.com' },
-          access_token: 'test-token'
-        } 
-      }, 
-      error: null 
-    })),
-    getUser: vi.fn(async () => ({ data: { user: { id: 'test-user', email: 'test@example.com' } }, error: null })),
-    signInWithPassword: vi.fn(async () => ({ data: null, error: null })),
-    signOut: vi.fn(async () => ({ data: null, error: null })),
-    onAuthStateChange: vi.fn(() => ({
-      data: { subscription: { unsubscribe: vi.fn() } }
-    }))
-  },
-  functions: {
-    invoke: vi.fn(async () => ({ data: null, error: null }))
-  },
-  storage: {
-    from: vi.fn(() => ({
-      upload: vi.fn(async () => ({ data: {}, error: null })),
-      download: vi.fn(async () => ({ data: new Blob(), error: null }))
-    }))
+// Helper that creates a permissive, explicit chainable builder. This avoids
+// Proxy/thenable edge-cases by returning an object with explicit chain methods
+// used across the codebase. Terminal methods return predictable promises.
+const createChainable = () => {
+  const terminalResponse = async (result: any = null) => ({ data: result, error: null });
+
+  const builder: any = {};
+
+  // Common chainable methods used across the app. Each returns the builder
+  // itself so calls can be chained: .select(...).eq(...).order(...)
+  const chainMethods = [
+    'select', 'eq', 'neq', 'is', 'in', 'order', 'limit', 'match', 'filter', 'returns', 'like', 'ilike'
+  ];
+
+  for (const m of chainMethods) {
+    builder[m] = (..._args: any[]) => builder;
   }
-} as any;
+
+  // Terminal methods that should resolve to { data, error }
+  builder.single = () => terminalResponse(null);
+  builder.maybeSingle = () => terminalResponse(null);
+  builder.insert = (_payload?: any) => terminalResponse([]);
+  builder.update = (_payload?: any) => terminalResponse([]);
+  builder.delete = () => terminalResponse([]);
+
+  // Note: we intentionally do NOT add a `then` property here. Making the
+  // builder thenable causes it to be treated as a Promise in some contexts
+  // which can break chaining (calls like .select(...).eq(...).maybeSingle()).
+
+  return builder as any;
+};
+
+// Build the shared supabase mock
+export const supabaseMock = (() => {
+  const chainable = createChainable();
+
+  const realtimeSub = {
+    on: vi.fn(() => realtimeSub),
+    subscribe: vi.fn(async () => ({ data: null, error: null, subscription: { unsubscribe: vi.fn() } })),
+    unsubscribe: vi.fn(),
+  };
+
+  return {
+    from: vi.fn(() => createChainable()),
+    auth: {
+      getSession: vi.fn(async () => ({ 
+        data: { 
+          session: {
+            user: { id: 'test-user', email: 'test@example.com' },
+            access_token: 'test-token'
+          } 
+        }, 
+        error: null 
+      })),
+      getUser: vi.fn(async () => ({ data: { user: { id: 'test-user', email: 'test@example.com' } }, error: null })),
+      signInWithPassword: vi.fn(async () => ({ data: null, error: null })),
+      signOut: vi.fn(async () => ({ data: null, error: null })),
+      onAuthStateChange: vi.fn(() => ({
+        data: { subscription: { unsubscribe: vi.fn() } }
+      }))
+    },
+    functions: {
+      invoke: vi.fn(async () => ({ data: null, error: null }))
+    },
+    channel: vi.fn(() => realtimeSub),
+    // removeChannel is used to teardown realtime subscriptions
+    removeChannel: vi.fn(() => ({})),
+    storage: {
+      from: vi.fn(() => ({
+        upload: vi.fn(async () => ({ data: {}, error: null })),
+        download: vi.fn(async () => ({ data: new Blob(), error: null }))
+      }))
+    }
+  } as any;
+})();
 
 // Also export it as mockSupabaseClient for compatibility
 export const mockSupabaseClient = supabaseMock;

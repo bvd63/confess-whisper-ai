@@ -1,17 +1,30 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-let _c: SupabaseClient | null = null;
+let _instance: SupabaseClient | null = null;
 
 export function getSupabase(): SupabaseClient {
-  if (_c) return _c;
-  _c = createClient(import.meta.env.VITE_SUPABASE_URL!, import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY!);
-  return _c;
+  if (_instance) return _instance;
+
+  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
+  const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
+
+  _instance = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: {
+      storage: typeof window !== 'undefined' ? (localStorage as any) : undefined,
+      persistSession: true,
+      autoRefreshToken: true,
+    }
+  });
+
+  return _instance;
 }
 
-export function __setSupabaseClientForTests(c: SupabaseClient | null) {
-  _c = c;
+// Test helpers (tests will usually mock the module entirely)
+export function __setSupabaseClientForTests(client: SupabaseClient | null) {
+  _instance = client;
 }
 
 export function __resetSupabaseClientForTests() {
-  _c = null;
+  _instance = null;
 }
