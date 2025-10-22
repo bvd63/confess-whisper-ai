@@ -345,12 +345,12 @@ export const FlairsShop = ({
             {flair.required_plan === 'premium' ? t.subscription_plan_premium : t.subscription_plan_vip} {t.required}
           </Badge>}
 
-        {owned && !onCooldown && userFlair?.expires_at && <ExpiryTimer expiresAt={userFlair.expires_at} className="text-[10px]" showIcon={false} />}
+        {owned && !onCooldown && userFlair?.expires_at && (
+          <ExpiryTimer expiresAt={userFlair.expires_at} className="text-[10px]" showIcon={false} />
+        )}
 
         {owned && onCooldown && (
-          <p className="text-[10px] text-muted-foreground">
-            Cooldown: {cooldownDays}d {Math.floor(((getCooldownEnd(flair.id).getTime() - new Date().getTime()) / (1000 * 60 * 60)) % 24)}h
-          </p>
+          <ExpiryTimer expiresAt={getCooldownEnd(flair.id).toISOString()} className="text-[10px]" showIcon={false} />
         )}
 
         {!owned && !expired && !isLocked && <p className="text-[10px] text-muted-foreground text-center">
