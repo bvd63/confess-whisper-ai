@@ -170,31 +170,26 @@ export const FlairsShop = ({
       setPurchasing(null);
     }
   };
-  // Global VIP cooldown helpers (apply to all VIP flairs)
-  const getVipCooldownEndGlobal = (): Date | null => {
-    const rareEquips = userFlairs.filter((uf) => {
-      const flair = flairs.find((f) => f.id === uf.flair_id);
-      return flair?.rarity === 'rare' && !!uf.last_equipped_at;
-    });
-    if (rareEquips.length === 0) return null;
-    const latest = rareEquips
-      .map((uf) => new Date(uf.last_equipped_at as string))
-      .sort((a, b) => b.getTime() - a.getTime())[0];
-    return new Date(latest.getTime() + 5 * 24 * 60 * 60 * 1000);
+  const getCooldownEnd = (flairId: string): Date | null => {
+    const userFlair = userFlairs.find(uf => uf.flair_id === flairId);
+    if (!userFlair?.last_equipped_at) return null;
+    const lastEquipped = new Date(userFlair.last_equipped_at);
+    return new Date(lastEquipped.getTime() + 5 * 24 * 60 * 60 * 1000); // 5 days
   };
 
-  const isVipCooldownActive = (): boolean => {
-    const end = getVipCooldownEndGlobal();
-    return !!(end && new Date() < end);
-  };
+  const getCooldownRemaining = (flairId: string) => {
+    const flair = flairs.find(f => f.id === flairId);
+    const end = getCooldownEnd(flairId);
+    // Only VIP flairs (rarity: rare) have cooldown
+    if (!flair || flair.rarity !== 'rare' || !end) return null;
 
-  const getVipCooldownDaysRemaining = (): number | null => {
-    const end = getVipCooldownEndGlobal();
-    if (!end) return null;
     const now = new Date();
-    if (now >= end) return null;
-    const ms = end.getTime() - now.getTime();
-    return Math.ceil(ms / (24 * 60 * 60 * 1000));
+    if (now < end) {
+      const msRemaining = end.getTime() - now.getTime();
+      const daysRemaining = Math.ceil(msRemaining / (24 * 60 * 60 * 1000));
+      return daysRemaining;
+    }
+    return null;
   };
 
   const handleEquip = async (userFlairId: string) => {
@@ -211,10 +206,10 @@ export const FlairsShop = ({
         return;
       }
 
-      // Check cooldown for VIP flairs (rarity: rare) - global cooldown across all VIP badges
+      // Check cooldown for VIP flairs (rarity: rare) - per-flair cooldown
       if (flair && flair.rarity === 'rare') {
-        if (isVipCooldownActive()) {
-          const days = getVipCooldownDaysRemaining() ?? 0;
+        const days = getCooldownRemaining(flair.id);
+        if (days !== null) {
           toast({
             title: "Cooldown Active",
             description: `This VIP badge can be equipped again in ${days} ${days === 1 ? 'day' : 'days'}.`,
@@ -325,9 +320,9 @@ export const FlairsShop = ({
     const canBuy = canPurchase(flair);
     const isLocked = !canBuy;
     const isVip = flair.rarity === 'rare';
-    const cooldownDays = isVip ? getVipCooldownDaysRemaining() : null;
-    const onCooldown = isVip && cooldownDays !== null;
-    const vipCooldownEnd = isVip ? getVipCooldownEndGlobal() : null;
+    const cooldownDays = getCooldownRemaining(flair.id);
+    const onCooldown = cooldownDays !== null;
+    const cooldownEnd = getCooldownEnd(flair.id);
     return <Card key={flair.id} className={`p-4 flex flex-col items-center gap-2 relative hover:scale-105 transition-transform ${equipped ? 'ring-2 ring-primary' : ''} ${isLocked ? 'opacity-60' : ''}`}>
         <Badge className={`absolute top-2 right-2 text-xs ${getRarityColor(flair.rarity)}`}>
           {t[`rarity_${flair.rarity}` as keyof typeof t] || flair.rarity}
@@ -350,8 +345,8 @@ export const FlairsShop = ({
           <ExpiryTimer expiresAt={userFlair.expires_at} className="text-[10px]" showIcon={false} />
         )}
 
-        {onCooldown && vipCooldownEnd && (
-          <ExpiryTimer expiresAt={vipCooldownEnd.toISOString()} className="text-[10px]" showIcon={false} />
+        {onCooldown && cooldownEnd && (
+          <ExpiryTimer expiresAt={cooldownEnd.toISOString()} className="text-[10px]" showIcon={false} />
         )}
 
         {!owned && !expired && !isLocked && <p className="text-[10px] text-muted-foreground text-center">
