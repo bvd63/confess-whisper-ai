@@ -1,19 +1,61 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
 import { Activity, Users, Database, Trash2, TrendingUp, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 
+interface WebVitals {
+  lcp?: number;
+  fid?: number;
+  cls?: number;
+}
+
 export const PerformanceMetrics = () => {
   const { t } = useLanguage();
-  const { metrics } = usePerformanceMonitor();
   const [clearing, setClearing] = useState(false);
+  const [metrics, setMetrics] = useState<WebVitals>({});
+
+  // Collect Web Vitals
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'PerformanceObserver' in window) {
+      try {
+        const lcpObserver = new PerformanceObserver((list) => {
+          const entries = list.getEntries();
+          const lastEntry = entries[entries.length - 1] as any;
+          setMetrics(prev => ({ ...prev, lcp: lastEntry.renderTime || lastEntry.loadTime }));
+        });
+        lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
+      } catch (e) {}
+
+      try {
+        const fidObserver = new PerformanceObserver((list) => {
+          const entries = list.getEntries();
+          entries.forEach((entry: any) => {
+            setMetrics(prev => ({ ...prev, fid: entry.processingStart - entry.startTime }));
+          });
+        });
+        fidObserver.observe({ type: 'first-input', buffered: true });
+      } catch (e) {}
+
+      try {
+        let clsValue = 0;
+        const clsObserver = new PerformanceObserver((list) => {
+          for (const entry of list.getEntries() as any[]) {
+            if (!entry.hadRecentInput) {
+              clsValue += entry.value;
+            }
+          }
+          setMetrics(prev => ({ ...prev, cls: clsValue }));
+        });
+        clsObserver.observe({ type: 'layout-shift', buffered: true });
+      } catch (e) {}
+    }
+  }, []);
 
   // Fetch active users count
   const { data: activeUsers } = useQuery({
@@ -28,21 +70,17 @@ export const PerformanceMetrics = () => {
       if (error) throw error;
       return count || 0;
     },
-    refetchInterval: 30000, // Refresh every 30s
+    refetchInterval: 30000,
   });
 
   const handleClearCache = async () => {
     setClearing(true);
     try {
-      // Clear localStorage cache
       const cacheKeys = Object.keys(localStorage).filter(key => 
         key.startsWith('cache_') || key.startsWith('query_')
       );
       cacheKeys.forEach(key => localStorage.removeItem(key));
-
-      // Clear sessionStorage
       sessionStorage.clear();
-
       toast.success(t.cache_cleared || 'Cache cleared successfully');
     } catch (error) {
       toast.error(t.error_generic);
@@ -64,7 +102,6 @@ export const PerformanceMetrics = () => {
         <p className="text-muted-foreground">{t.admin_performance_desc || 'System health and monitoring'}</p>
       </div>
 
-      {/* Web Vitals */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -75,9 +112,7 @@ export const PerformanceMetrics = () => {
             <div className={`text-2xl font-bold ${getPerformanceColor(metrics.lcp || 0, { good: 2500, warning: 4000 })}`}>
               {metrics.lcp ? `${Math.round(metrics.lcp)}ms` : 'N/A'}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Largest Contentful Paint
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">Largest Contentful Paint</p>
             <Badge variant={metrics.lcp && metrics.lcp < 2500 ? 'default' : 'destructive'} className="mt-2">
               {metrics.lcp && metrics.lcp < 2500 ? 'Good' : 'Needs Work'}
             </Badge>
@@ -93,9 +128,7 @@ export const PerformanceMetrics = () => {
             <div className={`text-2xl font-bold ${getPerformanceColor(metrics.fid || 0, { good: 100, warning: 300 })}`}>
               {metrics.fid ? `${Math.round(metrics.fid)}ms` : 'N/A'}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              First Input Delay
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">First Input Delay</p>
             <Badge variant={metrics.fid && metrics.fid < 100 ? 'default' : 'destructive'} className="mt-2">
               {metrics.fid && metrics.fid < 100 ? 'Good' : 'Needs Work'}
             </Badge>
@@ -111,9 +144,7 @@ export const PerformanceMetrics = () => {
             <div className={`text-2xl font-bold ${getPerformanceColor(metrics.cls || 0, { good: 0.1, warning: 0.25 })}`}>
               {metrics.cls ? metrics.cls.toFixed(3) : 'N/A'}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Cumulative Layout Shift
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">Cumulative Layout Shift</p>
             <Badge variant={metrics.cls && metrics.cls < 0.1 ? 'default' : 'destructive'} className="mt-2">
               {metrics.cls && metrics.cls < 0.1 ? 'Good' : 'Needs Work'}
             </Badge>
@@ -121,7 +152,6 @@ export const PerformanceMetrics = () => {
         </Card>
       </div>
 
-      {/* Active Users & Cache */}
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -153,7 +183,7 @@ export const PerformanceMetrics = () => {
                 <AlertDialogHeader>
                   <AlertDialogTitle>{t.admin_confirm_clear || 'Clear all cache?'}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    {t.admin_clear_warning || 'This will remove all cached data. Users may experience slower loading temporarily.'}
+                    {t.admin_clear_warning || 'This will remove all cached data.'}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
