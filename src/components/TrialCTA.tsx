@@ -52,8 +52,5 @@ export const TrialCTA = ({
       setIsLoading(false);
     }
   };
-  return <Card className="bg-gradient-to-br from-violet-500/10 to-purple-500/10 border-violet-500/20">
-      
-      
-    </Card>;
+  return;
 };

@@ -108,7 +108,7 @@ const UserAnalytics = ({
   return <div className="space-y-4">
       {/* Subscription Card */}
       <Card className="border-primary/20">
-        <CardHeader className="px-[8px] mx-0 my-0 py-0">
+        <CardHeader className="px-[8px] mx-0 my-0 py-[9px]">
           <div className="flex items-center justify-between px-[240px] my-px py-px mx-[25px]">
             <div className="flex items-center gap-3">
               <CardTitle className="text-lg">{t.subscription_title}</CardTitle>
