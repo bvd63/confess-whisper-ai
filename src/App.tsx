@@ -10,6 +10,7 @@ import { InstagramBottomNav } from "./components/InstagramBottomNav";
 import { AnalyticsProvider } from "./components/AnalyticsProvider";
 import { SystemNotifications } from '@/components/SystemNotifications';
 import { PerformanceIndicator } from '@/components/PerformanceIndicator';
+import { PerformanceMonitor } from '@/components/PerformanceMonitor';
 import { InstallPrompt } from '@/components/InstallPrompt';
 import { NetworkStatusIndicator } from '@/components/NetworkStatusIndicator';
 import { useAuth } from '@/hooks/useAuth';
@@ -194,6 +195,7 @@ function App() {
           <AppContent />
           <SystemNotifications />
           <PerformanceIndicator />
+          <PerformanceMonitor />
           <InstallPrompt />
         </AnalyticsProvider>
       </BrowserRouter>
