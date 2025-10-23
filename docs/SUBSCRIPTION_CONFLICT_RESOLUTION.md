@@ -92,26 +92,26 @@ Keys added (EN/ES/DE):
 ## Testing Scenarios
 
 ### ✅ Scenario 1: New User Purchase
-**Flow:** Free → Premium via Checkout
-**Expected:** Premium activated, no conflicts
+**Flow:** Free → VIP via Checkout
+**Expected:** VIP activated, no conflicts
 
 ### ✅ Scenario 2: Active User Attempts Second Purchase
-**Flow:** Premium active → VIP via Portal/Checkout
+**Flow:** VIP active → Try VIP again via Portal/Checkout
 **Expected:** 
 - Checkout: Blocked with 409 error
 - Portal: Conflict detected, OLD kept, NEW canceled
 
 ### ✅ Scenario 3: Pending Cancel + New Purchase
-**Flow:** Premium `cancel_at_period_end=true` → VIP via Portal
-**Expected:** NEW VIP kept, OLD Premium canceled immediately
+**Flow:** VIP `cancel_at_period_end=true` → VIP again via Portal
+**Expected:** NEW VIP kept, OLD VIP canceled immediately
 
 ### ✅ Scenario 4: Past Due + New Purchase
-**Flow:** Premium `past_due` → VIP via Portal
-**Expected:** NEW VIP kept, OLD Premium canceled
+**Flow:** VIP `past_due` → VIP again via Portal
+**Expected:** NEW VIP kept, OLD VIP canceled
 
-### ✅ Scenario 5: Normal Upgrade/Downgrade
-**Flow:** Premium active → VIP via Upgrade button
-**Expected:** Uses subscription-upgrade edge function (no conflict)
+### ✅ Scenario 5: Normal Reactivation
+**Flow:** VIP active → Cancel → Reactivate before period end
+**Expected:** Uses billing-reactivate edge function (no conflict)
 
 ## Monitoring
 

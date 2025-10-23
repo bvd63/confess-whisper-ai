@@ -3,14 +3,14 @@
 ## Overview
 This guide covers testing the complete subscription system with Stripe test mode integration.
 
+**Note:** Application uses only **2 tiers**: Free and VIP (Premium plan removed)
+
 ## Test Environment Setup
 
 ### 1. Stripe Test Mode Configuration
 All price IDs are stored as Supabase secrets:
-- `STRIPE_PRICE_PREMIUM_MONTHLY` - Premium monthly test price
-- `STRIPE_PRICE_PREMIUM_YEARLY` - Premium yearly test price  
-- `STRIPE_PRICE_VIP_MONTHLY` - VIP monthly test price
-- `STRIPE_PRICE_VIP_YEARLY` - VIP yearly test price
+- `STRIPE_PRICE_VIP_MONTHLY` - VIP monthly test price ($6.99/month)
+- `STRIPE_PRICE_VIP_YEARLY` - VIP yearly test price ($54.99/year)
 
 ### 2. Test Page Access
 Navigate to `/test-subscriptions` to access the comprehensive test suite.
@@ -20,7 +20,7 @@ Navigate to `/test-subscriptions` to access the comprehensive test suite.
 ### Basic Status Checks
 1. **Check Subscription** (`check-subscription`)
    - Returns current subscription status
-   - Includes tier, end date, and subscription ID
+   - Includes tier (free/vip), end date, and subscription ID
    - Updates profile in database
 
 2. **Get Subscription Status** (`get-subscription-status`)
@@ -31,7 +31,7 @@ Navigate to `/test-subscriptions` to access the comprehensive test suite.
 ### Checkout & Purchase Flow
 3. **Create Checkout Session** (`billing-buy`)
    - Creates Stripe checkout session
-   - Parameters: `tier` (premium/vip), `cycle` (monthly/yearly)
+   - Parameters: `tier` (vip), `cycle` (monthly/yearly)
    - Returns checkout URL (check console)
    - Guards against duplicate subscriptions
 
@@ -40,14 +40,16 @@ Navigate to `/test-subscriptions` to access the comprehensive test suite.
    - Shows proration costs before upgrade
    - Calculates immediate charges
    - Requires active subscription
+   - Note: Only Free → VIP upgrade supported
 
 5. **Upgrade Subscription** (`manage-subscription-v2`)
    - Action: `upgrade`
-   - Target tier: `premium` or `vip`
+   - Target tier: `vip`
    - Immediate proration and charge
+   - Only available for Free users
 
-6. **Downgrade Subscription** (`manage-subscription-v2`)
-   - Action: `downgrade`
+6. **Downgrade Subscription** - NOT AVAILABLE
+   - VIP users can only **cancel** subscription (downgrade to Free at period end)
    - Scheduled at period end
    - No immediate charge
 
@@ -66,36 +68,27 @@ Navigate to `/test-subscriptions` to access the comprehensive test suite.
 
 ## Testing Workflows
 
-### Complete Purchase Flow Test
+### Complete Purchase Flow Test (Free → VIP)
 ```
 1. Start with no subscription (Free tier)
 2. Check Subscription → Verify "free" tier
-3. Create Checkout → Get Stripe checkout URL
+3. Create Checkout → Get Stripe checkout URL for VIP
 4. Complete payment in Stripe (use test card: 4242 4242 4242 4242)
-5. Check Subscription → Verify "premium" tier
-```
-
-### Upgrade Flow Test
-```
-1. Have active Premium subscription
-2. Preview Upgrade → See VIP costs
-3. Upgrade to VIP → Immediate change
-4. Check Subscription → Verify "vip" tier
-5. Check profile coins → Should receive bonus coins
-```
-
-### Downgrade Flow Test
-```
-1. Have active VIP subscription
-2. Downgrade to Premium → Scheduled for period end
-3. Check Subscription → Still shows "vip" until end
-4. Wait for period end or manually trigger
-5. Check Subscription → Now shows "premium"
+5. Check Subscription → Verify "vip" tier
+6. Check profile coins → Should receive VIP bonus coins
 ```
 
 ### Cancel & Reactivate Flow Test
 ```
-1. Have active subscription
+1. Have active VIP subscription
+2. Cancel Subscription → Scheduled for period end
+3. Check Subscription → Still shows "vip" with cancel_at_period_end
+4. Reactivate → Cancel scheduled downgrade
+5. Check Subscription → Now shows active "vip" again
+```
+
+### Trial Flow Test (if enabled)
+```
 2. Cancel Subscription → Access until period end
 3. Check Subscription → Shows cancel_at_period_end
 4. Reactivate Subscription → Restores auto-renewal
@@ -172,24 +165,23 @@ verify_jwt = false  # Stripe signs with webhook secret
 
 ### Key Columns in Profiles
 ```sql
-subscription_tier: 'free' | 'premium' | 'vip'
+subscription_tier: 'free' | 'vip'
 subscription_status: 'active' | 'canceled' | 'past_due' | etc
 subscription_end: timestamp with time zone
 stripe_customer_id: text
 stripe_subscription_id: text
+is_premium: boolean  -- Legacy field, mapped to VIP
 ```
 
 ## Feature Gates
 
 Components using `<FeatureGate>`:
 
-### Premium Features
+### VIP Features
 - FlairsShop button
 - Export data button
 - TrendingHashtags (for logged-in users)
 - WordCloudViz
-
-### VIP Features
 - AdvancedAnalytics
 - Leaderboard (for logged-in users)
 
