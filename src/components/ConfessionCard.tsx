@@ -28,6 +28,9 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useCachePurgeOnDelete } from "@/hooks/useCachePurgeOnDelete";
+import { Copy } from "lucide-react";
+import { useEditDeleteWindow } from "@/hooks/useEditDeleteWindow";
+import { useHaptic } from "@/hooks/useHaptic";
 
 interface ConfessionCardProps {
   confession: {
@@ -72,6 +75,21 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   const { subscriptionTier } = usePremiumStatus(confession.user_id || null);
   const { boostStatus, refetch: refetchBoost } = useBoostStatus(confession.id);
   const isOwner = user?.id === confession.user_id;
+  const { canDelete, deleteTimeLeft } = useEditDeleteWindow(confession.created_at);
+  const { vibrate } = useHaptic();
+
+  const handleCopyText = async () => {
+    try {
+      await navigator.clipboard.writeText(confession.content);
+      vibrate('light');
+      toast({
+        title: t.text_copied,
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error('Failed to copy text:', error);
+    }
+  };
 
   const handleDeleteConfession = async () => {
     if (!user || confession.user_id !== user.id) return;
@@ -163,9 +181,20 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         <ReactionPicker confessionId={confession.id} userId={user?.id} />
       </div>
 
+      {/* Copy Text Button */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleCopyText}
+        className="text-xs gap-1"
+      >
+        <Copy className="h-3 w-3" />
+        <span className="hidden sm:inline">{t.copy_text}</span>
+      </Button>
+
       {/* Interaction Buttons */}
       <div className="flex items-center gap-2 flex-wrap">
-        {user && isOwner && (
+        {user && isOwner && canDelete && (
           <>
             <Button
               variant="outline"

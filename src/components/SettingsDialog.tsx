@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { EnhancedButton } from "@/components/EnhancedButton";
 
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
+import { FontSizeControl } from "@/components/FontSizeControl";
 import { Settings, Download, Trash2, LogOut, Loader2, Shield, Crown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -229,13 +230,18 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
                       glow
                     >
                       {t.plans_upgrade_now}
-                    </EnhancedButton>
-                  )}
-                </div>
+                  </EnhancedButton>
+                )}
               </div>
             </div>
+          </div>
 
-            {/* Export Data */}
+          {/* Font Size Control */}
+          <div className="p-4 rounded-lg border border-border/50 bg-background/50">
+            <FontSizeControl />
+          </div>
+
+          {/* Export Data */}
             <div className="p-3 sm:p-4 border border-border/50 rounded-lg hover-lift transition-colors glass">
               <div className="flex items-start gap-3 sm:gap-4">
                 <div className="p-1.5 sm:p-2 rounded-full bg-primary/10">

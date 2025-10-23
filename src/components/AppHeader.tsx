@@ -11,6 +11,8 @@ import CoinsDisplay from "@/components/CoinsDisplay";
 import CoinBalance from "@/components/coins/CoinBalance";
 import StreakCounter from "@/components/StreakCounter";
 import { SyncStatusIndicator } from "@/components/SyncStatusIndicator";
+import { Badge } from "@/components/ui/badge";
+import { Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -79,6 +81,14 @@ const AppHeader = ({
           </div>
           
           <div className="flex items-center gap-1 sm:gap-1.5">
+            {/* Anonymous Badge */}
+            {user && (
+              <Badge variant="outline" className="gap-1 hidden md:flex mr-1">
+                <Shield className="h-3 w-3" />
+                <span className="text-xs">{t.anonymous_badge}</span>
+              </Badge>
+            )}
+            
             <LanguageSelector />
             <ThemeToggle />
             {user ? <>

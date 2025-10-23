@@ -1262,6 +1262,49 @@ type Translations = {
   
   // Draft
   draft_delete_error: string;
+
+  // Font Size Control
+  font_size_small: string;
+  font_size_normal: string;
+  font_size_large: string;
+  font_size_xl: string;
+  
+  // Copy Text
+  copy_text: string;
+  text_copied: string;
+  
+  // Anonymous Badge
+  anonymous_badge: string;
+  identity_protected: string;
+  
+  // Offline Enhanced
+  offline_mode: string;
+  offline_message: string;
+  
+  // Haptic
+  haptic_enabled: string;
+  
+  // Loading Quotes
+  loading_quote_1: string;
+  loading_quote_2: string;
+  loading_quote_3: string;
+  
+  // Edit/Delete Windows
+  edit_available: string;
+  delete_available: string;
+  edit_window_expired: string;
+  
+  // Age Gate
+  age_gate_title: string;
+  age_gate_confirm: string;
+  age_gate_requirement: string;
+  
+  // Theme
+  theme_oled: string;
+  
+  // Karma
+  karma_points: string;
+  karma_level: string;
   
   // Export
   export_error: string;
@@ -3379,6 +3422,49 @@ export const translations: Record<Language, Translations> = {
     // Quick Actions
     scroll_top: "Scroll to Top",
     drafts: "Drafts",
+
+    // Font Size Control
+    font_size_small: "Small",
+    font_size_normal: "Normal",
+    font_size_large: "Large",
+    font_size_xl: "Extra Large",
+    
+    // Copy Text
+    copy_text: "Copy text",
+    text_copied: "Text copied to clipboard",
+    
+    // Anonymous Badge
+    anonymous_badge: "100% Anonymous",
+    identity_protected: "Your identity is completely protected",
+    
+    // Offline Enhanced
+    offline_mode: "Offline Mode",
+    offline_message: "You're offline. Content will sync when connected",
+    
+    // Haptic
+    haptic_enabled: "Haptic Feedback Enabled",
+    
+    // Loading Quotes
+    loading_quote_1: "Secrets make us human...",
+    loading_quote_2: "Your story matters...",
+    loading_quote_3: "Everyone has something to share...",
+    
+    // Edit/Delete Windows
+    edit_available: "Edit available for {seconds}s",
+    delete_available: "Delete available for {time}",
+    edit_window_expired: "Edit window expired",
+    
+    // Age Gate
+    age_gate_title: "Age Verification",
+    age_gate_confirm: "I confirm that I am 13 years or older",
+    age_gate_requirement: "You must be at least 13 years old to use this platform.",
+    
+    // Theme
+    theme_oled: "OLED Black",
+    
+    // Karma
+    karma_points: "Karma Points",
+    karma_level: "Level {level}",
     confession_new: "New Confession",
 
     // Filters
@@ -5048,6 +5134,49 @@ export const translations: Record<Language, Translations> = {
     // Quick Actions
     scroll_top: "Subir Arriba",
     drafts: "Borradores",
+
+    // Font Size Control
+    font_size_small: "Pequeño",
+    font_size_normal: "Normal",
+    font_size_large: "Grande",
+    font_size_xl: "Extra Grande",
+    
+    // Copy Text
+    copy_text: "Copiar texto",
+    text_copied: "Texto copiado al portapapeles",
+    
+    // Anonymous Badge
+    anonymous_badge: "100% Anónimo",
+    identity_protected: "Tu identidad está completamente protegida",
+    
+    // Offline Enhanced
+    offline_mode: "Modo Sin Conexión",
+    offline_message: "Estás sin conexión. Se sincronizará al conectar",
+    
+    // Haptic
+    haptic_enabled: "Retroalimentación Háptica Activada",
+    
+    // Loading Quotes
+    loading_quote_1: "Los secretos nos hacen humanos...",
+    loading_quote_2: "Tu historia importa...",
+    loading_quote_3: "Todos tienen algo que compartir...",
+    
+    // Edit/Delete Windows
+    edit_available: "Edición disponible por {seconds}s",
+    delete_available: "Eliminación disponible por {time}",
+    edit_window_expired: "Ventana de edición expirada",
+    
+    // Age Gate
+    age_gate_title: "Verificación de Edad",
+    age_gate_confirm: "Confirmo que tengo 13 años o más",
+    age_gate_requirement: "Debes tener al menos 13 años para usar esta plataforma.",
+    
+    // Theme
+    theme_oled: "Negro OLED",
+    
+    // Karma
+    karma_points: "Puntos de Karma",
+    karma_level: "Nivel {level}",
     confession_new: "Nueva Confesión",
 
     // Filters
@@ -6717,6 +6846,49 @@ export const translations: Record<Language, Translations> = {
     // Quick Actions
     scroll_top: "Nach Oben",
     drafts: "Entwürfe",
+
+    // Font Size Control
+    font_size_small: "Klein",
+    font_size_normal: "Normal",
+    font_size_large: "Groß",
+    font_size_xl: "Extra Groß",
+    
+    // Copy Text
+    copy_text: "Text kopieren",
+    text_copied: "Text in Zwischenablage kopiert",
+    
+    // Anonymous Badge
+    anonymous_badge: "100% Anonym",
+    identity_protected: "Ihre Identität ist vollständig geschützt",
+    
+    // Offline Enhanced
+    offline_mode: "Offline-Modus",
+    offline_message: "Du bist offline. Wird synchronisiert wenn verbunden",
+    
+    // Haptic
+    haptic_enabled: "Haptisches Feedback Aktiviert",
+    
+    // Loading Quotes
+    loading_quote_1: "Geheimnisse machen uns menschlich...",
+    loading_quote_2: "Deine Geschichte zählt...",
+    loading_quote_3: "Jeder hat etwas zu teilen...",
+    
+    // Edit/Delete Windows
+    edit_available: "Bearbeitung verfügbar für {seconds}s",
+    delete_available: "Löschen verfügbar für {time}",
+    edit_window_expired: "Bearbeitungsfenster abgelaufen",
+    
+    // Age Gate
+    age_gate_title: "Altersüberprüfung",
+    age_gate_confirm: "Ich bestätige, dass ich 13 Jahre oder älter bin",
+    age_gate_requirement: "Sie müssen mindestens 13 Jahre alt sein, um diese Plattform zu nutzen.",
+    
+    // Theme
+    theme_oled: "OLED Schwarz",
+    
+    // Karma
+    karma_points: "Karma-Punkte",
+    karma_level: "Stufe {level}",
     confession_new: "Neues Geständnis",
 
     // Filters

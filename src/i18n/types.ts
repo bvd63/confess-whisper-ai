@@ -53,4 +53,47 @@ export interface Translations {
 
   // Analytics
   analytics_best_times_desc: string;
+
+  // Font Size Control
+  font_size_small: string;
+  font_size_normal: string;
+  font_size_large: string;
+  font_size_xl: string;
+  
+  // Copy Text
+  copy_text: string;
+  text_copied: string;
+  
+  // Anonymous Badge
+  anonymous_badge: string;
+  identity_protected: string;
+  
+  // Offline Enhanced
+  offline_mode: string;
+  offline_message: string;
+  
+  // Haptic
+  haptic_enabled: string;
+  
+  // Loading Quotes
+  loading_quote_1: string;
+  loading_quote_2: string;
+  loading_quote_3: string;
+  
+  // Edit/Delete Windows
+  edit_available: string;
+  delete_available: string;
+  edit_window_expired: string;
+  
+  // Age Gate
+  age_gate_title: string;
+  age_gate_confirm: string;
+  age_gate_requirement: string;
+  
+  // Theme
+  theme_oled: string;
+  
+  // Karma
+  karma_points: string;
+  karma_level: string;
 }
