@@ -248,10 +248,17 @@ const Profile = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-2xl font-bold">{t.badges_your_badges}</h2>
-                <FlairsShopButton 
-                  onClick={() => setFlairsDialogOpen(true)} 
-                  tier={subscriptionTier as "free" | "premium" | "vip"}
-                />
+                <FeatureGate 
+                  minTier="premium" 
+                  teaserPriceHint="$4.99/mo" 
+                  compact
+                  onUpgradeOverride={() => setPremiumDialogOpen(true)}
+                >
+                  <FlairsShopButton 
+                    onClick={() => setFlairsDialogOpen(true)} 
+                    tier={subscriptionTier as "free" | "premium" | "vip"}
+                  />
+                </FeatureGate>
               </div>
               <BadgesDisplay userId={user.id} variant="full" />
             </div>
@@ -287,11 +294,17 @@ const Profile = () => {
               </div>
             </AnimatedCard>
             
-            <div className="pt-4">
+            <FeatureGate 
+              minTier="premium" 
+              teaserPriceHint="$4.99/mo"
+              compact
+              className="pt-4"
+              onUpgradeOverride={() => setPremiumDialogOpen(true)}
+            >
               <Button onClick={() => setExportDialogOpen(true)} variant="outline" className="w-full">
                 {t.export_my_data}
               </Button>
-            </div>
+            </FeatureGate>
           </TabsContent>
 
           {isModerator && <TabsContent value="moderation" className="space-y-6">

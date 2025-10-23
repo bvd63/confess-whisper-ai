@@ -19,6 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
 import { TrendingHashtags } from "@/components/TrendingHashtags";
 import { PremiumTeaser } from "@/components/PremiumTeaser";
+import { FeatureGate } from "@/components/auth/FeatureGate";
 
 const Explore = () => {
   const { t } = useLanguage();
@@ -120,10 +121,21 @@ const Explore = () => {
 
         <SearchUsersCard />
 
-        {/* Trending Hashtags */}
-        <div className="mb-6">
-          <TrendingHashtags />
-        </div>
+        {/* Trending Hashtags - Premium Feature */}
+        {user && (
+          <div className="mb-6">
+            <FeatureGate minTier="premium" teaserPriceHint="$4.99/mo" compact>
+              <TrendingHashtags />
+            </FeatureGate>
+          </div>
+        )}
+        
+        {/* Trending Hashtags - Public for non-logged-in users */}
+        {!user && (
+          <div className="mb-6">
+            <TrendingHashtags />
+          </div>
+        )}
 
         {/* Premium Teaser for Free Users */}
         {user && !isPremium && (

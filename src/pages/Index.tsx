@@ -23,6 +23,7 @@ import SEOHead from "@/components/SEOHead";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePerformanceBudget } from "@/hooks/usePerformanceBudget";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
+import { FeatureGate } from "@/components/auth/FeatureGate";
 
 // Lazy load heavy components
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
@@ -150,8 +151,17 @@ const Index = () => {
         {/* Communities Section */}
         {showSecondaryContent && <CommunitiesSectionExpanded />}
 
-        {/* Leaderboard */}
-        {showSecondaryContent && (
+        {/* Leaderboard - VIP Feature */}
+        {showSecondaryContent && user && (
+          <div className="my-4 sm:my-6">
+            <FeatureGate minTier="vip" teaserPriceHint="$9.99/mo">
+              <Leaderboard />
+            </FeatureGate>
+          </div>
+        )}
+        
+        {/* Leaderboard - Public for non-logged-in users */}
+        {showSecondaryContent && !user && (
           <div className="my-4 sm:my-6">
             <Leaderboard />
           </div>
