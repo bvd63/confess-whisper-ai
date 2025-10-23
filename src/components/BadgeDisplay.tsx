@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ProfileTierBadge } from "./ProfileTierBadge";
@@ -13,6 +13,28 @@ interface UserBadge {
   acquired_at: string;
   expires_at?: string;
   is_featured: boolean;
+}
+
+interface FlairData {
+  id: string;
+  acquired_at: string;
+  expires_at?: string;
+  is_featured: boolean;
+  profile_flairs: {
+    icon: string;
+    name_key: string;
+  }[];
+}
+
+interface BadgeData {
+  id: string;
+  acquired_at: string;
+  expires_at?: string;
+  is_featured: boolean;
+  badges: {
+    icon: string;
+    name: string;
+  }[];
 }
 
 interface BadgeDisplayProps {
@@ -34,40 +56,7 @@ export const BadgeDisplay = ({
   const [badges, setBadges] = useState<UserBadge[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadBadges();
-
-    // Subscribe to real-time updates for this user's badges/flairs
-    const channel = supabase
-      .channel(`user-badges-${userId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'user_flairs',
-          filter: `user_id=eq.${userId}`
-        },
-        () => loadBadges()
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'user_badges',
-          filter: `user_id=eq.${userId}`
-        },
-        () => loadBadges()
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [userId]);
-
-  const loadBadges = async () => {
+  const loadBadges = useCallback(async () => {
     try {
       // Load equipped flairs (equipped flairs are automatically featured and public)
       const { data: flairs } = await supabase
@@ -110,20 +99,20 @@ export const BadgeDisplay = ({
         .limit(maxBadges);
 
       const allBadges: UserBadge[] = [
-        ...(flairs || []).map((f: any) => ({
+        ...(flairs || []).map((f: FlairData) => ({
           id: f.id,
           type: "flair" as const,
-          icon: f.profile_flairs.icon,
-          name_key: f.profile_flairs.name_key,
+          icon: f.profile_flairs[0]?.icon || '',
+          name_key: f.profile_flairs[0]?.name_key || '',
           acquired_at: f.acquired_at,
           expires_at: f.expires_at,
           is_featured: f.is_featured,
         })),
-        ...(userBadges || []).map((b: any) => ({
+        ...(userBadges || []).map((b: BadgeData) => ({
           id: b.id,
           type: "badge" as const,
-          icon: b.badges.icon,
-          name_key: b.badges.name,
+          icon: b.badges[0]?.icon || '',
+          name_key: b.badges[0]?.name || '',
           acquired_at: b.acquired_at,
           expires_at: b.expires_at,
           is_featured: b.is_featured,
@@ -143,7 +132,40 @@ export const BadgeDisplay = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, maxBadges]);
+
+  useEffect(() => {
+    loadBadges();
+
+    // Subscribe to real-time updates for this user's badges/flairs
+    const channel = supabase
+      .channel(`user-badges-${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_flairs',
+          filter: `user_id=eq.${userId}`
+        },
+        () => loadBadges()
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_badges',
+          filter: `user_id=eq.${userId}`
+        },
+        () => loadBadges()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, loadBadges]);
 
   if (loading) return null;
 
@@ -157,8 +179,8 @@ export const BadgeDisplay = ({
       )}
       
       {badges.map((badge) => {
-        const translationKey = `flair_${badge.name_key}` as any;
-        const badgeName = (t as any)[translationKey] || badge.name_key;
+        const translationKey = `flair_${badge.name_key}` as keyof typeof t;
+        const badgeName = (t as Record<string, string>)[translationKey] || badge.name_key;
         
         return (
           <TooltipProvider key={badge.id}>

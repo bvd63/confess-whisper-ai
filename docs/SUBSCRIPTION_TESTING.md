@@ -23,7 +23,6 @@ Navigate to `/test-subscriptions` to access the comprehensive test suite.
 
 ### Basic Status Checks
 
-
 1. **Check Subscription** (`check-subscription`)
    - Returns current subscription status
    - Includes tier (free/vip), end date, and subscription ID

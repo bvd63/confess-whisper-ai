@@ -46,7 +46,7 @@ const AchievementToast = ({ userId }: AchievementToastProps) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId, toast]);
+  }, [userId, toast, t.achievement_new_badge]);
 
   return null; // This component doesn't render anything
 };

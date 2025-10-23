@@ -14,5 +14,5 @@ UPDATE coin_packages SET stripe_price_id_test = 'price_1SL3x7R7kygIyYg90jCVyX9U'
 UPDATE coin_packages SET stripe_price_id_test = 'price_1SL4nHR7kygIyYg90KIP4aP7' WHERE name = 'Popular' AND coins = 150;
 UPDATE coin_packages SET stripe_price_id_test = 'price_1SL4nHR7kygIyYg9jSm5QDQA' WHERE name = 'Value' AND coins = 350;
 UPDATE coin_packages SET stripe_price_id_test = 'price_1SL4nHR7kygIyYg9vuNh6ufg' WHERE name = 'Premium' AND coins = 700;
-UPDATE coin_packages SET stripe_price_id_test = 'price_1SL4nHR7kygIyYg9PrCmKjWs' WHERE name = 'Whale' AND coins = 1250;
+
 

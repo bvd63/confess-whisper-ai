@@ -3,12 +3,15 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from 'vite-plugin-pwa';
+import type { ServerOptions } from 'https';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    // HTTPS disabled for Codespaces - the forwarded port already uses HTTPS
+    // https: {} as ServerOptions,
   },
   plugins: [
     react(),
