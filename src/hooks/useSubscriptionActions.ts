@@ -10,13 +10,12 @@ interface SubscriptionActionResult {
   error?: string;
 }
 
-const mapPriceIdToTier = (priceId: string): "premium" | "vip" | "free" => {
+const mapPriceIdToTier = (priceId: string): "vip" | "free" => {
   if (!priceId) return "free";
   const entries = Object.entries(STRIPE_PRICE_IDS);
   for (const [key, val] of entries) {
     if (val === priceId) {
       if (key.startsWith("vip_")) return "vip";
-      if (key.startsWith("premium_")) return "premium";
     }
   }
   return "free";

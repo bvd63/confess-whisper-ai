@@ -22,14 +22,6 @@ export const SubscriptionStatusCard = () => {
           bgGradient: 'from-yellow-500/20 to-yellow-600/10',
           description: 'Unlimited everything + Priority support'
         };
-      case 'premium':
-        return {
-          icon: Zap,
-          name: 'Premium',
-          color: 'text-purple-500',
-          bgGradient: 'from-purple-500/20 to-purple-600/10',
-          description: 'Advanced features + No ads'
-        };
       default:
         return {
           icon: Zap,
@@ -92,31 +84,20 @@ export const SubscriptionStatusCard = () => {
             {subscriptionTier === 'free' ? (
               <Button 
                 onClick={() => setManageOpen(true)}
-                className="flex-1 gap-2 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400"
+                className="flex-1 gap-2 bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400"
               >
-                <ArrowUpCircle className="w-4 h-4" />
-                Upgrade
+                <Crown className="w-4 h-4" />
+                Upgrade to VIP
               </Button>
             ) : (
-              <>
-                {subscriptionTier === 'premium' && (
-                  <Button 
-                    onClick={() => setManageOpen(true)}
-                    className="flex-1 gap-2 bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400"
-                  >
-                    <Crown className="w-4 h-4" />
-                    Upgrade to VIP
-                  </Button>
-                )}
-                <Button 
-                  onClick={() => setManageOpen(true)}
-                  variant="outline"
-                  className="gap-2"
-                >
-                  <Settings className="w-4 h-4" />
-                  Manage
-                </Button>
-              </>
+              <Button 
+                onClick={() => setManageOpen(true)}
+                variant="outline"
+                className="gap-2"
+              >
+                <Settings className="w-4 h-4" />
+                Manage
+              </Button>
             )}
           </div>
         </div>

@@ -159,7 +159,7 @@ const Explore = () => {
         {/* Trending Hashtags - Premium Feature */}
         {user && (
           <div className="mb-6">
-            <FeatureGate minTier="premium" teaserPriceHint="$4.99/mo" compact>
+            <FeatureGate minTier="vip" teaserPriceHint="$4.99/mo" compact>
               <TrendingHashtags />
             </FeatureGate>
           </div>

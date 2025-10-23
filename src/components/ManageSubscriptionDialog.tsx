@@ -70,7 +70,7 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
         }
       }
 
-      const levels = { free: 0, premium: 1, vip: 2 } as const;
+      const levels = { free: 0, vip: 1 } as const;
       const cur = levels[(currentPlan as keyof typeof levels) || 'free'] ?? 0;
       const tgt = levels[(planId as keyof typeof levels) || 'free'] ?? 0;
 

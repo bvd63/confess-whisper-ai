@@ -239,7 +239,7 @@ const Profile = () => {
               <AdvancedAnalytics userId={user.id} />
             </FeatureGate>
             
-            <FeatureGate minTier="premium" teaserPriceHint="$4.99/mo" className="mt-6">
+            <FeatureGate minTier="vip" teaserPriceHint="$4.99/mo" className="mt-6">
               <WordCloudViz userId={user.id} />
             </FeatureGate>
           </TabsContent>
@@ -253,14 +253,14 @@ const Profile = () => {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-2xl font-bold">{t.badges_your_badges}</h2>
                 <FeatureGate 
-                  minTier="premium" 
+                  minTier="vip" 
                   teaserPriceHint="$4.99/mo" 
                   compact
                   onUpgradeOverride={() => setPremiumDialogOpen(true)}
                 >
                   <FlairsShopButton 
                     onClick={() => setFlairsDialogOpen(true)} 
-                    tier={subscriptionTier as "free" | "premium" | "vip"}
+                    tier={(subscriptionTier === 'premium' ? 'vip' : subscriptionTier) as "free" | "vip"}
                   />
                 </FeatureGate>
               </div>
@@ -302,7 +302,7 @@ const Profile = () => {
             </AnimatedCard>
             
             <FeatureGate 
-              minTier="premium" 
+              minTier="vip" 
               teaserPriceHint="$4.99/mo"
               compact
               className="pt-4"

@@ -11,13 +11,13 @@ export const FeatureComparison = ({ onUpgrade }: FeatureComparisonProps) => {
   const { t } = useLanguage();
 
   const features = [
-    { name: t.comparison_daily_confessions, free: "3", premium: "15", vip: t.comparison_unlimited },
-    { name: t.comparison_ai_responses, free: true, premium: true, vip: true },
-    { name: t.comparison_deep_insights, free: false, premium: true, vip: true },
-    { name: t.comparison_analytics, free: false, premium: true, vip: true },
-    { name: t.comparison_boost, free: false, premium: true, vip: true },
-    { name: t.comparison_priority_support, free: false, premium: false, vip: true },
-    { name: t.comparison_custom_badge, free: false, premium: true, vip: true },
+    { name: t.comparison_daily_confessions, free: "3", vip: t.comparison_unlimited },
+    { name: t.comparison_ai_responses, free: true, vip: true },
+    { name: t.comparison_deep_insights, free: false, vip: true },
+    { name: t.comparison_analytics, free: false, vip: true },
+    { name: t.comparison_boost, free: false, vip: true },
+    { name: t.comparison_priority_support, free: false, vip: true },
+    { name: t.comparison_custom_badge, free: false, vip: true },
   ];
 
   return (
@@ -41,13 +41,6 @@ export const FeatureComparison = ({ onUpgrade }: FeatureComparisonProps) => {
                     feature.free ? <Check className="w-4 h-4 text-green-500 mx-auto" /> : <X className="w-4 h-4 text-muted-foreground mx-auto" />
                   ) : (
                     <span className="text-sm">{feature.free}</span>
-                  )}
-                </td>
-                <td className="text-center py-3 px-2 bg-primary/5">
-                  {typeof feature.premium === 'boolean' ? (
-                    feature.premium ? <Check className="w-4 h-4 text-primary mx-auto" /> : <X className="w-4 h-4 text-muted-foreground mx-auto" />
-                  ) : (
-                    <span className="text-sm font-semibold text-primary">{feature.premium}</span>
                   )}
                 </td>
                 <td className="text-center py-3 px-2 bg-primary/10">

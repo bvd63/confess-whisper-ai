@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 
 type Props = {
   children: React.ReactNode;
-  minTier: "premium" | "vip";
+  minTier: "vip";
   className?: string;
   teaserPriceHint?: string;
   featuresOverride?: string[];
@@ -32,8 +32,7 @@ export function FeatureGate({
 
   if (loading) return null;
 
-  const hasAccess =
-    minTier === "premium" ? !!entitlements?.is_pro : !!entitlements?.is_vip;
+  const hasAccess = !!entitlements?.is_vip;
 
   if (hasAccess) return <>{children}</>;
 

@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface SubscriptionManagerProps {
   userId: string;
-  currentTier: "free" | "premium" | "vip";
+  currentTier: "free" | "vip";
   onActionComplete?: () => void;
 }
 
@@ -65,8 +65,8 @@ export const SubscriptionManager = ({ userId, currentTier, onActionComplete }: S
         <CardDescription>{t.subscription_description}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
-        {/* Upgrade option */}
-        {currentTier === 'premium' && (
+        {/* Downgrade option - VIP to Free */}
+        {currentTier === 'vip' && (
           <Button 
             onClick={() => handleAction('upgrade', 'vip')}
             disabled={isLoading}

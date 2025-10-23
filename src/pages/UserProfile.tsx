@@ -108,7 +108,7 @@ const UserProfile = () => {
           <TrialBanner trialEndDate={trialEndDate} />
         )}
         
-        <TierProfileCard tier={subscriptionTier as "free" | "premium" | "vip"} className="mb-6">
+        <TierProfileCard tier={(subscriptionTier === 'premium' ? 'vip' : subscriptionTier) as "free" | "vip"} className="mb-6">
           <ProfileHeader
             userId={userId!}
             currentUserId={currentUser.id}
