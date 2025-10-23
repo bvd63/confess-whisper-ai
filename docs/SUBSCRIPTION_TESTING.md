@@ -1,6 +1,7 @@
 # Subscription System Testing Guide
 
 ## Overview
+
 This guide covers testing the complete subscription system with Stripe test mode integration.
 
 **Note:** Application uses only **2 tiers**: Free and VIP (Premium plan removed)
@@ -8,20 +9,25 @@ This guide covers testing the complete subscription system with Stripe test mode
 ## Test Environment Setup
 
 ### 1. Stripe Test Mode Configuration
+
 All price IDs are stored as Supabase secrets:
+
 - `STRIPE_PRICE_VIP_MONTHLY` - VIP monthly test price ($6.99/month)
 - `STRIPE_PRICE_VIP_YEARLY` - VIP yearly test price ($54.99/year)
 
 ### 2. Test Page Access
+
 Navigate to `/test-subscriptions` to access the comprehensive test suite.
 
 ## Test Functions Available
 
 ### Basic Status Checks
+
 1. **Check Subscription** (`check-subscription`)
    - Returns current subscription status
    - Includes tier (free/vip), end date, and subscription ID
    - Updates profile in database
+
 
 2. **Get Subscription Status** (`get-subscription-status`)
    - Detailed subscription information
@@ -29,39 +35,41 @@ Navigate to `/test-subscriptions` to access the comprehensive test suite.
    - Trial status
 
 ### Checkout & Purchase Flow
-3. **Create Checkout Session** (`billing-buy`)
+
+1. **Create Checkout Session** (`billing-buy`)
    - Creates Stripe checkout session
    - Parameters: `tier` (vip), `cycle` (monthly/yearly)
    - Returns checkout URL (check console)
    - Guards against duplicate subscriptions
 
 ### Subscription Management
-4. **Preview Upgrade** (`billing-preview`)
-   - Shows proration costs before upgrade
-   - Calculates immediate charges
-   - Requires active subscription
-   - Note: Only Free → VIP upgrade supported
 
-5. **Upgrade Subscription** (`manage-subscription-v2`)
-   - Action: `upgrade`
-   - Target tier: `vip`
-   - Immediate proration and charge
-   - Only available for Free users
+1. **Preview Upgrade** (`billing-preview`)
+   - Shows cost breakdown
+   - Proration calculations
+   - Displays next billing date
 
-6. **Downgrade Subscription** - NOT AVAILABLE
-   - VIP users can only **cancel** subscription (downgrade to Free at period end)
-   - Scheduled at period end
-   - No immediate charge
+2. **Upgrade Subscription** (`manage-subscription-v2`)
+   - Immediate upgrade to VIP
+   - Automatic proration
+   - VIP perks activated instantly
 
-7. **Cancel Subscription** (`billing-cancel`)
-   - Cancels at period end
-   - User retains access until end date
+3. **Downgrade Subscription** - NOT AVAILABLE
+   - VIP is only paid tier
+   - Use "Cancel" to downgrade to Free
+   - Cancellation takes effect at period end
 
-8. **Reactivate Subscription** (`billing-reactivate`)
-   - Removes cancellation
-   - Restores auto-renewal
+4. **Cancel Subscription** (`billing-cancel`)
+   - Schedules cancellation at period end
+   - User retains access until then
+   - Can be reactivated before end date
 
-9. **Fix Subscription Sync** (`fix-subscription-sync`)
+5. **Reactivate Subscription** (`billing-reactivate`)
+   - Cancels the pending cancellation
+   - Keeps VIP benefits
+   - No charge until original renewal date
+
+6. **Fix Subscription Sync** (`fix-subscription-sync`)
    - Manual sync with Stripe
    - Updates local database
    - Useful for troubleshooting
@@ -69,7 +77,8 @@ Navigate to `/test-subscriptions` to access the comprehensive test suite.
 ## Testing Workflows
 
 ### Complete Purchase Flow Test (Free → VIP)
-```
+
+```text
 1. Start with no subscription (Free tier)
 2. Check Subscription → Verify "free" tier
 3. Create Checkout → Get Stripe checkout URL for VIP
@@ -79,7 +88,8 @@ Navigate to `/test-subscriptions` to access the comprehensive test suite.
 ```
 
 ### Cancel & Reactivate Flow Test
-```
+
+```text
 1. Have active VIP subscription
 2. Cancel Subscription → Scheduled for period end
 3. Check Subscription → Still shows "vip" with cancel_at_period_end
@@ -88,7 +98,8 @@ Navigate to `/test-subscriptions` to access the comprehensive test suite.
 ```
 
 ### Trial Flow Test (if enabled)
-```
+
+```text
 2. Cancel Subscription → Access until period end
 3. Check Subscription → Shows cancel_at_period_end
 4. Reactivate Subscription → Restores auto-renewal
@@ -98,19 +109,23 @@ Navigate to `/test-subscriptions` to access the comprehensive test suite.
 ## Stripe Test Cards
 
 ### Successful Payments
+
 - **4242 4242 4242 4242** - Basic success
 - **4000 0025 0000 3155** - 3D Secure required
 - **5555 5555 5555 4444** - Mastercard success
 
 ### Failed Payments
+
 - **4000 0000 0000 0002** - Card declined
 - **4000 0000 0000 9995** - Insufficient funds
 
 ### Subscription-Specific Tests
+
 - **4000 0000 0000 0341** - Attaches but fails on invoice
 - **4000 0082 6000 0000** - Fails immediately
 
 **All test cards:**
+
 - CVV: Any 3 digits (e.g., 123)
 - Expiry: Any future date
 - ZIP: Any 5 digits (e.g., 12345)
@@ -157,6 +172,7 @@ verify_jwt = false  # Stripe signs with webhook secret
 ## Database Tables
 
 ### Core Tables
+
 - `profiles` - User subscription status and tier
 - `subscription_entitlements` - Active subscription records
 - `subscription_change_requests` - Pending changes
@@ -164,6 +180,7 @@ verify_jwt = false  # Stripe signs with webhook secret
 - `stripe_processed_events` - Webhook deduplication
 
 ### Key Columns in Profiles
+
 ```sql
 subscription_tier: 'free' | 'vip'
 subscription_status: 'active' | 'canceled' | 'past_due' | etc
@@ -178,6 +195,7 @@ is_premium: boolean  -- Legacy field, mapped to VIP
 Components using `<FeatureGate>`:
 
 ### VIP Features
+
 - FlairsShop button
 - Export data button
 - TrendingHashtags (for logged-in users)
@@ -188,24 +206,30 @@ Components using `<FeatureGate>`:
 ## Common Issues & Solutions
 
 ### "You already have an active subscription"
+
 **Cause:** Trying to create new checkout with existing subscription
 **Solution:** Use Upgrade/Downgrade instead, or cancel current subscription first
 
 ### "No Stripe customer found"
+
 **Cause:** User hasn't completed any Stripe checkout yet
 **Solution:** Create checkout session first
 
 ### "No active subscription found"
+
 **Cause:** User has no active Stripe subscription
 **Solution:** Cannot preview/upgrade/downgrade without active subscription
 
 ### Subscription not syncing
+
 **Cause:** Webhook might have failed or missed
 **Solution:** Use "Fix Subscription Sync" test button
 
 ### Profile still shows old tier
+
 **Cause:** Cache or database not updated
-**Solution:** 
+**Solution:**
+
 1. Run fix-subscription-sync
 2. Check Stripe dashboard for actual status
 3. Verify webhook secret is correct
@@ -213,6 +237,7 @@ Components using `<FeatureGate>`:
 ## Webhook Testing
 
 ### Local Testing with Stripe CLI
+
 ```bash
 # Install Stripe CLI
 stripe login
@@ -228,6 +253,7 @@ stripe trigger invoice.payment_succeeded
 ```
 
 ### Production Webhook Setup
+
 1. Go to Stripe Dashboard → Developers → Webhooks
 2. Add endpoint: `https://your-domain.supabase.co/functions/v1/stripe-webhook`
 3. Select events:
@@ -260,6 +286,7 @@ Before going live:
 ## Monitoring
 
 ### Key Metrics to Track
+
 1. Successful checkouts vs abandoned
 2. Upgrade vs downgrade ratio
 3. Cancellation rate and reasons
@@ -270,6 +297,7 @@ Before going live:
 ### Database Queries
 
 **Active subscriptions by tier:**
+
 ```sql
 SELECT subscription_tier, COUNT(*) 
 FROM profiles 
@@ -278,6 +306,7 @@ GROUP BY subscription_tier;
 ```
 
 **Recent subscription changes:**
+
 ```sql
 SELECT * FROM subscription_audit 
 ORDER BY created_at DESC 
@@ -285,12 +314,14 @@ LIMIT 50;
 ```
 
 **Pending downgrades:**
+
 ```sql
 SELECT * FROM subscription_change_requests 
 WHERE status = 'pending';
 ```
 
 **Failed webhook events:**
+
 ```sql
 SELECT * FROM stripe_processed_events 
 WHERE status = 'failed' 
@@ -300,12 +331,14 @@ ORDER BY created_at DESC;
 ## Support Scenarios
 
 ### User wants refund
+
 1. Check Stripe dashboard for payment
 2. Process refund via Stripe dashboard or API
 3. Subscription will cancel automatically
 4. User profile updates via webhook
 
 ### User upgraded but still sees Free
+
 1. Run "Fix Subscription Sync" test
 2. Check Stripe dashboard - is subscription active?
 3. Check webhook events in Stripe dashboard
@@ -314,6 +347,7 @@ ORDER BY created_at DESC;
 6. Manually update profile if needed
 
 ### Double charging issue
+
 1. Check Stripe dashboard for duplicate charges
 2. Review subscription_audit for duplicate events
 3. Check stripe_processed_events for duplicates
