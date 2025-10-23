@@ -248,29 +248,59 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
 
   const handleDeleteConversation = async (conversationId: string) => {
     try {
-      // Call the edge function for soft delete
+      // Primary: call backend function (soft delete)
       const { error } = await supabase.functions.invoke('soft-delete-conversation', {
         body: { conversationId },
       });
 
       if (error) throw error;
 
-      // Immediately remove from local state for instant UI feedback
+      // Optimistic UI update
       setConversations(prev => prev.filter(c => c.id !== conversationId));
-      
       toast.success(t.messages_deleted);
-      
-      // Reload to ensure sync with backend
+
+      // Ensure sync with backend
       await loadConversations();
     } catch (error) {
-      console.error('Error deleting conversation:', error);
-      toast.error(t.error_generic);
+      console.error('Error deleting conversation (edge function):', error);
+
+      // Fallback: try direct update via DB (in case function routing/CORS fails)
+      try {
+        const { data: convRow, error: readErr } = await supabase
+          .from('conversations')
+          .select('deleted_for')
+          .eq('id', conversationId)
+          .single();
+
+        if (readErr) throw readErr;
+
+        const deletedFor: string[] = Array.isArray(convRow?.deleted_for)
+          ? convRow.deleted_for
+          : [];
+        const updated = deletedFor.includes(currentUserId)
+          ? deletedFor
+          : [...deletedFor, currentUserId];
+
+        const { error: updateErr } = await supabase
+          .from('conversations')
+          .update({ deleted_for: updated })
+          .eq('id', conversationId);
+
+        if (updateErr) throw updateErr;
+
+        // Optimistic UI
+        setConversations(prev => prev.filter(c => c.id !== conversationId));
+        toast.success(t.messages_deleted);
+        await loadConversations();
+      } catch (fallbackErr) {
+        console.error('Error deleting conversation (fallback):', fallbackErr);
+        toast.error(t.error_generic);
+      }
     } finally {
       setDeleteDialogOpen(false);
       setConversationToDelete(null);
     }
   };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
