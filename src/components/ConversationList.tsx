@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -45,64 +45,7 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
   const { t } = useLanguage();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    loadConversations();
-    
-    // Subscribe to real-time updates for messages, participants, and conversations
-    const messagesChannel = supabase
-      .channel('conversations-messages-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'messages'
-        },
-        () => {
-          loadConversations();
-        }
-      )
-      .subscribe();
-
-    const participantsChannel = supabase
-      .channel('conversations-participants-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'conversation_participants',
-          filter: `user_id=eq.${currentUserId}`
-        },
-        () => {
-          loadConversations();
-        }
-      )
-      .subscribe();
-
-    const conversationsChannel = supabase
-      .channel('conversations-table-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'conversations'
-        },
-        () => {
-          loadConversations();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(messagesChannel);
-      supabase.removeChannel(participantsChannel);
-      supabase.removeChannel(conversationsChannel);
-    };
-  }, [currentUserId]);
-
-  const loadConversations = async () => {
+  const loadConversations = useCallback(async () => {
     try {
       
       
@@ -114,12 +57,17 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
       if (convError) throw convError;
       
       // Filter out conversations where current user is in deleted_for
+      interface ConvData {
+        id: string;
+        deleted_for: string[] | null;
+      }
+      
       const visibleConversationIds = allConversations
-        ?.filter((conv: any) => {
+        ?.filter((conv: ConvData) => {
           const deletedFor = conv.deleted_for || [];
           return !deletedFor.includes(currentUserId);
         })
-        .map((conv: any) => conv.id) || [];
+        .map((conv: ConvData) => conv.id) || [];
       
       if (visibleConversationIds.length === 0) {
         // Preserve existing list on transient empty responses
@@ -244,7 +192,64 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentUserId, conversations.length]);
+
+  useEffect(() => {
+    loadConversations();
+    
+    // Subscribe to real-time updates for messages, participants, and conversations
+    const messagesChannel = supabase
+      .channel('conversations-messages-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'messages'
+        },
+        () => {
+          loadConversations();
+        }
+      )
+      .subscribe();
+
+    const participantsChannel = supabase
+      .channel('conversations-participants-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'conversation_participants',
+          filter: `user_id=eq.${currentUserId}`
+        },
+        () => {
+          loadConversations();
+        }
+      )
+      .subscribe();
+
+    const conversationsChannel = supabase
+      .channel('conversations-table-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'conversations'
+        },
+        () => {
+          loadConversations();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(messagesChannel);
+      supabase.removeChannel(participantsChannel);
+      supabase.removeChannel(conversationsChannel);
+    };
+  }, [currentUserId, loadConversations]);
 
   const handleDeleteConversation = async (conversationId: string) => {
     try {
