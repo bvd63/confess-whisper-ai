@@ -68,12 +68,26 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
 
     setIsProcessing(true);
     try {
+      // If target is VIP, prefer opening the Stripe Customer Portal first
+      if (planId === 'vip') {
+        try {
+          const { data, error } = await supabase.functions.invoke('customer-portal');
+          if (!error && data?.url) {
+            toast.success('Deschidem portalul de facturare…');
+            window.location.href = data.url;
+            return;
+          }
+        } catch (e) {
+          console.warn('customer-portal VIP pre-check failed, will fallback', e);
+        }
+      }
+
       const levels = { free: 0, vip: 1 } as const;
       const cur = levels[(currentPlan as keyof typeof levels) || 'free'] ?? 0;
       const tgt = levels[(planId as keyof typeof levels) || 'free'] ?? 0;
 
-      // NEW SUBSCRIPTION → Use Checkout Session
       if (cur === 0) {
+        // New subscription - use billing-buy
         const { data, error } = await supabase.functions.invoke('billing-buy', {
           body: { tier: planId, cycle: interval },
         });
@@ -86,14 +100,18 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
         return;
       }
 
-      // EXISTING SUBSCRIPTION → Use Portal for upgrades/changes
       if (tgt > cur || (tgt === cur && interval !== currentInterval)) {
-        const { data, error } = await supabase.functions.invoke('customer-portal');
-        if (error) throw error;
-        if (data?.url) {
-          toast.success('Deschidem portalul de facturare…');
-          window.location.href = data.url;
-          return;
+        // Try Stripe Customer Portal first (best UX for upgrades/interval changes)
+        try {
+          const { data, error } = await supabase.functions.invoke('customer-portal');
+          if (!error && data?.url) {
+            toast.success('Deschidem portalul de facturare…');
+            // Use same-tab navigation to avoid popup blockers
+            window.location.href = data.url;
+            return;
+          }
+        } catch (e) {
+          console.warn('customer-portal failed, fallback to checkout', e);
         }
 
         // Fallback: direct upgrade checkout session
