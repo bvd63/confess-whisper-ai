@@ -193,12 +193,13 @@ export default function TestPayments() {
       const { data: statusData } = await supabase.functions.invoke('billing-status');
       const currentTier = statusData?.subscription_tier || 'free';
 
-      // Determine target tier for downgrade
-      let targetPriceId: string;
+      // VIP is the only paid tier now, cannot downgrade further
+      let targetPriceId = '';
       if (currentTier === 'vip') {
-        targetPriceId = SUBSCRIPTION_PLANS.find(p => p.id === 'premium')?.stripePriceIdMonthly || '';
+        // Can only downgrade to free by canceling
+        return { note: 'Use cancel subscription to downgrade to free', currentTier };
       } else {
-        return { note: 'Cannot downgrade from current tier', currentTier };
+        return { note: 'Cannot downgrade from free tier', currentTier };
       }
 
       const { data, error } = await supabase.functions.invoke('subscription-downgrade', {

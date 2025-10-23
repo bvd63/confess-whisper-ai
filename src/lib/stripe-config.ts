@@ -19,15 +19,12 @@ export const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KE
  * and are accessed via edge functions for security
  */
 export const STRIPE_PRICE_IDS = {
-  premium_monthly: "",  // Loaded from backend via edge functions
-  premium_yearly: "",   // Loaded from backend via edge functions
   vip_monthly: "",      // Loaded from backend via edge functions
   vip_yearly: "",       // Loaded from backend via edge functions
 } as const;
 
 export const SUBSCRIPTION_TIERS = {
   FREE: 'free',
-  PREMIUM: 'premium',
   VIP: 'vip',
 } as const;
 

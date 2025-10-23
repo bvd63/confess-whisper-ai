@@ -32,8 +32,6 @@ export const SubscriptionPlansGrid = ({
 
   const getPlanIcon = (planId: string) => {
     switch (planId) {
-      case 'premium':
-        return <Zap className="w-6 h-6" />;
       case 'vip':
         return <Crown className="w-6 h-6" />;
       default:
@@ -51,8 +49,8 @@ export const SubscriptionPlansGrid = ({
 
   const isCurrentPlan = (plan: any) => plan.id === currentPlan && plan.interval === currentInterval;
 
-  // Filter to show only Premium and VIP plans
-  const filteredPlans = plans.filter(plan => plan.id === 'premium' || plan.id === 'vip');
+  // Filter to show only VIP plan
+  const filteredPlans = plans.filter(plan => plan.id === 'vip');
 
   return (
     <div className="space-y-8">
@@ -80,7 +78,7 @@ export const SubscriptionPlansGrid = ({
             >
               Yearly
               <span className="absolute -top-2 -right-2 bg-purple-600 text-white text-xs px-2 py-0.5 rounded-full font-semibold">
-                -33%
+                -35%
               </span>
             </button>
           </div>
@@ -110,7 +108,7 @@ export const SubscriptionPlansGrid = ({
               <div className="absolute -top-3 -right-3">
                 <div className="absolute inset-0 bg-purple-600/30 blur-xl rounded-full"></div>
                 <Badge className="relative bg-purple-600 text-white px-3 py-1 font-semibold">
-                  -33%
+                  -35%
                 </Badge>
               </div>
             )}

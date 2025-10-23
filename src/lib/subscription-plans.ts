@@ -1,7 +1,7 @@
 export type BillingInterval = 'monthly' | 'yearly';
 
 export interface SubscriptionPlan {
-  id: 'free' | 'premium' | 'vip';
+  id: 'free' | 'vip';
   name: string;
   priceMonthly: number;
   priceYearly?: number;
@@ -37,40 +37,25 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     ],
   },
   {
-    id: 'premium',
-    name: 'Premium',
-    priceMonthly: 4.99,
-    priceYearly: 39.99, // ~33% savings
-    // Note: Actual price IDs are managed securely in backend
-    stripePriceIdMonthly: 'premium_monthly',
-    stripePriceIdYearly: 'premium_yearly',
-    isPopular: true,
-    benefits: [
-      'subscription_benefits_premium_more_confessions',
-      'subscription_benefits_premium_unlimited_ai',
-      'subscription_benefits_premium_advanced_analytics',
-      'subscription_benefits_premium_exclusive_badges',
-      'subscription_benefits_premium_no_ads',
-      'subscription_benefits_premium_priority_moderation',
-      'subscription_benefits_premium_image_confessions',
-    ],
-  },
-  {
     id: 'vip',
     name: 'VIP',
     priceMonthly: 6.99,
-    priceYearly: 55.99, // ~33% savings
-    // Note: Actual price IDs are managed securely in backend
+    priceYearly: 54.99, // 35% savings
     stripePriceIdMonthly: 'vip_monthly',
     stripePriceIdYearly: 'vip_yearly',
+    isPopular: true,
     benefits: [
       'subscription_benefits_vip_unlimited_confessions',
-      'subscription_benefits_vip_all_premium',
-      'subscription_benefits_vip_detailed_statistics',
-      'subscription_benefits_vip_priority_support',
-      'subscription_benefits_vip_special_badge',
-      'subscription_benefits_vip_early_access',
+      'subscription_benefits_vip_no_ads',
       'subscription_benefits_vip_custom_themes',
+      'subscription_benefits_vip_private_confessions',
+      'subscription_benefits_vip_advanced_stats',
+      'subscription_benefits_vip_special_badge',
+      'subscription_benefits_vip_unlimited_ai',
+      'subscription_benefits_vip_priority_ai',
+      'subscription_benefits_vip_priority_support',
+      'subscription_benefits_vip_coins_bonus',
+      'subscription_benefits_vip_login_rewards',
     ],
   },
 ];
@@ -80,17 +65,15 @@ export function getPlanById(planId: string): SubscriptionPlan | undefined {
 }
 
 export function canUpgradeTo(currentPlan: string, targetPlan: string): boolean {
-  const plans = ['free', 'premium', 'vip'];
+  const plans = ['free', 'vip'];
   const currentIndex = plans.indexOf(currentPlan);
   const targetIndex = plans.indexOf(targetPlan);
   return targetIndex > currentIndex;
 }
 
 export function canDowngradeTo(currentPlan: string, targetPlan: string): boolean {
-  const plans = ['free', 'premium', 'vip'];
-  const currentIndex = plans.indexOf(currentPlan);
-  const targetIndex = plans.indexOf(targetPlan);
-  return targetIndex < currentIndex && currentIndex > 0;
+  // Only from VIP to free
+  return currentPlan === 'vip' && targetPlan === 'free';
 }
 
 export function calculateSavings(monthlyPrice: number, yearlyPrice: number): number {

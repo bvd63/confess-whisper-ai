@@ -95,20 +95,20 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
     const endsAt = data.subscription_ends_at;
     const subscriptionActive = !endsAt || new Date(endsAt) > new Date();
 
-    // Trial eligibility: not used yet AND free tier AND not premium
+    // Trial eligibility: not used yet AND free tier
     const trialEligible = !data.trial_premium_used && tier === 'free' && !hasActivePremium;
 
-    // If on valid trial, treat as Premium
+    // If on valid trial, treat as VIP (no longer Premium)
     if (trialValid) {
       return {
-        isPremium: true,
-        subscriptionTier: 'premium',
-        isVIP: false,
+        isPremium: true, // Keep for backwards compatibility
+        subscriptionTier: 'vip',
+        isVIP: true,
         isOnTrial: true,
         trialEndDate,
-        trialEligible: false, // Already using trial
+        trialEligible: false,
         subscriptionEndsAt: endsAt,
-        uiMode: 'premium' as const,
+        uiMode: 'vip' as const,
       };
     }
 
@@ -117,14 +117,14 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
     const isVIPUser = subscriptionActive && tier === 'vip';
 
     return {
-      isPremium: isPremiumUser,
+      isPremium: isPremiumUser, // Keep for backwards compatibility  
       subscriptionTier: currentTier,
       isVIP: isVIPUser,
       isOnTrial: false,
       trialEndDate: null,
       trialEligible,
       subscriptionEndsAt: endsAt,
-      uiMode: (isPremiumUser || isVIPUser) ? 'premium' as const : 'free' as const,
+      uiMode: (isPremiumUser || isVIPUser) ? 'vip' as const : 'free' as const,
     };
   }, [data]);
 

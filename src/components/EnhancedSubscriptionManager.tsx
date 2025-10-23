@@ -180,7 +180,7 @@ export const EnhancedSubscriptionManager = () => {
       }
 
       // Determine if upgrade or downgrade
-      const tierHierarchy = { free: 0, premium: 1, vip: 2 } as const;
+      const tierHierarchy = { free: 0, vip: 1 } as const;
       const currentLevel = tierHierarchy[status.currentPlan as keyof typeof tierHierarchy] || 0;
       const targetLevel = tierHierarchy[plan.id as keyof typeof tierHierarchy] || 0;
 
@@ -311,7 +311,7 @@ export const EnhancedSubscriptionManager = () => {
                   </div>
 
                   <Button
-                    data-testid={`action-${plan.id === 'premium' && status?.currentPlan === 'free' ? 'upgrade' : plan.id === 'vip' && status?.currentPlan === 'premium' ? 'upgrade' : 'downgrade'}`}
+                    data-testid={`action-${plan.id === 'vip' && status?.currentPlan === 'free' ? 'upgrade' : 'downgrade'}`}
                     onClick={() => handlePreviewAndConfirm(plan)}
                     disabled={isCurrent || actionLoading || loadingPreview}
                     variant={isCurrent ? 'outline' : 'default'}

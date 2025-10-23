@@ -42,7 +42,7 @@ export const FlairsShop = ({
   const [userFlairs, setUserFlairs] = useState<UserFlair[]>([]);
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState<string | null>(null);
-  const [userTier, setUserTier] = useState<"free" | "premium" | "vip">("free");
+  const [userTier, setUserTier] = useState<"free" | "vip">("free");
   const {
     toast
   } = useToast();
@@ -92,13 +92,10 @@ export const FlairsShop = ({
         data: profile
       } = await supabase.from('profiles').select('subscription_tier, trial_active, trial_premium_ends_at').eq('user_id', userId).maybeSingle();
 
-      // If on active Premium trial, treat as premium tier
-      let tier = (profile?.subscription_tier || 'free') as "free" | "premium" | "vip";
-      if (profile?.trial_active && profile?.trial_premium_ends_at) {
-        const trialEndsAt = new Date(profile.trial_premium_ends_at);
-        if (trialEndsAt > new Date()) {
-          tier = 'premium';
-        }
+      // Map tier (VIP or free only)
+      let tier = (profile?.subscription_tier || 'free') as "free" | "vip";
+      if (tier !== 'free' && tier !== 'vip') {
+        tier = 'vip'; // Map old premium to VIP
       }
       setUserTier(tier);
 
@@ -198,7 +195,7 @@ export const FlairsShop = ({
       if (flair && !canPurchase(flair)) {
         toast({
           title: t.upgrade_required,
-          description: flair.required_plan === 'vip' ? t.shop_lock_vip : t.shop_lock_premium,
+          description: t.shop_lock_vip,
           variant: "destructive"
         });
         return;
@@ -261,11 +258,13 @@ export const FlairsShop = ({
   const canPurchase = (flair: Flair) => {
     const tierLevel: Record<string, number> = {
       free: 0,
-      premium: 1,
-      vip: 2
+      vip: 1
     };
     const userLevel = tierLevel[userTier] || 0;
-    const requiredLevel = tierLevel[flair.required_plan || 'free'] || 0;
+    const flairRequiredPlan = flair.required_plan || 'free';
+    // Map old premium requirement to VIP
+    const normalizedPlan = flairRequiredPlan === 'premium' ? 'vip' : flairRequiredPlan;
+    const requiredLevel = tierLevel[normalizedPlan as 'free' | 'vip'] || 0;
     return userLevel >= requiredLevel;
   };
   const getRarityColor = (rarity: string) => {
@@ -286,13 +285,12 @@ export const FlairsShop = ({
   };
 
   // Filter flairs by tier and group them
+  // Trophy & Fire are free, Rocket is VIP
   const freeFlairs = flairs.filter(f => !f.required_plan || f.required_plan === 'free');
-  const premiumFlairs = flairs.filter(f => f.required_plan === 'premium');
-  const vipFlairs = flairs.filter(f => f.required_plan === 'vip');
+  const vipFlairs = flairs.filter(f => f.required_plan === 'vip' || f.required_plan === 'premium'); // Map old premium to VIP
 
   // Show all sections regardless of user tier
   const showFree = true;
-  const showPremium = true;
   const showVIP = true;
   const renderFlairCard = (flair: Flair) => {
     const owned = isOwned(flair.id);
@@ -319,7 +317,7 @@ export const FlairsShop = ({
         </p>
 
         {isLocked && <Badge variant="secondary" className="text-[10px]">
-            {flair.required_plan === 'premium' ? t.subscription_plan_premium : t.subscription_plan_vip} {t.required}
+            {t.subscription_plan_vip} {t.required}
           </Badge>}
 
         {owned && !onCooldown && userFlair?.expires_at && (
@@ -389,7 +387,7 @@ export const FlairsShop = ({
         </DialogHeader>
 
         <ScrollArea className="h-[400px] sm:h-[500px] pr-4">
-          {loading ? <div className="text-center py-8 text-muted-foreground">{t.loading}</div> : <Accordion type="multiple" defaultValue={["free", "premium", "vip"]} className="w-full space-y-2">
+          {loading ? <div className="text-center py-8 text-muted-foreground">{t.loading}</div> : <Accordion type="multiple" defaultValue={["free", "vip"]} className="w-full space-y-2">
               {showFree && freeFlairs.length > 0 && <AccordionItem value="free" className="border rounded-lg px-4">
                   <AccordionTrigger className="hover:no-underline">
                     <div className="flex items-center gap-2">
@@ -400,22 +398,6 @@ export const FlairsShop = ({
                   <AccordionContent>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
                       {freeFlairs.map(renderFlairCard)}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>}
-
-              {showPremium && premiumFlairs.length > 0 && <AccordionItem value="premium" className="border rounded-lg px-4">
-                  <AccordionTrigger className="hover:no-underline">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg font-semibold bg-gradient-to-r from-violet-500 to-purple-500 bg-clip-text text-transparent">
-                        {t.shop_premium_tier}
-                      </span>
-                      <Badge className="bg-gradient-to-r from-violet-500 to-purple-500 text-white border-0">{premiumFlairs.length}</Badge>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
-                      {premiumFlairs.map(renderFlairCard)}
                     </div>
                   </AccordionContent>
                 </AccordionItem>}
