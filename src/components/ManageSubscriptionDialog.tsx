@@ -74,13 +74,29 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
       }
 
       if (tgt > cur || (tgt === cur && interval !== currentInterval)) {
-        // Redirect user to Stripe Customer Portal for safe plan change (works for VIP too)
-        const { data, error } = await supabase.functions.invoke('customer-portal');
-        if (error) throw error;
-        if (data?.url) {
-          window.open(data.url, '_blank');
-          toast.success('Opening billing portal…');
+        // Try Stripe Customer Portal first (best UX for upgrades/interval changes)
+        try {
+          const { data, error } = await supabase.functions.invoke('customer-portal');
+          if (!error && data?.url) {
+            toast.success('Deschidem portalul de facturare…');
+            // Use same-tab navigation to avoid popup blockers
+            window.location.href = data.url;
+            return;
+          }
+        } catch (e) {
+          console.warn('customer-portal failed, fallback to checkout', e);
+        }
+
+        // Fallback: direct upgrade checkout session
+        const { data: upData, error: upErr } = await supabase.functions.invoke('billing-upgrade', {
+          body: { newPriceId: priceId },
+        });
+        if (upErr) throw upErr;
+        if (upData?.url) {
+          toast.success(t.webhookLag || 'Upgrade inițiat. Redirecționare…');
+          window.location.href = upData.url;
           onOpenChange(false);
+          onSubscriptionUpdated?.();
         }
         return;
       }
