@@ -104,15 +104,16 @@ export default function TestSubscriptions() {
   const testPreviewUpgrade = () =>
     runTest("Preview Upgrade to VIP", async () => {
       // Note: This requires knowing the actual Stripe price ID for VIP
-      // Using environment variable or default test price
       const vipPriceId = import.meta.env.VITE_STRIPE_PRICE_VIP_MONTHLY || "price_1SJ0vwR7kygIyYg9OeCiqV00";
-      const { data, error } = await supabase.functions.invoke(
-        "billing-preview",
-        {
-          body: { targetPriceId: vipPriceId },
-        }
-      );
-      if (error) throw error;
+      const { data, error } = await supabase.functions.invoke("billing-preview", {
+        body: { targetPriceId: vipPriceId },
+      });
+      if (error) {
+        let bodyText = (error as any)?.context?.body as string | undefined;
+        let bodyJson: any; try { bodyJson = bodyText ? JSON.parse(bodyText) : undefined; } catch {}
+        const message = (bodyJson?.error || bodyJson?.message || error.message || "Preview failed");
+        throw new Error(message);
+      }
       return data;
     });
 
@@ -121,11 +122,14 @@ export default function TestSubscriptions() {
     runTest("Upgrade to VIP Monthly", async () => {
       const { data, error } = await supabase.functions.invoke(
         "manage-subscription-v2",
-        {
-          body: { action: "upgrade", targetTier: "vip" },
-        }
+        { body: { action: "upgrade", targetTier: "vip" } }
       );
-      if (error) throw error;
+      if (error) {
+        let bodyText = (error as any)?.context?.body as string | undefined;
+        let bodyJson: any; try { bodyJson = bodyText ? JSON.parse(bodyText) : undefined; } catch {}
+        const message = (bodyJson?.error || bodyJson?.message || error.message || "Upgrade failed");
+        throw new Error(message);
+      }
       return data;
     });
 
@@ -182,9 +186,8 @@ export default function TestSubscriptions() {
 
   const renderResult = (result: TestResult) => {
     const isSubscriptionRequiredError = 
-      result.error?.includes("No active subscription") || 
-      result.error?.includes("No subscription found") ||
-      result.error?.includes("non-2xx status code");
+      /no active subscription/i.test(result.error || "") || 
+      /no subscription found/i.test(result.error || "");
     
     return (
       <Card
