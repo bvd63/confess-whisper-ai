@@ -64,5 +64,14 @@ export function FeatureGate({
       });
     }
   }
-  return;
+  return (
+    <UpgradeTeaser
+      target={minTier}
+      onUpgrade={onUpgrade}
+      features={featuresOverride}
+      priceHint={teaserPriceHint}
+      className={className}
+      small={compact}
+    />
+  );
 }

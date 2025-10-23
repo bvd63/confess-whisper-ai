@@ -23,5 +23,19 @@ export const AnimatedCard = ({
     scale: 'hover-scale',
     none: ''
   }[hover];
-  return;
+  return (
+    <Card
+      className={cn(
+        'animate-fade-in',
+        hoverClass,
+        glass && 'glass-card',
+        gradient && 'gradient-border',
+        className
+      )}
+      style={{ animationDelay: `${delay}ms` }}
+      {...props}
+    >
+      {children}
+    </Card>
+  );
 };

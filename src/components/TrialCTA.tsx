@@ -52,5 +52,28 @@ export const TrialCTA = ({
       setIsLoading(false);
     }
   };
-  return;
+  return (
+    <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Sparkles className="w-5 h-5 text-primary" />
+          Start Your VIP Trial
+        </CardTitle>
+        <CardDescription>
+          Try all VIP features free for 7 days
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Button 
+          onClick={handleStartTrial} 
+          disabled={isLoading}
+          className="w-full"
+          size="lg"
+        >
+          <CreditCard className="w-4 h-4 mr-2" />
+          {isLoading ? t.loading : "Start Free Trial"}
+        </Button>
+      </CardContent>
+    </Card>
+  );
 };
