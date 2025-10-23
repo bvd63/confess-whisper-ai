@@ -23,12 +23,10 @@ import { useState } from "react";
 
 interface AppHeaderProps {
   onNewConfession?: () => void;
-  onUpgradeClick?: () => void;
   onManageSubscription?: () => void;
 }
 const AppHeader = ({
   onNewConfession,
-  onUpgradeClick,
   onManageSubscription
 }: AppHeaderProps) => {
   const navigate = useNavigate();
@@ -93,16 +91,10 @@ const AppHeader = ({
             <ThemeToggle />
             {user ? <>
                 <CoinBalance />
-                {/* Always show subscription button - Upgrade for free, Manage for paid */}
+                {/* Always show subscription button - Opens ManageSubscriptionDialog for both upgrade and manage */}
                 <Button 
                   data-testid="manage-subscription-btn"
-                  onClick={() => {
-                    if (subscriptionTier === 'free') {
-                      onUpgradeClick?.();
-                    } else {
-                      onManageSubscription?.();
-                    }
-                  }} 
+                  onClick={() => onManageSubscription?.()} 
                   variant="outline" 
                   size="sm" 
                   className="border-primary/30 hover:bg-primary/10 h-8 px-2"
