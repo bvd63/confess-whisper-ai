@@ -124,12 +124,15 @@ export const SubscriptionPlansGrid = ({
               </div>
               <div className="mb-2">
                 <span className="text-5xl font-bold text-white">
-                  ${plan.price}
+                  ${interval === 'yearly' ? (plan.price / 12).toFixed(2) : plan.price}
                 </span>
                 <span className="text-gray-400 text-lg ml-2">/per month</span>
               </div>
               <p className="text-sm text-gray-400">
-                Billed annually (${(plan.price * 12).toFixed(2)}/per year)
+                {interval === 'yearly' 
+                  ? `Billed annually ($${plan.price.toFixed(2)}/per year)`
+                  : 'Billed monthly'
+                }
               </p>
             </div>
 
