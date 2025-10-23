@@ -1,8 +1,5 @@
-// @ts-expect-error - Deno runtime imports
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-// @ts-expect-error - Deno runtime imports
 import Stripe from "https://esm.sh/stripe@18.5.0";
-// @ts-expect-error - Deno runtime imports
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 // Deno global is available in Supabase Edge Functions runtime

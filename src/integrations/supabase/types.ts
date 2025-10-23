@@ -2274,6 +2274,39 @@ export type Database = {
         }
         Relationships: []
       }
+      v_user_entitlements: {
+        Row: {
+          cadence: string | null
+          cancel_at_period_end: boolean | null
+          current_period_end: string | null
+          is_pro: boolean | null
+          is_vip: boolean | null
+          status: string | null
+          tier: string | null
+          user_id: string | null
+        }
+        Insert: {
+          cadence?: string | null
+          cancel_at_period_end?: boolean | null
+          current_period_end?: string | null
+          is_pro?: never
+          is_vip?: never
+          status?: string | null
+          tier?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          cadence?: string | null
+          cancel_at_period_end?: boolean | null
+          current_period_end?: string | null
+          is_pro?: never
+          is_vip?: never
+          status?: string | null
+          tier?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       award_coins:

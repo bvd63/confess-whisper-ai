@@ -96,8 +96,8 @@ serve(async (req) => {
 
     // Calculate proration details
     const prorationAmount = upcomingInvoice.lines.data
-      .filter(line => line.proration)
-      .reduce((sum, line) => sum + line.amount, 0);
+      .filter((line: any) => line.proration)
+      .reduce((sum: number, line: any) => sum + line.amount, 0);
 
     const response = {
       success: true,
@@ -108,7 +108,7 @@ serve(async (req) => {
         subtotal: upcomingInvoice.subtotal,
         total: upcomingInvoice.total,
         periodEnd: subscription.current_period_end,
-        lines: upcomingInvoice.lines.data.map(line => ({
+        lines: upcomingInvoice.lines.data.map((line: any) => ({
           description: line.description,
           amount: line.amount,
           proration: line.proration,

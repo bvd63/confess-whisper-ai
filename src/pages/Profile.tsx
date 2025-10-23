@@ -45,6 +45,7 @@ import { TrialCTA } from "@/components/TrialCTA";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
 import { useTrialExpiryCheck } from "@/hooks/useTrialExpiryCheck";
 import { SyncSubscriptionButton } from "@/components/SyncSubscriptionButton";
+import { FeatureGate } from "@/components/auth/FeatureGate";
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 const Profile = () => {
   const navigate = useNavigate();
@@ -229,7 +230,11 @@ const Profile = () => {
               onUpgradeClick={() => setPremiumDialogOpen(true)}
               onManageSubscription={() => setManageSubDialogOpen(true)}
             />
-            <AdvancedAnalytics userId={user.id} />
+            
+            <FeatureGate minTier="vip" teaserPriceHint="$9.99/mo" className="mt-6">
+              <AdvancedAnalytics userId={user.id} />
+            </FeatureGate>
+            
             <WordCloudViz userId={user.id} />
           </TabsContent>
 
