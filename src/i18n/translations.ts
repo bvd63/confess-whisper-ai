@@ -53,7 +53,7 @@ type Translations = {
   next: string;
   home_title: string;
   new_confession: string;
-  premium_upgrade: string;
+  vip_upgrade: string;
   placeholder_confession: string;
   submit: string;
   submitting: string;
@@ -94,7 +94,7 @@ type Translations = {
   validation_max: string;
   
   // Deep Insight
-  deep_insight_premium: string;
+  deep_insight_vip: string;
   deep_insight_description: string;
   deep_insight_success: string;
   insight_title: string;
@@ -118,7 +118,6 @@ type Translations = {
   
   // Subscription Management (new keys only)
   subscription_tier_free: string;
-  subscription_tier_premium: string;
   subscription_tier_vip: string;
   subscription_cta_upgrade: string;
   subscription_downgrade: string;
@@ -127,10 +126,10 @@ type Translations = {
   subscription_conflict_resolved_keep_new: string;
   subscription_conflict_resolved_keep_old: string;
   
-  // Premium
-  premium_member: string;
-  premium_feature: string;
-  premium_benefits: string;
+  // VIP
+  vip_member: string;
+  vip_feature: string;
+  vip_benefits: string;
   upgrade_now: string;
   
   // Actions
@@ -162,8 +161,8 @@ type Translations = {
   achievement_power_user_desc: string;
   achievement_deep_thinker: string;
   achievement_deep_thinker_desc: string;
-  achievement_premium_member: string;
-  achievement_premium_member_desc: string;
+  achievement_vip_member: string;
+  achievement_vip_member_desc: string;
   achievement_supporter: string;
   achievement_supporter_desc: string;
   
@@ -201,7 +200,7 @@ type Translations = {
   stats_active_users: string;
   stats_confessions_shared: string;
   stats_empathetic_reactions: string;
-  stats_premium_members: string;
+  stats_vip_members: string;
   
   // Auth
   auth_welcome_back: string;
@@ -280,8 +279,8 @@ type Translations = {
   ui_first_confession_desc: string;
   ui_upgrading: string;
   ui_payment_redirect: string;
-  ui_welcome_premium: string;
-  ui_premium_access: string;
+  ui_welcome_vip: string;
+  ui_vip_access: string;
   ui_help_question: string;
   ui_help_choose: string;
   ui_help_reply_time: string;
@@ -290,7 +289,7 @@ type Translations = {
   ui_refreshing: string;
   
   // Subscription Plans
-  subscription_premium_title: string;
+  subscription_vip_title: string;
   subscription_choose_plan: string;
   subscription_monthly: string;
   subscription_yearly: string;
@@ -313,16 +312,20 @@ type Translations = {
   
   // Subscription Plans - New Benefits (Confession Limits)
   plans_free_benefit_confessions: string;
-  plans_premium_benefit_confessions: string;
   plans_vip_benefit_confessions: string;
   plans_free_benefit_basic: string;
   plans_free_benefit_ads: string;
-  plans_premium_benefit_ai: string;
-  plans_premium_benefit_analytics: string;
-  plans_premium_benefit_badge: string;
-  plans_premium_benefit_noads: string;
-  plans_premium_benefit_priority: string;
-  plans_vip_benefit_allpremium: string;
+  plans_vip_benefit_unlimited_ai: string;
+  plans_vip_benefit_no_ads: string;
+  plans_vip_benefit_custom_themes: string;
+  plans_vip_benefit_private_confessions: string;
+  plans_vip_benefit_advanced_stats: string;
+  plans_vip_benefit_special_badge: string;
+  plans_vip_benefit_unlimited_ai_desc: string;
+  plans_vip_benefit_priority_ai: string;
+  plans_vip_benefit_priority_support: string;
+  plans_vip_benefit_coins_bonus: string;
+  plans_vip_benefit_login_rewards: string;
   plans_vip_benefit_images: string;
   plans_vip_benefit_stats: string;
   plans_vip_benefit_support: string;
@@ -331,16 +334,12 @@ type Translations = {
   plans_downgrade: string;
   plans_current_plan: string;
   plans_renews_on: string;
-  plans_premium_activated: string;
-  plans_premium_welcome: string;
   plans_vip_activated: string;
   plans_vip_welcome: string;
   
   // Plan Titles and Tooltips
   plans_free_title: string;
   plans_free_tooltip: string;
-  plans_premium_title: string;
-  plans_premium_tooltip: string;
   plans_vip_title: string;
   plans_vip_tooltip: string;
   
@@ -436,10 +435,10 @@ type Translations = {
   profile_your_account: string;
   profile_subscription_active: string;
   profile_refresh_status: string;
-  profile_discover_premium: string;
-  profile_premium_description: string;
-  profile_you_are_premium: string;
-  profile_premium_thanks: string;
+  profile_discover_vip: string;
+  profile_vip_description: string;
+  profile_you_are_vip: string;
+  profile_vip_thanks: string;
   profile_no_confessions: string;
   
   // User Confessions List
@@ -720,7 +719,7 @@ type Translations = {
   reward_claimed: string;
   reward_claimed_desc: string;
   
-  // Premium Teasers
+  // VIP Teasers
   teaser_feature: string;
   teaser_description: string;
   teaser_unlock: string;
@@ -1003,7 +1002,6 @@ type Translations = {
   equipped: string;
   equip: string;
   shop_free_tier: string;
-  shop_premium_tier: string;
   shop_vip_tier: string;
   shop_empty: string;
   shop_buy: string;
@@ -1142,7 +1140,6 @@ type Translations = {
   subscription_title: string;
   subscription_description: string;
   subscription_plan_free: string;
-  subscription_plan_premium: string;
   subscription_plan_vip: string;
   subscription_manage: string;
   subscription_upgrade: string;
@@ -1153,7 +1150,6 @@ type Translations = {
   subscription_feature_exclusive_badges: string;
   subscription_feature_no_ads: string;
   subscription_feature_priority_moderation: string;
-  subscription_feature_all_premium: string;
   subscription_feature_image_confessions: string;
   subscription_feature_detailed_stats: string;
   subscription_feature_priority_support: string;
@@ -1169,10 +1165,8 @@ type Translations = {
   subs_cancel: string;
   subs_upgrade: string;
   subs_downgrade: string;
-  coins_bonus_premium: string;
   coins_bonus_vip: string;
   shop_badge_price_free: string;
-  shop_badge_price_premium: string;
   shop_badge_price_vip: string;
   
   // Manage Subscription Dialog
@@ -1208,7 +1202,6 @@ type Translations = {
   subs_confirm_reactivate: string;
   subs_confirm_cancel: string;
   subs_confirm_change_to_vip: string;
-  subs_confirm_change_to_premium: string;
   subs_cancel_immediate: string;
   subs_cancel_at_period_end: string;
   subs_toast_success: string;
@@ -1358,7 +1351,7 @@ type Translations = {
   subscription_yearly_discount: string;
   subscription_thanks: string;
   subscription_upgrade_more: string;
-  subscription_upgrade_premium: string;
+  subscription_upgrade_vip: string;
   subscription_current_plan: string;
   subscription_your_plan: string;
   subscription_downgrade_to_free: string;
@@ -1374,23 +1367,20 @@ type Translations = {
   subscription_limitations_free_limited_ai: string;
   subscription_limitations_free_basic_analytics: string;
   
-  // Subscription Benefits - Premium
-  subscription_benefits_premium_more_confessions: string;
-  subscription_benefits_premium_unlimited_ai: string;
-  subscription_benefits_premium_advanced_analytics: string;
-  subscription_benefits_premium_exclusive_badges: string;
-  subscription_benefits_premium_no_ads: string;
-  subscription_benefits_premium_priority_moderation: string;
-  subscription_benefits_premium_image_confessions: string;
-  
   // Subscription Benefits - VIP
-  subscription_benefits_vip_unlimited_confessions: string;
-  subscription_benefits_vip_all_premium: string;
-  subscription_benefits_vip_detailed_statistics: string;
-  subscription_benefits_vip_priority_support: string;
-  subscription_benefits_vip_special_badge: string;
-  subscription_benefits_vip_early_access: string;
+  subscription_benefits_vip_no_ads: string;
   subscription_benefits_vip_custom_themes: string;
+  subscription_benefits_vip_private_confessions: string;
+  subscription_benefits_vip_advanced_stats: string;
+  subscription_benefits_vip_special_badge: string;
+  subscription_benefits_vip_unlimited_ai: string;
+  subscription_benefits_vip_priority_ai: string;
+  subscription_benefits_vip_priority_support: string;
+  subscription_benefits_vip_coins_bonus: string;
+  subscription_benefits_vip_login_rewards: string;
+  subscription_benefits_vip_unlimited_confessions: string;
+  subscription_benefits_vip_detailed_statistics: string;
+  subscription_benefits_vip_early_access: string;
   
   // Subscription Management (New keys for interval management)
   subscription_current_status: string;
@@ -1435,7 +1425,6 @@ type Translations = {
   profile_settings: string;
   profile_moderation: string;
   profile_plan_free: string;
-  profile_plan_premium: string;
   profile_plan_vip: string;
   
   // Referral
@@ -1672,7 +1661,6 @@ type Translations = {
   
   // Profile Tiers
   profile_tiers_free: string;
-  profile_tiers_premium: string;
   profile_tiers_vip: string;
   profile_tiers_expires: string;
   profile_tiers_benefits: string;
@@ -1694,9 +1682,7 @@ type Translations = {
   // Shop
   shop_title: string;
   shop_required_plan_free: string;
-  shop_required_plan_premium: string;
   shop_required_plan_vip: string;
-  shop_lock_premium: string;
   shop_lock_vip: string;
   shop_purchase: string;
   shop_purchased: string;
