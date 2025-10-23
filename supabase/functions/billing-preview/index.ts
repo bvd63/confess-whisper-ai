@@ -79,7 +79,7 @@ serve(async (req) => {
     });
 
     // Preview the upcoming invoice with the new price
-    const upcomingInvoice = await stripe.invoices.retrieveUpcoming({
+    const upcomingInvoice = await stripe.invoices.upcoming({
       customer: customerId,
       subscription: subscription.id,
       subscription_items: [{

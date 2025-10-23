@@ -73,7 +73,17 @@ export default function TestSubscriptions() {
       const { data, error } = await supabase.functions.invoke("billing-buy", {
         body: { tier: "premium", cycle: "monthly" },
       });
-      if (error) throw error;
+      if (error) {
+        // If user already has subscription, this is expected
+        if (error.message?.includes("already have an active subscription")) {
+          toast({
+            title: "Already Subscribed",
+            description: "You already have an active subscription. This is expected behavior.",
+          });
+          return { note: "User already has active subscription (expected)" };
+        }
+        throw error;
+      }
       toast({
         title: "Checkout URL Ready",
         description: "Check console for URL",
@@ -85,10 +95,13 @@ export default function TestSubscriptions() {
   // Test 4: Preview Upgrade (if subscribed)
   const testPreviewUpgrade = () =>
     runTest("Preview Upgrade to VIP", async () => {
+      // Note: This requires knowing the actual Stripe price ID for VIP
+      // Using environment variable or default test price
+      const vipPriceId = import.meta.env.VITE_STRIPE_PRICE_VIP_MONTHLY || "price_1SJ0vwR7kygIyYg9OeCiqV00";
       const { data, error } = await supabase.functions.invoke(
         "billing-preview",
         {
-          body: { targetPriceId: "vip_monthly" },
+          body: { targetPriceId: vipPriceId },
         }
       );
       if (error) throw error;

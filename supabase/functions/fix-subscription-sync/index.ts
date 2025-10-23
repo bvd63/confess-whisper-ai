@@ -76,15 +76,20 @@ serve(async (req) => {
     });
 
     // Update profile
+    const updateData: any = {
+      subscription_tier: tier,
+      subscription_status: subscription.status,
+      is_premium: tier !== 'free',
+      subscription_cancel_at_period_end: subscription.cancel_at_period_end || false,
+    };
+
+    if (subscription.current_period_end) {
+      updateData.subscription_ends_at = new Date(subscription.current_period_end * 1000).toISOString();
+    }
+
     const { error: updateError } = await supabaseAdmin
       .from("profiles")
-      .update({
-        subscription_tier: tier,
-        subscription_status: subscription.status,
-        is_premium: tier !== 'free',
-        subscription_ends_at: new Date(subscription.current_period_end * 1000).toISOString(),
-        subscription_cancel_at_period_end: subscription.cancel_at_period_end || false,
-      })
+      .update(updateData)
       .eq("user_id", user.id);
 
     if (updateError) {

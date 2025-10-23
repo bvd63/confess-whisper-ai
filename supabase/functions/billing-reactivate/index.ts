@@ -113,16 +113,21 @@ serve(async (req) => {
     }
 
     // Update local database
+    const updateData: any = {
+      current_plan: tier,
+      status: 'active',
+      cancel_at_period_end: false,
+      stripe_subscription_id: updatedSubscription.id,
+      last_sync_at: new Date().toISOString(),
+    };
+
+    if (updatedSubscription.current_period_end) {
+      updateData.current_period_end = new Date(updatedSubscription.current_period_end * 1000).toISOString();
+    }
+
     await supabaseClient
       .from('profiles')
-      .update({
-        current_plan: tier,
-        status: 'active',
-        cancel_at_period_end: false,
-        stripe_subscription_id: updatedSubscription.id,
-        current_period_end: new Date(updatedSubscription.current_period_end * 1000).toISOString(),
-        last_sync_at: new Date().toISOString(),
-      })
+      .update(updateData)
       .eq('id', user.id);
 
     logStep("Database updated", { tier });
@@ -134,7 +139,9 @@ serve(async (req) => {
           id: updatedSubscription.id,
           status: updatedSubscription.status,
           current_tier: tier,
-          current_period_end: new Date(updatedSubscription.current_period_end * 1000).toISOString(),
+          current_period_end: updatedSubscription.current_period_end 
+            ? new Date(updatedSubscription.current_period_end * 1000).toISOString()
+            : null,
         }
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }

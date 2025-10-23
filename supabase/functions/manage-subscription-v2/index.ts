@@ -56,7 +56,7 @@ serve(async (req) => {
     const body = await req.json();
     const { action, targetTier, when } = body;
     
-    log('info', '[MANAGE-SUBSCRIPTION-V2] Action requested', { action, targetTier, when });
+    log('info', '[MANAGE-SUBSCRIPTION-V2] Request body parsed', { action, targetTier, when, fullBody: body });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
@@ -139,6 +139,8 @@ serve(async (req) => {
 
     // Handle actions
     if (action === 'upgrade' || action === 'downgrade') {
+      log('info', '[MANAGE-SUBSCRIPTION-V2] Entering upgrade/downgrade block', { action, targetTier });
+      
       // Determine target price
       const currentInterval = currentItem.price.recurring?.interval || 'month';
       let targetPrice: string;
@@ -149,7 +151,12 @@ serve(async (req) => {
         targetPrice = currentInterval === 'year' ? PRICE_IDS.premium_yearly : PRICE_IDS.premium_monthly;
       }
 
-      log('info', '[MANAGE-SUBSCRIPTION-V2] Changing plan', { targetPrice });
+      if (!targetPrice) {
+        log('error', '[MANAGE-SUBSCRIPTION-V2] Target price not found', { targetTier, currentInterval, PRICE_IDS });
+        throw new Error(`Price ID not configured for ${targetTier} ${currentInterval}`);
+      }
+
+      log('info', '[MANAGE-SUBSCRIPTION-V2] Changing plan', { targetPrice, currentInterval });
 
       await stripe.subscriptions.update(subscription.id, {
         items: [
@@ -168,7 +175,7 @@ serve(async (req) => {
         })
         .eq('user_id', user.id);
 
-      log('info', '[MANAGE-SUBSCRIPTION-V2] Plan changed successfully');
+      log('info', '[MANAGE-SUBSCRIPTION-V2] Plan changed successfully', { newTier: targetTier });
 
       return new Response(JSON.stringify({
         message: action === 'upgrade' ? "Upgraded successfully" : "Downgraded successfully",
@@ -179,6 +186,7 @@ serve(async (req) => {
     }
 
     if (action === 'cancel') {
+      log('info', '[MANAGE-SUBSCRIPTION-V2] Entering cancel block');
       log('info', '[MANAGE-SUBSCRIPTION-V2] Canceling at period end');
       
       await stripe.subscriptions.update(subscription.id, {
@@ -201,6 +209,7 @@ serve(async (req) => {
     }
 
     if (action === 'reactivate') {
+      log('info', '[MANAGE-SUBSCRIPTION-V2] Entering reactivate block');
       log('info', '[MANAGE-SUBSCRIPTION-V2] Reactivating subscription');
       
       await stripe.subscriptions.update(subscription.id, {
@@ -222,6 +231,7 @@ serve(async (req) => {
       });
     }
 
+    log('error', '[MANAGE-SUBSCRIPTION-V2] No action matched', { action, receivedActions: { upgrade: action === 'upgrade', downgrade: action === 'downgrade', cancel: action === 'cancel', reactivate: action === 'reactivate' } });
     throw new Error("Invalid action");
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
