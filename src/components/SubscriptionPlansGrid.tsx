@@ -155,8 +155,6 @@ export const SubscriptionPlansGrid = ({
               className={`w-full py-6 rounded-lg font-semibold transition-all duration-300 ${
                 isCurrentPlan(plan)
                   ? 'bg-purple-600 hover:bg-purple-600 text-white cursor-default shadow-lg shadow-purple-500/30'
-                  : plan.id === 'vip'
-                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 hover:scale-[1.02]'
                   : 'bg-transparent border-2 border-white hover:bg-white text-white hover:text-black hover:scale-[1.02]'
               }`}
             >
