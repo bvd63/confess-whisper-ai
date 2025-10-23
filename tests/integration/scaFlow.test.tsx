@@ -55,7 +55,7 @@ describe('SCA (Strong Customer Authentication) Flow', () => {
     await user.click(vipButton);
 
     await waitFor(() => {
-      expect(screen.getAllByText(/Premium/i)[0]).toBeInTheDocument();
+      expect(screen.getAllByText(/VIP/i)[0]).toBeInTheDocument();
     });
   });
 

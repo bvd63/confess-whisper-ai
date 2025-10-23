@@ -171,9 +171,9 @@ export default function TestPayments() {
       const { data: statusData } = await supabase.functions.invoke('billing-status');
       const currentTier = statusData?.subscription_tier || 'free';
 
-      // Determine target tier for upgrade
+      // Determine target tier for upgrade (only Free → VIP upgrade exists)
       let targetPriceId: string;
-      if (currentTier === 'free' || currentTier === 'premium') {
+      if (currentTier === 'free') {
         targetPriceId = SUBSCRIPTION_PLANS.find(p => p.id === 'vip')?.stripePriceIdMonthly || '';
       } else {
         return { note: 'Already on highest tier (VIP)' };

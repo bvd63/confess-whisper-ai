@@ -243,7 +243,7 @@ const Profile = () => {
                 <h2 className="text-2xl font-bold">{t.badges_your_badges}</h2>
                   <FlairsShopButton 
                     onClick={() => setFlairsDialogOpen(true)} 
-                    tier={(subscriptionTier === 'premium' ? 'vip' : subscriptionTier) as "free" | "vip"}
+                    tier={subscriptionTier as "free" | "vip"}
                   />
               </div>
               <BadgesDisplay userId={user.id} variant="full" />

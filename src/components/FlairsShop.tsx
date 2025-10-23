@@ -92,11 +92,8 @@ export const FlairsShop = ({
         data: profile
       } = await supabase.from('profiles').select('subscription_tier, trial_active, trial_premium_ends_at').eq('user_id', userId).maybeSingle();
 
-      // Map tier (VIP or free only)
-      let tier = (profile?.subscription_tier || 'free') as "free" | "vip";
-      if (tier !== 'free' && tier !== 'vip') {
-        tier = 'vip'; // Map old premium to VIP
-      }
+      // Get tier (VIP or free only)
+      const tier = (profile?.subscription_tier || 'free') as "free" | "vip";
       setUserTier(tier);
 
       // Load available flairs
@@ -262,9 +259,7 @@ export const FlairsShop = ({
     };
     const userLevel = tierLevel[userTier] || 0;
     const flairRequiredPlan = flair.required_plan || 'free';
-    // Map old premium requirement to VIP
-    const normalizedPlan = flairRequiredPlan === 'premium' ? 'vip' : flairRequiredPlan;
-    const requiredLevel = tierLevel[normalizedPlan as 'free' | 'vip'] || 0;
+    const requiredLevel = tierLevel[flairRequiredPlan as 'free' | 'vip'] || 0;
     return userLevel >= requiredLevel;
   };
   const getRarityColor = (rarity: string) => {
@@ -287,7 +282,7 @@ export const FlairsShop = ({
   // Filter flairs by tier and group them
   // Trophy & Fire are free, Rocket is VIP
   const freeFlairs = flairs.filter(f => !f.required_plan || f.required_plan === 'free');
-  const vipFlairs = flairs.filter(f => f.required_plan === 'vip' || f.required_plan === 'premium'); // Map old premium to VIP
+  const vipFlairs = flairs.filter(f => f.required_plan === 'vip');
 
   // Show all sections regardless of user tier
   const showFree = true;

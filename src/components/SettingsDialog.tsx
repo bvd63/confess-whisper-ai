@@ -187,7 +187,7 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
                       {t.plans_current_plan}
                     </h3>
                     <SubscriptionBadge 
-                      tier={(subscriptionTier === 'premium' ? 'vip' : subscriptionTier) as 'free' | 'vip'} 
+                      tier={subscriptionTier as 'free' | 'vip'} 
                       variant="compact" 
                       showTooltip={false}
                     />
