@@ -1302,10 +1302,6 @@ type Translations = {
   // Theme
   theme_oled: string;
   
-  // Karma
-  karma_points: string;
-  karma_level: string;
-  
   // Export
   export_error: string;
   export_my_confessions: string;
@@ -1839,6 +1835,12 @@ type Translations = {
   sort_oldest: string;
   sort_most_liked: string;
   sort_most_commented: string;
+  
+  // Karma
+  karma_points: string;
+  karma_level: string;
+  karma_next_level: string;
+  karma_points_to_go: string;
   
   // Search Suggestions
   search_recent: string;
