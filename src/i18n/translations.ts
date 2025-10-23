@@ -1943,7 +1943,7 @@ export const translations: Record<Language, Translations> = {
     
     referral_title: "Invite Friends",
     referral_description: "Earn rewards for each friend who signs up",
-    referral_earned: "You earned rewards!",
+    referral_earned: "You earned {days} days of free Premium!",
     
     privacy_policy: "Privacy Policy",
     terms_of_service: "Terms of Service",
@@ -2285,7 +2285,7 @@ export const translations: Record<Language, Translations> = {
     referral_friends_invited: "friends invited",
     referral_link_copied: "Link copied! 🎉",
     referral_share_message: "Join me on Confess+ - a safe space for anonymous confessions with AI support!",
-    referral_reward_message: "You earned rewards!",
+    referral_reward_message: "You earned {days} days of free Premium!",
     referral_continue_inviting: "Keep inviting friends for more benefits",
     
     share_title: "Share Confession",

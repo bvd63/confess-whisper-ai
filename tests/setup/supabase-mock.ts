@@ -19,19 +19,21 @@ const createChainable = () => {
   // Common chainable methods used across the app. Each returns the builder
   // itself so calls can be chained: .select(...).eq(...).order(...)
   const chainMethods = [
-    'select', 'eq', 'neq', 'is', 'in', 'order', 'limit', 'match', 'filter', 'returns', 'like', 'ilike'
+    'select', 'eq', 'neq', 'is', 'in', 'order', 'limit', 'match', 'filter', 
+    'returns', 'like', 'ilike', 'gte', 'lte', 'gt', 'lt', 'range', 'or', 
+    'not', 'contains', 'containedBy', 'overlaps', 'textSearch'
   ];
 
   for (const m of chainMethods) {
-    builder[m] = (..._args: any[]) => builder;
+    builder[m] = vi.fn((..._args: any[]) => builder);
   }
 
   // Terminal methods that should resolve to { data, error }
-  builder.single = () => terminalResponse(null);
-  builder.maybeSingle = () => terminalResponse(null);
-  builder.insert = (_payload?: any) => terminalResponse([]);
-  builder.update = (_payload?: any) => terminalResponse([]);
-  builder.delete = () => terminalResponse([]);
+  builder.single = vi.fn(() => terminalResponse(null));
+  builder.maybeSingle = vi.fn(() => terminalResponse(null));
+  builder.insert = vi.fn((_payload?: any) => terminalResponse([]));
+  builder.update = vi.fn((_payload?: any) => terminalResponse([]));
+  builder.delete = vi.fn(() => terminalResponse([]));
 
   // Note: we intentionally do NOT add a `then` property here. Making the
   // builder thenable causes it to be treated as a Promise in some contexts
@@ -91,4 +93,9 @@ vi.mock('@/lib/supabaseClient', () => ({
   getSupabase: () => supabaseMock,
   __setSupabaseClientForTests: vi.fn(),
   __resetSupabaseClientForTests: vi.fn(),
+}));
+
+// Also mock the integrations/supabase/client module
+vi.mock('@/integrations/supabase/client', () => ({
+  supabase: supabaseMock,
 }));

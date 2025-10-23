@@ -311,7 +311,7 @@ export const EnhancedSubscriptionManager = () => {
                   </div>
 
                   <Button
-                    data-testid={`action-${plan.id === 'vip' && status?.currentPlan === 'free' ? 'upgrade' : 'downgrade'}`}
+                    data-testid={`action-${plan.id}`}
                     onClick={() => handlePreviewAndConfirm(plan)}
                     disabled={isCurrent || actionLoading || loadingPreview}
                     variant={isCurrent ? 'outline' : 'default'}

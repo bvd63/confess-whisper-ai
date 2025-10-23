@@ -33,10 +33,8 @@ describe("Immediate Upgrade Flow", () => {
       expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
-    // Find the VIP upgrade button (it will have "action-upgrade" testid when upgrading from Premium to VIP)
-    const buttons = screen.getAllByTestId("action-upgrade");
-    // The second upgrade button should be for VIP (first is Premium)
-    const upgradeButton = buttons[0]; // There should only be one upgrade button (to VIP) when current plan is Premium
+    // Find the VIP upgrade button (testid is action-vip)
+    const upgradeButton = screen.getByTestId("action-vip");
     expect(upgradeButton).toBeInTheDocument();
 
     await user.click(upgradeButton);
@@ -72,7 +70,7 @@ describe("Immediate Upgrade Flow", () => {
       expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
-    const upgradeButton = screen.getByTestId("action-upgrade");
+    const upgradeButton = screen.getByTestId("action-vip");
     expect(upgradeButton).toBeInTheDocument();
 
     await user.click(upgradeButton);

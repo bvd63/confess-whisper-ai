@@ -29,7 +29,7 @@ describe('Downgrade Flow', () => {
       expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
-    const downgradeButton = screen.getAllByTestId('action-downgrade').find(b => !b.hasAttribute('disabled'));
+    const downgradeButton = screen.getByTestId('action-premium');
     expect(downgradeButton).toBeInTheDocument();
     await user.click(downgradeButton!);
     
@@ -89,7 +89,7 @@ describe('Downgrade Flow', () => {
       expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
-    const downgradeButton = screen.getAllByTestId('action-downgrade').find(b => !b.hasAttribute('disabled'));
+    const downgradeButton = screen.getByTestId('action-premium');
     expect(downgradeButton).toBeInTheDocument();
     await user.click(downgradeButton!);
     

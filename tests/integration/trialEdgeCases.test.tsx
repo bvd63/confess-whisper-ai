@@ -64,7 +64,7 @@ describe('Trial Edge Cases', () => {
       expect(screen.getByText(/trial/i)).toBeInTheDocument();
     });
 
-    const upgradeButton = screen.getByTestId('action-upgrade');
+    const upgradeButton = screen.getByTestId('action-vip');
     expect(upgradeButton).not.toBeDisabled();
 
     await user.click(upgradeButton);

@@ -40,7 +40,7 @@ describe('Delinquent Subscription Handling', () => {
       expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
-    const upgradeButton = screen.getByTestId('action-upgrade');
+    const upgradeButton = screen.getByTestId('action-vip');
     await user.click(upgradeButton);
 
     await waitFor(() => {
@@ -87,7 +87,7 @@ describe('Delinquent Subscription Handling', () => {
       expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
-    const upgradeButton = screen.getByTestId('action-upgrade');
+    const upgradeButton = screen.getByTestId('action-vip');
     await user.click(upgradeButton);
 
     await waitFor(() => {

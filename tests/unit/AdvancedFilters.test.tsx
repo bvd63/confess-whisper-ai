@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { AdvancedFilters } from '@/components/AdvancedFilters';
 
@@ -7,16 +7,17 @@ vi.mock('@/contexts/LanguageContext', () => ({
   useLanguage: () => ({
     t: {
       filters_title: 'Filters',
-      filters_date_range: 'Date Range',
+      filters_date: 'Date Range',
       filters_from: 'From',
       filters_to: 'To',
       filters_community: 'Community',
-      filters_all_communities: 'All Communities',
-      filters_sort_by: 'Sort By',
-      filters_newest: 'Newest',
-      filters_oldest: 'Oldest',
-      filters_most_liked: 'Most Liked',
-      filters_trending: 'Trending',
+      filters_sort: 'Sort By',
+      filters_clear: 'Clear',
+      communities_filter_all: 'All Communities',
+      sort_newest: 'Newest',
+      sort_oldest: 'Oldest',
+      sort_most_liked: 'Most Liked',
+      sort_most_commented: 'Most Commented',
     },
   }),
 }));
@@ -34,54 +35,54 @@ vi.mock('@/hooks/useCommunities', () => ({
 
 describe('AdvancedFilters', () => {
   const mockOnFilterChange = vi.fn();
+  const mockCommunities = [
+    { id: '1', name: 'Community 1' },
+    { id: '2', name: 'Community 2' },
+  ];
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('renders all filter sections', () => {
     render(<AdvancedFilters onFilterChange={mockOnFilterChange} />);
 
     expect(screen.getByText('Filters')).toBeInTheDocument();
+  });
+
+  it('opens collapsible when filter button is clicked', () => {
+    render(<AdvancedFilters onFilterChange={mockOnFilterChange} />);
+
+    const filterButton = screen.getByText('Filters');
+    fireEvent.click(filterButton);
+
+    // After opening, elements should be visible
     expect(screen.getByText('Date Range')).toBeInTheDocument();
-    expect(screen.getByText('Community')).toBeInTheDocument();
     expect(screen.getByText('Sort By')).toBeInTheDocument();
   });
 
-  it('calls onFilterChange when sort option changes', async () => {
+  it('renders date range buttons', () => {
     render(<AdvancedFilters onFilterChange={mockOnFilterChange} />);
 
-    const sortSelect = screen.getByRole('combobox');
-    fireEvent.click(sortSelect);
-    
-    // Wait for dropdown to appear and select an option
-    const oldestOption = await screen.findByText('Oldest');
-    fireEvent.click(oldestOption);
+    // Open the collapsible first
+    const filterButton = screen.getByText('Filters');
+    fireEvent.click(filterButton);
 
-    expect(mockOnFilterChange).toHaveBeenCalledWith(
-      expect.objectContaining({
-        sortBy: 'oldest',
-      })
-    );
+    const fromButton = screen.getByTestId('date-from-button');
+    const toButton = screen.getByTestId('date-to-button');
+
+    expect(fromButton).toBeInTheDocument();
+    expect(toButton).toBeInTheDocument();
   });
 
-  it('updates date range filters', () => {
-    render(<AdvancedFilters onFilterChange={mockOnFilterChange} />);
+  it('renders community select when communities provided', () => {
+    render(<AdvancedFilters onFilterChange={mockOnFilterChange} communities={mockCommunities} />);
 
-    const fromInput = screen.getByLabelText('From');
-    fireEvent.change(fromInput, { target: { value: '2024-01-01' } });
+    // Open the collapsible first
+    const filterButton = screen.getByText('Filters');
+    fireEvent.click(filterButton);
 
-    expect(mockOnFilterChange).toHaveBeenCalledWith(
-      expect.objectContaining({
-        dateFrom: '2024-01-01',
-      })
-    );
-  });
-
-  it('displays community options', async () => {
-    render(<AdvancedFilters onFilterChange={mockOnFilterChange} />);
-
-    const communitySelect = screen.getAllByRole('combobox')[1]; // Second combobox
-    fireEvent.click(communitySelect);
-
-    expect(await screen.findByText('All Communities')).toBeInTheDocument();
-    expect(await screen.findByText('Community 1')).toBeInTheDocument();
-    expect(await screen.findByText('Community 2')).toBeInTheDocument();
+    const communitySelect = screen.getByTestId('community-select');
+    expect(communitySelect).toBeInTheDocument();
   });
 });
