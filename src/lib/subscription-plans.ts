@@ -58,8 +58,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: 'vip',
     name: 'VIP',
-    priceMonthly: 9.99,
-    priceYearly: 79.99, // ~33% savings
+    priceMonthly: 6.99,
+    priceYearly: 55.99, // ~33% savings
     // Note: Actual price IDs are managed securely in backend
     stripePriceIdMonthly: 'vip_monthly',
     stripePriceIdYearly: 'vip_yearly',
