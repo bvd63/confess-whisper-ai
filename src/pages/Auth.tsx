@@ -18,12 +18,14 @@ import { usePasswordValidation, validatePasswordStrength } from "@/hooks/usePass
 import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
 import { PasswordRulesChecklist } from "@/components/PasswordRulesChecklist";
 import { cn } from "@/lib/utils";
+import { useHaptic } from "@/hooks/useHaptic";
 
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useLanguage();
   const supabase = getSupabase();
+  const { vibrate } = useHaptic();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -105,6 +107,7 @@ const Auth = () => {
     
     if (!validateForm()) return;
 
+    vibrate('medium');
     setIsLoading(true);
 
     try {

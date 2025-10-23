@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { BoostConfessionButton } from "@/components/BoostConfessionButton";
+import { useHaptic } from "@/hooks/useHaptic";
 
 interface ConfessionActionsProps {
   confessionId: string;
@@ -40,6 +41,7 @@ const ConfessionActions = ({
   const [isBookmarking, setIsBookmarking] = useState(false);
   const { toast } = useToast();
   const { t } = useLanguage();
+  const { vibrate } = useHaptic();
 
   const handleLike = async () => {
     if (!currentUserId) {
@@ -60,6 +62,7 @@ const ConfessionActions = ({
     setLocalIsLiked(newLiked);
     setLocalLikesCount(optimisticCount);
     setIsLiking(true);
+    vibrate('light');
 
     try {
       if (newLiked) {
@@ -112,6 +115,7 @@ const ConfessionActions = ({
     // Optimistic update
     setLocalIsBookmarked(newBookmarked);
     setIsBookmarking(true);
+    vibrate('light');
 
     try {
       if (newBookmarked) {
@@ -155,6 +159,7 @@ const ConfessionActions = ({
   };
 
   const handleShare = async () => {
+    vibrate('medium');
     // Increment share count
     try {
       await supabase.rpc('increment_share_count', { confession_id: confessionId });

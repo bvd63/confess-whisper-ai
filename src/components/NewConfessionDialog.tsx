@@ -25,6 +25,7 @@ import { useConfessionRateLimit } from "@/hooks/useConfessionRateLimit";
 import { RateLimitIndicator } from "@/components/RateLimitIndicator";
 import { filterContent, getWarningMessage } from "@/lib/security/contentFilter";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { useHaptic } from "@/hooks/useHaptic";
 
 const confessionSchema = z.object({
   content: z.string()
@@ -60,6 +61,7 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
   const { checkForCrisis } = useModerationStatus();
   const { communities } = useCommunities();
   const { canPost, currentCount, dailyLimit, remaining, tier, checkLimits, incrementCount, isLoading: limitsLoading } = useConfessionLimits();
+  const { vibrate } = useHaptic();
   const { 
     isLimited, 
     remainingRequests, 
@@ -174,6 +176,7 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
       return;
     }
 
+    vibrate('medium');
     setIsSubmitting(true);
 
     try {
