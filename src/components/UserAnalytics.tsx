@@ -108,13 +108,21 @@ const UserAnalytics = ({
   return <div className="space-y-4">
       {/* Subscription Card */}
       <Card className="border-primary/20">
-        <CardHeader className="mx-0 my-px py-[10px] px-[31px]">
+        <CardHeader>
           <div className="flex items-center justify-between px-[5px] mx-px my-0 py-0">
-            <div className="flex items-center gap-3 px-[240px]">
+            <div className="flex items-center gap-3">
               <CardTitle className="text-lg">{t.subscription_title}</CardTitle>
               <ProfileTierBadge tier={subscriptionTier as "free" | "premium" | "vip"} />
             </div>
-            
+            <Button variant={isPremium ? "outline" : "default"} size="sm" onClick={handleManageSubscription} className="gap-2">
+              {isPremium ? <>
+                  <Settings className="w-4 h-4" />
+                  {t.subs_manage}
+                </> : <>
+                  <Crown className="w-4 h-4" />
+                  {t.subs_upgrade}
+                </>}
+            </Button>
           </div>
         </CardHeader>
       </Card>
