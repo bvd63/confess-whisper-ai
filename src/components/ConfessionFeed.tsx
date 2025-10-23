@@ -1,6 +1,6 @@
 import { memo } from "react";
 import ConfessionCard from "./ConfessionCard";
-import ConfessionSkeleton from "./ConfessionSkeleton";
+import { ConfessionCardSkeleton } from "./skeletons/ConfessionCardSkeleton";
 import EmptyState from "./EmptyState";
 import { Heart } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -51,9 +51,9 @@ const ConfessionFeed = memo(({
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <ConfessionSkeleton />
-        <ConfessionSkeleton />
-        <ConfessionSkeleton />
+        <ConfessionCardSkeleton />
+        <ConfessionCardSkeleton />
+        <ConfessionCardSkeleton />
       </div>
     );
   }

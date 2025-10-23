@@ -8,6 +8,7 @@ import ReportDialog from "./ReportDialog";
 import CommentsSection from "./CommentsSection";
 import ConfessionActions from "./ConfessionActions";
 import ConfessionHeader from "./ConfessionHeader";
+import { OptimizedImage } from "./OptimizedImage";
 import ReactionPicker from "./ReactionPicker";
 import BadgesDisplay from "./BadgesDisplay";
 import FollowButton from "./FollowButton";
@@ -125,13 +126,15 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
 
       {/* Display image if available */}
       {confession.image_url && (
-        <div className="mb-3 sm:mb-4 rounded-lg overflow-hidden">
-          <img
+        <div className="mb-3 sm:mb-4">
+          <OptimizedImage
             src={confession.image_url}
             alt={t.ui_confession_image}
-            className={`w-full h-auto object-cover max-h-[300px] sm:max-h-[400px] ${
+            className={`w-full h-auto object-cover max-h-[300px] sm:max-h-[400px] rounded-lg ${
               confession.image_blurred ? 'blur-lg' : ''
             }`}
+            width={800}
+            height={400}
           />
         </div>
       )}

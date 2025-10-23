@@ -4,6 +4,7 @@ import { Upload, X, Image as ImageIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { OptimizedImage } from "./OptimizedImage";
 
 interface ImageUploadProps {
   onImageUploaded: (url: string) => void;
@@ -128,10 +129,13 @@ const ImageUpload = ({ onImageUploaded, onImageRemoved, currentImage, disabled }
         </Button>
       ) : (
         <div className="relative rounded-lg overflow-hidden border border-primary/20">
-          <img
+          <OptimizedImage
             src={preview}
             alt={t.ui_image_preview}
             className="w-full h-48 object-cover"
+            width={600}
+            height={192}
+            priority
           />
           <Button
             type="button"
