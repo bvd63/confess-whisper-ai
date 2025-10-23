@@ -11,14 +11,12 @@ const log = (level: string, message: string, data?: any) => {
   console.log(JSON.stringify({ level, message, data, timestamp: new Date().toISOString() }));
 };
 
-// Map Stripe Price IDs to our tiers
+// Map Stripe Price IDs to our tiers - dynamically built from environment
 const PRICE_ID_TO_TIER: Record<string, "free" | "premium" | "vip"> = {
-  // Premium
-  "price_1SIVqFR7kygIyYg9Ai1tJ2AI": "premium",
-  "price_1SIVqeR7kygIyYg9FizFMLRx": "premium",
-  // VIP
-  "price_1SL42cR7kygIyYg9LFEBp8uz": "vip",
-  "price_1SL42zR7kygIyYg9IZrd2ExW": "vip",
+  [Deno.env.get("STRIPE_PRICE_PREMIUM_MONTHLY") || ""]: "premium",
+  [Deno.env.get("STRIPE_PRICE_PREMIUM_YEARLY") || ""]: "premium",
+  [Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || ""]: "vip",
+  [Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || ""]: "vip",
 };
 
 serve(async (req) => {

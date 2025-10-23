@@ -22,10 +22,10 @@ function log(level: string, message: string, context?: any) {
 }
 
 const STRIPE_PRICE_IDS = {
-  premium_monthly: "price_1SIVqFR7kygIyYg9Ai1tJ2AI",
-  premium_yearly: "price_1SIVqeR7kygIyYg9FizFMLRx",
-  vip_monthly: "price_1SL42cR7kygIyYg9LFEBp8uz",
-  vip_yearly: "price_1SL42zR7kygIyYg9IZrd2ExW",
+  premium_monthly: Deno.env.get("STRIPE_PRICE_PREMIUM_MONTHLY") || "",
+  premium_yearly: Deno.env.get("STRIPE_PRICE_PREMIUM_YEARLY") || "",
+  vip_monthly: Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || "",
+  vip_yearly: Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || "",
 };
 
 serve(async (req) => {

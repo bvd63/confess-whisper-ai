@@ -8,10 +8,10 @@ const corsHeaders = {
 };
 
 const PRICE_ID_TO_TIER: Record<string, string> = {
-  'price_1SIVqFR7kygIyYg9Ai1tJ2AI': 'premium',
-  'price_1SIVqeR7kygIyYg9FizFMLRx': 'premium',
-  'price_1SL42cR7kygIyYg9LFEBp8uz': 'vip',
-  'price_1SL42zR7kygIyYg9IZrd2ExW': 'vip',
+  [Deno.env.get("STRIPE_PRICE_PREMIUM_MONTHLY") || ""]: 'premium',
+  [Deno.env.get("STRIPE_PRICE_PREMIUM_YEARLY") || ""]: 'premium',
+  [Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || ""]: 'vip',
+  [Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || ""]: 'vip',
 };
 
 const getTierFromPriceId = (priceId: string): string => {
