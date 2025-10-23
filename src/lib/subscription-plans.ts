@@ -40,7 +40,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     id: 'vip',
     name: 'VIP',
     priceMonthly: 6.99,
-    priceYearly: 54.99, // 35% savings
+    priceYearly: 54.99, // ~34% savings
     stripePriceIdMonthly: 'price_1QpaMPP2hBCL2KbD9PO0pDcj', // Monthly price from Stripe
     stripePriceIdYearly: 'price_1QpaMPP2hBCL2KbDTmAyFTGp', // Yearly price from Stripe
     isPopular: true,

@@ -50,6 +50,18 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
     }
   };
 
+  const goToStripeCheckout = async (url: string) => {
+    try {
+      if (window.top && window.top !== window) {
+        window.top.location.href = url;
+        return;
+      }
+    } catch {}
+    const win = window.open(url, '_blank');
+    if (win) return;
+    window.location.href = url;
+  };
+
   const handleSelectPlan = async (planId: string, priceId: string) => {
     if (!priceId) return;
     if (planId === currentPlan && interval === currentInterval) return;
@@ -75,12 +87,13 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
       const tgt = levels[(planId as keyof typeof levels) || 'free'] ?? 0;
 
       if (cur === 0) {
-        const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-          body: { priceId, planName: planId, billingCycle: interval },
+        // New subscription - use billing-buy
+        const { data, error } = await supabase.functions.invoke('billing-buy', {
+          body: { tier: planId, cycle: interval },
         });
         if (error) throw error;
         if (data?.url) {
-          window.open(data.url, '_blank');
+          await goToStripeCheckout(data.url);
           toast.success('Redirecting to checkout...');
           onOpenChange(false);
         }

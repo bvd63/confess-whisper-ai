@@ -162,18 +162,30 @@ export const EnhancedSubscriptionManager = () => {
     }
   };
 
+  const goToStripeCheckout = async (url: string) => {
+    try {
+      if (window.top && window.top !== window) {
+        window.top.location.href = url;
+        return;
+      }
+    } catch {}
+    const win = window.open(url, '_blank');
+    if (win) return;
+    window.location.href = url;
+  };
+
   const handleChange = async (plan: PlanWithInterval) => {
     try {
-      // If user has no active subscription, create a new one
+      // If user has no active subscription, create a new one via billing-buy
       if (!status?.currentPlan || status.currentPlan === 'free') {
-        const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-          body: { priceId: plan.priceId, planName: plan.id, billingCycle: plan.interval }
+        const { data, error } = await supabase.functions.invoke('billing-buy', {
+          body: { tier: plan.id, cycle: plan.interval }
         });
         if (error) throw error;
         
         // Redirect to Stripe checkout
         if (data?.url) {
-          window.open(data.url, '_blank');
+          await goToStripeCheckout(data.url);
           toast.success('Redirecting to checkout...');
         }
         return;
