@@ -31,7 +31,7 @@ const FAQ = () => {
     question: t.faq_q8,
     answer: t.faq_a8
   }];
-  return <Card className="p-6 bg-card border-border/50 shadow-[var(--shadow-soft)] animate-fade-in py-0">
+  return <Card className="p-6 bg-card border-border/50 shadow-[var(--shadow-soft)] animate-fade-in mx-0 py-px my-0 px-[23px]">
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2 rounded-full bg-primary/10">
           <HelpCircle className="w-6 h-6 text-primary" />
