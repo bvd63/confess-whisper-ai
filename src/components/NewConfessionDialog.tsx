@@ -21,6 +21,8 @@ import { useCommunities } from "@/hooks/useCommunities";
 import { PolishConfessionButton } from "@/components/PolishConfessionButton";
 import { useConfessionLimits } from "@/hooks/useConfessionLimits";
 import { UpgradeModal } from "@/components/UpgradeModal";
+import { useConfessionRateLimit } from "@/hooks/useConfessionRateLimit";
+import { RateLimitIndicator } from "@/components/RateLimitIndicator";
 
 const confessionSchema = z.object({
   content: z.string()
@@ -54,6 +56,14 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
   const { checkForCrisis } = useModerationStatus();
   const { communities } = useCommunities();
   const { canPost, currentCount, dailyLimit, remaining, tier, checkLimits, incrementCount, isLoading: limitsLoading } = useConfessionLimits();
+  const { 
+    isLimited, 
+    remainingRequests, 
+    totalRequests, 
+    checkRateLimit, 
+    getRemainingTime,
+    percentage 
+  } = useConfessionRateLimit();
 
   // Check for crisis keywords on content change
   useEffect(() => {
@@ -117,7 +127,18 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
   ];
 
   const handleSubmit = async () => {
-    // Check confession limits first
+    // Check rate limit first
+    const rateLimitAllowed = await checkRateLimit('confession_create');
+    if (!rateLimitAllowed) {
+      toast({
+        title: t.rate_limit_title,
+        description: t.system_rate_limit_exceeded.replace('{seconds}', getRemainingTime()),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check confession limits
     if (!canPost) {
       setShowUpgradeModal(true);
       return;
@@ -283,6 +304,15 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
               </p>
             </div>
           )}
+          
+          {/* Rate Limit Indicator */}
+          <RateLimitIndicator
+            remaining={remainingRequests}
+            total={totalRequests}
+            resetTime={getRemainingTime()}
+            isLimited={isLimited}
+            className="mt-2"
+          />
         </DialogHeader>
 
         <div className="space-y-3 sm:space-y-4 py-3 sm:py-4">
@@ -387,7 +417,7 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
             />
             <EnhancedButton
               onClick={handleSubmit}
-              disabled={isSubmitting || !content.trim()}
+              disabled={isSubmitting || !content.trim() || isLimited}
               className="w-full"
               glow
               shine
@@ -397,6 +427,11 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   {t.submitting}
+                </>
+              ) : isLimited ? (
+                <>
+                  <AlertTriangle className="w-4 h-4 mr-2" />
+                  {t.rate_limit_title}
                 </>
               ) : (
                 <>

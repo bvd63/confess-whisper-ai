@@ -34,4 +34,10 @@ export interface Translations {
   error_generic: string;
   error_network: string;
   error_validation: string;
+
+  // Rate Limiting
+  rate_limit_remaining: string;
+  rate_limit_reset_in: string;
+  rate_limit_wait_message: string;
+  system_rate_limit_exceeded: string;
 }

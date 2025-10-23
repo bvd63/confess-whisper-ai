@@ -1463,6 +1463,9 @@ type Translations = {
   mood_intensity_evolution: string;
   rate_limit_title: string;
   rate_limit_desc: string;
+  rate_limit_remaining: string;
+  rate_limit_reset_in: string;
+  rate_limit_wait_message: string;
   moderation_action_done: string;
   moderation_action_approved: string;
   moderation_action_rejected: string;
@@ -3013,6 +3016,9 @@ export const translations: Record<Language, Translations> = {
     mood_intensity_evolution: "Intensity Evolution",
     rate_limit_title: "Too Many Requests",
     rate_limit_desc: "You've reached the AI request limit. Please wait a few moments before trying again.",
+    rate_limit_remaining: "Requests Remaining",
+    rate_limit_reset_in: "Resets in {time}",
+    rate_limit_wait_message: "You've reached the limit. Please try again later.",
     moderation_action_done: "Action Completed",
     moderation_action_approved: "approved",
     moderation_action_rejected: "rejected",
@@ -4633,6 +4639,9 @@ export const translations: Record<Language, Translations> = {
     mood_intensity_evolution: "Evolución de Intensidad",
     rate_limit_title: "Demasiadas Solicitudes",
     rate_limit_desc: "Has alcanzado el límite de solicitudes de IA. Por favor espera unos momentos antes de intentar nuevamente.",
+    rate_limit_remaining: "Solicitudes Restantes",
+    rate_limit_reset_in: "Se reinicia en {time}",
+    rate_limit_wait_message: "Has alcanzado el límite. Por favor, intenta de nuevo más tarde.",
     moderation_action_done: "Acción Completada",
     moderation_action_approved: "aprobada",
     moderation_action_rejected: "rechazada",
@@ -6253,6 +6262,9 @@ export const translations: Record<Language, Translations> = {
     mood_intensity_evolution: "Intensitätsentwicklung",
     rate_limit_title: "Zu Viele Anfragen",
     rate_limit_desc: "Du hast das KI-Anfragelimit erreicht. Bitte warte einige Momente, bevor du es erneut versuchst.",
+    rate_limit_remaining: "Verbleibende Anfragen",
+    rate_limit_reset_in: "Zurücksetzen in {time}",
+    rate_limit_wait_message: "Sie haben das Limit erreicht. Bitte versuchen Sie es später erneut.",
     moderation_action_done: "Aktion Abgeschlossen",
     moderation_action_approved: "genehmigt",
     moderation_action_rejected: "abgelehnt",
