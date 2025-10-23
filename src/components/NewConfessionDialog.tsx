@@ -23,6 +23,8 @@ import { useConfessionLimits } from "@/hooks/useConfessionLimits";
 import { UpgradeModal } from "@/components/UpgradeModal";
 import { useConfessionRateLimit } from "@/hooks/useConfessionRateLimit";
 import { RateLimitIndicator } from "@/components/RateLimitIndicator";
+import { filterContent, getWarningMessage } from "@/lib/security/contentFilter";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 const confessionSchema = z.object({
   content: z.string()
@@ -48,6 +50,8 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
   const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
   const [showCrisisDialog, setShowCrisisDialog] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showContentWarning, setShowContentWarning] = useState(false);
+  const [contentWarnings, setContentWarnings] = useState<string[]>([]);
   const [location, setLocation] = useState<{ lat: number; lng: number; city?: string; country?: string } | null>(null);
   const [communityId, setCommunityId] = useState<string | null>(null);
   const { user } = useCurrentUser();
@@ -127,6 +131,21 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
   ];
 
   const handleSubmit = async () => {
+    // Check content for personal information
+    const contentCheck = filterContent(content);
+    if (!contentCheck.safe) {
+      const warnings = contentCheck.warnings.map(w => getWarningMessage(w, language as 'en' | 'es' | 'de'));
+      setContentWarnings(warnings);
+      setShowContentWarning(true);
+      return;
+    }
+
+    await proceedWithSubmit();
+  };
+
+  const proceedWithSubmit = async () => {
+    setShowContentWarning(false);
+    
     // Check rate limit first
     const rateLimitAllowed = await checkRateLimit('confession_create');
     if (!rateLimitAllowed) {
@@ -443,6 +462,32 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
           </div>
         </div>
       </DialogContent>
+      
+      {/* Content Warning Dialog */}
+      <AlertDialog open={showContentWarning} onOpenChange={setShowContentWarning}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-amber-500" />
+              {t.content_warning_title}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t.content_warning_detected}
+              <ul className="mt-2 space-y-1">
+                {contentWarnings.map((warning, i) => (
+                  <li key={i} className="text-sm text-muted-foreground">• {warning}</li>
+                ))}
+              </ul>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t.common_cancel}</AlertDialogCancel>
+            <AlertDialogAction onClick={proceedWithSubmit}>
+              {t.content_warning_continue}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       
       <CrisisDialog 
         isOpen={showCrisisDialog}

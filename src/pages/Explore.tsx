@@ -16,22 +16,26 @@ import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 import { useToast } from "@/hooks/use-toast";
+import { useCommunities } from "@/hooks/useCommunities";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
 import { TrendingHashtags } from "@/components/TrendingHashtags";
 import { PremiumTeaser } from "@/components/PremiumTeaser";
 import { FeatureGate } from "@/components/auth/FeatureGate";
 import { QuickActions } from "@/components/QuickActions";
 import { useNavigate } from "react-router-dom";
+import { AdvancedFilters, FilterState } from "@/components/AdvancedFilters";
 
 const Explore = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("trending");
+  const [filters, setFilters] = useState<FilterState>({ sortBy: 'newest' });
   const { user } = useCurrentUser();
   useAnalyticsTracking(user?.id || null);
   const { isPremium } = usePremiumStatus(user?.id);
   const { toast } = useToast();
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
+  const { communities } = useCommunities();
 
   // Fetch hot/trending confessions
   const { data: hotConfessions, isLoading: loadingHot } = useQuery({
@@ -150,6 +154,12 @@ const Explore = () => {
             />
           </div>
         )}
+
+        {/* Advanced Filters */}
+        <AdvancedFilters
+          onFilterChange={setFilters}
+          communities={communities || []}
+        />
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3 mb-4 sm:mb-6 h-auto">
