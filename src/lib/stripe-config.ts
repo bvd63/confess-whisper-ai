@@ -12,16 +12,17 @@
 export const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 
 /**
- * Stripe Price IDs - UPDATE THESE WITH YOUR ACTUAL STRIPE PRICE IDs
+ * Stripe Price IDs - Dynamically loaded from backend
+ * These are managed via Supabase secrets and should not be hardcoded
  * 
- * Current IDs are examples - replace with your actual Price IDs from Stripe Dashboard
- * Get them from: Stripe Dashboard → Products → [Your Product] → Pricing
+ * Note: The actual price IDs are stored as secrets in the backend
+ * and are accessed via edge functions for security
  */
 export const STRIPE_PRICE_IDS = {
-  premium_monthly: "price_1SIVqFR7kygIyYg9Ai1tJ2AI",  // Test mode Premium Monthly
-  premium_yearly: "price_1SIVqeR7kygIyYg9FizFMLRx",   // Test mode Premium Yearly
-  vip_monthly: "price_1SL42cR7kygIyYg9LFEBp8uz",      // Test mode VIP Monthly
-  vip_yearly: "price_1SL42zR7kygIyYg9IZrd2ExW",       // Test mode VIP Yearly
+  premium_monthly: "",  // Loaded from backend via edge functions
+  premium_yearly: "",   // Loaded from backend via edge functions
+  vip_monthly: "",      // Loaded from backend via edge functions
+  vip_yearly: "",       // Loaded from backend via edge functions
 } as const;
 
 export const SUBSCRIPTION_TIERS = {
