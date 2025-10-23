@@ -170,10 +170,10 @@ const DeepInsightDialog = ({
                 <div className="space-y-3 sm:space-y-4">
                   <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 rounded-full border border-primary/20">
                     <Crown className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
-                    <span className="text-xs sm:text-sm text-primary font-medium">{t.premium_feature}</span>
+                    <span className="text-xs sm:text-sm text-primary font-medium">{t.vip_feature}</span>
                   </div>
                   <p className="text-muted-foreground text-xs sm:text-sm px-4">
-                    {t.deep_insight_premium}
+                    {t.deep_insight_vip}
                   </p>
                   <Button
                     onClick={onUpgradeClick}
@@ -181,7 +181,7 @@ const DeepInsightDialog = ({
                     size="sm"
                   >
                     <Crown className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-                    {t.premium_upgrade}
+                    {t.vip_upgrade}
                   </Button>
                 </div>
               ) : (

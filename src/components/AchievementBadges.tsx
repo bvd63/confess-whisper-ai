@@ -58,10 +58,10 @@ const AchievementBadges = ({ totalConfessions, deepInsightsUsed, isPremium }: Ac
       target: 5,
     },
     {
-      id: 'premium_member',
+      id: 'vip_member',
       icon: Crown,
-      title: t.achievement_premium_member,
-      description: t.achievement_premium_member_desc,
+      title: t.achievement_vip_member,
+      description: t.achievement_vip_member_desc,
       unlocked: isPremium,
     },
     {

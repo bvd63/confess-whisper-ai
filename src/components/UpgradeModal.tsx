@@ -87,11 +87,11 @@ export const UpgradeModal = ({
             <div className="space-y-1.5 text-xs text-muted-foreground">
               <div className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
-                <span>{t.plans_premium_benefit_confessions}</span>
+                <span>{t.plans_vip_benefit_confessions}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
-                <span>{t.plans_vip_benefit_confessions}</span>
+                <span>{t.plans_vip_benefit_unlimited_ai}</span>
               </div>
             </div>
           </div>

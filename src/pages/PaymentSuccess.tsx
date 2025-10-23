@@ -72,14 +72,14 @@ const PaymentSuccess = () => {
 
             if (!coinsError && coinsData?.awarded) {
               toast({
-                title: t.coins_bonus_premium,
+                title: t.coins_bonus_vip,
                 description: `You received ${coinsData.amount} coins as a welcome bonus!`,
               });
             }
 
             toast({
               title: "Subscription Activated!",
-              description: `Your ${data.tier === 'vip' ? 'VIP' : 'Premium'} benefits are now active. Redirecting...`,
+              description: `Your VIP benefits are now active. Redirecting...`,
             });
             return true;
           }

@@ -24,12 +24,6 @@ export const ProfileTierBadge = ({
           icon: null,
           className: "bg-secondary text-secondary-foreground border-border",
         };
-      case "premium":
-        return {
-          label: t.profile_tiers_premium,
-          icon: Star,
-          className: "bg-gradient-to-r from-violet-500 to-purple-500 text-white border-violet-400 shadow-md shadow-violet-500/50 animate-pulse badge-hover badge-glow badge-premium-glow",
-        };
       case "vip":
         return {
           label: t.profile_tiers_vip,

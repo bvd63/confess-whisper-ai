@@ -29,7 +29,6 @@ export const FeatureComparison = ({ onUpgrade }: FeatureComparisonProps) => {
             <tr className="border-b">
               <th className="text-left py-3 px-2">{t.comparison_feature}</th>
               <th className="text-center py-3 px-2">{t.subscription_tier_free}</th>
-              <th className="text-center py-3 px-2 bg-primary/5">{t.subscription_tier_premium}</th>
               <th className="text-center py-3 px-2 bg-primary/10">{t.subscription_tier_vip}</th>
             </tr>
           </thead>

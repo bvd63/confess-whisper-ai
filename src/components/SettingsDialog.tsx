@@ -46,24 +46,18 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
 
   // Get benefits list based on tier
   const getBenefits = () => {
-    if (subscriptionTier === 'vip') {
+    if (subscriptionTier === 'vip' || isOnTrial) {
       return [
         t.plans_vip_benefit_confessions,
-        t.plans_vip_benefit_allpremium,
-        t.plans_vip_benefit_images,
-        t.plans_vip_benefit_stats,
-        t.plans_vip_benefit_support,
-        t.plans_vip_benefit_badge,
-      ];
-    }
-    if (subscriptionTier === 'premium' || isOnTrial) {
-      return [
-        t.plans_premium_benefit_confessions,
-        t.plans_premium_benefit_ai,
-        t.plans_premium_benefit_analytics,
-        t.plans_premium_benefit_badge,
-        t.plans_premium_benefit_noads,
-        t.plans_premium_benefit_priority,
+        t.plans_vip_benefit_unlimited_ai,
+        t.plans_vip_benefit_no_ads,
+        t.plans_vip_benefit_custom_themes,
+        t.plans_vip_benefit_private_confessions,
+        t.plans_vip_benefit_advanced_stats,
+        t.plans_vip_benefit_special_badge,
+        t.plans_vip_benefit_priority_support,
+        t.plans_vip_benefit_coins_bonus,
+        t.plans_vip_benefit_login_rewards,
       ];
     }
     return [

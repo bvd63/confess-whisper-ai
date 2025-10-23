@@ -78,16 +78,16 @@ export const SubscriptionManager = ({ userId, currentTier, onActionComplete }: S
           </Button>
         )}
 
-        {/* Downgrade option */}
+        {/* Downgrade option - VIP to Free */}
         {currentTier === 'vip' && (
           <Button 
-            onClick={() => handleAction('downgrade', 'premium')}
+            onClick={() => handleAction('downgrade', 'free')}
             disabled={isLoading}
             className="w-full"
             variant="outline"
           >
             <ArrowDown className="w-4 h-4 mr-2" />
-            {t.subs_downgrade} {t.subscription_plan_premium}
+            {t.subs_downgrade} {t.subscription_plan_free}
           </Button>
         )}
 

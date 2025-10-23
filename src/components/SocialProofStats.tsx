@@ -41,7 +41,7 @@ const SocialProofStats = ({ stats }: StatsCardProps) => {
     {
       icon: Sparkles,
       value: stats.premiumUsers || "280+",
-      label: t.stats_premium_members,
+      label: t.stats_vip_members,
       color: "text-purple-500",
       bgColor: "bg-purple-500/10",
     },
