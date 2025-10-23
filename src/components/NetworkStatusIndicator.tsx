@@ -1,6 +1,7 @@
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
-import { WifiOff, Clock } from 'lucide-react';
+import { WifiOff, Clock, Wifi } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export const NetworkStatusIndicator = () => {
@@ -24,11 +25,16 @@ export const NetworkStatusIndicator = () => {
         )}
         
         {isOnline && queuedOperations > 0 && (
-          <Alert className="mb-2 bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800">
-            <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            <AlertDescription className="text-blue-800 dark:text-blue-200">
-              {t.network_syncing?.replace('{count}', String(queuedOperations)) || `Syncing ${queuedOperations} pending operation(s)...`}
-            </AlertDescription>
+          <Alert className="mb-2 bg-primary/10 border-primary/20">
+            <div className="flex items-center gap-2">
+              <Wifi className="h-4 w-4 text-primary animate-pulse" />
+              <AlertDescription className="flex items-center gap-2">
+                {t.network_syncing?.replace('{count}', String(queuedOperations)) || `Syncing ${queuedOperations} pending operation(s)...`}
+                <Badge variant="secondary" className="animate-pulse">
+                  {queuedOperations}
+                </Badge>
+              </AlertDescription>
+            </div>
           </Alert>
         )}
       </div>

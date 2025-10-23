@@ -41,7 +41,6 @@ export const RateLimitIndicator = ({
     );
   }
 
-  // Show warning when below 20%
   const showWarning = percentage < 20;
 
   return (
