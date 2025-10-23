@@ -20,9 +20,12 @@ import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog"
 import { TrendingHashtags } from "@/components/TrendingHashtags";
 import { PremiumTeaser } from "@/components/PremiumTeaser";
 import { FeatureGate } from "@/components/auth/FeatureGate";
+import { QuickActions } from "@/components/QuickActions";
+import { useNavigate } from "react-router-dom";
 
 const Explore = () => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("trending");
   const { user } = useCurrentUser();
   useAnalyticsTracking(user?.id || null);
@@ -180,6 +183,16 @@ const Explore = () => {
       
       <InstagramBottomNav />
     </AppLayout>
+    
+    {/* Quick Actions FAB */}
+    {user && (
+      <QuickActions
+        onNewConfession={() => navigate('/compose')}
+        onOpenDrafts={() => navigate('/compose')}
+        onScrollToTop={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      />
+    )}
+    
     <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
     </>
   );

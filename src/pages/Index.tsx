@@ -26,6 +26,7 @@ import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog"
 import { FeatureGate } from "@/components/auth/FeatureGate";
 import { RateLimitIndicator } from "@/components/RateLimitIndicator";
 import { useConfessionRateLimit } from "@/hooks/useConfessionRateLimit";
+import { QuickActions } from "@/components/QuickActions";
 
 // Lazy load heavy components
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
@@ -255,6 +256,15 @@ const Index = () => {
         open={manageSubDialogOpen}
         onOpenChange={setManageSubDialogOpen}
       />
+
+      {/* Quick Actions FAB */}
+      {user && (
+        <QuickActions
+          onNewConfession={handleNewConfession}
+          onOpenDrafts={() => navigate('/compose')}
+          onScrollToTop={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        />
+      )}
       
       </AppLayout>
     </>
