@@ -14,7 +14,8 @@ Complete guide for configuring Stripe payments in Confess+ application.
 
 ## 🔑 **Step 1: Get Stripe API Keys**
 
-### Development/Test Keys:
+### Development/Test Keys
+
 1. Login to [Stripe Dashboard](https://dashboard.stripe.com)
 2. Toggle **"Test mode"** ON (top right)
 3. Navigate to **Developers → API Keys**
@@ -22,7 +23,8 @@ Complete guide for configuring Stripe payments in Confess+ application.
    - **Publishable key** (starts with `pk_test_`)
    - **Secret key** (starts with `sk_test_`)
 
-### Production Keys:
+### Production Keys
+
 1. Toggle **"Test mode"** OFF
 2. Navigate to **Developers → API Keys**
 3. Copy:
@@ -33,7 +35,7 @@ Complete guide for configuring Stripe payments in Confess+ application.
 
 ## ⚙️ **Step 2: Configure Environment Variables**
 
-### A. Frontend (.env file):
+### A. Frontend (.env file)
 
 ```bash
 # Supabase (already configured)
@@ -46,7 +48,7 @@ VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_key_here  # Test mode
 # VITE_STRIPE_PUBLISHABLE_KEY=pk_live_your_key_here  # Production
 ```
 
-### B. Supabase Edge Functions (Supabase Dashboard):
+### B. Supabase Edge Functions (Supabase Dashboard)
 
 1. Go to **Project Settings → Edge Functions → Secrets**
 2. Add the following secrets:
@@ -112,7 +114,7 @@ stripe prices create \
   --recurring[interval]=year
 ```
 
-### C. Update Price IDs in Code:
+### C. Update Price IDs in Code
 
 Update file: `src/lib/subscription-plans.ts`
 
@@ -144,11 +146,12 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
 
 Webhooks notify your app when subscription events occur (payment success, cancellation, etc.)
 
-### Development (Local Testing):
+### Development (Local Testing)
 
 1. **Install Stripe CLI** (if not done in Step 3)
 
 2. **Forward webhooks to local Edge Function:**
+
    ```bash
    stripe listen --forward-to https://your-project.supabase.co/functions/v1/stripe-webhook
    ```
@@ -156,12 +159,13 @@ Webhooks notify your app when subscription events occur (payment success, cancel
 3. **Copy webhook signing secret** (starts with `whsec_`)
    - Add to Supabase Edge Functions secrets as `STRIPE_WEBHOOK_SECRET`
 
-### Production:
+### Production
 
 1. **Navigate to:** Developers → **Webhooks** → **+ Add endpoint**
 
 2. **Endpoint URL:**
-   ```
+
+   ```text
    https://your-project.supabase.co/functions/v1/stripe-webhook
    ```
 
@@ -183,9 +187,10 @@ Webhooks notify your app when subscription events occur (payment success, cancel
 
 ## 🧪 **Step 5: Test the Integration**
 
-### A. Test Checkout Flow:
+### A. Test Checkout Flow
 
 1. **Start local dev server:**
+
    ```bash
    npm run dev
    ```
@@ -200,13 +205,13 @@ Webhooks notify your app when subscription events occur (payment success, cancel
    - 🔐 **3D Secure:** `4000 0025 0000 3155`
    - More: [Stripe Test Cards](https://stripe.com/docs/testing#cards)
 
-### B. Verify in Stripe Dashboard:
+### B. Verify in Stripe Dashboard
 
 1. Check **Payments** → Recent payments
 2. Check **Customers** → New customer created
 3. Check **Subscriptions** → Active subscription
 
-### C. Test Webhook Events:
+### C. Test Webhook Events
 
 ```bash
 # Trigger test events
@@ -218,9 +223,10 @@ stripe trigger invoice.payment_succeeded
 
 ## 🚀 **Step 6: Deploy to Production**
 
-### A. Update Environment Variables:
+### A. Update Environment Variables
 
 1. **Frontend (.env.production):**
+
    ```bash
    VITE_STRIPE_PUBLISHABLE_KEY=pk_live_your_live_key
    ```
@@ -229,11 +235,11 @@ stripe trigger invoice.payment_succeeded
    - Replace `STRIPE_SECRET_KEY` with live key (`sk_live_xxx`)
    - Update `STRIPE_WEBHOOK_SECRET` with production webhook secret
 
-### B. Update Product/Price IDs:
+### B. Update Product/Price IDs
 
 - If using different products for production, update `src/lib/stripe-config.ts`
 
-### C. Build & Deploy:
+### C. Build & Deploy
 
 ```bash
 npm run build
@@ -262,22 +268,29 @@ Your app uses these Stripe-related Edge Functions:
 ## 🔍 **Troubleshooting**
 
 ### Issue: "STRIPE_SECRET_KEY is not set"
+
 **Solution:** Add secret to Supabase Edge Functions (Step 2B)
 
 ### Issue: Webhook not receiving events
-**Solution:** 
+
+**Solution:**
+
 1. Check webhook URL is correct
 2. Verify `STRIPE_WEBHOOK_SECRET` is set
 3. Check webhook logs in Stripe Dashboard
 
 ### Issue: "Invalid API Key"
+
 **Solution:**
+
 1. Verify key starts with `sk_test_` (test) or `sk_live_` (production)
 2. Check key is copied completely (no spaces)
 3. Ensure test/live mode matches in Stripe Dashboard
 
 ### Issue: Checkout redirects to 404
+
 **Solution:** Update redirect URLs in Edge Functions:
+
 ```typescript
 success_url: `${req.headers.get('origin')}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
 cancel_url: `${req.headers.get('origin')}/payment-canceled`,

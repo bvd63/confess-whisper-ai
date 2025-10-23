@@ -20,7 +20,7 @@ describe('SCA (Strong Customer Authentication) Flow', () => {
 
   beforeEach(() => {
     vi.mocked(mockSupabaseClient.functions.invoke).mockReset();
-    vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(async (fnName: string, options: any) => {
+    vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(async (fnName: string, options?: { body?: Record<string, unknown> }) => {
       if (fnName === 'billing-status') {
         return {
           data: createSubscriptionStatus(),
@@ -85,7 +85,7 @@ describe('SCA (Strong Customer Authentication) Flow', () => {
     const user = userEvent.setup();
 
     let changeInvocation = 0;
-    const mockInvokeWithSuccess = vi.fn(async (fnName: string, options: any) => {
+    const mockInvokeWithSuccess = vi.fn(async (fnName: string, options?: { body?: Record<string, unknown> }) => {
       if (fnName === 'billing-status') {
         return {
           data: createSubscriptionStatus(),
@@ -143,7 +143,7 @@ describe('SCA (Strong Customer Authentication) Flow', () => {
   it('should handle SCA failure', async () => {
     const user = userEvent.setup();
 
-    const mockInvokeWithFailure = vi.fn(async (fnName: string, options: any) => {
+    const mockInvokeWithFailure = vi.fn(async (fnName: string, options?: { body?: Record<string, unknown> }) => {
       if (fnName === 'billing-status') {
         return {
           data: createSubscriptionStatus(),

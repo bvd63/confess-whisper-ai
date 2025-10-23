@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense, lazy } from "react";
+import { useState, useEffect, useCallback, Suspense, lazy } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { EnhancedButton } from "@/components/EnhancedButton";
@@ -93,36 +93,42 @@ const Profile = () => {
   
   // Check for trial expiry and show notification
   useTrialExpiryCheck(user?.id || null, isOnTrial);
-  useEffect(() => {
-    if (user?.id) {
-      loadPasswordChangedAt();
-      loadProfileData();
-    }
-  }, [user?.id]);
-  const loadProfileData = async () => {
+
+  const loadProfileData = useCallback(async () => {
+    if (!user?.id) return;
     try {
       const {
         data,
         error
-      } = await supabase.from('profiles').select('nickname, bio, handle, privacy_mode, nickname_updated_at, stripe_subscription_id').eq('user_id', user!.id).single();
+      } = await supabase.from('profiles').select('nickname, bio, handle, privacy_mode, nickname_updated_at, stripe_subscription_id').eq('user_id', user.id).single();
       if (error) throw error;
       setProfileData(data);
     } catch (error) {
       console.error('Error loading profile data:', error);
     }
-  };
-  const loadPasswordChangedAt = async () => {
+  }, [user?.id]);
+
+  const loadPasswordChangedAt = useCallback(async () => {
+    if (!user?.id) return;
     try {
       const {
         data,
         error
-      } = await supabase.from('profiles').select('password_changed_at').eq('user_id', user!.id).single();
+      } = await supabase.from('profiles').select('password_changed_at').eq('user_id', user.id).single();
       if (error) throw error;
       setPasswordChangedAt(data?.password_changed_at || null);
     } catch (error) {
       console.error('Error loading password changed date:', error);
     }
-  };
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (user?.id) {
+      loadPasswordChangedAt();
+      loadProfileData();
+    }
+  }, [user?.id, loadPasswordChangedAt, loadProfileData]);
+
   const handleManageSubscription = async () => {
     try {
       const {
@@ -153,10 +159,8 @@ const Profile = () => {
       });
     }
   };
-  useEffect(() => {
-    checkAuth();
-  }, []);
-  const checkAuth = async () => {
+
+  const checkAuth = useCallback(async () => {
     const {
       data: {
         user
@@ -165,15 +169,20 @@ const Profile = () => {
     if (!user) {
       navigate('/auth');
     }
-  };
+  }, [navigate]);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
   // Ensure profile reflects latest subscription from Stripe on profile load
   useEffect(() => {
     (async () => {
       await checkSubscription();
       await refetch();
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkSubscription, refetch]);
+
   if (!user) return null;
   return <AppLayout onNewConfession={() => setIsNewConfessionOpen(true)} onManageSubscription={() => setManageSubDialogOpen(true)}>
       <AchievementToast userId={user.id} />

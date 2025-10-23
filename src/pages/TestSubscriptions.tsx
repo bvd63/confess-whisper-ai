@@ -9,7 +9,7 @@ import { Loader2, CheckCircle, XCircle, Crown, Zap } from "lucide-react";
 type TestResult = {
   name: string;
   success: boolean;
-  data?: any;
+  data?: unknown;
   error?: string;
 };
 
@@ -20,7 +20,7 @@ export default function TestSubscriptions() {
 
   const runTest = async (
     testName: string,
-    testFn: () => Promise<any>
+    testFn: () => Promise<unknown>
   ): Promise<TestResult> => {
     setLoading(testName);
     try {
@@ -29,16 +29,17 @@ export default function TestSubscriptions() {
       setResults((prev) => [...prev, result]);
       toast({ title: `✅ ${testName}`, description: "Test passed" });
       return result;
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       const result = {
         name: testName,
         success: false,
-        error: error.message,
+        error: errorMessage,
       };
       setResults((prev) => [...prev, result]);
       toast({
         title: `❌ ${testName}`,
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
       return result;
@@ -75,14 +76,18 @@ export default function TestSubscriptions() {
       });
       if (error) {
         // Supabase returns non-2xx as error with the body in error.context.body
-        let bodyText = (error as any)?.context?.body as string | undefined;
-        let bodyJson: any = undefined;
+        const bodyText = (error as { context?: { body?: string } })?.context?.body;
+        let bodyJson: { error?: string; message?: string } | undefined;
         if (bodyText) {
-          try { bodyJson = JSON.parse(bodyText); } catch {}
+          try { 
+            bodyJson = JSON.parse(bodyText) as { error?: string; message?: string };
+          } catch {
+            // Ignore JSON parse errors
+          }
         }
         const message =
           (bodyJson && (bodyJson.error || bodyJson.message)) ||
-          (data as any)?.error ||
+          (data as { error?: string })?.error ||
           error.message ||
           "";
         const msgLower = String(message).toLowerCase();
@@ -96,7 +101,7 @@ export default function TestSubscriptions() {
         throw new Error(message || "Checkout failed");
       }
       toast({ title: "Checkout URL Ready", description: "Check console for URL" });
-      console.log("Checkout URL:", (data as any)?.url);
+      console.log("Checkout URL:", (data as { url?: string })?.url);
       return data;
     });
 
@@ -109,8 +114,13 @@ export default function TestSubscriptions() {
         body: { targetPriceId: vipPriceId },
       });
       if (error) {
-        let bodyText = (error as any)?.context?.body as string | undefined;
-        let bodyJson: any; try { bodyJson = bodyText ? JSON.parse(bodyText) : undefined; } catch {}
+        const bodyText = (error as { context?: { body?: string } })?.context?.body;
+        let bodyJson: { error?: string; message?: string } | undefined;
+        try { 
+          bodyJson = bodyText ? JSON.parse(bodyText) as { error?: string; message?: string } : undefined; 
+        } catch {
+          // Ignore JSON parse errors
+        }
         const message = (bodyJson?.error || bodyJson?.message || error.message || "Preview failed");
         throw new Error(message);
       }
@@ -125,8 +135,13 @@ export default function TestSubscriptions() {
         { body: { action: "upgrade", targetTier: "vip" } }
       );
       if (error) {
-        let bodyText = (error as any)?.context?.body as string | undefined;
-        let bodyJson: any; try { bodyJson = bodyText ? JSON.parse(bodyText) : undefined; } catch {}
+        const bodyText = (error as { context?: { body?: string } })?.context?.body;
+        let bodyJson: { error?: string; message?: string } | undefined;
+        try { 
+          bodyJson = bodyText ? JSON.parse(bodyText) as { error?: string; message?: string } : undefined; 
+        } catch {
+          // Ignore JSON parse errors
+        }
         const message = (bodyJson?.error || bodyJson?.message || error.message || "Upgrade failed");
         throw new Error(message);
       }

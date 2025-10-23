@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import AppLayout from "@/components/AppLayout";
@@ -29,12 +29,7 @@ const UserProfile = () => {
   
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
 
-  useEffect(() => {
-    if (!userId) return;
-    loadProfile();
-  }, [userId]);
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     if (!userId) return;
     
     setIsLoading(true);
@@ -64,7 +59,12 @@ const UserProfile = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    if (!userId) return;
+    loadProfile();
+  }, [userId, loadProfile]);
 
   if (!currentUser) {
     navigate("/auth");

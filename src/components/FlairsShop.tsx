@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -53,38 +53,8 @@ export const FlairsShop = ({
     balance: coinsBalance,
     refetch: refetchCoins
   } = useCoins(userId);
-  useEffect(() => {
-    if (open) {
-      loadData();
-    }
-  }, [open, userId]);
 
-  // Real-time listener for user_flairs updates
-  useEffect(() => {
-    if (!userId || !open) return;
-
-    const channel = supabase
-      .channel(`user-flairs-${userId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'user_flairs',
-          filter: `user_id=eq.${userId}`,
-        },
-        (payload) => {
-          console.log('[FlairsShop] Real-time update:', payload);
-          loadData();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [userId, open]);
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       // Load user tier and trial status
@@ -121,7 +91,40 @@ export const FlairsShop = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, refetchCoins]);
+
+  useEffect(() => {
+    if (open) {
+      loadData();
+    }
+  }, [open, loadData]);
+
+  // Real-time listener for user_flairs updates
+  useEffect(() => {
+    if (!userId || !open) return;
+
+    const channel = supabase
+      .channel(`user-flairs-${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_flairs',
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload) => {
+          console.log('[FlairsShop] Real-time update:', payload);
+          loadData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, open, loadData]);
+
   const handlePurchase = async (flair: Flair) => {
     setPurchasing(flair.id);
     try {
@@ -206,7 +209,12 @@ export const FlairsShop = ({
       }).eq('user_id', userId).eq('is_equipped', true);
 
       // Update last_equipped_at for ALL flairs (not just VIP)
-      const updateData: any = {
+      const updateData: {
+        is_equipped: boolean;
+        is_featured: boolean;
+        is_public: boolean;
+        last_equipped_at: string;
+      } = {
         is_equipped: true,
         is_featured: true,
         is_public: true,
