@@ -1,85 +1,76 @@
-import { Crown, Sparkles, Shield } from "lucide-react";
+import { Crown, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useSubscription } from "@/state/SubscriptionProvider";
 import { cn } from "@/lib/utils";
 
 interface SubscriptionBadgeProps {
-  tier: 'free' | 'premium' | 'vip';
-  variant?: 'default' | 'compact' | 'inline';
+  tier?: 'free' | 'premium' | 'vip'; // Optional - if not provided, uses useSubscription hook
+  className?: string;
+  showLabel?: boolean;
+  size?: 'sm' | 'md' | 'lg';
+  variant?: 'default' | 'compact';
   showTooltip?: boolean;
-  animated?: boolean;
 }
 
 export const SubscriptionBadge = ({ 
-  tier, 
-  variant = 'default', 
-  showTooltip = true,
-  animated = true 
+  tier: providedTier,
+  className, 
+  showLabel = true,
+  size = 'md',
+  variant = 'default',
+  showTooltip = true
 }: SubscriptionBadgeProps) => {
-  const { t } = useLanguage();
+  const { subscriptionTier: hookTier, isLoading } = useSubscription();
+  const subscriptionTier = providedTier || hookTier;
 
-  const getBadgeConfig = () => {
-    switch (tier) {
-      case 'vip':
-        return {
-          icon: Crown,
-          label: t.plans_vip_title || 'VIP',
-          className: 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0',
-          iconClassName: animated ? 'animate-pulse-glow' : '',
-          tooltip: t.plans_vip_tooltip || 'VIP Member - Premium access with exclusive benefits'
-        };
-      case 'premium':
-        return {
-          icon: Sparkles,
-          label: t.plans_premium_title || 'Premium',
-          className: 'bg-gradient-to-r from-amber-400 to-yellow-500 text-white border-0',
-          iconClassName: '',
-          tooltip: t.plans_premium_tooltip || 'Premium Member - Enhanced experience'
-        };
-      default:
-        return {
-          icon: Shield,
-          label: t.plans_free_title || 'Free',
-          className: 'bg-muted text-muted-foreground',
-          iconClassName: '',
-          tooltip: t.plans_free_tooltip || 'Free Member'
-        };
+  if (isLoading || subscriptionTier === 'free') {
+    return null;
+  }
+
+  const config = {
+    premium: {
+      icon: Zap,
+      label: 'Premium',
+      className: 'bg-gradient-to-r from-purple-600 to-purple-400 text-white border-purple-400/50',
+      glow: 'shadow-[0_0_20px_rgba(168,85,247,0.5)]'
+    },
+    vip: {
+      icon: Crown,
+      label: 'VIP',
+      className: 'bg-gradient-to-r from-yellow-500 to-yellow-300 text-black border-yellow-400/50',
+      glow: 'shadow-[0_0_25px_rgba(234,179,8,0.6)]'
     }
   };
 
-  const config = getBadgeConfig();
-  const Icon = config.icon;
+  const tierConfig = config[subscriptionTier as 'premium' | 'vip'];
+  if (!tierConfig) return null;
 
-  const badgeContent = (
-    <Badge 
-      className={cn(
-        config.className,
-        variant === 'compact' && 'px-2 py-0.5 text-[10px]',
-        variant === 'inline' && 'px-1.5 py-0 text-[9px]',
-        'flex items-center gap-1'
-      )}
-    >
-      <Icon className={cn(
-        variant === 'compact' ? 'w-3 h-3' : variant === 'inline' ? 'w-2.5 h-2.5' : 'w-3.5 h-3.5',
-        config.iconClassName
-      )} />
-      {variant !== 'inline' && <span>{config.label}</span>}
-    </Badge>
-  );
+  const Icon = tierConfig.icon;
 
-  if (!showTooltip) return badgeContent;
+  const sizeClasses = {
+    sm: 'px-2 py-0.5 text-xs gap-1',
+    md: 'px-3 py-1 text-sm gap-1.5',
+    lg: 'px-4 py-1.5 text-base gap-2'
+  };
+
+  const iconSizes = {
+    sm: 'w-3 h-3',
+    md: 'w-4 h-4',
+    lg: 'w-5 h-5'
+  };
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          {badgeContent}
-        </TooltipTrigger>
-        <TooltipContent>
-          <p className="text-xs">{config.tooltip}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Badge 
+      className={cn(
+        tierConfig.className,
+        tierConfig.glow,
+        'font-semibold border-2 animate-in fade-in zoom-in duration-300',
+        sizeClasses[size],
+        className
+      )}
+    >
+      <Icon className={iconSizes[size]} />
+      {showLabel && tierConfig.label}
+    </Badge>
   );
 };
