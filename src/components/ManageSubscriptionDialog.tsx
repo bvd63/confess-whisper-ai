@@ -74,24 +74,14 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
       }
 
       if (tgt > cur || (tgt === cur && interval !== currentInterval)) {
-        const { data, error } = await supabase.functions.invoke('billing-upgrade', {
-          body: { newPriceId: priceId },
-        });
+        // Redirect user to Stripe Customer Portal for safe plan change (works for VIP too)
+        const { data, error } = await supabase.functions.invoke('customer-portal');
         if (error) throw error;
-
-        toast.success(t.webhookLag || 'Upgrade received. Syncing your account…');
-        
-        await loadSubscriptionStatus();
-        
-        const end = Date.now() + 10000;
-        while (Date.now() < end) {
-          await new Promise(r => setTimeout(r, 1000));
-          await loadSubscriptionStatus();
-          if (currentPlan === planId) break;
+        if (data?.url) {
+          window.open(data.url, '_blank');
+          toast.success('Opening billing portal…');
+          onOpenChange(false);
         }
-        
-        onOpenChange(false);
-        onSubscriptionUpdated?.();
         return;
       }
 
