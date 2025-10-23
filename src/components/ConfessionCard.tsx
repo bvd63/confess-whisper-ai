@@ -31,6 +31,9 @@ import { useCachePurgeOnDelete } from "@/hooks/useCachePurgeOnDelete";
 import { Copy } from "lucide-react";
 import { useEditDeleteWindow } from "@/hooks/useEditDeleteWindow";
 import { useHaptic } from "@/hooks/useHaptic";
+import { useSensitiveContent } from "@/hooks/useSensitiveContent";
+import { SensitiveContentWarning } from "./SensitiveContentWarning";
+import { NoScreenshotMode } from "./NoScreenshotMode";
 
 interface ConfessionCardProps {
   confession: {
@@ -77,6 +80,8 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   const isOwner = user?.id === confession.user_id;
   const { canDelete, deleteTimeLeft } = useEditDeleteWindow(confession.created_at);
   const { vibrate } = useHaptic();
+  const { isSensitive } = useSensitiveContent(confession.content);
+  const noScreenshotEnabled = isPremium && isOwner;
 
   const handleCopyText = async () => {
     try {
@@ -123,24 +128,27 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   };
 
   return (
-    <AnimatedCard 
-      hover="lift"
-      glass
-      className="p-3 sm:p-4 md:p-5 mb-3 sm:mb-4 touch-manipulation"
-    >
-      <div className="mb-2 sm:mb-3">
-        <ConfessionHeader 
-          category={confession.category} 
-          createdAt={confession.created_at}
-          authorNicknameSnapshot={confession.author_nickname_snapshot}
-          authorVisibilitySnapshot={confession.author_visibility_snapshot}
-          isBoosted={boostStatus.isActive}
-        />
-      </div>
+    <NoScreenshotMode enabled={noScreenshotEnabled}>
+      <AnimatedCard 
+        hover="lift"
+        glass
+        className="p-3 sm:p-4 md:p-5 mb-3 sm:mb-4 touch-manipulation"
+      >
+        <div className="mb-2 sm:mb-3">
+          <ConfessionHeader 
+            category={confession.category} 
+            createdAt={confession.created_at}
+            authorNicknameSnapshot={confession.author_nickname_snapshot}
+            authorVisibilitySnapshot={confession.author_visibility_snapshot}
+            isBoosted={boostStatus.isActive}
+          />
+        </div>
 
-      <p className="text-sm sm:text-base text-foreground leading-relaxed mb-3 sm:mb-4 break-words">
-        {confession.content}
-      </p>
+        <SensitiveContentWarning isSensitive={isSensitive}>
+          <p className="text-sm sm:text-base text-foreground leading-relaxed mb-3 sm:mb-4 break-words">
+            {confession.content}
+          </p>
+        </SensitiveContentWarning>
 
       {/* Display image if available */}
       {confession.image_url && (
@@ -315,7 +323,8 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
           setIsBoostDialogOpen(false);
         }}
       />
-    </AnimatedCard>
+      </AnimatedCard>
+    </NoScreenshotMode>
   );
 };
 

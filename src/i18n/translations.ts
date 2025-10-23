@@ -1839,6 +1839,15 @@ type Translations = {
   sort_oldest: string;
   sort_most_liked: string;
   sort_most_commented: string;
+  
+  // Search Suggestions
+  search_recent: string;
+  search_clear: string;
+  
+  // Sensitive Content
+  sensitive_content_warning: string;
+  sensitive_content_description: string;
+  sensitive_content_view: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -3480,6 +3489,15 @@ export const translations: Record<Language, Translations> = {
     
     // Common (continued)
     common_continue: "Continue",
+    
+    // Search Suggestions
+    search_recent: "Recent",
+    search_clear: "Clear",
+    
+    // Sensitive Content
+    sensitive_content_warning: "Sensitive Content",
+    sensitive_content_description: "This content may be disturbing or triggering",
+    sensitive_content_view: "View Anyway",
     
     // Coin System
     coins_balance: "Balance",
@@ -5193,6 +5211,15 @@ export const translations: Record<Language, Translations> = {
     // Common (continued)
     common_continue: "Continuar",
     
+    // Search Suggestions
+    search_recent: "Recientes",
+    search_clear: "Limpiar",
+    
+    // Sensitive Content
+    sensitive_content_warning: "Contenido Sensible",
+    sensitive_content_description: "Este contenido puede ser perturbador o activador",
+    sensitive_content_view: "Ver De Todos Modos",
+    
     // Coin System
     coins_balance: "Saldo",
     coins_get_more: "Obtener Monedas",
@@ -6904,6 +6931,15 @@ export const translations: Record<Language, Translations> = {
     
     // Common (continued)
     common_continue: "Weiter",
+    
+    // Search Suggestions
+    search_recent: "Kürzlich",
+    search_clear: "Löschen",
+    
+    // Sensitive Content
+    sensitive_content_warning: "Sensibler Inhalt",
+    sensitive_content_description: "Dieser Inhalt kann verstörend oder triggernd sein",
+    sensitive_content_view: "Trotzdem Ansehen",
     
     // Coin System
     coins_balance: "Guthaben",

@@ -96,4 +96,13 @@ export interface Translations {
   // Karma
   karma_points: string;
   karma_level: string;
+  
+  // Search Suggestions
+  search_recent: string;
+  search_clear: string;
+  
+  // Sensitive Content
+  sensitive_content_warning: string;
+  sensitive_content_description: string;
+  sensitive_content_view: string;
 }
