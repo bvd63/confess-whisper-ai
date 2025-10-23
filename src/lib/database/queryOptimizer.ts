@@ -1,200 +1,223 @@
-import { supabase } from '@/integrations/supabase/client';
-
-interface QueryBatch {
-  queries: Array<() => Promise<any>>;
-  resolve: (results: any[]) => void;
-}
+/**
+ * Database Query Optimization Utilities
+ * Provides batching, cursor pagination, and query optimization helpers
+ */
 
 /**
- * Query optimizer with batching, cursor pagination, and caching
+ * Query Batcher - Deduplicates and batches similar queries
  */
-class QueryOptimizer {
-  private batchQueue: QueryBatch[] = [];
-  private batchTimeout: NodeJS.Timeout | null = null;
-  private readonly BATCH_WINDOW_MS = 50;
-  private cache: Map<string, { data: any; timestamp: number }> = new Map();
-  private readonly CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+class QueryBatcher {
+  private queue: Map<string, Promise<unknown>> = new Map();
+  private timeout: number = 50; // ms
 
   /**
-   * Add query to batch queue
+   * Batch similar queries together
    */
   async batchQuery<T>(
     key: string,
-    queryFn: () => Promise<T>,
-    cacheable: boolean = true
+    queryFn: () => Promise<T>
   ): Promise<T> {
-    // Check cache first
-    if (cacheable) {
-      const cached = this.getFromCache(key);
-      if (cached) return cached;
+    // If identical query is already running, return the same promise
+    if (this.queue.has(key)) {
+      return this.queue.get(key) as Promise<T>;
     }
 
-    return new Promise((resolve, reject) => {
-      const batch: QueryBatch = {
-        queries: [queryFn],
-        resolve: (results) => {
-          const result = results[0];
-          if (cacheable && result) {
-            this.setCache(key, result);
-          }
-          resolve(result);
-        },
-      };
+    const promise = queryFn();
+    this.queue.set(key, promise);
 
-      this.batchQueue.push(batch);
-
-      // Start batch timer if not already running
-      if (!this.batchTimeout) {
-        this.batchTimeout = setTimeout(() => {
-          this.executeBatch();
-        }, this.BATCH_WINDOW_MS);
-      }
-    });
-  }
-
-  /**
-   * Execute all queued queries in parallel
-   */
-  private async executeBatch() {
-    const batches = [...this.batchQueue];
-    this.batchQueue = [];
-    this.batchTimeout = null;
-
-    // Execute all queries in parallel
-    const allQueries = batches.flatMap((b) => b.queries);
-    try {
-      const results = await Promise.all(allQueries.map((q) => q()));
-      
-      // Resolve each batch
-      let resultIndex = 0;
-      batches.forEach((batch) => {
-        const batchResults = results.slice(
-          resultIndex,
-          resultIndex + batch.queries.length
-        );
-        batch.resolve(batchResults);
-        resultIndex += batch.queries.length;
-      });
-    } catch (error) {
-      console.error('Batch query execution failed:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Cursor-based pagination for better performance
-   */
-  async cursorPaginate<T>(
-    table: string,
-    options: {
-      limit?: number;
-      cursor?: string;
-      orderBy?: string;
-      orderDirection?: 'asc' | 'desc';
-      filters?: Record<string, any>;
-    } = {}
-  ): Promise<{ data: T[]; nextCursor: string | null }> {
-    const {
-      limit = 20,
-      cursor,
-      orderBy = 'created_at',
-      orderDirection = 'desc',
-      filters = {},
-    } = options;
-
-    let query = supabase
-      .from(table)
-      .select('*')
-      .order(orderBy, { ascending: orderDirection === 'asc' })
-      .limit(limit + 1); // Fetch one extra to determine if there's more
-
-    // Apply filters
-    Object.entries(filters).forEach(([key, value]) => {
-      query = query.eq(key, value);
+    // Clear from queue after resolution
+    promise.finally(() => {
+      setTimeout(() => this.queue.delete(key), this.timeout);
     });
 
-    // Apply cursor
-    if (cursor) {
-      query = query.gt(orderBy, cursor);
-    }
-
-    const { data, error } = await query;
-
-    if (error) throw error;
-
-    const hasMore = data.length > limit;
-    const items = hasMore ? data.slice(0, limit) : data;
-    const nextCursor = hasMore ? items[items.length - 1][orderBy] : null;
-
-    return { data: items as T[], nextCursor };
-  }
-
-  /**
-   * Partial field selection for reduced payload
-   */
-  selectFields<T>(table: string, fields: string[]): any {
-    return supabase.from(table).select(fields.join(','));
-  }
-
-  /**
-   * Cache management
-   */
-  private getFromCache(key: string): any | null {
-    const cached = this.cache.get(key);
-    if (!cached) return null;
-
-    const isExpired = Date.now() - cached.timestamp > this.CACHE_TTL_MS;
-    if (isExpired) {
-      this.cache.delete(key);
-      return null;
-    }
-
-    return cached.data;
-  }
-
-  private setCache(key: string, data: any): void {
-    this.cache.set(key, {
-      data,
-      timestamp: Date.now(),
-    });
-
-    // LRU: Remove oldest if cache exceeds 100 items
-    if (this.cache.size > 100) {
-      const firstKey = this.cache.keys().next().value;
-      this.cache.delete(firstKey);
-    }
-  }
-
-  /**
-   * Clear cache
-   */
-  clearCache(key?: string): void {
-    if (key) {
-      this.cache.delete(key);
-    } else {
-      this.cache.clear();
-    }
-  }
-
-  /**
-   * Request deduplication
-   */
-  private pendingRequests: Map<string, Promise<any>> = new Map();
-
-  async dedupe<T>(key: string, queryFn: () => Promise<T>): Promise<T> {
-    // Return existing promise if already pending
-    if (this.pendingRequests.has(key)) {
-      return this.pendingRequests.get(key)!;
-    }
-
-    // Create new promise
-    const promise = queryFn().finally(() => {
-      this.pendingRequests.delete(key);
-    });
-
-    this.pendingRequests.set(key, promise);
     return promise;
+  }
+
+  /**
+   * Clear all pending queries
+   */
+  clear(): void {
+    this.queue.clear();
+  }
+
+  /**
+   * Get queue size
+   */
+  size(): number {
+    return this.queue.size;
   }
 }
 
-export const queryOptimizer = new QueryOptimizer();
+// Export singleton instance
+export const queryBatcher = new QueryBatcher();
+
+/**
+ * Cursor Pagination Helper
+ * More efficient than offset pagination for large datasets
+ */
+export interface CursorPaginationOptions {
+  pageSize?: number;
+  cursor?: string;
+  orderBy?: string;
+  orderDirection?: 'asc' | 'desc';
+}
+
+export interface CursorPaginationResult<T> {
+  data: T[];
+  nextCursor: string | null;
+  hasMore: boolean;
+}
+
+/**
+ * Build cursor-based pagination query
+ */
+export function buildCursorPagination<T extends Record<string, unknown>>(
+  items: T[],
+  options: CursorPaginationOptions
+): CursorPaginationResult<T> {
+  const pageSize = options.pageSize || 20;
+  const orderBy = options.orderBy || 'created_at';
+
+  // Take one extra to check if there are more results
+  const hasMore = items.length > pageSize;
+  const data = hasMore ? items.slice(0, pageSize) : items;
+
+  // Generate next cursor from last item
+  let nextCursor: string | null = null;
+  if (hasMore && data.length > 0) {
+    const lastItem = data[data.length - 1];
+    nextCursor = btoa(JSON.stringify({
+      [orderBy]: lastItem[orderBy],
+      id: lastItem.id,
+    }));
+  }
+
+  return {
+    data,
+    nextCursor,
+    hasMore,
+  };
+}
+
+/**
+ * Parse cursor to get pagination values
+ */
+export function parseCursor(cursor: string | null): Record<string, unknown> | null {
+  if (!cursor) return null;
+
+  try {
+    return JSON.parse(atob(cursor));
+  } catch (error) {
+    console.error('[QueryOptimizer] Failed to parse cursor:', error);
+    return null;
+  }
+}
+
+/**
+ * Query performance monitoring
+ */
+class QueryPerformanceMonitor {
+  private queries: Map<string, number[]> = new Map();
+  private maxSamples = 100;
+
+  /**
+   * Record query execution time
+   */
+  recordQuery(queryName: string, duration: number): void {
+    if (!this.queries.has(queryName)) {
+      this.queries.set(queryName, []);
+    }
+
+    const samples = this.queries.get(queryName)!;
+    samples.push(duration);
+
+    // Keep only recent samples
+    if (samples.length > this.maxSamples) {
+      samples.shift();
+    }
+  }
+
+  /**
+   * Get query statistics
+   */
+  getStats(queryName: string): {
+    count: number;
+    avg: number;
+    min: number;
+    max: number;
+    p50: number;
+    p95: number;
+    p99: number;
+  } | null {
+    const samples = this.queries.get(queryName);
+    if (!samples || samples.length === 0) return null;
+
+    const sorted = [...samples].sort((a, b) => a - b);
+    const count = sorted.length;
+    const sum = sorted.reduce((acc, val) => acc + val, 0);
+
+    return {
+      count,
+      avg: sum / count,
+      min: sorted[0],
+      max: sorted[count - 1],
+      p50: sorted[Math.floor(count * 0.5)],
+      p95: sorted[Math.floor(count * 0.95)],
+      p99: sorted[Math.floor(count * 0.99)],
+    };
+  }
+
+  /**
+   * Get all slow queries (p95 > threshold)
+   */
+  getSlowQueries(thresholdMs: number = 100): Array<{
+    name: string;
+    p95: number;
+  }> {
+    const slow: Array<{ name: string; p95: number }> = [];
+
+    for (const [name] of this.queries) {
+      const stats = this.getStats(name);
+      if (stats && stats.p95 > thresholdMs) {
+        slow.push({ name, p95: stats.p95 });
+      }
+    }
+
+    return slow.sort((a, b) => b.p95 - a.p95);
+  }
+
+  /**
+   * Clear all statistics
+   */
+  clear(): void {
+    this.queries.clear();
+  }
+}
+
+export const queryMonitor = new QueryPerformanceMonitor();
+
+/**
+ * Measure query execution time
+ */
+export async function measureQuery<T>(
+  queryName: string,
+  queryFn: () => Promise<T>
+): Promise<T> {
+  const start = performance.now();
+
+  try {
+    const result = await queryFn();
+    const duration = performance.now() - start;
+    queryMonitor.recordQuery(queryName, duration);
+
+    if (duration > 1000) {
+      console.warn(`[QueryOptimizer] Slow query detected: ${queryName} (${duration.toFixed(2)}ms)`);
+    }
+
+    return result;
+  } catch (error) {
+    const duration = performance.now() - start;
+    queryMonitor.recordQuery(queryName, duration);
+    throw error;
+  }
+}
