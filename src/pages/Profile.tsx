@@ -135,7 +135,7 @@ const Profile = () => {
       if (data?.error) {
         toast({
           title: "Subscription Not Found",
-          description: "You don't have an active subscription to manage. Please upgrade to premium first.",
+          description: "You don't have an active subscription to manage. Please upgrade to VIP first.",
           variant: "destructive"
         });
         return;

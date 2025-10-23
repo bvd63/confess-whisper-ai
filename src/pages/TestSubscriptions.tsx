@@ -133,14 +133,11 @@ export default function TestSubscriptions() {
       return data;
     });
 
-  // Test 6: Downgrade Subscription
+  // Test 6: Cancel Subscription (VIP → Free downgrade)
   const testDowngrade = () =>
-    runTest("Downgrade to Premium Monthly", async () => {
+    runTest("Cancel Subscription (Downgrade to Free)", async () => {
       const { data, error } = await supabase.functions.invoke(
-        "manage-subscription-v2",
-        {
-          body: { action: "downgrade", targetTier: "premium" },
-        }
+        "billing-cancel"
       );
       if (error) throw error;
       return data;
@@ -303,7 +300,7 @@ export default function TestSubscriptions() {
               variant="outline"
               className="gap-2"
             >
-              {loading === "Create Checkout (Premium Monthly)" && (
+              {loading === "Create Checkout (VIP Monthly)" && (
                 <Loader2 className="w-4 h-4 animate-spin" />
               )}
               Create Checkout
@@ -336,7 +333,7 @@ export default function TestSubscriptions() {
               variant="outline"
               className="gap-2"
             >
-              {loading === "Downgrade to Premium Monthly" && (
+              {loading === "Cancel Subscription (Downgrade to Free)" && (
                 <Loader2 className="w-4 h-4 animate-spin" />
               )}
               Downgrade
