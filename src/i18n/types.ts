@@ -41,4 +41,16 @@ export interface Translations {
   rate_limit_reset_in: string;
   rate_limit_wait_message: string;
   system_rate_limit_exceeded: string;
+
+  // Content Moderation
+  content_warning_title: string;
+  content_warning_detected: string;
+  content_warning_continue: string;
+  content_email: string;
+  content_phone: string;
+  content_address: string;
+  content_banned: string;
+
+  // Analytics
+  analytics_best_times_desc: string;
 }

@@ -3299,6 +3299,9 @@ export const translations: Record<Language, Translations> = {
     // Network Status
     network_offline: "You are offline. Messages will be sent when connection is restored.",
     network_syncing: "Syncing {count} pending operation(s)...",
+    
+    // Content Moderation
+    content_warning_title: "Personal Information Detected",
     content_warning_detected: "Personal information detected. Continue?",
     content_warning_continue: "Post Anyway",
     content_email: "Email address",
@@ -6581,11 +6584,8 @@ export const translations: Record<Language, Translations> = {
     error_network: "Netzwerkfehler",
     error_validation: "Validierungsfehler",
     
+    // Analytics
     analytics_best_times_desc: "Spitzenzeiten für Interaktionen",
-    views: "Ansichten",
-    likes: "Gefällt mir",
-    comments: "Kommentare",
-    shares: "Geteilt",
 
     // Quick Actions
     scroll_top: "Nach Oben",
@@ -6606,30 +6606,6 @@ export const translations: Record<Language, Translations> = {
     // Common (continued)
     common_continue: "Weiter",
     
-    analytics_best_times_desc: "Spitzenzeiten für Interaktionen",
-    views: "Ansichten",
-    likes: "Gefällt mir",
-    comments: "Kommentare",
-    shares: "Geteilt",
-
-    // Quick Actions
-    scroll_top: "Nach Oben",
-    drafts: "Entwürfe",
-    confession_new: "Neues Geständnis",
-
-    // Filters
-    filters_title: "Filter",
-    filters_date: "Datumsbereich",
-    filters_community: "Community",
-    filters_sort: "Sortieren Nach",
-    filters_clear: "Filter Löschen",
-    sort_newest: "Neueste Zuerst",
-    sort_oldest: "Älteste Zuerst",
-    sort_most_liked: "Meistgemocht",
-    sort_most_commented: "Meistkommentiert",
-    
-    // Common (continued)
-    common_continue: "Weiter",
     
     // Daily Rewards
     reward_daily_title: "Tägliche Login-Belohnung",
@@ -6705,34 +6681,6 @@ export const translations: Record<Language, Translations> = {
     admin_clear_warning: "Dies entfernt alle zwischengespeicherten Daten.",
     cache_cleared: "Cache erfolgreich gelöscht",
 
-    // Analytics
-    analytics_engagement: "Interaktionsaufschlüsselung",
-    analytics_engagement_desc: "Verteilung der Interaktionen",
-    analytics_best_times: "Beste Zeiten zum Posten",
-    analytics_best_times_desc: "Spitzenzeiten für Interaktionen",
-    views: "Ansichten",
-    likes: "Gefällt mir",
-    comments: "Kommentare",
-    shares: "Geteilt",
-
-    // Quick Actions
-    scroll_top: "Nach Oben",
-    drafts: "Entwürfe",
-    confession_new: "Neues Geständnis",
-
-    // Filters
-    filters_title: "Filter",
-    filters_date: "Datumsbereich",
-    filters_community: "Community",
-    filters_sort: "Sortieren Nach",
-    filters_clear: "Filter Löschen",
-    sort_newest: "Neueste Zuerst",
-    sort_oldest: "Älteste Zuerst",
-    sort_most_liked: "Meistgemocht",
-    sort_most_commented: "Meistkommentiert",
-    
-    // Common (continued)
-    common_continue: "Weiter",
     
     // Coin System
     coins_balance: "Guthaben",
