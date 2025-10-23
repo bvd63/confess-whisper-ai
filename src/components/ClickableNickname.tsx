@@ -50,7 +50,7 @@ export const ClickableNickname = ({
       {showBadges && (
         <BadgeDisplay 
           userId={userId}
-          subscriptionTier={subscriptionTier as "free" | "premium" | "vip"}
+          subscriptionTier={(subscriptionTier === 'premium' ? 'vip' : subscriptionTier) as "free" | "vip"}
           showSubscription={subscriptionTier !== 'free'}
           variant="compact"
           maxBadges={2}

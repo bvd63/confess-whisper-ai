@@ -112,7 +112,7 @@ const UserAnalytics = ({
           <div className="flex items-center justify-between px-[5px] mx-px my-0 py-0">
             <div className="flex items-center gap-3">
               <CardTitle className="text-lg">{t.subscription_title}</CardTitle>
-              <ProfileTierBadge tier={subscriptionTier as "free" | "premium" | "vip"} />
+              <ProfileTierBadge tier={(subscriptionTier === 'premium' ? 'vip' : subscriptionTier) as "free" | "vip"} />
             </div>
             <Button variant={isPremium ? "outline" : "default"} size="sm" onClick={handleManageSubscription} className="gap-2">
               {isPremium ? <>

@@ -38,9 +38,9 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
       .single();
     
     if (profile) {
-      // If user is on active trial, treat them as premium for UI purposes
+      // If user is on active trial, treat them as VIP for UI purposes
       const trialValid = profile.trial_active && profile.trial_end_date && new Date(profile.trial_end_date) > new Date();
-      const tier = trialValid ? 'premium' : (profile.subscription_tier || 'free');
+      const tier = trialValid ? 'vip' : (profile.subscription_tier || 'free');
       setCurrentTier(tier);
     }
   };

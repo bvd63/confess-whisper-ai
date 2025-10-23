@@ -25,7 +25,7 @@ interface UserPerk {
 
 interface MyPerksProps {
   userId: string;
-  subscriptionTier: "free" | "premium" | "vip";
+  subscriptionTier: "free" | "vip";
   subscriptionEndsAt?: string;
 }
 

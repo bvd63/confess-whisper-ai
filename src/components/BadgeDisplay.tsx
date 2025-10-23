@@ -17,7 +17,7 @@ interface UserBadge {
 
 interface BadgeDisplayProps {
   userId: string;
-  subscriptionTier?: "free" | "premium" | "vip";
+  subscriptionTier?: "free" | "vip";
   maxBadges?: number;
   showSubscription?: boolean;
   variant?: "default" | "compact";

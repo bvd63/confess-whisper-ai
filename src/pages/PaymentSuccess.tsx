@@ -18,7 +18,7 @@ const PaymentSuccess = () => {
   const { subscriptionTier, refetch } = usePremiumStatus(user?.id);
   const [isProcessing, setIsProcessing] = useState(true);
   const [processingMessage, setProcessingMessage] = useState<string>('');
-  const [activatedTier, setActivatedTier] = useState<'premium' | 'vip' | null>(null);
+  const [activatedTier, setActivatedTier] = useState<'vip' | null>(null);
 
   useEffect(() => {
     const pollBillingConfirmation = async () => {
@@ -129,7 +129,7 @@ const PaymentSuccess = () => {
         </h1>
 
         <p className="text-muted-foreground mb-6">
-          {isProcessing ? processingMessage : `Your ${(activatedTier === 'vip' ? 'VIP' : 'Premium')} account has been successfully activated.`}
+          {isProcessing ? processingMessage : `Your VIP account has been successfully activated.`}
         </p>
 
         <div className="space-y-3 mb-8">
@@ -151,7 +151,7 @@ const PaymentSuccess = () => {
           onClick={() => navigate("/profile")}
           className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
         >
-          {`View Your ${(activatedTier === 'vip' ? 'VIP' : 'Premium')} Profile`}
+          View Your VIP Profile
         </Button>
 
         <p className="text-xs text-muted-foreground mt-4">
