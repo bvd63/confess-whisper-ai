@@ -19,9 +19,7 @@ const FollowStats = ({
     t
   } = useLanguage();
   if (loading) return null;
-  
-  return (
-    <Card className="p-6">
+  return <Card className="p-6 py-[3px]">
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-3 flex-1">
           <div className="p-3 rounded-full bg-primary/10">
@@ -45,7 +43,6 @@ const FollowStats = ({
           </div>
         </div>
       </div>
-    </Card>
-  );
+    </Card>;
 };
 export default FollowStats;

@@ -53,15 +53,7 @@ export const TrialCTA = ({
     }
   };
   return <Card className="bg-gradient-to-br from-violet-500/10 to-purple-500/10 border-violet-500/20">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-xl">
-          <Sparkles className="w-5 h-5 text-violet-500" />
-          {t.trial_cta_title}
-        </CardTitle>
-        <CardDescription>
-          {t.trial_cta_desc}
-        </CardDescription>
-      </CardHeader>
+      
       
     </Card>;
 };
