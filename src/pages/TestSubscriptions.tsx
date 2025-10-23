@@ -74,23 +74,29 @@ export default function TestSubscriptions() {
         body: { tier: "premium", cycle: "monthly" },
       });
       if (error) {
-        // Handle Supabase generic error by inspecting function payload
-        const message = (data as any)?.error || error.message || "";
-        if (message.toLowerCase().includes("already have an active subscription")) {
+        // Supabase returns non-2xx as error with the body in error.context.body
+        let bodyText = (error as any)?.context?.body as string | undefined;
+        let bodyJson: any = undefined;
+        if (bodyText) {
+          try { bodyJson = JSON.parse(bodyText); } catch {}
+        }
+        const message =
+          (bodyJson && (bodyJson.error || bodyJson.message)) ||
+          (data as any)?.error ||
+          error.message ||
+          "";
+        const msgLower = String(message).toLowerCase();
+        if (msgLower.includes("already have an active subscription") || msgLower.includes("already subscribed")) {
           toast({
             title: "Already Subscribed",
-            description:
-              "You already have an active subscription. This is expected behavior.",
+            description: "You already have an active subscription. This is expected behavior.",
           });
           return { note: "User already has active subscription (expected)" };
         }
         throw new Error(message || "Checkout failed");
       }
-      toast({
-        title: "Checkout URL Ready",
-        description: "Check console for URL",
-      });
-      console.log("Checkout URL:", data.url);
+      toast({ title: "Checkout URL Ready", description: "Check console for URL" });
+      console.log("Checkout URL:", (data as any)?.url);
       return data;
     });
 
