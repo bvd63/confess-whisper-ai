@@ -4630,8 +4630,7 @@ export const translations: Record<Language, Translations> = {
   subs_confirm_cancel_now: "Cancelar de inmediato y perder beneficios ahora. ¿Continuar?",
   subs_confirm_reactivate: "¿Reactivar tu suscripción y seguir disfrutando de los beneficios premium?",
   subs_confirm_cancel: "¿Está seguro de que desea cancelar su suscripción?",
-  subs_confirm_change_to_vip: "¿Cambiar de Premium a VIP? Se le cobrará la diferencia prorrateada.",
-  subs_confirm_change_to_premium: "¿Cambiar de VIP a Premium? Recibirá un crédito prorrateado.",
+  subs_confirm_change_to_vip: "¡Actualiza a VIP para confesiones ilimitadas y funciones exclusivas!",
   subs_cancel_immediate: "Cancelar ahora",
   subs_cancel_at_period_end: "Cancelar al final del período",
   subs_toast_success: "¡Hecho!",
@@ -4680,7 +4679,6 @@ export const translations: Record<Language, Translations> = {
     profile_settings: "Configuración",
     profile_moderation: "Moderación",
     profile_plan_free: "Gratis",
-    profile_plan_premium: "Premium",
     profile_plan_vip: "VIP",
     
     referral_benefits: "Beneficios:",
@@ -4697,7 +4695,7 @@ export const translations: Record<Language, Translations> = {
     
     subscription_thanks: "¡Gracias por tu apoyo!",
     subscription_upgrade_more: "Mejora para más funciones",
-    subscription_upgrade_premium: "Mejorar a Premium",
+    subscription_upgrade_vip: "Mejorar a VIP",
     subscription_current_plan: "Plan Actual",
     subscription_your_plan: "Tu Plan",
     subscription_downgrade_to_free: "Cambiar a Gratis",
@@ -4713,23 +4711,14 @@ export const translations: Record<Language, Translations> = {
     subscription_limitations_free_limited_ai: "Respuestas IA limitadas",
     subscription_limitations_free_basic_analytics: "Solo análisis básicos",
     
-    // Subscription Benefits - Premium
-    subscription_benefits_premium_more_confessions: "Más confesiones por día",
-    subscription_benefits_premium_unlimited_ai: "Respuestas IA ilimitadas",
-    subscription_benefits_premium_advanced_analytics: "Análisis avanzados",
-    subscription_benefits_premium_exclusive_badges: "Insignias exclusivas",
-    subscription_benefits_premium_no_ads: "Sin anuncios",
-    subscription_benefits_premium_priority_moderation: "Moderación prioritaria",
-    subscription_benefits_premium_image_confessions: "Confesiones con imagen",
-    
-    // Subscription Benefits - VIP
     subscription_benefits_vip_unlimited_confessions: "Confesiones ilimitadas",
-    subscription_benefits_vip_all_premium: "Todos los beneficios Premium",
+    subscription_benefits_vip_unlimited_ai: "Respuestas IA ilimitadas",
     subscription_benefits_vip_detailed_statistics: "Estadísticas detalladas",
     subscription_benefits_vip_priority_support: "Soporte prioritario",
     subscription_benefits_vip_special_badge: "Insignia VIP especial",
     subscription_benefits_vip_early_access: "Acceso anticipado a funciones",
     subscription_benefits_vip_custom_themes: "Temas personalizados",
+    subscription_benefits_vip_no_ads: "Sin anuncios",
     
     // Subscription Management
     subscription_current_status: "Estado Actual",
@@ -4976,7 +4965,6 @@ export const translations: Record<Language, Translations> = {
     
     // Profile Tiers
     profile_tiers_free: "Miembro Gratis",
-    profile_tiers_premium: "Miembro Premium",
     profile_tiers_vip: "Miembro VIP",
     profile_tiers_expires: "Expira el {date}",
     profile_tiers_benefits: "Ver beneficios",
@@ -4998,9 +4986,7 @@ export const translations: Record<Language, Translations> = {
     // Shop
     shop_title: "Tienda de Flairs",
     shop_required_plan_free: "Disponible para todos",
-    shop_required_plan_premium: "Requiere Premium",
     shop_required_plan_vip: "Requiere VIP",
-    shop_lock_premium: "Actualiza a Premium para desbloquear",
     shop_lock_vip: "Actualiza a VIP para desbloquear",
     shop_purchase: "Comprar",
     shop_purchased: "Comprado",
@@ -6348,8 +6334,7 @@ export const translations: Record<Language, Translations> = {
   subs_confirm_cancel_now: "Sofort kündigen und Vorteile verlieren. Fortfahren?",
   subs_confirm_reactivate: "Dein Abonnement reaktivieren und weiterhin Premium-Vorteile genießen?",
   subs_confirm_cancel: "Sind Sie sicher, dass Sie Ihr Abonnement kündigen möchten?",
-  subs_confirm_change_to_vip: "Von Premium auf VIP wechseln? Die Differenz wird anteilig berechnet.",
-  subs_confirm_change_to_premium: "Von VIP auf Premium wechseln? Sie erhalten eine anteilige Gutschrift.",
+  subs_confirm_change_to_vip: "Upgrade auf VIP für unbegrenzte Geständnisse und exklusive Funktionen!",
   subs_cancel_immediate: "Jetzt kündigen",
   subs_cancel_at_period_end: "Am Periodenende kündigen",
   subs_toast_success: "Erledigt!",
@@ -6398,7 +6383,6 @@ export const translations: Record<Language, Translations> = {
     profile_settings: "Einstellungen",
     profile_moderation: "Moderation",
     profile_plan_free: "Kostenlos",
-    profile_plan_premium: "Premium",
     profile_plan_vip: "VIP",
     
     referral_benefits: "Vorteile:",
@@ -6415,7 +6399,7 @@ export const translations: Record<Language, Translations> = {
     
     subscription_thanks: "Vielen Dank für Ihre Unterstützung!",
     subscription_upgrade_more: "Upgrade für mehr Funktionen",
-    subscription_upgrade_premium: "Auf Premium upgraden",
+    subscription_upgrade_vip: "Auf VIP upgraden",
     subscription_current_plan: "Aktueller Plan",
     subscription_your_plan: "Dein Plan",
     subscription_downgrade_to_free: "Zu Kostenlos wechseln",
@@ -6431,23 +6415,14 @@ export const translations: Record<Language, Translations> = {
     subscription_limitations_free_limited_ai: "Begrenzte KI-Antworten",
     subscription_limitations_free_basic_analytics: "Nur Basis-Analysen",
     
-    // Subscription Benefits - Premium
-    subscription_benefits_premium_more_confessions: "Mehr Geständnisse pro Tag",
-    subscription_benefits_premium_unlimited_ai: "Unbegrenzte KI-Antworten",
-    subscription_benefits_premium_advanced_analytics: "Erweiterte Analysen",
-    subscription_benefits_premium_exclusive_badges: "Exklusive Auszeichnungen",
-    subscription_benefits_premium_no_ads: "Keine Werbung",
-    subscription_benefits_premium_priority_moderation: "Prioritätsmoderation",
-    subscription_benefits_premium_image_confessions: "Bild-Geständnisse",
-    
-    // Subscription Benefits - VIP
     subscription_benefits_vip_unlimited_confessions: "Unbegrenzte Geständnisse",
-    subscription_benefits_vip_all_premium: "Alle Premium-Vorteile",
+    subscription_benefits_vip_unlimited_ai: "Unbegrenzte KI-Antworten",
     subscription_benefits_vip_detailed_statistics: "Detaillierte Statistiken",
     subscription_benefits_vip_priority_support: "Prioritätssupport",
     subscription_benefits_vip_special_badge: "Spezielle VIP-Auszeichnung",
     subscription_benefits_vip_early_access: "Früher Zugang zu Funktionen",
     subscription_benefits_vip_custom_themes: "Individuelle Designs",
+    subscription_benefits_vip_no_ads: "Keine Werbung",
     
     // Subscription Management
     subscription_current_status: "Aktueller Status",
@@ -6694,7 +6669,6 @@ export const translations: Record<Language, Translations> = {
     
     // Profile Tiers
     profile_tiers_free: "Kostenloses Mitglied",
-    profile_tiers_premium: "Premium-Mitglied",
     profile_tiers_vip: "VIP-Mitglied",
     profile_tiers_expires: "Läuft ab am {date}",
     profile_tiers_benefits: "Vorteile ansehen",
@@ -6716,9 +6690,7 @@ export const translations: Record<Language, Translations> = {
     // Shop
     shop_title: "Flairs-Shop",
     shop_required_plan_free: "Verfügbar für alle",
-    shop_required_plan_premium: "Erfordert Premium",
     shop_required_plan_vip: "Erfordert VIP",
-    shop_lock_premium: "Upgrade auf Premium zum Freischalten",
     shop_lock_vip: "Upgrade auf VIP zum Freischalten",
     shop_purchase: "Kaufen",
     shop_purchased: "Gekauft",
