@@ -45,6 +45,18 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
     }
   };
 
+  const goToStripeCheckout = async (url: string) => {
+    try {
+      if (window.top && window.top !== window) {
+        window.top.location.href = url;
+        return;
+      }
+    } catch {}
+    const win = window.open(url, '_blank');
+    if (win) return;
+    window.location.href = url;
+  };
+
   const handleSelectPlan = async (planId: string, priceId: string) => {
     setIsLoading(true);
     try {
@@ -72,7 +84,7 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
           title: t.common_success,
           description: "Redirecting to checkout...",
         });
-        window.open(data.url, '_blank');
+        await goToStripeCheckout(data.url);
       }
     } catch (error) {
       console.error('Error creating checkout session:', error);

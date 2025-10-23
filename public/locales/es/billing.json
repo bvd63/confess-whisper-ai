@@ -1,4 +1,9 @@
 {
   "upgradeFailed": "Error en la actualización. Inténtalo de nuevo.",
-  "webhookLag": "Actualización recibida. Sincronizando tu cuenta…"
+  "webhookLag": "Actualización recibida. Sincronizando tu cuenta…",
+  "vip_monthly": "VIP — $6.99/mes",
+  "vip_yearly": "VIP — $54.99/año",
+  "save_yearly": "Ahorra ~34%",
+  "get_vip": "Obtener VIP",
+  "manage_subscription": "Gestionar Suscripción"
 }

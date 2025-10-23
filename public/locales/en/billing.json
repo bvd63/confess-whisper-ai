@@ -1,4 +1,9 @@
 {
   "upgradeFailed": "Upgrade failed. Please try again.",
-  "webhookLag": "Upgrade received. Syncing your account…"
+  "webhookLag": "Upgrade received. Syncing your account…",
+  "vip_monthly": "VIP — $6.99/month",
+  "vip_yearly": "VIP — $54.99/year",
+  "save_yearly": "Save ~34%",
+  "get_vip": "Get VIP",
+  "manage_subscription": "Manage Subscription"
 }

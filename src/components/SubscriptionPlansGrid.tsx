@@ -78,7 +78,7 @@ export const SubscriptionPlansGrid = ({
             >
               Yearly
               <span className="absolute -top-2 -right-2 bg-purple-600 text-white text-xs px-2 py-0.5 rounded-full font-semibold">
-                -35%
+                -34%
               </span>
             </button>
           </div>
@@ -108,7 +108,7 @@ export const SubscriptionPlansGrid = ({
               <div className="absolute -top-3 -right-3">
                 <div className="absolute inset-0 bg-purple-600/30 blur-xl rounded-full"></div>
                 <Badge className="relative bg-purple-600 text-white px-3 py-1 font-semibold">
-                  -35%
+                  Save ~34%
                 </Badge>
               </div>
             )}
