@@ -1750,6 +1750,52 @@ type Translations = {
   coins_boost_duration: string;
   coins_boost_success: string;
   coins_boost_already_active: string;
+  
+  // Content Moderation
+  content_warning_title: string;
+  content_warning_detected: string;
+  content_warning_continue: string;
+  content_email: string;
+  content_phone: string;
+  content_address: string;
+  content_banned: string;
+  
+  // Analytics
+  analytics_best_times_desc: string;
+  analytics_engagement: string;
+  analytics_engagement_desc: string;
+  analytics_best_times: string;
+  views: string;
+  likes: string;
+  comments: string;
+  shares: string;
+  
+  // Admin
+  admin_performance: string;
+  admin_performance_desc: string;
+  admin_active_users: string;
+  admin_last_5_minutes: string;
+  admin_cache: string;
+  admin_clear_cache: string;
+  admin_confirm_clear: string;
+  admin_clear_warning: string;
+  cache_cleared: string;
+  
+  // Quick Actions
+  scroll_top: string;
+  drafts: string;
+  confession_new: string;
+  
+  // Filters
+  filters_title: string;
+  filters_date: string;
+  filters_community: string;
+  filters_sort: string;
+  filters_clear: string;
+  sort_newest: string;
+  sort_oldest: string;
+  sort_most_liked: string;
+  sort_most_commented: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -6584,29 +6630,6 @@ export const translations: Record<Language, Translations> = {
     error_network: "Netzwerkfehler",
     error_validation: "Validierungsfehler",
     
-    // Analytics
-    analytics_best_times_desc: "Spitzenzeiten für Interaktionen",
-
-    // Quick Actions
-    scroll_top: "Nach Oben",
-    drafts: "Entwürfe",
-    confession_new: "Neues Geständnis",
-
-    // Filters
-    filters_title: "Filter",
-    filters_date: "Datumsbereich",
-    filters_community: "Community",
-    filters_sort: "Sortieren Nach",
-    filters_clear: "Filter Löschen",
-    sort_newest: "Neueste Zuerst",
-    sort_oldest: "Älteste Zuerst",
-    sort_most_liked: "Meistgemocht",
-    sort_most_commented: "Meistkommentiert",
-    
-    // Common (continued)
-    common_continue: "Weiter",
-    
-    
     // Daily Rewards
     reward_daily_title: "Tägliche Login-Belohnung",
     reward_daily_desc: "Hol dir deine kostenlosen Münzen!",
@@ -6681,6 +6704,34 @@ export const translations: Record<Language, Translations> = {
     admin_clear_warning: "Dies entfernt alle zwischengespeicherten Daten.",
     cache_cleared: "Cache erfolgreich gelöscht",
 
+    // Analytics
+    analytics_engagement: "Interaktionsaufschlüsselung",
+    analytics_engagement_desc: "Verteilung der Interaktionen",
+    analytics_best_times: "Beste Zeiten zum Posten",
+    analytics_best_times_desc: "Spitzenzeiten für Interaktionen",
+    views: "Ansichten",
+    likes: "Gefällt mir",
+    comments: "Kommentare",
+    shares: "Geteilt",
+
+    // Quick Actions
+    scroll_top: "Nach Oben",
+    drafts: "Entwürfe",
+    confession_new: "Neues Geständnis",
+
+    // Filters
+    filters_title: "Filter",
+    filters_date: "Datumsbereich",
+    filters_community: "Community",
+    filters_sort: "Sortieren Nach",
+    filters_clear: "Filter Löschen",
+    sort_newest: "Neueste Zuerst",
+    sort_oldest: "Älteste Zuerst",
+    sort_most_liked: "Meistgemocht",
+    sort_most_commented: "Meistkommentiert",
+    
+    // Common (continued)
+    common_continue: "Weiter",
     
     // Coin System
     coins_balance: "Guthaben",
