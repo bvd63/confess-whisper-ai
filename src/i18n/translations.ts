@@ -1287,11 +1287,6 @@ type Translations = {
   delete_available: string;
   edit_window_expired: string;
   
-  // Age Gate
-  age_gate_title: string;
-  age_gate_confirm: string;
-  age_gate_requirement: string;
-  
   // Theme
   theme_oled: string;
   
@@ -3437,11 +3432,6 @@ export const translations: Record<Language, Translations> = {
     delete_available: "Delete available for {time}",
     edit_window_expired: "Edit window expired",
     
-    // Age Gate
-    age_gate_title: "Age Verification",
-    age_gate_confirm: "I confirm that I am 13 years or older",
-    age_gate_requirement: "You must be at least 13 years old to use this platform.",
-    
     // Theme
     theme_oled: "OLED Black",
     
@@ -5146,11 +5136,6 @@ export const translations: Record<Language, Translations> = {
     delete_available: "Eliminación disponible por {time}",
     edit_window_expired: "Ventana de edición expirada",
     
-    // Age Gate
-    age_gate_title: "Verificación de Edad",
-    age_gate_confirm: "Confirmo que tengo 13 años o más",
-    age_gate_requirement: "Debes tener al menos 13 años para usar esta plataforma.",
-    
     // Theme
     theme_oled: "Negro OLED",
     
@@ -6854,11 +6839,6 @@ export const translations: Record<Language, Translations> = {
     edit_available: "Bearbeitung verfügbar für {seconds}s",
     delete_available: "Löschen verfügbar für {time}",
     edit_window_expired: "Bearbeitungsfenster abgelaufen",
-    
-    // Age Gate
-    age_gate_title: "Altersüberprüfung",
-    age_gate_confirm: "Ich bestätige, dass ich 13 Jahre oder älter bin",
-    age_gate_requirement: "Sie müssen mindestens 13 Jahre alt sein, um diese Plattform zu nutzen.",
     
     // Theme
     theme_oled: "OLED Schwarz",

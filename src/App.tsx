@@ -13,7 +13,7 @@ import { PerformanceIndicator } from '@/components/PerformanceIndicator';
 import { PerformanceMonitor } from '@/components/PerformanceMonitor';
 import { InstallPrompt } from '@/components/InstallPrompt';
 import { NetworkStatusIndicator } from '@/components/NetworkStatusIndicator';
-import { AgeGateDialog } from '@/components/AgeGateDialog';
+
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthRefresh } from '@/hooks/useAuthRefresh';
 import { useSessionRestoration } from '@/hooks/useSessionRestoration';
@@ -139,7 +139,7 @@ const AppContent = () => {
   return (
     <div className="relative pb-16">
       <div data-testid="app-ready" style={{ display: 'none' }} />
-      <AgeGateDialog />
+      
       <NetworkStatusIndicator />
       <TabNavigationProvider>
         <Routes>

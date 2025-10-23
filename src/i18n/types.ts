@@ -85,11 +85,6 @@ export interface Translations {
   delete_available: string;
   edit_window_expired: string;
   
-  // Age Gate
-  age_gate_title: string;
-  age_gate_confirm: string;
-  age_gate_requirement: string;
-  
   // Theme
   theme_oled: string;
   
