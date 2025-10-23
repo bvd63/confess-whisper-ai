@@ -19,7 +19,11 @@ export const useFollowing = ({ userId }: UseFollowingOptions) => {
       return data?.map(f => f.following_id) || [];
     },
     enabled: !!userId,
-    cacheTTL: 3 * 60 * 1000, // 3 minutes
+    cacheTTL: 5 * 60 * 1000, // 5 minutes (increased for better performance)
+    staleTime: 3 * 60 * 1000, // 3 minutes stale time
+    cacheKey: `following-${userId}`,
+    useCircuitBreaker: true,
+    useDedupe: true,
   });
 
   const { data: followersData, isLoading: followersLoading, refetch: refetchFollowers } = useOptimizedQuery<string[]>({
@@ -34,7 +38,11 @@ export const useFollowing = ({ userId }: UseFollowingOptions) => {
       return data?.map(f => f.follower_id) || [];
     },
     enabled: !!userId,
-    cacheTTL: 3 * 60 * 1000, // 3 minutes
+    cacheTTL: 5 * 60 * 1000, // 5 minutes (increased for better performance)
+    staleTime: 3 * 60 * 1000, // 3 minutes stale time
+    cacheKey: `followers-${userId}`,
+    useCircuitBreaker: true,
+    useDedupe: true,
   });
 
   const following = followingData || [];
