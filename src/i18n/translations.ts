@@ -4719,6 +4719,11 @@ export const translations: Record<Language, Translations> = {
     subscription_benefits_vip_early_access: "Acceso anticipado a funciones",
     subscription_benefits_vip_custom_themes: "Temas personalizados",
     subscription_benefits_vip_no_ads: "Sin anuncios",
+    subscription_benefits_vip_private_confessions: "Confesiones privadas",
+    subscription_benefits_vip_advanced_stats: "Estadísticas avanzadas",
+    subscription_benefits_vip_priority_ai: "IA prioritaria",
+    subscription_benefits_vip_coins_bonus: "Bonificación de monedas",
+    subscription_benefits_vip_login_rewards: "Recompensas de inicio de sesión",
     
     // Subscription Management
     subscription_current_status: "Estado Actual",
@@ -6423,6 +6428,11 @@ export const translations: Record<Language, Translations> = {
     subscription_benefits_vip_early_access: "Früher Zugang zu Funktionen",
     subscription_benefits_vip_custom_themes: "Individuelle Designs",
     subscription_benefits_vip_no_ads: "Keine Werbung",
+    subscription_benefits_vip_private_confessions: "Private Geständnisse",
+    subscription_benefits_vip_advanced_stats: "Erweiterte Statistiken",
+    subscription_benefits_vip_priority_ai: "Prioritäts-KI",
+    subscription_benefits_vip_coins_bonus: "Münzbonus",
+    subscription_benefits_vip_login_rewards: "Login-Belohnungen",
     
     // Subscription Management
     subscription_current_status: "Aktueller Status",
