@@ -1,13 +1,23 @@
+// @ts-expect-error - Deno runtime imports
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+// @ts-expect-error - Deno runtime imports
 import Stripe from "https://esm.sh/stripe@18.5.0";
+// @ts-expect-error - Deno runtime imports
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+
+// Deno global is available in Supabase Edge Functions runtime
+declare const Deno: {
+  env: {
+    get(key: string): string | undefined;
+  };
+};
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const logStep = (step: string, details?: any) => {
+const logStep = (step: string, details?: Record<string, unknown>) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[BILLING-CHANGE] ${step}${detailsStr}`);
 };
@@ -17,7 +27,7 @@ const STRIPE_PRICE_IDS = {
   vip: "price_1SJ0vwR7kygIyYg9OeCiqV00",
 };
 
-serve(async (req) => {
+serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -88,7 +98,7 @@ serve(async (req) => {
     }
 
     // Validate tier hierarchy for proper upgrade/downgrade
-    const tierHierarchy = { free: 0, premium: 1, vip: 2 };
+    const tierHierarchy: Record<string, number> = { free: 0, premium: 1, vip: 2 };
     const currentLevel = tierHierarchy[currentTier];
     const targetLevel = tierHierarchy[targetTier];
 
@@ -123,19 +133,16 @@ serve(async (req) => {
     // Update subscription with appropriate proration
     // Upgrades: immediate with proration
     // Downgrades: at period end (no immediate proration)
-    const updateParams: any = {
+    const updateParams: Stripe.SubscriptionUpdateParams = {
       items: [{
         id: subscriptionItemId,
         price: targetPriceId,
       }],
+      proration_behavior: isUpgrade ? 'create_prorations' : 'none',
     };
 
-    if (isUpgrade) {
-      // For upgrades, apply proration immediately
-      updateParams.proration_behavior = 'create_prorations';
-    } else {
-      // For downgrades, schedule for next period
-      updateParams.proration_behavior = 'none';
+    if (!isUpgrade) {
+      // For downgrades, maintain the billing cycle
       updateParams.billing_cycle_anchor = 'unchanged';
     }
 
