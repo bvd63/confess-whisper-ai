@@ -89,7 +89,7 @@ const AdvancedAnalytics = ({
   return <div className="space-y-6">
       {/* Engagement Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {engagementData.map(stat => <Card key={stat.name} className="p-6">
+        {engagementData.map(stat => <Card key={stat.name} className="p-6 py-[7px]">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">{stat.name}</h3>
               <stat.icon className="w-5 h-5" style={{
