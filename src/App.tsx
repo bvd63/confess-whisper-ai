@@ -52,6 +52,7 @@ import TestSubscriptions from "./pages/TestSubscriptions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import NotFound from "./pages/NotFound";
+import Performance from "./pages/admin/Performance";
 
 const AppContent = () => {
   const { user } = useAuth();
@@ -154,6 +155,7 @@ const AppContent = () => {
           <Route path="/u/:handle" element={<UserProfile />} />
           <Route path="/user/:userId" element={<UserProfile />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/performance" element={<Performance />} />
           <Route path="/system-monitor" element={<SystemMonitor />} />
           <Route path="/bookmarks" element={<Bookmarks />} />
           <Route path="/following" element={<Following />} />

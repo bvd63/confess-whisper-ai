@@ -24,6 +24,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { usePerformanceBudget } from "@/hooks/usePerformanceBudget";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
 import { FeatureGate } from "@/components/auth/FeatureGate";
+import { RateLimitIndicator } from "@/components/RateLimitIndicator";
+import { useConfessionRateLimit } from "@/hooks/useConfessionRateLimit";
 
 // Lazy load heavy components
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
@@ -47,6 +49,7 @@ const Index = () => {
   const [showSecondaryContent, setShowSecondaryContent] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const { isLimited, remainingRequests, totalRequests, getRemainingTime } = useConfessionRateLimit();
   
   // Monitor performance budget
   usePerformanceBudget();
@@ -128,6 +131,17 @@ const Index = () => {
 
         {/* Streak Counter */}
         {user && <StreakCounter userId={user.id} variant="full" />}
+
+        {/* Rate Limit Indicator */}
+        {user && (
+          <RateLimitIndicator
+            remaining={remainingRequests}
+            total={totalRequests}
+            resetTime={getRemainingTime()}
+            isLimited={isLimited}
+            className="mb-4"
+          />
+        )}
 
         {/* Quote of the Day */}
         {user && (
