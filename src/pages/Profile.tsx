@@ -252,17 +252,10 @@ const Profile = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-2xl font-bold">{t.badges_your_badges}</h2>
-                <FeatureGate 
-                  minTier="vip" 
-                  teaserPriceHint="$4.99/mo" 
-                  compact
-                  onUpgradeOverride={() => setPremiumDialogOpen(true)}
-                >
                   <FlairsShopButton 
                     onClick={() => setFlairsDialogOpen(true)} 
                     tier={(subscriptionTier === 'premium' ? 'vip' : subscriptionTier) as "free" | "vip"}
                   />
-                </FeatureGate>
               </div>
               <BadgesDisplay userId={user.id} variant="full" />
             </div>
