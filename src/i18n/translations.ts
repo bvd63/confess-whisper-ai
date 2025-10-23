@@ -3299,16 +3299,6 @@ export const translations: Record<Language, Translations> = {
     // Network Status
     network_offline: "You are offline. Messages will be sent when connection is restored.",
     network_syncing: "Syncing {count} pending operation(s)...",
-    
-    // Rate Limiting
-    rate_limit_remaining: "Actions Remaining",
-    rate_limit_reset_in: "Resets in {time}",
-    rate_limit_wait_message: "Please wait before trying again",
-    rate_limit_title: "Rate Limit Reached",
-    system_rate_limit_exceeded: "Too many requests. Please try again later.",
-
-    // Content Moderation
-    content_warning_title: "Personal Information Detected",
     content_warning_detected: "Personal information detected. Continue?",
     content_warning_continue: "Post Anyway",
     content_email: "Email address",
@@ -3334,6 +3324,7 @@ export const translations: Record<Language, Translations> = {
     analytics_best_times_desc: "Peak engagement hours",
     views: "Views",
     likes: "Likes",
+    comments: "Comments",
     shares: "Shares",
 
     // Quick Actions
@@ -4975,6 +4966,52 @@ export const translations: Record<Language, Translations> = {
     network_offline: "Estás desconectado. Los mensajes se enviarán cuando se restaure la conexión.",
     network_syncing: "Sincronizando {count} operación(es) pendiente(s)...",
     
+    // Content Moderation
+    content_warning_title: "Información Personal Detectada",
+    content_warning_detected: "Información personal detectada. ¿Continuar?",
+    content_warning_continue: "Publicar De Todos Modos",
+    content_email: "Dirección de email",
+    content_phone: "Número de teléfono",
+    content_address: "Dirección física",
+    content_banned: "Contenido restringido",
+
+    // Admin
+    admin_performance: "Métricas de Rendimiento",
+    admin_performance_desc: "Salud del sistema y monitoreo",
+    admin_active_users: "Usuarios Activos",
+    admin_last_5_minutes: "Últimos 5 minutos",
+    admin_cache: "Gestión de Caché",
+    admin_clear_cache: "Limpiar Caché",
+    admin_confirm_clear: "¿Limpiar todo el caché?",
+    admin_clear_warning: "Esto eliminará todos los datos en caché.",
+    cache_cleared: "Caché limpiado exitosamente",
+
+    // Analytics
+    analytics_engagement: "Desglose de Interacción",
+    analytics_engagement_desc: "Distribución de interacciones",
+    analytics_best_times: "Mejores Horarios para Publicar",
+    analytics_best_times_desc: "Horas pico de interacción",
+    views: "Vistas",
+    likes: "Me Gusta",
+    comments: "Comentarios",
+    shares: "Compartidos",
+
+    // Quick Actions
+    scroll_top: "Subir Arriba",
+    drafts: "Borradores",
+    confession_new: "Nueva Confesión",
+
+    // Filters
+    filters_title: "Filtros",
+    filters_date: "Rango de Fechas",
+    filters_community: "Comunidad",
+    filters_sort: "Ordenar Por",
+    filters_clear: "Limpiar Filtros",
+    sort_newest: "Más Recientes",
+    sort_oldest: "Más Antiguos",
+    sort_most_liked: "Más Gustados",
+    sort_most_commented: "Más Comentados",
+    
     // Common (continued)
     common_continue: "Continuar",
     
@@ -6544,6 +6581,56 @@ export const translations: Record<Language, Translations> = {
     error_network: "Netzwerkfehler",
     error_validation: "Validierungsfehler",
     
+    analytics_best_times_desc: "Spitzenzeiten für Interaktionen",
+    views: "Ansichten",
+    likes: "Gefällt mir",
+    comments: "Kommentare",
+    shares: "Geteilt",
+
+    // Quick Actions
+    scroll_top: "Nach Oben",
+    drafts: "Entwürfe",
+    confession_new: "Neues Geständnis",
+
+    // Filters
+    filters_title: "Filter",
+    filters_date: "Datumsbereich",
+    filters_community: "Community",
+    filters_sort: "Sortieren Nach",
+    filters_clear: "Filter Löschen",
+    sort_newest: "Neueste Zuerst",
+    sort_oldest: "Älteste Zuerst",
+    sort_most_liked: "Meistgemocht",
+    sort_most_commented: "Meistkommentiert",
+    
+    // Common (continued)
+    common_continue: "Weiter",
+    
+    analytics_best_times_desc: "Spitzenzeiten für Interaktionen",
+    views: "Ansichten",
+    likes: "Gefällt mir",
+    comments: "Kommentare",
+    shares: "Geteilt",
+
+    // Quick Actions
+    scroll_top: "Nach Oben",
+    drafts: "Entwürfe",
+    confession_new: "Neues Geständnis",
+
+    // Filters
+    filters_title: "Filter",
+    filters_date: "Datumsbereich",
+    filters_community: "Community",
+    filters_sort: "Sortieren Nach",
+    filters_clear: "Filter Löschen",
+    sort_newest: "Neueste Zuerst",
+    sort_oldest: "Älteste Zuerst",
+    sort_most_liked: "Meistgemocht",
+    sort_most_commented: "Meistkommentiert",
+    
+    // Common (continued)
+    common_continue: "Weiter",
+    
     // Daily Rewards
     reward_daily_title: "Tägliche Login-Belohnung",
     reward_daily_desc: "Hol dir deine kostenlosen Münzen!",
@@ -6597,6 +6684,52 @@ export const translations: Record<Language, Translations> = {
     // Network Status
     network_offline: "Du bist offline. Nachrichten werden gesendet, sobald die Verbindung wiederhergestellt ist.",
     network_syncing: "Synchronisiere {count} ausstehende Operation(en)...",
+    
+    // Content Moderation
+    content_warning_title: "Persönliche Informationen Erkannt",
+    content_warning_detected: "Persönliche Informationen erkannt. Fortfahren?",
+    content_warning_continue: "Trotzdem Posten",
+    content_email: "E-Mail-Adresse",
+    content_phone: "Telefonnummer",
+    content_address: "Physische Adresse",
+    content_banned: "Eingeschränkter Inhalt",
+
+    // Admin
+    admin_performance: "Leistungsmetriken",
+    admin_performance_desc: "Systemzustand und Überwachung",
+    admin_active_users: "Aktive Benutzer",
+    admin_last_5_minutes: "Letzte 5 Minuten",
+    admin_cache: "Cache-Verwaltung",
+    admin_clear_cache: "Cache Löschen",
+    admin_confirm_clear: "Gesamten Cache löschen?",
+    admin_clear_warning: "Dies entfernt alle zwischengespeicherten Daten.",
+    cache_cleared: "Cache erfolgreich gelöscht",
+
+    // Analytics
+    analytics_engagement: "Interaktionsaufschlüsselung",
+    analytics_engagement_desc: "Verteilung der Interaktionen",
+    analytics_best_times: "Beste Zeiten zum Posten",
+    analytics_best_times_desc: "Spitzenzeiten für Interaktionen",
+    views: "Ansichten",
+    likes: "Gefällt mir",
+    comments: "Kommentare",
+    shares: "Geteilt",
+
+    // Quick Actions
+    scroll_top: "Nach Oben",
+    drafts: "Entwürfe",
+    confession_new: "Neues Geständnis",
+
+    // Filters
+    filters_title: "Filter",
+    filters_date: "Datumsbereich",
+    filters_community: "Community",
+    filters_sort: "Sortieren Nach",
+    filters_clear: "Filter Löschen",
+    sort_newest: "Neueste Zuerst",
+    sort_oldest: "Älteste Zuerst",
+    sort_most_liked: "Meistgemocht",
+    sort_most_commented: "Meistkommentiert",
     
     // Common (continued)
     common_continue: "Weiter",

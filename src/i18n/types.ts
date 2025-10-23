@@ -35,54 +35,10 @@ export interface Translations {
   error_network: string;
   error_validation: string;
 
-  // Rate Limiting
+  rate_limit_title: string;
+  rate_limit_desc: string;
   rate_limit_remaining: string;
   rate_limit_reset_in: string;
   rate_limit_wait_message: string;
-  rate_limit_title: string;
   system_rate_limit_exceeded: string;
-
-  // Content Moderation
-  content_warning_title: string;
-  content_warning_detected: string;
-  content_warning_continue: string;
-  content_email: string;
-  content_phone: string;
-  content_address: string;
-  content_banned: string;
-
-  // Admin
-  admin_performance: string;
-  admin_performance_desc: string;
-  admin_active_users: string;
-  admin_last_5_minutes: string;
-  admin_cache: string;
-  admin_clear_cache: string;
-  admin_confirm_clear: string;
-  admin_clear_warning: string;
-  cache_cleared: string;
-
-  // Analytics
-  analytics_engagement: string;
-  analytics_engagement_desc: string;
-  analytics_best_times: string;
-  analytics_best_times_desc: string;
-  views: string;
-  likes: string;
-  shares: string;
-
-  // Quick Actions
-  scroll_top: string;
-  drafts: string;
-
-  // Filters
-  filters_title: string;
-  filters_date: string;
-  filters_community: string;
-  filters_sort: string;
-  filters_clear: string;
-  sort_newest: string;
-  sort_oldest: string;
-  sort_most_liked: string;
-  sort_most_commented: string;
 }

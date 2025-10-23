@@ -7,17 +7,8 @@ import { SubscriptionProvider } from "@/state/SubscriptionProvider";
 import ErrorBoundary from "@/components/ErrorBoundaryFallback";
 import { reportWebVitals } from "@/hooks/usePerformanceMonitor";
 import { validateTranslationSystem } from "@/lib/i18nValidator";
-import { validateEnvironment, renderEnvErrorScreen } from "@/lib/envValidator";
 import App from "./App.tsx";
 import "./index.css";
-
-// Validate environment variables before app initialization
-const envValidation = validateEnvironment();
-if (!envValidation.valid) {
-  const language = (localStorage.getItem('language') as 'en' | 'es' | 'de') || 'en';
-  renderEnvErrorScreen(envValidation, language);
-  throw new Error('Missing required environment variables');
-}
 
 // Register service worker for PWA
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
