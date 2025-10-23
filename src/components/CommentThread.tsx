@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { MessageCircle, Send } from "lucide-react";
@@ -144,4 +144,4 @@ const CommentThread = ({
   );
 };
 
-export default CommentThread;
+export default memo(CommentThread);

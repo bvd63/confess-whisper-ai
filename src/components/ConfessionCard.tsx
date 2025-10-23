@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { EnhancedButton } from "@/components/EnhancedButton";
 import { MessageCircle, Sparkles } from "lucide-react";
@@ -287,4 +287,4 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   );
 };
 
-export default ConfessionCard;
+export default memo(ConfessionCard);

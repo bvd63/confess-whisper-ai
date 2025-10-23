@@ -5,6 +5,7 @@ import { Users, MessageSquare } from "lucide-react";
 import { useCommunityMembers } from "@/hooks/useCommunities";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { memo } from "react";
 
 interface CommunityCardProps {
   community: {
@@ -82,3 +83,5 @@ export const CommunityCard = ({ community }: CommunityCardProps) => {
     </AnimatedCard>
   );
 };
+
+export default memo(CommunityCard);
