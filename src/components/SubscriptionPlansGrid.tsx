@@ -152,11 +152,7 @@ export const SubscriptionPlansGrid = ({
             <Button
               onClick={() => onSelectPlan(plan.id, plan.priceId)}
               disabled={isLoading || !canChangePlan || isCurrentPlan(plan)}
-              className={`w-full py-6 rounded-lg font-semibold transition-all duration-300 ${
-                isCurrentPlan(plan)
-                  ? 'bg-purple-600 hover:bg-purple-600 text-white cursor-default shadow-lg shadow-purple-500/30'
-                  : 'bg-transparent border-2 border-white hover:bg-white text-white hover:text-black hover:scale-[1.02]'
-              }`}
+              className="w-full py-6 rounded-lg font-semibold transition-all duration-300 bg-transparent border-2 border-white hover:bg-white text-white hover:text-black hover:scale-[1.02] disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-white disabled:scale-100"
             >
               {isCurrentPlan(plan) ? 'Active Plan' : getButtonText(plan)}
             </Button>
