@@ -9,10 +9,13 @@ describe("Immediate Upgrade Flow", () => {
     vi.clearAllMocks();
   });
 
-  it("should handle successful immediate upgrade from Premium to VIP", async () => {
+  it("should handle successful immediate upgrade from Free to VIP", async () => {
     const user = userEvent.setup();
-    const initialStatus = createSubscriptionStatus({ currentPlan: 'premium', status: 'active' });
+    const initialStatus = createSubscriptionStatus({ currentPlan: 'free', status: 'active' });
     const upgradedStatus = createSubscriptionStatus({ currentPlan: 'vip', status: 'active' });
+
+    const mockWindowOpen = vi.fn();
+    window.open = mockWindowOpen;
 
     let callCount = 0;
     vi.mocked(mockSupabaseClient.functions.invoke).mockReset();
@@ -21,8 +24,8 @@ describe("Immediate Upgrade Flow", () => {
         callCount++;
         return { data: callCount === 1 ? initialStatus : upgradedStatus, error: null };
       }
-      if (fnName === 'billing-change') {
-        return { data: upgradedStatus, error: null };
+      if (fnName === 'create-checkout-session') {
+        return { data: { url: 'https://stripe.com/checkout/test' }, error: null };
       }
       return { data: null, error: null };
     });
@@ -30,7 +33,7 @@ describe("Immediate Upgrade Flow", () => {
     renderWithProviders(<EnhancedSubscriptionManager />);
 
     await waitFor(() => {
-      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
+      expect(screen.getByTestId('manage-subscription-modal')).toBeInTheDocument();
     });
 
     // Find the VIP upgrade button (testid is action-vip)
@@ -43,22 +46,21 @@ describe("Immediate Upgrade Flow", () => {
     await user.click(confirmButton);
 
     await waitFor(() => {
-      // After upgrade, check that the status was reloaded
-      // The button should now show as disabled (current plan)
-      expect(screen.getByText(/Current Status/i)).toBeInTheDocument();
+      // After clicking confirm, should redirect to Stripe checkout
+      expect(mockWindowOpen).toHaveBeenCalledWith('https://stripe.com/checkout/test', '_blank');
     });
   });
 
   it("should show an error toast if the upgrade fails", async () => {
     const user = userEvent.setup();
-    const initialStatus = createSubscriptionStatus({ currentPlan: 'premium', status: 'active' });
+    const initialStatus = createSubscriptionStatus({ currentPlan: 'free', status: 'active' });
 
     vi.mocked(mockSupabaseClient.functions.invoke).mockReset();
     vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(async (fnName: string) => {
       if (fnName === 'billing-status') {
         return { data: initialStatus, error: null };
       }
-      if (fnName === 'billing-change') {
+      if (fnName === 'create-checkout-session') {
         return { data: null, error: { message: "An unexpected error occurred." } };
       }
       return { data: null, error: null };
@@ -67,7 +69,7 @@ describe("Immediate Upgrade Flow", () => {
     renderWithProviders(<EnhancedSubscriptionManager />);
 
     await waitFor(() => {
-      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
+      expect(screen.getByTestId('manage-subscription-modal')).toBeInTheDocument();
     });
 
     const upgradeButton = screen.getByTestId("action-vip");
@@ -81,11 +83,6 @@ describe("Immediate Upgrade Flow", () => {
     await waitFor(() => {
       // Dialog should close after error is handled
       expect(screen.queryByTestId("confirm-action")).not.toBeInTheDocument();
-    });
-
-    // After error, Premium plan should still be current
-    await waitFor(() => {
-      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
   });
 });

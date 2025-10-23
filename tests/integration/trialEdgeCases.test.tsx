@@ -11,6 +11,7 @@ describe('Trial Edge Cases', () => {
       if (fnName === 'billing-status') {
         return {
           data: createSubscriptionStatus({
+            currentPlan: 'vip',
             status: 'trialing',
             currentPeriodEnd: '2025-10-30T18:00:00Z',
             trial_active: true,
@@ -55,7 +56,7 @@ describe('Trial Edge Cases', () => {
     });
   });
 
-  it('should allow upgrade during trial', async () => {
+  it('should allow cancellation during trial', async () => {
     const user = userEvent.setup();
 
     renderWithProviders(<EnhancedSubscriptionManager />);
@@ -64,10 +65,11 @@ describe('Trial Edge Cases', () => {
       expect(screen.getByText(/trial/i)).toBeInTheDocument();
     });
 
-    const upgradeButton = screen.getByTestId('action-vip');
-    expect(upgradeButton).not.toBeDisabled();
+    // During trial, user can cancel (downgrade to free)
+    const cancelButton = screen.getByText(/cancel/i);
+    expect(cancelButton).toBeInTheDocument();
 
-    await user.click(upgradeButton);
+    await user.click(cancelButton);
 
     await waitFor(() => {
       expect(screen.getByTestId('confirm-action')).toBeInTheDocument();
@@ -78,7 +80,7 @@ describe('Trial Edge Cases', () => {
     renderWithProviders(<EnhancedSubscriptionManager />);
 
     await waitFor(() => {
-      expect(screen.getAllByText(/Premium/i)[0]).toBeInTheDocument();
+      expect(screen.getAllByText(/VIP/i)[0]).toBeInTheDocument();
     });
   });
 });

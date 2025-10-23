@@ -20,7 +20,7 @@ export interface SubscriptionStatusMock {
 }
 
 export const createSubscriptionStatus = (overrides: Partial<SubscriptionStatusMock> = {}): SubscriptionStatusMock => ({
-  currentPlan: 'premium',
+  currentPlan: 'vip',
   interval: 'monthly',
   status: 'active',
   cancelAtPeriodEnd: false,

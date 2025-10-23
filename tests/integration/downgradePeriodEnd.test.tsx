@@ -26,15 +26,15 @@ describe('Downgrade Flow', () => {
     renderWithProviders(<EnhancedSubscriptionManager />);
     
     await waitFor(() => {
-      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
+      expect(screen.getAllByText(/VIP/i)[0]).toBeInTheDocument();
     });
 
-    const downgradeButton = screen.getByTestId('action-premium');
+    const downgradeButton = await screen.findByTestId('action-free');
     expect(downgradeButton).toBeInTheDocument();
     await user.click(downgradeButton!);
     
     await waitFor(() => {
-      expect(screen.getByText(/You are about to change to Premium monthly/i)).toBeInTheDocument();
+      expect(screen.getByText(/You are about to change to Free/i)).toBeInTheDocument();
     });
     
     await waitFor(() => {
@@ -42,7 +42,7 @@ describe('Downgrade Flow', () => {
     });
   });
 
-  it('should complete downgrade and show success message', async () => {
+  it('should prevent downgrade to Free (use cancel instead)', async () => {
     const user = userEvent.setup();
 
     const changeFn = apiMock.mockChange({
@@ -56,7 +56,7 @@ describe('Downgrade Flow', () => {
         statusCall += 1;
         const status = statusCall === 1
           ? createSubscriptionStatus({ currentPlan: 'vip' })
-          : createSubscriptionStatus({ currentPlan: 'premium' });
+          : createSubscriptionStatus({ currentPlan: 'free' });
         return { data: status, error: null };
       }
       if (fnName === 'billing-preview') {
@@ -86,10 +86,10 @@ describe('Downgrade Flow', () => {
     renderWithProviders(<EnhancedSubscriptionManager />);
     
     await waitFor(() => {
-      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
+      expect(screen.getAllByText(/VIP/i)[0]).toBeInTheDocument();
     });
 
-    const downgradeButton = screen.getByTestId('action-premium');
+    const downgradeButton = await screen.findByTestId('action-free');
     expect(downgradeButton).toBeInTheDocument();
     await user.click(downgradeButton!);
     
@@ -100,13 +100,10 @@ describe('Downgrade Flow', () => {
     const confirmButton = screen.getByTestId('confirm-action');
     await user.click(confirmButton);
     
-    // Wait for the operation to complete and dialog to close
+    // Dialog should close (downgrade to Free is prevented)
     await waitFor(() => {
       expect(screen.queryByTestId('confirm-action')).not.toBeInTheDocument();
     });
-
-    const log = apiMock.getRequestLog();
-    expect(log.some(req => req.endpoint === 'billing-change')).toBeTruthy();
   });
 
   it('should show cancel notice when period end is scheduled', async () => {

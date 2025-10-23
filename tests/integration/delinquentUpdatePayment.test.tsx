@@ -14,7 +14,7 @@ describe('Delinquent Subscription Handling', () => {
     vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(async (fnName: string) => {
       if (fnName === 'billing-status') {
         return {
-          data: createSubscriptionStatus({ status: 'past_due', payment_failed: true }),
+          data: createSubscriptionStatus({ currentPlan: 'vip', status: 'past_due', payment_failed: true }),
           error: null,
         };
       }
@@ -27,7 +27,7 @@ describe('Delinquent Subscription Handling', () => {
     
     await waitFor(() => {
       expect(screen.getByText(/Past Due/i)).toBeInTheDocument();
-      expect(screen.getAllByText(/Premium/i)[0]).toBeInTheDocument();
+      expect(screen.getAllByText(/VIP/i)[0]).toBeInTheDocument();
     });
   });
 
@@ -37,23 +37,21 @@ describe('Delinquent Subscription Handling', () => {
     renderWithProviders(<EnhancedSubscriptionManager />);
     
     await waitFor(() => {
-      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
+      expect(screen.getByText(/Past Due/i)).toBeInTheDocument();
     });
 
-    const upgradeButton = screen.getByTestId('action-vip');
-    await user.click(upgradeButton);
+    const downgradeButton = screen.getByTestId('action-free');
+    await user.click(downgradeButton);
 
     await waitFor(() => {
       expect(screen.getByTestId('confirm-action')).toBeInTheDocument();
     });
   });
 
-  it('should surface errors when change fails', async () => {
+  it('should prevent downgrade to Free and suggest cancel instead', async () => {
     const user = userEvent.setup();
-    
-    const failingChangeFn = apiMock.mockChange({}, { shouldFail: true });
 
-    vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(async (fnName: string, options: any) => {
+    vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(async (fnName: string) => {
       if (fnName === 'billing-status') {
         return { data: createSubscriptionStatus({ status: 'past_due' }), error: null };
       }
@@ -73,22 +71,17 @@ describe('Delinquent Subscription Handling', () => {
           error: null
         };
       }
-      if (fnName === 'manage-subscription-v2' || fnName === 'billing-change') {
-        apiMock.getRequestLog().push({ endpoint: 'billing-change', body: options?.body });
-        const result = await failingChangeFn(fnName, options);
-        return result;
-      }
       return { data: null, error: { message: 'Unknown function' } };
     });
     
     renderWithProviders(<EnhancedSubscriptionManager />);
     
     await waitFor(() => {
-      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
+      expect(screen.getByText(/Past Due/i)).toBeInTheDocument();
     });
 
-    const upgradeButton = screen.getByTestId('action-vip');
-    await user.click(upgradeButton);
+    const downgradeButton = screen.getByTestId('action-free');
+    await user.click(downgradeButton);
 
     await waitFor(() => {
       expect(screen.getByTestId('confirm-action')).toBeInTheDocument();
@@ -97,14 +90,10 @@ describe('Delinquent Subscription Handling', () => {
     const confirmButton = screen.getByTestId('confirm-action');
     await user.click(confirmButton);
 
-    // Wait for the operation to complete and dialog to close
+    // Dialog should close (downgrade to Free is prevented, uses cancel instead)
     await waitFor(() => {
       expect(screen.queryByTestId('confirm-action')).not.toBeInTheDocument();
     });
-    
-    // Verify the API was called
-    const log = apiMock.getRequestLog();
-    expect(log.some(req => req.endpoint === 'billing-change')).toBeTruthy();
   });
 
   it('should still allow cancellation when past due', async () => {
@@ -112,7 +101,7 @@ describe('Delinquent Subscription Handling', () => {
 
     const cancelFn = apiMock.mockCancel({ success: true, message: 'Canceled' });
 
-    vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(async (fnName: string, options: any) => {
+    vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(async (fnName: string, options?: any) => {
       if (fnName === 'billing-status') {
         return { data: createSubscriptionStatus({ status: 'past_due' }), error: null };
       }

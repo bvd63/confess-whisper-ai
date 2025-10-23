@@ -24,7 +24,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     id: 'free',
     name: 'Free',
     priceMonthly: 0,
-    stripePriceIdMonthly: '',
+    stripePriceIdMonthly: 'free',
     benefits: [
       'subscription_benefits_free_confessions',
       'subscription_benefits_free_basic_features',
