@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Users, Plus, Search } from "lucide-react";
 import { useCommunities } from "@/hooks/useCommunities";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import { LoadingQuotes } from "@/components/LoadingQuotes";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
@@ -157,7 +157,7 @@ const Communities = () => {
 
         {/* Communities Grid */}
         {isLoading ? (
-          <LoadingSpinner />
+          <LoadingQuotes />
         ) : filteredCommunities && filteredCommunities.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredCommunities.map((community, index) => (

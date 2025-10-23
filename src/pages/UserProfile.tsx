@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TrialBanner } from "@/components/TrialBanner";
 import { TierProfileCard } from "@/components/TierProfileCard";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
+import { KarmaDisplay } from "@/components/KarmaDisplay";
 
 interface UserProfileData {
   nickname: string;
@@ -115,6 +116,11 @@ const UserProfile = () => {
             confessionsCount={confessionsCount}
           />
         </TierProfileCard>
+
+        {/* Karma Display */}
+        <div className="mb-6">
+          <KarmaDisplay userId={userId!} variant="full" />
+        </div>
 
         <div className="mt-8">
           <ProfileTabs 

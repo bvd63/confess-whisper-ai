@@ -8,7 +8,7 @@ import { MapPin, List, Map as MapIcon } from "lucide-react";
 import { useNearbyConfessions } from "@/hooks/useNearbyConfessions";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import { LoadingQuotes } from "@/components/LoadingQuotes";
 import ConfessionCard from "@/components/ConfessionCard";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -77,7 +77,7 @@ const NearbyConfessions = () => {
 
         {/* Content */}
         {isLoading ? (
-          <LoadingSpinner />
+          <LoadingQuotes />
         ) : error ? (
           <AnimatedCard glass className="p-8 text-center">
             <MapPin className="w-12 h-12 mx-auto mb-4 text-destructive" />

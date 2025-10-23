@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Users } from "lucide-react";
 import ConfessionCard from "./ConfessionCard";
-import LoadingSpinner from "./LoadingSpinner";
+import { LoadingQuotes } from "./LoadingQuotes";
 import ErrorMessage from "./ErrorMessage";
 import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
 import { useToast } from "@/hooks/use-toast";
@@ -65,7 +65,7 @@ const FollowingFeed = ({ userId, isPremium, onUpgradeClick }: FollowingFeedProps
   };
 
   if (loading) {
-    return <LoadingSpinner text={t.following_feed_loading} />;
+    return <LoadingQuotes />;
   }
 
   if (error) {

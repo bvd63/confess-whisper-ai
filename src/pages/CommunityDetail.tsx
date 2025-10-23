@@ -10,7 +10,7 @@ import { Users, MessageSquare, ArrowLeft, Settings } from "lucide-react";
 import { useCommunityMembers } from "@/hooks/useCommunities";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import { LoadingQuotes } from "@/components/LoadingQuotes";
 import ConfessionCard from "@/components/ConfessionCard";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { useState } from "react";
@@ -65,7 +65,7 @@ const CommunityDetail = () => {
     return (
       <>
       <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
-        <LoadingSpinner />
+        <LoadingQuotes />
       </AppLayout>
       <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
       </>
@@ -152,7 +152,7 @@ const CommunityDetail = () => {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">{t.communities_recent}</h2>
           {loadingConfessions ? (
-            <LoadingSpinner />
+            <LoadingQuotes />
           ) : confessions && confessions.length > 0 ? (
             confessions.map((confession, index) => (
               <div key={confession.id} style={{ animationDelay: `${index * 50}ms` }}>

@@ -224,6 +224,11 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
             />
           </>
         )}
+        {user && isOwner && canDelete && deleteTimeLeft > 0 && (
+          <span className="text-xs text-muted-foreground ml-auto">
+            {t.delete_available?.replace('{time}', Math.ceil(deleteTimeLeft / 60).toString() + 'm')}
+          </span>
+        )}
         {user && !isOwner && (
           <Button
             variant="outline"
