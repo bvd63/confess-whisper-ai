@@ -56,6 +56,20 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
 
     setIsProcessing(true);
     try {
+      // If target is VIP, prefer opening the Stripe Customer Portal first
+      if (planId === 'vip') {
+        try {
+          const { data, error } = await supabase.functions.invoke('customer-portal');
+          if (!error && data?.url) {
+            toast.success('Deschidem portalul de facturare…');
+            window.location.href = data.url;
+            return;
+          }
+        } catch (e) {
+          console.warn('customer-portal VIP pre-check failed, will fallback', e);
+        }
+      }
+
       const levels = { free: 0, premium: 1, vip: 2 } as const;
       const cur = levels[(currentPlan as keyof typeof levels) || 'free'] ?? 0;
       const tgt = levels[(planId as keyof typeof levels) || 'free'] ?? 0;
