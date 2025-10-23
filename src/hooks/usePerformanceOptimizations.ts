@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useAdaptiveLoading } from './useAdaptiveLoading';
 
 interface PerformanceMetrics {
   fps: number;
@@ -7,6 +8,7 @@ interface PerformanceMetrics {
 }
 
 export const usePerformanceOptimizations = () => {
+  const adaptiveConfig = useAdaptiveLoading();
   const [metrics, setMetrics] = useState<PerformanceMetrics>({
     fps: 60,
     memoryUsage: 0,
@@ -56,6 +58,29 @@ export const usePerformanceOptimizations = () => {
   }, [measureCacheSize]);
 
   useEffect(() => {
+    // Apply adaptive optimizations based on device capabilities
+    if (!adaptiveConfig.enableAnimations) {
+      document.documentElement.classList.add('reduce-motion');
+    } else {
+      document.documentElement.classList.remove('reduce-motion');
+    }
+
+    // Add data-saver attribute for CSS
+    if (adaptiveConfig.prefetchStrategy === 'none') {
+      document.documentElement.setAttribute('data-saver', 'true');
+    } else {
+      document.documentElement.removeAttribute('data-saver');
+    }
+
+    // Set image quality CSS variable
+    const qualityMap = { low: '0.6', medium: '0.75', high: '0.9' };
+    document.documentElement.style.setProperty(
+      '--image-quality',
+      qualityMap[adaptiveConfig.imageQuality]
+    );
+  }, [adaptiveConfig]);
+
+  useEffect(() => {
     // Measure FPS
     let lastTime = performance.now();
     let frames = 0;
@@ -102,5 +127,6 @@ export const usePerformanceOptimizations = () => {
   return {
     metrics,
     optimizeCache,
+    adaptiveConfig,
   };
 };

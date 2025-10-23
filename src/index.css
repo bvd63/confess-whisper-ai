@@ -429,3 +429,40 @@ All colors MUST be HSL.
     }
   }
 }
+
+/* Performance Optimizations */
+.reduce-motion,
+.reduce-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+[data-saver="true"] img {
+  loading: lazy;
+  decoding: async;
+}
+
+[data-saver="true"] video {
+  preload: none;
+  autoplay: false;
+}
+
+/* Adaptive image quality */
+img {
+  image-rendering: auto;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+

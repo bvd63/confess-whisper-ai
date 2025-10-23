@@ -30,8 +30,8 @@ export const useQuoteOfTheDay = () => {
       return data?.value ? (data.value as unknown as Quote) : null;
     },
     cacheKey: 'qotd',
-    cacheTTL: 10 * 60 * 1000, // 10 minutes (increased from 1 minute)
-    staleTime: 10 * 60 * 1000,
+    cacheTTL: 60 * 60 * 1000, // 1 hour cache - quote only changes once per day
+    staleTime: 30 * 60 * 1000, // 30 minutes stale time - rely on realtime for updates
     useCircuitBreaker: true,
     useRetry: true,
     useDedupe: true,

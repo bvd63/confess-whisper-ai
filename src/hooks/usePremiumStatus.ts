@@ -39,8 +39,8 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
       };
     },
     enabled: !!userId,
-    cacheTTL: 5 * 60 * 1000, // 5 minutes cache (realtime updates will invalidate)
-    staleTime: 2 * 60 * 1000, // 2 minutes stale time
+    cacheTTL: 30 * 60 * 1000, // 30 minutes cache - subscription status doesn't change often
+    staleTime: 15 * 60 * 1000, // 15 minutes stale time - rely on realtime updates for changes
     cacheKey: `premium-${userId}`,
     useCircuitBreaker: true,
     useDedupe: true,
