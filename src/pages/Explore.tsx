@@ -24,6 +24,8 @@ import { FeatureGate } from "@/components/auth/FeatureGate";
 import { QuickActions } from "@/components/QuickActions";
 import { useNavigate } from "react-router-dom";
 import { AdvancedFilters, FilterState } from "@/components/AdvancedFilters";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { Loader2 } from "lucide-react";
 
 const Explore = () => {
   const { t } = useLanguage();
@@ -36,6 +38,14 @@ const Explore = () => {
   const { toast } = useToast();
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const { communities } = useCommunities();
+
+  // Pull to refresh
+  const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
+    onRefresh: async () => {
+      window.location.reload();
+    },
+    threshold: 80,
+  });
 
   // Fetch hot/trending confessions
   const { data: hotConfessions, isLoading: loadingHot } = useQuery({
@@ -118,7 +128,25 @@ const Explore = () => {
   return (
     <>
     <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
-      <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
+      {/* Pull to Refresh Indicator */}
+      {pullDistance > 0 && (
+        <div 
+          className="fixed top-16 left-0 right-0 z-50 flex justify-center pointer-events-none"
+          style={{ 
+            transform: `translateY(${Math.min(pullDistance - 80, 0)}px)`,
+            opacity: Math.min(pullDistance / 80, 1)
+          }}
+        >
+          <div className="bg-primary/10 backdrop-blur-sm rounded-full p-2">
+            <Loader2 className={`h-5 w-5 text-primary ${isRefreshing || isTriggered ? 'animate-spin' : ''}`} />
+          </div>
+        </div>
+      )}
+
+      <div 
+        ref={containerRef}
+        className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24"
+      >
         <div className="mb-6 sm:mb-8 animate-fade-in">
           <h1 className="text-2xl sm:text-3xl font-bold mb-2">
             <GradientText variant="hero">{t.explore}</GradientText>

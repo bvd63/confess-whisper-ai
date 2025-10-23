@@ -15,6 +15,8 @@ import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { sessionManager } from "@/lib/sessionManager";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
 import { useTabNavigation } from "@/contexts/TabNavigationContext";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { Loader2 } from "lucide-react";
 
 
 const Messages = () => {
@@ -30,6 +32,15 @@ const Messages = () => {
   const [otherUserNickname, setOtherUserNickname] = useState<string | null>(null);
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const startedRef = useRef(false);
+  
+  // Pull to refresh (only for conversation list)
+  const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
+    onRefresh: async () => {
+      window.location.reload();
+    },
+    threshold: 80,
+    disabled: !!selectedConversation, // Disable when viewing a conversation
+  });
   
   // Restore scroll position when returning to conversation list
   useScrollRestoration(!selectedConversation);
@@ -163,7 +174,25 @@ const Messages = () => {
     <>
     <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
       <NetworkStatusIndicator />
-      <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 pb-24">
+      {/* Pull to Refresh Indicator */}
+      {pullDistance > 0 && !selectedConversation && (
+        <div 
+          className="fixed top-16 left-0 right-0 z-50 flex justify-center pointer-events-none"
+          style={{ 
+            transform: `translateY(${Math.min(pullDistance - 80, 0)}px)`,
+            opacity: Math.min(pullDistance / 80, 1)
+          }}
+        >
+          <div className="bg-primary/10 backdrop-blur-sm rounded-full p-2">
+            <Loader2 className={`h-5 w-5 text-primary ${isRefreshing || isTriggered ? 'animate-spin' : ''}`} />
+          </div>
+        </div>
+      )}
+      
+      <div 
+        ref={containerRef}
+        className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 pb-24"
+      >
         <AnimatedCard className="overflow-hidden" hover="none">
           {!selectedConversation ? (
             <div>

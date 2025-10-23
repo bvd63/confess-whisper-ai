@@ -12,6 +12,8 @@ import FollowStats from "@/components/FollowStats";
 import AppLayout from "@/components/AppLayout";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { Loader2 } from "lucide-react";
 
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 const PremiumDialog = lazy(() => import("@/components/PremiumDialog"));
@@ -25,6 +27,14 @@ const Following = () => {
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
+
+  // Pull to refresh
+  const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
+    onRefresh: async () => {
+      window.location.reload();
+    },
+    threshold: 80,
+  });
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -46,7 +56,25 @@ const Following = () => {
       onUpgradeClick={() => setIsPremiumDialogOpen(true)}
       onManageSubscription={() => setManageSubDialogOpen(true)}
     >
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-4xl pb-24">
+      {/* Pull to Refresh Indicator */}
+      {pullDistance > 0 && (
+        <div 
+          className="fixed top-16 left-0 right-0 z-50 flex justify-center pointer-events-none"
+          style={{ 
+            transform: `translateY(${Math.min(pullDistance - 80, 0)}px)`,
+            opacity: Math.min(pullDistance / 80, 1)
+          }}
+        >
+          <div className="bg-primary/10 backdrop-blur-sm rounded-full p-2">
+            <Loader2 className={`h-5 w-5 text-primary ${isRefreshing || isTriggered ? 'animate-spin' : ''}`} />
+          </div>
+        </div>
+      )}
+
+      <div 
+        ref={containerRef}
+        className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-4xl pb-24"
+      >
         <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8 animate-fade-in">
           <Users className="h-6 w-6 sm:h-8 sm:w-8 text-primary animate-pulse-glow" />
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
