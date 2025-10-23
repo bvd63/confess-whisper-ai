@@ -3,7 +3,7 @@ import { getSupabase } from "@/lib/supabaseClient";
 
 type Ent = {
   user_id: string;
-  tier: "free" | "premium" | "vip";
+  tier: "free" | "vip";
   cadence: "monthly" | "yearly";
   status: string;
   cancel_at_period_end: boolean;
@@ -15,7 +15,7 @@ type Ent = {
 type Ctx = {
   entitlements: Ent | null;
   loading: boolean;
-  setOptimisticTier: (t: "free" | "premium" | "vip") => void;
+  setOptimisticTier: (t: "free" | "vip") => void;
 };
 
 const C = createContext<Ctx>({
@@ -95,13 +95,13 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, []);
 
-  const setOptimisticTier = (t: "free" | "premium" | "vip") =>
+  const setOptimisticTier = (t: "free" | "vip") =>
     setEnt((p) =>
       p
         ? {
             ...p,
             tier: t,
-            is_pro: t !== "free",
+            is_pro: t === "vip",
             is_vip: t === "vip",
           }
         : p
