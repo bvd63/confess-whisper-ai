@@ -81,7 +81,6 @@ export default function CoinShop({ open, onOpenChange }: CoinShopProps) {
       case 'popular': return <TrendingUp className="w-8 h-8" />;
       case 'value': return <Sparkles className="w-8 h-8" />;
       case 'premium': return <Zap className="w-8 h-8" />;
-      case 'whale': return <Crown className="w-8 h-8" />;
       default: return <Coins className="w-8 h-8" />;
     }
   };
@@ -100,7 +99,7 @@ export default function CoinShop({ open, onOpenChange }: CoinShopProps) {
           </p>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
           {packages?.map((pkg) => (
             <div
               key={pkg.id}
