@@ -11,27 +11,27 @@ import {
 
 const ThemeToggle = () => {
   const { t } = useLanguage();
-  const [theme, setTheme] = useState<"light" | "dark" | "oled">("light");
+  const [theme, setTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | "oled" | null;
+    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const initialTheme = savedTheme || (prefersDark ? "dark" : "light");
     
     setTheme(initialTheme);
-    document.documentElement.classList.remove("light", "dark", "oled");
+    document.documentElement.classList.remove("light", "dark");
     document.documentElement.classList.add(initialTheme);
-    if (initialTheme === "dark" || initialTheme === "oled") {
+    if (initialTheme === "dark") {
       document.documentElement.classList.add("dark");
     }
   }, []);
 
-  const changeTheme = (newTheme: "light" | "dark" | "oled") => {
+  const changeTheme = (newTheme: "light" | "dark") => {
     setTheme(newTheme);
     localStorage.setItem("theme", newTheme);
-    document.documentElement.classList.remove("light", "dark", "oled");
+    document.documentElement.classList.remove("light", "dark");
     document.documentElement.classList.add(newTheme);
-    if (newTheme === "dark" || newTheme === "oled") {
+    if (newTheme === "dark") {
       document.documentElement.classList.add("dark");
     }
   };
@@ -60,10 +60,6 @@ const ThemeToggle = () => {
         <DropdownMenuItem onClick={() => changeTheme("dark")}>
           <Moon className="w-4 h-4 mr-2" />
           Dark
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => changeTheme("oled")}>
-          <Moon className="w-4 h-4 mr-2" />
-          {t.theme_oled}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
