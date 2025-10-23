@@ -74,15 +74,17 @@ export default function TestSubscriptions() {
         body: { tier: "premium", cycle: "monthly" },
       });
       if (error) {
-        // If user already has subscription, this is expected
-        if (error.message?.includes("already have an active subscription")) {
+        // Handle Supabase generic error by inspecting function payload
+        const message = (data as any)?.error || error.message || "";
+        if (message.toLowerCase().includes("already have an active subscription")) {
           toast({
             title: "Already Subscribed",
-            description: "You already have an active subscription. This is expected behavior.",
+            description:
+              "You already have an active subscription. This is expected behavior.",
           });
           return { note: "User already has active subscription (expected)" };
         }
-        throw error;
+        throw new Error(message || "Checkout failed");
       }
       toast({
         title: "Checkout URL Ready",
