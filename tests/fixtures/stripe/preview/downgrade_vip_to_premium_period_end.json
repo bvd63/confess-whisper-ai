@@ -1,14 +1,18 @@
 {
-  "subscription_id": "sub_vip_monthly_001",
-  "current_price_id": "price_1SJ0vwR7kygIyYg9OeCiqV00",
-  "target_price_id": "price_1SJ0vvR7kygIyYg9oT1ju6lQ",
-  "proration_amount": 0,
-  "new_amount": 999,
-  "currency": "usd",
-  "billing_cycle": "monthly",
-  "effective_date": "2025-11-12T18:00:00Z",
-  "is_upgrade": false,
-  "savings_percent": 0,
-  "next_billing_date": "2025-12-12T18:00:00Z",
+  "preview": {
+    "amountDue": 0,
+    "currency": "usd",
+    "prorationAmount": 0,
+    "subtotal": 499,
+    "total": 0,
+    "periodEnd": 1731434400,
+    "lines": [
+      {
+        "description": "Premium plan (starting Nov 12)",
+        "amount": 499,
+        "proration": false
+      }
+    ]
+  },
   "scheduled": true
 }

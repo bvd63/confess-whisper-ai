@@ -75,7 +75,35 @@ serve(async (req) => {
 
     const subscription = subscriptions.data[0];
     const subscriptionItemId = subscription.items.data[0].id;
-    logStep("Found active subscription", { subscriptionId: subscription.id });
+    const currentPriceId = subscription.items.data[0].price.id;
+    logStep("Found active subscription", { subscriptionId: subscription.id, currentPriceId });
+
+    // Determine current tier from price ID
+    let currentTier: 'premium' | 'vip' | 'free' = 'free';
+    for (const [key, val] of Object.entries(STRIPE_PRICE_IDS)) {
+      if (val === currentPriceId) {
+        currentTier = key as 'premium' | 'vip';
+        break;
+      }
+    }
+
+    // Validate tier hierarchy for proper upgrade/downgrade
+    const tierHierarchy = { free: 0, premium: 1, vip: 2 };
+    const currentLevel = tierHierarchy[currentTier];
+    const targetLevel = tierHierarchy[targetTier];
+
+    // Edge case validation
+    if (currentLevel === 0) {
+      throw new Error("Cannot change subscription from free tier. Please create a new subscription instead.");
+    }
+
+    if (targetLevel === 0) {
+      throw new Error("Cannot downgrade to free tier. Please cancel your subscription instead.");
+    }
+
+    if (currentLevel === targetLevel) {
+      throw new Error("You are already on this plan.");
+    }
 
     // Get target price ID from centralized config
     const targetPriceId = STRIPE_PRICE_IDS[targetTier as keyof typeof STRIPE_PRICE_IDS];
@@ -83,16 +111,35 @@ serve(async (req) => {
       throw new Error(`Price ID for ${targetTier} not configured`);
     }
 
-    logStep("Changing subscription", { targetPriceId });
+    // Determine if upgrade or downgrade for proper proration handling
+    const isUpgrade = targetLevel > currentLevel;
+    logStep("Changing subscription", { 
+      targetPriceId, 
+      isUpgrade,
+      from: currentTier,
+      to: targetTier 
+    });
 
-    // Update subscription with proration
-    const updatedSubscription = await stripe.subscriptions.update(subscription.id, {
+    // Update subscription with appropriate proration
+    // Upgrades: immediate with proration
+    // Downgrades: at period end (no immediate proration)
+    const updateParams: any = {
       items: [{
         id: subscriptionItemId,
         price: targetPriceId,
       }],
-      proration_behavior: 'create_prorations',
-    });
+    };
+
+    if (isUpgrade) {
+      // For upgrades, apply proration immediately
+      updateParams.proration_behavior = 'create_prorations';
+    } else {
+      // For downgrades, schedule for next period
+      updateParams.proration_behavior = 'none';
+      updateParams.billing_cycle_anchor = 'unchanged';
+    }
+
+    const updatedSubscription = await stripe.subscriptions.update(subscription.id, updateParams);
 
     logStep("Subscription updated", { subscriptionId: updatedSubscription.id });
 

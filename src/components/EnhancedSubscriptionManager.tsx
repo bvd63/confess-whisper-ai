@@ -26,12 +26,29 @@ interface SubscriptionStatus {
 export const EnhancedSubscriptionManager = () => {
   const { t } = useLanguage();
   const { user } = useCurrentUser();
-  const { upgradeSubscription, downgradeSubscription, isLoading: actionLoading } = useSubscriptionActions();
+  const { 
+    upgradeSubscription, 
+    downgradeSubscription, 
+    cancelSubscription, 
+    reactivateSubscription,
+    previewSubscriptionChange,
+    isLoading: actionLoading 
+  } = useSubscriptionActions();
   const [interval, setInterval] = useState<BillingInterval>('monthly');
   const [status, setStatus] = useState<SubscriptionStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmAction, setConfirmAction] = useState<{ type: string; plan?: PlanWithInterval } | null>(null);
+  const [previewData, setPreviewData] = useState<{
+    amountDue: number;
+    currency: string;
+    prorationAmount: number;
+    subtotal: number;
+    total: number;
+    periodEnd: number;
+    lines: Array<{ description: string; amount: number; proration: boolean }>;
+  } | null>(null);
+  const [loadingPreview, setLoadingPreview] = useState(false);
 
   useEffect(() => {
     loadStatus();
@@ -111,19 +128,46 @@ export const EnhancedSubscriptionManager = () => {
     }
   };
 
+  const handlePreviewAndConfirm = async (plan: PlanWithInterval) => {
+    // If user has no active subscription, skip preview and go to checkout
+    if (!status?.currentPlan || status.currentPlan === 'free') {
+      setConfirmAction({ type: 'change', plan });
+      setPreviewData(null);
+      setShowConfirm(true);
+      return;
+    }
+
+    // For subscription changes, try to fetch preview first
+    setLoadingPreview(true);
+    try {
+      const result = await previewSubscriptionChange(plan.priceId);
+      if (result.success && result.preview) {
+        setPreviewData(result.preview);
+      } else {
+        // If preview fails, still show dialog but without preview data
+        console.warn('Preview failed:', result.error);
+        setPreviewData(null);
+      }
+      // Always show confirmation dialog, even if preview failed
+      setConfirmAction({ type: 'change', plan });
+      setShowConfirm(true);
+    } catch (error) {
+      // On error, still show dialog but without preview
+      console.warn('Preview error:', error);
+      setPreviewData(null);
+      setConfirmAction({ type: 'change', plan });
+      setShowConfirm(true);
+    } finally {
+      setLoadingPreview(false);
+    }
+  };
+
   const handleChange = async (plan: PlanWithInterval) => {
     try {
-      // Use the priceId from the selected plan directly
-      const targetPriceId = plan.priceId;
-      if (!targetPriceId) {
-        toast.error('Invalid plan configuration');
-        return;
-      }
-
       // If user has no active subscription, create a new one
       if (!status?.currentPlan || status.currentPlan === 'free') {
         const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-          body: { priceId: targetPriceId, planName: plan.id, billingCycle: plan.interval }
+          body: { priceId: plan.priceId, planName: plan.id, billingCycle: plan.interval }
         });
         if (error) throw error;
         
@@ -140,60 +184,59 @@ export const EnhancedSubscriptionManager = () => {
       const currentLevel = tierHierarchy[status.currentPlan as keyof typeof tierHierarchy] || 0;
       const targetLevel = tierHierarchy[plan.id as keyof typeof tierHierarchy] || 0;
 
-      toast.loading(t.processing_request);
-
-      if (targetLevel !== currentLevel) {
-        // Use a single billing-change function (tests mock this) which handles both upgrades and downgrades
-        const { data, error } = await supabase.functions.invoke('billing-change', {
-          body: { targetPriceId }
-        });
-        if (error) throw error;
-        toast.dismiss();
-        // If returned data indicates success, show corresponding message
-        toast.success(targetLevel > currentLevel ? t.upgrade_success : t.downgrade_scheduled_next_period);
+      // Validate edge cases
+      if (currentLevel === 0) {
+        toast.error('Please use checkout to create a new subscription');
+        return;
       }
 
-      await loadStatus();
-      toast.success(t.request_done);
-    } catch (error: any) {
-      toast.dismiss();
-      toast.error(error.message || t.subscription_errors_generic);
+      if (targetLevel === 0) {
+        toast.error('Please use cancel to end your subscription');
+        return;
+      }
+
+      if (currentLevel === targetLevel) {
+        toast.info('You are already on this plan');
+        return;
+      }
+
+      // Use appropriate action based on tier change
+      let result;
+      if (targetLevel > currentLevel) {
+        // Upgrade
+        result = await upgradeSubscription(plan.priceId);
+      } else {
+        // Downgrade
+        result = await downgradeSubscription(plan.priceId);
+      }
+
+      if (result.success) {
+        await loadStatus();
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast.error(errorMessage);
     } finally {
       setShowConfirm(false);
+      setPreviewData(null);
     }
   };
 
   const handleCancel = async () => {
     try {
-      toast.loading(t.processing_request);
-      
-      const { data, error } = await supabase.functions.invoke('billing-cancel');
-      if (error) throw error;
-      
-      toast.dismiss();
-      toast.success(t.cancel_scheduled);
-      await loadStatus();
-    } catch (error: any) {
-      toast.dismiss();
-      toast.error(error.message || t.subscription_errors_generic);
+      const result = await cancelSubscription();
+      if (result.success) {
+        await loadStatus();
+      }
     } finally {
       setShowConfirm(false);
     }
   };
 
   const handleReactivate = async () => {
-    try {
-      toast.loading(t.processing_request);
-
-      const { data, error } = await supabase.functions.invoke('billing-reactivate');
-      if (error) throw error;
-
-      toast.dismiss();
-      toast.success(t.subscription_reactivate_success || 'Subscription reactivated');
+    const result = await reactivateSubscription();
+    if (result.success) {
       await loadStatus();
-    } catch (error: any) {
-      toast.dismiss();
-      toast.error(error.message || t.subscription_errors_generic);
     }
   };
 
@@ -269,15 +312,18 @@ export const EnhancedSubscriptionManager = () => {
 
                   <Button
                     data-testid={`action-${plan.id === 'premium' && status?.currentPlan === 'free' ? 'upgrade' : plan.id === 'vip' && status?.currentPlan === 'premium' ? 'upgrade' : 'downgrade'}`}
-                    onClick={() => {
-                      setConfirmAction({ type: 'change', plan });
-                      setShowConfirm(true);
-                    }}
-                    disabled={isCurrent || actionLoading}
+                    onClick={() => handlePreviewAndConfirm(plan)}
+                    disabled={isCurrent || actionLoading || loadingPreview}
                     variant={isCurrent ? 'outline' : 'default'}
                     className="w-full"
                   >
-                    {isCurrent ? t.subscription_your_plan : t.subscription_actions_change}
+                    {loadingPreview ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : isCurrent ? (
+                      t.subscription_your_plan
+                    ) : (
+                      t.subscription_actions_change
+                    )}
                   </Button>
                 </Card>
               );
@@ -316,15 +362,63 @@ export const EnhancedSubscriptionManager = () => {
             <AlertDialogTitle>
               {confirmAction?.type === 'change' ? t.subscription_confirm_change_title : t.subscription_confirm_cancel_title}
             </AlertDialogTitle>
-            <AlertDialogDescription>
-              {confirmAction?.type === 'change' && confirmAction.plan
-                ? t.subscription_confirm_change_body
-                    .replace('{plan}', confirmAction.plan.name)
-                    .replace('{interval}', confirmAction.plan.interval)
-                    .replace('{price}', confirmAction.plan.price.toString())
-                    .replace('{suffix}', confirmAction.plan.interval === 'monthly' ? t.subscription_per_month_short : t.subscription_per_year_short)
-                    .replace('{prorationNote}', t.subscription_proration_info)
-                : t.subscription_confirm_cancel_body_period_end.replace('{date}', status?.currentPeriodEnd ? new Date(status.currentPeriodEnd).toLocaleDateString() : '')}
+            <AlertDialogDescription asChild>
+              {confirmAction?.type === 'change' && confirmAction.plan ? (
+                <div className="space-y-3">
+                  <p>
+                    {t.subscription_confirm_change_body
+                      .replace('{plan}', confirmAction.plan.name)
+                      .replace('{interval}', confirmAction.plan.interval)
+                      .replace('{price}', confirmAction.plan.price.toString())
+                      .replace('{suffix}', confirmAction.plan.interval === 'monthly' ? t.subscription_per_month_short : t.subscription_per_year_short)
+                      .replace('{prorationNote}', '')}
+                  </p>
+                  
+                  {/* Proration Preview */}
+                  {previewData && (
+                    <div className="bg-muted p-4 rounded-lg space-y-2 text-sm">
+                      <div className="font-semibold">Billing Summary:</div>
+                      
+                      {previewData.lines.map((line, idx) => (
+                        <div key={idx} className="flex justify-between">
+                          <span className={line.proration ? 'text-muted-foreground' : ''}>
+                            {line.description}
+                          </span>
+                          <span className={line.amount < 0 ? 'text-green-600' : ''}>
+                            ${(line.amount / 100).toFixed(2)}
+                          </span>
+                        </div>
+                      ))}
+                      
+                      {previewData.prorationAmount !== 0 && (
+                        <div className="flex justify-between text-muted-foreground border-t pt-2">
+                          <span>Proration:</span>
+                          <span className={previewData.prorationAmount < 0 ? 'text-green-600' : ''}>
+                            ${(previewData.prorationAmount / 100).toFixed(2)}
+                          </span>
+                        </div>
+                      )}
+                      
+                      <div className="flex justify-between font-bold border-t pt-2">
+                        <span>Amount Due Today:</span>
+                        <span>${(previewData.amountDue / 100).toFixed(2)}</span>
+                      </div>
+                      
+                      <div className="text-xs text-muted-foreground pt-2">
+                        Next billing: {new Date(previewData.periodEnd * 1000).toLocaleDateString()}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {!previewData && (
+                    <p className="text-sm text-muted-foreground">
+                      {t.subscription_proration_info}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                t.subscription_confirm_cancel_body_period_end.replace('{date}', status?.currentPeriodEnd ? new Date(status.currentPeriodEnd).toLocaleDateString() : '')
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -57,8 +57,26 @@ describe('Delinquent Subscription Handling', () => {
       if (fnName === 'billing-status') {
         return { data: createSubscriptionStatus({ status: 'past_due' }), error: null };
       }
-      if (fnName === 'billing-change') {
-        return failingChangeFn(fnName, options);
+      if (fnName === 'billing-preview') {
+        return {
+          data: {
+            preview: {
+              amountDue: 350,
+              currency: 'usd',
+              prorationAmount: 350,
+              subtotal: 999,
+              total: 350,
+              periodEnd: 1731434400,
+              lines: []
+            }
+          },
+          error: null
+        };
+      }
+      if (fnName === 'manage-subscription-v2' || fnName === 'billing-change') {
+        apiMock.getRequestLog().push({ endpoint: 'billing-change', body: options?.body });
+        const result = await failingChangeFn(fnName, options);
+        return result;
       }
       return { data: null, error: { message: 'Unknown function' } };
     });

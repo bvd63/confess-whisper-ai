@@ -59,8 +59,26 @@ describe('Downgrade Flow', () => {
           : createSubscriptionStatus({ currentPlan: 'premium' });
         return { data: status, error: null };
       }
-      if (fnName === 'billing-change') {
-        return changeFn(fnName, options);
+      if (fnName === 'billing-preview') {
+        return {
+          data: {
+            preview: {
+              amountDue: 0,
+              currency: 'usd',
+              prorationAmount: 0,
+              subtotal: 499,
+              total: 0,
+              periodEnd: 1731434400,
+              lines: []
+            }
+          },
+          error: null
+        };
+      }
+      if (fnName === 'manage-subscription-v2' || fnName === 'billing-change') {
+        apiMock.getRequestLog().push({ endpoint: 'billing-change', body: options?.body });
+        const result = await changeFn(fnName, options);
+        return result;
       }
       return { data: null, error: { message: 'Unknown function' } };
     });

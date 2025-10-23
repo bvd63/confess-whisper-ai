@@ -83,9 +83,95 @@ export const useSubscriptionActions = () => {
     }
   };
 
+  const cancelSubscription = async (): Promise<SubscriptionActionResult> => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('billing-cancel');
+      
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      toast({
+        title: t.cancel_scheduled || "Subscription Canceled",
+        description: "Your subscription will be canceled at the end of the billing period.",
+      });
+      return { success: true, message: data?.message };
+    } catch (error) {
+      console.error('Cancel error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast({ 
+        title: "Cancellation Failed", 
+        description: errorMessage, 
+        variant: "destructive" 
+      });
+      return { success: false, error: errorMessage };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const reactivateSubscription = async (): Promise<SubscriptionActionResult> => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('billing-reactivate');
+      
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      toast({
+        title: t.subscription_reactivate_success || "Subscription Reactivated",
+        description: "Your subscription has been successfully reactivated.",
+      });
+      return { success: true, message: data?.message };
+    } catch (error) {
+      console.error('Reactivate error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast({ 
+        title: "Reactivation Failed", 
+        description: errorMessage, 
+        variant: "destructive" 
+      });
+      return { success: false, error: errorMessage };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const previewSubscriptionChange = async (targetPriceId: string): Promise<{
+    success: boolean;
+    preview?: {
+      amountDue: number;
+      currency: string;
+      prorationAmount: number;
+      subtotal: number;
+      total: number;
+      periodEnd: number;
+      lines: Array<{ description: string; amount: number; proration: boolean }>;
+    };
+    error?: string;
+  }> => {
+    try {
+      const { data, error } = await supabase.functions.invoke('billing-preview', {
+        body: { targetPriceId }
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      return { success: true, preview: data.preview };
+    } catch (error) {
+      console.error('Preview error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      return { success: false, error: errorMessage };
+    }
+  };
+
   return {
     upgradeSubscription,
     downgradeSubscription,
+    cancelSubscription,
+    reactivateSubscription,
+    previewSubscriptionChange,
     isLoading
   };
 };
