@@ -172,36 +172,51 @@ export default function TestSubscriptions() {
     // Note: Don't run checkout in batch as it would create actual sessions
   };
 
-  const renderResult = (result: TestResult) => (
-    <Card
-      key={result.name}
-      className="p-4 bg-[#13141f] border-[#1a1b2e]"
-    >
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            {result.success ? (
-              <CheckCircle className="w-5 h-5 text-green-500" />
-            ) : (
-              <XCircle className="w-5 h-5 text-red-500" />
+  const renderResult = (result: TestResult) => {
+    const isSubscriptionRequiredError = 
+      result.error?.includes("No active subscription") || 
+      result.error?.includes("No subscription found") ||
+      result.error?.includes("non-2xx status code");
+    
+    return (
+      <Card
+        key={result.name}
+        className="p-4 bg-[#13141f] border-[#1a1b2e]"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              {result.success ? (
+                <CheckCircle className="w-5 h-5 text-green-500" />
+              ) : (
+                <XCircle className="w-5 h-5 text-red-500" />
+              )}
+              <h3 className="font-semibold text-white">{result.name}</h3>
+            </div>
+            {result.error && (
+              <>
+                <p className="text-sm text-red-400 mb-2">{result.error}</p>
+                {isSubscriptionRequiredError && (
+                  <div className="mt-2 p-3 bg-yellow-900/20 border border-yellow-500/30 rounded text-yellow-200 text-sm">
+                    💡 <strong>Acest test necesită o subscripție activă.</strong>
+                    <br />Creează mai întâi o subscripție folosind "Create Checkout" și completează plata în Stripe.
+                  </div>
+                )}
+              </>
             )}
-            <h3 className="font-semibold text-white">{result.name}</h3>
+            {result.data && (
+              <pre className="text-xs text-gray-400 bg-black/30 p-2 rounded overflow-x-auto">
+                {JSON.stringify(result.data, null, 2)}
+              </pre>
+            )}
           </div>
-          {result.error && (
-            <p className="text-sm text-red-400 mb-2">{result.error}</p>
-          )}
-          {result.data && (
-            <pre className="text-xs text-gray-400 bg-black/30 p-2 rounded overflow-x-auto">
-              {JSON.stringify(result.data, null, 2)}
-            </pre>
-          )}
+          <Badge variant={result.success ? "default" : "destructive"}>
+            {result.success ? "Pass" : "Fail"}
+          </Badge>
         </div>
-        <Badge variant={result.success ? "default" : "destructive"}>
-          {result.success ? "Pass" : "Fail"}
-        </Badge>
-      </div>
-    </Card>
-  );
+      </Card>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
@@ -217,6 +232,33 @@ export default function TestSubscriptions() {
             Test all subscription-related edge functions
           </p>
         </div>
+
+        {/* Prerequisite Warning */}
+        <Card className="p-6 bg-yellow-900/20 border-yellow-500/50">
+          <h3 className="text-lg font-semibold text-yellow-400 mb-3 flex items-center gap-2">
+            ⚠️ Prerequisite Important
+          </h3>
+          <div className="space-y-2 text-sm text-yellow-200">
+            <p className="font-semibold">
+              Majoritatea testelor necesită o subscripție activă în Stripe!
+            </p>
+            <p>
+              Pentru a testa funcțiile de management (upgrade, downgrade, cancel, reactivate, preview), 
+              trebuie mai întâi să:
+            </p>
+            <ol className="list-decimal list-inside space-y-1 ml-2">
+              <li>Rulezi "Create Checkout" pentru a genera un link de plată Stripe</li>
+              <li>Accesezi link-ul (vezi în consolă) și completezi plata cu un card de test Stripe</li>
+              <li>După confirmare, subscripția ta va fi activă și poți testa celelalte funcții</li>
+            </ol>
+            <p className="mt-3 pt-3 border-t border-yellow-500/30">
+              <strong>Funcții care funcționează fără subscripție:</strong>
+              <br />• Check Subscription Status
+              <br />• Get Subscription Status  
+              <br />• Create Checkout Session
+            </p>
+          </div>
+        </Card>
 
         {/* Test Controls */}
         <Card className="p-6 bg-[#13141f] border-[#1a1b2e]">
