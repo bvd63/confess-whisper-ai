@@ -17,7 +17,7 @@ import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog"
 const NearbyConfessions = () => {
   const [radius, setRadius] = useState<number>(50);
   const [view, setView] = useState<'list' | 'map'>('list');
-  const [showPremiumDialog, setShowPremiumDialog] = useState(false);
+  
   const { user } = useCurrentUser();
   const { data: confessions, isLoading, error } = useNearbyConfessions({ radiusKm: radius });
   const { isPremium } = usePremiumStatus(user?.id);
@@ -97,7 +97,7 @@ const NearbyConfessions = () => {
                 <ConfessionCard 
                   confession={confession}
                   isPremium={isPremium}
-                  onUpgradeClick={() => setShowPremiumDialog(true)}
+                  onUpgradeClick={() => {}}
                   onInsightGenerated={() => {}}
                 />
                 {confession.distance !== undefined && (

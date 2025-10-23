@@ -20,7 +20,7 @@ import { LocationPicker } from "@/components/LocationPicker";
 import { useCommunities } from "@/hooks/useCommunities";
 import { PolishConfessionButton } from "@/components/PolishConfessionButton";
 import { useConfessionLimits } from "@/hooks/useConfessionLimits";
-import { UpgradeModal } from "@/components/UpgradeModal";
+
 import { useConfessionRateLimit } from "@/hooks/useConfessionRateLimit";
 import { RateLimitIndicator } from "@/components/RateLimitIndicator";
 import { filterContent, getWarningMessage } from "@/lib/security/contentFilter";
@@ -50,7 +50,7 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
   const [showCrisisDialog, setShowCrisisDialog] = useState(false);
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  
   const [showContentWarning, setShowContentWarning] = useState(false);
   const [contentWarnings, setContentWarnings] = useState<string[]>([]);
   const [location, setLocation] = useState<{ lat: number; lng: number; city?: string; country?: string } | null>(null);
@@ -161,7 +161,11 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
 
     // Check confession limits
     if (!canPost) {
-      setShowUpgradeModal(true);
+      toast({
+        title: t.error_generic,
+        description: "Daily confession limit reached",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -495,14 +499,6 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
       <CrisisDialog 
         isOpen={showCrisisDialog}
         onClose={() => setShowCrisisDialog(false)}
-      />
-      
-      <UpgradeModal
-        open={showUpgradeModal}
-        onOpenChange={setShowUpgradeModal}
-        currentTier={tier}
-        currentCount={currentCount}
-        dailyLimit={dailyLimit === Infinity ? 0 : dailyLimit}
       />
     </Dialog>
   );

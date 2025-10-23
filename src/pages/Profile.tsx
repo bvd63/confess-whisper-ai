@@ -31,7 +31,7 @@ import ModerationPanel from "@/components/ModerationPanel";
 import CoinsDisplay from "@/components/CoinsDisplay";
 import BlockedUsers from "@/components/BlockedUsers";
 import ReferralSystem from "@/components/ReferralSystem";
-import PremiumDialog from "@/components/PremiumDialog";
+
 import { useUserRole } from "@/hooks/useUserRole";
 import { useToast } from "@/hooks/use-toast";
 import { NicknameSettings } from "@/components/NicknameSettings";
@@ -41,12 +41,10 @@ import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { ProfileEditor } from "@/components/ProfileEditor";
 import { FlairsShop } from "@/components/FlairsShop";
 import { FlairsShopButton } from "@/components/FlairsShopButton";
-import { TrialBanner } from "@/components/TrialBanner";
-import { TrialCTA } from "@/components/TrialCTA";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
 import { useTrialExpiryCheck } from "@/hooks/useTrialExpiryCheck";
 import { SyncSubscriptionButton } from "@/components/SyncSubscriptionButton";
-import { FeatureGate } from "@/components/auth/FeatureGate";
+
 import { SubscriptionStatusCard } from "@/components/SubscriptionStatusCard";
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 const Profile = () => {
@@ -73,7 +71,7 @@ const Profile = () => {
     userId: user?.id
   });
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
-  const [premiumDialogOpen, setPremiumDialogOpen] = useState(false);
+  
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [flairsDialogOpen, setFlairsDialogOpen] = useState(false);
@@ -177,12 +175,12 @@ const Profile = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkSubscription, refetch]);
   if (!user) return null;
-  return <AppLayout onNewConfession={() => setIsNewConfessionOpen(true)} onUpgradeClick={() => setPremiumDialogOpen(true)} onManageSubscription={() => setManageSubDialogOpen(true)}>
+  return <AppLayout onNewConfession={() => setIsNewConfessionOpen(true)} onManageSubscription={() => setManageSubDialogOpen(true)}>
       <AchievementToast userId={user.id} />
       <ReferralRewardNotification userId={user.id} />
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-4xl pb-24">
-        {isOnTrial && trialEndDate && <TrialBanner trialEndDate={trialEndDate} />}
+        
         
         <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8 animate-fade-in">
           <div className="rounded-full">
@@ -214,11 +212,6 @@ const Profile = () => {
           </TabsList>
 
           <TabsContent value="statistics" className="space-y-6">
-            {/* Trial CTA for free users who haven't used trial */}
-            {subscriptionTier === 'free' && !isOnTrial && trialEligible && (
-              <TrialCTA userId={user.id} onTrialStarted={checkSubscription} />
-            )}
-            
             {/* Sync Subscription Button (temporary fix for webhook issues) */}
             {profileData?.stripe_subscription_id && (
               <div className="flex justify-end mb-4">
@@ -231,17 +224,13 @@ const Profile = () => {
             <KarmaDisplay userId={user.id} variant="full" />
             
             <UserAnalytics
-              onUpgradeClick={() => setPremiumDialogOpen(true)}
+              onUpgradeClick={() => {}}
               onManageSubscription={() => setManageSubDialogOpen(true)}
             />
             
-            <FeatureGate minTier="vip" teaserPriceHint="$9.99/mo" className="mt-6">
-              <AdvancedAnalytics userId={user.id} />
-            </FeatureGate>
+            <AdvancedAnalytics userId={user.id} />
             
-            <FeatureGate minTier="vip" teaserPriceHint="$4.99/mo" className="mt-6">
-              <WordCloudViz userId={user.id} />
-            </FeatureGate>
+            <WordCloudViz userId={user.id} />
           </TabsContent>
 
           <TabsContent value="confessions" className="space-y-6">
@@ -294,17 +283,9 @@ const Profile = () => {
               </div>
             </AnimatedCard>
             
-            <FeatureGate 
-              minTier="vip" 
-              teaserPriceHint="$4.99/mo"
-              compact
-              className="pt-4"
-              onUpgradeOverride={() => setPremiumDialogOpen(true)}
-            >
-              <Button onClick={() => setExportDialogOpen(true)} variant="outline" className="w-full">
-                {t.export_my_data}
-              </Button>
-            </FeatureGate>
+            <Button onClick={() => setExportDialogOpen(true)} variant="outline" className="w-full">
+              {t.export_my_data}
+            </Button>
           </TabsContent>
 
           {isModerator && <TabsContent value="moderation" className="space-y-6">
@@ -317,9 +298,7 @@ const Profile = () => {
 
       <ExportDataDialog open={exportDialogOpen} onOpenChange={setExportDialogOpen} userId={user.id} />
 
-      <PremiumDialog open={premiumDialogOpen} onOpenChange={setPremiumDialogOpen} onUpgrade={() => {}} />
-
-      <ManageSubscriptionDialog 
+      <ManageSubscriptionDialog
         open={manageSubDialogOpen} 
         onOpenChange={setManageSubDialogOpen}
         onSubscriptionUpdated={checkSubscription}

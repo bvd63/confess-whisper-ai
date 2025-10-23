@@ -8,7 +8,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TrialBanner } from "@/components/TrialBanner";
+
 import { TierProfileCard } from "@/components/TierProfileCard";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
 import { KarmaDisplay } from "@/components/KarmaDisplay";
@@ -26,7 +26,7 @@ const UserProfile = () => {
   const [profile, setProfile] = useState<UserProfileData | null>(null);
   const [confessionsCount, setConfessionsCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [premiumDialogOpen, setPremiumDialogOpen] = useState(false);
+  
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -104,10 +104,6 @@ const UserProfile = () => {
     <>
     <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
       <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
-        {isOnTrial && trialEndDate && currentUser.id === userId && (
-          <TrialBanner trialEndDate={trialEndDate} />
-        )}
-        
         <TierProfileCard tier={(subscriptionTier === 'premium' ? 'vip' : subscriptionTier) as "free" | "vip"} className="mb-6">
           <ProfileHeader
             userId={userId!}
@@ -127,7 +123,7 @@ const UserProfile = () => {
             userId={userId!} 
             isOwnProfile={currentUser.id === userId}
             isPremium={isPremium}
-            onUpgradeClick={() => setPremiumDialogOpen(true)}
+            onUpgradeClick={() => {}}
             onInsightGenerated={() => {}}
           />
         </div>

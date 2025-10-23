@@ -18,7 +18,7 @@ import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
 
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
-const PremiumDialog = lazy(() => import("@/components/PremiumDialog"));
+
 
 interface Confession {
   id: string;
@@ -42,7 +42,7 @@ const Bookmarks = () => {
   const [confessions, setConfessions] = useState<Confession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
-  const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
+  
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const { toast } = useToast();
 
@@ -131,7 +131,6 @@ const Bookmarks = () => {
   return (
     <AppLayout 
       onNewConfession={() => setIsNewConfessionOpen(true)}
-      onUpgradeClick={() => setIsPremiumDialogOpen(true)}
       onManageSubscription={() => setManageSubDialogOpen(true)}
     >
       <main className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
@@ -183,11 +182,6 @@ const Bookmarks = () => {
           open={isNewConfessionOpen}
           onOpenChange={setIsNewConfessionOpen}
           onConfessionCreated={loadBookmarkedConfessions}
-        />
-        <PremiumDialog
-          open={isPremiumDialogOpen}
-          onOpenChange={setIsPremiumDialogOpen}
-          onUpgrade={async () => {}}
         />
       </Suspense>
 

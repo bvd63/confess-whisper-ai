@@ -12,8 +12,6 @@ import QuoteOfTheDaySkeleton from "@/components/QuoteOfTheDaySkeleton";
 import { CommunitiesSectionExpanded } from "@/components/CommunitiesSectionExpanded";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import { FeatureComparison } from "@/components/FeatureComparison";
-import { PremiumTeaser } from "@/components/PremiumTeaser";
 import StreakCounter from "@/components/StreakCounter";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useMessageNotifications } from "@/hooks/useMessageNotifications";
@@ -23,7 +21,7 @@ import SEOHead from "@/components/SEOHead";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePerformanceBudget } from "@/hooks/usePerformanceBudget";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
-import { FeatureGate } from "@/components/auth/FeatureGate";
+
 import { RateLimitIndicator } from "@/components/RateLimitIndicator";
 import { useConfessionRateLimit } from "@/hooks/useConfessionRateLimit";
 import { QuickActions } from "@/components/QuickActions";
@@ -33,7 +31,7 @@ import { Loader2 } from "lucide-react";
 
 // Lazy load heavy components
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
-const PremiumDialog = lazy(() => import("@/components/PremiumDialog"));
+
 const OnboardingDialog = lazy(() => import("@/components/OnboardingDialog"));
 const TrustBadges = lazy(() => import("@/components/TrustBadges"));
 const FAQ = lazy(() => import("@/components/FAQ"));
@@ -47,7 +45,7 @@ const Index = () => {
   useSubscriptionCheck(user?.id);
   useMessageNotifications({ userId: user?.id });
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
-  const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
+  
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showSecondaryContent, setShowSecondaryContent] = useState(false);
@@ -110,17 +108,12 @@ const Index = () => {
     }
   };
 
-  const handleUpgradeToPremium = () => {
-    setIsPremiumDialogOpen(false);
-    navigate('/profile');
-  };
 
   return (
     <>
       <SEOHead />
       <AppLayout 
         onNewConfession={handleNewConfession}
-        onUpgradeClick={() => setIsPremiumDialogOpen(true)}
         onManageSubscription={() => setManageSubDialogOpen(true)}
       >
       {/* Pull to Refresh Indicator */}
@@ -190,29 +183,12 @@ const Index = () => {
         {/* Daily Prompt */}
         {user && <DailyPrompt onOpenNewConfession={handleNewConfession} />}
 
-        {/* Premium Teaser for Free Users */}
-        {user && !isPremium && showSecondaryContent && (
-          <PremiumTeaser
-            feature={t.teaser_feature}
-            description={t.teaser_description}
-            onUpgrade={() => setIsPremiumDialogOpen(true)}
-          />
-        )}
 
         {/* Communities Section */}
         {showSecondaryContent && <CommunitiesSectionExpanded />}
 
-        {/* Leaderboard - VIP Feature */}
-        {showSecondaryContent && user && (
-          <div className="my-4 sm:my-6">
-            <FeatureGate minTier="vip" teaserPriceHint="$9.99/mo">
-              <Leaderboard />
-            </FeatureGate>
-          </div>
-        )}
-        
-        {/* Leaderboard - Public for non-logged-in users */}
-        {showSecondaryContent && !user && (
+        {/* Leaderboard */}
+        {showSecondaryContent && (
           <div className="my-4 sm:my-6">
             <Leaderboard />
           </div>
@@ -223,10 +199,6 @@ const Index = () => {
           <FeatureHighlight />
         )}
 
-        {/* Feature Comparison */}
-        {showSecondaryContent && !user && (
-          <FeatureComparison onUpgrade={() => setIsPremiumDialogOpen(true)} />
-        )}
       </main>
 
       {/* Dialogs with Suspense for lazy loading */}
@@ -237,12 +209,6 @@ const Index = () => {
           onConfessionCreated={() => {
             trackEvent('confession_created');
           }}
-        />
-
-        <PremiumDialog
-          open={isPremiumDialogOpen}
-          onOpenChange={setIsPremiumDialogOpen}
-          onUpgrade={handleUpgradeToPremium}
         />
 
         <OnboardingDialog

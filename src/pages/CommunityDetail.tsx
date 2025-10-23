@@ -20,7 +20,7 @@ import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog"
 const CommunityDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [showPremiumDialog, setShowPremiumDialog] = useState(false);
+  
   const { user } = useCurrentUser();
   const { membership, isMember, joinCommunity, leaveCommunity, isJoining, isLeaving } = 
     useCommunityMembers(id!);
@@ -159,7 +159,7 @@ const CommunityDetail = () => {
                 <ConfessionCard 
                   confession={confession}
                   isPremium={isPremium}
-                  onUpgradeClick={() => setShowPremiumDialog(true)}
+                  onUpgradeClick={() => {}}
                   onInsightGenerated={() => {}}
                 />
               </div>

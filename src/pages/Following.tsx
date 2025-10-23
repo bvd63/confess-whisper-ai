@@ -16,7 +16,7 @@ import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Loader2 } from "lucide-react";
 
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
-const PremiumDialog = lazy(() => import("@/components/PremiumDialog"));
+
 
 const Following = () => {
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ const Following = () => {
   useAnalyticsTracking(user?.id || null);
   const { isPremium } = usePremiumStatus(user?.id);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
-  const [isPremiumDialogOpen, setIsPremiumDialogOpen] = useState(false);
+  
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
 
   // Pull to refresh
@@ -53,7 +53,6 @@ const Following = () => {
   return (
     <AppLayout 
       onNewConfession={() => setIsNewConfessionOpen(true)}
-      onUpgradeClick={() => setIsPremiumDialogOpen(true)}
       onManageSubscription={() => setManageSubDialogOpen(true)}
     >
       {/* Pull to Refresh Indicator */}
@@ -104,11 +103,6 @@ const Following = () => {
           open={isNewConfessionOpen}
           onOpenChange={setIsNewConfessionOpen}
           onConfessionCreated={() => {}}
-        />
-        <PremiumDialog
-          open={isPremiumDialogOpen}
-          onOpenChange={setIsPremiumDialogOpen}
-          onUpgrade={async () => {}}
         />
       </Suspense>
 

@@ -19,8 +19,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useCommunities } from "@/hooks/useCommunities";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
 import { TrendingHashtags } from "@/components/TrendingHashtags";
-import { PremiumTeaser } from "@/components/PremiumTeaser";
-import { FeatureGate } from "@/components/auth/FeatureGate";
 import { QuickActions } from "@/components/QuickActions";
 import { useNavigate } from "react-router-dom";
 import { AdvancedFilters, FilterState } from "@/components/AdvancedFilters";
@@ -156,32 +154,10 @@ const Explore = () => {
 
         <SearchUsersCard />
 
-        {/* Trending Hashtags - Premium Feature */}
-        {user && (
-          <div className="mb-6">
-            <FeatureGate minTier="vip" teaserPriceHint="$4.99/mo" compact>
-              <TrendingHashtags />
-            </FeatureGate>
-          </div>
-        )}
-        
-        {/* Trending Hashtags - Public for non-logged-in users */}
-        {!user && (
-          <div className="mb-6">
-            <TrendingHashtags />
-          </div>
-        )}
-
-        {/* Premium Teaser for Free Users */}
-        {user && !isPremium && (
-          <div className="mb-6">
-            <PremiumTeaser
-              feature={t.teaser_explore_feature}
-              description={t.teaser_explore_description}
-              onUpgrade={() => setManageSubDialogOpen(true)}
-            />
-          </div>
-        )}
+        {/* Trending Hashtags */}
+        <div className="mb-6">
+          <TrendingHashtags />
+        </div>
 
         {/* Advanced Filters */}
         <AdvancedFilters
