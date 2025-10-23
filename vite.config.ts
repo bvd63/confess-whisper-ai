@@ -66,6 +66,36 @@ export default defineConfig(({ mode }) => ({
     minify: 'esbuild',
     chunkSizeWarningLimit: 1000,
     reportCompressedSize: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor chunk - core React libraries
+          'vendor': ['react', 'react-dom', 'react-router-dom'],
+          // UI chunk - all Radix UI components
+          'ui': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-toast',
+            '@radix-ui/react-avatar',
+            '@radix-ui/react-select',
+            '@radix-ui/react-popover',
+          ],
+          // Utils chunk - helper libraries
+          'utils': [
+            'date-fns',
+            'clsx',
+            'tailwind-merge',
+            'zod',
+          ],
+          // Features chunk - heavy components
+          'features': [
+            '@tanstack/react-query',
+            '@supabase/supabase-js',
+          ],
+        },
+      },
+    },
   },
   optimizeDeps: {
     include: ['react', 'react-dom'],
