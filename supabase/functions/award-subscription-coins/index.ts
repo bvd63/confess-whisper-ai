@@ -57,9 +57,8 @@ serve(async (req) => {
       });
     }
 
-    // Award coins based on tier
+    // Award coins based on tier (VIP only)
     const coinAmounts = {
-      premium: 100,
       vip: 250
     };
 

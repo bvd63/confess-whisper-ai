@@ -56,7 +56,7 @@ serve(async (req) => {
       logStep("Error fetching profile", { error: profileError.message });
     }
     
-    // Check if user has active trial
+    // Check if user has active trial (map to VIP for backwards compatibility)
     if (profile?.trial_premium_ends_at) {
       const trialEndDate = new Date(profile.trial_premium_ends_at);
       const now = new Date();
@@ -64,11 +64,11 @@ serve(async (req) => {
       if (now < trialEndDate) {
         logStep("User has active trial", { endsAt: trialEndDate.toISOString() });
         
-        // Ensure profile reflects trial as premium
+        // Map trial to VIP tier
         await supabaseClient
           .from('profiles')
           .update({ 
-            subscription_tier: 'premium',
+            subscription_tier: 'vip',
             is_premium: true,
             trial_active: true
           })
@@ -76,7 +76,7 @@ serve(async (req) => {
         
         return new Response(JSON.stringify({
           subscribed: true,
-          subscription_tier: 'premium',
+          subscription_tier: 'vip',
           subscription_end: trialEndDate.toISOString(),
           onTrial: true
         }), {
@@ -137,13 +137,11 @@ serve(async (req) => {
       // Map price IDs to tiers - dynamically built from environment
       const priceId = subscription.items.data[0]?.price.id as string | undefined;
       const PRICE_TO_TIER_MAP: Record<string, string> = {
-        [Deno.env.get("STRIPE_PRICE_PREMIUM_MONTHLY") || ""]: 'premium',
-        [Deno.env.get("STRIPE_PRICE_PREMIUM_YEARLY") || ""]: 'premium',
         [Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || ""]: 'vip',
         [Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || ""]: 'vip',
       };
       
-      subscriptionTier = PRICE_TO_TIER_MAP[priceId ?? ''] || subscription.metadata?.plan_name?.toLowerCase() || 'premium';
+      subscriptionTier = PRICE_TO_TIER_MAP[priceId ?? ''] || subscription.metadata?.plan_name?.toLowerCase() || 'vip';
       logStep("Determined subscription tier", { priceId, tier: subscriptionTier });
       
       // Update profile with subscription info

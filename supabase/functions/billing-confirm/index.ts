@@ -12,9 +12,7 @@ const log = (level: string, message: string, data?: any) => {
 };
 
 // Map Stripe Price IDs to our tiers - dynamically built from environment
-const PRICE_ID_TO_TIER: Record<string, "free" | "premium" | "vip"> = {
-  [Deno.env.get("STRIPE_PRICE_PREMIUM_MONTHLY") || ""]: "premium",
-  [Deno.env.get("STRIPE_PRICE_PREMIUM_YEARLY") || ""]: "premium",
+const PRICE_ID_TO_TIER: Record<string, "free" | "vip"> = {
   [Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || ""]: "vip",
   [Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || ""]: "vip",
 };
@@ -108,7 +106,7 @@ serve(async (req) => {
     const { error: updateError } = await supabaseAdmin
       .from("profiles")
       .update({
-        is_premium: tier !== "free",
+        is_premium: tier === "vip",
         subscription_tier: tier,
         subscription_status: "active",
         subscription_ends_at: endsAtISO,

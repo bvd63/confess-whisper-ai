@@ -22,8 +22,6 @@ function log(level: string, message: string, context?: any) {
 }
 
 const STRIPE_PRICE_IDS = {
-  premium_monthly: Deno.env.get("STRIPE_PRICE_PREMIUM_MONTHLY") || "",
-  premium_yearly: Deno.env.get("STRIPE_PRICE_PREMIUM_YEARLY") || "",
   vip_monthly: Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || "",
   vip_yearly: Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || "",
 };
@@ -70,8 +68,8 @@ serve(async (req) => {
 
     const { tier, cycle = 'monthly' } = await req.json();
     
-    if (!tier || !['premium', 'vip'].includes(tier)) {
-      throw new Error("Invalid tier. Must be 'premium' or 'vip'");
+    if (!tier || tier !== 'vip') {
+      throw new Error("Invalid tier. Must be 'vip'");
     }
 
     const priceId = STRIPE_PRICE_IDS[`${tier}_${cycle}` as keyof typeof STRIPE_PRICE_IDS];
