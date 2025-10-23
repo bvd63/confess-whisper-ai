@@ -235,7 +235,9 @@ const Profile = () => {
               <AdvancedAnalytics userId={user.id} />
             </FeatureGate>
             
-            <WordCloudViz userId={user.id} />
+            <FeatureGate minTier="premium" teaserPriceHint="$4.99/mo" className="mt-6">
+              <WordCloudViz userId={user.id} />
+            </FeatureGate>
           </TabsContent>
 
           <TabsContent value="confessions" className="space-y-6">
