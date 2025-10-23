@@ -32,10 +32,13 @@ vi.mock("@/lib/supabaseClient", () => {
   };
 
   const realtimeSub = {
-    on: vi.fn().mockReturnThis(),
+    on: vi.fn(),
     subscribe: vi.fn().mockResolvedValue({ data: null, error: null }),
     unsubscribe: vi.fn(),
   };
+  
+  // Ensure 'on' returns the realtimeSub object for proper chaining
+  realtimeSub.on = vi.fn(() => realtimeSub);
 
   return {
     getSupabase: () => ({
