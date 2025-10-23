@@ -66,18 +66,16 @@ STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here  # (Step 4)
 
 1. **Navigate to:** Products → **+ Add product**
 
-2. **Create Premium Plan:**
-   - Name: `Confess+ Premium`
-   - Description: `Premium features for Confess+ users`
+2. **Create VIP Plan:**
+   - Name: `Confess+ VIP`
+   - Description: `VIP exclusive features for Confess+ users`
    - **Pricing:**
-     - Monthly: `$4.99/month` (Recurring)
-     - Yearly: `$49.99/year` (Recurring, save 17%)
+     - Monthly: `$6.99/month` (Recurring)
+     - Yearly: `$54.99/year` (Recurring, save 35%)
    - Click **Save product**
    - Copy **Price ID** for each (e.g., `price_xxx_monthly`, `price_xxx_yearly`)
 
-3. **Create VIP Plan:**
-   - Name: `Confess+ VIP`
-   - Description: `VIP exclusive features`
+3. **Update Environment Variables:**
    - **Pricing:**
      - Monthly: `$9.99/month` (Recurring)
      - Yearly: `$99.99/year` (Recurring, save 17%)
@@ -94,52 +92,50 @@ brew install stripe/stripe-cli/stripe  # macOS
 # Login
 stripe login
 
-# Create Premium Product
+# Create VIP Product
 stripe products create \
-  --name="Confess+ Premium" \
-  --description="Premium features for Confess+ users"
+  --name="Confess+ VIP" \
+  --description="VIP exclusive features for Confess+ users"
 
-# Create Premium Monthly Price (replace prod_xxx with your product ID)
+# Create VIP Monthly Price (replace prod_xxx with your product ID)
 stripe prices create \
   --product=prod_xxx \
-  --unit-amount=499 \
+  --unit-amount=699 \
   --currency=usd \
   --recurring[interval]=month
 
-# Create Premium Yearly Price
+# Create VIP Yearly Price
 stripe prices create \
   --product=prod_xxx \
-  --unit-amount=4999 \
+  --unit-amount=5499 \
   --currency=usd \
   --recurring[interval]=year
-
-# Repeat for VIP tier...
 ```
 
 ### C. Update Price IDs in Code:
 
-Create/update file: `src/lib/stripe-config.ts`
+Update file: `src/lib/subscription-plans.ts`
 
 ```typescript
-export const STRIPE_CONFIG = {
-  publishableKey: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY,
-  
-  prices: {
-    premium: {
-      monthly: 'price_xxx_premium_monthly',  // Replace with your Price ID
-      yearly: 'price_xxx_premium_yearly',    // Replace with your Price ID
-    },
-    vip: {
-      monthly: 'price_xxx_vip_monthly',      // Replace with your Price ID
-      yearly: 'price_xxx_vip_yearly',        // Replace with your Price ID
-    },
+export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
+  {
+    id: 'free',
+    name: 'Free',
+    priceMonthly: 0,
+    stripePriceIdMonthly: 'free',
+    benefits: [/* ... */],
   },
-  
-  products: {
-    premium: 'prod_xxx_premium',  // Replace with your Product ID
-    vip: 'prod_xxx_vip',          // Replace with your Product ID
+  {
+    id: 'vip',
+    name: 'VIP',
+    priceMonthly: 6.99,
+    priceYearly: 54.99,
+    stripePriceIdMonthly: 'price_xxx_vip_monthly',  // Replace with your Price ID
+    stripePriceIdYearly: 'price_xxx_vip_yearly',    // Replace with your Price ID
+    isPopular: true,
+    benefits: [/* ... */],
   },
-};
+];
 ```
 
 ---
@@ -196,7 +192,7 @@ Webhooks notify your app when subscription events occur (payment success, cancel
 
 2. **Navigate to:** `http://localhost:3000/profile`
 
-3. **Click "Upgrade to Premium"**
+3. **Click "Upgrade to VIP"**
 
 4. **Use Stripe Test Cards:**
    - ✅ **Success:** `4242 4242 4242 4242` (any future date, any CVC)
