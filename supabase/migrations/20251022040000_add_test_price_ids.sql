@@ -4,7 +4,7 @@
 -- Note: MSSQL linter may show false errors - syntax is correct for PostgreSQL
 
 -- Add test mode Price IDs column
-ALTER TABLE coin_packages ADD stripe_price_id_test TEXT;
+ALTER TABLE coin_packages ADD COLUMN stripe_price_id_test TEXT;
 
 -- Create index for test Price IDs
 CREATE INDEX idx_coin_packages_stripe_price_id_test ON coin_packages(stripe_price_id_test);
