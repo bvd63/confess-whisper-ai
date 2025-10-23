@@ -4,7 +4,7 @@ import { useSubscription } from "@/state/SubscriptionProvider";
 import { cn } from "@/lib/utils";
 
 interface SubscriptionBadgeProps {
-  tier?: 'free' | 'premium' | 'vip'; // Optional - if not provided, uses useSubscription hook
+  tier?: 'free' | 'vip'; // Optional - if not provided, uses useSubscription hook
   className?: string;
   showLabel?: boolean;
   size?: 'sm' | 'md' | 'lg';
@@ -28,12 +28,6 @@ export const SubscriptionBadge = ({
   }
 
   const config = {
-    premium: {
-      icon: Zap,
-      label: 'Premium',
-      className: 'bg-gradient-to-r from-purple-600 to-purple-400 text-white border-purple-400/50',
-      glow: 'shadow-[0_0_20px_rgba(168,85,247,0.5)]'
-    },
     vip: {
       icon: Crown,
       label: 'VIP',
@@ -42,7 +36,7 @@ export const SubscriptionBadge = ({
     }
   };
 
-  const tierConfig = config[subscriptionTier as 'premium' | 'vip'];
+  const tierConfig = config[subscriptionTier as 'vip'];
   if (!tierConfig) return null;
 
   const Icon = tierConfig.icon;

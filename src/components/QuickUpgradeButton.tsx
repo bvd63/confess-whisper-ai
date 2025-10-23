@@ -28,22 +28,12 @@ export const QuickUpgradeButton = ({
     return null;
   }
 
-  const getButtonConfig = () => {
-    if (subscriptionTier === 'premium') {
-      return {
-        icon: Crown,
-        text: customText || 'Upgrade to VIP',
-        gradient: 'from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400'
-      };
-    }
-    return {
-      icon: Zap,
-      text: customText || 'Upgrade to Premium',
-      gradient: 'from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400'
-    };
+  const config = {
+    icon: Crown,
+    text: customText || 'Upgrade to VIP',
+    gradient: 'from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400'
   };
 
-  const config = getButtonConfig();
   const Icon = config.icon;
 
   return (

@@ -28,7 +28,6 @@ const SubscriptionCard = ({
 }: SubscriptionCardProps) => {
   const { t } = useLanguage();
   const isCurrentPlan = currentTier === plan.name.toLowerCase();
-  const isPremium = plan.name === "Premium";
   const isVIP = plan.name === "VIP";
   
   const price = billingCycle === "monthly" ? plan.price_monthly : plan.price_yearly;
@@ -88,8 +87,8 @@ const SubscriptionCard = ({
         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/20 to-transparent rounded-bl-full" />
       )}
       
-      {/* Discount Badge for Premium and VIP on yearly billing */}
-      {billingCycle === "yearly" && (isPremium || isVIP) && (
+      {/* Discount Badge for VIP on yearly billing */}
+      {billingCycle === "yearly" && isVIP && (
         <div className="absolute top-3 right-3 z-20 bg-primary text-primary-foreground font-bold rounded-full w-16 h-16 flex items-center justify-center text-lg shadow-elegant animate-pulse-glow">
           -33%
         </div>
@@ -98,9 +97,6 @@ const SubscriptionCard = ({
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            {isPremium && (
-              <Crown className="w-5 h-5 text-primary" />
-            )}
             {isVIP && (
               <Sparkles className="w-5 h-5 text-primary animate-pulse-glow" />
             )}
