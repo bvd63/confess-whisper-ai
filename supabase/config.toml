@@ -180,3 +180,18 @@ verify_jwt = true
 
 [functions.billing-confirm]
 verify_jwt = true
+
+[functions.billing-upgrade]
+verify_jwt = true
+
+[functions.billing-downgrade]
+verify_jwt = true
+
+[functions.billing-preview]
+verify_jwt = true
+
+[functions.billing-resume]
+verify_jwt = true
+
+[functions.fix-subscription-sync]
+verify_jwt = true

@@ -48,6 +48,7 @@ import PaymentCanceled from "./pages/PaymentCanceled";
 import CoinPurchaseSuccess from "./pages/coins/Success";
 import CoinPurchaseCancel from "./pages/coins/Cancel";
 import TestPayments from "./pages/TestPayments";
+import TestSubscriptions from "./pages/TestSubscriptions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import NotFound from "./pages/NotFound";
@@ -163,6 +164,7 @@ const AppContent = () => {
           <Route path="/coins/success" element={<CoinPurchaseSuccess />} />
           <Route path="/coins/cancel" element={<CoinPurchaseCancel />} />
           <Route path="/test-payments" element={<TestPayments />} />
+          <Route path="/test-subscriptions" element={<TestSubscriptions />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="*" element={<NotFound />} />
