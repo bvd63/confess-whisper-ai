@@ -27,6 +27,9 @@ import { FeatureGate } from "@/components/auth/FeatureGate";
 import { RateLimitIndicator } from "@/components/RateLimitIndicator";
 import { useConfessionRateLimit } from "@/hooks/useConfessionRateLimit";
 import { QuickActions } from "@/components/QuickActions";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { KarmaDisplay } from "@/components/KarmaDisplay";
+import { Loader2 } from "lucide-react";
 
 // Lazy load heavy components
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
@@ -51,6 +54,15 @@ const Index = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const { isLimited, remainingRequests, totalRequests, getRemainingTime } = useConfessionRateLimit();
+  
+  // Pull to refresh
+  const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
+    onRefresh: async () => {
+      // Reload data
+      window.location.reload();
+    },
+    threshold: 80,
+  });
   
   // Monitor performance budget
   usePerformanceBudget();
@@ -111,8 +123,25 @@ const Index = () => {
         onUpgradeClick={() => setIsPremiumDialogOpen(true)}
         onManageSubscription={() => setManageSubDialogOpen(true)}
       >
+      {/* Pull to Refresh Indicator */}
+      {pullDistance > 0 && (
+        <div 
+          className="fixed top-16 left-0 right-0 z-50 flex justify-center pointer-events-none"
+          style={{ 
+            transform: `translateY(${Math.min(pullDistance - 80, 0)}px)`,
+            opacity: Math.min(pullDistance / 80, 1)
+          }}
+        >
+          <div className="bg-primary/10 backdrop-blur-sm rounded-full p-2">
+            <Loader2 className={`h-5 w-5 text-primary ${isRefreshing || isTriggered ? 'animate-spin' : ''}`} />
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
-      <main className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8"
+      <main 
+        ref={containerRef}
+        className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8"
       >
         {/* Welcome Section */}
         <div className="mb-6 sm:mb-8 text-center animate-fade-in">
@@ -132,6 +161,13 @@ const Index = () => {
 
         {/* Streak Counter */}
         {user && <StreakCounter userId={user.id} variant="full" />}
+
+        {/* Karma Display */}
+        {user && (
+          <div className="mb-4">
+            <KarmaDisplay userId={user.id} variant="full" />
+          </div>
+        )}
 
         {/* Rate Limit Indicator */}
         {user && (

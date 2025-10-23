@@ -96,6 +96,8 @@ export interface Translations {
   // Karma
   karma_points: string;
   karma_level: string;
+  karma_next_level: string;
+  karma_points_to_go: string;
   
   // Search Suggestions
   search_recent: string;

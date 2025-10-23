@@ -3471,9 +3471,6 @@ export const translations: Record<Language, Translations> = {
     // Theme
     theme_oled: "OLED Black",
     
-    // Karma
-    karma_points: "Karma Points",
-    karma_level: "Level {level}",
     confession_new: "New Confession",
 
     // Filters
@@ -3489,6 +3486,12 @@ export const translations: Record<Language, Translations> = {
     
     // Common (continued)
     common_continue: "Continue",
+    
+    // Karma
+    karma_points: "Karma Points",
+    karma_level: "Level",
+    karma_next_level: "Next Level",
+    karma_points_to_go: "points to go",
     
     // Search Suggestions
     search_recent: "Recent",
@@ -5192,9 +5195,6 @@ export const translations: Record<Language, Translations> = {
     // Theme
     theme_oled: "Negro OLED",
     
-    // Karma
-    karma_points: "Puntos de Karma",
-    karma_level: "Nivel {level}",
     confession_new: "Nueva Confesión",
 
     // Filters
@@ -5210,6 +5210,12 @@ export const translations: Record<Language, Translations> = {
     
     // Common (continued)
     common_continue: "Continuar",
+    
+    // Karma
+    karma_points: "Puntos de Karma",
+    karma_level: "Nivel",
+    karma_next_level: "Próximo Nivel",
+    karma_points_to_go: "puntos para avanzar",
     
     // Search Suggestions
     search_recent: "Recientes",
@@ -6913,9 +6919,6 @@ export const translations: Record<Language, Translations> = {
     // Theme
     theme_oled: "OLED Schwarz",
     
-    // Karma
-    karma_points: "Karma-Punkte",
-    karma_level: "Stufe {level}",
     confession_new: "Neues Geständnis",
 
     // Filters
@@ -6931,6 +6934,12 @@ export const translations: Record<Language, Translations> = {
     
     // Common (continued)
     common_continue: "Weiter",
+    
+    // Karma
+    karma_points: "Karma-Punkte",
+    karma_level: "Level",
+    karma_next_level: "Nächstes Level",
+    karma_points_to_go: "Punkte bis dahin",
     
     // Search Suggestions
     search_recent: "Kürzlich",

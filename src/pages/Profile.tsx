@@ -21,6 +21,7 @@ import StreakCounter from "@/components/StreakCounter";
 import UserPreferences from "@/components/UserPreferences";
 import WordCloudViz from "@/components/WordCloudViz";
 import FollowStats from "@/components/FollowStats";
+import { KarmaDisplay } from "@/components/KarmaDisplay";
 import StreakReminder from "@/components/StreakReminder";
 import AchievementToast from "@/components/AchievementToast";
 import { ReferralRewardNotification } from "@/components/ReferralRewardNotification";
@@ -227,7 +228,9 @@ const Profile = () => {
             
             <FollowStats userId={user.id} />
             
-            <UserAnalytics 
+            <KarmaDisplay userId={user.id} variant="full" />
+            
+            <UserAnalytics
               onUpgradeClick={() => setPremiumDialogOpen(true)}
               onManageSubscription={() => setManageSubDialogOpen(true)}
             />
