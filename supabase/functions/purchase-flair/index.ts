@@ -68,11 +68,11 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .single();
 
-    const userTier = (profile?.subscription_tier || 'free') as 'free' | 'premium' | 'vip';
-    const requiredTier = (flair.required_plan || 'free') as 'free' | 'premium' | 'vip';
+    const userTier = (profile?.subscription_tier || 'free') as 'free' | 'vip';
+    const requiredTier = (flair.required_plan || 'free') as 'free' | 'vip';
 
-    // Tier hierarchy: free < premium < vip
-    const tierLevel: Record<'free' | 'premium' | 'vip', number> = { free: 0, premium: 1, vip: 2 };
+    // Tier hierarchy: free < vip (no premium tier)
+    const tierLevel: Record<'free' | 'vip', number> = { free: 0, vip: 1 };
     if (tierLevel[userTier] < tierLevel[requiredTier]) {
       return new Response(
         JSON.stringify({ 
