@@ -6,6 +6,7 @@ import ConfessionCard from '@/components/ConfessionCard';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FileText, Heart, Bookmark } from 'lucide-react';
+import VirtualizedConfessions from '@/components/VirtualizedConfessions';
 
 interface ProfileTabsProps {
   userId: string;
@@ -93,6 +94,17 @@ export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, o
         <Card className="p-12 text-center">
           <p className="text-muted-foreground">{emptyMessage}</p>
         </Card>
+      );
+    }
+
+    if (confessions.length > 15) {
+      return (
+        <VirtualizedConfessions
+          confessions={confessions}
+          isPremium={isPremium}
+          onUpgradeClick={onUpgradeClick}
+          onInsightGenerated={onInsightGenerated}
+        />
       );
     }
 
