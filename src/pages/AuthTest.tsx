@@ -14,14 +14,13 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { getSupabase } from "@/lib/supabaseClient";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
-const AuthTest = () => {
-  const supabase = getSupabase();
+export default function AuthTest() {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { toast } = useToast();
@@ -128,30 +127,23 @@ const AuthTest = () => {
     setIsCleaningUp(true);
     setCleanupResult("");
     try {
-      const { data, error } = await supabase.rpc('auth_maintenance_cleanup');
+      const { data, error } = await supabase.rpc('trigger_auth_cleanup');
       if (error) throw error;
-      setCleanupResult(`Cleanup successful! Result: ${JSON.stringify(data)}`);
+      setCleanupResult("✅ Cleanup completed successfully!");
       toast({
         title: "Cleanup Complete",
-        description: "Authentication data has been cleaned up.",
+        description: "Authentication data has been cleaned up",
       });
     } catch (error: any) {
-      setCleanupResult(`Cleanup failed: ${error.message}`);
+      setCleanupResult(`❌ Error: ${error.message}`);
       toast({
-        title: "Cleanup Error",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
     } finally {
       setIsCleaningUp(false);
     }
-  };
-
-  const handleTriggerCleanup = async () => {
-    const supabase = getSupabase();
-    const { data, error } = await supabase.rpc('trigger_auth_cleanup');
-    console.log('Cleanup triggered:', { data, error });
-    alert('Cleanup function invoked. Check console.');
   };
 
   if (userLoading) {
@@ -440,5 +432,3 @@ const AuthTest = () => {
     </div>
   );
 }
-
-export default AuthTest;

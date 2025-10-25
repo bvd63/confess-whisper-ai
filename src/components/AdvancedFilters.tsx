@@ -66,7 +66,7 @@ export const AdvancedFilters = ({ onFilterChange, communities = [] }: AdvancedFi
             <label className="text-xs text-muted-foreground mb-1 block">{t.filters_date}</label>
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="w-full justify-start text-left font-normal" data-testid="date-from-button">
+                <Button variant="outline" size="sm" className="w-full justify-start text-left font-normal">
                   <CalendarIcon className="mr-2 h-3 w-3" />
                   {filters.dateFrom ? format(filters.dateFrom, 'PP') : 'From'}
                 </Button>
@@ -85,7 +85,7 @@ export const AdvancedFilters = ({ onFilterChange, communities = [] }: AdvancedFi
             <label className="text-xs text-muted-foreground mb-1 block">&nbsp;</label>
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="w-full justify-start text-left font-normal" data-testid="date-to-button">
+                <Button variant="outline" size="sm" className="w-full justify-start text-left font-normal">
                   <CalendarIcon className="mr-2 h-3 w-3" />
                   {filters.dateTo ? format(filters.dateTo, 'PP') : 'To'}
                 </Button>
@@ -107,14 +107,14 @@ export const AdvancedFilters = ({ onFilterChange, communities = [] }: AdvancedFi
           <div>
             <label className="text-xs text-muted-foreground mb-1 block">{t.filters_community}</label>
             <Select
-              value={filters.communityId || 'all'}
-              onValueChange={(value) => updateFilters({ communityId: value === 'all' ? undefined : value })}
+              value={filters.communityId || ''}
+              onValueChange={(value) => updateFilters({ communityId: value || undefined })}
             >
-              <SelectTrigger className="h-9" data-testid="community-select">
+              <SelectTrigger className="h-9">
                 <SelectValue placeholder={t.communities_filter_all} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{t.communities_filter_all}</SelectItem>
+                <SelectItem value="">{t.communities_filter_all}</SelectItem>
                 {communities.map((community) => (
                   <SelectItem key={community.id} value={community.id}>
                     {community.name}
@@ -132,7 +132,7 @@ export const AdvancedFilters = ({ onFilterChange, communities = [] }: AdvancedFi
             value={filters.sortBy}
             onValueChange={(value) => updateFilters({ sortBy: value as FilterState['sortBy'] })}
           >
-            <SelectTrigger className="h-9" data-testid="sort-select">
+            <SelectTrigger className="h-9">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

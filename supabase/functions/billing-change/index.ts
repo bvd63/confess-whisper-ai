@@ -2,19 +2,12 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
-// Deno global is available in Supabase Edge Functions runtime
-declare const Deno: {
-  env: {
-    get(key: string): string | undefined;
-  };
-};
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const logStep = (step: string, details?: Record<string, unknown>) => {
+const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[BILLING-CHANGE] ${step}${detailsStr}`);
 };
@@ -24,7 +17,7 @@ const STRIPE_PRICE_IDS = {
   vip: "price_1SJ0vwR7kygIyYg9OeCiqV00",
 };
 
-serve(async (req: Request) => {
+serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -82,35 +75,7 @@ serve(async (req: Request) => {
 
     const subscription = subscriptions.data[0];
     const subscriptionItemId = subscription.items.data[0].id;
-    const currentPriceId = subscription.items.data[0].price.id;
-    logStep("Found active subscription", { subscriptionId: subscription.id, currentPriceId });
-
-    // Determine current tier from price ID
-    let currentTier: 'premium' | 'vip' | 'free' = 'free';
-    for (const [key, val] of Object.entries(STRIPE_PRICE_IDS)) {
-      if (val === currentPriceId) {
-        currentTier = key as 'premium' | 'vip';
-        break;
-      }
-    }
-
-    // Validate tier hierarchy for proper upgrade/downgrade
-    const tierHierarchy: Record<string, number> = { free: 0, premium: 1, vip: 2 };
-    const currentLevel = tierHierarchy[currentTier];
-    const targetLevel = tierHierarchy[targetTier];
-
-    // Edge case validation
-    if (currentLevel === 0) {
-      throw new Error("Cannot change subscription from free tier. Please create a new subscription instead.");
-    }
-
-    if (targetLevel === 0) {
-      throw new Error("Cannot downgrade to free tier. Please cancel your subscription instead.");
-    }
-
-    if (currentLevel === targetLevel) {
-      throw new Error("You are already on this plan.");
-    }
+    logStep("Found active subscription", { subscriptionId: subscription.id });
 
     // Get target price ID from centralized config
     const targetPriceId = STRIPE_PRICE_IDS[targetTier as keyof typeof STRIPE_PRICE_IDS];
@@ -118,32 +83,16 @@ serve(async (req: Request) => {
       throw new Error(`Price ID for ${targetTier} not configured`);
     }
 
-    // Determine if upgrade or downgrade for proper proration handling
-    const isUpgrade = targetLevel > currentLevel;
-    logStep("Changing subscription", { 
-      targetPriceId, 
-      isUpgrade,
-      from: currentTier,
-      to: targetTier 
-    });
+    logStep("Changing subscription", { targetPriceId });
 
-    // Update subscription with appropriate proration
-    // Upgrades: immediate with proration
-    // Downgrades: at period end (no immediate proration)
-    const updateParams: Stripe.SubscriptionUpdateParams = {
+    // Update subscription with proration
+    const updatedSubscription = await stripe.subscriptions.update(subscription.id, {
       items: [{
         id: subscriptionItemId,
         price: targetPriceId,
       }],
-      proration_behavior: isUpgrade ? 'create_prorations' : 'none',
-    };
-
-    if (!isUpgrade) {
-      // For downgrades, maintain the billing cycle
-      updateParams.billing_cycle_anchor = 'unchanged';
-    }
-
-    const updatedSubscription = await stripe.subscriptions.update(subscription.id, updateParams);
+      proration_behavior: 'create_prorations',
+    });
 
     logStep("Subscription updated", { subscriptionId: updatedSubscription.id });
 

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,11 @@ const DraftManager = ({ userId, onSelectDraft }: DraftManagerProps) => {
   const { toast } = useToast();
   const { t } = useLanguage();
 
-  const loadDrafts = useCallback(async () => {
+  useEffect(() => {
+    loadDrafts();
+  }, [userId]);
+
+  const loadDrafts = async () => {
     try {
       const { data, error } = await supabase
         .from('confession_drafts')
@@ -44,11 +48,7 @@ const DraftManager = ({ userId, onSelectDraft }: DraftManagerProps) => {
     } finally {
       setLoading(false);
     }
-  }, [userId]);
-
-  useEffect(() => {
-    loadDrafts();
-  }, [loadDrafts]);
+  };
 
   const deleteDraft = async (draftId: string) => {
     try {

@@ -172,14 +172,14 @@ const ConfessionActions = ({
   const isOwner = currentUserId === confessionUserId;
 
   return (
-    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+    <div className="flex items-center gap-2 sm:gap-2 flex-wrap">
       {/* Like Button */}
       <Button
         variant="ghost"
         size="sm"
         onClick={handleLike}
         disabled={isLiking}
-        className={`h-9 sm:h-8 min-w-[44px] px-2 sm:px-3 gap-1 sm:gap-2 ${localIsLiked ? 'text-primary' : 'text-muted-foreground'} hover:text-primary transition-colors touch-manipulation ${isLiking ? 'opacity-50' : ''}`}
+        className={`h-12 sm:h-10 min-w-[48px] px-3 sm:px-3 gap-1 sm:gap-2 ${localIsLiked ? 'text-primary' : 'text-muted-foreground'} hover:text-primary transition-colors touch-manipulation ${isLiking ? 'opacity-50' : ''}`}
       >
         <Heart className={`w-4 h-4 sm:w-4 sm:h-4 flex-shrink-0 ${localIsLiked ? 'fill-current' : ''} ${isLiking ? 'animate-pulse' : ''}`} />
         <span className="text-xs sm:text-sm">{localLikesCount}</span>
@@ -190,7 +190,7 @@ const ConfessionActions = ({
         variant="ghost"
         size="sm"
         onClick={handleShare}
-        className="h-9 sm:h-8 min-w-[44px] px-2 sm:px-3 gap-1 sm:gap-2 text-muted-foreground hover:text-primary transition-colors touch-manipulation"
+        className="h-12 sm:h-10 min-w-[48px] px-3 sm:px-3 gap-1 sm:gap-2 text-muted-foreground hover:text-primary transition-colors touch-manipulation"
       >
         <Share2 className="w-4 h-4 flex-shrink-0" />
         <span className="text-xs sm:text-sm hidden xs:inline">{t.share}</span>
@@ -202,7 +202,7 @@ const ConfessionActions = ({
         size="sm"
         onClick={handleBookmark}
         disabled={isBookmarking}
-        className={`h-9 sm:h-8 min-w-[44px] px-2 sm:px-3 ${localIsBookmarked ? 'text-primary' : 'text-muted-foreground'} hover:text-primary transition-colors touch-manipulation ${isBookmarking ? 'opacity-50' : ''}`}
+        className={`h-12 sm:h-10 min-w-[48px] px-3 sm:px-3 ${localIsBookmarked ? 'text-primary' : 'text-muted-foreground'} hover:text-primary transition-colors touch-manipulation ${isBookmarking ? 'opacity-50' : ''}`}
       >
         <Bookmark className={`w-4 h-4 flex-shrink-0 ${localIsBookmarked ? 'fill-current' : ''} ${isBookmarking ? 'animate-pulse' : ''}`} />
       </Button>
@@ -216,13 +216,13 @@ const ConfessionActions = ({
       )}
 
       {/* Owner Actions */}
-      <div className="ml-auto flex items-center gap-1 sm:gap-2">
+      <div className="ml-auto flex items-center gap-2 sm:gap-2">
         {isOwner && onDelete && (
           <Button
             variant="ghost"
             size="sm"
             onClick={onDelete}
-            className="h-9 sm:h-8 min-w-[44px] px-2 text-muted-foreground hover:text-destructive transition-colors touch-manipulation"
+            className="h-12 sm:h-10 min-w-[48px] px-3 text-muted-foreground hover:text-destructive transition-colors touch-manipulation"
           >
             <Trash2 className="w-4 h-4 flex-shrink-0" />
           </Button>
@@ -232,7 +232,7 @@ const ConfessionActions = ({
             variant="ghost"
             size="sm"
             onClick={onReport}
-            className="h-9 sm:h-8 min-w-[44px] px-2 text-muted-foreground hover:text-destructive transition-colors touch-manipulation"
+            className="h-12 sm:h-10 min-w-[48px] px-3 text-muted-foreground hover:text-destructive transition-colors touch-manipulation"
           >
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
           </Button>

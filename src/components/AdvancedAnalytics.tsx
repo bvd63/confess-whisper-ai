@@ -1,28 +1,9 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
 import { TrendingUp, Calendar, Heart, MessageSquare } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-interface CategoryData {
-  name: string;
-  value: number;
-}
-
-interface TimelineData {
-  date: string;
-  [key: string]: string | number;
-}
-
-interface EngagementData {
-  name: string;
-  value: number;
-  avg: string | number;
-  icon: typeof Heart | typeof MessageSquare;
-  color: string;
-}
-
 interface AdvancedAnalyticsProps {
   userId: string;
 }
@@ -33,12 +14,14 @@ const AdvancedAnalytics = ({
     t,
     language
   } = useLanguage();
-  const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
-  const [timelineData, setTimelineData] = useState<TimelineData[]>([]);
-  const [engagementData, setEngagementData] = useState<EngagementData[]>([]);
+  const [categoryData, setCategoryData] = useState<any[]>([]);
+  const [timelineData, setTimelineData] = useState<any[]>([]);
+  const [engagementData, setEngagementData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  const loadAnalytics = useCallback(async () => {
+  useEffect(() => {
+    loadAnalytics();
+  }, [userId]);
+  const loadAnalytics = async () => {
     try {
       // Get confessions
       const {
@@ -100,12 +83,7 @@ const AdvancedAnalytics = ({
     } finally {
       setLoading(false);
     }
-  }, [userId, t.analytics_confessions, t.comments_title, language]);
-
-  useEffect(() => {
-    loadAnalytics();
-  }, [loadAnalytics]);
-  
+  };
   const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', '#8b5cf6', '#f59e0b', '#10b981', '#ec4899'];
   if (loading) return null;
   return <div className="space-y-6">

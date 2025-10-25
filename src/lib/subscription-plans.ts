@@ -24,7 +24,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     id: 'free',
     name: 'Free',
     priceMonthly: 0,
-    stripePriceIdMonthly: 'free',
+    stripePriceIdMonthly: '',
     benefits: [
       'subscription_benefits_free_confessions',
       'subscription_benefits_free_basic_features',
@@ -40,10 +40,9 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     id: 'vip',
     name: 'VIP',
     priceMonthly: 6.99,
-    priceYearly: 54.99, // ~34% savings
-    // These will be fetched from Supabase secrets via edge function
-    stripePriceIdMonthly: import.meta.env.VITE_STRIPE_PRICE_VIP_MONTHLY || 'price_1QpaMPP2hBCL2KbD9PO0pDcj',
-    stripePriceIdYearly: import.meta.env.VITE_STRIPE_PRICE_VIP_YEARLY || 'price_1QpaMPP2hBCL2KbDTmAyFTGp',
+    priceYearly: 54.99, // 35% savings
+    stripePriceIdMonthly: 'vip_monthly',
+    stripePriceIdYearly: 'vip_yearly',
     isPopular: true,
     benefits: [
       'subscription_benefits_vip_unlimited_confessions',

@@ -24,14 +24,14 @@ BEGIN
   FROM profiles
   WHERE user_id = _user_id;
   
-  -- If on active trial, treat as vip (premium tier removed)
+  -- If on active trial, treat as premium
   IF v_trial_active AND v_trial_ends_at IS NOT NULL AND v_trial_ends_at > NOW() THEN
-    v_tier := 'vip';
+    v_tier := 'premium';
   END IF;
   
   CASE v_tier
     WHEN 'free' THEN v_limit := 3;
-    -- Premium tier removed, only free and vip
+    WHEN 'premium' THEN v_limit := 10;
     WHEN 'vip' THEN v_limit := -1;
     ELSE v_limit := 3;
   END CASE;

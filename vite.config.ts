@@ -3,15 +3,12 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from 'vite-plugin-pwa';
-import type { ServerOptions } from 'https';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
-    // HTTPS disabled for Codespaces - the forwarded port already uses HTTPS
-    // https: {} as ServerOptions,
   },
   plugins: [
     react(),
@@ -62,45 +59,5 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-  },
-  build: {
-    target: 'esnext',
-    sourcemap: false,
-    minify: 'esbuild',
-    chunkSizeWarningLimit: 1000,
-    reportCompressedSize: false,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          // Vendor chunk - core React libraries
-          'vendor': ['react', 'react-dom', 'react-router-dom'],
-          // UI chunk - all Radix UI components
-          'ui': [
-            '@radix-ui/react-dialog',
-            '@radix-ui/react-dropdown-menu',
-            '@radix-ui/react-tabs',
-            '@radix-ui/react-toast',
-            '@radix-ui/react-avatar',
-            '@radix-ui/react-select',
-            '@radix-ui/react-popover',
-          ],
-          // Utils chunk - helper libraries
-          'utils': [
-            'date-fns',
-            'clsx',
-            'tailwind-merge',
-            'zod',
-          ],
-          // Features chunk - heavy components
-          'features': [
-            '@tanstack/react-query',
-            '@supabase/supabase-js',
-          ],
-        },
-      },
-    },
-  },
-  optimizeDeps: {
-    include: ['react', 'react-dom'],
   },
 }));

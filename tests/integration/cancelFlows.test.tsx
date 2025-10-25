@@ -1,12 +1,17 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { renderWithProviders, mockSupabaseClient, createSubscriptionStatus } from '../helpers/testUtils';
+import { renderWithProviders } from '../helpers/testUtils';
 import { EnhancedSubscriptionManager } from '@/components/EnhancedSubscriptionManager';
-import { SubscriptionApiMock } from '../helpers/apiMock';
+import { SubscriptionApiMock, createMockSupabase } from '../helpers/apiMock';
+
+vi.mock('@/integrations/supabase/client', () => ({
+  supabase: null,
+}));
 
 describe('Cancel Subscription Flows', () => {
   let apiMock: SubscriptionApiMock;
+  let mockSupabase: any;
 
   beforeEach(() => {
     apiMock = new SubscriptionApiMock();
@@ -22,21 +27,29 @@ describe('Cancel Subscription Flows', () => {
       ends_at: '2025-11-12T18:00:00Z',
     });
 
-    let statusCall = 0;
-    vi.mocked(mockSupabaseClient.functions.invoke).mockReset();
-    vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(async (fnName: string, options: any) => {
+    const mockInvoke = vi.fn(async (fnName: string, options: any) => {
       if (fnName === 'billing-status') {
-        statusCall += 1;
-        const statusData = statusCall > 1
-          ? createSubscriptionStatus({ cancelAtPeriodEnd: true })
-          : createSubscriptionStatus();
-        return { data: statusData, error: null };
+        return {
+          data: {
+            subscribed: true,
+            plan: 'premium',
+            subscription_end: '2025-11-12T18:00:00Z',
+            status: 'active',
+          },
+          error: null,
+        };
       }
       if (fnName === 'billing-cancel') {
         return cancelFn(fnName, options);
       }
-      return { data: null, error: { message: 'Unknown function' } };
+      return { data: null, error: null };
     });
+
+    mockSupabase = createMockSupabase(mockInvoke);
+    
+    vi.doMock('@/integrations/supabase/client', () => ({
+      supabase: mockSupabase,
+    }));
     
     renderWithProviders(<EnhancedSubscriptionManager />);
     
@@ -44,16 +57,19 @@ describe('Cancel Subscription Flows', () => {
       expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
-    const cancelButton = screen.getByTestId('action-cancel');
+    // Click cancel button
+    const cancelButton = screen.getByRole('button', { name: /cancel/i });
     await user.click(cancelButton);
     
+    // Confirm cancellation
     await waitFor(() => {
-      expect(screen.getByTestId('confirm-action')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /confirm/i })).toBeInTheDocument();
     });
-
-    const confirmButton = screen.getByTestId('confirm-action');
+    
+    const confirmButton = screen.getByRole('button', { name: /confirm/i });
     await user.click(confirmButton);
     
+    // Should show end date
     await waitFor(() => {
       expect(screen.getByText(/11\/12\/2025/i)).toBeInTheDocument();
     });
@@ -65,13 +81,31 @@ describe('Cancel Subscription Flows', () => {
   it('should show warning for immediate cancellation', async () => {
     const user = userEvent.setup();
     
-    vi.mocked(mockSupabaseClient.functions.invoke).mockReset();
-    vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(async (fnName: string) => {
-      if (fnName === 'billing-status') {
-        return { data: createSubscriptionStatus(), error: null };
-      }
-      return { data: null, error: null };
+    const cancelNowFn = apiMock.mockCancel({
+      success: true,
+      message: 'Subscription canceled immediately',
+      cancel_at_period_end: false,
+      immediate: true,
     });
+
+    const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+      if (fnName === 'billing-cancel') {
+        return cancelNowFn(fnName, options);
+      }
+      return {
+        data: {
+          subscribed: true,
+          plan: 'premium',
+        },
+        error: null,
+      };
+    });
+
+    mockSupabase = createMockSupabase(mockInvoke);
+    
+    vi.doMock('@/integrations/supabase/client', () => ({
+      supabase: mockSupabase,
+    }));
     
     renderWithProviders(<EnhancedSubscriptionManager />);
     
@@ -79,13 +113,16 @@ describe('Cancel Subscription Flows', () => {
       expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
-    const cancelButton = screen.getByTestId('action-cancel');
-    await user.click(cancelButton);
-
-    // The component shows a confirmation dialog for cancellation
-    await waitFor(() => {
-      expect(screen.getByTestId('confirm-action')).toBeInTheDocument();
-    });
+    const cancelButton = screen.getByRole('button', { name: /Cancel Subscription/i });
+    
+    if (cancelButton) {
+      await user.click(cancelButton);
+      
+      // Should show warning about immediate access loss
+      await waitFor(() => {
+        expect(screen.getByText(/warning|lose access/i)).toBeInTheDocument();
+      });
+    }
   });
 
   it('should allow reactivation of canceled subscription', async () => {
@@ -96,37 +133,42 @@ describe('Cancel Subscription Flows', () => {
       message: 'Subscription reactivated successfully',
     });
 
-    let statusCall = 0;
-    vi.mocked(mockSupabaseClient.functions.invoke).mockReset();
-    vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(async (fnName: string, options: any) => {
+    const mockInvoke = vi.fn(async (fnName: string, options: any) => {
       if (fnName === 'billing-status') {
-        statusCall += 1;
-        const statusData = statusCall === 1
-          ? createSubscriptionStatus({ cancelAtPeriodEnd: true, canReactivate: true, status: 'canceled' })
-          : createSubscriptionStatus({ cancelAtPeriodEnd: false, canReactivate: false });
-        return { data: statusData, error: null };
+        return {
+          data: {
+            subscribed: true,
+            plan: 'premium',
+            subscription_end: '2025-11-12T18:00:00Z',
+            status: 'active',
+            cancel_at_period_end: true,
+          },
+          error: null,
+        };
       }
       if (fnName === 'billing-reactivate') {
         return reactivateFn(fnName, options);
       }
-      return { data: null, error: { message: 'Unknown function' } };
+      return { data: null, error: null };
     });
+
+    mockSupabase = createMockSupabase(mockInvoke);
+    
+    vi.doMock('@/integrations/supabase/client', () => ({
+      supabase: mockSupabase,
+    }));
     
     renderWithProviders(<EnhancedSubscriptionManager />);
     
     await waitFor(() => {
-      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
+      expect(screen.getByText(/canceled/i)).toBeInTheDocument();
     });
 
-    // When subscription is set to cancel at period end, reactivate button should appear
-    const reactivateButton = await screen.findByRole('button', { name: /reactivate/i });
-    expect(reactivateButton).toBeInTheDocument();
-    
+    const reactivateButton = screen.getByRole('button', { name: /reactivate/i });
     await user.click(reactivateButton);
     
     await waitFor(() => {
-      // After reactivation, the cancel button should return (indicating subscription is active again)
-      expect(screen.getByTestId('action-cancel')).toBeInTheDocument();
+      expect(screen.getAllByText(/Success/i)[0]).toBeInTheDocument();
     });
     
     const log = apiMock.getRequestLog();
@@ -138,16 +180,24 @@ describe('Cancel Subscription Flows', () => {
     
     const cancelFn = apiMock.mockCancel({}, { shouldFail: true });
 
-    vi.mocked(mockSupabaseClient.functions.invoke).mockReset();
-    vi.mocked(mockSupabaseClient.functions.invoke).mockImplementation(async (fnName: string, options: any) => {
-      if (fnName === 'billing-status') {
-        return { data: createSubscriptionStatus(), error: null };
-      }
+    const mockInvoke = vi.fn(async (fnName: string, options: any) => {
       if (fnName === 'billing-cancel') {
         return cancelFn(fnName, options);
       }
-      return { data: null, error: { message: 'Unknown function' } };
+      return {
+        data: {
+          subscribed: true,
+          plan: 'premium',
+        },
+        error: null,
+      };
     });
+
+    mockSupabase = createMockSupabase(mockInvoke);
+    
+    vi.doMock('@/integrations/supabase/client', () => ({
+      supabase: mockSupabase,
+    }));
     
     renderWithProviders(<EnhancedSubscriptionManager />);
     
@@ -155,24 +205,18 @@ describe('Cancel Subscription Flows', () => {
       expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
-    const cancelButton = screen.getByTestId('action-cancel');
+    const cancelButton = screen.getByRole('button', { name: /cancel/i });
     await user.click(cancelButton);
     
     await waitFor(() => {
-      expect(screen.getByTestId('confirm-action')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /confirm/i })).toBeInTheDocument();
     });
     
-    const confirmButton = screen.getByTestId('confirm-action');
+    const confirmButton = screen.getByRole('button', { name: /confirm/i });
     await user.click(confirmButton);
     
-    // Wait for the operation to complete
     await waitFor(() => {
-      // Dialog should close after error is handled
-      expect(screen.queryByTestId('confirm-action')).not.toBeInTheDocument();
-    }, { timeout: 3000 });
-    
-    // Verify the API was called
-    const log = apiMock.getRequestLog();
-    expect(log.some(req => req.endpoint === 'billing-cancel')).toBeTruthy();
+      expect(screen.getByText(/error|failed/i)).toBeInTheDocument();
+    });
   });
 });

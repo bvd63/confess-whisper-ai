@@ -10,7 +10,6 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { CommentAuthor } from "./CommentAuthor";
-import { HighlightCommentButton } from "./coins/HighlightCommentButton";
 
 interface Comment {
   id: string;
@@ -148,15 +147,15 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
         variant="ghost"
         size="sm"
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full justify-between text-muted-foreground hover:text-foreground px-2 sm:px-4"
+        className="w-full justify-between text-muted-foreground hover:text-foreground px-2 sm:px-4 min-h-[48px]"
       >
         <div className="flex items-center gap-1.5 sm:gap-2">
-          <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4" />
+          <MessageSquare className="w-4 h-4 sm:w-4 sm:h-4" />
           <span className="text-xs sm:text-sm">
             {commentsCount} {t.comments_title}
           </span>
         </div>
-        {isExpanded ? <ChevronUp className="w-3 h-3 sm:w-4 sm:h-4" /> : <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4" />}
+        {isExpanded ? <ChevronUp className="w-4 h-4 sm:w-4 sm:h-4" /> : <ChevronDown className="w-4 h-4 sm:w-4 sm:h-4" />}
       </Button>
 
       {isExpanded && (
@@ -207,25 +206,16 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                       <span>•</span>
                       <span>{timeAgo(comment.created_at)}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      {user?.id === comment.user_id && (
-                        <HighlightCommentButton
-                          commentId={comment.id}
-                          isOwner={user?.id === comment.user_id}
-                          isHighlighted={false}
-                        />
-                      )}
-                      {(user?.id === comment.user_id || user?.id === confessionOwnerId) && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(comment.id)}
-                          className="h-5 sm:h-6 px-1.5 sm:px-2 text-muted-foreground hover:text-destructive"
-                        >
-                          <Trash2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                        </Button>
-                      )}
-                    </div>
+                    {(user?.id === comment.user_id || user?.id === confessionOwnerId) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(comment.id)}
+                        className="min-h-[44px] min-w-[44px] px-2 text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
                   </div>
                   <p className="text-xs sm:text-sm text-foreground leading-relaxed">{comment.content}</p>
                 </div>

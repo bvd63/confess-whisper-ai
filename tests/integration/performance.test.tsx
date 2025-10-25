@@ -1,32 +1,45 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
-import { renderWithProviders } from '../helpers/testUtils';
+import { render, screen, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MemoryRouter } from 'react-router-dom';
 import Performance from '@/pages/admin/Performance';
 
-// Mock LanguageContext with all exports
-vi.mock('@/contexts/LanguageContext', async () => {
-  const actual = await vi.importActual('@/contexts/LanguageContext');
-  return {
-    ...actual,
-    useLanguage: () => ({
-      t: {
-        admin_performance: 'Performance Dashboard',
-        admin_performance_desc: 'System Overview',
-        admin_active_users: 'Active Users',
-        admin_last_5_minutes: 'Last 5 minutes',
-        admin_cache: 'Cache Management',
-        admin_clear_cache: 'Clear Cache',
-        admin_clear_warning: 'This will clear all cached data',
-        admin_confirm_clear: 'Confirm Clear',
-        common_cancel: 'Cancel',
-        common_confirm: 'Confirm',
-        cache_cleared: 'Cache cleared successfully',
-      },
-      language: 'en',
-      setLanguage: vi.fn(),
-    }),
-  };
-});
+// Mock Supabase
+vi.mock('@/integrations/supabase/client', () => ({
+  supabase: {
+    from: vi.fn(() => ({
+      select: vi.fn(() => ({
+        gte: vi.fn(() => ({
+          lte: vi.fn(() => ({
+            order: vi.fn(() => Promise.resolve({
+              data: [
+                { created_at: '2024-01-01T10:00:00Z' },
+                { created_at: '2024-01-01T11:00:00Z' },
+                { created_at: '2024-01-01T12:00:00Z' },
+              ],
+              error: null,
+            })),
+          })),
+        })),
+      })),
+    })),
+    auth: {
+      getUser: vi.fn(() => Promise.resolve({ data: { user: { id: 'test-user' } }, error: null })),
+    },
+  },
+}));
+
+// Mock LanguageContext
+vi.mock('@/contexts/LanguageContext', () => ({
+  useLanguage: () => ({
+    t: {
+      performance_title: 'Performance Dashboard',
+      performance_overview: 'System Overview',
+      performance_metrics: 'Performance Metrics',
+      performance_cache: 'Cache Statistics',
+    },
+  }),
+}));
 
 // Mock hooks
 vi.mock('@/hooks/useCurrentUser', () => ({
@@ -38,12 +51,25 @@ vi.mock('@/hooks/useCurrentUser', () => ({
 }));
 
 describe('Performance Dashboard Integration', () => {
+  let queryClient: QueryClient;
+
   beforeEach(() => {
+    queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+      },
+    });
     vi.clearAllMocks();
   });
 
   it('renders performance dashboard with metrics', async () => {
-    renderWithProviders(<Performance />);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <Performance />
+        </MemoryRouter>
+      </QueryClientProvider>
+    );
 
     await waitFor(() => {
       expect(screen.getByText('Performance Dashboard')).toBeInTheDocument();
@@ -51,7 +77,13 @@ describe('Performance Dashboard Integration', () => {
   });
 
   it('displays system overview section', async () => {
-    renderWithProviders(<Performance />);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <Performance />
+        </MemoryRouter>
+      </QueryClientProvider>
+    );
 
     await waitFor(() => {
       expect(screen.getByText(/System Overview|performance_overview/)).toBeInTheDocument();
@@ -59,7 +91,13 @@ describe('Performance Dashboard Integration', () => {
   });
 
   it('shows performance metrics cards', async () => {
-    renderWithProviders(<Performance />);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <Performance />
+        </MemoryRouter>
+      </QueryClientProvider>
+    );
 
     await waitFor(() => {
       // Should display various metric cards

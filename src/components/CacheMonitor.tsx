@@ -29,9 +29,7 @@ export const CacheMonitor = () => {
     keys.forEach(key => {
       try {
         totalSize += (localStorage.getItem(key) || '').length + key.length;
-      } catch {
-        // Ignore errors reading from localStorage
-      }
+      } catch {}
     });
 
     setCacheStats({

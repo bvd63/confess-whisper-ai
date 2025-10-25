@@ -1,8 +1,8 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { MessageSquare, MessageSquarePlus, Award, Heart, Star, Flame, Trophy, Cake, Lock, Share2, Eye, Bookmark, Moon, Users, TrendingUp, LucideIcon } from "lucide-react";
+import { MessageSquare, MessageSquarePlus, Award, Heart, Star, Flame, Trophy, Cake, Lock, Share2, Eye, Bookmark, Moon, Users, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ExpiryTimer } from "./ExpiryTimer";
@@ -10,7 +10,7 @@ interface BadgesDisplayProps {
   userId: string;
   variant?: "compact" | "full";
 }
-const iconMap: Record<string, LucideIcon> = {
+const iconMap: Record<string, any> = {
   MessageSquare,
   MessageSquarePlus,
   Award,
@@ -133,8 +133,10 @@ const BadgesDisplay = ({
       description: badge.description
     };
   };
-  
-  const loadBadges = useCallback(async () => {
+  useEffect(() => {
+    loadBadges();
+  }, [userId]);
+  const loadBadges = async () => {
     // Load all badges
     const {
       data: allBadges,
@@ -173,12 +175,7 @@ const BadgesDisplay = ({
       setBadges(enrichedBadges);
     }
     setLoading(false);
-  }, [userId]);
-
-  useEffect(() => {
-    loadBadges();
-  }, [loadBadges]);
-  
+  };
   if (loading) return null;
   if (badges.length === 0) return null;
   if (variant === "compact") {

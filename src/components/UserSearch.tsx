@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getSupabase } from "@/lib/supabaseClient";
+import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Search, User, MessageCircle } from "lucide-react";
@@ -62,7 +62,6 @@ interface UserSearchProps {
 }
 
 export const UserSearch = ({ currentUserId }: UserSearchProps) => {
-  const supabase = getSupabase();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");

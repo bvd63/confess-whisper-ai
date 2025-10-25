@@ -61,7 +61,7 @@ export const InstagramBottomNav = () => {
   return (typeof document !== 'undefined'
     ? createPortal(
         <nav className="fixed bottom-0 left-0 right-0 z-[9999] pointer-events-auto glass-strong border-t border-border/50 safe-area-inset-bottom shadow-elegant">
-          <div className="flex items-center justify-around h-16 max-w-screen-xl mx-auto px-4">
+          <div className="flex items-center justify-around h-16 max-w-screen-xl mx-auto px-2">
             {navItems.map((item, index) => {
               const Icon = item.icon;
               const active = item.isActive;
@@ -73,7 +73,7 @@ export const InstagramBottomNav = () => {
                   onClick={() => handleTabClick(item.tabId)}
                   onMouseEnter={() => prefetchPage(item.tabId)}
                   className={cn(
-                    "relative flex flex-col items-center justify-center w-16 h-12 rounded-lg transition-all duration-200 animate-fade-in hover-scale",
+                    "relative flex flex-col items-center justify-center min-w-[56px] min-h-[56px] rounded-lg transition-all duration-200 animate-fade-in hover-scale touch-target",
                     active
                       ? "text-primary"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/50"

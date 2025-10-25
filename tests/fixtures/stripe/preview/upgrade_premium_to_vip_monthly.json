@@ -1,22 +1,13 @@
 {
-  "preview": {
-    "amountDue": 350,
-    "currency": "usd",
-    "prorationAmount": 350,
-    "subtotal": 999,
-    "total": 350,
-    "periodEnd": 1731434400,
-    "lines": [
-      {
-        "description": "Remaining time on Premium plan",
-        "amount": -649,
-        "proration": true
-      },
-      {
-        "description": "VIP plan (Oct 20 - Nov 12)",
-        "amount": 999,
-        "proration": true
-      }
-    ]
-  }
+  "subscription_id": "sub_premium_monthly_001",
+  "current_price_id": "price_1SJ0vvR7kygIyYg9oT1ju6lQ",
+  "target_price_id": "price_1SJ0vwR7kygIyYg9OeCiqV00",
+  "proration_amount": 350,
+  "new_amount": 1999,
+  "currency": "usd",
+  "billing_cycle": "monthly",
+  "effective_date": "2025-10-20T18:00:00Z",
+  "is_upgrade": true,
+  "savings_percent": 0,
+  "next_billing_date": "2025-11-12T18:00:00Z"
 }

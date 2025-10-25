@@ -9,7 +9,7 @@ max_rows = 1000
 
 [db]
 port = 54322
-major_version = 17
+major_version = 15
 
 [studio]
 enabled = true
@@ -47,9 +47,6 @@ verify_jwt = false
 verify_jwt = true
 
 [functions.create-checkout-session]
-verify_jwt = true
-
-[functions.create-coin-checkout]
 verify_jwt = true
 
 [functions.create-trial-checkout]
@@ -146,52 +143,4 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.subscription-manage]
-verify_jwt = true
-
-[functions.stripe-webhook-coins]
-verify_jwt = false
-
-[functions.verify-coin-purchase]
-verify_jwt = true
-
-[functions.manage-reactions]
-verify_jwt = true
-
-[functions.manage-notifications]
-verify_jwt = true
-
-[functions.mark-message-delivered]
-verify_jwt = true
-
-[functions.mark-message-seen]
-verify_jwt = true
-
-[functions.soft-delete-conversation]
-verify_jwt = true
-
-[functions.stripe-webhook]
-verify_jwt = false
-
-[functions.subscription-upgrade]
-verify_jwt = true
-
-[functions.subscription-downgrade]
-verify_jwt = true
-
-[functions.billing-confirm]
-verify_jwt = true
-
-[functions.billing-upgrade]
-verify_jwt = true
-
-[functions.billing-downgrade]
-verify_jwt = true
-
-[functions.billing-preview]
-verify_jwt = true
-
-[functions.billing-resume]
-verify_jwt = true
-
-[functions.fix-subscription-sync]
 verify_jwt = true

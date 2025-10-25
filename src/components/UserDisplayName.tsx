@@ -68,7 +68,7 @@ export const UserDisplayName = memo(({
       {showBadges && userId && (
         <BadgeDisplay 
           userId={userId}
-          subscriptionTier={subscriptionTier as "free" | "vip"}
+          subscriptionTier={(subscriptionTier === 'premium' ? 'vip' : subscriptionTier) as "free" | "vip"}
           showSubscription={subscriptionTier !== 'free'}
           variant="compact"
           maxBadges={2}

@@ -4,7 +4,7 @@ import { EnhancedButton } from "@/components/EnhancedButton";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Send, Sparkles, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { getSupabase } from "@/lib/supabaseClient";
+import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -20,13 +20,8 @@ import { LocationPicker } from "@/components/LocationPicker";
 import { useCommunities } from "@/hooks/useCommunities";
 import { PolishConfessionButton } from "@/components/PolishConfessionButton";
 import { useConfessionLimits } from "@/hooks/useConfessionLimits";
-
-import { useConfessionRateLimit } from "@/hooks/useConfessionRateLimit";
-import { RateLimitIndicator } from "@/components/RateLimitIndicator";
-import { filterContent, getWarningMessage } from "@/lib/security/contentFilter";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { useHaptic } from "@/hooks/useHaptic";
-import { useStreakManager } from "@/hooks/useStreakManager";
+import { UpgradeModal } from "@/components/UpgradeModal";
+import { useMobileKeyboard } from "@/hooks/useMobileKeyboard";
 
 const confessionSchema = z.object({
   content: z.string()
@@ -41,8 +36,7 @@ interface NewConfessionDialogProps {
   onConfessionCreated: () => void;
 }
 
-export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }: NewConfessionDialogProps) {
-  const supabase = getSupabase();
+const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewConfessionDialogProps) => {
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("other");
   const [mood, setMood] = useState<{ mood: string; intensity: number } | null>(null);
@@ -51,10 +45,7 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
   const [showCrisisDialog, setShowCrisisDialog] = useState(false);
-  const { updateStreak } = useStreakManager();
-  
-  const [showContentWarning, setShowContentWarning] = useState(false);
-  const [contentWarnings, setContentWarnings] = useState<string[]>([]);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [location, setLocation] = useState<{ lat: number; lng: number; city?: string; country?: string } | null>(null);
   const [communityId, setCommunityId] = useState<string | null>(null);
   const { user } = useCurrentUser();
@@ -63,15 +54,7 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
   const { checkForCrisis } = useModerationStatus();
   const { communities } = useCommunities();
   const { canPost, currentCount, dailyLimit, remaining, tier, checkLimits, incrementCount, isLoading: limitsLoading } = useConfessionLimits();
-  const { vibrate } = useHaptic();
-  const { 
-    isLimited, 
-    remainingRequests, 
-    totalRequests, 
-    checkRateLimit, 
-    getRemainingTime,
-    percentage 
-  } = useConfessionRateLimit();
+  const { isKeyboardVisible, keyboardHeight } = useMobileKeyboard();
 
   // Check for crisis keywords on content change
   useEffect(() => {
@@ -135,39 +118,9 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
   ];
 
   const handleSubmit = async () => {
-    // Check content for personal information
-    const contentCheck = filterContent(content);
-    if (!contentCheck.safe) {
-      const warnings = contentCheck.warnings.map(w => getWarningMessage(w, language as 'en' | 'es' | 'de'));
-      setContentWarnings(warnings);
-      setShowContentWarning(true);
-      return;
-    }
-
-    await proceedWithSubmit();
-  };
-
-  const proceedWithSubmit = async () => {
-    setShowContentWarning(false);
-    
-    // Check rate limit first
-    const rateLimitAllowed = await checkRateLimit('confession_create');
-    if (!rateLimitAllowed) {
-      toast({
-        title: t.rate_limit_title,
-        description: t.system_rate_limit_exceeded.replace('{seconds}', getRemainingTime()),
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Check confession limits
+    // Check confession limits first
     if (!canPost) {
-      toast({
-        title: t.error_generic,
-        description: "Daily confession limit reached",
-        variant: "destructive",
-      });
+      setShowUpgradeModal(true);
       return;
     }
 
@@ -182,7 +135,6 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
       return;
     }
 
-    vibrate('medium');
     setIsSubmitting(true);
 
     try {
@@ -265,27 +217,6 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
       // Increment confession count
       await incrementCount();
 
-      // Update streak
-      if (confessionData) {
-        try {
-          await updateStreak();
-        } catch (error) {
-          console.error('Error updating streak:', error);
-        }
-
-        // Analyze emotional tone
-        try {
-          await supabase.functions.invoke('analyze-tone', {
-            body: { 
-              content: content.trim(),
-              confessionId: confessionData.id
-            }
-          });
-        } catch (error) {
-          console.error('Error analyzing tone:', error);
-        }
-      }
-
       toast({
         title: t.success_sent,
         description: t.ai_reply_title,
@@ -324,7 +255,13 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto glass-strong border-primary/20">
+      <DialogContent 
+        className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto glass-strong border-primary/20"
+        style={{
+          marginBottom: isKeyboardVisible ? `${keyboardHeight}px` : '0',
+          transition: 'margin-bottom 0.3s ease-out'
+        }}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <span className="text-xl sm:text-2xl text-gradient-hero">{t.new_confession}</span>
@@ -353,15 +290,6 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
               </p>
             </div>
           )}
-          
-          {/* Rate Limit Indicator */}
-          <RateLimitIndicator
-            remaining={remainingRequests}
-            total={totalRequests}
-            resetTime={getRemainingTime()}
-            isLimited={isLimited}
-            className="mt-2"
-          />
         </DialogHeader>
 
         <div className="space-y-3 sm:space-y-4 py-3 sm:py-4">
@@ -466,7 +394,7 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
             />
             <EnhancedButton
               onClick={handleSubmit}
-              disabled={isSubmitting || !content.trim() || isLimited}
+              disabled={isSubmitting || !content.trim()}
               className="w-full"
               glow
               shine
@@ -476,11 +404,6 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   {t.submitting}
-                </>
-              ) : isLimited ? (
-                <>
-                  <AlertTriangle className="w-4 h-4 mr-2" />
-                  {t.rate_limit_title}
                 </>
               ) : (
                 <>
@@ -493,35 +416,17 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
         </div>
       </DialogContent>
       
-      {/* Content Warning Dialog */}
-      <AlertDialog open={showContentWarning} onOpenChange={setShowContentWarning}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-amber-500" />
-              {t.content_warning_title}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {t.content_warning_detected}
-              <ul className="mt-2 space-y-1">
-                {contentWarnings.map((warning, i) => (
-                  <li key={i} className="text-sm text-muted-foreground">• {warning}</li>
-                ))}
-              </ul>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t.common_cancel}</AlertDialogCancel>
-            <AlertDialogAction onClick={proceedWithSubmit}>
-              {t.content_warning_continue}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-      
       <CrisisDialog 
         isOpen={showCrisisDialog}
         onClose={() => setShowCrisisDialog(false)}
+      />
+      
+      <UpgradeModal
+        open={showUpgradeModal}
+        onOpenChange={setShowUpgradeModal}
+        currentTier={tier}
+        currentCount={currentCount}
+        dailyLimit={dailyLimit === Infinity ? 0 : dailyLimit}
       />
     </Dialog>
   );

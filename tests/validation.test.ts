@@ -108,8 +108,8 @@ describe('Nickname Validation', () => {
     const validNicknames = [
       'User123',
       'Cool_Name',
+      'name-with-dash',
       'SimpleUser',
-      'test_user_2024',
     ];
 
     validNicknames.forEach(nickname => {
@@ -189,13 +189,7 @@ describe('URL Validation', () => {
     ];
 
     invalidUrls.forEach(url => {
-      // Empty string is allowed (optional), so only test truly invalid URLs
-      if (url !== '') {
-        const result = urlSchema.safeParse(url);
-        if (url === 'not-a-url' || url === 'example.com' || url === 'https://') {
-          expect(result.success).toBe(false);
-        }
-      }
+      expect(() => urlSchema.parse(url)).toThrow();
     });
   });
 

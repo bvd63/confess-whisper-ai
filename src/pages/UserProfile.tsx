@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import AppLayout from "@/components/AppLayout";
@@ -29,7 +29,12 @@ const UserProfile = () => {
   
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
 
-  const loadProfile = useCallback(async () => {
+  useEffect(() => {
+    if (!userId) return;
+    loadProfile();
+  }, [userId]);
+
+  const loadProfile = async () => {
     if (!userId) return;
     
     setIsLoading(true);
@@ -59,12 +64,7 @@ const UserProfile = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [userId]);
-
-  useEffect(() => {
-    if (!userId) return;
-    loadProfile();
-  }, [userId, loadProfile]);
+  };
 
   if (!currentUser) {
     navigate("/auth");
@@ -104,7 +104,7 @@ const UserProfile = () => {
     <>
     <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
       <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
-        <TierProfileCard tier={subscriptionTier as "free" | "vip"} className="mb-6">
+        <TierProfileCard tier={(subscriptionTier === 'premium' ? 'vip' : subscriptionTier) as "free" | "vip"} className="mb-6">
           <ProfileHeader
             userId={userId!}
             currentUserId={currentUser.id}

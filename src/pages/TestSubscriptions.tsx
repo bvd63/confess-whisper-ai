@@ -9,7 +9,7 @@ import { Loader2, CheckCircle, XCircle, Crown, Zap } from "lucide-react";
 type TestResult = {
   name: string;
   success: boolean;
-  data?: unknown;
+  data?: any;
   error?: string;
 };
 
@@ -20,7 +20,7 @@ export default function TestSubscriptions() {
 
   const runTest = async (
     testName: string,
-    testFn: () => Promise<unknown>
+    testFn: () => Promise<any>
   ): Promise<TestResult> => {
     setLoading(testName);
     try {
@@ -29,17 +29,16 @@ export default function TestSubscriptions() {
       setResults((prev) => [...prev, result]);
       toast({ title: `✅ ${testName}`, description: "Test passed" });
       return result;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+    } catch (error: any) {
       const result = {
         name: testName,
         success: false,
-        error: errorMessage,
+        error: error.message,
       };
       setResults((prev) => [...prev, result]);
       toast({
         title: `❌ ${testName}`,
-        description: errorMessage,
+        description: error.message,
         variant: "destructive",
       });
       return result;
@@ -68,26 +67,22 @@ export default function TestSubscriptions() {
       return data;
     });
 
-  // Test 3: Create Checkout Session (VIP Monthly)
+  // Test 3: Create Checkout Session (Premium Monthly)
   const testCreateCheckout = () =>
-    runTest("Create Checkout (VIP Monthly)", async () => {
+    runTest("Create Checkout (Premium Monthly)", async () => {
       const { data, error } = await supabase.functions.invoke("billing-buy", {
-        body: { tier: "vip", cycle: "monthly" },
+        body: { tier: "premium", cycle: "monthly" },
       });
       if (error) {
         // Supabase returns non-2xx as error with the body in error.context.body
-        const bodyText = (error as { context?: { body?: string } })?.context?.body;
-        let bodyJson: { error?: string; message?: string } | undefined;
+        let bodyText = (error as any)?.context?.body as string | undefined;
+        let bodyJson: any = undefined;
         if (bodyText) {
-          try { 
-            bodyJson = JSON.parse(bodyText) as { error?: string; message?: string };
-          } catch {
-            // Ignore JSON parse errors
-          }
+          try { bodyJson = JSON.parse(bodyText); } catch {}
         }
         const message =
           (bodyJson && (bodyJson.error || bodyJson.message)) ||
-          (data as { error?: string })?.error ||
+          (data as any)?.error ||
           error.message ||
           "";
         const msgLower = String(message).toLowerCase();
@@ -101,7 +96,7 @@ export default function TestSubscriptions() {
         throw new Error(message || "Checkout failed");
       }
       toast({ title: "Checkout URL Ready", description: "Check console for URL" });
-      console.log("Checkout URL:", (data as { url?: string })?.url);
+      console.log("Checkout URL:", (data as any)?.url);
       return data;
     });
 
@@ -114,13 +109,8 @@ export default function TestSubscriptions() {
         body: { targetPriceId: vipPriceId },
       });
       if (error) {
-        const bodyText = (error as { context?: { body?: string } })?.context?.body;
-        let bodyJson: { error?: string; message?: string } | undefined;
-        try { 
-          bodyJson = bodyText ? JSON.parse(bodyText) as { error?: string; message?: string } : undefined; 
-        } catch {
-          // Ignore JSON parse errors
-        }
+        let bodyText = (error as any)?.context?.body as string | undefined;
+        let bodyJson: any; try { bodyJson = bodyText ? JSON.parse(bodyText) : undefined; } catch {}
         const message = (bodyJson?.error || bodyJson?.message || error.message || "Preview failed");
         throw new Error(message);
       }
@@ -135,24 +125,22 @@ export default function TestSubscriptions() {
         { body: { action: "upgrade", targetTier: "vip" } }
       );
       if (error) {
-        const bodyText = (error as { context?: { body?: string } })?.context?.body;
-        let bodyJson: { error?: string; message?: string } | undefined;
-        try { 
-          bodyJson = bodyText ? JSON.parse(bodyText) as { error?: string; message?: string } : undefined; 
-        } catch {
-          // Ignore JSON parse errors
-        }
+        let bodyText = (error as any)?.context?.body as string | undefined;
+        let bodyJson: any; try { bodyJson = bodyText ? JSON.parse(bodyText) : undefined; } catch {}
         const message = (bodyJson?.error || bodyJson?.message || error.message || "Upgrade failed");
         throw new Error(message);
       }
       return data;
     });
 
-  // Test 6: Cancel Subscription (VIP → Free downgrade)
+  // Test 6: Downgrade Subscription
   const testDowngrade = () =>
-    runTest("Cancel Subscription (Downgrade to Free)", async () => {
+    runTest("Downgrade to Premium Monthly", async () => {
       const { data, error } = await supabase.functions.invoke(
-        "billing-cancel"
+        "manage-subscription-v2",
+        {
+          body: { action: "downgrade", targetTier: "premium" },
+        }
       );
       if (error) throw error;
       return data;
@@ -315,7 +303,7 @@ export default function TestSubscriptions() {
               variant="outline"
               className="gap-2"
             >
-              {loading === "Create Checkout (VIP Monthly)" && (
+              {loading === "Create Checkout (Premium Monthly)" && (
                 <Loader2 className="w-4 h-4 animate-spin" />
               )}
               Create Checkout
@@ -348,7 +336,7 @@ export default function TestSubscriptions() {
               variant="outline"
               className="gap-2"
             >
-              {loading === "Cancel Subscription (Downgrade to Free)" && (
+              {loading === "Downgrade to Premium Monthly" && (
                 <Loader2 className="w-4 h-4 animate-spin" />
               )}
               Downgrade

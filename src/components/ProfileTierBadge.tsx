@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface ProfileTierBadgeProps {
-  tier: "free" | "vip";
+  tier: "free" | "premium" | "vip";
   className?: string;
   variant?: "default" | "compact";
 }

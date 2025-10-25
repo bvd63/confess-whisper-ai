@@ -1,22 +1,18 @@
 # Subscription Conflict Resolution System
 
 ## Overview
-
 System for enforcing **one active subscription per user** with automatic conflict resolution when Stripe creates duplicate subscriptions.
 
 ## Architecture
 
 ### Database
-
 **Table:** `subscription_conflict_logs`
-
 - Tracks all conflict resolutions
 - Columns: `user_id`, `conflict_type`, `kept_subscription_id`, `canceled_subscription_id`, `existing_status`, `new_status`, `resolution_reason`, `payload`
 
 ### Conflict Resolution Policy
 
 **Priority Rule:** Prefer NEW subscription when:
-
 - Existing subscription is `past_due`, `unpaid`, or `canceled`
 - Existing subscription has `cancel_at_period_end = true` AND new subscription is `active`/`trialing`/`incomplete`
 
@@ -25,17 +21,14 @@ System for enforcing **one active subscription per user** with automatic conflic
 ## Implementation
 
 ### 1. Webhook Handler
-
 **File:** `supabase/functions/stripe-webhook/index.ts`
 
 **Events with conflict resolution:**
-
-- ✅ `checkout.session.completed`
+- ✅ `checkout.session.completed` 
 - ✅ `customer.subscription.updated`
 - ✅ `invoice.payment_succeeded`
 
 **Logic:**
-
 ```typescript
 // Check for existing active subscription
 if (existingProfile?.stripe_subscription_id && 
@@ -58,11 +51,9 @@ if (existingProfile?.stripe_subscription_id &&
 ```
 
 ### 2. Checkout Guard
-
 **File:** `supabase/functions/create-checkout-session/index.ts`
 
 Blocks checkout if user already has active subscription:
-
 ```typescript
 const blockStatuses = ['active', 'trialing', 'incomplete', 'past_due', 'unpaid'];
 if (profile?.stripe_subscription_id && blockStatuses.includes(profile.subscription_status)) {
@@ -73,7 +64,6 @@ if (profile?.stripe_subscription_id && blockStatuses.includes(profile.subscripti
 ### 3. Frontend Integration
 
 #### Conflict Notification Hook
-
 **File:** `src/hooks/useSubscriptionConflictCheck.ts`
 
 - Checks for conflicts created in last 5 minutes
@@ -81,11 +71,9 @@ if (profile?.stripe_subscription_id && blockStatuses.includes(profile.subscripti
 - Integrated in `App.tsx`
 
 #### Error Handling
-
 **File:** `src/components/ManageSubscriptionDialog.tsx`
 
 Handles 409 error from checkout guard:
-
 ```typescript
 if (error.message?.includes('ALREADY_SUBSCRIBED')) {
   toast.error(t.subscription_already_subscribed);
@@ -93,11 +81,9 @@ if (error.message?.includes('ALREADY_SUBSCRIBED')) {
 ```
 
 ### 4. Translations
-
 **File:** `src/i18n/translations.ts`
 
 Keys added (EN/ES/DE):
-
 - `subscription_single_active_policy`
 - `subscription_already_subscribed`
 - `subscription_conflict_resolved_keep_new`
@@ -106,37 +92,30 @@ Keys added (EN/ES/DE):
 ## Testing Scenarios
 
 ### ✅ Scenario 1: New User Purchase
-
-**Flow:** Free → VIP via Checkout
-**Expected:** VIP activated, no conflicts
+**Flow:** Free → Premium via Checkout
+**Expected:** Premium activated, no conflicts
 
 ### ✅ Scenario 2: Active User Attempts Second Purchase
-
-**Flow:** VIP active → Try VIP again via Portal/Checkout
-**Expected:**
-
+**Flow:** Premium active → VIP via Portal/Checkout
+**Expected:** 
 - Checkout: Blocked with 409 error
 - Portal: Conflict detected, OLD kept, NEW canceled
 
 ### ✅ Scenario 3: Pending Cancel + New Purchase
-
-**Flow:** VIP `cancel_at_period_end=true` → VIP again via Portal
-**Expected:** NEW VIP kept, OLD VIP canceled immediately
+**Flow:** Premium `cancel_at_period_end=true` → VIP via Portal
+**Expected:** NEW VIP kept, OLD Premium canceled immediately
 
 ### ✅ Scenario 4: Past Due + New Purchase
+**Flow:** Premium `past_due` → VIP via Portal
+**Expected:** NEW VIP kept, OLD Premium canceled
 
-**Flow:** VIP `past_due` → VIP again via Portal
-**Expected:** NEW VIP kept, OLD VIP canceled
-
-### ✅ Scenario 5: Normal Reactivation
-
-**Flow:** VIP active → Cancel → Reactivate before period end
-**Expected:** Uses billing-reactivate edge function (no conflict)
+### ✅ Scenario 5: Normal Upgrade/Downgrade
+**Flow:** Premium active → VIP via Upgrade button
+**Expected:** Uses subscription-upgrade edge function (no conflict)
 
 ## Monitoring
 
 ### Check Conflict Logs
-
 ```sql
 SELECT * FROM subscription_conflict_logs 
 ORDER BY created_at DESC 
@@ -144,7 +123,6 @@ LIMIT 50;
 ```
 
 ### Check User Subscription Status
-
 ```sql
 SELECT 
   user_id,
@@ -158,7 +136,6 @@ WHERE stripe_subscription_id IS NOT NULL;
 ```
 
 ### Check Recent Webhooks
-
 ```sql
 SELECT * FROM stripe_processed_events 
 WHERE type IN (
@@ -173,20 +150,17 @@ LIMIT 100;
 ## Troubleshooting
 
 ### User Has Two Active Subscriptions in Stripe
-
 1. Check `subscription_conflict_logs` for resolution attempts
 2. Verify webhook signature and secret are correct
 3. Manually cancel one subscription in Stripe Dashboard
 4. Update `profiles` table to reflect correct subscription
 
 ### Conflict Not Detected
-
 1. Check webhook logs in Supabase Edge Functions
 2. Verify `subscription_status` in `profiles` table is accurate
 3. Check `stripe_processed_events` for duplicate event processing
 
 ### Wrong Subscription Kept
-
 1. Review conflict logic in webhook handler
 2. Check `resolution_reason` in `subscription_conflict_logs`
 3. Adjust priority rules if needed
@@ -212,7 +186,6 @@ LIMIT 100;
 ## Support Contact
 
 For issues with the conflict resolution system:
-
 1. Check Edge Function logs
 2. Review `subscription_conflict_logs` table
 3. Verify Stripe webhook events

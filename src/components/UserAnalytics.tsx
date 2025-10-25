@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -33,8 +33,32 @@ const UserAnalytics = ({
     totalComments: 0
   });
   const targetUserId = userId || user?.id;
+  useEffect(() => {
+    if (targetUserId) {
+      fetchUserStats();
 
-  const fetchUserStats = useCallback(async () => {
+      // Set up real-time subscription for confessions updates
+      const channel = supabase.channel('user-stats-changes').on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'confessions',
+        filter: `user_id=eq.${targetUserId}`
+      }, () => {
+        fetchUserStats();
+      }).subscribe();
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [targetUserId]);
+  const handleManageSubscription = () => {
+    if (!isPremium) {
+      onUpgradeClick?.();
+      return;
+    }
+    onManageSubscription?.();
+  };
+  const fetchUserStats = async () => {
     if (!targetUserId) return;
     try {
       // Get total confessions
@@ -64,35 +88,7 @@ const UserAnalytics = ({
     } catch (error) {
       console.error("Error fetching user stats:", error);
     }
-  }, [targetUserId]);
-
-  useEffect(() => {
-    if (targetUserId) {
-      fetchUserStats();
-
-      // Set up real-time subscription for confessions updates
-      const channel = supabase.channel('user-stats-changes').on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'confessions',
-        filter: `user_id=eq.${targetUserId}`
-      }, () => {
-        fetchUserStats();
-      }).subscribe();
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
-  }, [targetUserId, fetchUserStats]);
-
-  const handleManageSubscription = () => {
-    if (!isPremium) {
-      onUpgradeClick?.();
-      return;
-    }
-    onManageSubscription?.();
   };
-
   const statCards = [{
     title: t.profile_total_confessions,
     value: stats.totalConfessions,
@@ -116,7 +112,7 @@ const UserAnalytics = ({
           <div className="flex items-center justify-between px-[240px] my-px py-px mx-[25px]">
             <div className="flex items-center gap-3">
               <CardTitle className="text-lg">{t.subscription_title}</CardTitle>
-              <ProfileTierBadge tier={subscriptionTier as "free" | "vip"} />
+              <ProfileTierBadge tier={(subscriptionTier === 'premium' ? 'vip' : subscriptionTier) as "free" | "vip"} />
             </div>
             
           </div>

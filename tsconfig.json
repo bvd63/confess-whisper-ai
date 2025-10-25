@@ -1,24 +1,16 @@
 {
   "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" }, 
-    { "path": "./tsconfig.node.json" },
-    { "path": "./tsconfig.test.json" }
-  ],
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },
-    "target": "ESNext",
-    "module": "ESNext",
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "strictNullChecks": true,
+    "noImplicitAny": false,
+    "noUnusedParameters": false,
     "skipLibCheck": true,
     "allowJs": true,
-    "esModuleInterop": true,
-    "isolatedModules": true
+    "noUnusedLocals": false,
+    "strictNullChecks": false
   }
 }

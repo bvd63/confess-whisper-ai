@@ -10,7 +10,7 @@ import { SUBSCRIPTION_PLANS } from '@/lib/subscription-plans';
 
 type TestResult = {
   success: boolean;
-  data?: unknown;
+  data?: any;
   error?: string;
 };
 
@@ -28,17 +28,16 @@ export default function TestPayments() {
     });
   }, []);
 
-  const runTest = async (testName: string, testFn: () => Promise<unknown>) => {
+  const runTest = async (testName: string, testFn: () => Promise<any>) => {
     setLoading(testName);
     try {
       const result = await testFn();
       setResults((prev) => ({ ...prev, [testName]: { success: true, data: result } }));
       toast.success(`✅ ${testName} passed`);
       return result;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      setResults((prev) => ({ ...prev, [testName]: { success: false, error: errorMessage } }));
-      toast.error(`❌ ${testName} failed: ${errorMessage}`);
+    } catch (error: any) {
+      setResults((prev) => ({ ...prev, [testName]: { success: false, error: error.message } }));
+      toast.error(`❌ ${testName} failed: ${error.message}`);
       throw error;
     } finally {
       setLoading(null);
@@ -157,7 +156,7 @@ export default function TestPayments() {
 
       const { data, error } = await supabase.functions.invoke('billing-buy', {
         body: { 
-          tier: 'vip',
+          tier: 'premium',
           cycle: 'monthly'
         }
       });
@@ -172,9 +171,9 @@ export default function TestPayments() {
       const { data: statusData } = await supabase.functions.invoke('billing-status');
       const currentTier = statusData?.subscription_tier || 'free';
 
-      // Determine target tier for upgrade (only Free → VIP upgrade exists)
+      // Determine target tier for upgrade
       let targetPriceId: string;
-      if (currentTier === 'free') {
+      if (currentTier === 'free' || currentTier === 'premium') {
         targetPriceId = SUBSCRIPTION_PLANS.find(p => p.id === 'vip')?.stripePriceIdMonthly || '';
       } else {
         return { note: 'Already on highest tier (VIP)' };
@@ -195,12 +194,20 @@ export default function TestPayments() {
       const currentTier = statusData?.subscription_tier || 'free';
 
       // VIP is the only paid tier now, cannot downgrade further
+      let targetPriceId = '';
       if (currentTier === 'vip') {
         // Can only downgrade to free by canceling
         return { note: 'Use cancel subscription to downgrade to free', currentTier };
       } else {
         return { note: 'Cannot downgrade from free tier', currentTier };
       }
+
+      const { data, error } = await supabase.functions.invoke('subscription-downgrade', {
+        body: { targetPriceId }
+      });
+      
+      if (error) throw error;
+      return { message: 'Downgrade scheduled at period end', targetTier: 'premium', ...data };
     });
   };
 
@@ -458,7 +465,7 @@ export default function TestPayments() {
                 size="sm"
               >
                 {loading === 'Upgrade Subscription' && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                4. Test Upgrade (Free → VIP)
+                4. Test Upgrade (Premium → VIP)
               </Button>
               {renderTestResult('Upgrade Subscription')}
 
@@ -470,7 +477,7 @@ export default function TestPayments() {
                 size="sm"
               >
                 {loading === 'Downgrade Subscription' && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                5. Test Downgrade (VIP → Free)
+                5. Test Downgrade (VIP → Premium)
               </Button>
               {renderTestResult('Downgrade Subscription')}
 
