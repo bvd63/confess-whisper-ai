@@ -149,7 +149,16 @@ const Profile = () => {
       }
       
       if (data?.url) {
-        window.open(data.url, '_blank');
+        try {
+          if (window.top && window.top !== window) {
+            window.top.location.href = data.url;
+          } else {
+            const win = window.open(data.url, '_blank', 'noopener');
+            if (!win) window.location.href = data.url;
+          }
+        } catch {
+          window.location.href = data.url;
+        }
       }
     } catch (error) {
       console.error('Error opening customer portal:', error);

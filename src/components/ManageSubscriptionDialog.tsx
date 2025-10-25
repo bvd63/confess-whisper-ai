@@ -74,7 +74,7 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
           const { data, error } = await supabase.functions.invoke('customer-portal');
           if (!error && data?.url) {
             toast.success('Deschidem portalul de facturare…');
-            window.location.href = data.url;
+            await goToStripeCheckout(data.url);
             return;
           }
         } catch (e) {
@@ -106,8 +106,7 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
           const { data, error } = await supabase.functions.invoke('customer-portal');
           if (!error && data?.url) {
             toast.success('Deschidem portalul de facturare…');
-            // Use same-tab navigation to avoid popup blockers
-            window.location.href = data.url;
+            await goToStripeCheckout(data.url);
             return;
           }
         } catch (e) {
@@ -121,7 +120,7 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
         if (upErr) throw upErr;
         if (upData?.url) {
           toast.success(t.webhookLag || 'Upgrade inițiat. Redirecționare…');
-          window.location.href = upData.url;
+          await goToStripeCheckout(upData.url);
           onOpenChange(false);
           onSubscriptionUpdated?.();
         }
