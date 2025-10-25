@@ -128,6 +128,8 @@ export const FlairsShop = ({
   const handlePurchase = async (flair: Flair) => {
     setPurchasing(flair.id);
     try {
+      console.log('[FlairsShop] Purchasing flair:', flair.id, flair.name_key);
+      
       const {
         data,
         error
@@ -137,8 +139,12 @@ export const FlairsShop = ({
           equip: true
         }
       });
+      
+      console.log('[FlairsShop] Purchase response:', { data, error });
+      
       if (error) throw error;
-      if (data.error) {
+      if (data?.error) {
+        console.error('[FlairsShop] Purchase error from function:', data.error);
         toast({
           title: t.error_generic,
           description: data.error,
@@ -157,7 +163,7 @@ export const FlairsShop = ({
       // Reload data
       await loadData();
     } catch (error) {
-      console.error('Error purchasing flair:', error);
+      console.error('[FlairsShop] Error purchasing flair:', error);
       toast({
         title: t.error_generic,
         description: t.flair_purchase_error,
