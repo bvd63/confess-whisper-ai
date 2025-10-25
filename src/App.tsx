@@ -31,7 +31,7 @@ import { persistenceManager } from '@/lib/persistenceManager';
 import { dataValidator } from '@/lib/dataValidator';
 import { syncScheduler } from '@/lib/syncScheduler';
 import { Onboarding } from "./components/Onboarding";
-import LoadingSpinner from "./components/LoadingSpinner";
+import { PageLoading } from "./components/LoadingStates";
 
 // Lazy load all routes for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -197,7 +197,7 @@ const AppContent = () => {
       
       <NetworkStatusIndicator />
       <TabNavigationProvider>
-        <Suspense fallback={<LoadingSpinner size="lg" text="Loading..." />}>
+        <Suspense fallback={<PageLoading className="min-h-screen" />}>
           <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
