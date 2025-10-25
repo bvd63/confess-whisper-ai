@@ -11,6 +11,7 @@ import { EnhancedButton } from "@/components/EnhancedButton";
 
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 import { FontSizeControl } from "@/components/FontSizeControl";
+import { NotificationSettings } from "@/components/NotificationSettings";
 import { Settings, Download, Trash2, LogOut, Loader2, Shield, Crown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -228,6 +229,11 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
                 )}
               </div>
             </div>
+          </div>
+
+          {/* Notification Settings */}
+          <div className="p-4 rounded-lg border border-border/50 bg-background/50">
+            <NotificationSettings />
           </div>
 
           {/* Font Size Control */}

@@ -26,6 +26,7 @@ import { RateLimitIndicator } from "@/components/RateLimitIndicator";
 import { filterContent, getWarningMessage } from "@/lib/security/contentFilter";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useHaptic } from "@/hooks/useHaptic";
+import { useStreakManager } from "@/hooks/useStreakManager";
 
 const confessionSchema = z.object({
   content: z.string()
@@ -50,6 +51,7 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
   const [showCrisisDialog, setShowCrisisDialog] = useState(false);
+  const { updateStreak } = useStreakManager();
   
   const [showContentWarning, setShowContentWarning] = useState(false);
   const [contentWarnings, setContentWarnings] = useState<string[]>([]);
@@ -262,6 +264,27 @@ export function NewConfessionDialog({ open, onOpenChange, onConfessionCreated }:
 
       // Increment confession count
       await incrementCount();
+
+      // Update streak
+      if (confessionData) {
+        try {
+          await updateStreak();
+        } catch (error) {
+          console.error('Error updating streak:', error);
+        }
+
+        // Analyze emotional tone
+        try {
+          await supabase.functions.invoke('analyze-tone', {
+            body: { 
+              content: content.trim(),
+              confessionId: confessionData.id
+            }
+          });
+        } catch (error) {
+          console.error('Error analyzing tone:', error);
+        }
+      }
 
       toast({
         title: t.success_sent,

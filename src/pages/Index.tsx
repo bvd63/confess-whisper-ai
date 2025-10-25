@@ -21,6 +21,8 @@ import SEOHead from "@/components/SEOHead";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePerformanceBudget } from "@/hooks/usePerformanceBudget";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
+import { StreakDisplay } from "@/components/StreakDisplay";
+import StreakReminder from "@/components/StreakReminder";
 
 import { RateLimitIndicator } from "@/components/RateLimitIndicator";
 import { useConfessionRateLimit } from "@/hooks/useConfessionRateLimit";
@@ -152,8 +154,16 @@ const Index = () => {
           </p>
         </div>
 
-        {/* Streak Counter */}
-        {user && <StreakCounter userId={user.id} variant="full" />}
+        {/* Streak Reminder */}
+        {user && <StreakReminder userId={user.id} />}
+
+        {/* Streak Display & Counter */}
+        {user && (
+          <div className="space-y-4 mb-4">
+            <StreakDisplay />
+            <StreakCounter userId={user.id} variant="full" />
+          </div>
+        )}
 
         {/* Karma Display */}
         {user && (

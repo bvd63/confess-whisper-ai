@@ -34,6 +34,7 @@ import { useHaptic } from "@/hooks/useHaptic";
 import { useSensitiveContent } from "@/hooks/useSensitiveContent";
 import { SensitiveContentWarning } from "./SensitiveContentWarning";
 import { NoScreenshotMode } from "./NoScreenshotMode";
+import { EmotionalTone } from "./EmotionalTone";
 
 interface ConfessionCardProps {
   confession: {
@@ -50,6 +51,7 @@ interface ConfessionCardProps {
     image_blurred?: boolean;
     author_nickname_snapshot?: string | null;
     author_visibility_snapshot?: string | null;
+    emotional_tone?: string | null;
   };
   isPremium: boolean;
   isLiked?: boolean;
@@ -162,6 +164,13 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
             width={800}
             height={400}
           />
+        </div>
+      )}
+
+      {/* Emotional Tone */}
+      {confession.emotional_tone && (
+        <div className="mb-3">
+          <EmotionalTone tone={confession.emotional_tone} size="sm" />
         </div>
       )}
 
