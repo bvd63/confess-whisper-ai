@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, Suspense, lazy } from "react";
+import { useState, useEffect, useCallback, Suspense, lazy, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { EnhancedButton } from "@/components/EnhancedButton";
@@ -379,4 +379,4 @@ const Profile = () => {
       </Suspense>
     </AppLayout>;
 };
-export default Profile;
+export default memo(Profile);

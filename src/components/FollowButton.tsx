@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { UserPlus, UserMinus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -128,4 +128,4 @@ const FollowButton = ({ targetUserId, currentUserId }: FollowButtonProps) => {
   );
 };
 
-export default FollowButton;
+export default memo(FollowButton);

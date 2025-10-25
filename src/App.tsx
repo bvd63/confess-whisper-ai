@@ -22,43 +22,46 @@ import { useBackgroundSync } from '@/hooks/useBackgroundSync';
 import { useDeviceTracking } from '@/hooks/useDeviceTracking';
 import { useInactivityLogout } from '@/hooks/useInactivityLogout';
 import { useSubscriptionConflictCheck } from '@/hooks/useSubscriptionConflictCheck';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { getSupabase } from "./lib/supabaseClient";
 import { persistenceManager } from '@/lib/persistenceManager';
 import { dataValidator } from '@/lib/dataValidator';
 import { syncScheduler } from '@/lib/syncScheduler';
-import Index from "./pages/Index";
-import Profile from "./pages/Profile";
-import UserProfile from "./pages/UserProfile";
-import Admin from "./pages/Admin";
-import SystemMonitor from "./pages/SystemMonitor";
-import Bookmarks from "./pages/Bookmarks";
-import Following from "./pages/Following";
-import SearchUsers from "./pages/SearchUsers";
-import Messages from "./pages/Messages";
-import Explore from "./pages/Explore";
-import Compose from "./pages/Compose";
-import CommunityDetail from "./pages/CommunityDetail";
-import NearbyConfessions from "./pages/NearbyConfessions";
-import Auth from "./pages/Auth";
-import AuthTest from "./pages/AuthTest";
-import SupabaseTest from "./pages/SupabaseTest";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-import EmailVerification from "./pages/EmailVerification";
-import PaymentSuccess from "./pages/PaymentSuccess";
-import PaymentCanceled from "./pages/PaymentCanceled";
-import CoinPurchaseSuccess from "./pages/coins/Success";
-import CoinPurchaseCancel from "./pages/coins/Cancel";
-import TestPayments from "./pages/TestPayments";
-import TestSubscriptions from "./pages/TestSubscriptions";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
-import NotFound from "./pages/NotFound";
-import Performance from "./pages/admin/Performance";
-import Reflections from "./pages/Reflections";
-import NotificationSettings from "./pages/NotificationSettings";
 import { Onboarding } from "./components/Onboarding";
+import LoadingSpinner from "./components/LoadingSpinner";
+
+// Lazy load all routes for code splitting
+const Index = lazy(() => import("./pages/Index"));
+const Profile = lazy(() => import("./pages/Profile"));
+const UserProfile = lazy(() => import("./pages/UserProfile"));
+const Admin = lazy(() => import("./pages/Admin"));
+const SystemMonitor = lazy(() => import("./pages/SystemMonitor"));
+const Bookmarks = lazy(() => import("./pages/Bookmarks"));
+const Following = lazy(() => import("./pages/Following"));
+const SearchUsers = lazy(() => import("./pages/SearchUsers"));
+const Messages = lazy(() => import("./pages/Messages"));
+const Explore = lazy(() => import("./pages/Explore"));
+const Compose = lazy(() => import("./pages/Compose"));
+const CommunityDetail = lazy(() => import("./pages/CommunityDetail"));
+const NearbyConfessions = lazy(() => import("./pages/NearbyConfessions"));
+const Auth = lazy(() => import("./pages/Auth"));
+const AuthTest = lazy(() => import("./pages/AuthTest"));
+const SupabaseTest = lazy(() => import("./pages/SupabaseTest"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const EmailVerification = lazy(() => import("./pages/EmailVerification"));
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
+const PaymentCanceled = lazy(() => import("./pages/PaymentCanceled"));
+const CoinPurchaseSuccess = lazy(() => import("./pages/coins/Success"));
+const CoinPurchaseCancel = lazy(() => import("./pages/coins/Cancel"));
+const TestPayments = lazy(() => import("./pages/TestPayments"));
+const TestSubscriptions = lazy(() => import("./pages/TestSubscriptions"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Performance = lazy(() => import("./pages/admin/Performance"));
+const Reflections = lazy(() => import("./pages/Reflections"));
+const NotificationSettings = lazy(() => import("./pages/NotificationSettings"));
 
 const AppContent = () => {
   const { user } = useAuth();
@@ -191,7 +194,8 @@ const AppContent = () => {
       
       <NetworkStatusIndicator />
       <TabNavigationProvider>
-        <Routes>
+        <Suspense fallback={<LoadingSpinner size="lg" text="Loading..." />}>
+          <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/auth-test" element={<AuthTest />} />
@@ -224,7 +228,8 @@ const AppContent = () => {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="*" element={<NotFound />} />
-        </Routes>
+          </Routes>
+        </Suspense>
         <InstagramBottomNav />
       </TabNavigationProvider>
     </div>

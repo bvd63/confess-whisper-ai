@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { useCachePurgeOnDelete } from "@/hooks/useCachePurgeOnDelete";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -238,4 +238,4 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
   );
 };
 
-export default CommentsSection;
+export default memo(CommentsSection);

@@ -1,6 +1,6 @@
 import { Heart, Frown, Zap, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -137,4 +137,4 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
   );
 };
 
-export default ReactionPicker;
+export default memo(ReactionPicker);
