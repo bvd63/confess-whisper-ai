@@ -192,8 +192,8 @@ export const lockOrientation = async (
   
   try {
     if ('screen' in window && 'orientation' in window.screen) {
-      const screenOrientation = window.screen.orientation;
-      if ('lock' in screenOrientation) {
+      const screenOrientation = window.screen.orientation as any;
+      if (screenOrientation && typeof screenOrientation.lock === 'function') {
         await screenOrientation.lock(
           orientation === 'portrait' ? 'portrait-primary' : 'landscape-primary'
         );

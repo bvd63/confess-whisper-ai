@@ -196,7 +196,7 @@ export const EnhancedSubscriptionManager = () => {
                   </div>
 
                   <Button
-                    data-testid={`action-${plan.id === 'premium' && status?.currentPlan === 'free' ? 'upgrade' : plan.id === 'vip' && status?.currentPlan === 'premium' ? 'upgrade' : 'downgrade'}`}
+                    data-testid={`action-${plan.id === 'vip' && status?.currentPlan === 'free' ? 'upgrade' : 'downgrade'}`}
                     onClick={() => {
                       setConfirmAction({ type: 'change', plan });
                       setShowConfirm(true);

@@ -15,18 +15,18 @@ const StreakReminder = ({ userId }: StreakReminderProps) => {
   useEffect(() => {
     const checkStreakStatus = async () => {
       try {
-        const { data: profile } = await supabase
-          .from('profiles')
+        const { data: streak } = await supabase
+          .from('user_streaks')
           .select('last_confession_date, current_streak')
           .eq('user_id', userId)
-          .single();
+          .maybeSingle();
 
-        if (!profile?.last_confession_date || profile.current_streak === 0) {
+        if (!streak?.last_confession_date || streak.current_streak === 0) {
           setShowReminder(false);
           return;
         }
 
-        const lastDate = new Date(profile.last_confession_date);
+        const lastDate = new Date(streak.last_confession_date);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         lastDate.setHours(0, 0, 0, 0);

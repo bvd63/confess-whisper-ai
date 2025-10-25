@@ -126,7 +126,8 @@ export const Onboarding = ({ userId, onComplete }: OnboardingProps) => {
       await supabase.rpc("award_coins", {
         p_user_id: userId,
         p_amount: 10,
-        p_reason: "first_confession"
+        p_description: "First confession bonus",
+        p_session_id: "onboarding_" + Date.now()
       });
 
       // Mark first confession as claimed

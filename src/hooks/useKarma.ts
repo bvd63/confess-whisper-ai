@@ -54,11 +54,17 @@ export function useKarma(userId: string | null | undefined) {
         // Get likes received (+2 each)
         let likesCount = 0;
         if (confessionIds.length > 0) {
-          const { count } = await supabase
-            .from('likes')
-            .select('*', { count: 'exact', head: true })
-            .in('confession_id', confessionIds);
-          likesCount = count || 0;
+          try {
+            // Using type assertion as likes table exists but may not be in generated types
+            const { data: likesData } = await (supabase as any)
+              .from('likes')
+              .select('id')
+              .in('confession_id', confessionIds);
+            likesCount = likesData?.length || 0;
+          } catch (error) {
+            console.error('Error fetching likes:', error);
+            likesCount = 0;
+          }
         }
 
         // Get comments made (+3 each)
