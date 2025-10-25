@@ -57,67 +57,77 @@ export const FlairsShop = ({
   } = useCoins(userId);
 
   const loadData = useCallback(async (retryCount = 0) => {
-    // Only show loading indicator on first load to avoid flicker
     setLoading((prev) => (hasLoaded ? prev : true));
     setError(null);
+
     try {
-      // Load user tier and trial status
-      const {
-        data: profile,
-        error: profileError
-      } = await supabase.from('profiles').select('subscription_tier, trial_active, trial_premium_ends_at').eq('user_id', userId).maybeSingle();
+      const profilePromise = supabase
+        .from('profiles')
+        .select('subscription_tier, trial_active, trial_premium_ends_at')
+        .eq('user_id', userId)
+        .maybeSingle();
 
-      if (profileError) {
-        console.error('Profile error:', profileError);
-        throw profileError;
+      const flairsPromise = supabase
+        .from('profile_flairs')
+        .select('*')
+        .eq('is_active', true)
+        .order('cost', { ascending: true });
+
+      const userFlairsPromise = supabase
+        .from('user_flairs')
+        .select('id, flair_id, is_equipped, expires_at, acquired_at, purchase_scope, last_equipped_at')
+        .eq('user_id', userId);
+
+      const [profileRes, flairsRes, userFlairsRes] = await Promise.allSettled([
+        profilePromise,
+        flairsPromise,
+        userFlairsPromise,
+      ]);
+
+      // Profile tier
+      if (profileRes.status === 'fulfilled') {
+        const { data: profile, error: profileError } = profileRes.value as any;
+        if (profileError) console.error('Profile error:', profileError);
+        const tier = (profile?.subscription_tier || 'free') as 'free' | 'vip';
+        setUserTier(tier);
+      } else {
+        console.error('Profile load rejected:', profileRes.reason);
       }
 
-      // Get tier (VIP or free only)
-      const tier = (profile?.subscription_tier || 'free') as "free" | "vip";
-      setUserTier(tier);
-
-      // Load available flairs
-      const {
-        data: flairsData,
-        error: flairsError
-      } = await supabase.from('profile_flairs').select('*').eq('is_active', true).order('cost', {
-        ascending: true
-      });
-      
-      if (flairsError) {
-        console.error('Flairs error:', flairsError);
-        throw flairsError;
+      // Flairs list
+      if (flairsRes.status === 'fulfilled') {
+        const { data: flairsData, error: flairsError } = flairsRes.value as any;
+        if (flairsError) {
+          console.error('Flairs error:', flairsError);
+          throw flairsError;
+        }
+        setFlairs(flairsData || []);
+      } else {
+        console.error('Flairs load rejected:', flairsRes.reason);
+        throw flairsRes.reason;
       }
-      setFlairs(flairsData || []);
 
-      // Load user's owned flairs
-      const {
-        data: userFlairsData,
-        error: userFlairsError
-      } = await supabase.from('user_flairs').select('id, flair_id, is_equipped, expires_at, acquired_at, purchase_scope, last_equipped_at').eq('user_id', userId);
-      
-      if (userFlairsError) {
-        console.error('User flairs error:', userFlairsError);
-        throw userFlairsError;
+      // User flairs
+      if (userFlairsRes.status === 'fulfilled') {
+        const { data: userFlairsData, error: userFlairsError } = userFlairsRes.value as any;
+        if (userFlairsError) console.error('User flairs error:', userFlairsError);
+        setUserFlairs(userFlairsData || []);
+      } else {
+        console.error('User flairs load rejected:', userFlairsRes.reason);
       }
-      setUserFlairs(userFlairsData || []);
 
-      // Refetch coins balance
       await refetchCoins();
       setHasLoaded(true);
       setError(null);
-    } catch (error: any) {
-      console.error('Error loading flairs:', error);
-      const errorMessage = error?.message || 'Failed to load flairs';
-      
-      // Retry on network errors (up to 2 retries)
-      if (errorMessage.includes('Failed to fetch') && retryCount < 2) {
-        console.log(`Retrying... (attempt ${retryCount + 1})`);
-        setTimeout(() => loadData(retryCount + 1), 1000);
+    } catch (e: any) {
+      const msg = e?.message || 'Failed to load flairs';
+      // Retry transient network errors up to 2 times
+      if (msg.includes('Failed to fetch') && retryCount < 2) {
+        console.log(`Retrying flairs load... attempt ${retryCount + 1}`);
+        setTimeout(() => loadData(retryCount + 1), 800);
         return;
       }
-      
-      setError(errorMessage);
+      setError(msg);
     } finally {
       setLoading(false);
     }
