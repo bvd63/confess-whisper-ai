@@ -7,6 +7,7 @@ import { SubscriptionProvider } from "@/state/SubscriptionProvider";
 import ErrorBoundary from "@/components/ErrorBoundaryFallback";
 import { reportWebVitals } from "@/hooks/usePerformanceMonitor";
 import { validateTranslationSystem } from "@/lib/i18nValidator";
+import { prefetchCriticalRoutes } from "@/lib/bundleOptimization";
 import AppWrapper from "./components/AppWrapper.tsx";
 import "./index.css";
 
@@ -28,6 +29,11 @@ if (import.meta.env.PROD) {
 if (import.meta.env.DEV) {
   validateTranslationSystem();
 }
+
+// Prefetch critical routes for faster navigation
+window.addEventListener('load', () => {
+  prefetchCriticalRoutes();
+});
 
 const queryClient = new QueryClient({
   defaultOptions: {

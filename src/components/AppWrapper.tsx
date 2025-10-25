@@ -1,4 +1,5 @@
 import { useOffline } from "@/hooks/useOffline";
+import { usePerformanceBudget } from "@/hooks/usePerformanceBudget";
 import App from "@/App";
 import PerformanceDashboard from "@/components/PerformanceDashboard";
 
@@ -8,6 +9,9 @@ import PerformanceDashboard from "@/components/PerformanceDashboard";
 const AppWrapper = () => {
   // Monitor online/offline status
   useOffline();
+  
+  // Monitor performance budget (p95 < 200ms)
+  usePerformanceBudget();
 
   return (
     <>
