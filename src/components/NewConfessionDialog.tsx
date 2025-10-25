@@ -22,6 +22,8 @@ import { PolishConfessionButton } from "@/components/PolishConfessionButton";
 import { useConfessionLimits } from "@/hooks/useConfessionLimits";
 // import { UpgradeModal } from "@/components/UpgradeModal";
 import { useMobileKeyboard } from "@/hooks/useMobileKeyboard";
+import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { getAiReply, type AiLocale } from "@/services/aiService";
 
 const confessionSchema = z.object({
   content: z.string()
@@ -55,6 +57,8 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
   const { communities } = useCommunities();
   const { canPost, currentCount, dailyLimit, remaining, tier, checkLimits, incrementCount, isLoading: limitsLoading } = useConfessionLimits();
   const { isKeyboardVisible, keyboardHeight } = useMobileKeyboard();
+  const { subscriptionTier } = usePremiumStatus(user?.id || null);
+  const isVip = subscriptionTier === 'vip';
 
   // Check for crisis keywords on content change
   useEffect(() => {
@@ -159,21 +163,27 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
         return;
       }
 
-      // Step 2: Get AI response
-      const { data: aiData, error: aiError } = await supabase.functions.invoke('ai-confession-response', {
-        body: { 
-          confession: content, 
-          category, 
-          imageUrl, 
-          type: 'basic', 
-          language 
-        }
-      });
-
-      if (aiError) throw aiError;
-
-      const responseText = aiData?.response || null;
-      setAiResponse(responseText);
+      // Step 2: Get AI response (with VIP priority)
+      let responseText: string | null = null;
+      try {
+        const locale = (language === 'en' || language === 'es' || language === 'de') 
+          ? language as AiLocale 
+          : 'en';
+        
+        responseText = await getAiReply({
+          text: content.trim(),
+          isVip,
+          locale,
+          userId: user.id,
+          confessionId: 'temp' // Will be replaced with actual ID after creation
+        });
+        
+        setAiResponse(responseText);
+      } catch (aiError) {
+        console.error('AI response error:', aiError);
+        // Continue without AI response - not critical
+        responseText = null;
+      }
 
       if (!user) {
         toast({
