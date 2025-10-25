@@ -6,6 +6,8 @@ import { EnhancedSubscriptionManager } from '@/components/EnhancedSubscriptionMa
 import { SubscriptionApiMock } from '../helpers/apiMock';
 import { supabase } from '@/integrations/supabase/client';
 
+type InvokeOptions = { body?: { action?: string; priceId?: string } };
+
 describe('Cancel Subscription Flows', () => {
   let apiMock: SubscriptionApiMock;
 
@@ -24,7 +26,7 @@ describe('Cancel Subscription Flows', () => {
       ends_at: '2025-11-12T18:00:00Z',
     });
 
-    const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+    const mockInvoke = vi.fn(async (fnName: string, options: InvokeOptions = {}) => {
       if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
         return {
           data: {
@@ -94,7 +96,7 @@ describe('Cancel Subscription Flows', () => {
       immediate: true,
     });
 
-    const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+    const mockInvoke = vi.fn(async (fnName: string, options: InvokeOptions = {}) => {
       if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
         return {
           data: {
@@ -148,7 +150,7 @@ describe('Cancel Subscription Flows', () => {
       message: 'Subscription reactivated successfully',
     });
 
-    const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+    const mockInvoke = vi.fn(async (fnName: string, options: InvokeOptions = {}) => {
       if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
         return {
           data: {
@@ -204,7 +206,7 @@ describe('Cancel Subscription Flows', () => {
     
     const cancelFn = apiMock.mockCancel({}, { shouldFail: true });
 
-    const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+    const mockInvoke = vi.fn(async (fnName: string, options: InvokeOptions = {}) => {
       if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
         return {
           data: {

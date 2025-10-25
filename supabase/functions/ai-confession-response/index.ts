@@ -23,7 +23,7 @@ function log(level: 'info' | 'warn' | 'error', message: string, metadata?: any) 
 function checkRateLimit(userId: string): { allowed: boolean; retryAfter?: number } {
   const key = `ai_request:${userId}`;
   const now = Date.now();
-  let rateLimitData = rateLimits.get(key);
+  const rateLimitData = rateLimits.get(key);
 
   if (!rateLimitData || now > rateLimitData.resetAt) {
     rateLimits.set(key, { count: 1, resetAt: now + AI_RATE_LIMIT.windowMs });

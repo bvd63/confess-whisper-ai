@@ -194,7 +194,7 @@ export default function TestPayments() {
       const currentTier = statusData?.subscription_tier || 'free';
 
       // VIP is the only paid tier now, cannot downgrade further
-      let targetPriceId = '';
+      const targetPriceId = '';
       if (currentTier === 'vip') {
         // Can only downgrade to free by canceling
         return { note: 'Use cancel subscription to downgrade to free', currentTier };

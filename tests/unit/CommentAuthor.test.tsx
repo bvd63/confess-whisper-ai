@@ -12,7 +12,8 @@ describe("CommentAuthor", () => {
 
   it("renders author information correctly", async () => {
     // Mock the from method to return user data
-    vi.mocked(supabaseMock.from).mockImplementation((table: string) => {
+    type SupabaseReturn = { select: ReturnType<typeof vi.fn> };
+    vi.mocked(supabaseMock.from).mockImplementation((table: string): SupabaseReturn => {
       if (table === 'profiles') {
         return {
           select: vi.fn().mockReturnValue({
@@ -21,13 +22,13 @@ describe("CommentAuthor", () => {
               error: null,
             }),
           }),
-        } as any;
+        };
       }
       return {
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockResolvedValue({ data: [], error: null }),
         }),
-      } as any;
+      };
     });
 
     renderWithProviders(<CommentAuthor userId="123" />);

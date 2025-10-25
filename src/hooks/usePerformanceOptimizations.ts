@@ -18,7 +18,7 @@ export const usePerformanceOptimizations = () => {
   const measureCacheSize = useCallback(() => {
     try {
       let totalSize = 0;
-      for (let key in localStorage) {
+      for (const key in localStorage) {
         if (localStorage.hasOwnProperty(key)) {
           totalSize += localStorage[key].length + key.length;
         }

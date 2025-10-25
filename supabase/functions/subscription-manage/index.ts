@@ -57,7 +57,7 @@ serve(async (req) => {
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
     // Get or create customer
-    let customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId: string;
     
     if (customers.data.length === 0) {
@@ -101,7 +101,7 @@ serve(async (req) => {
         const currentPriceId = subscription.items.data[0].price.id;
         const currentPrice = subscription.items.data[0].price;
         let currentPlan = 'premium';
-        let interval = currentPrice.recurring?.interval === 'year' ? 'yearly' : 'monthly';
+        const interval = currentPrice.recurring?.interval === 'year' ? 'yearly' : 'monthly';
         
         // Determine tier
         if (currentPriceId === STRIPE_PRICE_IDS.vip_monthly || currentPriceId === STRIPE_PRICE_IDS.vip_yearly) {
@@ -162,7 +162,7 @@ serve(async (req) => {
 
         // Determine new tier
         let newTier = 'premium';
-        let newInterval = updatedSubscription.items.data[0].price.recurring?.interval === 'year' ? 'yearly' : 'monthly';
+        const newInterval = updatedSubscription.items.data[0].price.recurring?.interval === 'year' ? 'yearly' : 'monthly';
         
         if (priceId === STRIPE_PRICE_IDS.vip_monthly || priceId === STRIPE_PRICE_IDS.vip_yearly) {
           newTier = 'vip';

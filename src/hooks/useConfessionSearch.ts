@@ -30,7 +30,7 @@ export const useConfessionSearch = () => {
       // Time range filter
       if (filters.timeRange && filters.timeRange !== 'all') {
         const now = new Date();
-        let startDate = new Date();
+        const startDate = new Date();
 
         switch (filters.timeRange) {
           case 'today':

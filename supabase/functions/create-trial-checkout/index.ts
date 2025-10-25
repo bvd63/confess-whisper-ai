@@ -72,7 +72,7 @@ serve(async (req) => {
 
     // Check for existing customer
     const customers = await stripe.customers.list({ email: user.email!, limit: 1 });
-    let customerId = customers.data.length > 0 ? customers.data[0].id : undefined;
+    const customerId = customers.data.length > 0 ? customers.data[0].id : undefined;
 
     // Create Stripe checkout session with 3-day trial
     const origin = req.headers.get("origin") || "http://localhost:3000";

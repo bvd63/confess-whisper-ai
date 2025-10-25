@@ -6,6 +6,8 @@ import { EnhancedSubscriptionManager } from '@/components/EnhancedSubscriptionMa
 import { SubscriptionApiMock } from '../helpers/apiMock';
 import { supabase } from '@/integrations/supabase/client';
 
+type InvokeOptions = { body?: { action?: string; priceId?: string } };
+
 describe('Delinquent Payment Update Flow', () => {
   let apiMock: SubscriptionApiMock;
 
@@ -18,7 +20,7 @@ describe('Delinquent Payment Update Flow', () => {
       message: 'Payment method updated successfully',
     });
 
-    const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+    const mockInvoke = vi.fn(async (fnName: string, options: InvokeOptions = {}) => {
       if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
         return {
           data: {
@@ -102,7 +104,7 @@ describe('Delinquent Payment Update Flow', () => {
   it('should retry failed payment after update', async () => {
     const user = userEvent.setup();
     
-    const mockInvokeWithRetry = vi.fn(async (fnName: string, options: any) => {
+    const mockInvokeWithRetry = vi.fn(async (fnName: string, options: InvokeOptions = {}) => {
       if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
         return {
           data: {
@@ -162,7 +164,7 @@ describe('Delinquent Payment Update Flow', () => {
     
     const failingUpdateFn = apiMock.mockUpdatePayment({}, { shouldFail: true });
 
-    const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+    const mockInvoke = vi.fn(async (fnName: string, options: InvokeOptions = {}) => {
       if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
         return {
           data: {

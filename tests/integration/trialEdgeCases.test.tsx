@@ -5,11 +5,13 @@ import { renderWithProviders } from '../helpers/testUtils';
 import { EnhancedSubscriptionManager } from '@/components/EnhancedSubscriptionManager';
 import { supabase } from '@/integrations/supabase/client';
 
+type InvokeOptions = { body?: { action?: string; priceId?: string } };
+
 describe('Trial Edge Cases', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
-    const mockInvoke = vi.fn(async (fnName: string, options?: any) => {
+    const mockInvoke = vi.fn(async (fnName: string, options: InvokeOptions = {}) => {
       if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
         return {
           data: {

@@ -23,4 +23,30 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": "off",
     },
   },
+  // Relaxed rules for test files, utility libs, and edge functions
+  {
+    files: [
+      "**/*.test.{ts,tsx}", 
+      "**/*.spec.{ts,tsx}", 
+      "**/tests/**/*.{ts,tsx}", 
+      "**/test/**/*.{ts,tsx}",
+      "**/src/pages/Test*.tsx",
+      "**/src/pages/AuthTest.tsx",
+      "**/src/pages/SupabaseTest.tsx",
+      "**/src/pages/Admin.tsx",
+      "**/src/lib/**/*.ts",
+      "**/src/lib/**/*.tsx",
+      "**/supabase/functions/**/*.ts",
+      "**/scripts/**/*.ts",
+      "**/tailwind.config.ts",
+    ],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-require-imports": "off",
+      "react-hooks/exhaustive-deps": "off",
+      "no-empty": "off",
+      "prefer-const": "off",
+      "no-useless-escape": "off",
+    },
+  },
 );

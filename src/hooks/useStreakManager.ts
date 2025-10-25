@@ -174,10 +174,10 @@ export const useStreakManager = () => {
       const today = new Date().toISOString().split('T')[0];
       const isVIP = streakStatus.subscription_status === 'active';
       
-      let newStreak = streakStatus.shouldReset ? 1 : streakStatus.current_streak + 1;
-      let points = calculatePoints(newStreak, isVIP);
-      let newTotal = streakStatus.total_points + points;
-      let newLevel = Math.floor(newTotal / 100) + 1;
+      const newStreak = streakStatus.shouldReset ? 1 : streakStatus.current_streak + 1;
+      const points = calculatePoints(newStreak, isVIP);
+      const newTotal = streakStatus.total_points + points;
+      const newLevel = Math.floor(newTotal / 100) + 1;
 
       // Update streak
       await supabase

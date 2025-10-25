@@ -5,6 +5,35 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { vi } from 'vitest';
 
+// Type for chainable Supabase query mock
+type ChainableMock = {
+  select: ReturnType<typeof vi.fn>;
+  eq: ReturnType<typeof vi.fn>;
+  neq: ReturnType<typeof vi.fn>;
+  gt: ReturnType<typeof vi.fn>;
+  gte: ReturnType<typeof vi.fn>;
+  lt: ReturnType<typeof vi.fn>;
+  lte: ReturnType<typeof vi.fn>;
+  like: ReturnType<typeof vi.fn>;
+  ilike: ReturnType<typeof vi.fn>;
+  is: ReturnType<typeof vi.fn>;
+  in: ReturnType<typeof vi.fn>;
+  contains: ReturnType<typeof vi.fn>;
+  containedBy: ReturnType<typeof vi.fn>;
+  rangeLt: ReturnType<typeof vi.fn>;
+  rangeGt: ReturnType<typeof vi.fn>;
+  rangeGte: ReturnType<typeof vi.fn>;
+  rangeLte: ReturnType<typeof vi.fn>;
+  rangeAdjacent: ReturnType<typeof vi.fn>;
+  overlaps: ReturnType<typeof vi.fn>;
+  order: ReturnType<typeof vi.fn>;
+  limit: ReturnType<typeof vi.fn>;
+  range: ReturnType<typeof vi.fn>;
+  single: ReturnType<typeof vi.fn>;
+  maybeSingle: ReturnType<typeof vi.fn>;
+  then: ReturnType<typeof vi.fn>;
+};
+
 // Complete Supabase mock for subscription tests
 vi.mock('@/integrations/supabase/client', () => {
   const mockFunctionsInvoke = vi.fn().mockResolvedValue({ data: null, error: null });
@@ -28,8 +57,8 @@ vi.mock('@/integrations/supabase/client', () => {
   };
   
   // Create chainable mock - each method returns an object with all methods
-  const createChainableMock = (): any => {
-    const chain: any = {
+  const createChainableMock = (): ChainableMock => {
+    const chain: ChainableMock = {
       select: vi.fn(() => createChainableMock()),
       eq: vi.fn(() => createChainableMock()),
       neq: vi.fn(() => createChainableMock()),
@@ -95,7 +124,7 @@ vi.mock('@/integrations/supabase/client', () => {
         }))
       },
       channel: vi.fn(() => ({
-        on: vi.fn(function(this: any) { return this; }),
+        on: vi.fn(function(this: unknown) { return this; }),
         subscribe: vi.fn(() => ({
           unsubscribe: vi.fn()
         }))

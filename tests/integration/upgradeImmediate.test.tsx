@@ -5,6 +5,8 @@ import { renderWithProviders } from '../helpers/testUtils';
 import { EnhancedSubscriptionManager } from '@/components/EnhancedSubscriptionManager';
 import { SubscriptionApiMock } from '../helpers/apiMock';
 import { supabase } from '@/integrations/supabase/client';
+
+type InvokeOptions = { body?: { action?: string; priceId?: string } };
 import upgradePreview from '../fixtures/stripe/preview/upgrade_premium_to_vip_monthly.json';
 
 describe('Upgrade Immediate Flow', () => {
@@ -24,7 +26,7 @@ describe('Upgrade Immediate Flow', () => {
       },
     });
 
-    const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+    const mockInvoke = vi.fn(async (fnName: string, options: InvokeOptions = {}) => {
       if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
         return {
           data: {
@@ -141,7 +143,7 @@ describe('Upgrade Immediate Flow', () => {
     
     // Override with failing mock
     const failingChangeFn = apiMock.mockChange({}, { shouldFail: true });
-    const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+    const mockInvoke = vi.fn(async (fnName: string, options: InvokeOptions = {}) => {
       if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
         return {
           data: {

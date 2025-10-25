@@ -15,17 +15,18 @@ describe("NewConfessionDialog", () => {
     const setOpen = vi.fn();
 
     // Mock the from method for confessions insert
-    vi.mocked(supabaseMock.from).mockImplementation((table: string) => {
+    type SupabaseReturn = { insert?: ReturnType<typeof vi.fn>; select?: ReturnType<typeof vi.fn> };
+    vi.mocked(supabaseMock.from).mockImplementation((table: string): SupabaseReturn => {
       if (table === 'confessions') {
         return {
           insert: vi.fn().mockResolvedValue({ data: [{ id: 1 }], error: null }),
-        } as any;
+        };
       }
       return {
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockResolvedValue({ data: [], error: null }),
         }),
-      } as any;
+      };
     });
 
     renderWithProviders(

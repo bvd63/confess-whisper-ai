@@ -4,13 +4,15 @@ import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../helpers/testUtils';
 import { EnhancedSubscriptionManager } from '@/components/EnhancedSubscriptionManager';
 import { supabase } from '@/integrations/supabase/client';
+
+type InvokeOptions = { body?: { action?: string; priceId?: string } };
 import scaPreview from '../fixtures/stripe/preview/sca_required_preview.json';
 
 describe('SCA (Strong Customer Authentication) Flow', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
-    const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+    const mockInvoke = vi.fn(async (fnName: string, options: InvokeOptions = {}) => {
       if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
         return {
           data: {

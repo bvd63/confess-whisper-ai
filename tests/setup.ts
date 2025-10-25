@@ -37,6 +37,7 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Mock IntersectionObserver
+// Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
   constructor() {}
   disconnect() {}
@@ -45,7 +46,7 @@ global.IntersectionObserver = class IntersectionObserver {
   takeRecords() {
     return [];
   }
-} as any;
+} as unknown as typeof IntersectionObserver;
 
 // Mock localStorage
 const localStorageMock = {
@@ -54,7 +55,7 @@ const localStorageMock = {
   removeItem: vi.fn(),
   clear: vi.fn(),
 };
-global.localStorage = localStorageMock as any;
+global.localStorage = localStorageMock as unknown as Storage;
 
 // Mock indexedDB
 const indexedDBMock = {
@@ -78,7 +79,7 @@ const indexedDBMock = {
   })),
   deleteDatabase: vi.fn(),
 };
-(global as any).indexedDB = indexedDBMock;
+(global as unknown as { indexedDB: typeof indexedDBMock }).indexedDB = indexedDBMock;
 
 // Suppress console errors in tests
 global.console = {

@@ -75,7 +75,7 @@ export default function TestSubscriptions() {
       });
       if (error) {
         // Supabase returns non-2xx as error with the body in error.context.body
-        let bodyText = (error as any)?.context?.body as string | undefined;
+        const bodyText = (error as any)?.context?.body as string | undefined;
         let bodyJson: any = undefined;
         if (bodyText) {
           try { bodyJson = JSON.parse(bodyText); } catch {}
@@ -109,7 +109,7 @@ export default function TestSubscriptions() {
         body: { targetPriceId: vipPriceId },
       });
       if (error) {
-        let bodyText = (error as any)?.context?.body as string | undefined;
+        const bodyText = (error as any)?.context?.body as string | undefined;
         let bodyJson: any; try { bodyJson = bodyText ? JSON.parse(bodyText) : undefined; } catch {}
         const message = (bodyJson?.error || bodyJson?.message || error.message || "Preview failed");
         throw new Error(message);
@@ -125,7 +125,7 @@ export default function TestSubscriptions() {
         { body: { action: "upgrade", targetTier: "vip" } }
       );
       if (error) {
-        let bodyText = (error as any)?.context?.body as string | undefined;
+        const bodyText = (error as any)?.context?.body as string | undefined;
         let bodyJson: any; try { bodyJson = bodyText ? JSON.parse(bodyText) : undefined; } catch {}
         const message = (bodyJson?.error || bodyJson?.message || error.message || "Upgrade failed");
         throw new Error(message);

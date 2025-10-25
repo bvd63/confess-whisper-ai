@@ -56,7 +56,10 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
         window.top.location.href = url;
         return;
       }
-    } catch {}
+    } catch (error) {
+      // Cross-origin access denied - fallback to window.open
+      console.debug('Cannot access window.top:', error);
+    }
     const win = window.open(url, '_blank');
     if (win) return;
     window.location.href = url;

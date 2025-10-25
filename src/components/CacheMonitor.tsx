@@ -29,7 +29,10 @@ export const CacheMonitor = () => {
     keys.forEach(key => {
       try {
         totalSize += (localStorage.getItem(key) || '').length + key.length;
-      } catch {}
+      } catch (error) {
+        // Ignore storage errors for individual keys
+        console.debug('Failed to get size for key:', key, error);
+      }
     });
 
     setCacheStats({

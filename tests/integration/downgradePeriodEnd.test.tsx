@@ -5,6 +5,8 @@ import { renderWithProviders } from '../helpers/testUtils';
 import { EnhancedSubscriptionManager } from '@/components/EnhancedSubscriptionManager';
 import { SubscriptionApiMock } from '../helpers/apiMock';
 import { supabase } from '@/integrations/supabase/client';
+
+type InvokeOptions = { body?: { action?: string; priceId?: string } };
 import downgradePreview from '../fixtures/stripe/preview/downgrade_vip_to_premium_period_end.json';
 
 describe('Downgrade at Period End Flow', () => {
@@ -20,7 +22,7 @@ describe('Downgrade at Period End Flow', () => {
       effective_date: '2025-11-12T18:00:00Z',
     });
 
-    const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+    const mockInvoke = vi.fn(async (fnName: string, options: InvokeOptions = {}) => {
       if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
         return {
           data: {

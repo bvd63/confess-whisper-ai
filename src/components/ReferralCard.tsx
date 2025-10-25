@@ -23,7 +23,7 @@ const ReferralCard = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      let { data: profile, error } = await supabase
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('referral_code, total_referrals')
         .eq('user_id', user.id)
