@@ -44,29 +44,31 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
         return;
       }
 
-      const { data } = await supabase
-        .from("v_user_entitlements")
-        .select("*")
+      // Read from profiles table directly since it has the subscription tier
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("subscription_tier, is_premium, subscription_ends_at, stripe_subscription_id, subscription_cancel_at_period_end")
         .eq("user_id", user.id)
         .maybeSingle();
 
       if (mounted) {
-        setEnt(
-          data ??
-            ({
-              user_id: user.id,
-              tier: "free",
-              cadence: "monthly",
-              status: "canceled",
-              cancel_at_period_end: false,
-              current_period_end: null,
-              is_pro: false,
-              is_vip: false,
-            } as Ent)
-        );
+        const tier = (profile?.subscription_tier === 'vip' || profile?.is_premium) ? 'vip' : 'free';
+        const isVip = tier === 'vip';
+        
+        setEnt({
+          user_id: user.id,
+          tier: tier,
+          cadence: "monthly", // Default, can be enhanced later
+          status: profile?.stripe_subscription_id ? "active" : "canceled",
+          cancel_at_period_end: profile?.subscription_cancel_at_period_end || false,
+          current_period_end: profile?.subscription_ends_at || null,
+          is_pro: isVip,
+          is_vip: isVip,
+        } as Ent);
         setLoading(false);
       }
 
+      // Listen to profile changes for subscription updates
       channel = supabase
         .channel(`sub:${user.id}`)
         .on(
@@ -74,16 +76,31 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
           {
             event: "*",
             schema: "public",
-            table: "subscriptions",
+            table: "profiles",
             filter: `user_id=eq.${user.id}`,
           },
           async () => {
-            const { data: f } = await supabase
-              .from("v_user_entitlements")
-              .select("*")
+            const { data: updatedProfile } = await supabase
+              .from("profiles")
+              .select("subscription_tier, is_premium, subscription_ends_at, stripe_subscription_id, subscription_cancel_at_period_end")
               .eq("user_id", user.id)
               .maybeSingle();
-            if (f && mounted) setEnt(f as any);
+            
+            if (updatedProfile && mounted) {
+              const tier = (updatedProfile.subscription_tier === 'vip' || updatedProfile.is_premium) ? 'vip' : 'free';
+              const isVip = tier === 'vip';
+              
+              setEnt({
+                user_id: user.id,
+                tier: tier,
+                cadence: "monthly",
+                status: updatedProfile.stripe_subscription_id ? "active" : "canceled",
+                cancel_at_period_end: updatedProfile.subscription_cancel_at_period_end || false,
+                current_period_end: updatedProfile.subscription_ends_at || null,
+                is_pro: isVip,
+                is_vip: isVip,
+              } as any);
+            }
           }
         )
         .subscribe();
