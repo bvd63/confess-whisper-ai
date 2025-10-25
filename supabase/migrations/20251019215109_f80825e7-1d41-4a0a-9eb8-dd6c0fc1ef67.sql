@@ -100,10 +100,9 @@ BEGIN
   FROM public.profiles
   WHERE user_id = _user_id;
   
-  -- Determine limit based on tier
+  -- Determine limit based on tier (premium removed, only free/vip)
   CASE v_tier
     WHEN 'free' THEN v_limit := 3;
-    WHEN 'premium' THEN v_limit := 10;
     WHEN 'vip' THEN v_limit := -1; -- unlimited
     ELSE v_limit := 3;
   END CASE;

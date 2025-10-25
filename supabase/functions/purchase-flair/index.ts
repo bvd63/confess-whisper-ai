@@ -71,7 +71,7 @@ serve(async (req) => {
     const userTier = (profile?.subscription_tier || 'free') as 'free' | 'vip';
     const requiredTier = (flair.required_plan || 'free') as 'free' | 'vip';
 
-    // Tier hierarchy: free < vip (no premium tier)
+    // Tier hierarchy: free < vip (premium removed)
     const tierLevel: Record<'free' | 'vip', number> = { free: 0, vip: 1 };
     if (tierLevel[userTier] < tierLevel[requiredTier]) {
       return new Response(

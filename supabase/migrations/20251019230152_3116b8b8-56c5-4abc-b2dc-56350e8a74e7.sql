@@ -767,7 +767,7 @@ BEGIN
   
   CASE v_tier
     WHEN 'free' THEN v_limit := 3;
-    WHEN 'premium' THEN v_limit := 10;
+    -- Premium tier removed, only free and vip
     WHEN 'vip' THEN v_limit := -1;
     ELSE v_limit := 3;
   END CASE;
