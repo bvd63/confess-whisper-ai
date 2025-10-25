@@ -12,9 +12,9 @@ export const contentSchema = z.string()
   .trim();
 
 export const emailSchema = z.string()
-  .email('Invalid email format')
+  .trim()
   .toLowerCase()
-  .trim();
+  .email('Invalid email format');
 
 export const passwordSchema = z.string()
   .min(8, 'Password must be at least 8 characters')
@@ -24,9 +24,10 @@ export const passwordSchema = z.string()
   .regex(/[0-9]/, 'Password must contain at least one number');
 
 export const nicknameSchema = z.string()
+  .trim()
   .min(2, 'Nickname too short')
   .max(30, 'Nickname too long')
-  .trim();
+  .regex(/^[a-zA-Z0-9_-]+$/, 'Nickname can only contain letters, numbers, underscores, and dashes');
 
 export const bioSchema = z.string()
   .max(500, 'Bio too long')
@@ -35,8 +36,11 @@ export const bioSchema = z.string()
   .or(z.literal(''));
 
 export const urlSchema = z.string()
+  .trim()
   .url('Invalid URL format')
-  .trim();
+  .refine((url) => url.startsWith('http://') || url.startsWith('https://'), {
+    message: 'URL must use http or https protocol',
+  });
 
 // Confession validation
 export const confessionSchema = z.object({

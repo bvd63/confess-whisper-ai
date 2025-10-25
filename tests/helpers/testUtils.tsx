@@ -8,67 +8,74 @@ import { vi } from 'vitest';
 // Complete Supabase mock for subscription tests
 vi.mock('@/integrations/supabase/client', () => {
   const mockFunctionsInvoke = vi.fn().mockResolvedValue({ data: null, error: null });
-  const mockAuthGetUser = vi.fn().mockResolvedValue({
-    data: { user: { id: 'test-user', email: 'test@example.com' } },
-    error: null
+  
+  // Create chainable mock for select().eq()
+  const createMockEq = () => ({
+    eq: vi.fn(() => createMockEq()),
+    single: vi.fn().mockResolvedValue({
+      data: {
+        id: 'test-subscription',
+        status: 'PREMIUM',
+        current_period_end: '2025-11-12T18:00:00Z',
+        plan_name: 'premium'
+      },
+      error: null
+    }),
+    maybeSingle: vi.fn().mockResolvedValue({
+      data: {
+        id: 'test-subscription',
+        status: 'PREMIUM',
+        current_period_end: '2025-11-12T18:00:00Z',
+        plan_name: 'premium'
+      },
+      error: null
+    }),
+    order: vi.fn(function(this: any) { return this; }),
+    limit: vi.fn(function(this: any) { return this; })
   });
-  const mockAuthGetSession = vi.fn().mockResolvedValue({
-    data: { session: { user: { id: 'test-user' } } },
-    error: null
+  
+  const createMockSelect = () => ({
+    select: vi.fn(() => createMockSelect()),
+    eq: vi.fn(() => createMockEq()),
+    single: vi.fn().mockResolvedValue({
+      data: {
+        id: 'test-subscription',
+        status: 'PREMIUM',
+        current_period_end: '2025-11-12T18:00:00Z',
+        plan_name: 'premium'
+      },
+      error: null
+    }),
+    maybeSingle: vi.fn().mockResolvedValue({
+      data: {
+        id: 'test-subscription',
+        status: 'PREMIUM',
+        current_period_end: '2025-11-12T18:00:00Z',
+        plan_name: 'premium'
+      },
+      error: null
+    }),
+    order: vi.fn(function(this: any) { return this; }),
+    limit: vi.fn(function(this: any) { return this; })
   });
   
   return {
     supabase: {
       auth: {
-        getUser: mockAuthGetUser,
-        getSession: mockAuthGetSession,
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: 'test-user', email: 'test@example.com' } },
+          error: null
+        }),
+        getSession: vi.fn().mockResolvedValue({
+          data: { session: { user: { id: 'test-user' } } },
+          error: null
+        }),
         onAuthStateChange: vi.fn(() => ({
           data: { subscription: { unsubscribe: vi.fn() } }
         }))
       },
       from: vi.fn(() => ({
-        select: vi.fn(() => ({
-          eq: vi.fn(() => ({
-            single: vi.fn().mockResolvedValue({
-              data: {
-                id: 'test-subscription',
-                status: 'PREMIUM',
-                current_period_end: '2025-11-12T18:00:00Z',
-                plan_name: 'premium'
-              },
-              error: null
-            }),
-            maybeSingle: vi.fn().mockResolvedValue({
-              data: {
-                id: 'test-subscription',
-                status: 'PREMIUM',
-                current_period_end: '2025-11-12T18:00:00Z',
-                plan_name: 'premium'
-              },
-              error: null
-            })
-          })),
-          maybeSingle: vi.fn().mockResolvedValue({
-            data: {
-              id: 'test-subscription',
-              status: 'PREMIUM',
-              current_period_end: '2025-11-12T18:00:00Z',
-              plan_name: 'premium'
-            },
-            error: null
-          }),
-          single: vi.fn().mockResolvedValue({
-            data: {
-              id: 'test-subscription',
-              status: 'PREMIUM',
-              current_period_end: '2025-11-12T18:00:00Z',
-              plan_name: 'premium'
-            },
-            error: null
-          }),
-          order: vi.fn().mockReturnThis(),
-          limit: vi.fn().mockReturnThis()
-        })),
+        ...createMockSelect(),
         insert: vi.fn(() => ({
           select: vi.fn().mockResolvedValue({ data: [], error: null })
         })),
@@ -89,26 +96,13 @@ vi.mock('@/integrations/supabase/client', () => {
         }))
       },
       channel: vi.fn(() => ({
-        on: vi.fn(() => ({
-          on: vi.fn(() => ({
-            subscribe: vi.fn(() => ({
-              unsubscribe: vi.fn()
-            }))
-          })),
-          subscribe: vi.fn(() => ({
-            unsubscribe: vi.fn()
-          }))
-        })),
+        on: vi.fn(function(this: any) { return this; }),
         subscribe: vi.fn(() => ({
           unsubscribe: vi.fn()
         }))
       }))
-    },
-    // Export mock functions so tests can access them
-    mockFunctionsInvoke,
-    mockAuthGetUser,
-    mockAuthGetSession
-  };
+    }
+  }
 });
 
 const createTestQueryClient = () =>

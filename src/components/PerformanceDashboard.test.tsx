@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import '@testing-library/jest-dom';
+import { observability } from '@/lib/observability';
 
 // Mock the observability module
 vi.mock('@/lib/observability', () => ({
@@ -20,7 +21,6 @@ vi.mock('@/lib/observability', () => ({
 
 // Simple component to test performance metrics display
 const PerformanceMetrics = () => {
-  const { observability } = require('@/lib/observability');
   const metrics = observability.getMetricsSummary();
   
   return (
