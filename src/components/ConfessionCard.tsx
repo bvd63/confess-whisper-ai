@@ -35,6 +35,7 @@ import { useSensitiveContent } from "@/hooks/useSensitiveContent";
 import { SensitiveContentWarning } from "./SensitiveContentWarning";
 import { NoScreenshotMode } from "./NoScreenshotMode";
 import { EmotionalTone } from "./EmotionalTone";
+import { VIPBadge } from "./VIPBadge";
 
 interface ConfessionCardProps {
   confession: {
@@ -136,7 +137,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         glass
         className="p-3 sm:p-4 md:p-5 mb-3 sm:mb-4 touch-manipulation"
       >
-        <div className="mb-2 sm:mb-3">
+        <div className="mb-2 sm:mb-3 flex items-center gap-2">
           <ConfessionHeader 
             category={confession.category} 
             createdAt={confession.created_at}
@@ -144,6 +145,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
             authorVisibilitySnapshot={confession.author_visibility_snapshot}
             isBoosted={boostStatus.isActive}
           />
+          <VIPBadge tier={subscriptionTier as 'free' | 'vip'} size="sm" />
         </div>
 
         <SensitiveContentWarning isSensitive={isSensitive}>

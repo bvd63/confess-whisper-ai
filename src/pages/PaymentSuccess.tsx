@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import confetti from "canvas-confetti";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
@@ -60,6 +61,13 @@ const PaymentSuccess = () => {
           if (data?.active && data?.tier) {
             setActivatedTier(data.tier);
             await refetch();
+            
+            // Trigger confetti celebration
+            confetti({
+              particleCount: 150,
+              spread: 100,
+              origin: { y: 0.6 }
+            });
             
             // Award coins bonus for first charge
             const { data: coinsData, error: coinsError } = await supabase.functions.invoke('award-subscription-coins', {

@@ -56,12 +56,38 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import NotFound from "./pages/NotFound";
 import Performance from "./pages/admin/Performance";
+import Reflections from "./pages/Reflections";
+import NotificationSettings from "./pages/NotificationSettings";
+import { Onboarding } from "./components/Onboarding";
 
 const AppContent = () => {
   const { user } = useAuth();
   const [stayLoggedIn, setStayLoggedIn] = useState(() => {
     return localStorage.getItem('stay_logged_in') === 'true';
   });
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingChecked, setOnboardingChecked] = useState(false);
+
+  // Check if onboarding is needed
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      if (!user) {
+        setOnboardingChecked(true);
+        return;
+      }
+
+      const { data } = await getSupabase()
+        .from("profiles")
+        .select("onboarding_completed")
+        .eq("user_id", user.id)
+        .single();
+
+      setShowOnboarding(!data?.onboarding_completed);
+      setOnboardingChecked(true);
+    };
+
+    checkOnboarding();
+  }, [user]);
 
   useAuthRefresh(); // Auto JWT refresh
   useSessionRestoration(); // Auto session restoration
@@ -148,6 +174,14 @@ const AppContent = () => {
     <div className="relative pb-16">
       <div data-testid="app-ready" style={{ display: 'none' }} />
       
+      {/* Onboarding overlay */}
+      {onboardingChecked && showOnboarding && user && (
+        <Onboarding
+          userId={user.id}
+          onComplete={() => setShowOnboarding(false)}
+        />
+      )}
+      
       <NetworkStatusIndicator />
       <TabNavigationProvider>
         <Routes>
@@ -178,6 +212,8 @@ const AppContent = () => {
           <Route path="/coins/cancel" element={<CoinPurchaseCancel />} />
           <Route path="/test-payments" element={<TestPayments />} />
           <Route path="/test-subscriptions" element={<TestSubscriptions />} />
+          <Route path="/reflections" element={<Reflections />} />
+          <Route path="/settings/notifications" element={<NotificationSettings />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="*" element={<NotFound />} />

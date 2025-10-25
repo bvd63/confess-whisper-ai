@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_reflections: {
+        Row: {
+          content: string
+          generated_at: string | null
+          id: string
+          reflection_date: string
+          tone_summary: string | null
+          user_id: string
+          viewed_at: string | null
+        }
+        Insert: {
+          content: string
+          generated_at?: string | null
+          id?: string
+          reflection_date?: string
+          tone_summary?: string | null
+          user_id: string
+          viewed_at?: string | null
+        }
+        Update: {
+          content?: string
+          generated_at?: string | null
+          id?: string
+          reflection_date?: string
+          tone_summary?: string | null
+          user_id?: string
+          viewed_at?: string | null
+        }
+        Relationships: []
+      }
       ai_usage: {
         Row: {
           action_type: string
@@ -1369,6 +1399,7 @@ export type Database = {
           bio: string | null
           created_at: string
           dominant_tone: string | null
+          first_confession_claimed: boolean | null
           followers_count: number | null
           following_count: number | null
           handle: string | null
@@ -1384,6 +1415,8 @@ export type Database = {
           nickname_visibility:
             | Database["public"]["Enums"]["nickname_visibility_enum"]
             | null
+          onboarding_completed: boolean | null
+          onboarding_completed_at: string | null
           password_changed_at: string | null
           posts_count: number | null
           privacy_mode: string | null
@@ -1410,6 +1443,7 @@ export type Database = {
           bio?: string | null
           created_at?: string
           dominant_tone?: string | null
+          first_confession_claimed?: boolean | null
           followers_count?: number | null
           following_count?: number | null
           handle?: string | null
@@ -1425,6 +1459,8 @@ export type Database = {
           nickname_visibility?:
             | Database["public"]["Enums"]["nickname_visibility_enum"]
             | null
+          onboarding_completed?: boolean | null
+          onboarding_completed_at?: string | null
           password_changed_at?: string | null
           posts_count?: number | null
           privacy_mode?: string | null
@@ -1451,6 +1487,7 @@ export type Database = {
           bio?: string | null
           created_at?: string
           dominant_tone?: string | null
+          first_confession_claimed?: boolean | null
           followers_count?: number | null
           following_count?: number | null
           handle?: string | null
@@ -1466,6 +1503,8 @@ export type Database = {
           nickname_visibility?:
             | Database["public"]["Enums"]["nickname_visibility_enum"]
             | null
+          onboarding_completed?: boolean | null
+          onboarding_completed_at?: string | null
           password_changed_at?: string | null
           posts_count?: number | null
           privacy_mode?: string | null

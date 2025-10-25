@@ -5,7 +5,7 @@ import { EnhancedButton } from "@/components/EnhancedButton";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { GradientText } from "@/components/GradientText";
 import { FloatingElement } from "@/components/FloatingElement";
-import { User, Settings } from "lucide-react";
+import { User, Settings, Sparkles, CheckCircle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppLayout from "@/components/AppLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,6 +44,7 @@ import { FlairsShopButton } from "@/components/FlairsShopButton";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
 import { useTrialExpiryCheck } from "@/hooks/useTrialExpiryCheck";
 import { SyncSubscriptionButton } from "@/components/SyncSubscriptionButton";
+import { VIPBadge } from "@/components/VIPBadge";
 
 import { SubscriptionStatusCard } from "@/components/SubscriptionStatusCard";
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
@@ -196,9 +197,12 @@ const Profile = () => {
             <User className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
           </div>
           <div className="flex-1">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
-              <GradientText variant="hero">{t.profile_title}</GradientText>
-            </h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
+                <GradientText variant="hero">{t.profile_title}</GradientText>
+              </h1>
+              <VIPBadge tier={subscriptionTier as 'free' | 'vip'} size="lg" showLabel />
+            </div>
             {/* Show active equipped flairs */}
             <div className="mt-2">
               <BadgesDisplay 
@@ -231,6 +235,38 @@ const Profile = () => {
             <FollowStats userId={user.id} />
             
             <KarmaDisplay userId={user.id} variant="full" />
+
+            {/* VIP Benefits Card */}
+            {isVIP && (
+              <AnimatedCard className="p-4 bg-gradient-to-br from-purple-500/10 to-purple-500/5 border-purple-500/20">
+                <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-purple-500" />
+                  VIP Benefits Active
+                </h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span>Unlimited daily confessions</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span>Priority AI responses</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span>2x karma points</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span>Daily reflections</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span>No ads experience</span>
+                  </div>
+                </div>
+              </AnimatedCard>
+            )}
             
             <UserAnalytics
               onUpgradeClick={() => {}}
