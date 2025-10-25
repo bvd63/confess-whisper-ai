@@ -4,9 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../helpers/testUtils';
 import { EnhancedSubscriptionManager } from '@/components/EnhancedSubscriptionManager';
 import { SubscriptionApiMock } from '../helpers/apiMock';
-import * as SupabaseModule from '@/integrations/supabase/client';
-
-vi.mock('@/integrations/supabase/client');
+import { supabase } from '@/integrations/supabase/client';
 
 describe('Cancel Subscription Flows', () => {
   let apiMock: SubscriptionApiMock;
@@ -57,7 +55,7 @@ describe('Cancel Subscription Flows', () => {
       return { data: null, error: null };
     });
 
-    vi.mocked(SupabaseModule.supabase.functions.invoke).mockImplementation(mockInvoke);
+    vi.mocked(supabase.functions.invoke).mockImplementation(mockInvoke);
     
     renderWithProviders(<EnhancedSubscriptionManager />);
     
@@ -122,7 +120,7 @@ describe('Cancel Subscription Flows', () => {
       };
     });
 
-    vi.mocked(SupabaseModule.supabase.functions.invoke).mockImplementation(mockInvoke);
+    vi.mocked(supabase.functions.invoke).mockImplementation(mockInvoke);
     
     renderWithProviders(<EnhancedSubscriptionManager />);
     
@@ -182,7 +180,7 @@ describe('Cancel Subscription Flows', () => {
       return { data: null, error: null };
     });
 
-    vi.mocked(SupabaseModule.supabase.functions.invoke).mockImplementation(mockInvoke);
+    vi.mocked(supabase.functions.invoke).mockImplementation(mockInvoke);
     
     renderWithProviders(<EnhancedSubscriptionManager />);
     
@@ -232,7 +230,7 @@ describe('Cancel Subscription Flows', () => {
       };
     });
 
-    vi.mocked(SupabaseModule.supabase.functions.invoke).mockImplementation(mockInvoke);
+    vi.mocked(supabase.functions.invoke).mockImplementation(mockInvoke);
     
     renderWithProviders(<EnhancedSubscriptionManager />);
     

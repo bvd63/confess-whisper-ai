@@ -3,19 +3,16 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../helpers/testUtils';
 import { EnhancedSubscriptionManager } from '@/components/EnhancedSubscriptionManager';
-import { SubscriptionApiMock, createMockSupabase } from '../helpers/apiMock';
+import { SubscriptionApiMock } from '../helpers/apiMock';
+import { supabase } from '@/integrations/supabase/client';
 import upgradePreview from '../fixtures/stripe/preview/upgrade_premium_to_vip_monthly.json';
-
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: null, // Will be replaced in beforeEach
-}));
 
 describe('Upgrade Immediate Flow', () => {
   let apiMock: SubscriptionApiMock;
-  let mockSupabase: any;
 
   beforeEach(() => {
     apiMock = new SubscriptionApiMock();
+    vi.clearAllMocks();
     
     const previewFn = apiMock.mockPreview('price_1SJ0vwR7kygIyYg9OeCiqV00', upgradePreview);
     const changeFn = apiMock.mockChange({
@@ -28,6 +25,16 @@ describe('Upgrade Immediate Flow', () => {
     });
 
     const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+      if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
+        return {
+          data: {
+            currentPlan: 'premium',
+            interval: 'monthly',
+            status: 'active',
+          },
+          error: null,
+        };
+      }
       if (fnName === 'billing-status') {
         return {
           data: {
@@ -48,11 +55,7 @@ describe('Upgrade Immediate Flow', () => {
       return { data: null, error: { message: 'Unknown function' } };
     });
 
-    mockSupabase = createMockSupabase(mockInvoke);
-    
-    vi.doMock('@/integrations/supabase/client', () => ({
-      supabase: mockSupabase,
-    }));
+    vi.mocked(supabase.functions.invoke).mockImplementation(mockInvoke);
   });
 
   it('should show financial preview before upgrade', async () => {
@@ -139,16 +142,23 @@ describe('Upgrade Immediate Flow', () => {
     // Override with failing mock
     const failingChangeFn = apiMock.mockChange({}, { shouldFail: true });
     const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+      if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
+        return {
+          data: {
+            currentPlan: 'premium',
+            interval: 'monthly',
+            status: 'active',
+          },
+          error: null,
+        };
+      }
       if (fnName === 'billing-change') {
         return failingChangeFn(fnName, options);
       }
       return { data: { plan: 'premium' }, error: null };
     });
 
-    const failingSupabase = createMockSupabase(mockInvoke);
-    vi.doMock('@/integrations/supabase/client', () => ({
-      supabase: failingSupabase,
-    }));
+    vi.mocked(supabase.functions.invoke).mockImplementation(mockInvoke);
     
     renderWithProviders(<EnhancedSubscriptionManager />);
     

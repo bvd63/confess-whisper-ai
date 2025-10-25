@@ -3,18 +3,15 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../helpers/testUtils';
 import { EnhancedSubscriptionManager } from '@/components/EnhancedSubscriptionManager';
-import { SubscriptionApiMock, createMockSupabase } from '../helpers/apiMock';
-
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: null,
-}));
+import { SubscriptionApiMock } from '../helpers/apiMock';
+import { supabase } from '@/integrations/supabase/client';
 
 describe('Delinquent Payment Update Flow', () => {
   let apiMock: SubscriptionApiMock;
-  let mockSupabase: any;
 
   beforeEach(() => {
     apiMock = new SubscriptionApiMock();
+    vi.clearAllMocks();
     
     const updatePaymentFn = apiMock.mockUpdatePayment({
       success: true,
@@ -52,11 +49,7 @@ describe('Delinquent Payment Update Flow', () => {
       return { data: null, error: null };
     });
 
-    mockSupabase = createMockSupabase(mockInvoke);
-    
-    vi.doMock('@/integrations/supabase/client', () => ({
-      supabase: mockSupabase,
-    }));
+    vi.mocked(supabase.functions.invoke).mockImplementation(mockInvoke);
   });
 
   it('should show payment update warning for delinquent account', async () => {
@@ -110,6 +103,17 @@ describe('Delinquent Payment Update Flow', () => {
     const user = userEvent.setup();
     
     const mockInvokeWithRetry = vi.fn(async (fnName: string, options: any) => {
+      if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
+        return {
+          data: {
+            currentPlan: 'premium',
+            status: 'past_due',
+            interval: 'monthly',
+            payment_failed: true,
+          },
+          error: null,
+        };
+      }
       if (fnName === 'billing-status') {
         return {
           data: {
@@ -134,10 +138,7 @@ describe('Delinquent Payment Update Flow', () => {
       return { data: null, error: null };
     });
 
-    const retrySupabase = createMockSupabase(mockInvokeWithRetry);
-    vi.doMock('@/integrations/supabase/client', () => ({
-      supabase: retrySupabase,
-    }));
+    vi.mocked(supabase.functions.invoke).mockImplementation(mockInvokeWithRetry);
     
     renderWithProviders(<EnhancedSubscriptionManager />);
     
@@ -162,6 +163,17 @@ describe('Delinquent Payment Update Flow', () => {
     const failingUpdateFn = apiMock.mockUpdatePayment({}, { shouldFail: true });
 
     const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+      if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
+        return {
+          data: {
+            currentPlan: 'premium',
+            status: 'past_due',
+            interval: 'monthly',
+            payment_failed: true,
+          },
+          error: null,
+        };
+      }
       if (fnName === 'billing-update-payment') {
         return failingUpdateFn(fnName, options);
       }
@@ -175,10 +187,7 @@ describe('Delinquent Payment Update Flow', () => {
       };
     });
 
-    const failingSupabase = createMockSupabase(mockInvoke);
-    vi.doMock('@/integrations/supabase/client', () => ({
-      supabase: failingSupabase,
-    }));
+    vi.mocked(supabase.functions.invoke).mockImplementation(mockInvoke);
     
     renderWithProviders(<EnhancedSubscriptionManager />);
     

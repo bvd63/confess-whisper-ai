@@ -3,16 +3,12 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../helpers/testUtils';
 import { EnhancedSubscriptionManager } from '@/components/EnhancedSubscriptionManager';
-import { createMockSupabase } from '../helpers/apiMock';
-
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: null,
-}));
+import { supabase } from '@/integrations/supabase/client';
 
 describe('Trial Edge Cases', () => {
-  let mockSupabase: any;
-
   beforeEach(() => {
+    vi.clearAllMocks();
+    
     const mockInvoke = vi.fn(async (fnName: string, options?: any) => {
       if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
         return {
@@ -43,11 +39,7 @@ describe('Trial Edge Cases', () => {
       return { data: null, error: null };
     });
 
-    mockSupabase = createMockSupabase(mockInvoke);
-    
-    vi.doMock('@/integrations/supabase/client', () => ({
-      supabase: mockSupabase,
-    }));
+    vi.mocked(supabase.functions.invoke).mockImplementation(mockInvoke);
   });
 
   it('should show trial status in UI', async () => {

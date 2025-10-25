@@ -3,19 +3,16 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../helpers/testUtils';
 import { EnhancedSubscriptionManager } from '@/components/EnhancedSubscriptionManager';
-import { SubscriptionApiMock, createMockSupabase } from '../helpers/apiMock';
+import { SubscriptionApiMock } from '../helpers/apiMock';
+import { supabase } from '@/integrations/supabase/client';
 import downgradePreview from '../fixtures/stripe/preview/downgrade_vip_to_premium_period_end.json';
-
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: null,
-}));
 
 describe('Downgrade at Period End Flow', () => {
   let apiMock: SubscriptionApiMock;
-  let mockSupabase: any;
 
   beforeEach(() => {
     apiMock = new SubscriptionApiMock();
+    vi.clearAllMocks();
     
     const scheduleChangeFn = apiMock.mockScheduleChange({
       success: true,
@@ -24,6 +21,17 @@ describe('Downgrade at Period End Flow', () => {
     });
 
     const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+      if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
+        return {
+          data: {
+            currentPlan: 'vip',
+            interval: 'monthly',
+            status: 'active',
+            currentPeriodEnd: '2025-11-12T18:00:00Z',
+          },
+          error: null,
+        };
+      }
       if (fnName === 'billing-status') {
         return {
           data: {
@@ -41,11 +49,7 @@ describe('Downgrade at Period End Flow', () => {
       return { data: downgradePreview, error: null };
     });
 
-    mockSupabase = createMockSupabase(mockInvoke);
-    
-    vi.doMock('@/integrations/supabase/client', () => ({
-      supabase: mockSupabase,
-    }));
+    vi.mocked(supabase.functions.invoke).mockImplementation(mockInvoke);
   });
 
   it('should schedule downgrade for period end', async () => {
@@ -98,7 +102,22 @@ describe('Downgrade at Period End Flow', () => {
     const user = userEvent.setup();
     
     // Mock with pending change
-    const mockInvokeWithPending = vi.fn(async (fnName: string) => {
+    const mockInvokeWithPending = vi.fn(async (fnName: string, options?: any) => {
+      if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
+        return {
+          data: {
+            currentPlan: 'vip',
+            interval: 'monthly',
+            status: 'active',
+            currentPeriodEnd: '2025-11-12T18:00:00Z',
+            pending_change: {
+              target_tier: 'premium',
+              effective_date: '2025-11-12T18:00:00Z',
+            },
+          },
+          error: null,
+        };
+      }
       if (fnName === 'billing-status') {
         return {
           data: {
@@ -117,10 +136,7 @@ describe('Downgrade at Period End Flow', () => {
       return { data: null, error: null };
     });
 
-    const pendingSupabase = createMockSupabase(mockInvokeWithPending);
-    vi.doMock('@/integrations/supabase/client', () => ({
-      supabase: pendingSupabase,
-    }));
+    vi.mocked(supabase.functions.invoke).mockImplementation(mockInvokeWithPending);
     
     renderWithProviders(<EnhancedSubscriptionManager />);
     
@@ -132,7 +148,21 @@ describe('Downgrade at Period End Flow', () => {
   it('should prevent conflicting changes when downgrade is pending', async () => {
     const user = userEvent.setup();
     
-    const mockInvokeWithPending = vi.fn(async (fnName: string) => {
+    const mockInvokeWithPending = vi.fn(async (fnName: string, options?: any) => {
+      if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
+        return {
+          data: {
+            currentPlan: 'vip',
+            interval: 'monthly',
+            status: 'active',
+            pending_change: {
+              target_tier: 'premium',
+              effective_date: '2025-11-12T18:00:00Z',
+            },
+          },
+          error: null,
+        };
+      }
       if (fnName === 'billing-status') {
         return {
           data: {
@@ -149,10 +179,7 @@ describe('Downgrade at Period End Flow', () => {
       return { data: null, error: null };
     });
 
-    const pendingSupabase = createMockSupabase(mockInvokeWithPending);
-    vi.doMock('@/integrations/supabase/client', () => ({
-      supabase: pendingSupabase,
-    }));
+    vi.mocked(supabase.functions.invoke).mockImplementation(mockInvokeWithPending);
     
     renderWithProviders(<EnhancedSubscriptionManager />);
     

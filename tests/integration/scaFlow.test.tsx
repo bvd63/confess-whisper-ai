@@ -3,17 +3,13 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../helpers/testUtils';
 import { EnhancedSubscriptionManager } from '@/components/EnhancedSubscriptionManager';
-import { createMockSupabase } from '../helpers/apiMock';
+import { supabase } from '@/integrations/supabase/client';
 import scaPreview from '../fixtures/stripe/preview/sca_required_preview.json';
 
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: null,
-}));
-
 describe('SCA (Strong Customer Authentication) Flow', () => {
-  let mockSupabase: any;
-
   beforeEach(() => {
+    vi.clearAllMocks();
+    
     const mockInvoke = vi.fn(async (fnName: string, options: any) => {
       if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
         return {
@@ -55,11 +51,7 @@ describe('SCA (Strong Customer Authentication) Flow', () => {
       return { data: null, error: null };
     });
 
-    mockSupabase = createMockSupabase(mockInvoke);
-    
-    vi.doMock('@/integrations/supabase/client', () => ({
-      supabase: mockSupabase,
-    }));
+    vi.mocked(supabase.functions.invoke).mockImplementation(mockInvoke);
   });
 
   it('should detect when SCA is required', async () => {
@@ -103,7 +95,17 @@ describe('SCA (Strong Customer Authentication) Flow', () => {
     const user = userEvent.setup();
     
     // Mock SCA success
-    const mockInvokeWithSuccess = vi.fn(async (fnName: string) => {
+    const mockInvokeWithSuccess = vi.fn(async (fnName: string, options?: any) => {
+      if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
+        return {
+          data: {
+            currentPlan: 'premium',
+            interval: 'monthly',
+            status: 'active',
+          },
+          error: null,
+        };
+      }
       if (fnName === 'billing-change') {
         // First call requires action
         if (!mockInvokeWithSuccess.mock.calls.length || mockInvokeWithSuccess.mock.calls.length === 1) {
@@ -133,10 +135,7 @@ describe('SCA (Strong Customer Authentication) Flow', () => {
       };
     });
 
-    const scaSupabase = createMockSupabase(mockInvokeWithSuccess);
-    vi.doMock('@/integrations/supabase/client', () => ({
-      supabase: scaSupabase,
-    }));
+    vi.mocked(supabase.functions.invoke).mockImplementation(mockInvokeWithSuccess);
     
     renderWithProviders(<EnhancedSubscriptionManager />);
     
@@ -159,7 +158,17 @@ describe('SCA (Strong Customer Authentication) Flow', () => {
   it('should handle SCA failure', async () => {
     const user = userEvent.setup();
     
-    const mockInvokeWithFailure = vi.fn(async (fnName: string) => {
+    const mockInvokeWithFailure = vi.fn(async (fnName: string, options?: any) => {
+      if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
+        return {
+          data: {
+            currentPlan: 'premium',
+            interval: 'monthly',
+            status: 'active',
+          },
+          error: null,
+        };
+      }
       if (fnName === 'billing-change') {
         return {
           data: {
@@ -179,10 +188,7 @@ describe('SCA (Strong Customer Authentication) Flow', () => {
       };
     });
 
-    const failSupabase = createMockSupabase(mockInvokeWithFailure);
-    vi.doMock('@/integrations/supabase/client', () => ({
-      supabase: failSupabase,
-    }));
+    vi.mocked(supabase.functions.invoke).mockImplementation(mockInvokeWithFailure);
     
     renderWithProviders(<EnhancedSubscriptionManager />);
     
