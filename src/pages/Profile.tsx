@@ -5,7 +5,7 @@ import { EnhancedButton } from "@/components/EnhancedButton";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { GradientText } from "@/components/GradientText";
 import { FloatingElement } from "@/components/FloatingElement";
-import { User, Settings, Sparkles, CheckCircle } from "lucide-react";
+import { User, Settings, Sparkles, CheckCircle, Bell } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppLayout from "@/components/AppLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -303,6 +303,29 @@ const Profile = () => {
             <EmailDisplay email={user.email || ''} />
             <PasswordChange userId={user.id} passwordChangedAt={passwordChangedAt} />
             <UserPreferences userId={user.id} />
+            
+            {/* Notification Settings Link */}
+            <AnimatedCard hover="lift" glass className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-sm flex items-center gap-2">
+                    <Bell className="w-4 h-4" />
+                    Notification Settings
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Manage your reminders and alerts
+                  </p>
+                </div>
+                <EnhancedButton
+                  onClick={() => navigate('/settings/notifications')}
+                  variant="outline"
+                  size="sm"
+                >
+                  Configure
+                </EnhancedButton>
+              </div>
+            </AnimatedCard>
+            
             <ReferralSystem userId={user.id} />
             <BlockedUsers userId={user.id} />
             

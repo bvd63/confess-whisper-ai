@@ -6,11 +6,11 @@ import ConfessionCard from "@/components/ConfessionCard";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { GradientText } from "@/components/GradientText";
 import { SearchUsersCard } from "@/components/SearchUsersCard";
+import { ConfessionCardSkeleton } from "@/components/skeletons/ConfessionCardSkeleton";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrendingUp, Flame, Clock } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Skeleton } from "@/components/ui/skeleton";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -89,15 +89,13 @@ const Explore = () => {
 
   const renderConfessions = (confessions: any[] | undefined, loading: boolean) => {
     if (loading) {
-      return Array(3)
-        .fill(0)
-        .map((_, i) => (
-          <AnimatedCard key={i} className="p-6" hover="none" delay={i * 100}>
-            <Skeleton className="h-4 w-3/4 mb-2" />
-            <Skeleton className="h-4 w-full mb-2" />
-            <Skeleton className="h-4 w-5/6" />
-          </AnimatedCard>
-        ));
+      return (
+        <div className="space-y-4">
+          <ConfessionCardSkeleton />
+          <ConfessionCardSkeleton />
+          <ConfessionCardSkeleton />
+        </div>
+      );
     }
 
     if (!confessions || confessions.length === 0) {

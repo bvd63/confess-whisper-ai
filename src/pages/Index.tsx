@@ -26,10 +26,12 @@ import StreakReminder from "@/components/StreakReminder";
 
 import { RateLimitIndicator } from "@/components/RateLimitIndicator";
 import { useConfessionRateLimit } from "@/hooks/useConfessionRateLimit";
+import { useKarma } from "@/hooks/useKarma";
 import { QuickActions } from "@/components/QuickActions";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { KarmaDisplay } from "@/components/KarmaDisplay";
 import { Loader2 } from "lucide-react";
+import { SubscriptionCard } from "@/components/SubscriptionCard";
 
 // Lazy load heavy components
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
@@ -169,6 +171,13 @@ const Index = () => {
         {user && (
           <div className="mb-4">
             <KarmaDisplay userId={user.id} variant="full" />
+          </div>
+        )}
+
+        {/* VIP Upgrade Card - Show only if not VIP */}
+        {user && !isPremium && (
+          <div className="mb-6">
+            <SubscriptionCard />
           </div>
         )}
 

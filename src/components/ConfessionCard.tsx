@@ -1,7 +1,7 @@
 import { useState, memo } from "react";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { EnhancedButton } from "@/components/EnhancedButton";
-import { MessageCircle, Sparkles } from "lucide-react";
+import { MessageCircle, Sparkles, Crown } from "lucide-react";
 import DeepInsightDialog from "./DeepInsightDialog";
 import ShareDialog from "./ShareDialog";
 import ReportDialog from "./ReportDialog";
@@ -267,14 +267,30 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
 
       {confession.ai_response && (
         <>
-          <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/10">
-            <div className="flex items-center gap-2 mb-2 text-primary text-sm font-medium">
+          <div className={`mt-4 p-4 rounded-lg border ${
+            subscriptionTier === 'vip' 
+              ? 'bg-purple-500/5 border-purple-500/20' 
+              : 'bg-primary/5 border-primary/10'
+          }`}>
+            <div className="flex items-center gap-2 mb-2 text-sm font-medium">
               <MessageCircle className="w-4 h-4" />
               <span>{t.ai_reply_title}</span>
+              {subscriptionTier === 'vip' && (
+                <span className="ml-auto text-xs bg-purple-500/20 text-purple-500 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <Crown className="w-3 h-3" />
+                  VIP PRIORITY REPLY
+                </span>
+              )}
             </div>
             <p className="text-sm text-foreground/90 leading-relaxed italic">
               {confession.ai_response}
             </p>
+            {subscriptionTier === 'vip' && (
+              <div className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-purple-500" />
+                <span>2x Karma earned for this confession</span>
+              </div>
+            )}
           </div>
 
           {/* Deep Insight Button */}
