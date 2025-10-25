@@ -24,6 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { AdvancedFilters, FilterState } from "@/components/AdvancedFilters";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Loader2 } from "lucide-react";
+import VirtualizedConfessions from "@/components/VirtualizedConfessions";
 
 const Explore = () => {
   const { t } = useLanguage();
@@ -103,6 +104,22 @@ const Explore = () => {
         <AnimatedCard className="p-8 text-center" hover="none">
           <p className="text-muted-foreground">{t.ui_no_confessions}</p>
         </AnimatedCard>
+      );
+    }
+
+    // Use virtual scrolling for large lists
+    if (confessions.length > 15) {
+      return (
+        <VirtualizedConfessions
+          confessions={confessions}
+          isPremium={isPremium}
+          onUpgradeClick={() => {}}
+          onInsightGenerated={() => {
+            toast({
+              title: t.deep_insight_success,
+            });
+          }}
+        />
       );
     }
 

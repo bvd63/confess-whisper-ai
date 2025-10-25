@@ -4,6 +4,7 @@ import { ConfessionCardSkeleton } from "./skeletons/ConfessionCardSkeleton";
 import EmptyState from "./EmptyState";
 import { Heart } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import VirtualizedConfessions from "@/components/VirtualizedConfessions";
 
 interface Confession {
   id: string;
@@ -66,6 +67,18 @@ const ConfessionFeed = memo(({
         description={t.index_no_confessions_desc}
         actionLabel={t.new_confession}
         onAction={onNewConfession}
+      />
+    );
+  }
+
+  // Use virtual scrolling for large lists
+  if (confessions.length > 15) {
+    return (
+      <VirtualizedConfessions
+        confessions={confessions}
+        isPremium={isPremium}
+        onUpgradeClick={onUpgradeClick}
+        onInsightGenerated={onInsightGenerated}
       />
     );
   }

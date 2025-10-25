@@ -3,6 +3,7 @@ const RUNTIME_CACHE = 'runtime-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/offline.html',
   '/manifest.json',
 ];
 
@@ -140,7 +141,7 @@ self.addEventListener('fetch', (event) => {
             .then((cache) => cache.put(request, responseClone));
           return response;
         })
-        .catch(() => caches.match(request).then(cached => cached || caches.match('/index.html')))
+        .catch(() => caches.match(request).then(cached => cached || caches.match('/offline.html')))
     );
     return;
   }
@@ -196,7 +197,7 @@ self.addEventListener('fetch', (event) => {
       .catch(() => {
         return caches.match(request).then((cachedResponse) => {
           if (cachedResponse) return cachedResponse;
-          if (request.mode === 'navigate') return caches.match('/index.html');
+          if (request.mode === 'navigate') return caches.match('/offline.html');
           return new Response('Offline', { status: 503 });
         });
       })

@@ -7,7 +7,7 @@ import { SubscriptionProvider } from "@/state/SubscriptionProvider";
 import ErrorBoundary from "@/components/ErrorBoundaryFallback";
 import { reportWebVitals } from "@/hooks/usePerformanceMonitor";
 import { validateTranslationSystem } from "@/lib/i18nValidator";
-import App from "./App.tsx";
+import AppWrapper from "./components/AppWrapper.tsx";
 import "./index.css";
 
 // Register service worker for PWA
@@ -47,7 +47,7 @@ createRoot(document.getElementById("root")!).render(
         <ThemeProvider attribute="class" defaultTheme="dark">
           <LanguageProvider>
             <SubscriptionProvider>
-              <App />
+              <AppWrapper />
             </SubscriptionProvider>
           </LanguageProvider>
         </ThemeProvider>

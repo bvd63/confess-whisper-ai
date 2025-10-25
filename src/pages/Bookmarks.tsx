@@ -16,6 +16,7 @@ import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
+import VirtualizedConfessions from "@/components/VirtualizedConfessions";
 
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 
@@ -153,6 +154,13 @@ const Bookmarks = () => {
             description={t.bookmarks_none}
             actionLabel={t.common_back}
             onAction={() => navigate('/')}
+          />
+        ) : confessions.length > 15 ? (
+          <VirtualizedConfessions
+            confessions={confessions}
+            isPremium={isPremium}
+            onUpgradeClick={() => {}}
+            onInsightGenerated={loadBookmarkedConfessions}
           />
         ) : (
           <div className="space-y-4">
