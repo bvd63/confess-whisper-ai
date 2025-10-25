@@ -1,51 +1,87 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Flame, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useEffect, useState } from 'react';
+import { AlertCircle, Flame } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from '@/integrations/supabase/client';
+
 interface StreakReminderProps {
   userId: string;
 }
-const StreakReminder = ({
-  userId
-}: StreakReminderProps) => {
-  const [showReminder, setShowReminder] = useState(false);
-  const [streak, setStreak] = useState(0);
-  const navigate = useNavigate();
-  const {
-    t
-  } = useLanguage();
-  useEffect(() => {
-    checkStreakStatus();
-  }, [userId]);
-  const checkStreakStatus = async () => {
-    // Check if reminder was dismissed in this session
-    const dismissed = sessionStorage.getItem(`streak-reminder-dismissed-${userId}`);
-    if (dismissed === 'true') {
-      setShowReminder(false);
-      return;
-    }
-    const {
-      data
-    } = await supabase.from('user_streaks').select('current_streak, last_confession_date').eq('user_id', userId).maybeSingle();
-    if (!data) return;
-    const today = new Date().toISOString().split('T')[0];
-    const lastDate = data.last_confession_date;
 
-    // Show reminder if user hasn't posted today
-    if (lastDate !== today && data.current_streak > 0) {
-      setStreak(data.current_streak);
-      setShowReminder(true);
-    }
-  };
-  const handleDismiss = () => {
-    // Store dismissal in sessionStorage (clears on logout/login)
-    sessionStorage.setItem(`streak-reminder-dismissed-${userId}`, 'true');
-    setShowReminder(false);
-  };
+const StreakReminder = ({ userId }: StreakReminderProps) => {
+  const { t } = useLanguage();
+  const [showReminder, setShowReminder] = useState(false);
+  const [hoursLeft, setHoursLeft] = useState(0);
+
+  useEffect(() => {
+    const checkStreakStatus = async () => {
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('last_confession_date, current_streak')
+          .eq('user_id', userId)
+          .single();
+
+        if (!profile?.last_confession_date || profile.current_streak === 0) {
+          setShowReminder(false);
+          return;
+        }
+
+        const lastDate = new Date(profile.last_confession_date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        lastDate.setHours(0, 0, 0, 0);
+
+        const daysDiff = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+
+        // Show reminder if last confession was yesterday and haven't confessed today
+        if (daysDiff === 1) {
+          const endOfDay = new Date();
+          endOfDay.setHours(23, 59, 59, 999);
+          const hours = Math.ceil((endOfDay.getTime() - Date.now()) / (1000 * 60 * 60));
+          
+          if (hours <= 6) {
+            setHoursLeft(hours);
+            setShowReminder(true);
+          }
+        } else if (daysDiff === 0) {
+          // Already confessed today
+          setShowReminder(false);
+        } else if (daysDiff > 1) {
+          // Streak already broken
+          setShowReminder(false);
+        }
+      } catch (error) {
+        console.error('Error checking streak status:', error);
+      }
+    };
+
+    checkStreakStatus();
+    const interval = setInterval(checkStreakStatus, 5 * 60 * 1000); // Check every 5 minutes
+
+    return () => clearInterval(interval);
+  }, [userId]);
+
   if (!showReminder) return null;
-  return;
+
+  return (
+    <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/30 rounded-xl p-4 mb-4">
+      <div className="flex items-start gap-3">
+        <div className="relative flex-shrink-0">
+          <Flame className="w-6 h-6 text-orange-500 animate-pulse" />
+          <AlertCircle className="w-3 h-3 text-red-500 absolute -top-1 -right-1" />
+        </div>
+        <div className="flex-1">
+          <h3 className="font-semibold text-orange-400 mb-1">
+            {t.streak_at_risk || "Don't lose your streak!"}
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            {t.streak_reminder_message?.replace('{hours}', hoursLeft.toString()) || 
+              `You have ${hoursLeft} hours left to keep your streak alive. Share a confession now!`}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 };
+
 export default StreakReminder;

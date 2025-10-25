@@ -1189,6 +1189,35 @@ type Translations = {
   webhookLag: string;
   already_on_this_plan: string;
   invalid_target_plan: string;
+  
+  // Streaks & Rewards (new entries only)
+  current_streak: string;
+  next_milestone: string;
+  vip_double_rewards_active: string;
+  streak_continued: string;
+  streak_at_risk: string;
+  streak_reminder_message: string;
+  
+  // Notification Settings
+  notification_settings: string;
+  daily_reminder: string;
+  daily_reminder_desc: string;
+  night_prompt: string;
+  night_prompt_desc: string;
+  // streak_reminder already exists above
+  
+  // Emotional Tones
+  tone_calm: string;
+  tone_anxious: string;
+  tone_happy: string;
+  tone_sad: string;
+  tone_angry: string;
+  tone_hopeful: string;
+  tone_grateful: string;
+  tone_regretful: string;
+  tone_confused: string;
+  tone_overwhelmed: string;
+  
   subs_action_cancel: string;
   subs_action_cancelNow: string;
   subs_action_cancelAtPeriodEnd: string;
@@ -3536,6 +3565,33 @@ export const translations: Record<Language, Translations> = {
     webhookLag: "Upgrade received. Syncing your account…",
     already_on_this_plan: "You are already on this plan.",
     invalid_target_plan: "Invalid target plan.",
+    
+    // Streaks & Rewards
+    current_streak: "Current Streak",
+    next_milestone: "Next milestone",
+    vip_double_rewards_active: "VIP 2x rewards active",
+    streak_continued: "🔥 {days} day streak! +{points} points",
+    streak_at_risk: "Don't lose your streak!",
+    streak_reminder_message: "You have {hours} hours left to keep your streak alive. Share a confession now!",
+    
+    // Notification Settings
+    notification_settings: "Notification Settings",
+    daily_reminder: "Daily Reminder",
+    daily_reminder_desc: "Get reminded to share your daily confession",
+    night_prompt: "Evening Reflection",
+    night_prompt_desc: "Thoughtful prompts before bedtime",
+    
+    // Emotional Tones
+    tone_calm: "Calm",
+    tone_anxious: "Anxious",
+    tone_happy: "Happy",
+    tone_sad: "Sad",
+    tone_angry: "Angry",
+    tone_hopeful: "Hopeful",
+    tone_grateful: "Grateful",
+    tone_regretful: "Regretful",
+    tone_confused: "Confused",
+    tone_overwhelmed: "Overwhelmed",
   },
   es: {
     app_name: "Confess+",
@@ -5240,6 +5296,33 @@ export const translations: Record<Language, Translations> = {
     webhookLag: "Actualización recibida. Sincronizando tu cuenta…",
     already_on_this_plan: "Ya estás en este plan.",
     invalid_target_plan: "Plan de destino no válido.",
+    
+    // Streaks & Rewards
+    current_streak: "Racha Actual",
+    next_milestone: "Próximo hito",
+    vip_double_rewards_active: "Recompensas VIP 2x activas",
+    streak_continued: "🔥 ¡Racha de {days} días! +{points} puntos",
+    streak_at_risk: "¡No pierdas tu racha!",
+    streak_reminder_message: "Te quedan {hours} horas para mantener tu racha. ¡Comparte una confesión ahora!",
+    
+    // Notification Settings
+    notification_settings: "Configuración de Notificaciones",
+    daily_reminder: "Recordatorio Diario",
+    daily_reminder_desc: "Recibe recordatorios para compartir tu confesión diaria",
+    night_prompt: "Reflexión Nocturna",
+    night_prompt_desc: "Impulsos reflexivos antes de dormir",
+    
+    // Emotional Tones
+    tone_calm: "Tranquilo",
+    tone_anxious: "Ansioso",
+    tone_happy: "Feliz",
+    tone_sad: "Triste",
+    tone_angry: "Enojado",
+    tone_hopeful: "Esperanzado",
+    tone_grateful: "Agradecido",
+    tone_regretful: "Arrepentido",
+    tone_confused: "Confundido",
+    tone_overwhelmed: "Abrumado",
   },
   de: {
     app_name: "Confess+",
@@ -6944,5 +7027,32 @@ export const translations: Record<Language, Translations> = {
     webhookLag: "Upgrade empfangen. Konto wird synchronisiert…",
     already_on_this_plan: "Du nutzt bereits diesen Tarif.",
     invalid_target_plan: "Ungültiger Zieltarif.",
+    
+    // Streaks & Rewards
+    current_streak: "Aktuelle Serie",
+    next_milestone: "Nächster Meilenstein",
+    vip_double_rewards_active: "VIP 2x Belohnungen Aktiv",
+    streak_continued: "🔥 {days} Tage Serie! +{points} Punkte",
+    streak_at_risk: "Verliere nicht deine Serie!",
+    streak_reminder_message: "Du hast noch {hours} Stunden um deine Serie am Leben zu erhalten. Teile jetzt ein Geständnis!",
+    
+    // Notification Settings
+    notification_settings: "Benachrichtigungseinstellungen",
+    daily_reminder: "Tägliche Erinnerung",
+    daily_reminder_desc: "Werde daran erinnert, dein tägliches Geständnis zu teilen",
+    night_prompt: "Abendliche Reflexion",
+    night_prompt_desc: "Nachdenkliche Impulse vor dem Schlafengehen",
+    
+    // Emotional Tones
+    tone_calm: "Ruhig",
+    tone_anxious: "Ängstlich",
+    tone_happy: "Glücklich",
+    tone_sad: "Traurig",
+    tone_angry: "Wütend",
+    tone_hopeful: "Hoffnungsvoll",
+    tone_grateful: "Dankbar",
+    tone_regretful: "Bereut",
+    tone_confused: "Verwirrt",
+    tone_overwhelmed: "Überfordert",
   },
 };

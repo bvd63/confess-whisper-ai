@@ -13,6 +13,7 @@ import { PerformanceIndicator } from '@/components/PerformanceIndicator';
 import { PerformanceMonitor } from '@/components/PerformanceMonitor';
 import { InstallPrompt } from '@/components/InstallPrompt';
 import { NetworkStatusIndicator } from '@/components/NetworkStatusIndicator';
+import { NotificationService } from '@/services/notificationService';
 
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthRefresh } from '@/hooks/useAuthRefresh';
@@ -71,6 +72,13 @@ const AppContent = () => {
     inactivityTimeout: 30 * 60 * 1000, // 30 minutes
   });
   useSubscriptionConflictCheck(user?.id); // Check for subscription conflicts
+  
+  // Initialize NotificationService on mount
+  useEffect(() => {
+    if (user) {
+      NotificationService.getInstance().initialize().catch(console.error);
+    }
+  }, [user]);
   
   // Clear cache on logout and run health checks
   useEffect(() => {
