@@ -2,6 +2,20 @@ import { expect, afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
+// Mock persistence manager to avoid indexedDB issues
+vi.mock('@/lib/persistenceManager', () => ({
+  persistenceManager: {
+    getLanguage: vi.fn().mockResolvedValue('en'),
+    saveLanguage: vi.fn().mockResolvedValue(undefined),
+    getPreference: vi.fn().mockResolvedValue(null),
+    setPreference: vi.fn().mockResolvedValue(undefined),
+    get: vi.fn().mockResolvedValue(null),
+    set: vi.fn().mockResolvedValue(undefined),
+    remove: vi.fn().mockResolvedValue(undefined),
+    clear: vi.fn().mockResolvedValue(undefined),
+  },
+}));
+
 // Cleanup after each test
 afterEach(() => {
   cleanup();
