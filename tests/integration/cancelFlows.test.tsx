@@ -28,11 +28,24 @@ describe('Cancel Subscription Flows', () => {
     });
 
     const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+      if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
+        return {
+          data: {
+            currentPlan: 'vip',
+            interval: 'monthly',
+            status: 'active',
+            cancelAtPeriodEnd: false,
+            currentPeriodEnd: '2025-11-12T18:00:00Z',
+            canReactivate: false,
+          },
+          error: null,
+        };
+      }
       if (fnName === 'billing-status') {
         return {
           data: {
             subscribed: true,
-            plan: 'premium',
+            plan: 'vip',
             subscription_end: '2025-11-12T18:00:00Z',
             status: 'active',
           },
@@ -89,13 +102,26 @@ describe('Cancel Subscription Flows', () => {
     });
 
     const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+      if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
+        return {
+          data: {
+            currentPlan: 'vip',
+            interval: 'monthly',
+            status: 'active',
+            cancelAtPeriodEnd: false,
+            currentPeriodEnd: '2025-12-12T18:00:00Z',
+            canReactivate: false,
+          },
+          error: null,
+        };
+      }
       if (fnName === 'billing-cancel') {
         return cancelNowFn(fnName, options);
       }
       return {
         data: {
           subscribed: true,
-          plan: 'premium',
+          plan: 'vip',
         },
         error: null,
       };
@@ -134,11 +160,24 @@ describe('Cancel Subscription Flows', () => {
     });
 
     const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+      if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
+        return {
+          data: {
+            currentPlan: 'vip',
+            interval: 'monthly',
+            status: 'active',
+            cancelAtPeriodEnd: true,
+            currentPeriodEnd: '2025-11-12T18:00:00Z',
+            canReactivate: true,
+          },
+          error: null,
+        };
+      }
       if (fnName === 'billing-status') {
         return {
           data: {
             subscribed: true,
-            plan: 'premium',
+            plan: 'vip',
             subscription_end: '2025-11-12T18:00:00Z',
             status: 'active',
             cancel_at_period_end: true,
@@ -181,13 +220,26 @@ describe('Cancel Subscription Flows', () => {
     const cancelFn = apiMock.mockCancel({}, { shouldFail: true });
 
     const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+      if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
+        return {
+          data: {
+            currentPlan: 'vip',
+            interval: 'monthly',
+            status: 'active',
+            cancelAtPeriodEnd: false,
+            currentPeriodEnd: '2025-11-12T18:00:00Z',
+            canReactivate: false,
+          },
+          error: null,
+        };
+      }
       if (fnName === 'billing-cancel') {
         return cancelFn(fnName, options);
       }
       return {
         data: {
           subscribed: true,
-          plan: 'premium',
+          plan: 'vip',
         },
         error: null,
       };

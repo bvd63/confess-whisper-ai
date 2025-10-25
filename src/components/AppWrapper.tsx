@@ -1,22 +1,22 @@
-import { useOffline } from "@/hooks/useOffline";
-import { usePerformanceBudget } from "@/hooks/usePerformanceBudget";
+// import { useOffline } from "@/hooks/useOffline";
+// import { usePerformanceBudget } from "@/hooks/usePerformanceBudget";
 import App from "@/App";
-import PerformanceDashboard from "@/components/PerformanceDashboard";
+// import PerformanceDashboard from "@/components/PerformanceDashboard";
 
 /**
  * App wrapper component that handles offline detection and performance monitoring
  */
 const AppWrapper = () => {
   // Monitor online/offline status
-  useOffline();
+  // useOffline();
   
   // Monitor performance budget (p95 < 200ms)
-  usePerformanceBudget();
+  // usePerformanceBudget();
 
   return (
     <>
       <App />
-      <PerformanceDashboard />
+      {/* <PerformanceDashboard /> */}
     </>
   );
 };

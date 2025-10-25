@@ -242,7 +242,7 @@ function App() {
   // Location functionality removed - column doesn't exist in profiles table
 
   if (loading) {
-    return null; // or a loading spinner
+    return <div>Loading...</div>; // Show loading text instead of null
   }
 
   return (

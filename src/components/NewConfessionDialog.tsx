@@ -20,7 +20,7 @@ import { LocationPicker } from "@/components/LocationPicker";
 import { useCommunities } from "@/hooks/useCommunities";
 import { PolishConfessionButton } from "@/components/PolishConfessionButton";
 import { useConfessionLimits } from "@/hooks/useConfessionLimits";
-import { UpgradeModal } from "@/components/UpgradeModal";
+// import { UpgradeModal } from "@/components/UpgradeModal";
 import { useMobileKeyboard } from "@/hooks/useMobileKeyboard";
 
 const confessionSchema = z.object({
@@ -421,13 +421,13 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
         onClose={() => setShowCrisisDialog(false)}
       />
       
-      <UpgradeModal
+      {/* <UpgradeModal
         open={showUpgradeModal}
         onOpenChange={setShowUpgradeModal}
         currentTier={tier}
         currentCount={currentCount}
         dailyLimit={dailyLimit === Infinity ? 0 : dailyLimit}
-      />
+      /> */}
     </Dialog>
   );
 };
