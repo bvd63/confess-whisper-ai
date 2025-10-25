@@ -116,9 +116,11 @@ const AppContent = () => {
     }
   }, [user]);
   
-  // Clear cache on logout and run health checks
+  // Optimized: Clear cache on logout and run health checks
   useEffect(() => {
     const supabase = getSupabase();
+    let dataRepairTimeout: NodeJS.Timeout;
+    
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_OUT') {
         syncScheduler.stopPeriodicSync();
@@ -132,22 +134,18 @@ const AppContent = () => {
         localStorage.setItem('stay_logged_in', staySignedIn.toString());
         setStayLoggedIn(staySignedIn);
         
-        // Start periodic sync
+        // Start periodic sync (only once per auth change)
         syncScheduler.startPeriodicSync(session.user.id);
         
-        // Run data repair on login
-        try {
-          await dataValidator.repairData(session.user.id);
-        } catch (error) {
-          console.error('Data repair failed:', error);
-        }
-      }
-    });
-
-    // Start sync if already logged in
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        syncScheduler.startPeriodicSync(user.id);
+        // Debounced data repair - only run once after login settles
+        clearTimeout(dataRepairTimeout);
+        dataRepairTimeout = setTimeout(async () => {
+          try {
+            await dataValidator.repairData(session.user.id);
+          } catch (error) {
+            console.error('Data repair failed:', error);
+          }
+        }, 2000); // Wait 2s after login
       }
     });
 
@@ -155,10 +153,9 @@ const AppContent = () => {
     const clearExpired = () => {
       persistenceManager.clearExpiredData().catch(console.error);
     };
-    clearExpired();
-    const interval = setInterval(clearExpired, 7 * 24 * 60 * 60 * 1000);
+    const clearInterval_1 = setInterval(clearExpired, 7 * 24 * 60 * 60 * 1000);
 
-    // Run cache health check daily
+    // Run cache health check daily (skip initial check)
     const healthCheck = () => {
       dataValidator.checkCacheHealth().then(result => {
         if (!result.isValid) {
@@ -169,14 +166,14 @@ const AppContent = () => {
         }
       });
     };
-    healthCheck();
     const healthInterval = setInterval(healthCheck, 24 * 60 * 60 * 1000);
 
     return () => {
       subscription.unsubscribe();
       syncScheduler.stopPeriodicSync();
-      clearInterval(interval);
+      clearInterval(clearInterval_1);
       clearInterval(healthInterval);
+      clearTimeout(dataRepairTimeout);
     };
   }, []);
   
