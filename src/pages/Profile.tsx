@@ -131,20 +131,32 @@ const Profile = () => {
   }, [user?.id, loadPasswordChangedAt, loadProfileData]);
 
   const handleManageSubscription = async () => {
+    const STRIPE_VIP_CHECKOUT_URL = "https://buy.stripe.com/test_9B600lewecBRavrfcG0Ba00";
+    
+    const openStripeCheckout = () => {
+      try {
+        if (window.top && window.top !== window) {
+          window.top.location.href = STRIPE_VIP_CHECKOUT_URL;
+        } else {
+          const win = window.open(STRIPE_VIP_CHECKOUT_URL, '_blank', 'noopener');
+          if (!win) window.location.href = STRIPE_VIP_CHECKOUT_URL;
+        }
+      } catch {
+        window.location.href = STRIPE_VIP_CHECKOUT_URL;
+      }
+    };
+
     try {
-      const {
-        data,
-        error
-      } = await supabase.functions.invoke('customer-portal');
+      const { data, error } = await supabase.functions.invoke('customer-portal');
       
       if (error) throw error;
       
       if (data?.error) {
         toast({
-          title: "Subscription Not Found",
-          description: "You don't have an active subscription to manage. Please upgrade to VIP first.",
-          variant: "destructive"
+          title: "No Active Subscription",
+          description: "Redirecting to checkout...",
         });
+        openStripeCheckout();
         return;
       }
       
@@ -161,12 +173,12 @@ const Profile = () => {
         }
       }
     } catch (error) {
-      console.error('Error opening customer portal:', error);
+      console.error('Error opening portal:', error);
       toast({
-        title: "Unable to Open Portal",
-        description: "Please make sure you have an active subscription. Contact support if this persists.",
-        variant: "destructive"
+        title: "Opening Checkout",
+        description: "Redirecting to subscription page...",
       });
+      openStripeCheckout();
     }
   };
 

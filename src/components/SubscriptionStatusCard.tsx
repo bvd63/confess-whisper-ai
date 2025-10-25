@@ -3,14 +3,58 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSubscription } from "@/state/SubscriptionProvider";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Crown, Zap, Calendar, ArrowUpCircle, Settings } from "lucide-react";
-import { useState } from "react";
-import { ManageSubscriptionDialog } from "./ManageSubscriptionDialog";
+import { Crown, Zap, Calendar, Settings } from "lucide-react";
+import { STRIPE_VIP_CHECKOUT_URL } from "@/lib/stripe-config";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const SubscriptionStatusCard = () => {
   const { subscriptionTier, subscriptionEnd, isLoading } = useSubscription();
   const { t } = useLanguage();
-  const [manageOpen, setManageOpen] = useState(false);
+
+  const openStripeCheckout = () => {
+    try {
+      if (window.top && window.top !== window) {
+        window.top.location.href = STRIPE_VIP_CHECKOUT_URL;
+      } else {
+        const win = window.open(STRIPE_VIP_CHECKOUT_URL, '_blank', 'noopener');
+        if (!win) window.location.href = STRIPE_VIP_CHECKOUT_URL;
+      }
+    } catch {
+      window.location.href = STRIPE_VIP_CHECKOUT_URL;
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('customer-portal');
+      
+      if (error) throw error;
+      
+      if (data?.error) {
+        toast.error("No active subscription found. Redirecting to checkout...");
+        openStripeCheckout();
+        return;
+      }
+      
+      if (data?.url) {
+        try {
+          if (window.top && window.top !== window) {
+            window.top.location.href = data.url;
+          } else {
+            const win = window.open(data.url, '_blank', 'noopener');
+            if (!win) window.location.href = data.url;
+          }
+        } catch {
+          window.location.href = data.url;
+        }
+      }
+    } catch (error) {
+      console.error('Error opening portal:', error);
+      toast.error("Opening checkout instead...");
+      openStripeCheckout();
+    }
+  };
 
   const getTierInfo = () => {
     switch (subscriptionTier) {
@@ -83,7 +127,7 @@ export const SubscriptionStatusCard = () => {
           <div className="flex gap-2 pt-2">
             {subscriptionTier === 'free' ? (
               <Button 
-                onClick={() => setManageOpen(true)}
+                onClick={openStripeCheckout}
                 className="flex-1 gap-2 bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400"
               >
                 <Crown className="w-4 h-4" />
@@ -91,7 +135,7 @@ export const SubscriptionStatusCard = () => {
               </Button>
             ) : (
               <Button 
-                onClick={() => setManageOpen(true)}
+                onClick={handleManageSubscription}
                 variant="outline"
                 className="gap-2"
               >
@@ -102,14 +146,6 @@ export const SubscriptionStatusCard = () => {
           </div>
         </div>
       </Card>
-
-      <ManageSubscriptionDialog 
-        open={manageOpen}
-        onOpenChange={setManageOpen}
-        onSubscriptionUpdated={() => {
-          // Refresh handled by SubscriptionProvider
-        }}
-      />
     </>
   );
 };

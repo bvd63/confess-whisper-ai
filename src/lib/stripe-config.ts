@@ -4,10 +4,12 @@
  */
 
 export const STRIPE_PRICE_IDS = {
-
   vip_monthly: "price_1SJ0vwR7kygIyYg9OeCiqV00",
   vip_yearly: "price_1SJ0vvR7kygIyYg9BJuciYGd",
 } as const;
+
+// Direct Stripe payment link for VIP subscription
+export const STRIPE_VIP_CHECKOUT_URL = "https://buy.stripe.com/test_9B600lewecBRavrfcG0Ba00";
 
 export const SUBSCRIPTION_TIERS = {
   FREE: 'free',
