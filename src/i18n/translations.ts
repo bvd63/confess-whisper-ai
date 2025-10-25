@@ -1860,6 +1860,30 @@ type Translations = {
   sensitive_content_warning: string;
   sensitive_content_description: string;
   sensitive_content_view: string;
+  
+  // Additional Loading States
+  loading_content: string;
+  
+  // Update Prompt
+  update_available_title: string;
+  update_available_description: string;
+  refresh_now: string;
+  later: string;
+  
+  // Empty States
+  empty_confessions_title: string;
+  empty_confessions_description: string;
+  empty_notifications_title: string;
+  empty_notifications_description: string;
+  
+  // Additional Error States
+  go_home: string;
+  
+  // Cookie Consent
+  cookies_title: string;
+  cookies_description: string;
+  accept_all: string;
+  decline: string;
 };
 
 export const translations: Record<Language, Translations> = {
@@ -3494,6 +3518,30 @@ export const translations: Record<Language, Translations> = {
     sensitive_content_warning: "Sensitive Content",
     sensitive_content_description: "This content may be disturbing or triggering",
     sensitive_content_view: "View Anyway",
+    
+    // Additional Loading States
+    loading_content: "Loading content",
+    
+    // Update Prompt
+    update_available_title: "Update Available",
+    update_available_description: "A new version is available. Refresh to get the latest features.",
+    refresh_now: "Refresh Now",
+    later: "Later",
+    
+    // Empty States
+    empty_confessions_title: "No confessions yet",
+    empty_confessions_description: "Be the first to share your thoughts anonymously",
+    empty_notifications_title: "No notifications",
+    empty_notifications_description: "You're all caught up!",
+    
+    // Additional Error States
+    go_home: "Go Home",
+    
+    // Cookie Consent
+    cookies_title: "We use cookies",
+    cookies_description: "We use cookies to enhance your experience, analyze traffic, and personalize content.",
+    accept_all: "Accept All",
+    decline: "Decline",
     
     // Coin System
     coins_balance: "Balance",
@@ -5226,6 +5274,30 @@ export const translations: Record<Language, Translations> = {
     sensitive_content_description: "Este contenido puede ser perturbador o activador",
     sensitive_content_view: "Ver De Todos Modos",
     
+    // Additional Loading States
+    loading_content: "Cargando contenido",
+    
+    // Update Prompt
+    update_available_title: "Actualización Disponible",
+    update_available_description: "Una nueva versión está disponible. Actualiza para obtener las últimas funciones.",
+    refresh_now: "Actualizar Ahora",
+    later: "Más Tarde",
+    
+    // Empty States
+    empty_confessions_title: "Aún no hay confesiones",
+    empty_confessions_description: "Sé el primero en compartir tus pensamientos de forma anónima",
+    empty_notifications_title: "Sin notificaciones",
+    empty_notifications_description: "¡Estás al día!",
+    
+    // Additional Error States
+    go_home: "Ir al Inicio",
+    
+    // Cookie Consent
+    cookies_title: "Usamos cookies",
+    cookies_description: "Usamos cookies para mejorar tu experiencia, analizar el tráfico y personalizar el contenido.",
+    accept_all: "Aceptar Todas",
+    decline: "Rechazar",
+    
     // Coin System
     coins_balance: "Saldo",
     coins_get_more: "Obtener Monedas",
@@ -6956,6 +7028,30 @@ export const translations: Record<Language, Translations> = {
     sensitive_content_warning: "Sensibler Inhalt",
     sensitive_content_description: "Dieser Inhalt kann verstörend oder triggernd sein",
     sensitive_content_view: "Trotzdem Ansehen",
+    
+    // Additional Loading States
+    loading_content: "Inhalt wird geladen",
+    
+    // Update Prompt
+    update_available_title: "Update Verfügbar",
+    update_available_description: "Eine neue Version ist verfügbar. Aktualisiere, um die neuesten Funktionen zu erhalten.",
+    refresh_now: "Jetzt Aktualisieren",
+    later: "Später",
+    
+    // Empty States
+    empty_confessions_title: "Noch keine Beichten",
+    empty_confessions_description: "Sei der Erste, der anonym seine Gedanken teilt",
+    empty_notifications_title: "Keine Benachrichtigungen",
+    empty_notifications_description: "Du bist auf dem neuesten Stand!",
+    
+    // Additional Error States
+    go_home: "Zur Startseite",
+    
+    // Cookie Consent
+    cookies_title: "Wir verwenden Cookies",
+    cookies_description: "Wir verwenden Cookies, um deine Erfahrung zu verbessern, den Traffic zu analysieren und Inhalte zu personalisieren.",
+    accept_all: "Alle Akzeptieren",
+    decline: "Ablehnen",
     
     // Coin System
     coins_balance: "Guthaben",
