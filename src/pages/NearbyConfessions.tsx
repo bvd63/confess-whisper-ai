@@ -13,6 +13,7 @@ import ConfessionCard from "@/components/ConfessionCard";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
+import VirtualizedConfessions from "@/components/VirtualizedConfessions";
 
 const NearbyConfessions = () => {
   const [radius, setRadius] = useState<number>(50);
@@ -86,6 +87,13 @@ const NearbyConfessions = () => {
               {t.nearby_enable_location}
             </p>
           </AnimatedCard>
+        ) : confessions && confessions.length > 15 ? (
+          <VirtualizedConfessions
+            confessions={confessions}
+            isPremium={isPremium}
+            onUpgradeClick={() => {}}
+            onInsightGenerated={() => {}}
+          />
         ) : confessions && confessions.length > 0 ? (
           <div className="space-y-4">
             {confessions.map((confession, index) => (

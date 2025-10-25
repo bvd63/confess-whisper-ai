@@ -9,6 +9,7 @@ import ConfessionSkeleton from "@/components/ConfessionSkeleton";
 import EmptyState from "@/components/EmptyState";
 import { BookMarked } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
+import VirtualizedConfessions from "@/components/VirtualizedConfessions";
 
 type Confession = Tables<"confessions">;
 
@@ -73,6 +74,17 @@ const UserConfessionsList = () => {
         icon={BookMarked}
         title={t.profile_empty_state}
         description={t.profile_empty_description}
+      />
+    );
+  }
+
+  if (confessions.length > 15) {
+    return (
+      <VirtualizedConfessions
+        confessions={confessions}
+        isPremium={isPremium}
+        onUpgradeClick={() => {}}
+        onInsightGenerated={fetchUserConfessions}
       />
     );
   }

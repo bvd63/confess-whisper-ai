@@ -8,6 +8,7 @@ import ErrorMessage from "./ErrorMessage";
 import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import VirtualizedConfessions from "@/components/VirtualizedConfessions";
 
 interface FollowingFeedProps {
   userId: string;
@@ -99,48 +100,57 @@ const FollowingFeed = ({ userId, isPremium, onUpgradeClick }: FollowingFeedProps
         </span>
       </div>
 
-      {confessions.map((confession) => (
-        <ConfessionCard
-          key={confession.id}
-          confession={confession}
+      {confessions.length > 15 ? (
+        <VirtualizedConfessions
+          confessions={confessions}
           isPremium={isPremium}
-          isLiked={likedConfessions.has(confession.id)}
-          isBookmarked={bookmarkedConfessions.has(confession.id)}
           onUpgradeClick={onUpgradeClick}
           onInsightGenerated={loadFollowingConfessions}
-          onLikeChange={() => {
-            reloadLikes();
-            loadFollowingConfessions();
-          }}
-          onCommentChange={loadFollowingConfessions}
-          onBookmarkChange={() => {
-            reloadBookmarks();
-            loadFollowingConfessions();
-          }}
-          onReport={async (id: string) => {
-            try {
-              const { error } = await supabase
-                .from('confessions')
-                .update({ is_reported: true })
-                .eq('id', id);
-
-              if (error) throw error;
-
-              toast({
-                title: t.confession_reported_success,
-                description: t.confession_reported_success,
-              });
-            } catch (error) {
-              console.error('Error reporting:', error);
-              toast({
-                title: t.common_error,
-                description: t.confession_report_error,
-                variant: "destructive",
-              });
-            }
-          }}
         />
-      ))}
+      ) : (
+        confessions.map((confession) => (
+          <ConfessionCard
+            key={confession.id}
+            confession={confession}
+            isPremium={isPremium}
+            isLiked={likedConfessions.has(confession.id)}
+            isBookmarked={bookmarkedConfessions.has(confession.id)}
+            onUpgradeClick={onUpgradeClick}
+            onInsightGenerated={loadFollowingConfessions}
+            onLikeChange={() => {
+              reloadLikes();
+              loadFollowingConfessions();
+            }}
+            onCommentChange={loadFollowingConfessions}
+            onBookmarkChange={() => {
+              reloadBookmarks();
+              loadFollowingConfessions();
+            }}
+            onReport={async (id: string) => {
+              try {
+                const { error } = await supabase
+                  .from('confessions')
+                  .update({ is_reported: true })
+                  .eq('id', id);
+
+                if (error) throw error;
+
+                toast({
+                  title: t.confession_reported_success,
+                  description: t.confession_reported_success,
+                });
+              } catch (error) {
+                console.error('Error reporting:', error);
+                toast({
+                  title: t.common_error,
+                  description: t.confession_report_error,
+                  variant: "destructive",
+                });
+              }
+            }}
+          />
+        ))
+      )}
     </div>
   );
 };

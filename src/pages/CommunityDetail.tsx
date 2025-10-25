@@ -16,6 +16,7 @@ import { AnimatedCard } from "@/components/AnimatedCard";
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
+import VirtualizedConfessions from "@/components/VirtualizedConfessions";
 
 const CommunityDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -153,6 +154,13 @@ const CommunityDetail = () => {
           <h2 className="text-xl font-semibold">{t.communities_recent}</h2>
           {loadingConfessions ? (
             <LoadingQuotes />
+          ) : confessions && confessions.length > 15 ? (
+            <VirtualizedConfessions
+              confessions={confessions}
+              isPremium={isPremium}
+              onUpgradeClick={() => {}}
+              onInsightGenerated={() => {}}
+            />
           ) : confessions && confessions.length > 0 ? (
             confessions.map((confession, index) => (
               <div key={confession.id} style={{ animationDelay: `${index * 50}ms` }}>
