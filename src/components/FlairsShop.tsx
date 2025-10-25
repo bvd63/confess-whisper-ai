@@ -63,7 +63,7 @@ export const FlairsShop = ({
     try {
       const profilePromise = supabase
         .from('profiles')
-        .select('subscription_tier, trial_active, trial_premium_ends_at')
+        .select('subscription_tier, is_premium, trial_active, trial_premium_ends_at')
         .eq('user_id', userId)
         .maybeSingle();
 
@@ -88,7 +88,7 @@ export const FlairsShop = ({
       if (profileRes.status === 'fulfilled') {
         const { data: profile, error: profileError } = profileRes.value as any;
         if (profileError) console.error('Profile error:', profileError);
-        const tier = (profile?.subscription_tier || 'free') as 'free' | 'vip';
+        const tier = (profile?.subscription_tier === 'vip' || profile?.is_premium) ? 'vip' : 'free';
         setUserTier(tier);
       } else {
         console.error('Profile load rejected:', profileRes.reason);
