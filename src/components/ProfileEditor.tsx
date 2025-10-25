@@ -174,13 +174,16 @@ export const ProfileEditor = ({
         <div className="space-y-4">
           <div>
             <Label htmlFor="nickname">Nickname</Label>
-            <Input
-              id="nickname"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              placeholder={t.nickname_placeholder}
-              maxLength={50}
-            />
+            <div className="flex items-center gap-2">
+              <Input
+                id="nickname"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                placeholder={t.nickname_placeholder}
+                maxLength={50}
+                className="flex-1"
+              />
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
               {nickname.length}/50
             </p>

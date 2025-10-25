@@ -68,6 +68,7 @@ export const Onboarding = ({ userId, onComplete }: OnboardingProps) => {
   const [step, setStep] = useState(1);
   const [confession, setConfession] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { language } = useLanguage();
   const { toast } = useToast();
   const t = translations[language];
@@ -107,7 +108,7 @@ export const Onboarding = ({ userId, onComplete }: OnboardingProps) => {
       return;
     }
 
-    setLoading(true);
+    setIsSubmitting(true);
     try {
       // Save confession
       const { error: confessionError } = await supabase
@@ -149,7 +150,7 @@ export const Onboarding = ({ userId, onComplete }: OnboardingProps) => {
         variant: "destructive"
       });
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -228,9 +229,16 @@ export const Onboarding = ({ userId, onComplete }: OnboardingProps) => {
             <Button
               onClick={handleConfessionNext}
               className="w-full"
-              disabled={loading || confession.trim().length < 10}
+              disabled={isSubmitting || confession.trim().length < 10}
             >
-              {loading ? "..." : t.confession_next}
+              {isSubmitting ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>{language === 'en' ? 'Posting...' : language === 'es' ? 'Publicando...' : 'Veröffentlichen...'}</span>
+                </div>
+              ) : (
+                t.confession_next
+              )}
             </Button>
           </div>
         )}

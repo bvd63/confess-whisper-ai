@@ -95,13 +95,21 @@ const AppHeader = ({
                 <Button 
                   data-testid="manage-subscription-btn"
                   onClick={() => onManageSubscription?.()} 
-                  variant="outline" 
+                  variant={subscriptionTier === 'free' ? 'default' : 'outline'}
                   size="sm" 
-                  className="border-primary/30 hover:bg-primary/10 h-8 px-2"
+                  className={cn(
+                    "h-8 px-2 sm:px-3",
+                    subscriptionTier === 'free' 
+                      ? "bg-purple-600 hover:bg-purple-700 text-white" 
+                      : "border-primary/30 hover:bg-primary/10"
+                  )}
                 >
-                  <Crown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary" />
-                  <span className="hidden sm:inline text-xs ml-1">
-                    {subscriptionTier === 'free' ? t.subscription_upgrade : t.subs_manage}
+                  <Crown className={cn(
+                    "w-3 h-3 sm:w-3.5 sm:h-3.5",
+                    subscriptionTier === 'free' && "text-white animate-pulse"
+                  )} />
+                  <span className="hidden sm:inline text-xs ml-1 font-semibold">
+                    {subscriptionTier === 'free' ? 'Upgrade VIP' : t.subs_manage}
                   </span>
                 </Button>
                 <NotificationsDropdown />
