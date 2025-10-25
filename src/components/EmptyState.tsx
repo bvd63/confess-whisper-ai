@@ -1,36 +1,57 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+
 interface EmptyStateProps {
   icon: LucideIcon;
   title: string;
   description: string;
   actionLabel?: string;
   onAction?: () => void;
+  className?: string;
 }
+
 const EmptyState = ({
   icon: Icon,
   title,
   description,
   actionLabel,
-  onAction
+  onAction,
+  className
 }: EmptyStateProps) => {
-  return <Card className="p-12 text-center bg-gradient-to-br from-card to-muted/20 border-border/50 animate-fade-in px-[46px] py-[13px]">
-      <div className="inline-flex p-6 rounded-full bg-primary/10 mb-6">
+  return (
+    <Card 
+      className={cn(
+        "p-8 sm:p-12 text-center animate-fade-in",
+        "bg-gradient-to-br from-card via-card to-muted/20",
+        "border-border/50",
+        className
+      )}
+    >
+      <div className="inline-flex p-6 rounded-full bg-primary/10 mb-6 animate-bounce-subtle">
         <Icon className="w-12 h-12 text-primary" />
       </div>
       
-      <h3 className="text-2xl font-bold text-foreground mb-3">
+      <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-3">
         {title}
       </h3>
       
-      <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+      <p className="text-sm sm:text-base text-muted-foreground mb-6 max-w-md mx-auto">
         {description}
       </p>
       
-      {actionLabel && onAction && <Button onClick={onAction} className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70">
+      {actionLabel && onAction && (
+        <Button 
+          onClick={onAction}
+          size="lg"
+          className="hover-lift"
+        >
           {actionLabel}
-        </Button>}
-    </Card>;
+        </Button>
+      )}
+    </Card>
+  );
 };
+
 export default EmptyState;

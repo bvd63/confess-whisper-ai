@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { ReactNode, HTMLAttributes } from "react";
+
 interface AnimatedCardProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   hover?: 'lift' | 'glow' | 'scale' | 'none';
@@ -8,6 +9,7 @@ interface AnimatedCardProps extends HTMLAttributes<HTMLDivElement> {
   gradient?: boolean;
   delay?: number;
 }
+
 export const AnimatedCard = ({
   children,
   className,
@@ -23,13 +25,14 @@ export const AnimatedCard = ({
     scale: 'hover-scale',
     none: ''
   }[hover];
+
   return (
     <Card
       className={cn(
-        'animate-fade-in',
+        'animate-fade-in transition-all duration-300',
         hoverClass,
-        glass && 'glass-card',
-        gradient && 'gradient-border',
+        glass && 'glass',
+        gradient && 'bg-gradient-to-br from-card to-card/95 border-primary/10',
         className
       )}
       style={{ animationDelay: `${delay}ms` }}

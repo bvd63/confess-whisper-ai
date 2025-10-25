@@ -14,6 +14,9 @@ import { PerformanceMonitor } from '@/components/PerformanceMonitor';
 import { InstallPrompt } from '@/components/InstallPrompt';
 import { NetworkStatusIndicator } from '@/components/NetworkStatusIndicator';
 import { NotificationService } from '@/services/notificationService';
+import { OfflineIndicator } from '@/components/OfflineIndicator';
+import { UpdatePrompt } from '@/components/UpdatePrompt';
+import { CookieConsent } from '@/components/CookieConsent';
 
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthRefresh } from '@/hooks/useAuthRefresh';
@@ -250,11 +253,14 @@ function App() {
       <Sonner />
       <BrowserRouter>
         <AnalyticsProvider>
+          <OfflineIndicator />
           <AppContent />
           <SystemNotifications />
           <PerformanceIndicator />
           <PerformanceMonitor />
           <InstallPrompt />
+          <UpdatePrompt />
+          <CookieConsent />
         </AnalyticsProvider>
       </BrowserRouter>
     </TooltipProvider>

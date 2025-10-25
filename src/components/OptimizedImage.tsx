@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
+import { ImageOff } from 'lucide-react';
+
+type AspectRatio = 'square' | 'video' | 'portrait' | 'auto';
 
 interface OptimizedImageProps {
   src: string;
@@ -9,10 +12,12 @@ interface OptimizedImageProps {
   height?: number;
   priority?: boolean;
   blur?: boolean;
+  aspectRatio?: AspectRatio;
+  onError?: () => void;
 }
 
 /**
- * Optimized image component with lazy loading, blur placeholder, and WebP support
+ * Optimized image component with lazy loading, blur placeholder, error handling, and WebP support
  */
 export const OptimizedImage = ({
   src,
@@ -22,9 +27,12 @@ export const OptimizedImage = ({
   height,
   priority = false,
   blur = true,
+  aspectRatio = 'auto',
+  onError,
 }: OptimizedImageProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(priority);
+  const [hasError, setHasError] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
   // Intersection Observer for lazy loading
@@ -69,18 +77,40 @@ export const OptimizedImage = ({
     ? `${getOptimizedUrl(src, width)} 1x, ${getOptimizedUrl(src, width * 2)} 2x`
     : undefined;
 
+  // Handle image load error
+  const handleError = () => {
+    setHasError(true);
+    setIsLoaded(true);
+    onError?.();
+  };
+
+  // Aspect ratio classes
+  const aspectClasses = {
+    square: 'aspect-square',
+    video: 'aspect-video',
+    portrait: 'aspect-[3/4]',
+    auto: '',
+  };
+
   return (
-    <div className={cn('relative overflow-hidden', className)}>
+    <div className={cn('relative overflow-hidden', aspectClasses[aspectRatio], className)}>
+      {/* Error state */}
+      {hasError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-muted">
+          <ImageOff className="h-8 w-8 text-muted-foreground" />
+        </div>
+      )}
+
       {/* Blur placeholder */}
-      {blur && !isLoaded && (
+      {blur && !isLoaded && !hasError && (
         <div 
-          className="absolute inset-0 bg-muted animate-pulse"
+          className="absolute inset-0 bg-gradient-to-br from-muted to-muted/50 animate-pulse"
           aria-hidden="true"
         />
       )}
 
       {/* Actual image */}
-      {isInView && (
+      {isInView && !hasError && (
         <img
           ref={imgRef}
           src={getOptimizedUrl(src, width)}
@@ -91,10 +121,10 @@ export const OptimizedImage = ({
           loading={priority ? 'eager' : 'lazy'}
           decoding="async"
           onLoad={() => setIsLoaded(true)}
+          onError={handleError}
           className={cn(
-            'transition-opacity duration-300',
-            isLoaded ? 'opacity-100' : 'opacity-0',
-            className
+            'w-full h-full object-cover transition-opacity duration-300',
+            isLoaded ? 'opacity-100' : 'opacity-0'
           )}
         />
       )}
