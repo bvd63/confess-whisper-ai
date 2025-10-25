@@ -4,31 +4,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import Performance from '@/pages/admin/Performance';
 
-// Mock Supabase
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        gte: vi.fn(() => ({
-          lte: vi.fn(() => ({
-            order: vi.fn(() => Promise.resolve({
-              data: [
-                { created_at: '2024-01-01T10:00:00Z' },
-                { created_at: '2024-01-01T11:00:00Z' },
-                { created_at: '2024-01-01T12:00:00Z' },
-              ],
-              error: null,
-            })),
-          })),
-        })),
-      })),
-    })),
-    auth: {
-      getUser: vi.fn(() => Promise.resolve({ data: { user: { id: 'test-user' } }, error: null })),
-    },
-  },
-}));
-
 // Mock LanguageContext
 vi.mock('@/contexts/LanguageContext', () => ({
   useLanguage: () => ({

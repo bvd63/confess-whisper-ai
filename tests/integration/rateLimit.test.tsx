@@ -3,15 +3,6 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { useConfessionRateLimit } from '@/hooks/useConfessionRateLimit';
 import { supabase } from '@/integrations/supabase/client';
 
-// Mock Supabase
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    functions: {
-      invoke: vi.fn(),
-    },
-  },
-}));
-
 describe('Rate Limit Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks();

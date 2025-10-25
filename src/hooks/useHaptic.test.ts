@@ -53,9 +53,9 @@ describe('useHaptic', () => {
   });
 
   it('should handle missing vibrate API gracefully', () => {
+    // Use vi.stubGlobal to temporarily remove vibrate
     const originalVibrate = navigator.vibrate;
-    // @ts-ignore
-    delete navigator.vibrate;
+    vi.stubGlobal('navigator', { ...navigator, vibrate: undefined });
 
     const { result } = renderHook(() => useHaptic());
     
@@ -66,9 +66,6 @@ describe('useHaptic', () => {
     }).not.toThrow();
 
     // Restore
-    Object.defineProperty(navigator, 'vibrate', {
-      writable: true,
-      value: originalVibrate
-    });
+    vi.stubGlobal('navigator', { ...navigator, vibrate: originalVibrate });
   });
 });

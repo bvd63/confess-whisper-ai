@@ -1,6 +1,5 @@
 import { getSupabase } from '@/lib/supabaseClient';
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import { supabaseMock } from '../setup/supabase-mock';
 
 describe("Auth Integration", () => {
   beforeEach(() => {

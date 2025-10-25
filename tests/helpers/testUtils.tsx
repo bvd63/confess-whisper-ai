@@ -9,55 +9,55 @@ import { vi } from 'vitest';
 vi.mock('@/integrations/supabase/client', () => {
   const mockFunctionsInvoke = vi.fn().mockResolvedValue({ data: null, error: null });
   
-  // Create chainable mock for select().eq()
-  const createMockEq = () => ({
-    eq: vi.fn(() => createMockEq()),
-    single: vi.fn().mockResolvedValue({
-      data: {
-        id: 'test-subscription',
-        status: 'PREMIUM',
-        current_period_end: '2025-11-12T18:00:00Z',
-        plan_name: 'premium'
-      },
-      error: null
-    }),
-    maybeSingle: vi.fn().mockResolvedValue({
-      data: {
-        id: 'test-subscription',
-        status: 'PREMIUM',
-        current_period_end: '2025-11-12T18:00:00Z',
-        plan_name: 'premium'
-      },
-      error: null
-    }),
-    order: vi.fn(function(this: any) { return this; }),
-    limit: vi.fn(function(this: any) { return this; })
-  });
+  // Create mock result object
+  const mockResult = {
+    data: {
+      id: 'test-subscription',
+      status: 'PREMIUM',
+      current_period_end: '2025-11-12T18:00:00Z',
+      plan_name: 'premium',
+      is_premium: true,
+      subscription_tier: 'premium',
+      subscription_ends_at: '2025-11-12T18:00:00Z',
+      trial_active: false,
+      trial_end_date: null,
+      trial_premium_used: false,
+      subscription_status: 'active'
+    },
+    error: null
+  };
   
-  const createMockSelect = () => ({
-    select: vi.fn(() => createMockSelect()),
-    eq: vi.fn(() => createMockEq()),
-    single: vi.fn().mockResolvedValue({
-      data: {
-        id: 'test-subscription',
-        status: 'PREMIUM',
-        current_period_end: '2025-11-12T18:00:00Z',
-        plan_name: 'premium'
-      },
-      error: null
-    }),
-    maybeSingle: vi.fn().mockResolvedValue({
-      data: {
-        id: 'test-subscription',
-        status: 'PREMIUM',
-        current_period_end: '2025-11-12T18:00:00Z',
-        plan_name: 'premium'
-      },
-      error: null
-    }),
-    order: vi.fn(function(this: any) { return this; }),
-    limit: vi.fn(function(this: any) { return this; })
-  });
+  // Create chainable mock - each method returns an object with all methods
+  const createChainableMock = (): any => {
+    const chain: any = {
+      select: vi.fn(() => createChainableMock()),
+      eq: vi.fn(() => createChainableMock()),
+      neq: vi.fn(() => createChainableMock()),
+      gt: vi.fn(() => createChainableMock()),
+      gte: vi.fn(() => createChainableMock()),
+      lt: vi.fn(() => createChainableMock()),
+      lte: vi.fn(() => createChainableMock()),
+      like: vi.fn(() => createChainableMock()),
+      ilike: vi.fn(() => createChainableMock()),
+      is: vi.fn(() => createChainableMock()),
+      in: vi.fn(() => createChainableMock()),
+      contains: vi.fn(() => createChainableMock()),
+      containedBy: vi.fn(() => createChainableMock()),
+      rangeLt: vi.fn(() => createChainableMock()),
+      rangeGt: vi.fn(() => createChainableMock()),
+      rangeGte: vi.fn(() => createChainableMock()),
+      rangeLte: vi.fn(() => createChainableMock()),
+      rangeAdjacent: vi.fn(() => createChainableMock()),
+      overlaps: vi.fn(() => createChainableMock()),
+      order: vi.fn(() => createChainableMock()),
+      limit: vi.fn(() => createChainableMock()),
+      range: vi.fn(() => createChainableMock()),
+      single: vi.fn().mockResolvedValue(mockResult),
+      maybeSingle: vi.fn().mockResolvedValue(mockResult),
+      then: vi.fn((resolve) => Promise.resolve(mockResult).then(resolve)),
+    };
+    return chain;
+  };
   
   return {
     supabase: {
@@ -75,16 +75,13 @@ vi.mock('@/integrations/supabase/client', () => {
         }))
       },
       from: vi.fn(() => ({
-        ...createMockSelect(),
+        ...createChainableMock(),
         insert: vi.fn(() => ({
           select: vi.fn().mockResolvedValue({ data: [], error: null })
         })),
-        update: vi.fn(() => ({
-          eq: vi.fn().mockResolvedValue({ data: [], error: null })
-        })),
-        delete: vi.fn(() => ({
-          eq: vi.fn().mockResolvedValue({ data: [], error: null })
-        }))
+        update: vi.fn(() => createChainableMock()),
+        delete: vi.fn(() => createChainableMock()),
+        upsert: vi.fn(() => createChainableMock()),
       })),
       functions: {
         invoke: mockFunctionsInvoke
@@ -92,7 +89,9 @@ vi.mock('@/integrations/supabase/client', () => {
       storage: {
         from: vi.fn(() => ({
           upload: vi.fn().mockResolvedValue({ data: {}, error: null }),
-          download: vi.fn().mockResolvedValue({ data: new Blob(), error: null })
+          download: vi.fn().mockResolvedValue({ data: new Blob(), error: null }),
+          remove: vi.fn().mockResolvedValue({ data: null, error: null }),
+          list: vi.fn().mockResolvedValue({ data: [], error: null }),
         }))
       },
       channel: vi.fn(() => ({
