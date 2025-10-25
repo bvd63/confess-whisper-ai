@@ -42,6 +42,7 @@ export const FlairsShop = ({
   const [userFlairs, setUserFlairs] = useState<UserFlair[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const [purchasing, setPurchasing] = useState<string | null>(null);
   const [userTier, setUserTier] = useState<"free" | "vip">("free");
   const {
@@ -56,7 +57,8 @@ export const FlairsShop = ({
   } = useCoins(userId);
 
   const loadData = useCallback(async (retryCount = 0) => {
-    setLoading(true);
+    // Only show loading indicator on first load to avoid flicker
+    setLoading((prev) => (hasLoaded ? prev : true));
     setError(null);
     try {
       // Load user tier and trial status
@@ -102,6 +104,7 @@ export const FlairsShop = ({
 
       // Refetch coins balance
       await refetchCoins();
+      setHasLoaded(true);
       setError(null);
     } catch (error: any) {
       console.error('Error loading flairs:', error);
@@ -118,10 +121,11 @@ export const FlairsShop = ({
     } finally {
       setLoading(false);
     }
-  }, [userId, refetchCoins]);
+  }, [userId, refetchCoins, hasLoaded]);
 
   useEffect(() => {
     if (open) {
+      setHasLoaded(false);
       loadData();
     }
   }, [open, loadData]);
