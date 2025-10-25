@@ -65,6 +65,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const Performance = lazy(() => import("./pages/admin/Performance"));
 const Reflections = lazy(() => import("./pages/Reflections"));
 const NotificationSettings = lazy(() => import("./pages/NotificationSettings"));
+const SubscriptionTest = lazy(() => import("./pages/SubscriptionTest"));
 
 const AppContent = () => {
   const { user } = useAuth();
@@ -225,6 +226,7 @@ const AppContent = () => {
           <Route path="/test-subscriptions" element={<TestSubscriptions />} />
           <Route path="/reflections" element={<Reflections />} />
           <Route path="/settings/notifications" element={<NotificationSettings />} />
+          <Route path="/subscription-test" element={<SubscriptionTest />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="*" element={<NotFound />} />
