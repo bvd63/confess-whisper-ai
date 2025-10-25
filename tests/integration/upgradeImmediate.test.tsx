@@ -7,7 +7,7 @@ import { SubscriptionApiMock } from '../helpers/apiMock';
 import { supabase } from '@/integrations/supabase/client';
 
 type InvokeOptions = { body?: { action?: string; priceId?: string } };
-import upgradePreview from '../fixtures/stripe/preview/upgrade_premium_to_vip_monthly.json';
+import upgradePreview from '../fixtures/stripe/preview/upgrade_free_to_vip_monthly.json';
 
 describe('Upgrade Immediate Flow', () => {
   let apiMock: SubscriptionApiMock;
@@ -30,9 +30,9 @@ describe('Upgrade Immediate Flow', () => {
       if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
         return {
           data: {
-            currentPlan: 'premium',
-            interval: 'monthly',
-            status: 'active',
+            currentPlan: 'free',
+            interval: null,
+            status: null,
           },
           error: null,
         };
@@ -40,10 +40,10 @@ describe('Upgrade Immediate Flow', () => {
       if (fnName === 'billing-status') {
         return {
           data: {
-            subscribed: true,
-            plan: 'premium',
-            subscription_end: '2025-11-12T18:00:00Z',
-            status: 'active',
+            subscribed: false,
+            plan: 'free',
+            subscription_end: null,
+            status: null,
           },
           error: null,
         };
@@ -75,7 +75,7 @@ describe('Upgrade Immediate Flow', () => {
     
     // Should show preview with proration
     await waitFor(() => {
-      expect(screen.getAllByText(/Premium/i)[0]).toBeInTheDocument();
+      expect(screen.getAllByText(/VIP/i)[0]).toBeInTheDocument();
     });
   });
 
@@ -147,9 +147,9 @@ describe('Upgrade Immediate Flow', () => {
       if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
         return {
           data: {
-            currentPlan: 'premium',
-            interval: 'monthly',
-            status: 'active',
+            currentPlan: 'free',
+            interval: null,
+            status: null,
           },
           error: null,
         };
@@ -157,7 +157,7 @@ describe('Upgrade Immediate Flow', () => {
       if (fnName === 'billing-change') {
         return failingChangeFn(fnName, options);
       }
-      return { data: { plan: 'premium' }, error: null };
+      return { data: { plan: 'free' }, error: null };
     });
 
     vi.mocked(supabase.functions.invoke).mockImplementation(mockInvoke);

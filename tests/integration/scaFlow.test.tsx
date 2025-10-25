@@ -69,7 +69,7 @@ describe('SCA (Strong Customer Authentication) Flow', () => {
     await user.click(vipButton);
     
     await waitFor(() => {
-      expect(screen.getAllByText(/Premium/i)[0]).toBeInTheDocument();
+      expect(screen.getAllByText(/VIP/i)[0]).toBeInTheDocument();
     });
   });
 
@@ -101,7 +101,7 @@ describe('SCA (Strong Customer Authentication) Flow', () => {
       if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
         return {
           data: {
-            currentPlan: 'premium',
+            currentPlan: 'vip',
             interval: 'monthly',
             status: 'active',
           },
@@ -131,7 +131,7 @@ describe('SCA (Strong Customer Authentication) Flow', () => {
       return {
         data: {
           subscribed: true,
-          plan: 'premium',
+          plan: 'vip',
         },
         error: null,
       };
@@ -164,7 +164,7 @@ describe('SCA (Strong Customer Authentication) Flow', () => {
       if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
         return {
           data: {
-            currentPlan: 'premium',
+            currentPlan: 'vip',
             interval: 'monthly',
             status: 'active',
           },
@@ -184,7 +184,7 @@ describe('SCA (Strong Customer Authentication) Flow', () => {
       return {
         data: {
           subscribed: true,
-          plan: 'premium',
+          plan: 'vip',
         },
         error: null,
       };
@@ -206,7 +206,7 @@ describe('SCA (Strong Customer Authentication) Flow', () => {
     
     // User cancels or fails SCA
     await waitFor(() => {
-      expect(screen.getAllByText(/Premium/i)[0]).toBeInTheDocument();
+      expect(screen.getAllByText(/VIP/i)[0]).toBeInTheDocument();
     });
   });
 

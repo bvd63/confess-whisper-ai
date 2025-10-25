@@ -15,7 +15,7 @@ describe('Trial Edge Cases', () => {
       if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
         return {
           data: {
-            currentPlan: 'premium',
+            currentPlan: 'vip',
             status: 'trialing',
             interval: 'monthly',
             subscription_end: '2025-10-30T18:00:00Z',
@@ -29,7 +29,7 @@ describe('Trial Edge Cases', () => {
         return {
           data: {
             subscribed: true,
-            plan: 'premium',
+            plan: 'vip',
             subscription_end: '2025-10-30T18:00:00Z',
             status: 'trialing',
             trial_active: true,
@@ -123,7 +123,7 @@ describe('Trial Edge Cases', () => {
     renderWithProviders(<EnhancedSubscriptionManager />);
     
     await waitFor(() => {
-      expect(screen.getAllByText(/Premium/i)[0]).toBeInTheDocument();
+      expect(screen.getAllByText(/VIP/i)[0]).toBeInTheDocument();
       expect(screen.getByText(/11\/12\/2025/i)).toBeInTheDocument();
     });
   });
@@ -136,6 +136,6 @@ describe('Trial Edge Cases', () => {
     });
 
     // Should inform user about billing after trial
-    expect(screen.getAllByText(/Premium/i)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(/VIP/i)[0]).toBeInTheDocument();
   });
 });

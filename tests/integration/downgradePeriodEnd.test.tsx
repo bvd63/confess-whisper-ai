@@ -7,7 +7,7 @@ import { SubscriptionApiMock } from '../helpers/apiMock';
 import { supabase } from '@/integrations/supabase/client';
 
 type InvokeOptions = { body?: { action?: string; priceId?: string } };
-import downgradePreview from '../fixtures/stripe/preview/downgrade_vip_to_premium_period_end.json';
+import downgradePreview from '../fixtures/stripe/preview/downgrade_vip_to_free_period_end.json';
 
 describe('Downgrade at Period End Flow', () => {
   let apiMock: SubscriptionApiMock;
@@ -63,9 +63,9 @@ describe('Downgrade at Period End Flow', () => {
       expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
-    // Click on Premium plan to downgrade
-    const premiumChangeButton = screen.getByRole('button', { name: /Change Plan/i });
-    await user.click(premiumChangeButton);
+    // Click on FREE plan to downgrade
+    const freeChangeButton = screen.getByRole('button', { name: /Change Plan/i });
+    await user.click(freeChangeButton);
     
     // Should show effective date
     await waitFor(() => {
@@ -82,8 +82,8 @@ describe('Downgrade at Period End Flow', () => {
       expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
-    const premiumChangeButton = screen.getByRole('button', { name: /Change Plan/i });
-    await user.click(premiumChangeButton);
+    const freeChangeButton = screen.getByRole('button', { name: /Change Plan/i });
+    await user.click(freeChangeButton);
     
     // Wait for confirmation dialog
     await waitFor(() => {
@@ -95,7 +95,7 @@ describe('Downgrade at Period End Flow', () => {
     
     // Should show success toast with date
     await waitFor(() => {
-      expect(screen.getAllByText(/Premium/i)[0]).toBeInTheDocument();
+      expect(screen.getAllByText(/VIP/i)[0]).toBeInTheDocument();
       expect(screen.getByText(/11\/12\/2025/i)).toBeInTheDocument();
     });
   });
@@ -113,7 +113,7 @@ describe('Downgrade at Period End Flow', () => {
             status: 'active',
             currentPeriodEnd: '2025-11-12T18:00:00Z',
             pending_change: {
-              target_tier: 'premium',
+              target_tier: 'free',
               effective_date: '2025-11-12T18:00:00Z',
             },
           },
@@ -128,7 +128,7 @@ describe('Downgrade at Period End Flow', () => {
             subscription_end: '2025-11-12T18:00:00Z',
             status: 'active',
             pending_change: {
-              target_tier: 'premium',
+              target_tier: 'free',
               effective_date: '2025-11-12T18:00:00Z',
             },
           },
@@ -158,7 +158,7 @@ describe('Downgrade at Period End Flow', () => {
             interval: 'monthly',
             status: 'active',
             pending_change: {
-              target_tier: 'premium',
+              target_tier: 'free',
               effective_date: '2025-11-12T18:00:00Z',
             },
           },
@@ -171,7 +171,7 @@ describe('Downgrade at Period End Flow', () => {
             subscribed: true,
             plan: 'vip',
             pending_change: {
-              target_tier: 'premium',
+              target_tier: 'free',
               effective_date: '2025-11-12T18:00:00Z',
             },
           },
