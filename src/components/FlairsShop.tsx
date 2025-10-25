@@ -41,6 +41,7 @@ export const FlairsShop = ({
   const [flairs, setFlairs] = useState<Flair[]>([]);
   const [userFlairs, setUserFlairs] = useState<UserFlair[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [purchasing, setPurchasing] = useState<string | null>(null);
   const [userTier, setUserTier] = useState<"free" | "vip">("free");
   const {
@@ -54,13 +55,20 @@ export const FlairsShop = ({
     refetch: refetchCoins
   } = useCoins(userId);
 
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (retryCount = 0) => {
     setLoading(true);
+    setError(null);
     try {
       // Load user tier and trial status
       const {
-        data: profile
+        data: profile,
+        error: profileError
       } = await supabase.from('profiles').select('subscription_tier, trial_active, trial_premium_ends_at').eq('user_id', userId).maybeSingle();
+
+      if (profileError) {
+        console.error('Profile error:', profileError);
+        throw profileError;
+      }
 
       // Get tier (VIP or free only)
       const tier = (profile?.subscription_tier || 'free') as "free" | "vip";
@@ -73,7 +81,11 @@ export const FlairsShop = ({
       } = await supabase.from('profile_flairs').select('*').eq('is_active', true).order('cost', {
         ascending: true
       });
-      if (flairsError) throw flairsError;
+      
+      if (flairsError) {
+        console.error('Flairs error:', flairsError);
+        throw flairsError;
+      }
       setFlairs(flairsData || []);
 
       // Load user's owned flairs
@@ -81,13 +93,28 @@ export const FlairsShop = ({
         data: userFlairsData,
         error: userFlairsError
       } = await supabase.from('user_flairs').select('id, flair_id, is_equipped, expires_at, acquired_at, purchase_scope, last_equipped_at').eq('user_id', userId);
-      if (userFlairsError) throw userFlairsError;
+      
+      if (userFlairsError) {
+        console.error('User flairs error:', userFlairsError);
+        throw userFlairsError;
+      }
       setUserFlairs(userFlairsData || []);
 
       // Refetch coins balance
       await refetchCoins();
-    } catch (error) {
+      setError(null);
+    } catch (error: any) {
       console.error('Error loading flairs:', error);
+      const errorMessage = error?.message || 'Failed to load flairs';
+      
+      // Retry on network errors (up to 2 retries)
+      if (errorMessage.includes('Failed to fetch') && retryCount < 2) {
+        console.log(`Retrying... (attempt ${retryCount + 1})`);
+        setTimeout(() => loadData(retryCount + 1), 1000);
+        return;
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -396,7 +423,24 @@ export const FlairsShop = ({
         </DialogHeader>
 
         <ScrollArea className="h-[400px] sm:h-[500px] pr-4">
-          {loading ? <div className="text-center py-8 text-muted-foreground">{t.loading}</div> : <Accordion type="multiple" defaultValue={["free", "vip"]} className="w-full space-y-2">
+          {loading ? (
+            <div className="text-center py-8 space-y-3">
+              <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
+              <p className="text-muted-foreground">{t.loading}</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8 space-y-4">
+              <p className="text-destructive">{error}</p>
+              <Button 
+                onClick={() => loadData()} 
+                variant="outline"
+                size="sm"
+              >
+                Try Again
+              </Button>
+            </div>
+          ) : (
+            <Accordion type="multiple" defaultValue={["free", "vip"]} className="w-full space-y-2">
               {showFree && freeFlairs.length > 0 && <AccordionItem value="free" className="border rounded-lg px-4">
                   <AccordionTrigger className="hover:no-underline">
                     <div className="flex items-center gap-2">
@@ -426,9 +470,10 @@ export const FlairsShop = ({
                     </div>
                   </AccordionContent>
                 </AccordionItem>}
-            </Accordion>}
+            </Accordion>
+          )}
 
-          {!loading && flairs.length === 0 && <div className="text-center py-8 text-muted-foreground">{t.shop_empty}</div>}
+          {!loading && !error && flairs.length === 0 && <div className="text-center py-8 text-muted-foreground">{t.shop_empty}</div>}
         </ScrollArea>
       </DialogContent>
     </Dialog>;
