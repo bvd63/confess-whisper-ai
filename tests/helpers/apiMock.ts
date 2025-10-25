@@ -212,6 +212,9 @@ export const createMockSupabase = (mockFunctions: any) => ({
       }, 
       error: null 
     })),
+    onAuthStateChange: vi.fn(() => ({
+      data: { subscription: { unsubscribe: vi.fn() } },
+    })),
   },
   from: vi.fn(() => ({
     select: vi.fn(() => ({
@@ -219,6 +222,28 @@ export const createMockSupabase = (mockFunctions: any) => ({
         maybeSingle: vi.fn(async () => ({ data: null, error: null })),
         single: vi.fn(async () => ({ data: null, error: null })),
       })),
+      maybeSingle: vi.fn(async () => ({ data: null, error: null })),
+      single: vi.fn(async () => ({ data: null, error: null })),
+    })),
+    insert: vi.fn(() => ({
+      select: vi.fn(() => ({
+        single: vi.fn(async () => ({ data: null, error: null })),
+      })),
+    })),
+    update: vi.fn(() => ({
+      eq: vi.fn(() => ({
+        select: vi.fn(() => ({
+          single: vi.fn(async () => ({ data: null, error: null })),
+        })),
+      })),
+    })),
+    delete: vi.fn(() => ({
+      eq: vi.fn(async () => ({ data: null, error: null })),
+    })),
+  })),
+  channel: vi.fn(() => ({
+    on: vi.fn(() => ({
+      subscribe: vi.fn(() => ({ unsubscribe: vi.fn() })),
     })),
   })),
 });

@@ -6,21 +6,24 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 import { vi } from 'vitest';
 
 // Complete Supabase mock for subscription tests
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    auth: {
-      getUser: vi.fn().mockResolvedValue({
-        data: { user: { id: 'test-user', email: 'test@example.com' } },
-        error: null
-      }),
-      getSession: vi.fn().mockResolvedValue({
-        data: { session: { user: { id: 'test-user' } } },
-        error: null
-      }),
-      onAuthStateChange: vi.fn(() => ({
-        data: { subscription: { unsubscribe: vi.fn() } }
-      }))
-    },
+vi.mock('@/integrations/supabase/client', () => {
+  const mockFunctionsInvoke = vi.fn().mockResolvedValue({ data: null, error: null });
+  
+  return {
+    supabase: {
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: 'test-user', email: 'test@example.com' } },
+          error: null
+        }),
+        getSession: vi.fn().mockResolvedValue({
+          data: { session: { user: { id: 'test-user' } } },
+          error: null
+        }),
+        onAuthStateChange: vi.fn(() => ({
+          data: { subscription: { unsubscribe: vi.fn() } }
+        }))
+      },
     from: vi.fn(() => ({
       select: vi.fn(() => ({
         eq: vi.fn(() => ({
@@ -43,6 +46,24 @@ vi.mock('@/integrations/supabase/client', () => ({
             error: null
           })
         })),
+        maybeSingle: vi.fn().mockResolvedValue({
+          data: {
+            id: 'test-subscription',
+            status: 'PREMIUM',
+            current_period_end: '2025-11-12T18:00:00Z',
+            plan_name: 'premium'
+          },
+          error: null
+        }),
+        single: vi.fn().mockResolvedValue({
+          data: {
+            id: 'test-subscription',
+            status: 'PREMIUM',
+            current_period_end: '2025-11-12T18:00:00Z',
+            plan_name: 'premium'
+          },
+          error: null
+        }),
         order: vi.fn().mockReturnThis(),
         limit: vi.fn().mockReturnThis()
       })),
@@ -57,14 +78,29 @@ vi.mock('@/integrations/supabase/client', () => ({
       }))
     })),
     functions: {
-      invoke: vi.fn().mockResolvedValue({ data: null, error: null })
+      invoke: mockFunctionsInvoke
     },
     storage: {
       from: vi.fn(() => ({
         upload: vi.fn().mockResolvedValue({ data: {}, error: null }),
         download: vi.fn().mockResolvedValue({ data: new Blob(), error: null })
       }))
-    }
+    },
+    channel: vi.fn(() => ({
+      on: vi.fn(() => ({
+        on: vi.fn(() => ({
+          subscribe: vi.fn(() => ({
+            unsubscribe: vi.fn()
+          }))
+        })),
+        subscribe: vi.fn(() => ({
+          unsubscribe: vi.fn()
+        }))
+      })),
+      subscribe: vi.fn(() => ({
+        unsubscribe: vi.fn()
+      }))
+    }))
   }
 }));
 

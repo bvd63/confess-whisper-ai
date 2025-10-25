@@ -13,7 +13,20 @@ describe('Trial Edge Cases', () => {
   let mockSupabase: any;
 
   beforeEach(() => {
-    const mockInvoke = vi.fn(async (fnName: string) => {
+    const mockInvoke = vi.fn(async (fnName: string, options?: any) => {
+      if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
+        return {
+          data: {
+            currentPlan: 'premium',
+            status: 'trialing',
+            interval: 'monthly',
+            subscription_end: '2025-10-30T18:00:00Z',
+            trial_active: true,
+            trial_end_date: '2025-10-30T18:00:00Z',
+          },
+          error: null,
+        };
+      }
       if (fnName === 'billing-status') {
         return {
           data: {

@@ -22,6 +22,18 @@ describe('Delinquent Payment Update Flow', () => {
     });
 
     const mockInvoke = vi.fn(async (fnName: string, options: any) => {
+      if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
+        return {
+          data: {
+            currentPlan: 'premium',
+            status: 'past_due',
+            interval: 'monthly',
+            subscription_end: '2025-11-12T18:00:00Z',
+            payment_failed: true,
+          },
+          error: null,
+        };
+      }
       if (fnName === 'billing-status') {
         return {
           data: {

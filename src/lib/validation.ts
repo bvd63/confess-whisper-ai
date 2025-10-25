@@ -5,6 +5,39 @@ import { z } from 'zod';
  * Ensures type safety and security for all edge function calls
  */
 
+// Basic field validation schemas
+export const contentSchema = z.string()
+  .min(10, 'Content too short')
+  .max(10000, 'Content too long')
+  .trim();
+
+export const emailSchema = z.string()
+  .email('Invalid email format')
+  .toLowerCase()
+  .trim();
+
+export const passwordSchema = z.string()
+  .min(8, 'Password must be at least 8 characters')
+  .max(100, 'Password too long')
+  .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+  .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+  .regex(/[0-9]/, 'Password must contain at least one number');
+
+export const nicknameSchema = z.string()
+  .min(2, 'Nickname too short')
+  .max(30, 'Nickname too long')
+  .trim();
+
+export const bioSchema = z.string()
+  .max(500, 'Bio too long')
+  .trim()
+  .optional()
+  .or(z.literal(''));
+
+export const urlSchema = z.string()
+  .url('Invalid URL format')
+  .trim();
+
 // Confession validation
 export const confessionSchema = z.object({
   content: z.string().min(10, 'Content too short').max(5000, 'Content too long'),

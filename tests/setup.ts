@@ -42,6 +42,30 @@ const localStorageMock = {
 };
 global.localStorage = localStorageMock as any;
 
+// Mock indexedDB
+const indexedDBMock = {
+  open: vi.fn(() => ({
+    result: {
+      objectStoreNames: { contains: vi.fn(() => false) },
+      createObjectStore: vi.fn(),
+      transaction: vi.fn(() => ({
+        objectStore: vi.fn(() => ({
+          get: vi.fn(() => ({ onsuccess: null })),
+          put: vi.fn(() => ({ onsuccess: null })),
+          delete: vi.fn(() => ({ onsuccess: null })),
+          clear: vi.fn(() => ({ onsuccess: null })),
+          getAll: vi.fn(() => ({ onsuccess: null })),
+        })),
+      })),
+    },
+    onsuccess: null,
+    onerror: null,
+    onupgradeneeded: null,
+  })),
+  deleteDatabase: vi.fn(),
+};
+(global as any).indexedDB = indexedDBMock;
+
 // Suppress console errors in tests
 global.console = {
   ...console,
