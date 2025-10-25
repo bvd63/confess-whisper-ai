@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Lock, Sparkles, Share2 } from "lucide-react";
+import { Calendar, Lock, Sparkles, Share2, Check } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useSubscription } from "@/state/SubscriptionProvider";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -122,24 +122,41 @@ const Reflections = () => {
   if (!isVIP) {
     return (
       <AppLayout>
-        <div className="container mx-auto px-4 py-8 max-w-2xl">
-          <Card className="border-purple-500/20">
-            <CardContent className="p-8 text-center space-y-4">
-              <div className="relative inline-block">
-                <Lock className="h-16 w-16 text-purple-500 mx-auto" />
-                <Sparkles className="h-6 w-6 text-purple-500 absolute -top-2 -right-2 animate-pulse" />
+        <div className="min-h-[60vh] flex items-center justify-center p-4">
+          <Card className="max-w-md w-full p-8 text-center border-purple-500/20 bg-gradient-to-b from-purple-500/5 to-purple-600/5">
+            <div className="mb-6">
+              <div className="w-20 h-20 mx-auto bg-purple-500/20 rounded-full flex items-center justify-center mb-4">
+                <Sparkles className="w-10 h-10 text-purple-400" />
               </div>
-              <h2 className="text-2xl font-bold">{t.vip_only}</h2>
-              <p className="text-muted-foreground blur-sm select-none">
+              <h2 className="text-2xl font-bold mb-2">VIP Exclusive Feature</h2>
+              <p className="text-muted-foreground">
                 {t.upgrade_message}
               </p>
-              <Button
-                onClick={() => navigate("/profile")}
-                className="bg-purple-500 hover:bg-purple-600"
-              >
-                {t.upgrade_button}
-              </Button>
-            </CardContent>
+            </div>
+            
+            <div className="space-y-3 mb-6">
+              <div className="flex items-center gap-3 text-left">
+                <Lock className="w-5 h-5 text-green-500 flex-shrink-0" />
+                <span className="text-sm">Daily personalized AI insights</span>
+              </div>
+              <div className="flex items-center gap-3 text-left">
+                <Calendar className="w-5 h-5 text-green-500 flex-shrink-0" />
+                <span className="text-sm">Mood tracking & patterns</span>
+              </div>
+              <div className="flex items-center gap-3 text-left">
+                <Share2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                <span className="text-sm">Export your journey</span>
+              </div>
+            </div>
+            
+            <Button 
+              onClick={() => navigate('/profile')}
+              className="w-full bg-purple-600 hover:bg-purple-700"
+              size="lg"
+            >
+              <Lock className="w-5 h-5 mr-2" />
+              Upgrade to VIP - $6.99/month
+            </Button>
           </Card>
         </div>
       </AppLayout>

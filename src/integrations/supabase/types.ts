@@ -1269,6 +1269,36 @@ export type Database = {
           },
         ]
       }
+      notification_settings: {
+        Row: {
+          created_at: string | null
+          daily_reminder: boolean | null
+          evening_reflection: boolean | null
+          id: string
+          reminder_time: string | null
+          streak_alerts: boolean | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          daily_reminder?: boolean | null
+          evening_reflection?: boolean | null
+          id?: string
+          reminder_time?: string | null
+          streak_alerts?: boolean | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          daily_reminder?: boolean | null
+          evening_reflection?: boolean | null
+          id?: string
+          reminder_time?: string | null
+          streak_alerts?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           comment_content: string | null

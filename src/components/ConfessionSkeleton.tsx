@@ -1,9 +1,15 @@
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const ConfessionSkeleton = () => {
+interface ConfessionSkeletonProps {
+  count?: number;
+}
+
+const ConfessionSkeleton = ({ count = 1 }: ConfessionSkeletonProps) => {
   return (
-    <Card className="p-6 space-y-4 animate-pulse">
+    <>
+      {Array.from({ length: count }).map((_, index) => (
+        <Card key={index} className="p-6 space-y-4 animate-pulse">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
@@ -35,7 +41,9 @@ const ConfessionSkeleton = () => {
         </div>
         <Skeleton className="h-9 w-28 rounded" />
       </div>
-    </Card>
+        </Card>
+      ))}
+    </>
   );
 };
 

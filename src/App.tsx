@@ -71,23 +71,27 @@ const AppContent = () => {
   // Check if onboarding is needed
   useEffect(() => {
     const checkOnboarding = async () => {
-      if (!user) {
+      if (!user || onboardingChecked) return;
+      
+      try {
+        const { data } = await getSupabase()
+          .from('profiles')
+          .select('onboarding_completed')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (data && !data.onboarding_completed) {
+          setShowOnboarding(true);
+        }
         setOnboardingChecked(true);
-        return;
+      } catch (error) {
+        console.error('Onboarding check error:', error);
+        setOnboardingChecked(true);
       }
-
-      const { data } = await getSupabase()
-        .from("profiles")
-        .select("onboarding_completed")
-        .eq("user_id", user.id)
-        .single();
-
-      setShowOnboarding(!data?.onboarding_completed);
-      setOnboardingChecked(true);
     };
-
+    
     checkOnboarding();
-  }, [user]);
+  }, [user, onboardingChecked]);
 
   useAuthRefresh(); // Auto JWT refresh
   useSessionRestoration(); // Auto session restoration
@@ -178,7 +182,10 @@ const AppContent = () => {
       {onboardingChecked && showOnboarding && user && (
         <Onboarding
           userId={user.id}
-          onComplete={() => setShowOnboarding(false)}
+          onComplete={() => {
+            setShowOnboarding(false);
+            window.location.reload(); // Refresh to update coins & UI
+          }}
         />
       )}
       

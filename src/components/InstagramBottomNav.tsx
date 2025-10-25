@@ -89,7 +89,9 @@ export const InstagramBottomNav = () => {
                     />
                     {item.showVIPBadge && (
                       <div className="absolute -top-1 -right-1">
-                        <VIPBadge tier="vip" size="sm" />
+                        <div className="relative w-2.5 h-2.5 bg-purple-500 rounded-full">
+                          <div className="absolute inset-0 w-2.5 h-2.5 bg-purple-400 rounded-full animate-ping" />
+                        </div>
                       </div>
                     )}
                   </div>

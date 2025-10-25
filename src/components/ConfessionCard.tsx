@@ -29,6 +29,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useCachePurgeOnDelete } from "@/hooks/useCachePurgeOnDelete";
 import { Copy } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useEditDeleteWindow } from "@/hooks/useEditDeleteWindow";
 import { useHaptic } from "@/hooks/useHaptic";
 import { useSensitiveContent } from "@/hooks/useSensitiveContent";
@@ -267,30 +268,31 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
 
       {confession.ai_response && (
         <>
-          <div className={`mt-4 p-4 rounded-lg border ${
+          <div className={cn(
+            "mt-4 rounded-lg transition-all",
             subscriptionTier === 'vip' 
-              ? 'bg-purple-500/5 border-purple-500/20' 
-              : 'bg-primary/5 border-primary/10'
-          }`}>
-            <div className="flex items-center gap-2 mb-2 text-sm font-medium">
-              <MessageCircle className="w-4 h-4" />
-              <span>{t.ai_reply_title}</span>
-              {subscriptionTier === 'vip' && (
-                <span className="ml-auto text-xs bg-purple-500/20 text-purple-500 px-2 py-0.5 rounded-full flex items-center gap-1">
-                  <Crown className="w-3 h-3" />
-                  VIP PRIORITY REPLY
-                </span>
-              )}
-            </div>
-            <p className="text-sm text-foreground/90 leading-relaxed italic">
-              {confession.ai_response}
-            </p>
+              ? "p-4 bg-gradient-to-r from-purple-500/10 to-purple-600/10 border border-purple-500/30 shadow-lg shadow-purple-500/10" 
+              : "p-3 bg-muted/50"
+          )}>
             {subscriptionTier === 'vip' && (
-              <div className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-purple-500" />
-                <span>2x Karma earned for this confession</span>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
+                  <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">
+                    VIP Priority AI Response
+                  </span>
+                </div>
+                <div className="ml-auto text-xs text-purple-400/80">
+                  2x Karma Active
+                </div>
               </div>
             )}
+            <p className={cn(
+              "text-sm leading-relaxed",
+              subscriptionTier === 'vip' && "text-purple-100"
+            )}>
+              {confession.ai_response}
+            </p>
           </div>
 
           {/* Deep Insight Button */}
