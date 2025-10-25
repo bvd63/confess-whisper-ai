@@ -4,8 +4,7 @@
  */
 
 export const STRIPE_PRICE_IDS = {
-  premium_monthly: "price_1SJ0vvR7kygIyYg9oT1ju6lQ",
-  premium_yearly: "price_1SJ0vvR7kygIyYg9yORadPGD",
+
   vip_monthly: "price_1SJ0vwR7kygIyYg9OeCiqV00",
   vip_yearly: "price_1SJ0vvR7kygIyYg9BJuciYGd",
 } as const;
