@@ -129,29 +129,50 @@ export type Database = {
         Row: {
           created_at: string | null
           description: string
+          description_de: string | null
+          description_en: string | null
+          description_es: string | null
           icon: string
           id: string
           name: string
+          points_required: number | null
           requirement_type: string
           requirement_value: number
+          title_de: string | null
+          title_en: string | null
+          title_es: string | null
         }
         Insert: {
           created_at?: string | null
           description: string
+          description_de?: string | null
+          description_en?: string | null
+          description_es?: string | null
           icon: string
           id?: string
           name: string
+          points_required?: number | null
           requirement_type: string
           requirement_value: number
+          title_de?: string | null
+          title_en?: string | null
+          title_es?: string | null
         }
         Update: {
           created_at?: string | null
           description?: string
+          description_de?: string | null
+          description_en?: string | null
+          description_es?: string | null
           icon?: string
           id?: string
           name?: string
+          points_required?: number | null
           requirement_type?: string
           requirement_value?: number
+          title_de?: string | null
+          title_en?: string | null
+          title_es?: string | null
         }
         Relationships: []
       }
@@ -687,6 +708,7 @@ export type Database = {
           community_id: string | null
           content: string
           created_at: string
+          emotional_tone: string | null
           id: string
           image_blurred: boolean | null
           image_url: string | null
@@ -717,6 +739,7 @@ export type Database = {
           community_id?: string | null
           content: string
           created_at?: string
+          emotional_tone?: string | null
           id?: string
           image_blurred?: boolean | null
           image_url?: string | null
@@ -747,6 +770,7 @@ export type Database = {
           community_id?: string | null
           content?: string
           created_at?: string
+          emotional_tone?: string | null
           id?: string
           image_blurred?: boolean | null
           image_url?: string | null
@@ -1344,6 +1368,7 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           created_at: string
+          dominant_tone: string | null
           followers_count: number | null
           following_count: number | null
           handle: string | null
@@ -1352,6 +1377,7 @@ export type Database = {
           is_premium: boolean | null
           is_shadow_banned: boolean | null
           last_daily_reward: string | null
+          level: number | null
           nickname: string | null
           nickname_lower: string | null
           nickname_updated_at: string | null
@@ -1369,6 +1395,8 @@ export type Database = {
           subscription_ends_at: string | null
           subscription_status: string | null
           subscription_tier: string | null
+          tone_history: Json | null
+          total_points: number | null
           total_referrals: number | null
           trial_active: boolean | null
           trial_end_date: string | null
@@ -1381,6 +1409,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          dominant_tone?: string | null
           followers_count?: number | null
           following_count?: number | null
           handle?: string | null
@@ -1389,6 +1418,7 @@ export type Database = {
           is_premium?: boolean | null
           is_shadow_banned?: boolean | null
           last_daily_reward?: string | null
+          level?: number | null
           nickname?: string | null
           nickname_lower?: string | null
           nickname_updated_at?: string | null
@@ -1406,6 +1436,8 @@ export type Database = {
           subscription_ends_at?: string | null
           subscription_status?: string | null
           subscription_tier?: string | null
+          tone_history?: Json | null
+          total_points?: number | null
           total_referrals?: number | null
           trial_active?: boolean | null
           trial_end_date?: string | null
@@ -1418,6 +1450,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          dominant_tone?: string | null
           followers_count?: number | null
           following_count?: number | null
           handle?: string | null
@@ -1426,6 +1459,7 @@ export type Database = {
           is_premium?: boolean | null
           is_shadow_banned?: boolean | null
           last_daily_reward?: string | null
+          level?: number | null
           nickname?: string | null
           nickname_lower?: string | null
           nickname_updated_at?: string | null
@@ -1443,6 +1477,8 @@ export type Database = {
           subscription_ends_at?: string | null
           subscription_status?: string | null
           subscription_tier?: string | null
+          tone_history?: Json | null
+          total_points?: number | null
           total_referrals?: number | null
           trial_active?: boolean | null
           trial_end_date?: string | null
