@@ -16,7 +16,7 @@ test.describe('Subscription Downgrade Flow', () => {
     await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
   });
 
-  test('VIP to Premium downgrade scheduled at period end', async ({ page }) => {
+  test('VIP to Free downgrade scheduled at period end', async ({ page }) => {
     const manageButton = page.getByTestId('manage-subscription-btn');
     await manageButton.waitFor({ state: 'visible', timeout: 10000 });
     await manageButton.click();

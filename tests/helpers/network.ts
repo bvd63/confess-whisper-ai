@@ -29,7 +29,7 @@ export async function mockSubscriptionRoutes(page: Page) {
 
     // Parse request to determine which fixture to return
     const postData = request.postDataJSON?.() || {};
-    const targetTier = postData.target_tier || 'premium';
+    const targetTier = postData.target_tier || 'vip';
     const cycle = postData.cycle || 'monthly';
 
     let fixture = previewUpgradeFreeFixture;
@@ -151,7 +151,7 @@ export async function mockSubscriptionRoutes(page: Page) {
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
-          currentPlan: 'premium',
+          currentPlan: 'vip',
           interval: 'monthly',
           status: 'active',
           cancelAtPeriodEnd: false,

@@ -42,11 +42,11 @@ vi.mock('@/integrations/supabase/client', () => {
   const mockResult = {
     data: {
       id: 'test-subscription',
-      status: 'PREMIUM',
+      status: 'VIP',
       current_period_end: '2025-11-12T18:00:00Z',
-      plan_name: 'premium',
-      is_premium: true,
-      subscription_tier: 'premium',
+      plan_name: 'vip',
+      is_premium: false,
+      subscription_tier: 'vip',
       subscription_ends_at: '2025-11-12T18:00:00Z',
       trial_active: false,
       trial_end_date: null,

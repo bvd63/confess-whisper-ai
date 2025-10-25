@@ -18,7 +18,7 @@ test.describe('Subscription Upgrade Flow', () => {
     await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
   });
 
-  test('free to premium yearly shows savings percentage', async ({ page }) => {
+  test('free to VIP yearly shows savings percentage', async ({ page }) => {
     const upgradeButton = page.getByTestId('manage-subscription-btn');
     await upgradeButton.waitFor({ state: 'visible', timeout: 10000 });
     await upgradeButton.click();

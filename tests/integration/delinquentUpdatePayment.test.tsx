@@ -24,7 +24,7 @@ describe('Delinquent Payment Update Flow', () => {
       if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
         return {
           data: {
-            currentPlan: 'premium',
+            currentPlan: 'vip',
             status: 'past_due',
             interval: 'monthly',
             subscription_end: '2025-11-12T18:00:00Z',
@@ -37,7 +37,7 @@ describe('Delinquent Payment Update Flow', () => {
         return {
           data: {
             subscribed: true,
-            plan: 'premium',
+            plan: 'vip',
             subscription_end: '2025-11-12T18:00:00Z',
             status: 'past_due',
             payment_failed: true,
@@ -58,7 +58,7 @@ describe('Delinquent Payment Update Flow', () => {
     renderWithProviders(<EnhancedSubscriptionManager />);
     
     await waitFor(() => {
-      expect(screen.getAllByText(/Premium/i)[0]).toBeInTheDocument();
+      expect(screen.getAllByText(/VIP/i)[0]).toBeInTheDocument();
     });
   });
 
@@ -87,7 +87,7 @@ describe('Delinquent Payment Update Flow', () => {
     
     // Mock Payment Element interaction
     await waitFor(() => {
-      expect(screen.getAllByText(/Premium/i)[0]).toBeInTheDocument();
+      expect(screen.getAllByText(/VIP/i)[0]).toBeInTheDocument();
     });
     
     // Simulate successful payment method update
@@ -108,7 +108,7 @@ describe('Delinquent Payment Update Flow', () => {
       if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
         return {
           data: {
-            currentPlan: 'premium',
+            currentPlan: 'vip',
             status: 'past_due',
             interval: 'monthly',
             payment_failed: true,
@@ -120,7 +120,7 @@ describe('Delinquent Payment Update Flow', () => {
         return {
           data: {
             subscribed: true,
-            plan: 'premium',
+            plan: 'vip',
             status: 'past_due',
             payment_failed: true,
           },
@@ -168,7 +168,7 @@ describe('Delinquent Payment Update Flow', () => {
       if (fnName === 'subscription-manage' && options?.body?.action === 'status') {
         return {
           data: {
-            currentPlan: 'premium',
+            currentPlan: 'vip',
             status: 'past_due',
             interval: 'monthly',
             payment_failed: true,
@@ -182,7 +182,7 @@ describe('Delinquent Payment Update Flow', () => {
       return {
         data: {
           subscribed: true,
-          plan: 'premium',
+          plan: 'vip',
           status: 'past_due',
         },
         error: null,
@@ -204,7 +204,7 @@ describe('Delinquent Payment Update Flow', () => {
     await user.click(submitButton);
     
     await waitFor(() => {
-      expect(screen.getAllByText(/Premium/i)[0]).toBeInTheDocument();
+      expect(screen.getAllByText(/VIP/i)[0]).toBeInTheDocument();
     });
   });
 

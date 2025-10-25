@@ -30,7 +30,7 @@ test.describe('Internationalization (i18n)', () => {
     await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Verify Spanish labels
-    await expect(dialog.getByText(/plan|premium|vip/i)).toBeVisible({ timeout: 10000 });
+    await expect(dialog.getByText(/plan|vip/i)).toBeVisible({ timeout: 10000 });
   });
 
   test('displays subscription management in German', async ({ page }) => {
@@ -54,7 +54,7 @@ test.describe('Internationalization (i18n)', () => {
     await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Verify German labels
-    await expect(dialog.getByText(/plan|premium|vip/i)).toBeVisible({ timeout: 10000 });
+    await expect(dialog.getByText(/plan|vip/i)).toBeVisible({ timeout: 10000 });
   });
 
   test('all action buttons have translations', async ({ page }) => {
