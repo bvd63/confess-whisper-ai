@@ -128,7 +128,7 @@ export default function CoinPurchaseSuccess() {
         )}
         
         <p className="text-muted-foreground">
-          {t.coins_purchase_success_message || 'Your coins have been added to your account. You can now use them to unlock premium features!'}
+          {t.coins_purchase_success_message || 'Your coins have been added to your account. You can now use them to unlock VIP features!'}
         </p>
 
         <div className="space-y-3">

@@ -156,7 +156,7 @@ export default function TestPayments() {
 
       const { data, error } = await supabase.functions.invoke('billing-buy', {
         body: { 
-          tier: 'premium',
+          tier: 'vip',
           cycle: 'monthly'
         }
       });
@@ -173,7 +173,7 @@ export default function TestPayments() {
 
       // Determine target tier for upgrade
       let targetPriceId: string;
-      if (currentTier === 'free' || currentTier === 'premium') {
+      if (currentTier === 'free') {
         targetPriceId = SUBSCRIPTION_PLANS.find(p => p.id === 'vip')?.stripePriceIdMonthly || '';
       } else {
         return { note: 'Already on highest tier (VIP)' };
@@ -207,7 +207,7 @@ export default function TestPayments() {
       });
       
       if (error) throw error;
-      return { message: 'Downgrade scheduled at period end', targetTier: 'premium', ...data };
+      return { message: 'Downgrade scheduled at period end', targetTier: 'free', ...data };
     });
   };
 
@@ -465,7 +465,7 @@ export default function TestPayments() {
                 size="sm"
               >
                 {loading === 'Upgrade Subscription' && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                4. Test Upgrade (Premium → VIP)
+                4. Test Upgrade (FREE → VIP)
               </Button>
               {renderTestResult('Upgrade Subscription')}
 
@@ -477,7 +477,7 @@ export default function TestPayments() {
                 size="sm"
               >
                 {loading === 'Downgrade Subscription' && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                5. Test Downgrade (VIP → Premium)
+                5. Test Downgrade (VIP → FREE)
               </Button>
               {renderTestResult('Downgrade Subscription')}
 

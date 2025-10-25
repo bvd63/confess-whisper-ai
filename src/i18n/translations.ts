@@ -5128,7 +5128,7 @@ export const translations: Record<Language, Translations> = {
     reward_claimed: "¡Recompensa Reclamada!",
     reward_claimed_desc: "Recibiste 10 monedas por iniciar sesión hoy",
     
-    // Premium Teasers
+    // VIP Teasers
     teaser_feature: "Desbloquea Funciones VIP",
     teaser_description: "Obtén información ilimitada, soporte prioritario y ventajas exclusivas",
     teaser_unlock: "Desbloquear VIP",
@@ -6883,7 +6883,7 @@ export const translations: Record<Language, Translations> = {
     reward_claimed: "Belohnung Erhalten!",
     reward_claimed_desc: "Du hast 10 Münzen für deine heutige Anmeldung erhalten",
     
-    // Premium Teasers
+    // VIP Teasers
     teaser_feature: "VIP-Funktionen Freischalten",
     teaser_description: "Erhalte unbegrenzte Einblicke, vorrangigen Support und exklusive Vorteile",
     teaser_unlock: "VIP Freischalten",

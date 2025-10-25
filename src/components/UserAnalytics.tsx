@@ -112,7 +112,7 @@ const UserAnalytics = ({
           <div className="flex items-center justify-between px-[240px] my-px py-px mx-[25px]">
             <div className="flex items-center gap-3">
               <CardTitle className="text-lg">{t.subscription_title}</CardTitle>
-              <ProfileTierBadge tier={(subscriptionTier === 'premium' ? 'vip' : subscriptionTier) as "free" | "vip"} />
+              <ProfileTierBadge tier={subscriptionTier as "free" | "vip"} />
             </div>
             
           </div>

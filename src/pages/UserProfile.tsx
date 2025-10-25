@@ -104,7 +104,7 @@ const UserProfile = () => {
     <>
     <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
       <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
-        <TierProfileCard tier={(subscriptionTier === 'premium' ? 'vip' : subscriptionTier) as "free" | "vip"} className="mb-6">
+        <TierProfileCard tier={subscriptionTier as "free" | "vip"} className="mb-6">
           <ProfileHeader
             userId={userId!}
             currentUserId={currentUser.id}

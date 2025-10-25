@@ -4,7 +4,7 @@ import { useOptimizedQuery } from "./useOptimizedQuery";
 
 export const usePremiumStatus = (userId: string | null | undefined) => {
   const { data, isLoading, refetch } = useOptimizedQuery<any>({
-    queryKey: ['premium-status', userId],
+    queryKey: ['vip-status', userId],
     queryFn: async () => {
       if (!userId) return null;
 
@@ -40,7 +40,7 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
     enabled: !!userId,
     cacheTTL: 30 * 60 * 1000, // 30 minutes cache
     staleTime: 15 * 60 * 1000, // 15 minutes stale time
-    cacheKey: `premium-${userId}`,
+    cacheKey: `vip-${userId}`,
     useCircuitBreaker: true,
     useDedupe: true,
   });

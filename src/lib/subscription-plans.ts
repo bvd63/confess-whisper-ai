@@ -39,7 +39,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     stripePriceIdYearly: 'vip_yearly',
     isPopular: true,
     benefits: [
-      'All premium features',
+      'All VIP features',
       'Priority AI responses',
       'VIP Reflection Feed',
       'Double coins for streaks',

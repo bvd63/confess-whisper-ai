@@ -303,7 +303,7 @@ export default function TestSubscriptions() {
               variant="outline"
               className="gap-2"
             >
-              {loading === "Create Checkout (Premium Monthly)" && (
+              {loading === "Create Checkout (VIP Monthly)" && (
                 <Loader2 className="w-4 h-4 animate-spin" />
               )}
               Create Checkout
@@ -336,7 +336,7 @@ export default function TestSubscriptions() {
               variant="outline"
               className="gap-2"
             >
-              {loading === "Downgrade to Premium Monthly" && (
+              {loading === "Downgrade to FREE" && (
                 <Loader2 className="w-4 h-4 animate-spin" />
               )}
               Downgrade
