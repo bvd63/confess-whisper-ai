@@ -3547,7 +3547,7 @@ export const translations: Record<Language, Translations> = {
     coins_balance: "Balance",
     coins_get_more: "Get Coins",
     coins_shop_title: "Coin Shop",
-    coins_shop_subtitle: "Purchase coins to unlock premium features",
+    coins_shop_subtitle: "Purchase coins to unlock VIP features",
     coins_best_value: "Best Value",
     coins_per_coin: "per coin",
     coins_buy_now: "Buy Now",

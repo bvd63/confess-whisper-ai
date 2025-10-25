@@ -67,11 +67,11 @@ export default function TestSubscriptions() {
       return data;
     });
 
-  // Test 3: Create Checkout Session (Premium Monthly)
+  // Test 3: Create Checkout Session (VIP Monthly)
   const testCreateCheckout = () =>
-    runTest("Create Checkout (Premium Monthly)", async () => {
+    runTest("Create Checkout (VIP Monthly)", async () => {
       const { data, error } = await supabase.functions.invoke("billing-buy", {
-        body: { tier: "premium", cycle: "monthly" },
+        body: { tier: "vip", cycle: "monthly" },
       });
       if (error) {
         // Supabase returns non-2xx as error with the body in error.context.body
@@ -133,13 +133,13 @@ export default function TestSubscriptions() {
       return data;
     });
 
-  // Test 6: Downgrade Subscription
+  // Test 6: Downgrade Subscription to Free
   const testDowngrade = () =>
-    runTest("Downgrade to Premium Monthly", async () => {
+    runTest("Downgrade to Free", async () => {
       const { data, error } = await supabase.functions.invoke(
         "manage-subscription-v2",
         {
-          body: { action: "downgrade", targetTier: "premium" },
+          body: { action: "downgrade", targetTier: "free" },
         }
       );
       if (error) throw error;

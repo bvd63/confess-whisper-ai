@@ -6,7 +6,7 @@ interface StatsData {
   totalUsers?: number;
   totalConfessions?: number;
   totalLikes?: number;
-  premiumUsers?: number;
+  vipUsers?: number;
 }
 
 interface StatsCardProps {
@@ -40,7 +40,7 @@ const SocialProofStats = ({ stats }: StatsCardProps) => {
     },
     {
       icon: Sparkles,
-      value: stats.premiumUsers || "280+",
+      value: stats.vipUsers || "280+",
       label: t.stats_vip_members,
       color: "text-purple-500",
       bgColor: "bg-purple-500/10",

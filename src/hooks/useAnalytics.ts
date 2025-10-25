@@ -9,7 +9,7 @@ export type AnalyticsEvent =
   | 'confession_shared'
   | 'confession_reported'
   | 'deep_insight_generated'
-  | 'premium_upgrade_clicked'
+  | 'vip_upgrade_clicked'
   | 'auth_signup'
   | 'auth_login'
   | 'referral_shared'

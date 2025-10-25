@@ -80,7 +80,7 @@ export default function CoinShop({ open, onOpenChange }: CoinShopProps) {
       case 'starter': return <Coins className="w-8 h-8" />;
       case 'popular': return <TrendingUp className="w-8 h-8" />;
       case 'value': return <Sparkles className="w-8 h-8" />;
-      case 'premium': return <Zap className="w-8 h-8" />;
+      case 'vip': return <Zap className="w-8 h-8" />;
       default: return <Coins className="w-8 h-8" />;
     }
   };

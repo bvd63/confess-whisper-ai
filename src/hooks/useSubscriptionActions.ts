@@ -2,7 +2,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { STRIPE_PRICE_IDS } from "@/lib/stripe-config";
+import { STRIPE_PRICE } from "@/lib/stripe-config";
 
 interface SubscriptionActionResult {
   success: boolean;
@@ -10,14 +10,10 @@ interface SubscriptionActionResult {
   error?: string;
 }
 
-const mapPriceIdToTier = (priceId: string): "premium" | "vip" | "free" => {
+const mapPriceIdToTier = (priceId: string): "vip" | "free" => {
   if (!priceId) return "free";
-  const entries = Object.entries(STRIPE_PRICE_IDS);
-  for (const [key, val] of entries) {
-    if (val === priceId) {
-      if (key.startsWith("vip_")) return "vip";
-      if (key.startsWith("premium_")) return "premium";
-    }
+  if (priceId === STRIPE_PRICE.VIP_MONTHLY || priceId === STRIPE_PRICE.VIP_YEARLY) {
+    return "vip";
   }
   return "free";
 };
