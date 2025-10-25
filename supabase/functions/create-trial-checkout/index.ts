@@ -26,7 +26,7 @@ serve(async (req) => {
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
     if (userError || !user) throw new Error("User not authenticated");
 
-    console.log(`[TRIAL-CHECKOUT] User ${user.id} requesting Premium trial`);
+    console.log(`[TRIAL-CHECKOUT] User ${user.id} requesting VIP trial`);
 
     // Check trial eligibility
     const { data: profile, error: profileError } = await supabaseClient
@@ -43,7 +43,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           error: "TRIAL_ALREADY_USED",
-          message: "You've already used your Premium trial"
+          message: "You've already used your VIP trial"
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 409 }
       );
@@ -67,8 +67,8 @@ serve(async (req) => {
     
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-    // Get Premium price ID - ALWAYS use Premium for trial
-    const premiumPriceId = "price_1SJ0vvR7kygIyYg9oT1ju6lQ";
+    // Get VIP price ID - ALWAYS use VIP for trial
+    const vipPriceId = Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || "price_1SJ0vwR7kygIyYg9OeCiqV00";
 
     // Check for existing customer
     const customers = await stripe.customers.list({ email: user.email!, limit: 1 });
@@ -80,14 +80,14 @@ serve(async (req) => {
       customer: customerId,
       customer_email: customerId ? undefined : user.email!,
       line_items: [{
-        price: premiumPriceId,
+        price: vipPriceId,
         quantity: 1,
       }],
       mode: "subscription",
       subscription_data: {
         trial_period_days: 3,
         metadata: {
-          appTier: "PREMIUM",
+          appTier: "VIP",
           userId: user.id,
         },
       },
@@ -107,7 +107,7 @@ serve(async (req) => {
         trial_premium_used: true,
         trial_premium_started_at: trialStartsAt.toISOString(),
         trial_premium_ends_at: trialEndsAt.toISOString(),
-        subscription_tier: "premium",
+        subscription_tier: "vip",
         is_premium: true,
         trial_active: true,
         trial_end_date: trialEndsAt.toISOString(),
@@ -116,7 +116,7 @@ serve(async (req) => {
 
     if (updateError) throw updateError;
 
-    console.log(`[TRIAL-CHECKOUT] Premium trial activated for user ${user.id} until ${trialEndsAt.toISOString()}`);
+    console.log(`[TRIAL-CHECKOUT] VIP trial activated for user ${user.id} until ${trialEndsAt.toISOString()}`);
 
     return new Response(
       JSON.stringify({ 

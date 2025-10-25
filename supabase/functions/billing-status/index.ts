@@ -16,13 +16,9 @@ const logStep = (step: string, details?: any) => {
 // Price IDs for both test and live mode
 const STRIPE_PRICE_IDS = {
   // Test mode
-  premium_monthly_test: "price_1SIVqFR7kygIyYg9Ai1tJ2AI",
-  premium_yearly_test: "price_1SIVqeR7kygIyYg9FizFMLRx",
   vip_monthly_test: "price_1SL42cR7kygIyYg9LFEBp8uz",
   vip_yearly_test: "price_1SL42zR7kygIyYg9IZrd2ExW",
   // Live mode
-  premium_monthly_live: "price_1SJ0vvR7kygIyYg9oT1ju6lQ",
-  premium_yearly_live: "price_1SJ0vvR7kygIyYg9yORadPGD",
   vip_monthly_live: "price_1SJ0vwR7kygIyYg9OeCiqV00",
   vip_yearly_live: "price_1SJ0vvR7kygIyYg9BJuciYGd",
 };
@@ -36,16 +32,6 @@ const getTierFromPriceId = (priceId: string): string => {
     priceId === STRIPE_PRICE_IDS.vip_yearly_live
   ) {
     return 'vip';
-  }
-  
-  // Check if it's a Premium price
-  if (
-    priceId === STRIPE_PRICE_IDS.premium_monthly_test ||
-    priceId === STRIPE_PRICE_IDS.premium_yearly_test ||
-    priceId === STRIPE_PRICE_IDS.premium_monthly_live ||
-    priceId === STRIPE_PRICE_IDS.premium_yearly_live
-  ) {
-    return 'premium';
   }
   
   // Default to free if price not recognized

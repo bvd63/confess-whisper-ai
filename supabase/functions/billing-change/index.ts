@@ -13,7 +13,6 @@ const logStep = (step: string, details?: any) => {
 };
 
 const STRIPE_PRICE_IDS = {
-  premium: "price_1SJ0vvR7kygIyYg9oT1ju6lQ",
   vip: "price_1SJ0vwR7kygIyYg9OeCiqV00",
 };
 
@@ -46,7 +45,7 @@ serve(async (req) => {
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     const { targetTier } = await req.json();
-    if (!targetTier || !['premium', 'vip'].includes(targetTier)) {
+    if (!targetTier || targetTier !== 'vip') {
       throw new Error("Invalid target tier");
     }
 

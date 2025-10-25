@@ -36,13 +36,13 @@ serve(async (req) => {
 
     if (profileError) throw profileError;
 
-    // Check trial_premium_ends_at (new Premium trial system)
+    // Check trial_premium_ends_at (VIP trial system)
     if (profile.trial_premium_ends_at) {
       const trialEndDate = new Date(profile.trial_premium_ends_at);
       const now = new Date();
 
       if (now > trialEndDate) {
-        console.log(`[CHECK-TRIAL-EXPIRY] Premium trial expired for user ${user.id}, reverting to free`);
+        console.log(`[CHECK-TRIAL-EXPIRY] VIP trial expired for user ${user.id}, reverting to free`);
         
         // Revoke trial purchases first
         const { error: revokeError } = await supabaseClient.rpc('revoke_trial_purchases', {
@@ -69,7 +69,7 @@ serve(async (req) => {
         return new Response(
           JSON.stringify({ 
             trialExpired: true,
-            message: "Premium trial expired, reverted to free tier",
+            message: "VIP trial expired, reverted to free tier",
             trialPurchasesRevoked: !revokeError
           }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
