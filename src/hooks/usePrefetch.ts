@@ -178,6 +178,92 @@ export const usePrefetch = () => {
   };
 
   /**
+   * Prefetch page data based on tab
+   */
+  const prefetchPage = (page: string) => {
+    const prefetchKey = `page-${page}`;
+
+    if ('requestIdleCallback' in window) {
+      const idleCallback = requestIdleCallback(
+        () => {
+          switch (page) {
+            case 'explore':
+              queryClient.prefetchQuery({
+                queryKey: ['confessions', 'explore'],
+                queryFn: async () => {
+                  const { supabase } = await import('@/integrations/supabase/client');
+                  const { data } = await supabase
+                    .from('confessions')
+                    .select('*')
+                    .order('likes_count', { ascending: false })
+                    .limit(10);
+                  return data;
+                },
+                staleTime: 2 * 60 * 1000,
+              });
+              break;
+            case 'messages':
+              queryClient.prefetchQuery({
+                queryKey: ['conversations'],
+                queryFn: async () => {
+                  const { supabase } = await import('@/integrations/supabase/client');
+                  const { data } = await supabase
+                    .from('conversations')
+                    .select('*')
+                    .order('updated_at', { ascending: false })
+                    .limit(20);
+                  return data;
+                },
+                staleTime: 1 * 60 * 1000,
+              });
+              break;
+          }
+        },
+        { timeout: 2000 }
+      );
+
+      prefetchTimeouts.current.set(prefetchKey, idleCallback as unknown as number);
+    } else {
+      const timeout = setTimeout(() => {
+        switch (page) {
+          case 'explore':
+            queryClient.prefetchQuery({
+              queryKey: ['confessions', 'explore'],
+              queryFn: async () => {
+                const { supabase } = await import('@/integrations/supabase/client');
+                const { data } = await supabase
+                  .from('confessions')
+                  .select('*')
+                  .order('likes_count', { ascending: false })
+                  .limit(10);
+                return data;
+              },
+              staleTime: 2 * 60 * 1000,
+            });
+            break;
+          case 'messages':
+            queryClient.prefetchQuery({
+              queryKey: ['conversations'],
+              queryFn: async () => {
+                const { supabase } = await import('@/integrations/supabase/client');
+                const { data } = await supabase
+                  .from('conversations')
+                  .select('*')
+                  .order('updated_at', { ascending: false })
+                  .limit(20);
+                return data;
+              },
+              staleTime: 1 * 60 * 1000,
+            });
+            break;
+        }
+      }, 100);
+
+      prefetchTimeouts.current.set(prefetchKey, timeout as unknown as number);
+    }
+  };
+
+  /**
    * Cancel specific prefetch
    */
   const cancelPrefetch = (key: string) => {
@@ -196,6 +282,7 @@ export const usePrefetch = () => {
     prefetchUserProfile,
     prefetchCommunity,
     prefetchNextPage,
+    prefetchPage,
     cancelPrefetch,
   };
 };

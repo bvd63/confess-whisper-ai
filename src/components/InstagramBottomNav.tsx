@@ -8,6 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { createPortal } from "react-dom";
 import { useSubscription } from "@/state/SubscriptionProvider";
 import { VIPBadge } from "./VIPBadge";
+import { usePrefetch } from "@/hooks/usePrefetch";
 
 /**
  * Instagram-style bottom navigation bar with independent tab stacks
@@ -20,6 +21,7 @@ export const InstagramBottomNav = () => {
   const { totalUnread } = useUnreadCount(user?.id || null);
   const { t } = useLanguage();
   const { subscriptionTier } = useSubscription();
+  const { prefetchPage } = usePrefetch();
 
   const isVIP = subscriptionTier === 'vip';
 
@@ -69,6 +71,7 @@ export const InstagramBottomNav = () => {
                   key={item.tabId}
                   type="button"
                   onClick={() => handleTabClick(item.tabId)}
+                  onMouseEnter={() => prefetchPage(item.tabId)}
                   className={cn(
                     "relative flex flex-col items-center justify-center w-16 h-12 rounded-lg transition-all duration-200 animate-fade-in hover-scale",
                     active
