@@ -17,6 +17,7 @@ export const useQuoteOfTheDay = () => {
   const { language } = useLanguage();
   const queryClient = useQueryClient();
 
+  // Aggressive caching: quote changes once per day, so cache for 24h
   const { data: qotdState, isLoading } = useOptimizedQuery({
     queryKey: ['quote-of-the-day'],
     queryFn: async () => {
@@ -24,16 +25,16 @@ export const useQuoteOfTheDay = () => {
         .from('app_state')
         .select('value')
         .eq('key', 'quote_of_the_day')
-        .maybeSingle();
+        .single(); // Use single() instead of maybeSingle() for better performance
 
       if (error) throw error;
       return data?.value ? (data.value as unknown as Quote) : null;
     },
     cacheKey: 'qotd',
-    cacheTTL: 60 * 60 * 1000, // 1 hour cache - quote only changes once per day
-    staleTime: 30 * 60 * 1000, // 30 minutes stale time - rely on realtime for updates
-    useCircuitBreaker: true,
-    useRetry: true,
+    cacheTTL: 24 * 60 * 60 * 1000, // 24 hour cache - quote only changes once per day
+    staleTime: 12 * 60 * 60 * 1000, // 12 hours stale time - very stable data
+    useCircuitBreaker: false, // Disable circuit breaker for static data
+    useRetry: false, // No retries needed for cached data
     useDedupe: true,
   });
 
