@@ -126,6 +126,15 @@ Navigate to `/test-subscriptions` to access the comprehensive test suite.
 
 All functions are properly configured in `supabase/config.toml`:
 
+### Webhook Functions
+- `stripe-webhook`: Main webhook handler for all Stripe events
+- `stripe-webhook-subscriptions`: Dedicated handler for subscription lifecycle events
+  - Processes: `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`
+  - Updates: `profiles.subscription_tier`, `profiles.subscription_status`, `profiles.subscription_ends_at`
+  - Logs: Comprehensive structured logging for debugging
+  - Security: Verifies webhook signatures using `STRIPE_WEBHOOK_SECRET`
+
+### Configuration
 ```toml
 [functions.check-subscription]
 verify_jwt = true
@@ -158,6 +167,9 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.stripe-webhook]
+verify_jwt = false  # Stripe signs with webhook secret
+
+[functions.stripe-webhook-subscriptions]
 verify_jwt = false  # Stripe signs with webhook secret
 ```
 

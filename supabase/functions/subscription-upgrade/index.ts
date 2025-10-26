@@ -8,7 +8,13 @@ const corsHeaders = {
 };
 
 const log = (level: string, message: string, data?: any) => {
-  console.log(JSON.stringify({ level, message, data, timestamp: new Date().toISOString() }));
+  console.log(JSON.stringify({ 
+    level, 
+    message, 
+    data, 
+    timestamp: new Date().toISOString(),
+    function: "subscription-upgrade" 
+  }));
 };
 
 const PRICE_ID_TO_TIER: Record<string, "premium" | "vip"> = {
