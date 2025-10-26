@@ -37,6 +37,7 @@ import { SensitiveContentWarning } from "./SensitiveContentWarning";
 import { NoScreenshotMode } from "./NoScreenshotMode";
 import { EmotionalTone } from "./EmotionalTone";
 import { VIPBadge } from "./VIPBadge";
+import { sanitizeConfession } from "@/lib/security/sanitizer";
 
 interface ConfessionCardProps {
   confession: {
@@ -151,7 +152,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
 
         <SensitiveContentWarning isSensitive={isSensitive}>
           <p className="text-sm sm:text-base text-foreground leading-relaxed mb-3 sm:mb-4 break-words">
-            {confession.content}
+            {sanitizeConfession(confession.content)}
           </p>
         </SensitiveContentWarning>
 

@@ -10,6 +10,8 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { CommentAuthor } from "./CommentAuthor";
+import { sanitizeComment } from "@/lib/security/sanitizer";
+import { addCsrfHeader } from "@/lib/security/csrf";
 
 interface Comment {
   id: string;
@@ -71,12 +73,15 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
 
     setIsSubmitting(true);
     try {
+      // Sanitize comment content before submission
+      const sanitizedContent = sanitizeComment(newComment.trim());
+      
       const { error } = await supabase
         .from('comments')
         .insert({
           confession_id: confessionId,
           user_id: user.id,
-          content: newComment.trim(),
+          content: sanitizedContent,
         });
 
       if (error) throw error;
@@ -217,7 +222,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                       </Button>
                     )}
                   </div>
-                  <p className="text-xs sm:text-sm text-foreground leading-relaxed">{comment.content}</p>
+                  <p className="text-xs sm:text-sm text-foreground leading-relaxed">{sanitizeComment(comment.content)}</p>
                 </div>
               ))
             )}

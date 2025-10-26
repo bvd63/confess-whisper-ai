@@ -43,7 +43,7 @@ export function sanitizeHtml(content: string, options: SanitizeOptions = {}): st
     config.FORBID_TAGS = [...(config.FORBID_TAGS || []), 'iframe', 'object', 'embed'];
   }
 
-  return DOMPurify.sanitize(content, config);
+  return String(DOMPurify.sanitize(content, config));
 }
 
 /**
@@ -82,10 +82,10 @@ export function sanitizeUrl(url: string): string {
  * Sanitize confession content (allows limited formatting)
  */
 export function sanitizeConfession(content: string): string {
-  return sanitizeHtml(content, {
+  return String(sanitizeHtml(content, {
     allowedTags: ['p', 'br', 'strong', 'em'],
     allowedAttributes: {},
-  });
+  }));
 }
 
 /**
@@ -99,12 +99,12 @@ export function sanitizeComment(content: string): string {
  * Sanitize user bio (allows links and basic formatting)
  */
 export function sanitizeBio(content: string): string {
-  return sanitizeHtml(content, {
+  return String(sanitizeHtml(content, {
     allowedTags: ['p', 'br', 'strong', 'em', 'a'],
     allowedAttributes: {
       'a': ['href', 'title'],
     },
-  });
+  }));
 }
 
 /**
@@ -118,7 +118,7 @@ export function sanitizeNickname(nickname: string): string {
  * Remove all HTML tags (aggressive sanitization)
  */
 export function stripAllHtml(content: string): string {
-  return DOMPurify.sanitize(content, { ALLOWED_TAGS: [] });
+  return String(DOMPurify.sanitize(content, { ALLOWED_TAGS: [] }));
 }
 
 /**

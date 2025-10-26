@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { sanitizeConfession } from "@/lib/security/sanitizer";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -195,7 +196,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
       const { data: confessionData, error: dbError } = await supabase
         .from('confessions')
         .insert({
-          content: content.trim(),
+          content: sanitizeConfession(content.trim()),
           ai_response: responseText,
           category: category,
           user_id: user.id,
