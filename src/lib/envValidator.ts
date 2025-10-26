@@ -16,7 +16,6 @@ const REQUIRED_VARS = [
 
 const OPTIONAL_VARS = [
   'VITE_STRIPE_PUBLISHABLE_KEY',
-  'VITE_MAPBOX_TOKEN',
 ];
 
 export function validateEnvironment(): EnvValidationResult {

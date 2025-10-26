@@ -28,7 +28,6 @@ This document provides a comprehensive inventory of the ConfessAI technology sta
 ### External Services
 - **AI:** Lovable AI (Gemini, GPT models)
 - **Payments:** Stripe
-- **Maps:** Mapbox
 - **Analytics:** Custom analytics system
 
 ## Critical Issues Found

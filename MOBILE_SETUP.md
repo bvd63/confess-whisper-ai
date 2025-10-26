@@ -80,9 +80,6 @@ The app includes location-based discovery using Capacitor Geolocation:
 - Reverse geocoding to show city/country
 - Privacy-first approach
 
-**Required**: Add Mapbox API token to Supabase secrets:
-1. Get your token from https://mapbox.com/
-2. Add as `MAPBOX_TOKEN` in Supabase Edge Function Secrets
 
 ## 🌍 Communities Features
 

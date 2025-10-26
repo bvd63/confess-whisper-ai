@@ -26,10 +26,9 @@ User → Lovable CDN → React SPA
          Storage (Supabase)
          Auth (Supabase)
                     ↓
-         External Services:
-         - Stripe (Payments)
-         - Lovable AI (GPT/Gemini)
-         - Mapbox (Maps)
+          External Services:
+          - Stripe (Payments)
+          - Lovable AI (GPT/Gemini)
 ```
 
 ### Key Components
@@ -45,7 +44,6 @@ User → Lovable CDN → React SPA
 | Supabase | Database, Auth, Storage | 99.9% | None - critical |
 | Stripe | Payments | 99.99% | Queue for retry |
 | Lovable AI | AI responses | 99% | Graceful degradation |
-| Mapbox | Location services | 99.9% | Optional feature |
 
 ## Health Checks
 

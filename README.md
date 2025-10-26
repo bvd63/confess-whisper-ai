@@ -34,7 +34,6 @@
 
 ### 🌍 Location-Based Discovery
 - **Optional Location Sharing**: Privacy-first location features
-- **City/Country Display**: Reverse geocoding with Mapbox
 - **Nearby Confessions**: Discover local content
 - **Privacy Controls**: Users opt-in to share location
 - **Indexed Queries**: Fast location-based searches

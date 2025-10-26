@@ -16,7 +16,6 @@ import ImageUpload from "@/components/ImageUpload";
 import DraftManager from "@/components/DraftManager";
 import { CrisisDialog } from "@/components/CrisisDialog";
 import { useModerationStatus } from "@/hooks/useModerationStatus";
-import { LocationPicker } from "@/components/LocationPicker";
 import { useCommunities } from "@/hooks/useCommunities";
 import { PolishConfessionButton } from "@/components/PolishConfessionButton";
 import { useConfessionLimits } from "@/hooks/useConfessionLimits";
@@ -48,7 +47,6 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
   const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
   const [showCrisisDialog, setShowCrisisDialog] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [location, setLocation] = useState<{ lat: number; lng: number; city?: string; country?: string } | null>(null);
   const [communityId, setCommunityId] = useState<string | null>(null);
   const { user } = useCurrentUser();
   const { toast } = useToast();
@@ -203,11 +201,6 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
           user_id: user.id,
           image_url: imageUrl,
           community_id: communityId,
-          location_enabled: !!location,
-          location_lat: location?.lat,
-          location_lng: location?.lng,
-          location_city: location?.city,
-          location_country: location?.country,
         })
         .select()
         .single();
@@ -368,14 +361,6 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
                 ))}
               </SelectContent>
             </Select>
-          </div>
-
-          <div>
-            <Label className="text-sm font-medium mb-2 block">{t.location_optional}</Label>
-            <LocationPicker
-              onLocationSelect={setLocation}
-              initialLocation={location}
-            />
           </div>
 
           <div className="pt-2">

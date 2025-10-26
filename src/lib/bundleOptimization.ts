@@ -9,11 +9,6 @@
 export const lazyLoadChart = () => import('recharts');
 
 /**
- * Dynamically import map library only when user opens map view
- */
-export const lazyLoadMapbox = () => import('mapbox-gl');
-
-/**
  * Code splitting helper for route-based lazy loading
  * Automatically adds webpackChunkName comments for better debugging
  */
