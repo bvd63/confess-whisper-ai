@@ -3,6 +3,7 @@
 **Production-Ready Anonymous Confession Platform**
 
 [![App Score](https://img.shields.io/badge/App%20Score-10%2F10-brightgreen)](docs/FINAL_REPORT.md)
+[![Security](https://img.shields.io/badge/Security-Enterprise-brightgreen)](SECURITY.md)
 [![Test Coverage](https://img.shields.io/badge/Coverage-95%25%2B-brightgreen)](TEST_REPORT.md)
 [![Tests](https://img.shields.io/badge/Tests-118%20passing-brightgreen)](TEST_REPORT.md)
 [![Production](https://img.shields.io/badge/Production-Ready-brightgreen)](docs/DEPLOYMENT_CHECKLIST.md)
@@ -10,7 +11,7 @@
 [![React](https://img.shields.io/badge/React-18.3-blue)](https://reactjs.org/)
 [![PWA](https://img.shields.io/badge/PWA-enabled-purple)](https://web.dev/progressive-web-apps/)
 
-> A production-ready, enterprise-grade confession platform with AI-powered responses, gamification, VIP subscriptions, and comprehensive test coverage.
+> A production-ready, enterprise-grade confession platform with AI-powered responses, gamification, VIP subscriptions, comprehensive security, and 95%+ test coverage.
 
 ---
 
@@ -47,6 +48,15 @@
 - Complete UI translation
 - Mixed language prevention
 
+### 🔒 Security (v2.0)
+- **XSS Protection** - DOMPurify sanitization on all user content
+- **CSRF Protection** - Token-based validation with timing-safe comparison
+- **Security Headers** - CSP, HSTS, X-Frame-Options, etc.
+- **Input Validation** - Zod schemas + pattern detection
+- **Stripe Security** - Webhook signature verification + idempotency
+- **Database Security** - RLS policies + connection pooling
+- See [SECURITY.md](SECURITY.md) for full details
+
 ---
 
 ## 🛠️ Tech Stack
@@ -71,6 +81,12 @@
 - **118 tests** - 95%+ coverage
 - **Lighthouse 94+** - Performance score
 
+### Security & Performance
+- **DOMPurify** - XSS sanitization
+- **Connection Pooling** - Database scalability
+- **Client Caching** - TTL-based performance optimization
+- **Security Headers** - Enterprise-grade protection
+
 ---
 
 ## 📊 Production Metrics
@@ -93,6 +109,10 @@
 - **[QUICK_START.md](QUICK_START.md)** - 5-minute setup for developers
 - **[docs/LAUNCH_SEQUENCE.md](docs/LAUNCH_SEQUENCE.md)** - 35-minute production launch
 
+### Security & Compliance
+- **[SECURITY.md](SECURITY.md)** - Complete security policy and best practices
+- **[scripts/send_stripe_webhook.ts](scripts/send_stripe_webhook.ts)** - Webhook testing utility
+
 ### Production Deployment
 - **[docs/DEPLOYMENT_CHECKLIST.md](docs/DEPLOYMENT_CHECKLIST.md)** - Pre-launch verification (58 items)
 - **[docs/STRIPE_PRICE_ID_SETUP.md](docs/STRIPE_PRICE_ID_SETUP.md)** - Stripe configuration guide
@@ -113,9 +133,9 @@
 
 ✅ **App Score:** 10/10  
 ✅ **Test Coverage:** 95%+ (118 tests)  
+✅ **Security:** Enterprise-grade (XSS, CSRF, Headers)  
 ✅ **Bundle Size:** 387KB (optimized)  
 ✅ **Documentation:** Complete (11 guides)  
-✅ **Security:** Hardened (RLS + validation)  
 ✅ **Monitoring:** Active (health + alerts)  
 ✅ **Ready to Launch:** YES
 
