@@ -31,17 +31,30 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('subscription_tier, trial_active, trial_end_date')
-      .eq('user_id', user.id)
-      .single();
-    
-    if (profile) {
-      // If user is on active trial, treat them as VIP for UI purposes
-      const trialValid = profile.trial_active && profile.trial_end_date && new Date(profile.trial_end_date) > new Date();
-      const tier = trialValid ? 'vip' : (profile.subscription_tier || 'free');
-      setCurrentTier(tier);
+    try {
+      // Call billing-status to get current subscription info
+      const { data: statusData } = await supabase.functions.invoke('billing-status');
+      
+      if (statusData) {
+        const tier = statusData.subscription_tier || 'free';
+        const interval = statusData.subscription_interval || 'monthly';
+        setCurrentTier(tier);
+        setBillingCycle(interval);
+      }
+    } catch (error) {
+      console.error('Error loading subscription:', error);
+      // Fallback to profile data
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('subscription_tier, trial_active, trial_end_date')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (profile) {
+        const trialValid = profile.trial_active && profile.trial_end_date && new Date(profile.trial_end_date) > new Date();
+        const tier = trialValid ? 'vip' : (profile.subscription_tier || 'free');
+        setCurrentTier(tier);
+      }
     }
   };
 

@@ -38,6 +38,24 @@ const getTierFromPriceId = (priceId: string): string => {
   return 'free';
 };
 
+const getIntervalFromPriceId = (priceId: string): 'monthly' | 'yearly' | null => {
+  if (
+    priceId === STRIPE_PRICE_IDS.vip_monthly_test ||
+    priceId === STRIPE_PRICE_IDS.vip_monthly_live
+  ) {
+    return 'monthly';
+  }
+  
+  if (
+    priceId === STRIPE_PRICE_IDS.vip_yearly_test ||
+    priceId === STRIPE_PRICE_IDS.vip_yearly_live
+  ) {
+    return 'yearly';
+  }
+  
+  return null;
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -123,16 +141,17 @@ serve(async (req) => {
       status: subscription.status
     });
 
-    // Determine tier from price ID
+    // Determine tier and interval from price ID
     const priceId = subscription.items.data[0].price.id;
     let tier = getTierFromPriceId(priceId);
+    const interval = getIntervalFromPriceId(priceId);
 
     // If subscription is not active, set to free
     if (!['active', 'trialing'].includes(subscription.status)) {
       tier = 'free';
     }
 
-    logStep("Determined tier", { tier, status: subscription.status, priceId });
+    logStep("Determined tier and interval", { tier, interval, status: subscription.status, priceId });
 
     // Update local database with correct column names
     const endsAt = subscription.current_period_end 
@@ -162,6 +181,7 @@ serve(async (req) => {
       JSON.stringify({ 
         subscription_tier: tier,
         subscription_status: subscription.status,
+        subscription_interval: interval,
         cancel_at_period_end: subscription.cancel_at_period_end,
         subscription_ends_at: endsAt,
         stripe_subscription_id: subscription.id,
