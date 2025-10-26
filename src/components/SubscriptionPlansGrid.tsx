@@ -159,8 +159,8 @@ export const SubscriptionPlansGrid = ({
           >
             {/* Active Badge for VIP if current plan */}
             {isCurrentPlan(plan) && (
-              <Badge className="absolute -top-3 left-4 bg-purple-600/90 text-white px-3 py-1 font-medium">
-                Active
+              <Badge className="absolute -top-3 left-4 bg-purple-600/90 text-white px-3 py-1 font-medium shadow-lg shadow-purple-500/20">
+                ✓ Active
               </Badge>
             )}
 
