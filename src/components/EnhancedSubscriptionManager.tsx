@@ -28,9 +28,31 @@ export const EnhancedSubscriptionManager = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmAction, setConfirmAction] = useState<{ type: string; plan?: PlanWithInterval } | null>(null);
+  const [customerId, setCustomerId] = useState<string | null>(null);
 
   useEffect(() => {
     loadStatus();
+  }, []);
+
+  // Load Stripe customer id from user metadata if present
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await supabase.auth.getUser();
+        const user = data?.user as unknown as {
+          user_metadata?: { stripe_customer_id?: string; customerId?: string };
+          app_metadata?: { stripe_customer_id?: string };
+        } | undefined;
+        const cid =
+          user?.user_metadata?.stripe_customer_id ||
+          user?.app_metadata?.stripe_customer_id ||
+          user?.user_metadata?.customerId ||
+          null;
+        if (cid) setCustomerId(cid);
+      } catch (e) {
+        console.debug('No customer id available');
+      }
+    })();
   }, []);
 
   const loadStatus = async () => {
@@ -47,6 +69,47 @@ export const EnhancedSubscriptionManager = () => {
       setLoading(false);
     }
   };
+
+  // Helpers to open Stripe Checkout and Customer Portal
+  async function startCheckout(plan: 'monthly' | 'yearly') {
+    try {
+      const res = await fetch('/api/stripe/checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan }),
+      });
+      const { url, error } = await res.json();
+      if (error || !url) throw new Error(error || 'No checkout URL returned');
+      window.location.href = url;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Checkout failed';
+      console.error(err);
+      if (typeof (toast as unknown as { error?: (m: string) => void }).error === 'function') {
+        (toast as unknown as { error: (m: string) => void }).error(message);
+      }
+    }
+  }
+
+  async function openPortal(cid?: string | null) {
+    try {
+      const effectiveCid = cid ?? customerId;
+      if (!effectiveCid) throw new Error('Missing customer id');
+      const res = await fetch('/api/stripe/portal-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customerId: effectiveCid }),
+      });
+      const { url, error } = await res.json();
+      if (error || !url) throw new Error(error || 'No portal URL returned');
+      window.location.href = url;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Portal failed';
+      console.error(err);
+      if (typeof (toast as unknown as { error?: (m: string) => void }).error === 'function') {
+        (toast as unknown as { error: (m: string) => void }).error(message);
+      }
+    }
+  }
 
   const handleChange = async (plan: PlanWithInterval) => {
     setActionLoading(true);
@@ -128,6 +191,22 @@ export const EnhancedSubscriptionManager = () => {
 
   return (
     <div className="space-y-6" data-testid="manage-subscription-modal">
+      {/* Quick actions: Checkout and Portal */}
+      <div className="subscription-actions grid gap-2">
+        <Button type="button" onClick={() => startCheckout('monthly')} disabled={actionLoading}>
+          {t.subscription_get_vip_monthly}
+        </Button>
+        <Button type="button" onClick={() => startCheckout('yearly')} disabled={actionLoading}>
+          {t.subscription_get_vip_yearly}
+        </Button>
+        <Button
+          type="button"
+          onClick={() => openPortal(customerId)}
+          disabled={actionLoading}
+        >
+          {t.subscription_manage_billing}
+        </Button>
+      </div>
       {/* Current Status */}
       {status && status.currentPlan !== 'free' && (
         <Card className="p-6">

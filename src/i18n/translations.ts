@@ -1441,6 +1441,10 @@ type Translations = {
   subscription_reactivate_success: string;
   subscription_not_available: string;
   subscription_proration_info: string;
+  // Quick actions
+  subscription_get_vip_monthly: string;
+  subscription_get_vip_yearly: string;
+  subscription_manage_billing: string;
   subscription_downgrade_period_end: string;
   
   // Profile
@@ -2758,6 +2762,10 @@ export const translations: Record<Language, Translations> = {
     subscription_reactivate_success: "Subscription reactivated successfully!",
     subscription_not_available: "Not available",
     subscription_proration_info: "You'll be charged a prorated amount today.",
+  // Quick actions
+  subscription_get_vip_monthly: "Get VIP – $6.99/mo",
+  subscription_get_vip_yearly: "Get VIP – $54.99/yr",
+  subscription_manage_billing: "Manage billing",
     subscription_downgrade_period_end: "Your plan will change at the end of the current period.",
     
     badges_your_badges: "Your Badges",
@@ -4854,6 +4862,10 @@ export const translations: Record<Language, Translations> = {
     subscription_reactivate_success: "¡Suscripción reactivada!",
     subscription_not_available: "No disponible",
     subscription_proration_info: "Se te cobrará un monto prorrateado hoy.",
+  // Acciones rápidas
+  subscription_get_vip_monthly: "Obtener VIP – 6,99 $/mes",
+  subscription_get_vip_yearly: "Obtener VIP – 54,99 $/año",
+  subscription_manage_billing: "Gestionar facturación",
     subscription_downgrade_period_end: "Tu plan cambiará al final del período actual.",
     
     badges_your_badges: "Tus Insignias",
@@ -6609,6 +6621,10 @@ export const translations: Record<Language, Translations> = {
     subscription_reactivate_success: "Abo erfolgreich reaktiviert!",
     subscription_not_available: "Nicht verfügbar",
     subscription_proration_info: "Dir wird heute ein anteiliger Betrag berechnet.",
+  // Schnellaktionen
+  subscription_get_vip_monthly: "VIP holen – 6,99 $/Monat",
+  subscription_get_vip_yearly: "VIP holen – 54,99 $/Jahr",
+  subscription_manage_billing: "Abrechnung verwalten",
     subscription_downgrade_period_end: "Dein Plan wird am Ende geändert.",
     
     badges_your_badges: "Deine Auszeichnungen",
