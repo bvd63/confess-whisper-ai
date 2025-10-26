@@ -11,14 +11,12 @@ const log = (level: string, message: string, data?: any) => {
   console.log(JSON.stringify({ level, message, data, timestamp: new Date().toISOString() }));
 };
 
-const PRICE_ID_TO_TIER: Record<string, "premium" | "vip"> = {
-  [Deno.env.get("STRIPE_PRICE_PREMIUM_MONTHLY") || ""]: "premium",
-  [Deno.env.get("STRIPE_PRICE_PREMIUM_YEARLY") || ""]: "premium",
+const PRICE_ID_TO_TIER: Record<string, "vip"> = {
   [Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || ""]: "vip",
   [Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || ""]: "vip",
 };
 
-const TIER_HIERARCHY = { free: 0, premium: 1, vip: 2 };
+const TIER_HIERARCHY = { free: 0, vip: 1 };
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -61,7 +59,7 @@ serve(async (req) => {
       .eq("user_id", user.id)
       .single();
 
-    const targetTier = PRICE_ID_TO_TIER[targetPriceId] || "premium";
+    const targetTier = PRICE_ID_TO_TIER[targetPriceId] || "free";
     const currentTier = profile?.subscription_tier || "free";
 
     // Validate downgrade (target tier must be lower than current)

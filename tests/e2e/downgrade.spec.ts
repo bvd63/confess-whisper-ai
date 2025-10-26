@@ -24,9 +24,9 @@ test.describe('Subscription Downgrade Flow', () => {
     const dialog = page.getByTestId('manage-subscription-modal');
     await expect(dialog).toBeVisible({ timeout: 10000 });
     
-    const premiumButton = dialog.getByTestId('action-downgrade').first();
-    await premiumButton.waitFor({ state: 'visible', timeout: 10000 });
-    await premiumButton.click();
+    const downgradeButton = dialog.getByTestId('action-downgrade').first();
+    await downgradeButton.waitFor({ state: 'visible', timeout: 10000 });
+    await downgradeButton.click();
     
     // Confirmation dialog
     const confirmButton = page.getByTestId('confirm-action');
