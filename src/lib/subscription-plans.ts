@@ -33,13 +33,13 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: 'vip',
     name: 'VIP',
-    priceMonthly: 6.99,
-    priceYearly: 54.99,
+    priceMonthly: 5.99,
+    priceYearly: 49.99,
     stripePriceIdMonthly: 'vip_monthly',
     stripePriceIdYearly: 'vip_yearly',
     isPopular: true,
     benefits: [
-      'All VIP features',
+      'All premium features',
       'Priority AI responses',
       'VIP Reflection Feed',
       'Double coins for streaks',
