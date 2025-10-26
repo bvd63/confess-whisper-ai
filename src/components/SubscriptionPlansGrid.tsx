@@ -77,6 +77,39 @@ export const SubscriptionPlansGrid = ({
 
   const isCurrentPlan = (plan: any) => plan.id === currentPlan && plan.interval === currentInterval;
 
+  const handleCheckout = async (priceId: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to subscribe",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { priceId }
+      });
+
+      if (error) throw error;
+      
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      } else {
+        throw new Error('No checkout URL received');
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create checkout session. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Filter to show only VIP plan
   const filteredPlans = plans.filter(plan => plan.id === 'vip');
 
@@ -176,7 +209,7 @@ export const SubscriptionPlansGrid = ({
 
             {/* Action Button */}
             <Button
-              onClick={() => isCurrentPlan(plan) ? handleOpenPortal() : onSelectPlan(plan.id, plan.priceId)}
+              onClick={() => isCurrentPlan(plan) ? handleOpenPortal() : handleCheckout(plan.priceId)}
               disabled={(isLoading || !canChangePlan) && !isCurrentPlan(plan) || portalLoading}
               className="w-full py-6 rounded-lg font-semibold transition-all duration-300 bg-transparent border-2 border-white hover:bg-white text-white hover:text-black hover:scale-[1.02] disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-white disabled:scale-100"
             >
