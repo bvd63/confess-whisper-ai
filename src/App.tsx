@@ -64,6 +64,7 @@ const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Performance = lazy(() => import("./pages/admin/Performance"));
 const Reflections = lazy(() => import("./pages/Reflections"));
+const VipReflectionFeed = lazy(() => import("./pages/VipReflectionFeed"));
 const NotificationSettings = lazy(() => import("./pages/NotificationSettings"));
 const SubscriptionTest = lazy(() => import("./pages/SubscriptionTest"));
 
@@ -225,6 +226,7 @@ const AppContent = () => {
           <Route path="/test-payments" element={<TestPayments />} />
           <Route path="/test-subscriptions" element={<TestSubscriptions />} />
           <Route path="/reflections" element={<Reflections />} />
+          <Route path="/vip-reflections" element={<VipReflectionFeed />} />
           <Route path="/settings/notifications" element={<NotificationSettings />} />
           <Route path="/subscription-test" element={<SubscriptionTest />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
