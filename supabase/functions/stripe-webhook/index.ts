@@ -64,9 +64,11 @@ serve(async (req) => {
       userId = (profile as any)?.user_id;
     }
 
-    if (!userId) return; // nothing to persist yet
-
-    await supabase.from("subscriptions").upsert({
+    if (!userId) {
+      console.log(JSON.stringify({ level: "info", msg: "No user match for subscription", customer: String(sub.customer), subscriptionId: sub.id }));
+      return; // nothing to persist yet
+    }
+    const payload = {
       user_id: userId,
       stripe_customer_id: String(sub.customer),
       stripe_subscription_id: sub.id,
@@ -77,10 +79,13 @@ serve(async (req) => {
       current_period_start: new Date(sub.current_period_start * 1000).toISOString(),
       current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
       cancel_at_period_end: !!sub.cancel_at_period_end,
-    });
+    };
+    const { error: upsertError } = await supabase.from("subscriptions").upsert(payload);
+    console.log(JSON.stringify({ level: upsertError ? "error" : "info", msg: upsertError ? "Subscription upsert failed" : "Subscription upsert ok", eventType: event.type, userId, subscriptionId: sub.id, status: sub.status, tier, cadence, priceId, cancelAtPeriodEnd: !!sub.cancel_at_period_end }));
   };
 
   try {
+    console.log(JSON.stringify({ level: "info", msg: "Stripe webhook received", eventType: event.type, eventId: event.id }));
     switch (event.type) {
       case "customer.subscription.created":
       case "customer.subscription.updated": {
@@ -101,10 +106,14 @@ serve(async (req) => {
         await saveSub(sub);
         break;
       }
+      default: {
+        console.log(JSON.stringify({ level: "info", msg: "Unhandled event type", eventType: event.type }));
+      }
     }
 
     return new Response(JSON.stringify({ received: true }), { status: 200 });
   } catch (e: any) {
+    console.log(JSON.stringify({ level: "error", msg: "Stripe webhook processing error", error: e?.message || String(e), eventType: event?.type }));
     return new Response(JSON.stringify({ error: e.message }), { status: 500 });
   }
 });
