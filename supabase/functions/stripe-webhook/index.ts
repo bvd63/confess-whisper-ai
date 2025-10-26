@@ -84,9 +84,71 @@ serve(async (req) => {
     console.log(JSON.stringify({ level: upsertError ? "error" : "info", msg: upsertError ? "Subscription upsert failed" : "Subscription upsert ok", eventType: event.type, userId, subscriptionId: sub.id, status: sub.status, tier, cadence, priceId, cancelAtPeriodEnd: !!sub.cancel_at_period_end }));
   };
 
+  // Award bonus coins for first VIP subscription
+  const awardBonusCoins = async (userId: string, tier: string) => {
+    if (tier !== 'vip') return;
+
+    // Check if user already received bonus coins
+    const { data: existingBonus } = await supabase
+      .from("coin_transactions")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("type", "subscription_bonus")
+      .eq("description", "VIP Welcome Bonus")
+      .maybeSingle();
+
+    if (existingBonus) {
+      console.log(JSON.stringify({ level: "info", msg: "Bonus coins already awarded", userId }));
+      return;
+    }
+
+    // Award 250 bonus coins
+    const { error: coinsError } = await supabase.rpc("award_coins", {
+      _user_id: userId,
+      _amount: 250,
+      _type: "subscription_bonus",
+      _description: "VIP Welcome Bonus"
+    });
+
+    if (coinsError) {
+      console.log(JSON.stringify({ level: "error", msg: "Failed to award bonus coins", userId, error: coinsError.message }));
+    } else {
+      console.log(JSON.stringify({ level: "info", msg: "Bonus coins awarded", userId, amount: 250 }));
+    }
+  };
+
   try {
     console.log(JSON.stringify({ level: "info", msg: "Stripe webhook received", eventType: event.type, eventId: event.id }));
     switch (event.type) {
+      case "checkout.session.completed": {
+        const session = event.data.object as any;
+        console.log(JSON.stringify({ level: "info", msg: "Checkout session completed", sessionId: session.id, customerId: session.customer }));
+
+        if (session.mode === "subscription" && session.subscription) {
+          // Retrieve full subscription details
+          const sub = await stripe.subscriptions.retrieve(session.subscription);
+          await saveSub(sub);
+
+          // Find user and award bonus coins
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("user_id")
+            .eq("stripe_customer_id", String(session.customer))
+            .maybeSingle();
+
+          if (profile?.user_id) {
+            const price = sub.items?.data?.[0]?.price;
+            const priceId = price?.id as string | undefined;
+            const tier =
+              priceId === Deno.env.get("PRICE_VIP_MONTHLY") || priceId === Deno.env.get("PRICE_VIP_YEARLY")
+                ? "vip"
+                : "free";
+            
+            await awardBonusCoins(profile.user_id, tier);
+          }
+        }
+        break;
+      }
       case "customer.subscription.created":
       case "customer.subscription.updated": {
         const sub = event.data.object as any;
