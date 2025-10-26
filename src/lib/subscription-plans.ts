@@ -35,8 +35,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     name: 'VIP',
     priceMonthly: 6.99,
     priceYearly: 54.99,
-    stripePriceIdMonthly: 'vip_monthly',
-    stripePriceIdYearly: 'vip_yearly',
+    stripePriceIdMonthly: import.meta.env.VITE_STRIPE_PRICE_VIP_MONTHLY || '',
+    stripePriceIdYearly: import.meta.env.VITE_STRIPE_PRICE_VIP_YEARLY || '',
     isPopular: true,
     benefits: [
       'All premium features',

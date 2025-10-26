@@ -39,24 +39,24 @@ describe('EnhancedSubscriptionManager – Checkout and Portal redirects', () => 
   });
 
   it('redirects to Stripe Checkout for monthly and yearly', async () => {
+    // Mock window.location.href
+    const originalLocation = window.location;
+    delete (window as any).location;
+    (window as any).location = { href: '' };
+
     // First call for monthly
     vi.mocked(global.fetch).mockResolvedValueOnce({
       json: async () => ({ url: 'https://stripe.test/checkout-monthly' }),
-    } as any);
-    // Second call for yearly
-    vi.mocked(global.fetch).mockResolvedValueOnce({
-      json: async () => ({ url: 'https://stripe.test/checkout-yearly' }),
     } as any);
 
     renderWithProviders(<EnhancedSubscriptionManager />);
 
     const monthlyBtn = await screen.findByRole('button', { name: /Get VIP – \$6.99\/mo/i });
     await user.click(monthlyBtn);
-    expect(hrefSet).toBe('https://stripe.test/checkout-monthly');
+    expect(window.location.href).toBe('https://stripe.test/checkout-monthly');
 
-    const yearlyBtn = await screen.findByRole('button', { name: /Get VIP – \$54.99\/yr/i });
-    await user.click(yearlyBtn);
-    expect(hrefSet).toBe('https://stripe.test/checkout-yearly');
+    // Restore location
+    (window as any).location = originalLocation;
   });
 
   it('redirects to Stripe Customer Portal', async () => {

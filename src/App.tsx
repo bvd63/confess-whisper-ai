@@ -17,6 +17,7 @@ import { NotificationService } from '@/services/notificationService';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { UpdatePrompt } from '@/components/UpdatePrompt';
 import { CookieConsent } from '@/components/CookieConsent';
+import { CheckoutStatusHandler } from '@/components/CheckoutStatusHandler';
 
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthRefresh } from '@/hooks/useAuthRefresh';
@@ -195,10 +196,12 @@ const AppContent = () => {
       )}
       
       <NetworkStatusIndicator />
+      <CheckoutStatusHandler />
       <TabNavigationProvider>
         <Suspense fallback={<PageLoading className="min-h-screen" />}>
           <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/home" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/auth-test" element={<AuthTest />} />
           <Route path="/supabase-test" element={<SupabaseTest />} />

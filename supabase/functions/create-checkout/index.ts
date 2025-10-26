@@ -68,22 +68,25 @@ serve(async (req) => {
       }
     }
 
-    // Get VIP price ID from environment or use default
-    const vipPriceId = Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || "price_1SJ0vwR7kygIyYg9OeCiqV00";
-    logStep("Creating checkout session", { priceId: vipPriceId });
+    // Get price ID from request body
+    const { priceId } = await req.json();
+    if (!priceId) throw new Error("Price ID is required");
+    logStep("Creating checkout session", { priceId });
 
+    const origin = req.headers.get("origin") || "";
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       line_items: [
         {
-          price: vipPriceId,
+          price: priceId,
           quantity: 1,
         },
       ],
       mode: "subscription",
-      success_url: `${req.headers.get("origin")}/`,
-      cancel_url: `${req.headers.get("origin")}/`,
+      success_url: `${origin}/home?status=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/?status=cancel`,
+      allow_promotion_codes: true,
     });
 
     logStep("Checkout session created", { sessionId: session.id, url: session.url });

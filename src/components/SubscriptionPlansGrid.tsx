@@ -78,6 +78,15 @@ export const SubscriptionPlansGrid = ({
   const isCurrentPlan = (plan: any) => plan.id === currentPlan && plan.interval === currentInterval;
 
   const handleCheckout = async (priceId: string) => {
+    if (!priceId) {
+      toast({
+        title: "Configuration Error",
+        description: "Stripe price ID missing. Please contact support.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
@@ -96,7 +105,7 @@ export const SubscriptionPlansGrid = ({
       if (error) throw error;
       
       if (data?.url) {
-        window.open(data.url, '_blank');
+        window.location.href = data.url;
       } else {
         throw new Error('No checkout URL received');
       }
@@ -210,8 +219,12 @@ export const SubscriptionPlansGrid = ({
             {/* Action Button */}
             <Button
               onClick={() => isCurrentPlan(plan) ? handleOpenPortal() : handleCheckout(plan.priceId)}
-              disabled={(isLoading || !canChangePlan) && !isCurrentPlan(plan) || portalLoading}
+              disabled={
+                (isLoading || !canChangePlan || !plan.priceId) && !isCurrentPlan(plan) || 
+                portalLoading
+              }
               className="w-full py-6 rounded-lg font-semibold transition-all duration-300 bg-transparent border-2 border-white hover:bg-white text-white hover:text-black hover:scale-[1.02] disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-white disabled:scale-100"
+              title={!plan.priceId && !isCurrentPlan(plan) ? 'Stripe price ID missing. Set VITE_STRIPE_PRICE_VIP_MONTHLY/YEARLY.' : undefined}
             >
               {isCurrentPlan(plan) 
                 ? (portalLoading ? 'Opening Portal...' : 'Manage Subscription') 
