@@ -68,9 +68,8 @@ serve(async (req) => {
       }
     }
 
-    // Get price ID from request body or use default
-    const { priceId } = await req.json();
-    const vipPriceId = priceId || Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || "price_1SJ0vwR7kygIyYg9OeCiqV00";
+    // Get VIP price ID from environment or use default
+    const vipPriceId = Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || "price_1SJ0vwR7kygIyYg9OeCiqV00";
     logStep("Creating checkout session", { priceId: vipPriceId });
 
     const session = await stripe.checkout.sessions.create({
