@@ -30,13 +30,16 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
 
   const loadSubscriptionStatus = async () => {
     try {
-      // Call billing-status to get the current subscription interval
-      const { data: statusData } = await supabase.functions.invoke('billing-status');
-      
-      if (statusData) {
-        const tier = statusData.subscription_tier || 'free';
-        const detectedInterval = statusData.subscription_interval || 'monthly';
-        setCurrentPlan(tier);
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('subscription_tier, stripe_subscription_id')
+        .eq('user_id', user?.id)
+        .maybeSingle();
+
+      if (profile) {
+        setCurrentPlan(profile.subscription_tier || 'free');
+        // Detect interval from subscription ID
+        const detectedInterval = profile.stripe_subscription_id?.includes('year') ? 'yearly' : 'monthly';
         setCurrentInterval(detectedInterval);
         setInterval(detectedInterval);
       }
