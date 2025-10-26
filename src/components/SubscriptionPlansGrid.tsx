@@ -1,192 +1,205 @@
-import { useState } from "react";
+// filepath: components/billing/SubscriptionPlansGrid.tsx
+import * as React from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Check, Crown, Zap, Star } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { Badge } from "@/components/ui/badge";
-import { getPlansForInterval } from "@/lib/subscription-plans";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
-interface SubscriptionPlansGridProps {
-  currentPlan: string;
-  currentInterval?: 'monthly' | 'yearly';
-  onSelectPlan: (planId: string, priceId: string) => void;
-  isLoading?: boolean;
-  canChangePlan?: boolean;
-  trialEligible?: boolean;
-  interval: 'monthly' | 'yearly';
-  onIntervalChange?: (interval: 'monthly' | 'yearly') => void;
+// Dacă în proiectul tău se folosește getSupabase(), înlocuiește linia de mai jos cu:
+// import { getSupabase } from '@/lib/supabaseClient';
+// const supabase = getSupabase();
+import { supabase } from "@/lib/supabaseClient";
+
+type Interval = "monthly" | "yearly";
+
+interface Plan {
+  id: "vip";
+  name: string;
+  description?: string;
+  interval: Interval;
+  priceLabel: string; // "$6.99/mo" sau "$54.99/yr"
+  priceId: string; // Stripe price_xxx
 }
 
-export const SubscriptionPlansGrid = ({
+interface SubscriptionPlansGridProps {
+  /** Din profilul userului; folosește asta pentru gating UI */
+  isVip: boolean;
+  /** Pentru afișare/logică (nu mai folosim la decizie de portal/checkout) */
+  currentPlan?: string; // 'free' | 'vip' | undefined
+  currentInterval?: Interval; // 'monthly' | 'yearly' | undefined
+
+  /** Lovable action pentru CHECKOUT (dacă există deja). Dacă nu, folosim fallback local. */
+  onSelectPlan?: (planId: string, priceId: string) => void;
+
+  /** UI state opțional */
+  isLoading?: boolean;
+  canChangePlan?: boolean;
+
+  /** Toggle Monthly/Yearly în UI */
+  interval: Interval;
+  onIntervalChange?: (interval: Interval) => void;
+}
+
+/** Setează-ți aici price IDs reale din Stripe sau prin env (preferat) */
+const VIP_MONTH_PRICE_ID = import.meta.env.VITE_STRIPE_PRICE_VIP_MONTH ?? "price_vip_month_699_placeholder";
+const VIP_YEAR_PRICE_ID = import.meta.env.VITE_STRIPE_PRICE_VIP_YEAR ?? "price_vip_year_5499_placeholder";
+
+const SubscriptionPlansGrid: React.FC<SubscriptionPlansGridProps> = ({
+  isVip,
   currentPlan,
   currentInterval,
   onSelectPlan,
   isLoading = false,
   canChangePlan = true,
-  trialEligible = false,
   interval,
   onIntervalChange,
-}: SubscriptionPlansGridProps) => {
-  const { t } = useLanguage();
-  const { toast } = useToast();
+}) => {
   const [portalLoading, setPortalLoading] = useState(false);
-  
-  const plans = getPlansForInterval(interval);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  const handleOpenPortal = async () => {
-    setPortalLoading(true);
+  // Planul VIP pentru ambele intervale
+  const allPlans: Plan[] = useMemo(
+    () => [
+      {
+        id: "vip",
+        name: "VIP",
+        description: "Unlock all premium features.",
+        interval: "monthly",
+        priceLabel: "$6.99/mo",
+        priceId: VIP_MONTH_PRICE_ID,
+      },
+      {
+        id: "vip",
+        name: "VIP",
+        description: "Unlock all premium features.",
+        interval: "yearly",
+        priceLabel: "$54.99/yr",
+        priceId: VIP_YEAR_PRICE_ID,
+      },
+    ],
+    [],
+  );
+
+  // Afișăm cardul doar pentru intervalul selectat în UI
+  const plans = useMemo(() => allPlans.filter((p) => p.interval === interval), [allPlans, interval]);
+
+  const openCustomerPortal = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('customer-portal');
-      
-      if (error) throw error;
-      if (data?.url) {
-        window.open(data.url, '_blank');
-      } else {
-        throw new Error('No portal URL received');
-      }
-    } catch (error) {
-      console.error('Portal error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to open customer portal. Please try again.",
-        variant: "destructive",
+      setPortalLoading(true);
+      const { data, error } = await supabase.functions.invoke("customer-portal", {
+        body: { returnUrl: `${window.location.origin}/settings/billing` },
       });
+      if (error) throw error;
+      if (!data?.url) throw new Error("Customer Portal URL missing.");
+      window.location.href = data.url; // → Stripe Customer Portal
+    } catch (err) {
+      console.error("[Portal] error:", err);
+      alert("Could not open billing portal. Please try again.");
     } finally {
       setPortalLoading(false);
     }
   };
 
-  const getPlanIcon = (planId: string) => {
-    switch (planId) {
-      case 'vip':
-        return <Crown className="w-6 h-6" />;
-      default:
-        return <Star className="w-6 h-6" />;
+  /** Fallback local pentru Lovable dacă nu ai onSelectPlan trecut din părinte.
+   *  Preferat: treci onSelectPlan din părinte care cheamă direct Lovable Action "Create Checkout Session"
+   */
+  const fallbackCheckout = async (priceId: string) => {
+    try {
+      setCheckoutLoading(true);
+      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
+        body: {
+          priceId,
+          mode: "subscription",
+          successUrl: `${window.location.origin}/billing/success`,
+          cancelUrl: `${window.location.origin}/billing/cancel`,
+        },
+      });
+      if (error) throw error;
+      if (!data?.url) throw new Error("Checkout URL missing.");
+      window.location.href = data.url; // → Stripe Checkout
+    } catch (err) {
+      console.error("[Checkout] error:", err);
+      alert("Could not start checkout. Please try again.");
+    } finally {
+      setCheckoutLoading(false);
     }
   };
 
-  const getButtonText = (plan: any) => {
-    // Always show "Choose [Plan]" regardless of current subscription
-    if (plan.id === 'free') {
-      return t.subscription_downgrade_to_free;
+  const startCheckout = (priceId: string) => {
+    if (onSelectPlan) {
+      // folosește acțiunea Lovable definită deja în părinte
+      onSelectPlan("vip", priceId);
+    } else {
+      // fallback local prin edge function
+      void fallbackCheckout(priceId);
     }
-    return t.subscription_choose_plan.replace('{plan}', plan.name);
   };
-
-  const isCurrentPlan = (plan: any) => plan.id === currentPlan && plan.interval === currentInterval;
-
-  // Filter to show only VIP plan
-  const filteredPlans = plans.filter(plan => plan.id === 'vip');
 
   return (
-    <div className="space-y-8">
-      {/* Interval Tabs */}
+    <div className="w-full max-w-xl mx-auto space-y-6">
+      {/* Toggle interval (opțional) */}
       {onIntervalChange && (
-        <div className="flex justify-center">
-          <div className="inline-flex rounded-lg bg-[#13141f] p-1 gap-1">
-            <button
-              onClick={() => onIntervalChange('monthly')}
-              className={`px-8 py-2.5 rounded-lg transition-all font-medium ${
-                interval === 'monthly'
-                  ? 'bg-[#1a1b2e] text-white'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => onIntervalChange('yearly')}
-              className={`px-8 py-2.5 rounded-lg transition-all font-medium relative ${
-                interval === 'yearly'
-                  ? 'bg-[#1a1b2e] text-white'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              Yearly
-              <span className="absolute -top-2 -right-2 bg-purple-600 text-white text-xs px-2 py-0.5 rounded-full font-semibold">
-                -34%
-              </span>
-            </button>
-          </div>
+        <div className="flex items-center justify-center gap-2">
+          <Button
+            variant={interval === "monthly" ? "default" : "outline"}
+            onClick={() => onIntervalChange("monthly")}
+            disabled={checkoutLoading || portalLoading}
+          >
+            Monthly
+          </Button>
+          <Button
+            variant={interval === "yearly" ? "default" : "outline"}
+            onClick={() => onIntervalChange("yearly")}
+            disabled={checkoutLoading || portalLoading}
+          >
+            Yearly
+          </Button>
         </div>
       )}
 
-      {/* Plans Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {filteredPlans.map((plan: any) => (
-          <Card
-            key={`${plan.id}-${plan.interval}`}
-            className={`p-8 relative bg-[#13141f] border transition-all duration-300 hover:scale-[1.02] ${
-              plan.id === 'vip'
-                ? 'border-purple-500/30 hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]'
-                : 'border-[#1a1b2e] hover:border-purple-500/30 hover:shadow-[0_0_20px_rgba(168,85,247,0.1)]'
-            }`}
-          >
-            {/* Active Badge for VIP if current plan */}
-            {isCurrentPlan(plan) && (
-              <Badge className="absolute -top-3 left-4 bg-purple-600/90 text-white px-3 py-1 font-medium">
-                Active
-              </Badge>
+      {plans.map((plan) => (
+        <div key={`${plan.id}-${plan.interval}`} className="rounded-2xl border p-5 flex items-center justify-between">
+          <div>
+            <div className="text-xl font-semibold">{plan.name}</div>
+            <div className="text-muted-foreground">{plan.description}</div>
+            <div className="mt-2 text-2xl font-bold">{plan.priceLabel}</div>
+          </div>
+
+          <div className="flex flex-col items-end gap-3">
+            {/* SUBSCRIBE: vizibil DOAR când NU e VIP → Stripe Checkout */}
+            {!isVip && (
+              <Button
+                onClick={() => startCheckout(plan.priceId)}
+                disabled={checkoutLoading || isLoading || !canChangePlan}
+              >
+                {checkoutLoading
+                  ? "Redirecting…"
+                  : plan.interval === "monthly"
+                    ? "Subscribe (Monthly)"
+                    : "Subscribe (Yearly)"}
+              </Button>
             )}
 
-            {/* Savings Badge with glow */}
-            {interval === 'yearly' && (
-              <div className="absolute -top-3 -right-3">
-                <div className="absolute inset-0 bg-purple-600/30 blur-xl rounded-full"></div>
-                <Badge className="relative bg-purple-600 text-white px-3 py-1 font-semibold">
-                  Save ~34%
-                </Badge>
-              </div>
+            {/* MANAGE: vizibil DOAR când E VIP → Customer Portal */}
+            {isVip && (
+              <Button variant="secondary" onClick={openCustomerPortal} disabled={portalLoading}>
+                {portalLoading ? "Opening Portal…" : "Manage subscription"}
+              </Button>
             )}
 
-
-            {/* Plan Header */}
-            <div className="mb-8">
-              <div className="flex items-center gap-3 mb-6">
-                <span className="text-3xl">{plan.id === 'vip' ? '👑' : '✨'}</span>
-                <h3 className="text-2xl font-bold text-white">{plan.name}</h3>
-              </div>
-              <div className="mb-2">
-                <span className="text-5xl font-bold text-white">
-                  ${interval === 'yearly' ? (plan.price / 12).toFixed(2) : plan.price}
-                </span>
-                <span className="text-gray-400 text-lg ml-2">/per month</span>
-              </div>
-              <p className="text-sm text-gray-400">
-                {interval === 'yearly' 
-                  ? `Billed annually ($${plan.price.toFixed(2)}/per year)`
-                  : 'Billed monthly'
-                }
-              </p>
+            {/* Hint pentru claritate */}
+            <div className="text-xs text-muted-foreground text-right">
+              {!isVip
+                ? "You will be redirected to Stripe Checkout to complete your purchase."
+                : "Update card, change plan, or cancel in the Stripe billing portal."}
             </div>
+          </div>
+        </div>
+      ))}
 
-            {/* Benefits List */}
-            <div className="space-y-4 mb-8">
-              {plan.benefits.map((benefit: string, index: number) => (
-                <div key={index} className="flex items-start gap-3 group/benefit">
-                  <div className="w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/benefit:bg-purple-500/30 transition-colors">
-                    <Check className="w-3.5 h-3.5 text-purple-400" />
-                  </div>
-                  <span className="text-sm text-white/90 leading-relaxed">{t[benefit as keyof typeof t] || benefit}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Action Button */}
-            <Button
-              onClick={() => isCurrentPlan(plan) ? handleOpenPortal() : onSelectPlan(plan.id, plan.priceId)}
-              disabled={(isLoading || !canChangePlan) && !isCurrentPlan(plan) || portalLoading}
-              className="w-full py-6 rounded-lg font-semibold transition-all duration-300 bg-transparent border-2 border-white hover:bg-white text-white hover:text-black hover:scale-[1.02] disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-white disabled:scale-100"
-            >
-              {isCurrentPlan(plan) 
-                ? (portalLoading ? 'Opening Portal...' : 'Manage Subscription') 
-                : getButtonText(plan)}
-            </Button>
-          </Card>
-        ))}
+      <div className="text-xs text-muted-foreground text-center">
+        After purchase you will return to the app. Benefits unlock instantly.
       </div>
     </div>
   );
 };
+
+export default SubscriptionPlansGrid;
