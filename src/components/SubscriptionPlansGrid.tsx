@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Check, Crown, Zap, Star } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
 import { getPlansForInterval } from "@/lib/subscription-plans";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface SubscriptionPlansGridProps {
   currentPlan: string;
@@ -27,8 +30,33 @@ export const SubscriptionPlansGrid = ({
   onIntervalChange,
 }: SubscriptionPlansGridProps) => {
   const { t } = useLanguage();
+  const { toast } = useToast();
+  const [portalLoading, setPortalLoading] = useState(false);
   
   const plans = getPlansForInterval(interval);
+
+  const handleOpenPortal = async () => {
+    setPortalLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('customer-portal');
+      
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      } else {
+        throw new Error('No portal URL received');
+      }
+    } catch (error) {
+      console.error('Portal error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to open customer portal. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setPortalLoading(false);
+    }
+  };
 
   const getPlanIcon = (planId: string) => {
     switch (planId) {
@@ -148,11 +176,13 @@ export const SubscriptionPlansGrid = ({
 
             {/* Action Button */}
             <Button
-              onClick={() => onSelectPlan(plan.id, plan.priceId)}
-              disabled={isLoading || !canChangePlan || isCurrentPlan(plan)}
+              onClick={() => isCurrentPlan(plan) ? handleOpenPortal() : onSelectPlan(plan.id, plan.priceId)}
+              disabled={(isLoading || !canChangePlan) && !isCurrentPlan(plan) || portalLoading}
               className="w-full py-6 rounded-lg font-semibold transition-all duration-300 bg-transparent border-2 border-white hover:bg-white text-white hover:text-black hover:scale-[1.02] disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-white disabled:scale-100"
             >
-              {isCurrentPlan(plan) ? 'Active Plan' : getButtonText(plan)}
+              {isCurrentPlan(plan) 
+                ? (portalLoading ? 'Opening Portal...' : 'Manage Subscription') 
+                : getButtonText(plan)}
             </Button>
           </Card>
         ))}
