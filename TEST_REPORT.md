@@ -47,11 +47,24 @@ Date: 2025-10-26 (Final Update)
 ## How to run locally
 
 ```bash
-npm run test:unit
-npm run test:integration
-# E2E requires Playwright browsers installed
-npm run test:e2e
+npm run test:unit        # Run unit tests (19 tests)
+npm run test:integration # Run integration tests (44 tests)
+npm run test:e2e         # Run E2E tests (requires Playwright)
 ```
+
+## How to run pre-launch verification
+
+```bash
+# Make executable
+chmod +x scripts/pre-launch-check.sh
+
+# Run verification
+./scripts/pre-launch-check.sh
+```
+
+## Complete Launch Guide
+
+See `docs/LAUNCH_SEQUENCE.md` for step-by-step production launch (35 minutes)
 
 ## Notable Areas
 
