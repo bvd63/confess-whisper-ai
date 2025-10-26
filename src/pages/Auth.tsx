@@ -151,6 +151,27 @@ const Auth = () => {
         setFailedLoginAttempts(0);
         setShowLoginCaptcha(false);
 
+        // Award streak bonus if applicable
+        if (data?.user?.id) {
+          try {
+            const { data: streakData } = await supabase
+              .from('user_streaks')
+              .select('current_streak')
+              .eq('user_id', data.user.id)
+              .single();
+            
+            if (streakData?.current_streak) {
+              const { onDailyLogin } = await import('@/services/authHooks');
+              await onDailyLogin({ 
+                userId: data.user.id, 
+                currentStreak: streakData.current_streak 
+              });
+            }
+          } catch (err) {
+            console.error('Error checking streak bonus:', err);
+          }
+        }
+
         navigate('/');
       } else {
         // Server-side validation before signup
