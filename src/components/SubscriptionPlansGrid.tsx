@@ -119,8 +119,8 @@ export const SubscriptionPlansGrid = ({
     }
   };
 
-  // Filter to show only VIP plan
-  const filteredPlans = plans.filter(plan => plan.id === 'vip');
+  // Show all plans (Free + VIP)
+  const filteredPlans = plans;
 
   return (
     <div className="space-y-8">
@@ -217,15 +217,21 @@ export const SubscriptionPlansGrid = ({
             </div>
 
             {/* Action Button */}
-            {!plan.priceId && !isCurrentPlan(plan) && (
-              <div className="mb-3 text-sm text-yellow-500 text-center">
-                ⚠️ Price ID missing. Configure VITE_STRIPE_PRICE_VIP_{interval === 'monthly' ? 'MONTHLY' : 'YEARLY'}
-              </div>
-            )}
             <Button
-              onClick={() => isCurrentPlan(plan) ? handleOpenPortal() : handleCheckout(plan.priceId)}
+              onClick={() => {
+                if (isCurrentPlan(plan)) {
+                  handleOpenPortal();
+                } else if (plan.id === 'free') {
+                  onSelectPlan(plan.id, '');
+                } else {
+                  if (!plan.priceId) {
+                    console.warn(`Price ID missing for ${plan.id} - ${interval}`);
+                  }
+                  handleCheckout(plan.priceId);
+                }
+              }}
               disabled={
-                (isLoading || !canChangePlan || !plan.priceId) && !isCurrentPlan(plan) || 
+                (isLoading || !canChangePlan || (plan.id !== 'free' && !plan.priceId)) && !isCurrentPlan(plan) || 
                 portalLoading
               }
               className="w-full py-6 rounded-lg font-semibold transition-all duration-300 bg-transparent border-2 border-white hover:bg-white text-white hover:text-black hover:scale-[1.02] disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-white disabled:scale-100"
