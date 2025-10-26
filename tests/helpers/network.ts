@@ -1,7 +1,6 @@
 import { Page, Route } from '@playwright/test';
-import previewUpgradeFreeFixture from '../fixtures/stripe/preview/upgrade_free_to_premium_monthly.json';
-import previewUpgradeVIPFixture from '../fixtures/stripe/preview/upgrade_premium_to_vip_monthly.json';
-import previewDowngradeFixture from '../fixtures/stripe/preview/downgrade_vip_to_premium_period_end.json';
+import previewUpgradeFreeFixture from '../fixtures/stripe/preview/upgrade_free_to_vip_monthly.json';
+import previewDowngradeFixture from '../fixtures/stripe/preview/downgrade_vip_to_free_period_end.json';
 import previewYearlyFixture from '../fixtures/stripe/preview/yearly_targets_with_savings.json';
 
 /**
@@ -35,8 +34,6 @@ export async function mockSubscriptionRoutes(page: Page) {
     let fixture = previewUpgradeFreeFixture;
     if (cycle === 'yearly') {
       fixture = previewYearlyFixture;
-    } else if (targetTier === 'vip') {
-      fixture = previewUpgradeVIPFixture;
     }
 
     await route.fulfill({

@@ -41,9 +41,9 @@ test.describe('Subscription Upgrade Flow', () => {
     const dialog = page.getByTestId('manage-subscription-modal');
     await expect(dialog).toBeVisible({ timeout: 10000 });
     
-    const premiumButton = dialog.getByTestId('action-upgrade').first();
-    await premiumButton.waitFor({ state: 'visible', timeout: 10000 });
-    await premiumButton.click();
+    const vipButton = dialog.getByTestId('action-upgrade').first();
+    await vipButton.waitFor({ state: 'visible', timeout: 10000 });
+    await vipButton.click();
     
     // Confirm
     const confirmButton = dialog.getByTestId('confirm-action');
@@ -59,9 +59,9 @@ test.describe('Subscription Upgrade Flow', () => {
     await upgradeButton.click();
     
     const dialog = page.getByTestId('manage-subscription-modal');
-    const premiumButton = dialog.getByTestId('action-upgrade').first();
-    await premiumButton.waitFor({ state: 'visible', timeout: 10000 });
-    await premiumButton.click();
+    const vipButton = dialog.getByTestId('action-upgrade').first();
+    await vipButton.waitFor({ state: 'visible', timeout: 10000 });
+    await vipButton.click();
     
     const confirmButton = dialog.getByTestId('confirm-action');
     await confirmButton.waitFor({ state: 'visible', timeout: 10000 });
@@ -86,9 +86,9 @@ test.describe('Subscription Upgrade Flow', () => {
     await upgradeButton.click();
     
     const dialog = page.getByTestId('manage-subscription-modal');
-    const premiumButton = dialog.getByTestId('action-upgrade').first();
-    await premiumButton.waitFor({ state: 'visible', timeout: 10000 });
-    await premiumButton.click();
+    const vipButton = dialog.getByTestId('action-upgrade').first();
+    await vipButton.waitFor({ state: 'visible', timeout: 10000 });
+    await vipButton.click();
     
     const confirmButton = dialog.getByTestId('confirm-action');
     await confirmButton.waitFor({ state: 'visible', timeout: 10000 });

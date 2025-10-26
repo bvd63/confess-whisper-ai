@@ -17,7 +17,7 @@
     "is_premium": false,
     "subscription_status": "active",
     "subscription_ends_at": "2026-10-12T18:00:00Z",
-    "stripe_subscription_id": "sub_premium_yearly_001",
+    "stripe_subscription_id": "sub_vip_yearly_001",
     "stripe_price_id": "price_1SJ0vvR7kygIyYg9yORadPGD",
     "trial_active": false,
     "trial_end_date": null,
@@ -36,7 +36,7 @@
     "trial_end_date": null,
     "trial_premium_used": true
   },
-  "trial_premium_active": {
+  "trial_vip_active": {
     "id": "user_trial_001",
     "email": "trial@test.com",
     "subscription_tier": "vip",
@@ -49,7 +49,7 @@
     "trial_end_date": "2025-10-30T18:00:00Z",
     "trial_premium_used": false
   },
-  "canceled_at_period_end_premium": {
+  "canceled_at_period_end_vip": {
     "id": "user_canceled_001",
     "email": "canceled@test.com",
     "subscription_tier": "vip",
@@ -63,7 +63,7 @@
     "trial_end_date": null,
     "trial_premium_used": true
   },
-  "pending_change_vip_to_premium": {
+  "pending_change_vip_to_free": {
     "id": "user_pending_001",
     "email": "pending@test.com",
     "subscription_tier": "vip",
@@ -81,7 +81,7 @@
     "trial_end_date": null,
     "trial_premium_used": true
   },
-  "delinquent_premium": {
+  "delinquent_vip": {
     "id": "user_delinquent_001",
     "email": "delinquent@test.com",
     "subscription_tier": "vip",
