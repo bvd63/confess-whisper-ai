@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { STRIPE_PRICE } from "@/lib/stripe-config";
 
 const translations = {
   en: {
@@ -66,16 +67,26 @@ export const SubscriptionCard = () => {
       return;
     }
 
+    const priceId = STRIPE_PRICE.VIP_MONTHLY;
+    if (!priceId) {
+      toast({
+        title: "Configuration Error",
+        description: "Stripe price ID is not configured. Please contact support.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { priceId: "price_vip_monthly" }
+        body: { priceId }
       });
 
       if (error) throw error;
 
       if (data?.url) {
-        window.open(data.url, '_blank');
+        window.location.href = data.url;
       }
     } catch (error) {
       console.error("Checkout error:", error);

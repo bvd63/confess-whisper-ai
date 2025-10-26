@@ -72,12 +72,7 @@ export function calculateSavings(monthlyPrice: number, yearlyPrice: number): num
 }
 
 export function getPlansForInterval(interval: BillingInterval): PlanWithInterval[] {
-  return SUBSCRIPTION_PLANS.filter(plan => {
-    const hasInterval = interval === 'monthly' 
-      ? plan.stripePriceIdMonthly 
-      : plan.stripePriceIdYearly;
-    return hasInterval;
-  }).map(plan => {
+  return SUBSCRIPTION_PLANS.map(plan => {
     const isYearly = interval === 'yearly';
     const price = isYearly ? (plan.priceYearly ?? plan.priceMonthly) : plan.priceMonthly;
     const priceId = isYearly ? (plan.stripePriceIdYearly ?? plan.stripePriceIdMonthly) : plan.stripePriceIdMonthly;
