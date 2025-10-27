@@ -4,8 +4,8 @@
  */
 
 export const STRIPE_PRICE = {
-  VIP_MONTHLY: import.meta.env.VITE_STRIPE_PRICE_VIP_MONTHLY!,
-  VIP_YEARLY: import.meta.env.VITE_STRIPE_PRICE_VIP_YEARLY!,
+  VIP_MONTHLY: 'price_1SLWHvR7kygIyYg9dL3xhz5Y',
+  VIP_YEARLY: 'price_1SLWIRR7kygIyYg9pqq3rWD4',
 };
 
 // Direct Stripe payment link for VIP subscription

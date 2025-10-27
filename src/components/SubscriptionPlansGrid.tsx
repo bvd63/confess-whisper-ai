@@ -78,6 +78,13 @@ export const SubscriptionPlansGrid = ({
   const isCurrentPlan = (plan: any) => plan.id === currentPlan && plan.interval === currentInterval;
 
   const handleCheckout = async (priceId: string) => {
+    console.log('🔍 Stripe Checkout Debug:', {
+      priceId,
+      hasValue: !!priceId,
+      length: priceId?.length || 0,
+      interval
+    });
+
     if (!priceId) {
       toast({
         title: "Configuration Error",
@@ -215,6 +222,18 @@ export const SubscriptionPlansGrid = ({
                 </div>
               ))}
             </div>
+
+            {/* Debug Warning - visible only when price ID is missing */}
+            {!plan.priceId && plan.id !== 'free' && (
+              <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                <p className="text-yellow-500 text-xs font-medium">
+                  ⚠️ Configuration Issue: Price ID missing
+                </p>
+                <p className="text-yellow-400/70 text-xs mt-1">
+                  Expected: price_1XXX... | Got: "{plan.priceId}"
+                </p>
+              </div>
+            )}
 
             {/* Action Button */}
             <Button

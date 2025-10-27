@@ -1,3 +1,5 @@
+import { STRIPE_PRICE } from './stripe-config';
+
 export type BillingInterval = 'monthly' | 'yearly';
 
 export interface SubscriptionPlan {
@@ -35,8 +37,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     name: 'VIP',
     priceMonthly: 6.99,
     priceYearly: 54.99,
-    stripePriceIdMonthly: import.meta.env.VITE_STRIPE_PRICE_VIP_MONTHLY || '',
-    stripePriceIdYearly: import.meta.env.VITE_STRIPE_PRICE_VIP_YEARLY || '',
+    stripePriceIdMonthly: STRIPE_PRICE.VIP_MONTHLY,
+    stripePriceIdYearly: STRIPE_PRICE.VIP_YEARLY,
     isPopular: true,
     benefits: [
       'All premium features',
