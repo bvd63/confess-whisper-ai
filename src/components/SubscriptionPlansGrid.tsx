@@ -112,6 +112,14 @@ export const SubscriptionPlansGrid = ({
       if (error) throw error;
       
       if (data?.url) {
+        try {
+          if (window.top && window.top !== window) {
+            window.top.location.href = data.url;
+            return;
+          }
+        } catch {}
+        const win = window.open(data.url, '_blank');
+        if (win) return;
         window.location.href = data.url;
       } else {
         throw new Error('No checkout URL received');
