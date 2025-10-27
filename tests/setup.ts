@@ -2,6 +2,13 @@ import { expect, afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
+// Mock dompurify to avoid resolution and DOM-specific issues in tests
+vi.mock('dompurify', () => ({
+  default: {
+    sanitize: (html: string, _config?: unknown) => html,
+  },
+}));
+
 // Mock persistence manager to avoid indexedDB issues
 vi.mock('@/lib/persistenceManager', () => ({
   persistenceManager: {

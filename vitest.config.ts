@@ -12,7 +12,9 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
+      '@': path.resolve(__dirname, './src'),
+      // Alias dompurify to a lightweight mock for unit tests
+      'dompurify': path.resolve(__dirname, './tests/mocks/dompurify.ts')
     }
   }
 })
