@@ -68,15 +68,20 @@ serve(async (req) => {
       throw new Error("Invalid tier for coin award");
     }
 
-    // Use the award_coins function
+    // Use the award_coins function with all required parameters
+    const referenceId = crypto.randomUUID();
     const { error: awardError } = await supabaseClient.rpc('award_coins', {
       _user_id: userId,
       _amount: coinsToAward,
       _type: `subscription_${tier}_bonus`,
-      _description: `Welcome bonus for activating ${tier} subscription`
+      _description: `Welcome bonus for activating ${tier.toUpperCase()} subscription`,
+      _reference_id: referenceId
     });
 
-    if (awardError) throw awardError;
+    if (awardError) {
+      logStep("Error awarding coins", { error: awardError });
+      throw awardError;
+    }
 
     logStep("Coins awarded successfully", { amount: coinsToAward });
 
