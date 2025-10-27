@@ -107,14 +107,14 @@ export const AdvancedFilters = ({ onFilterChange, communities = [] }: AdvancedFi
           <div>
             <label className="text-xs text-muted-foreground mb-1 block">{t.filters_community}</label>
             <Select
-              value={filters.communityId || ''}
-              onValueChange={(value) => updateFilters({ communityId: value || undefined })}
+              value={filters.communityId ?? 'all'}
+              onValueChange={(value) => updateFilters({ communityId: value === 'all' ? undefined : value })}
             >
               <SelectTrigger className="h-9">
                 <SelectValue placeholder={t.communities_filter_all} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">{t.communities_filter_all}</SelectItem>
+                <SelectItem value="all">{t.communities_filter_all}</SelectItem>
                 {communities.map((community) => (
                   <SelectItem key={community.id} value={community.id}>
                     {community.name}

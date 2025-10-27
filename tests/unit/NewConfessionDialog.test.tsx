@@ -1,9 +1,7 @@
-import { getSupabase } from '@/lib/supabaseClient';
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { screen, fireEvent, waitFor } from "@testing-library/react";
 import { renderWithProviders } from "../helpers/testUtils";
-import { NewConfessionDialog } from '@/components/NewConfessionDialog';
-import { supabaseMock } from '../setup/supabase-mock';
+import NewConfessionDialog from '@/components/NewConfessionDialog';
 
 describe("NewConfessionDialog", () => {
   beforeEach(() => {
@@ -13,21 +11,6 @@ describe("NewConfessionDialog", () => {
   it("submits a new confession", async () => {
     const onConfessionSubmitted = vi.fn();
     const setOpen = vi.fn();
-
-    // Mock the from method for confessions insert
-    type SupabaseReturn = { insert?: ReturnType<typeof vi.fn>; select?: ReturnType<typeof vi.fn> };
-    vi.mocked(supabaseMock.from).mockImplementation((table: string): SupabaseReturn => {
-      if (table === 'confessions') {
-        return {
-          insert: vi.fn().mockResolvedValue({ data: [{ id: 1 }], error: null }),
-        };
-      }
-      return {
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
-        }),
-      };
-    });
 
     renderWithProviders(
       <NewConfessionDialog

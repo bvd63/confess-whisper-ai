@@ -355,7 +355,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">{t.location_no_community}</SelectItem>
-                {communities?.map((community) => (
+                {Array.isArray(communities) && communities.map((community) => (
                   <SelectItem key={community.id} value={community.id}>
                     {community.icon} {community.name}
                   </SelectItem>

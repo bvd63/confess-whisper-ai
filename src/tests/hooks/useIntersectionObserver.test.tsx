@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { render, renderHook } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 
@@ -37,44 +37,35 @@ describe('useIntersectionObserver', () => {
   });
 
   it('should update isIntersecting when element enters viewport', () => {
-    const { result } = renderHook(() => useIntersectionObserver());
-    
-    // Create a mock ref element
-    const element = document.createElement('div');
-    Object.defineProperty(result.current.targetRef, 'current', {
-      value: element,
-      writable: true,
-    });
-    
-    // Trigger intersection
-    mockObserver.triggerIntersect(true);
-    
-    // Note: In actual test, you'd need to rerender to see state changes
+    const Test: React.FC = () => {
+      const { targetRef } = useIntersectionObserver();
+      return <div data-testid="target" ref={targetRef} />;
+    };
+    render(<Test />);
+
+    // Observer should attach to the element
     expect(mockObserver.observe).toHaveBeenCalled();
   });
 
   it('should call onVisible when element becomes visible', () => {
     const onVisible = vi.fn();
-    const { result } = renderHook(() => 
-      useIntersectionObserver({ onVisible })
-    );
-    
-    const element = document.createElement('div');
-    Object.defineProperty(result.current.targetRef, 'current', {
-      value: element,
-      writable: true,
-    });
-    
+    const Test: React.FC = () => {
+      const { targetRef } = useIntersectionObserver({ onVisible });
+      return <div data-testid="target" ref={targetRef} />;
+    };
+    render(<Test />);
+
     mockObserver.triggerIntersect(true);
-    
     expect(onVisible).toHaveBeenCalled();
   });
 
   it('should cleanup observer on unmount', () => {
-    const { unmount } = renderHook(() => useIntersectionObserver());
-    
+    const Test: React.FC = () => {
+      const { targetRef } = useIntersectionObserver();
+      return <div data-testid="target" ref={targetRef} />;
+    };
+    const { unmount } = render(<Test />);
     unmount();
-    
     expect(mockObserver.disconnect).toHaveBeenCalled();
   });
 });
