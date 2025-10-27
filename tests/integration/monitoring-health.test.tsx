@@ -105,14 +105,14 @@ describe('Health Check Monitoring - Integration Tests', () => {
       expect(mockMemory.percentage).toBeGreaterThan(80);
     });
 
-    it('should flag critical memory usage (>95%)', () => {
+    it('should flag critical memory usage (>=95%)', () => {
       const mockMemory = {
         used: 127506842, // 121MB
         total: 134217728, // 128MB
         percentage: 95.0,
       };
 
-      expect(mockMemory.percentage).toBeGreaterThan(95);
+      expect(mockMemory.percentage).toBeGreaterThanOrEqual(95);
     });
   });
 

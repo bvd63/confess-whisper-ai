@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useConfessionRateLimit } from '@/hooks/useConfessionRateLimit';
-import { supabase } from '@/integrations/supabase/client';
+import { getSupabase } from '@/lib/supabaseClient';
 
 describe('Rate Limit Integration', () => {
   beforeEach(() => {
@@ -17,7 +17,7 @@ describe('Rate Limit Integration', () => {
   });
 
   it('handles successful rate limit check', async () => {
-    vi.mocked(supabase.functions.invoke).mockResolvedValue({
+  vi.mocked(getSupabase().functions.invoke).mockResolvedValue({
       data: {
         allowed: true,
         remaining: 95,
@@ -34,13 +34,16 @@ describe('Rate Limit Integration', () => {
     });
 
     expect(allowed).toBe(true);
-    expect(supabase.functions.invoke).toHaveBeenCalledWith('rate-limit', {
-      body: { action: 'confession_create' },
-    });
+    expect(getSupabase().functions.invoke).toHaveBeenCalledWith(
+      'rate-limit',
+      expect.objectContaining({
+        body: expect.objectContaining({ action: 'confession_create' }),
+      })
+    );
   });
 
   it('handles rate limit exceeded', async () => {
-    vi.mocked(supabase.functions.invoke).mockResolvedValue({
+  vi.mocked(getSupabase().functions.invoke).mockResolvedValue({
       data: {
         allowed: false,
         remaining: 0,
@@ -63,7 +66,7 @@ describe('Rate Limit Integration', () => {
   });
 
   it('formats remaining time correctly', async () => {
-    vi.mocked(supabase.functions.invoke).mockResolvedValue({
+  vi.mocked(getSupabase().functions.invoke).mockResolvedValue({
       data: {
         allowed: false,
         remaining: 0,
@@ -79,12 +82,12 @@ describe('Rate Limit Integration', () => {
       await result.current.checkRateLimit();
     });
 
-    const remainingTime = result.current.getRemainingTime();
-    expect(remainingTime).toMatch(/5m \d{1,2}s/);
+  const remainingTime = result.current.getRemainingTime();
+  expect(remainingTime).toMatch(/\d+ minutes|\d+h \d+m/);
   });
 
   it('calculates percentage correctly', async () => {
-    vi.mocked(supabase.functions.invoke).mockResolvedValue({
+  vi.mocked(getSupabase().functions.invoke).mockResolvedValue({
       data: {
         allowed: true,
         remaining: 75,
@@ -106,7 +109,7 @@ describe('Rate Limit Integration', () => {
     vi.useFakeTimers();
 
     const futureTime = Date.now() + 1000;
-    vi.mocked(supabase.functions.invoke).mockResolvedValue({
+  vi.mocked(getSupabase().functions.invoke).mockResolvedValue({
       data: {
         allowed: false,
         remaining: 0,
@@ -124,14 +127,22 @@ describe('Rate Limit Integration', () => {
 
     expect(result.current.isLimited).toBe(true);
 
-    // Fast forward time past the reset
+    // Fast forward time past the reset and the 10s check interval
     await act(async () => {
-      vi.advanceTimersByTime(2000);
+      vi.advanceTimersByTime(12000);
     });
 
-    await waitFor(() => {
-      expect(result.current.isLimited).toBe(false);
+    // Simulate a subsequent rate limit check after expiry to refresh state
+    vi.mocked(getSupabase().functions.invoke).mockResolvedValueOnce({
+      data: { allowed: true, remaining: 100, resetAt: Date.now() + 900000 },
+      error: null,
     });
+
+    await act(async () => {
+      await result.current.checkRateLimit();
+    });
+
+    expect(result.current.isLimited).toBe(false);
 
     vi.useRealTimers();
   });

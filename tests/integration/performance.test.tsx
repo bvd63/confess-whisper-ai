@@ -8,10 +8,16 @@ import Performance from '@/pages/admin/Performance';
 vi.mock('@/contexts/LanguageContext', () => ({
   useLanguage: () => ({
     t: {
-      performance_title: 'Performance Dashboard',
-      performance_overview: 'System Overview',
-      performance_metrics: 'Performance Metrics',
-      performance_cache: 'Cache Statistics',
+      admin_performance: 'Performance Dashboard',
+      admin_performance_desc: 'System Overview',
+      admin_active_users: 'Active Users',
+      admin_last_5_minutes: 'Last 5 minutes',
+      admin_cache: 'Cache Statistics',
+      admin_clear_warning: 'This will clear cache',
+      admin_clear_cache: 'Clear Cache',
+      admin_confirm_clear: 'Confirm clear',
+      common_cancel: 'Cancel',
+      common_confirm: 'Confirm',
     },
   }),
 }));
@@ -61,7 +67,7 @@ describe('Performance Dashboard Integration', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/System Overview|performance_overview/)).toBeInTheDocument();
+      expect(screen.getByText('System Overview')).toBeInTheDocument();
     });
   });
 

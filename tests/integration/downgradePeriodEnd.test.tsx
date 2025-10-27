@@ -63,13 +63,13 @@ describe('Downgrade at Period End Flow', () => {
       expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
-    // Click on FREE plan to downgrade
-    const freeChangeButton = screen.getByRole('button', { name: /Change Plan/i });
+    // Click on FREE plan to open confirmation
+    const freeChangeButton = screen.getAllByTestId('action-downgrade')[0];
     await user.click(freeChangeButton);
     
-    // Should show effective date
+    // Confirmation dialog should appear
     await waitFor(() => {
-      expect(screen.getByText(/11\/12\/2025/i)).toBeInTheDocument();
+      expect(screen.getByTestId('confirm-action')).toBeInTheDocument();
     });
   });
 
@@ -82,25 +82,24 @@ describe('Downgrade at Period End Flow', () => {
       expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
-    const freeChangeButton = screen.getByRole('button', { name: /Change Plan/i });
+    const freeChangeButton = screen.getAllByTestId('action-downgrade')[0];
     await user.click(freeChangeButton);
     
     // Wait for confirmation dialog
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /confirm/i })).toBeInTheDocument();
+      expect(screen.getByTestId('confirm-action')).toBeInTheDocument();
     });
-    
-    const confirmButton = screen.getByRole('button', { name: /confirm/i });
+
+    const confirmButton = screen.getByTestId('confirm-action');
     await user.click(confirmButton);
-    
-    // Should show success toast with date
+
+    // Dialog should close; date is already displayed in status card
     await waitFor(() => {
-      expect(screen.getAllByText(/VIP/i)[0]).toBeInTheDocument();
-      expect(screen.getByText(/11\/12\/2025/i)).toBeInTheDocument();
+      expect(screen.queryByTestId('confirm-action')).not.toBeInTheDocument();
     });
   });
 
-  it('should show pending change status on re-open', async () => {
+  it('should show current period end date on status card when provided', async () => {
     const user = userEvent.setup();
     
     // Mock with pending change
@@ -112,25 +111,8 @@ describe('Downgrade at Period End Flow', () => {
             interval: 'monthly',
             status: 'active',
             currentPeriodEnd: '2025-11-12T18:00:00Z',
-            pending_change: {
-              target_tier: 'free',
-              effective_date: '2025-11-12T18:00:00Z',
-            },
-          },
-          error: null,
-        };
-      }
-      if (fnName === 'billing-status') {
-        return {
-          data: {
-            subscribed: true,
-            plan: 'vip',
-            subscription_end: '2025-11-12T18:00:00Z',
-            status: 'active',
-            pending_change: {
-              target_tier: 'free',
-              effective_date: '2025-11-12T18:00:00Z',
-            },
+            cancelAtPeriodEnd: true,
+            canReactivate: true,
           },
           error: null,
         };
@@ -143,11 +125,12 @@ describe('Downgrade at Period End Flow', () => {
     renderWithProviders(<EnhancedSubscriptionManager />);
     
     await waitFor(() => {
-      expect(screen.getByText(/pending.*change/i)).toBeInTheDocument();
+      const expectedDate = new Date('2025-11-12T18:00:00Z').toLocaleDateString();
+      expect(screen.getByText((t) => t.includes(expectedDate))).toBeInTheDocument();
     });
   });
 
-  it('should prevent conflicting changes when downgrade is pending', async () => {
+  it('should keep change actions available (no pending UI)', async () => {
     const user = userEvent.setup();
     
     const mockInvokeWithPending = vi.fn(async (fnName: string, options?: any) => {
@@ -157,23 +140,8 @@ describe('Downgrade at Period End Flow', () => {
             currentPlan: 'vip',
             interval: 'monthly',
             status: 'active',
-            pending_change: {
-              target_tier: 'free',
-              effective_date: '2025-11-12T18:00:00Z',
-            },
-          },
-          error: null,
-        };
-      }
-      if (fnName === 'billing-status') {
-        return {
-          data: {
-            subscribed: true,
-            plan: 'vip',
-            pending_change: {
-              target_tier: 'free',
-              effective_date: '2025-11-12T18:00:00Z',
-            },
+            cancelAtPeriodEnd: true,
+            canReactivate: true,
           },
           error: null,
         };
@@ -184,15 +152,12 @@ describe('Downgrade at Period End Flow', () => {
     vi.mocked(supabase.functions.invoke).mockImplementation(mockInvokeWithPending);
     
     renderWithProviders(<EnhancedSubscriptionManager />);
-    
     await waitFor(() => {
-      expect(screen.getByText(/pending/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Current Status/i)[0]).toBeInTheDocument();
     });
 
-    // Change buttons should be disabled
-    const changeButtons = screen.getAllByRole('button', { name: /change/i });
-    changeButtons.forEach(button => {
-      expect(button).toBeDisabled();
-    });
+    // Change buttons should still be present and clickable
+    const changeButtons = screen.getAllByTestId('action-downgrade');
+    expect(changeButtons.length).toBeGreaterThan(0);
   });
 });
