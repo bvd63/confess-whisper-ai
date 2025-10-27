@@ -4,6 +4,7 @@ import { ensureLanguage } from '@/contexts/LanguageContext';
 
 describe('Translation System', () => {
   const languages: Language[] = ['en', 'es', 'de'];
+  const entriesFor = (lang: Language) => Object.entries(translations[lang] as Record<string, string>);
   
   describe('Translation Completeness', () => {
     it('should have all languages defined', () => {
@@ -26,9 +27,8 @@ describe('Translation System', () => {
 
     it('should not have empty translation values', () => {
       languages.forEach(lang => {
-        const entries = Object.entries(translations[lang]);
-        
-        entries.forEach(([key, value]) => {
+        const entries = entriesFor(lang);
+        entries.forEach(([_key, value]) => {
           expect(value).toBeTruthy();
           expect(value.length).toBeGreaterThan(0);
         });
@@ -36,7 +36,7 @@ describe('Translation System', () => {
     });
 
     it('should have consistent parameter placeholders', () => {
-      const enEntries = Object.entries(translations.en);
+  const enEntries = Object.entries(translations.en as Record<string, string>);
       
       enEntries.forEach(([key, enValue]) => {
         const placeholders = enValue.match(/\{[^}]+\}/g) || [];
@@ -44,7 +44,7 @@ describe('Translation System', () => {
         languages.forEach(lang => {
           if (lang === 'en') return;
           
-          const langValue = translations[lang][key];
+          const langValue = (translations[lang] as Record<string, string>)[key];
           const langPlaceholders = langValue.match(/\{[^}]+\}/g) || [];
           
           expect(langPlaceholders.length).toBe(placeholders.length);
@@ -108,7 +108,7 @@ describe('Translation System', () => {
       const MAX_LENGTH = 500;
       
       languages.forEach(lang => {
-        Object.entries(translations[lang]).forEach(([key, value]) => {
+        entriesFor(lang).forEach(([key, value]) => {
           expect(value.length).toBeLessThanOrEqual(MAX_LENGTH);
         });
       });
@@ -118,18 +118,22 @@ describe('Translation System', () => {
       const htmlPattern = /<[^>]+>/;
       
       languages.forEach(lang => {
-        Object.entries(translations[lang]).forEach(([key, value]) => {
+        entriesFor(lang).forEach(([key, value]) => {
           expect(htmlPattern.test(value)).toBe(false);
         });
       });
     });
 
-    it.skip('should have proper sentence capitalization', () => {
-      // Skipped due to encoding issues with special characters
+    it('should have proper sentence capitalization', () => {
+      // Use Unicode-aware capitalization check: first letter character should be uppercase
       languages.forEach(lang => {
-        Object.entries(translations[lang]).forEach(([key, value]) => {
+        entriesFor(lang).forEach(([key, value]) => {
           if (key.includes('_title') || key.includes('_heading')) {
-            expect(value[0]).toMatch(/[A-Z]/);
+            const firstLetterMatch = value.match(/\p{L}/u); // first Unicode letter
+            if (firstLetterMatch) {
+              const ch = firstLetterMatch[0];
+              expect(ch).toBe(ch.toLocaleUpperCase());
+            }
           }
         });
       });

@@ -52,20 +52,56 @@
     "workers": 2,
     "webServer": {
       "command": "npm run dev",
-      "url": "http://localhost:5173",
+      "url": "http://localhost:8080",
       "reuseExistingServer": true
     }
   },
   "suites": [],
   "errors": [
     {
-      "message": "Error: Timed out waiting 60000ms from config.webServer.",
-      "stack": "Error: Timed out waiting 60000ms from config.webServer."
+      "message": "TypeError: Module \"file:///workspaces/confess-whisper-ai/tests/fixtures/stripe/preview/upgrade_free_to_vip_monthly.json\" needs an import attribute of \"type: json\"",
+      "stack": "TypeError: Module \"file:///workspaces/confess-whisper-ai/tests/fixtures/stripe/preview/upgrade_free_to_vip_monthly.json\" needs an import attribute of \"type: json\""
+    },
+    {
+      "message": "TypeError: Module \"file:///workspaces/confess-whisper-ai/tests/fixtures/users/subscriptions.json\" needs an import attribute of \"type: json\"",
+      "stack": "TypeError: Module \"file:///workspaces/confess-whisper-ai/tests/fixtures/users/subscriptions.json\" needs an import attribute of \"type: json\""
+    },
+    {
+      "message": "TypeError: Module \"file:///workspaces/confess-whisper-ai/tests/fixtures/users/subscriptions.json\" needs an import attribute of \"type: json\"",
+      "stack": "TypeError: Module \"file:///workspaces/confess-whisper-ai/tests/fixtures/users/subscriptions.json\" needs an import attribute of \"type: json\""
+    },
+    {
+      "message": "TypeError: Module \"file:///workspaces/confess-whisper-ai/tests/fixtures/users/subscriptions.json\" needs an import attribute of \"type: json\"",
+      "stack": "TypeError: Module \"file:///workspaces/confess-whisper-ai/tests/fixtures/users/subscriptions.json\" needs an import attribute of \"type: json\""
+    },
+    {
+      "message": "TypeError: Module \"file:///workspaces/confess-whisper-ai/tests/fixtures/users/subscriptions.json\" needs an import attribute of \"type: json\"",
+      "stack": "TypeError: Module \"file:///workspaces/confess-whisper-ai/tests/fixtures/users/subscriptions.json\" needs an import attribute of \"type: json\""
+    },
+    {
+      "message": "TypeError: Module \"file:///workspaces/confess-whisper-ai/tests/fixtures/users/subscriptions.json\" needs an import attribute of \"type: json\"",
+      "stack": "TypeError: Module \"file:///workspaces/confess-whisper-ai/tests/fixtures/users/subscriptions.json\" needs an import attribute of \"type: json\""
+    },
+    {
+      "message": "TypeError: Module \"file:///workspaces/confess-whisper-ai/tests/fixtures/users/subscriptions.json\" needs an import attribute of \"type: json\"",
+      "stack": "TypeError: Module \"file:///workspaces/confess-whisper-ai/tests/fixtures/users/subscriptions.json\" needs an import attribute of \"type: json\""
+    },
+    {
+      "message": "TypeError: Module \"file:///workspaces/confess-whisper-ai/tests/fixtures/users/subscriptions.json\" needs an import attribute of \"type: json\"",
+      "stack": "TypeError: Module \"file:///workspaces/confess-whisper-ai/tests/fixtures/users/subscriptions.json\" needs an import attribute of \"type: json\""
+    },
+    {
+      "message": "TypeError: Module \"file:///workspaces/confess-whisper-ai/tests/fixtures/users/subscriptions.json\" needs an import attribute of \"type: json\"",
+      "stack": "TypeError: Module \"file:///workspaces/confess-whisper-ai/tests/fixtures/users/subscriptions.json\" needs an import attribute of \"type: json\""
+    },
+    {
+      "message": "TypeError: Module \"file:///workspaces/confess-whisper-ai/tests/fixtures/users/subscriptions.json\" needs an import attribute of \"type: json\"",
+      "stack": "TypeError: Module \"file:///workspaces/confess-whisper-ai/tests/fixtures/users/subscriptions.json\" needs an import attribute of \"type: json\""
     }
   ],
   "stats": {
-    "startTime": "2025-10-27T20:45:36.187Z",
-    "duration": 60350.9,
+    "startTime": "2025-10-27T21:40:41.285Z",
+    "duration": 1850.7060000000001,
     "expected": 0,
     "skipped": 0,
     "unexpected": 0,

@@ -58,6 +58,9 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      ...(mode === 'development'
+        ? { 'dompurify': path.resolve(__dirname, './src/shims/dompurify.ts') }
+        : {}),
     },
   },
 }));
