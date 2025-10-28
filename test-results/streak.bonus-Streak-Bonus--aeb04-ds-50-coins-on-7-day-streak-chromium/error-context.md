@@ -52,6 +52,24 @@
             - generic:
               - generic:
                 - generic:
+                  - generic:
+                    - img
+                  - generic:
+                    - paragraph: Current Streak
+                    - paragraph: 0 days
+                - generic:
+                  - generic:
+                    - img
+                    - generic: 0 points
+                  - generic: Level 1
+              - generic:
+                - generic:
+                  - generic: Next milestone
+                  - generic: 3 days
+          - generic:
+            - generic:
+              - generic:
+                - generic:
                   - img
                   - heading [level=3]: VIP Subscription
                 - paragraph: $6.99/month
@@ -83,12 +101,7 @@
                 - img
                 - text: Communities
             - generic:
-              - img
-              - heading [level=3]: No Communities Yet
-              - paragraph: Be the first to create a community and connect with others who share your interests!
-              - button:
-                - img
-                - text: Create Community
+              - generic: Loading...
           - generic:
             - generic:
               - generic:
@@ -195,7 +208,7 @@
     - generic:
       - generic:
         - img
-        - generic: 546ms
+        - generic: 0ms
     - button:
       - img
     - generic:
@@ -227,118 +240,22 @@
         - generic [ref=e26]: "0"
       - button [ref=e27] [cursor=pointer]:
         - img [ref=e29]
-  - dialog "👑 Your Subscription" [ref=e36]:
-    - generic [ref=e37]:
-      - heading "👑 Your Subscription" [level=2] [ref=e38]:
-        - generic [ref=e39]: 👑
-        - text: Your Subscription
-      - paragraph [ref=e40]: Compare features and find your best experience.
+  - dialog "Welcome to Confess+" [ref=e36]:
+    - heading "Welcome to Confess+" [level=2] [ref=e37]
+    - paragraph [ref=e38]: A safe space where you can share anything anonymously.
+    - button [active] [ref=e40] [cursor=pointer]:
+      - img
     - generic [ref=e41]:
-      - generic [ref=e42]:
-        - button "Get VIP – $6.99/mo" [ref=e43] [cursor=pointer]
-        - button "Get VIP – $54.99/yr" [ref=e44] [cursor=pointer]
-        - button "Manage billing" [ref=e45] [cursor=pointer]
-      - generic [ref=e47]:
-        - generic [ref=e48]:
-          - heading "Current Status" [level=3] [ref=e49]
-          - paragraph [ref=e50]: VIP - Monthly
-          - paragraph [ref=e51]: "Next billing: {date}: 11/12/2025"
-        - generic [ref=e52]: Active
-      - generic [ref=e53]:
-        - tablist [ref=e54]:
-          - tab "Monthly" [selected] [ref=e55] [cursor=pointer]
-          - tab "Yearly" [ref=e56] [cursor=pointer]
-        - tabpanel "Monthly" [ref=e57]:
-          - generic [ref=e58]:
-            - generic [ref=e59]:
-              - generic [ref=e60]:
-                - heading "Free" [level=3] [ref=e61]
-                - generic [ref=e62]: $0/mo
-              - generic [ref=e63]:
-                - generic [ref=e64]:
-                  - img [ref=e65]
-                  - generic [ref=e67]: Basic features
-                - generic [ref=e68]:
-                  - img [ref=e69]
-                  - generic [ref=e71]: Limited daily confessions
-              - button "Change Plan" [ref=e72] [cursor=pointer]
-            - generic [ref=e73]:
-              - generic [ref=e74]:
-                - generic [ref=e75]: MOST POPULAR
-                - generic [ref=e76]: Your Plan
-                - heading "VIP" [level=3] [ref=e77]
-                - generic [ref=e78]: $6.99/mo
-              - generic [ref=e79]:
-                - generic [ref=e80]:
-                  - img [ref=e81]
-                  - generic [ref=e83]: All premium features
-                - generic [ref=e84]:
-                  - img [ref=e85]
-                  - generic [ref=e87]: Priority AI responses
-                - generic [ref=e88]:
-                  - img [ref=e89]
-                  - generic [ref=e91]: VIP Reflection Feed
-                - generic [ref=e92]:
-                  - img [ref=e93]
-                  - generic [ref=e95]: Double coins for streaks
-                - generic [ref=e96]:
-                  - img [ref=e97]
-                  - generic [ref=e99]: Instant 250 coins on first purchase
-              - button "Your Plan" [disabled]
-      - button "Cancel Subscription" [ref=e100] [cursor=pointer]
-    - generic [ref=e101]:
-      - generic [ref=e103]:
-        - button "Monthly" [ref=e104] [cursor=pointer]
-        - button "Yearly -34%" [ref=e105] [cursor=pointer]:
-          - text: Yearly
-          - generic [ref=e106]: "-34%"
-      - generic [ref=e107]:
-        - generic [ref=e108]:
-          - generic [ref=e109]:
-            - generic [ref=e110]:
-              - generic [ref=e111]: ✨
-              - heading "Free" [level=3] [ref=e112]
-            - generic [ref=e113]:
-              - generic [ref=e114]: $0
-              - text: /per month
-            - paragraph [ref=e115]: Billed monthly
-          - generic [ref=e116]:
-            - generic [ref=e117]:
-              - img [ref=e119]
-              - generic [ref=e121]: Basic features
-            - generic [ref=e122]:
-              - img [ref=e124]
-              - generic [ref=e126]: Limited daily confessions
-          - button "Downgrade to Free" [ref=e127] [cursor=pointer]
-        - generic [ref=e128]:
-          - generic [ref=e129]: Active
-          - generic [ref=e130]:
-            - generic [ref=e131]:
-              - generic [ref=e132]: 👑
-              - heading "VIP" [level=3] [ref=e133]
-            - generic [ref=e134]:
-              - generic [ref=e135]: $6.99
-              - text: /per month
-            - paragraph [ref=e136]: Billed monthly
-          - generic [ref=e137]:
-            - generic [ref=e138]:
-              - img [ref=e140]
-              - generic [ref=e142]: All premium features
-            - generic [ref=e143]:
-              - img [ref=e145]
-              - generic [ref=e147]: Priority AI responses
-            - generic [ref=e148]:
-              - img [ref=e150]
-              - generic [ref=e152]: VIP Reflection Feed
-            - generic [ref=e153]:
-              - img [ref=e155]
-              - generic [ref=e157]: Double coins for streaks
-            - generic [ref=e158]:
-              - img [ref=e160]
-              - generic [ref=e162]: Instant 250 coins on first purchase
-          - button "Manage Subscription" [ref=e163] [cursor=pointer]
-    - paragraph [ref=e164]: You can cancel anytime from account settings. No long-term commitments.
-    - button "Close" [active] [ref=e165] [cursor=pointer]:
-      - img [ref=e166]
-      - generic [ref=e169]: Close
+      - img [ref=e43]
+      - generic [ref=e45]:
+        - heading "Welcome to Confess+" [level=2] [ref=e46]
+        - paragraph [ref=e47]: A safe space where you can share anything anonymously.
+      - generic [ref=e52]:
+        - button "Skip" [ref=e53] [cursor=pointer]
+        - button "Next" [ref=e54] [cursor=pointer]:
+          - text: Next
+          - img
+    - button "Close" [ref=e55] [cursor=pointer]:
+      - img [ref=e56]
+      - generic [ref=e59]: Close
 ```

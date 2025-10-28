@@ -195,7 +195,7 @@
     - generic:
       - generic:
         - img
-        - generic: 546ms
+        - generic: 390ms
     - button:
       - img
     - generic:

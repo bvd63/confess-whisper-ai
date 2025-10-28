@@ -83,12 +83,7 @@
                 - img
                 - text: Communities
             - generic:
-              - img
-              - heading [level=3]: No Communities Yet
-              - paragraph: Be the first to create a community and connect with others who share your interests!
-              - button:
-                - img
-                - text: Create Community
+              - generic: Loading...
           - generic:
             - generic:
               - generic:
@@ -195,7 +190,7 @@
     - generic:
       - generic:
         - img
-        - generic: 546ms
+        - generic: 0ms
     - button:
       - img
     - generic:

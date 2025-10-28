@@ -195,7 +195,7 @@
     - generic:
       - generic:
         - img
-        - generic: 546ms
+        - generic: 375ms
     - button:
       - img
     - generic:
@@ -243,7 +243,7 @@
           - heading "Current Status" [level=3] [ref=e49]
           - paragraph [ref=e50]: VIP - Monthly
           - paragraph [ref=e51]: "Next billing: {date}: 11/12/2025"
-        - generic [ref=e52]: Active
+        - generic [ref=e52]: Past Due
       - generic [ref=e53]:
         - tablist [ref=e54]:
           - tab "Monthly" [selected] [ref=e55] [cursor=pointer]

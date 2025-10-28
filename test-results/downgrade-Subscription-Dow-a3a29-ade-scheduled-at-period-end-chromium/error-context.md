@@ -1,9 +1,15 @@
 # Page snapshot
 
 ```yaml
-- generic:
+- generic [active]:
   - generic:
-    - region "Notifications alt+T"
+    - region "Notifications alt+T":
+      - list:
+        - listitem:
+          - generic:
+            - img
+          - generic:
+            - generic: Plan changed successfully!
     - generic:
       - generic:
         - generic:
@@ -195,7 +201,7 @@
     - generic:
       - generic:
         - img
-        - generic: 546ms
+        - generic: 257ms
     - button:
       - img
     - generic:
@@ -338,7 +344,7 @@
               - generic [ref=e162]: Instant 250 coins on first purchase
           - button "Manage Subscription" [ref=e163] [cursor=pointer]
     - paragraph [ref=e164]: You can cancel anytime from account settings. No long-term commitments.
-    - button "Close" [active] [ref=e165] [cursor=pointer]:
+    - button "Close" [ref=e165] [cursor=pointer]:
       - img [ref=e166]
       - generic [ref=e169]: Close
 ```

@@ -169,7 +169,7 @@
           - img
     - generic [ref=e224] [cursor=pointer]:
       - img [ref=e225]
-      - generic [ref=e227]: 275ms
+      - generic [ref=e227]: 239ms
     - button [ref=e228] [cursor=pointer]:
       - img
     - generic [ref=e231]:

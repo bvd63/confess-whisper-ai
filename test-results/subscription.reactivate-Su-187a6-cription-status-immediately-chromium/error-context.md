@@ -195,7 +195,7 @@
     - generic:
       - generic:
         - img
-        - generic: 546ms
+        - generic: 277ms
     - button:
       - img
     - generic:
@@ -238,54 +238,55 @@
         - button "Get VIP – $6.99/mo" [ref=e43] [cursor=pointer]
         - button "Get VIP – $54.99/yr" [ref=e44] [cursor=pointer]
         - button "Manage billing" [ref=e45] [cursor=pointer]
-      - generic [ref=e47]:
-        - generic [ref=e48]:
-          - heading "Current Status" [level=3] [ref=e49]
-          - paragraph [ref=e50]: VIP - Monthly
-          - paragraph [ref=e51]: "Next billing: {date}: 11/12/2025"
-        - generic [ref=e52]: Active
-      - generic [ref=e53]:
-        - tablist [ref=e54]:
-          - tab "Monthly" [selected] [ref=e55] [cursor=pointer]
-          - tab "Yearly" [ref=e56] [cursor=pointer]
-        - tabpanel "Monthly" [ref=e57]:
-          - generic [ref=e58]:
-            - generic [ref=e59]:
-              - generic [ref=e60]:
-                - heading "Free" [level=3] [ref=e61]
-                - generic [ref=e62]: $0/mo
-              - generic [ref=e63]:
-                - generic [ref=e64]:
-                  - img [ref=e65]
-                  - generic [ref=e67]: Basic features
-                - generic [ref=e68]:
-                  - img [ref=e69]
-                  - generic [ref=e71]: Limited daily confessions
-              - button "Change Plan" [ref=e72] [cursor=pointer]
-            - generic [ref=e73]:
-              - generic [ref=e74]:
-                - generic [ref=e75]: MOST POPULAR
-                - generic [ref=e76]: Your Plan
-                - heading "VIP" [level=3] [ref=e77]
-                - generic [ref=e78]: $6.99/mo
-              - generic [ref=e79]:
-                - generic [ref=e80]:
-                  - img [ref=e81]
-                  - generic [ref=e83]: All premium features
-                - generic [ref=e84]:
-                  - img [ref=e85]
-                  - generic [ref=e87]: Priority AI responses
-                - generic [ref=e88]:
-                  - img [ref=e89]
-                  - generic [ref=e91]: VIP Reflection Feed
-                - generic [ref=e92]:
-                  - img [ref=e93]
-                  - generic [ref=e95]: Double coins for streaks
-                - generic [ref=e96]:
-                  - img [ref=e97]
-                  - generic [ref=e99]: Instant 250 coins on first purchase
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - generic [ref=e48]:
+            - heading "Current Status" [level=3] [ref=e49]
+            - paragraph [ref=e50]: VIP - Monthly
+            - paragraph [ref=e51]: "Ends: {date}: 11/12/2025"
+          - generic [ref=e52]: Active
+        - button "Reactivate Subscription" [ref=e53] [cursor=pointer]
+      - generic [ref=e54]:
+        - tablist [ref=e55]:
+          - tab "Monthly" [selected] [ref=e56] [cursor=pointer]
+          - tab "Yearly" [ref=e57] [cursor=pointer]
+        - tabpanel "Monthly" [ref=e58]:
+          - generic [ref=e59]:
+            - generic [ref=e60]:
+              - generic [ref=e61]:
+                - heading "Free" [level=3] [ref=e62]
+                - generic [ref=e63]: $0/mo
+              - generic [ref=e64]:
+                - generic [ref=e65]:
+                  - img [ref=e66]
+                  - generic [ref=e68]: Basic features
+                - generic [ref=e69]:
+                  - img [ref=e70]
+                  - generic [ref=e72]: Limited daily confessions
+              - button "Change Plan" [ref=e73] [cursor=pointer]
+            - generic [ref=e74]:
+              - generic [ref=e75]:
+                - generic [ref=e76]: MOST POPULAR
+                - generic [ref=e77]: Your Plan
+                - heading "VIP" [level=3] [ref=e78]
+                - generic [ref=e79]: $6.99/mo
+              - generic [ref=e80]:
+                - generic [ref=e81]:
+                  - img [ref=e82]
+                  - generic [ref=e84]: All premium features
+                - generic [ref=e85]:
+                  - img [ref=e86]
+                  - generic [ref=e88]: Priority AI responses
+                - generic [ref=e89]:
+                  - img [ref=e90]
+                  - generic [ref=e92]: VIP Reflection Feed
+                - generic [ref=e93]:
+                  - img [ref=e94]
+                  - generic [ref=e96]: Double coins for streaks
+                - generic [ref=e97]:
+                  - img [ref=e98]
+                  - generic [ref=e100]: Instant 250 coins on first purchase
               - button "Your Plan" [disabled]
-      - button "Cancel Subscription" [ref=e100] [cursor=pointer]
     - generic [ref=e101]:
       - generic [ref=e103]:
         - button "Monthly" [ref=e104] [cursor=pointer]
