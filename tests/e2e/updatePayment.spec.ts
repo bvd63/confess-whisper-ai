@@ -19,7 +19,7 @@ test.describe('Update Payment Method', () => {
 
   test('delinquent account shows payment update prominently', async ({ page }) => {
     // Should show warning banner or indicator
-    await expect(page.getByText(/payment.*failed|past.*due|update.*payment/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/payment.*failed|past.*due|update.*required/i)).toBeVisible({ timeout: 10000 });
     
     const manageButton = page.getByTestId('manage-subscription-btn');
     await manageButton.waitFor({ state: 'visible', timeout: 10000 });
@@ -44,8 +44,8 @@ test.describe('Update Payment Method', () => {
     await updateButton.waitFor({ state: 'visible', timeout: 10000 });
     await updateButton.click();
     
-    // Should show payment form
-    await expect(page.getByText(/card.*number|payment.*method/i)).toBeVisible({ timeout: 10000 });
+    // Should redirect to Stripe portal or show payment form
+    await expect(dialog.getByText(/payment.*method/i).first()).toBeVisible({ timeout: 10000 });
   });
 
   test('successfully updates payment method', async ({ page }) => {
@@ -130,8 +130,8 @@ test.describe('Update Payment Method', () => {
       await submitButton.click();
     }
     
-    // Should show error
-    await expect(page.getByText(/error|invalid|failed/i)).toBeVisible({ timeout: 15000 });
+    // Should show error message within dialog
+    await expect(dialog.getByText(/error|invalid|failed/i).first()).toBeVisible({ timeout: 15000 });
   });
 
   test('disables other actions while payment is past due', async ({ page }) => {

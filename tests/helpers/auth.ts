@@ -43,15 +43,18 @@ export async function loginAs(page: Page, userFixtureKey: string) {
     throw new Error(`Unknown user fixture: ${userFixtureKey}`);
   }
 
+  // Map fixture 'id' to 'user_id' for consistency
+  const userId = (user as any).user_id || (user as any).id;
+
   // Set up session in localStorage before page loads
-  await page.addInitScript((userId: string) => {
+  await page.addInitScript((uid: string) => {
     // Set Supabase auth session
     const session = {
-      access_token: 'test-access-token-' + userId,
+      access_token: 'test-access-token-' + uid,
       refresh_token: 'test-refresh-token',
       user: {
-        id: userId,
-        email: `${userId}@test.com`,
+        id: uid,
+        email: `${uid}@test.com`,
         app_metadata: {},
         user_metadata: {},
         aud: 'authenticated',
@@ -65,7 +68,7 @@ export async function loginAs(page: Page, userFixtureKey: string) {
     localStorage.setItem('sb-kktrmgkhkbuwvbkbjwfz-auth-token', JSON.stringify(session));
     
     // Also set onboarding completion to prevent dialogs from auto-opening
-    localStorage.setItem(`onboarding_${userId}`, 'true');
+    localStorage.setItem(`onboarding_${uid}`, 'true');
     
     // Override getItem to always return our session for any auth key variant
     const originalGetItem = Storage.prototype.getItem;
@@ -75,7 +78,7 @@ export async function loginAs(page: Page, userFixtureKey: string) {
       }
       return originalGetItem.call(this, key);
     };
-  }, user.user_id);
+  }, userId);
 
   // Mock Supabase auth and profiles endpoints
   await page.route('**/auth/v1/user', async (route: Route) => {
@@ -126,23 +129,34 @@ export async function loginAs(page: Page, userFixtureKey: string) {
       return;
     }
     
+    const url = new URL(route.request().url());
+    const isSingle = url.searchParams.toString().includes('Accept=application/vnd.pgrst.object+json') || 
+                     route.request().headers()['accept']?.includes('application/vnd.pgrst.object+json');
+    
+    const profileData = {
+      user_id: userId,
+      nickname: (user as any).nickname || `User ${userId}`,
+      subscription_tier: (user as any).subscription_tier,
+      subscription_status: (user as any).subscription_status,
+      is_premium: (user as any).is_premium,
+      stripe_customer_id: (user as any).stripe_customer_id,
+      stripe_subscription_id: (user as any).stripe_subscription_id,
+      subscription_start_date: (user as any).subscription_start_date,
+      subscription_end_date: (user as any).subscription_end_date,
+      subscription_ends_at: (user as any).subscription_ends_at,
+      trial_ends_at: (user as any).trial_ends_at,
+      trial_active: (user as any).trial_active,
+      trial_end_date: (user as any).trial_end_date,
+      trial_premium_used: (user as any).trial_premium_used,
+      cancel_at_period_end: (user as any).cancel_at_period_end,
+      onboarding_completed: true, // Ensure onboarding is marked as completed
+      created_at: '2024-01-01T00:00:00Z'
+    };
+    
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify([{
-        user_id: user.user_id,
-        nickname: user.nickname || `User ${user.user_id}`,
-        subscription_tier: user.subscription_tier,
-        subscription_status: user.subscription_status,
-        stripe_customer_id: user.stripe_customer_id,
-        stripe_subscription_id: user.stripe_subscription_id,
-        subscription_start_date: user.subscription_start_date,
-        subscription_end_date: user.subscription_end_date,
-        trial_ends_at: user.trial_ends_at,
-        cancel_at_period_end: user.cancel_at_period_end,
-        onboarding_completed: true, // Ensure onboarding is marked as completed
-        created_at: '2024-01-01T00:00:00Z'
-      }]),
+      body: JSON.stringify(isSingle ? profileData : [profileData]),
     });
   });
 }

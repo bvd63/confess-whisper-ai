@@ -123,6 +123,7 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
       trialEndDate: null,
       trialEligible,
       subscriptionEndsAt: endsAt,
+      subscriptionStatus: data.subscription_status || 'none',
       uiMode: (isPremiumUser || isVIPUser) ? 'vip' as const : 'free' as const,
     };
   }, [data]);

@@ -181,7 +181,8 @@ export async function mockSubscriptionRoutes(page: Page, options?: { currentPlan
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ url: 'https://billing.stripe.com/test_portal' }),
+      // Return javascript:void(0) to prevent actual navigation in tests
+      body: JSON.stringify({ url: 'javascript:void(0)' }),
     });
   });
 

@@ -39,7 +39,8 @@ const AppHeader = ({
   } = useCurrentUser();
   const {
     isPremium,
-    subscriptionTier
+    subscriptionTier,
+    subscriptionStatus
   } = usePremiumStatus(user?.id);
   const {
     toast
@@ -91,6 +92,14 @@ const AppHeader = ({
             <ThemeToggle />
             {user ? <>
                 <CoinBalance />
+                
+                {/* Payment Failed Warning - Visible before opening dialog */}
+                {subscriptionStatus === 'past_due' && (
+                  <Badge variant="destructive" className="h-6 px-2 text-[10px] sm:text-xs animate-pulse">
+                    Payment Failed - Update Required
+                  </Badge>
+                )}
+                
                 {/* Always show subscription button - Opens ManageSubscriptionDialog for both upgrade and manage */}
                 <Button 
                   data-testid="manage-subscription-btn"
