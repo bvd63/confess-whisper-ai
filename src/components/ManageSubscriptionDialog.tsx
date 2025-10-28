@@ -1,7 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SubscriptionPlansGrid } from "./SubscriptionPlansGrid";
-import { EnhancedSubscriptionManager } from "./EnhancedSubscriptionManager";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -167,9 +166,6 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
           </div>
         ) : (
           <>
-            {/* Enhanced manager provides standardized test ids for E2E and integration */}
-            <EnhancedSubscriptionManager />
-
             <SubscriptionPlansGrid
               currentPlan={currentPlan}
               currentInterval={currentInterval}
