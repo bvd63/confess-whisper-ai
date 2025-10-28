@@ -7,7 +7,7 @@ test.describe('Manage Subscription Accessibility', () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await loginAs(page, 'premium_monthly_active');
-    await mockSubscriptionRoutes(page);
+    await mockSubscriptionRoutes(page, { currentPlan: 'vip', interval: 'monthly', status: 'active' });
     
     await page.goto('/');
     await page.waitForLoadState('networkidle');
@@ -15,6 +15,13 @@ test.describe('Manage Subscription Accessibility', () => {
     // Wait for app ready
     await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
     await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
+
+    // Close any potentially open dialogs on page load
+    const openDialog = page.locator('[data-state="open"][role="dialog"]');
+    if (await openDialog.isVisible()) {
+      await page.keyboard.press('Escape');
+      await expect(openDialog).not.toBeVisible();
+    }
   });
 
   test('modal has no critical accessibility violations', async ({ page }) => {

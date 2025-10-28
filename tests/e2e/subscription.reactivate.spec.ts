@@ -5,15 +5,22 @@ import { mockSubscriptionRoutes } from '../helpers/network';
 test.describe('Subscription Reactivation Flow', () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
-    await mockSubscriptionRoutes(page);
   });
 
   test('reactivate canceled VIP subscription', async ({ page }) => {
     // Login as user with canceled subscription
     await loginAs(page, 'canceled_at_period_end_vip');
+    await mockSubscriptionRoutes(page, { currentPlan: 'vip', interval: 'monthly', status: 'canceled' });
     
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    
+    // Close any open dialogs
+    const openDialog = page.locator('[data-state="open"][role="dialog"]');
+    if (await openDialog.isVisible()) {
+      await page.keyboard.press('Escape');
+      await expect(openDialog).not.toBeVisible();
+    }
     
     await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
     await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
@@ -42,9 +49,17 @@ test.describe('Subscription Reactivation Flow', () => {
 
   test('reactivate updates subscription status immediately', async ({ page }) => {
     await loginAs(page, 'canceled_at_period_end_vip');
+    await mockSubscriptionRoutes(page, { currentPlan: 'vip', interval: 'monthly', status: 'canceled' });
     
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    
+    // Close any open dialogs
+    const openDialog = page.locator('[data-state="open"][role="dialog"]');
+    if (await openDialog.isVisible()) {
+      await page.keyboard.press('Escape');
+      await expect(openDialog).not.toBeVisible();
+    }
     
     const manageButton = page.getByTestId('manage-subscription-btn');
     await manageButton.click();
@@ -78,9 +93,17 @@ test.describe('Subscription Reactivation Flow', () => {
     });
 
     await loginAs(page, 'canceled_at_period_end_vip');
+    await mockSubscriptionRoutes(page, { currentPlan: 'vip', interval: 'monthly', status: 'canceled' });
     
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    
+    // Close any open dialogs
+    const openDialog = page.locator('[data-state="open"][role="dialog"]');
+    if (await openDialog.isVisible()) {
+      await page.keyboard.press('Escape');
+      await expect(openDialog).not.toBeVisible();
+    }
     
     const manageButton = page.getByTestId('manage-subscription-btn');
     await manageButton.click();
@@ -110,9 +133,17 @@ test.describe('Subscription Reactivation Flow', () => {
     });
 
     await loginAs(page, 'canceled_at_period_end_vip');
+    await mockSubscriptionRoutes(page, { currentPlan: 'vip', interval: 'monthly', status: 'canceled' });
     
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    
+    // Close any open dialogs
+    const openDialog = page.locator('[data-state="open"][role="dialog"]');
+    if (await openDialog.isVisible()) {
+      await page.keyboard.press('Escape');
+      await expect(openDialog).not.toBeVisible();
+    }
     
     const manageButton = page.getByTestId('manage-subscription-btn');
     await manageButton.click();
@@ -131,9 +162,17 @@ test.describe('Subscription Reactivation Flow', () => {
   test('cannot reactivate if subscription already active', async ({ page }) => {
     // Login as active VIP user
     await loginAs(page, 'vip_monthly_active');
+    await mockSubscriptionRoutes(page, { currentPlan: 'vip', interval: 'monthly', status: 'active' });
     
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    
+    // Close any open dialogs
+    const openDialog = page.locator('[data-state="open"][role="dialog"]');
+    if (await openDialog.isVisible()) {
+      await page.keyboard.press('Escape');
+      await expect(openDialog).not.toBeVisible();
+    }
     
     const manageButton = page.getByTestId('manage-subscription-btn');
     await manageButton.click();

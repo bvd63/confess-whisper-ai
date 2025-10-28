@@ -6,10 +6,17 @@ test.describe('First VIP Payment Coin Award', () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await loginAs(page, 'free_user');
-    await mockSubscriptionRoutes(page);
+    await mockSubscriptionRoutes(page, { currentPlan: 'free', status: 'none' });
     
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    
+    // Close any open dialogs
+    const openDialog = page.locator('[data-state="open"][role="dialog"]');
+    if (await openDialog.isVisible()) {
+      await page.keyboard.press('Escape');
+      await expect(openDialog).not.toBeVisible();
+    }
     
     // Wait for app to be fully ready
     await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
@@ -60,9 +67,17 @@ test.describe('First VIP Payment Coin Award', () => {
   test('does not award coins on subsequent VIP renewals', async ({ page }) => {
     // Mock user already has VIP
     await loginAs(page, 'vip_monthly_active');
+    await mockSubscriptionRoutes(page, { currentPlan: 'vip', interval: 'monthly', status: 'active' });
     
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    
+    // Close any open dialogs
+    const openDialog = page.locator('[data-state="open"][role="dialog"]');
+    if (await openDialog.isVisible()) {
+      await page.keyboard.press('Escape');
+      await expect(openDialog).not.toBeVisible();
+    }
     
     // Mock the award function to return no award
     await page.route('**/functions/v1/award-subscription-coins', async (route) => {

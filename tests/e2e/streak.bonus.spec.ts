@@ -5,11 +5,11 @@ import { mockSubscriptionRoutes } from '../helpers/network';
 test.describe('Streak Bonus Coin Awards', () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
-    await mockSubscriptionRoutes(page);
   });
 
   test('awards 10 coins on 3-day streak', async ({ page }) => {
     await loginAs(page, 'free_user');
+    await mockSubscriptionRoutes(page, { currentPlan: 'free', status: 'none' });
     
     // Mock user has 3-day streak
     await page.route('**/rest/v1/user_streaks*', async (route) => {
@@ -59,6 +59,7 @@ test.describe('Streak Bonus Coin Awards', () => {
 
   test('awards 20 coins on 5-day streak', async ({ page }) => {
     await loginAs(page, 'free_user');
+    await mockSubscriptionRoutes(page, { currentPlan: 'free', status: 'none' });
     
     // Mock user has 5-day streak
     await page.route('**/rest/v1/user_streaks*', async (route) => {
@@ -104,6 +105,7 @@ test.describe('Streak Bonus Coin Awards', () => {
 
   test('awards 50 coins on 7-day streak', async ({ page }) => {
     await loginAs(page, 'vip_monthly_active');
+    await mockSubscriptionRoutes(page, { currentPlan: 'vip', interval: 'monthly', status: 'active' });
     
     // Mock user has 7-day streak
     await page.route('**/rest/v1/user_streaks*', async (route) => {
@@ -149,6 +151,7 @@ test.describe('Streak Bonus Coin Awards', () => {
 
   test('does not award coins for non-milestone streaks', async ({ page }) => {
     await loginAs(page, 'free_user');
+    await mockSubscriptionRoutes(page, { currentPlan: 'free', status: 'none' });
     
     // Mock user has 4-day streak (not a milestone)
     await page.route('**/rest/v1/user_streaks*', async (route) => {
@@ -184,6 +187,7 @@ test.describe('Streak Bonus Coin Awards', () => {
 
   test('streak bonus is idempotent (no duplicate awards)', async ({ page }) => {
     await loginAs(page, 'free_user');
+    await mockSubscriptionRoutes(page, { currentPlan: 'free', status: 'none' });
     
     let callCount = 0;
     
@@ -229,6 +233,7 @@ test.describe('Streak Bonus Coin Awards', () => {
 
   test('handles streak bonus failure gracefully', async ({ page }) => {
     await loginAs(page, 'free_user');
+    await mockSubscriptionRoutes(page, { currentPlan: 'free', status: 'none' });
     
     await page.route('**/rest/v1/user_streaks*', async (route) => {
       await route.fulfill({

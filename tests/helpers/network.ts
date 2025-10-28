@@ -1,13 +1,50 @@
 import { Page, Route } from '@playwright/test';
-import previewUpgradeFreeFixture from '../fixtures/stripe/preview/upgrade_free_to_vip_monthly.json';
-import previewDowngradeFixture from '../fixtures/stripe/preview/downgrade_vip_to_free_period_end.json';
-import previewYearlyFixture from '../fixtures/stripe/preview/yearly_targets_with_savings.json';
+import previewUpgradeFreeFixtureRaw from '../fixtures/stripe/preview/upgrade_free_to_vip_monthly.json' assert { type: 'json' };
+import previewDowngradeFixtureRaw from '../fixtures/stripe/preview/downgrade_vip_to_free_period_end.json' assert { type: 'json' };
+import previewYearlyFixtureRaw from '../fixtures/stripe/preview/yearly_targets_with_savings.json' assert { type: 'json' };
+
+const previewUpgradeFreeFixture: any = previewUpgradeFreeFixtureRaw as any;
+const previewDowngradeFixture: any = previewDowngradeFixtureRaw as any;
+const previewYearlyFixture: any = previewYearlyFixtureRaw as any;
 
 /**
  * Mock all subscription-related API routes for E2E tests
  */
-export async function mockSubscriptionRoutes(page: Page) {
+export async function mockSubscriptionRoutes(page: Page, options?: { currentPlan?: string; interval?: string; status?: string }) {
   const processedRequests = new Set<string>();
+  const currentPlan = options?.currentPlan || 'free';
+  const interval = options?.interval || 'monthly';
+  const status = options?.status || 'none';
+
+  // Billing-buy endpoint for free users upgrading
+  await page.route('**/functions/v1/billing-buy', async (route: Route) => {
+    const request = route.request();
+    const idempotencyKey = request.headers()['idempotency-key'];
+    
+    if (idempotencyKey && processedRequests.has(idempotencyKey)) {
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ already_processed: true }),
+      });
+    }
+
+    if (idempotencyKey) {
+      processedRequests.add(idempotencyKey);
+    }
+
+    const postData = request.postDataJSON?.() || {};
+    const cycle = postData.cycle || 'monthly';
+    
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        sessionId: `cs_test_${cycle}_${Date.now()}`,
+        url: `https://checkout.stripe.com/pay/cs_test_${cycle}`,
+      }),
+    });
+  });
 
   // Preview endpoint
   await page.route('**/functions/v1/billing-preview', async (route: Route) => {
@@ -40,6 +77,19 @@ export async function mockSubscriptionRoutes(page: Page) {
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify(fixture),
+    });
+  });
+
+  // New subscription (buy) endpoint for free -> VIP
+  await page.route('**/functions/v1/billing-buy', async (route: Route) => {
+    const request = route.request();
+    const body = request.postDataJSON?.() || {};
+    const cycle = body.cycle || 'monthly';
+    const url = `https://checkout.stripe.com/test_session_${cycle}`;
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ url })
     });
   });
 
@@ -126,6 +176,26 @@ export async function mockSubscriptionRoutes(page: Page) {
     });
   });
 
+  // Customer portal session endpoint used by EnhancedSubscriptionManager
+  await page.route('**/api/stripe/portal-session', async (route: Route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ url: 'https://billing.stripe.com/test_portal' }),
+    });
+  });
+
+  // Checkout session endpoint used by EnhancedSubscriptionManager
+  await page.route('**/api/stripe/checkout-session', async (route: Route) => {
+    const body = route.request().postDataJSON?.() || {};
+    const plan = body.plan || 'monthly';
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ url: `https://checkout.stripe.com/test_${plan}` }),
+    });
+  });
+
   // Update payment method endpoint
   await page.route('**/functions/v1/billing-update-payment-method', async (route: Route) => {
     await route.fulfill({
@@ -144,16 +214,17 @@ export async function mockSubscriptionRoutes(page: Page) {
     const action = postData.action;
 
     if (action === 'status') {
+      const isCanceled = status === 'canceled';
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
-          currentPlan: 'vip',
-          interval: 'monthly',
-          status: 'active',
-          cancelAtPeriodEnd: false,
-          currentPeriodEnd: '2025-11-12T18:00:00Z',
-          canReactivate: false,
+          currentPlan: currentPlan,
+          interval: currentPlan === 'free' ? null : interval,
+          status: isCanceled ? 'active' : status,
+          cancelAtPeriodEnd: isCanceled,
+          currentPeriodEnd: currentPlan === 'free' ? undefined : '2025-11-12T18:00:00Z',
+          canReactivate: isCanceled,
         }),
       });
     } else {

@@ -2,11 +2,11 @@ import { test, expect } from '@playwright/test';
 import { loginAs } from '../helpers/auth';
 import { mockSubscriptionRoutes } from '../helpers/network';
 
-test.describe('Update Payment Method Flow', () => {
+test.describe('Update Payment Method', () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await loginAs(page, 'delinquent_premium');
-    await mockSubscriptionRoutes(page);
+    await mockSubscriptionRoutes(page, { currentPlan: 'vip', interval: 'monthly', status: 'past_due' });
     
     await page.goto('/');
     await page.waitForLoadState('networkidle');

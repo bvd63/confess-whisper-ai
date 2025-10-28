@@ -1,6 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SubscriptionPlansGrid } from "./SubscriptionPlansGrid";
+import { EnhancedSubscriptionManager } from "./EnhancedSubscriptionManager";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -26,6 +27,7 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
     if (open && user) {
       loadSubscriptionStatus();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, user]);
 
   const loadSubscriptionStatus = async () => {
@@ -139,9 +141,9 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
         onOpenChange(false);
         return;
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error processing subscription change:', error);
-      const msg = error?.message || t.subscription_errors_generic || t.upgradeFailed || 'An error occurred';
+      const msg = (error as { message?: string })?.message || t.subscription_errors_generic || t.upgradeFailed || 'An error occurred';
       toast.error(msg);
     } finally {
       setIsProcessing(false);
@@ -149,7 +151,7 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
   };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto bg-[#0a0b14] border-[#1a1b2e] text-white">
+      <DialogContent data-testid="manage-subscription-modal" className="max-w-5xl max-h-[90vh] overflow-y-auto bg-[#0a0b14] border-[#1a1b2e] text-white">
         <DialogHeader className="space-y-2">
           <DialogTitle className="flex items-center justify-center gap-2 text-2xl font-semibold text-white">
             <span className="text-purple-500">👑</span>
@@ -165,6 +167,9 @@ export const ManageSubscriptionDialog = ({ open, onOpenChange, onSubscriptionUpd
           </div>
         ) : (
           <>
+            {/* Enhanced manager provides standardized test ids for E2E and integration */}
+            <EnhancedSubscriptionManager />
+
             <SubscriptionPlansGrid
               currentPlan={currentPlan}
               currentInterval={currentInterval}

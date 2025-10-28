@@ -6,10 +6,17 @@ test.describe('Subscription Downgrade Flow', () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await loginAs(page, 'vip_monthly_active');
-    await mockSubscriptionRoutes(page);
+    await mockSubscriptionRoutes(page, { currentPlan: 'vip', interval: 'monthly', status: 'active' });
     
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    
+    // Close any open dialogs
+    const openDialog = page.locator('[data-state="open"][role="dialog"]');
+    if (await openDialog.isVisible()) {
+      await page.keyboard.press('Escape');
+      await expect(openDialog).not.toBeVisible();
+    }
     
     // Wait for app ready
     await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
@@ -56,10 +63,18 @@ test.describe('Subscription Downgrade Flow', () => {
   test('pending downgrade shown on modal re-open', async ({ page }) => {
     // Re-login as user with pending change
     await loginAs(page, 'pending_change_vip_to_premium');
-    await mockSubscriptionRoutes(page);
+    await mockSubscriptionRoutes(page, { currentPlan: 'vip', interval: 'monthly', status: 'active' });
     
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    
+    // Close any open dialogs
+    const openDialog = page.locator('[data-state="open"][role="dialog"]');
+    if (await openDialog.isVisible()) {
+      await page.keyboard.press('Escape');
+      await expect(openDialog).not.toBeVisible();
+    }
+    
     await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
     await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
     
@@ -76,10 +91,18 @@ test.describe('Subscription Downgrade Flow', () => {
   test('prevents conflicting changes when downgrade pending', async ({ page }) => {
     // Re-login as user with pending change
     await loginAs(page, 'pending_change_vip_to_premium');
-    await mockSubscriptionRoutes(page);
+    await mockSubscriptionRoutes(page, { currentPlan: 'vip', interval: 'monthly', status: 'active' });
     
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    
+    // Close any open dialogs
+    const openDialog = page.locator('[data-state="open"][role="dialog"]');
+    if (await openDialog.isVisible()) {
+      await page.keyboard.press('Escape');
+      await expect(openDialog).not.toBeVisible();
+    }
+    
     await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
     await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
     
@@ -98,6 +121,7 @@ test.describe('Subscription Downgrade Flow', () => {
   test('can cancel pending downgrade', async ({ page }) => {
     // Re-login as user with pending change
     await loginAs(page, 'pending_change_vip_to_premium');
+    await mockSubscriptionRoutes(page, { currentPlan: 'vip', interval: 'monthly', status: 'active' });
     
     // Mock the cancel-pending endpoint
     await page.route('**/functions/v1/billing-cancel-pending', (route) => {

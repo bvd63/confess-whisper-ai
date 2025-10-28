@@ -1,0 +1,242 @@
+# Page snapshot
+
+```yaml
+- generic:
+  - generic:
+    - region "Notifications alt+T"
+    - generic:
+      - generic:
+        - generic:
+          - button:
+            - img
+          - generic:
+            - img
+            - heading [level=2]: ¡Bienvenido a Confess! 🎉
+            - paragraph: Comparte tus pensamientos anónimamente y conéctate con otros en un espacio seguro.
+            - button: Comenzar
+      - generic:
+        - banner:
+          - generic:
+            - generic:
+              - generic:
+                - img
+                - heading [level=1]: Confess+
+              - generic:
+                - generic:
+                  - img
+                  - generic: 100% Anónimo
+                - button:
+                  - img
+                - button:
+                  - img
+                - button:
+                  - img
+                  - generic: "0"
+                  - img
+                - button:
+                  - img
+                  - generic: Gestionar suscripción
+                - button:
+                  - img
+                - button:
+                  - img
+                  - generic: Cerrar Sesión
+        - main:
+          - generic:
+            - generic:
+              - img
+              - generic: 100% Anónimo y Seguro
+            - heading [level=2]: Confesiones Anónimas
+            - paragraph: Un espacio seguro donde puedes compartir cualquier cosa de forma anónima.
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - img
+                  - generic:
+                    - paragraph: Puntos de Karma
+                    - paragraph: "0"
+                - generic:
+                  - paragraph: Nivel
+                  - paragraph: Newcomer
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+                    - text: Próximo Nivel
+                  - generic: 50 puntos para avanzar
+                - progressbar
+          - generic:
+            - generic:
+              - generic: Solicitudes Restantes
+              - generic: 100/100
+            - progressbar
+          - generic:
+            - generic:
+              - heading [level=3]:
+                - img
+                - text: Comunidades
+            - generic:
+              - img
+              - heading [level=3]: Aún No Hay Comunidades
+              - paragraph: ¡Sé el primero en crear una comunidad y conectar con otros que comparten tus intereses!
+              - button:
+                - img
+                - text: Crear Comunidad
+          - generic:
+            - generic:
+              - generic:
+                - img
+              - heading [level=3]: Empatía IA
+              - paragraph: Respuestas empáticas generadas por IA entrenada para comprender y apoyar
+            - generic:
+              - generic:
+                - img
+              - heading [level=3]: 100% Anónimo
+              - paragraph: Tu identidad permanece confidencial; las confesiones no pueden ser atribuidas
+            - generic:
+              - generic:
+                - img
+              - heading [level=3]: Deep Insights
+              - paragraph: Análisis psicológico profundo para una comprensión completa (VIP)
+            - generic:
+              - generic:
+                - img
+              - heading [level=3]: Respuesta Instantánea
+              - paragraph: Obtén retroalimentación inmediata, disponible 24/7 cuando lo necesites
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - img
+              - heading [level=2]: Preguntas Frecuentes
+            - generic:
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: ¿Es realmente anónimo?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: ¿Cómo funciona la IA?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: ¿Qué es Deep Insight?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: ¿Puedo eliminar mis confesiones?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: ¿Qué ofrece la suscripción VIP?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: ¿Cómo funciona el programa de referidos?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: ¿Mis datos están seguros?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: ¿Puedo usar la plataforma para asesoramiento profesional?
+                    - img
+        - contentinfo:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - img
+                - generic:
+                  - paragraph: 100% Anónimo
+                  - paragraph: Tu identidad permanece confidencial
+              - generic:
+                - generic:
+                  - img
+                - generic:
+                  - paragraph: SSL Seguro
+                  - paragraph: Todos los datos están encriptados
+              - generic:
+                - generic:
+                  - img
+                - generic:
+                  - paragraph: Moderación IA
+                  - paragraph: Contenido verificado automáticamente
+              - generic:
+                - generic:
+                  - img
+                - generic:
+                  - paragraph: Comunidad Segura
+                  - paragraph: Espacio sin juicios
+          - generic:
+            - generic:
+              - button: Política de Privacidad
+              - button: Términos de Servicio
+            - paragraph: © 2025 Confess+. Todos los derechos reservados.
+        - generic:
+          - button:
+            - img
+    - generic:
+      - generic:
+        - img
+        - generic: 310ms
+    - button:
+      - img
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - img
+          - generic:
+            - heading [level=3]: Usamos cookies
+            - paragraph: Usamos cookies para mejorar tu experiencia, analizar el tráfico y personalizar el contenido.
+            - generic:
+              - button: Aceptar Todas
+              - button: Rechazar
+          - button:
+            - img
+  - navigation [ref=e1]:
+    - generic [ref=e2]:
+      - button [ref=e3] [cursor=pointer]:
+        - img [ref=e5]
+      - button [ref=e9] [cursor=pointer]:
+        - img [ref=e11]
+      - button [ref=e14] [cursor=pointer]:
+        - img [ref=e16]
+      - button [ref=e18] [cursor=pointer]:
+        - img [ref=e20]
+      - button [ref=e22] [cursor=pointer]:
+        - img [ref=e24]
+        - generic [ref=e26]: "0"
+      - button [ref=e27] [cursor=pointer]:
+        - img [ref=e29]
+  - dialog "Bienvenido a Confess+" [ref=e36]:
+    - heading "Bienvenido a Confess+" [level=2] [ref=e37]
+    - paragraph [ref=e38]: Un espacio seguro donde puedes compartir cualquier cosa de forma anónima.
+    - button [active] [ref=e40] [cursor=pointer]:
+      - img
+    - generic [ref=e41]:
+      - img [ref=e43]
+      - generic [ref=e45]:
+        - heading "Bienvenido a Confess+" [level=2] [ref=e46]
+        - paragraph [ref=e47]: Un espacio seguro donde puedes compartir cualquier cosa de forma anónima.
+      - generic [ref=e52]:
+        - button "Saltar" [ref=e53] [cursor=pointer]
+        - button "Siguiente" [ref=e54] [cursor=pointer]:
+          - text: Siguiente
+          - img
+    - button "Cerrar" [ref=e55] [cursor=pointer]:
+      - img [ref=e56]
+      - generic [ref=e59]: Cerrar
+```

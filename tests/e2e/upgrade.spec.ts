@@ -6,7 +6,7 @@ test.describe('Subscription Upgrade Flow', () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await loginAs(page, 'free_user');
-    await mockSubscriptionRoutes(page);
+    await mockSubscriptionRoutes(page, { currentPlan: 'free', status: 'none' });
     
     await page.goto('/');
     await page.waitForLoadState('networkidle');
@@ -16,6 +16,13 @@ test.describe('Subscription Upgrade Flow', () => {
     
     // Wait for i18n to be ready
     await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
+
+    // Close any potentially open dialogs on page load
+    const openDialog = page.locator('[data-state="open"][role="dialog"]');
+    if (await openDialog.isVisible()) {
+      await page.keyboard.press('Escape');
+      await expect(openDialog).not.toBeVisible();
+    }
   });
 
   test('free to VIP yearly shows savings percentage', async ({ page }) => {

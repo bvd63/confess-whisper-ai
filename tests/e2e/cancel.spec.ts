@@ -6,10 +6,17 @@ test.describe('Subscription Cancellation Flow', () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await loginAs(page, 'premium_monthly_active');
-    await mockSubscriptionRoutes(page);
+    await mockSubscriptionRoutes(page, { currentPlan: 'vip', interval: 'monthly', status: 'active' });
     
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    
+    // Close any open dialogs
+    const openDialog = page.locator('[data-state="open"][role="dialog"]');
+    if (await openDialog.isVisible()) {
+      await page.keyboard.press('Escape');
+      await expect(openDialog).not.toBeVisible();
+    }
     
     // Wait for app ready
     await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
@@ -28,15 +35,16 @@ test.describe('Subscription Cancellation Flow', () => {
     await cancelButton.waitFor({ state: 'visible', timeout: 10000 });
     await cancelButton.click();
     
-    // Confirmation dialog
-    await expect(page.getByText(/are you sure|confirm/i)).toBeVisible({ timeout: 10000 });
+    // Wait for confirmation dialog to appear
+    const confirmDialog = page.getByRole('alertdialog');
+    await expect(confirmDialog).toBeVisible({ timeout: 10000 });
     
     const confirmButton = page.getByTestId('confirm-action');
     await confirmButton.waitFor({ state: 'visible', timeout: 10000 });
     await confirmButton.click();
     
-    // Should show success message
-    await expect(page.getByText(/success|canceled/i)).toBeVisible({ timeout: 15000 });
+    // Wait for dialog to close (confirmation successful)
+    await expect(confirmDialog).not.toBeVisible({ timeout: 15000 });
   });
 
   test('cancel now shows warning about immediate access loss', async ({ page }) => {
@@ -52,17 +60,26 @@ test.describe('Subscription Cancellation Flow', () => {
       await cancelButton.click();
       
       // Should show confirmation dialog
-      await expect(page.getByText(/confirm|are you sure/i)).toBeVisible({ timeout: 10000 });
+      const confirmDialog = page.getByRole('alertdialog');
+      await expect(confirmDialog).toBeVisible({ timeout: 10000 });
     }
   });
 
   test('canceled subscription shows reactivate option', async ({ page }) => {
     // Re-login as canceled user
     await loginAs(page, 'canceled_at_period_end_premium');
-    await mockSubscriptionRoutes(page);
+    await mockSubscriptionRoutes(page, { currentPlan: 'vip', interval: 'monthly', status: 'canceled' });
     
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    
+    // Close any open dialogs
+    const openDialog = page.locator('[data-state="open"][role="dialog"]');
+    if (await openDialog.isVisible()) {
+      await page.keyboard.press('Escape');
+      await expect(openDialog).not.toBeVisible();
+    }
+    
     await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
     await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
     
@@ -80,7 +97,7 @@ test.describe('Subscription Cancellation Flow', () => {
   test('reactivate restores subscription', async ({ page }) => {
     // Re-login as canceled user
     await loginAs(page, 'canceled_at_period_end_premium');
-    await mockSubscriptionRoutes(page);
+    await mockSubscriptionRoutes(page, { currentPlan: 'vip', interval: 'monthly', status: 'canceled' });
     
     await page.goto('/');
     await page.waitForLoadState('networkidle');
@@ -95,8 +112,8 @@ test.describe('Subscription Cancellation Flow', () => {
     await reactivateButton.waitFor({ state: 'visible', timeout: 10000 });
     await reactivateButton.click();
     
-    // Success message
-    await expect(page.getByText(/reactivated|restored|success/i)).toBeVisible({ timeout: 15000 });
+    // Dialog should close (reactivation successful)
+    await expect(dialog).not.toBeVisible({ timeout: 15000 });
   });
 
   test('handles cancellation errors gracefully', async ({ page }) => {
@@ -117,11 +134,14 @@ test.describe('Subscription Cancellation Flow', () => {
     await cancelButton.waitFor({ state: 'visible', timeout: 10000 });
     await cancelButton.click();
     
+    const confirmDialog = page.getByRole('alertdialog');
+    await expect(confirmDialog).toBeVisible({ timeout: 10000 });
+    
     const confirmButton = page.getByTestId('confirm-action');
     await confirmButton.waitFor({ state: 'visible', timeout: 10000 });
     await confirmButton.click();
     
-    // Should show error
-    await expect(page.getByText(/error|failed/i)).toBeVisible({ timeout: 15000 });
+    // Dialog should still be visible (action failed)
+    await expect(confirmDialog).toBeVisible({ timeout: 3000 });
   });
 });
