@@ -116,7 +116,8 @@ export const FlairsShop = ({
         console.error('User flairs load rejected:', userFlairsRes.reason);
       }
 
-      await refetchCoins();
+      // Trigger coins refetch without blocking (useCoins has realtime subscription)
+      refetchCoins();
       setHasLoaded(true);
       setError(null);
     } catch (e: any) {
