@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { loginAs } from '../helpers/auth';
 import { mockSubscriptionRoutes } from '../helpers/network';
+import { closeOpenDialogs, waitForAppReady } from '../helpers/pageHelpers';
 
 test.describe('Update Payment Method', () => {
   test.beforeEach(async ({ page }) => {
@@ -11,9 +12,9 @@ test.describe('Update Payment Method', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     
-    // Wait for app ready
-    await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
-    await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
+    // Wait for app ready and close any dialogs
+    await waitForAppReady(page);
+    await closeOpenDialogs(page);
   });
 
   test('delinquent account shows payment update prominently', async ({ page }) => {

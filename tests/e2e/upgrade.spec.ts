@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { loginAs } from '../helpers/auth';
 import { mockSubscriptionRoutes } from '../helpers/network';
+import { closeOpenDialogs, waitForAppReady } from '../helpers/pageHelpers';
 
 test.describe('Subscription Upgrade Flow', () => {
   test.beforeEach(async ({ page }) => {
@@ -11,18 +12,9 @@ test.describe('Subscription Upgrade Flow', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     
-    // Wait for app to be fully ready
-    await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
-    
-    // Wait for i18n to be ready
-    await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
-
-    // Close any potentially open dialogs on page load
-    const openDialog = page.locator('[data-state="open"][role="dialog"]');
-    if (await openDialog.isVisible()) {
-      await page.keyboard.press('Escape');
-      await expect(openDialog).not.toBeVisible();
-    }
+    // Wait for app ready and close any dialogs
+    await waitForAppReady(page);
+    await closeOpenDialogs(page);
   });
 
   test('free to VIP yearly shows savings percentage', async ({ page }) => {

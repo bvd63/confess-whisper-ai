@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { loginAs } from '../helpers/auth';
 import { mockSubscriptionRoutes } from '../helpers/network';
+import { closeOpenDialogs, waitForAppReady } from '../helpers/pageHelpers';
 
 test.describe('Manage Subscription Accessibility', () => {
   test.beforeEach(async ({ page }) => {
@@ -12,16 +13,9 @@ test.describe('Manage Subscription Accessibility', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     
-    // Wait for app ready
-    await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
-    await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
-
-    // Close any potentially open dialogs on page load
-    const openDialog = page.locator('[data-state="open"][role="dialog"]');
-    if (await openDialog.isVisible()) {
-      await page.keyboard.press('Escape');
-      await expect(openDialog).not.toBeVisible();
-    }
+    // Wait for app ready and close any dialogs
+    await waitForAppReady(page);
+    await closeOpenDialogs(page);
   });
 
   test('modal has no critical accessibility violations', async ({ page }) => {

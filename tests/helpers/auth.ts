@@ -37,120 +37,112 @@ function fulfillOptions(route: Route) {
  * Programmatic login helper for E2E tests
  * Sets up auth state without real backend calls
  */
-export async function loginAs(page: Page, fixtureUserKey: UserFixtureKey) {
-  const userData = subscriptionFixtures[fixtureUserKey] ?? defaultUser(fixtureUserKey);
+export async function loginAs(page: Page, userFixtureKey: string) {
+  const user = subscriptionFixtures[userFixtureKey as keyof typeof subscriptionFixtures];
+  if (!user) {
+    throw new Error(`Unknown user fixture: ${userFixtureKey}`);
+  }
 
-  // Ensure Supabase sees a valid session regardless of project ref key
-  await page.addInitScript((user) => {
-    const now = Math.floor(Date.now() / 1000);
-    const mockSession = {
-      access_token: 'e2e_mock_access_token',
-      refresh_token: 'e2e_mock_refresh',
-      token_type: 'bearer',
-      expires_in: 3600,
-      expires_at: now + 3600,
+  // Set up session in localStorage before page loads
+  await page.addInitScript((userId: string) => {
+    // Set Supabase auth session
+    const session = {
+      access_token: 'test-access-token-' + userId,
+      refresh_token: 'test-refresh-token',
       user: {
-        id: user.id,
-        email: user.email,
+        id: userId,
+        email: `${userId}@test.com`,
+        app_metadata: {},
+        user_metadata: {},
         aud: 'authenticated',
-        role: 'authenticated',
-        user_metadata: user.user_metadata ?? {},
-        app_metadata: user.app_metadata ?? {},
+        created_at: new Date().toISOString()
       },
+      expires_at: Math.floor(Date.now() / 1000) + 3600,
+      expires_in: 3600,
+      token_type: 'bearer'
     };
-    const json = JSON.stringify(mockSession);
-
-    try {
-      // 1) Store a fallback item (useful for debugging)
-      localStorage.setItem('sb-e2e-fallback-auth-token', json);
-    } catch {}
-
-    // 2) Make any Supabase key lookup for "*-auth-token" return our session
-    const AUTH_SUFFIX = '-auth-token';
-    const originalGetItem = localStorage.getItem.bind(localStorage);
-    const anyStorage = localStorage as unknown as { getItem: (key: string) => string | null };
-    anyStorage.getItem = (key: string) => {
-      try {
-        if (typeof key === 'string' && key.includes(AUTH_SUFFIX)) {
-          return json;
-        }
-      } catch {}
-      return originalGetItem(key);
+    
+    localStorage.setItem('sb-kktrmgkhkbuwvbkbjwfz-auth-token', JSON.stringify(session));
+    
+    // Also set onboarding completion to prevent dialogs from auto-opening
+    localStorage.setItem(`onboarding_${userId}`, 'true');
+    
+    // Override getItem to always return our session for any auth key variant
+    const originalGetItem = Storage.prototype.getItem;
+    Storage.prototype.getItem = function(key: string) {
+      if (key.includes('auth-token')) {
+        return JSON.stringify(session);
+      }
+      return originalGetItem.call(this, key);
     };
-  }, userData);
+  }, user.user_id);
 
-  // Mock auth state
-  await page.route('**/auth/v1/user', (route) => {
-    if (route.request().method() === 'OPTIONS') {
-      return fulfillOptions(route);
-    }
-    return route.fulfill({
+  // Mock Supabase auth and profiles endpoints
+  await page.route('**/auth/v1/user', async (route: Route) => {
+    await route.fulfill({
       status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-store',
-      },
+      contentType: 'application/json',
       body: JSON.stringify({
-        id: userData.id,
-        email: userData.email,
+        id: user.user_id,
+        email: `${user.user_id}@test.com`,
+        app_metadata: {},
+        user_metadata: {},
         aud: 'authenticated',
-        role: 'authenticated',
-        user_metadata: userData.user_metadata ?? {},
-        app_metadata: userData.app_metadata ?? {},
+        created_at: new Date().toISOString()
       }),
     });
   });
 
-  // Supabase refresh token (some apps call this on boot)
-  await page.route('**/auth/v1/token?grant_type=refresh_token', (route) => {
-    if (route.request().method() === 'OPTIONS') return fulfillOptions(route);
-    return route.fulfill({
+  await page.route('**/auth/v1/token**', async (route: Route) => {
+    await route.fulfill({
       status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-      },
+      contentType: 'application/json',
       body: JSON.stringify({
-        access_token: 'e2e_mock_access_token',
-        token_type: 'bearer',
+        access_token: 'test-access-token',
+        refresh_token: 'test-refresh-token',
         expires_in: 3600,
-        refresh_token: 'e2e_mock_refresh',
+        token_type: 'bearer',
         user: {
-          id: userData.id,
-          email: userData.email,
-          aud: 'authenticated',
-          role: 'authenticated',
-        },
+          id: user.user_id,
+          email: `${user.user_id}@test.com`,
+        }
       }),
     });
   });
 
-  // Mock profile data (PostgREST responses are arrays)
-  await page.route('**/rest/v1/profiles*', (route) => {
-    if (route.request().method() === 'OPTIONS') {
-      return fulfillOptions(route);
-    }
-    return route.fulfill({
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-store',
-      },
-      body: JSON.stringify([
-        {
-          id: userData.id,
-          subscription_tier: userData.subscription_tier,
-          is_premium: userData.is_premium ?? userData.is_vip ?? false,
-          subscription_status: userData.subscription_status ?? null,
-          subscription_ends_at: userData.subscription_ends_at ?? userData.trial_end_date ?? null,
-          trial_active: userData.trial_active ?? false,
-          trial_end_date: userData.trial_end_date ?? null,
+  // Mock profile data
+  await page.route('**/rest/v1/profiles**', async (route: Route) => {
+    const method = route.request().method();
+    
+    if (method === 'OPTIONS') {
+      await route.fulfill({
+        status: 204,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
         },
-      ]),
+      });
+      return;
+    }
+    
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([{
+        user_id: user.user_id,
+        nickname: user.nickname || `User ${user.user_id}`,
+        subscription_tier: user.subscription_tier,
+        subscription_status: user.subscription_status,
+        stripe_customer_id: user.stripe_customer_id,
+        stripe_subscription_id: user.stripe_subscription_id,
+        subscription_start_date: user.subscription_start_date,
+        subscription_end_date: user.subscription_end_date,
+        trial_ends_at: user.trial_ends_at,
+        cancel_at_period_end: user.cancel_at_period_end,
+        onboarding_completed: true, // Ensure onboarding is marked as completed
+        created_at: '2024-01-01T00:00:00Z'
+      }]),
     });
   });
-
-  return userData;
 }

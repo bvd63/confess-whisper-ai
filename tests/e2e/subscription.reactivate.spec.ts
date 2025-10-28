@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { loginAs } from '../helpers/auth';
 import { mockSubscriptionRoutes } from '../helpers/network';
+import { closeOpenDialogs, waitForAppReady } from '../helpers/pageHelpers';
 
 test.describe('Subscription Reactivation Flow', () => {
   test.beforeEach(async ({ page }) => {
@@ -10,20 +11,18 @@ test.describe('Subscription Reactivation Flow', () => {
   test('reactivate canceled VIP subscription', async ({ page }) => {
     // Login as user with canceled subscription
     await loginAs(page, 'canceled_at_period_end_vip');
-    await mockSubscriptionRoutes(page, { currentPlan: 'vip', interval: 'monthly', status: 'canceled' });
+    await mockSubscriptionRoutes(page, { 
+      currentPlan: 'vip', 
+      interval: 'monthly', 
+      status: 'canceled'
+    });
     
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     
-    // Close any open dialogs
-    const openDialog = page.locator('[data-state="open"][role="dialog"]');
-    if (await openDialog.isVisible()) {
-      await page.keyboard.press('Escape');
-      await expect(openDialog).not.toBeVisible();
-    }
-    
-    await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
-    await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
+    // Wait for app ready and close any dialogs
+    await waitForAppReady(page);
+    await closeOpenDialogs(page);
 
     // Open manage subscription dialog
     const manageButton = page.getByTestId('manage-subscription-btn');

@@ -35,7 +35,7 @@
                   - img
                 - button:
                   - img
-                  - generic: Manage subscription
+                  - generic: Upgrade VIP
                 - button:
                   - img
                 - button:
@@ -53,19 +53,25 @@
               - generic:
                 - generic:
                   - img
-                  - generic:
-                    - paragraph: Karma Points
-                    - paragraph: "0"
-                - generic:
-                  - paragraph: Level
-                  - paragraph: Newcomer
-              - generic:
+                  - heading [level=3]: VIP Subscription
+                - paragraph: $6.99/month
                 - generic:
                   - generic:
                     - img
-                    - text: Next Level
-                  - generic: 50 points to go
-                - progressbar
+                    - generic: Unlimited daily confessions
+                  - generic:
+                    - img
+                    - generic: Priority AI responses
+                  - generic:
+                    - img
+                    - generic: 2x karma points
+                  - generic:
+                    - img
+                    - generic: Daily reflections
+                  - generic:
+                    - img
+                    - generic: No ads experience
+                - button: Upgrade to VIP
           - generic:
             - generic:
               - generic: Requests Remaining
@@ -189,7 +195,7 @@
     - generic:
       - generic:
         - img
-        - generic: 416ms
+        - generic: 0ms
     - button:
       - img
     - generic:
