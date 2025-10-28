@@ -195,7 +195,7 @@
     - generic:
       - generic:
         - img
-        - generic: 228ms
+        - generic: 307ms
     - button:
       - img
     - generic:
@@ -227,7 +227,7 @@
         - generic [ref=e26]: "0"
       - button [ref=e27] [cursor=pointer]:
         - img [ref=e29]
-  - dialog "👑 Your Subscription" [ref=e36]:
+  - dialog "👑 Your Subscription" [active] [ref=e36]:
     - generic [ref=e37]:
       - heading "👑 Your Subscription" [level=2] [ref=e38]:
         - generic [ref=e39]: 👑
@@ -339,7 +339,7 @@
               - generic [ref=e162]: Instant 250 coins on first purchase
           - button "Manage Subscription" [ref=e163] [cursor=pointer]
     - paragraph [ref=e164]: You can cancel anytime from account settings. No long-term commitments.
-    - button "Close" [active] [ref=e165] [cursor=pointer]:
+    - button "Close" [ref=e165] [cursor=pointer]:
       - img [ref=e166]
       - generic [ref=e169]: Close
 ```
