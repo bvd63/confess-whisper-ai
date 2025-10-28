@@ -16,7 +16,6 @@ import { NetworkStatusIndicator } from '@/components/NetworkStatusIndicator';
 import { NotificationService } from '@/services/notificationService';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { UpdatePrompt } from '@/components/UpdatePrompt';
-import { CookieConsent } from '@/components/CookieConsent';
 import { CheckoutStatusHandler } from '@/components/CheckoutStatusHandler';
 
 import { useAuth } from '@/hooks/useAuth';
@@ -264,7 +263,6 @@ function App() {
           <PerformanceMonitor />
           <InstallPrompt />
           <UpdatePrompt />
-          <CookieConsent />
         </AnalyticsProvider>
       </BrowserRouter>
     </TooltipProvider>
