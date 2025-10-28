@@ -1,0 +1,194 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - region "Notifications alt+T"
+    - generic [ref=e3]:
+      - generic [ref=e5]:
+        - button [ref=e6] [cursor=pointer]:
+          - img
+        - generic [ref=e11]:
+          - img [ref=e12]
+          - heading "Willkommen bei Confess! 🎉" [level=2] [ref=e14]
+          - paragraph [ref=e15]: Teile deine Gedanken anonym und verbinde dich mit anderen in einem sicheren Raum.
+          - button "Loslegen" [ref=e16] [cursor=pointer]
+      - generic [ref=e17]:
+        - banner [ref=e18]:
+          - generic [ref=e20]:
+            - generic [ref=e21]:
+              - img [ref=e22]
+              - heading "Confess+" [level=1] [ref=e24] [cursor=pointer]
+            - generic [ref=e25]:
+              - generic [ref=e26]:
+                - img [ref=e27]
+                - generic [ref=e29]: 100% Anonym
+              - button [ref=e30] [cursor=pointer]:
+                - img
+              - button "Design wechseln" [ref=e31] [cursor=pointer]:
+                - img
+              - button "0" [ref=e32] [cursor=pointer]:
+                - img
+                - generic [ref=e33]: "0"
+                - img
+              - button "Upgrade VIP" [ref=e34] [cursor=pointer]:
+                - img
+                - generic [ref=e35]: Upgrade VIP
+              - button [ref=e36] [cursor=pointer]:
+                - img
+              - button "Abmelden" [ref=e37] [cursor=pointer]:
+                - img
+                - generic [ref=e38]: Abmelden
+        - main [ref=e39]:
+          - generic [ref=e40]:
+            - generic [ref=e41]:
+              - img [ref=e42]
+              - generic [ref=e44]: 100% Anonym & Sicher
+            - heading "Anonyme Geständnisse" [level=2] [ref=e45]
+            - paragraph [ref=e46]: Ein sicherer Ort, an dem du anonym alles teilen kannst.
+          - generic [ref=e49]:
+            - generic [ref=e50]:
+              - img [ref=e51]
+              - heading "VIP-Abonnement" [level=3] [ref=e53]
+            - paragraph [ref=e54]: 6,99 $/Monat
+            - generic [ref=e55]:
+              - generic [ref=e56]:
+                - img [ref=e57]
+                - generic [ref=e59]: Unbegrenzte tägliche Geständnisse
+              - generic [ref=e60]:
+                - img [ref=e61]
+                - generic [ref=e63]: Prioritäre KI-Antworten
+              - generic [ref=e64]:
+                - img [ref=e65]
+                - generic [ref=e67]: 2x Karma-Punkte
+              - generic [ref=e68]:
+                - img [ref=e69]
+                - generic [ref=e71]: Tägliche Reflexionen
+              - generic [ref=e72]:
+                - img [ref=e73]
+                - generic [ref=e75]: Werbefreie Erfahrung
+            - button "Auf VIP upgraden" [ref=e76] [cursor=pointer]
+          - generic [ref=e77]:
+            - generic [ref=e78]:
+              - generic [ref=e79]: Verbleibende Anfragen
+              - generic [ref=e80]: 100/100
+            - progressbar [ref=e81]
+          - generic [ref=e83]:
+            - heading "Gemeinschaften" [level=3] [ref=e85]:
+              - img [ref=e86]
+              - text: Gemeinschaften
+            - generic [ref=e92]: Laden...
+          - generic [ref=e93]:
+            - generic [ref=e94]:
+              - img [ref=e96]
+              - heading "KI-Empathie" [level=3] [ref=e98]
+              - paragraph [ref=e99]: Empathische Antworten von KI, die trainiert wurde, um zu verstehen und zu unterstützen
+            - generic [ref=e100]:
+              - img [ref=e102]
+              - heading "100% Anonym" [level=3] [ref=e104]
+              - paragraph [ref=e105]: Deine Identität bleibt vertraulich; Geständnisse können nicht zugeordnet werden
+            - generic [ref=e106]:
+              - img [ref=e108]
+              - heading "Deep Insights" [level=3] [ref=e110]
+              - paragraph [ref=e111]: Tiefgreifende psychologische Analyse für vollständiges Verständnis (VIP)
+            - generic [ref=e112]:
+              - img [ref=e114]
+              - heading "Sofortige Antwort" [level=3] [ref=e116]
+              - paragraph [ref=e117]: Erhalte sofortiges Feedback, 24/7 verfügbar, wenn du es brauchst
+        - generic [ref=e119]:
+          - generic [ref=e120]:
+            - img [ref=e122]
+            - heading "Häufig gestellte Fragen" [level=2] [ref=e125]
+          - generic [ref=e126]:
+            - heading "Ist es wirklich anonym?" [level=3] [ref=e128]:
+              - button "Ist es wirklich anonym?" [ref=e129] [cursor=pointer]:
+                - generic [ref=e130]: Ist es wirklich anonym?
+                - img [ref=e131]
+            - heading "Wie funktioniert die KI?" [level=3] [ref=e134]:
+              - button "Wie funktioniert die KI?" [ref=e135] [cursor=pointer]:
+                - generic [ref=e136]: Wie funktioniert die KI?
+                - img [ref=e137]
+            - heading "Was ist Deep Insight?" [level=3] [ref=e140]:
+              - button "Was ist Deep Insight?" [ref=e141] [cursor=pointer]:
+                - generic [ref=e142]: Was ist Deep Insight?
+                - img [ref=e143]
+            - heading "Kann ich meine Geständnisse löschen?" [level=3] [ref=e146]:
+              - button "Kann ich meine Geständnisse löschen?" [ref=e147] [cursor=pointer]:
+                - generic [ref=e148]: Kann ich meine Geständnisse löschen?
+                - img [ref=e149]
+            - heading "Was bietet das VIP-Abonnement?" [level=3] [ref=e152]:
+              - button "Was bietet das VIP-Abonnement?" [ref=e153] [cursor=pointer]:
+                - generic [ref=e154]: Was bietet das VIP-Abonnement?
+                - img [ref=e155]
+            - heading "Wie funktioniert das Empfehlungsprogramm?" [level=3] [ref=e158]:
+              - button "Wie funktioniert das Empfehlungsprogramm?" [ref=e159] [cursor=pointer]:
+                - generic [ref=e160]: Wie funktioniert das Empfehlungsprogramm?
+                - img [ref=e161]
+            - heading "Sind meine Daten sicher?" [level=3] [ref=e164]:
+              - button "Sind meine Daten sicher?" [ref=e165] [cursor=pointer]:
+                - generic [ref=e166]: Sind meine Daten sicher?
+                - img [ref=e167]
+            - heading "Kann ich die Plattform für professionelle Beratung nutzen?" [level=3] [ref=e170]:
+              - button "Kann ich die Plattform für professionelle Beratung nutzen?" [ref=e171] [cursor=pointer]:
+                - generic [ref=e172]: Kann ich die Plattform für professionelle Beratung nutzen?
+                - img [ref=e173]
+        - contentinfo [ref=e175]:
+          - generic [ref=e177]:
+            - generic [ref=e178]:
+              - img [ref=e180]
+              - generic [ref=e182]:
+                - paragraph [ref=e183]: 100% Anonym
+                - paragraph [ref=e184]: Deine Identität bleibt vertraulich
+            - generic [ref=e185]:
+              - img [ref=e187]
+              - generic [ref=e190]:
+                - paragraph [ref=e191]: SSL Sicher
+                - paragraph [ref=e192]: Alle Daten sind verschlüsselt
+            - generic [ref=e193]:
+              - img [ref=e195]
+              - generic [ref=e198]:
+                - paragraph [ref=e199]: KI-Moderation
+                - paragraph [ref=e200]: Inhalte automatisch verifiziert
+            - generic [ref=e201]:
+              - img [ref=e203]
+              - generic [ref=e206]:
+                - paragraph [ref=e207]: Sichere Community
+                - paragraph [ref=e208]: Urteilsfreier Raum
+          - generic [ref=e209]:
+            - generic [ref=e210]:
+              - button "Datenschutzrichtlinie" [ref=e211] [cursor=pointer]
+              - button "Nutzungsbedingungen" [ref=e212] [cursor=pointer]
+            - paragraph [ref=e213]: © 2025 Confess+. Alle Rechte vorbehalten.
+        - button "Nach Oben" [ref=e215] [cursor=pointer]:
+          - img
+    - generic [ref=e217] [cursor=pointer]:
+      - img [ref=e218]
+      - generic [ref=e220]: 0ms
+    - button [ref=e221] [cursor=pointer]:
+      - img
+    - generic [ref=e224]:
+      - img [ref=e227]
+      - generic [ref=e229]:
+        - heading "Wir verwenden Cookies" [level=3] [ref=e230]
+        - paragraph [ref=e231]: Wir verwenden Cookies, um deine Erfahrung zu verbessern, den Traffic zu analysieren und Inhalte zu personalisieren.
+        - generic [ref=e232]:
+          - button "Alle Akzeptieren" [ref=e233] [cursor=pointer]
+          - button "Ablehnen" [ref=e234] [cursor=pointer]
+      - button "Schließen" [ref=e235] [cursor=pointer]:
+        - img
+  - navigation [ref=e236]:
+    - generic [ref=e237]:
+      - button "Start" [ref=e238] [cursor=pointer]:
+        - img [ref=e240]
+      - button "Entdecken" [ref=e244] [cursor=pointer]:
+        - img [ref=e246]
+      - button "Compose" [ref=e249] [cursor=pointer]:
+        - img [ref=e251]
+      - button "Reflections" [ref=e253] [cursor=pointer]:
+        - img [ref=e255]
+      - button "Nachrichten" [ref=e257] [cursor=pointer]:
+        - img [ref=e259]
+        - generic [ref=e261]: "0"
+      - button "Profil" [ref=e262] [cursor=pointer]:
+        - img [ref=e264]
+```

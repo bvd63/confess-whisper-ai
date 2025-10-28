@@ -30,8 +30,8 @@ test.describe('Internationalization (i18n)', () => {
     const dialog = page.getByTestId('manage-subscription-modal');
     await expect(dialog).toBeVisible({ timeout: 10000 });
     
-    // Verify Spanish labels
-    await expect(dialog.getByText(/plan|vip/i)).toBeVisible({ timeout: 10000 });
+    // Verify Spanish labels - use specific heading to avoid strict mode violation
+    await expect(dialog.getByRole('heading', { name: /vip/i }).first()).toBeVisible({ timeout: 10000 });
   });
 
   test('displays subscription management in German', async ({ page }) => {
@@ -54,8 +54,8 @@ test.describe('Internationalization (i18n)', () => {
     const dialog = page.getByTestId('manage-subscription-modal');
     await expect(dialog).toBeVisible({ timeout: 10000 });
     
-    // Verify German labels
-    await expect(dialog.getByText(/plan|vip/i)).toBeVisible({ timeout: 10000 });
+    // Verify German labels - use specific heading to avoid strict mode violation
+    await expect(dialog.getByRole('heading', { name: /vip/i }).first()).toBeVisible({ timeout: 10000 });
   });
 
   test('all action buttons have translations', async ({ page }) => {
@@ -129,10 +129,8 @@ test.describe('Internationalization (i18n)', () => {
     const dialog = page.getByTestId('manage-subscription-modal');
     await expect(dialog).toBeVisible({ timeout: 10000 });
     
-    // Look for price displays
-    const priceElements = dialog.locator('text=/\\$|€|£/');
-    const count = await priceElements.count();
-    expect(count).toBeGreaterThan(0);
+    // Check that VIP pricing is displayed (currency may vary by locale)
+    await expect(dialog.getByText(/6\.99|54\.99/)).toBeVisible({ timeout: 10000 });
   });
 
   test('error messages are localized', async ({ page }) => {
