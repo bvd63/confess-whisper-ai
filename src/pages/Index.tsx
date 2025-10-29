@@ -25,6 +25,7 @@ import { StreakDisplay } from "@/components/StreakDisplay";
 import StreakReminder from "@/components/StreakReminder";
 import { Card } from "@/components/ui/card";
 import { useStreakManager } from "@/hooks/useStreakManager";
+import { supabase } from "@/integrations/supabase/client";
 
 import { RateLimitIndicator } from "@/components/RateLimitIndicator";
 import { useConfessionRateLimit } from "@/hooks/useConfessionRateLimit";
@@ -92,10 +93,33 @@ const Index = () => {
     // Check for Stripe checkout status
     const checkoutStatus = urlParams.get('status');
     if (checkoutStatus === 'success') {
-      toast({
-        title: t.success || 'Success',
-        description: 'VIP Activated! Welcome to premium features.',
-      });
+      // Award first VIP purchase coins
+      (async () => {
+        try {
+          const response = await supabase.functions.invoke('award-subscription-coins', {
+            body: { isFirstPurchase: true }
+          });
+          
+          if (response.data?.awarded) {
+            toast({
+              title: t.success || 'Success',
+              description: `VIP Activated! You received ${response.data.awarded} coins! 🎉`,
+            });
+          } else {
+            toast({
+              title: t.success || 'Success',
+              description: 'VIP Activated! Welcome to premium features.',
+            });
+          }
+        } catch (error) {
+          // Even if coin award fails, show success for VIP activation
+          toast({
+            title: t.success || 'Success',
+            description: 'VIP Activated! Welcome to premium features.',
+          });
+        }
+      })();
+      
       // Clean URL
       window.history.replaceState({}, '', '/');
     } else if (checkoutStatus === 'cancel') {

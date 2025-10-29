@@ -13,19 +13,30 @@ test.describe('Streak Bonus Coin Awards', () => {
     
     // Mock user has 3-day streak
     await page.route('**/rest/v1/user_streaks*', async (route) => {
+      const url = new URL(route.request().url());
+      const isSingle = url.searchParams.toString().includes('Accept=application/vnd.pgrst.object+json') || 
+                       route.request().headers()['accept']?.includes('application/vnd.pgrst.object+json');
+      
+      const data = {
+        user_id: 'user_free_001',
+        current_streak: 3,
+        longest_streak: 3,
+        last_confession_date: new Date().toISOString().split('T')[0]
+      };
+      
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify([{
-          user_id: 'test_user_id',
-          current_streak: 3,
-          longest_streak: 3,
-          last_confession_date: new Date().toISOString().split('T')[0]
-        }]),
+        body: JSON.stringify(isSingle ? data : [data]),
       });
     });
 
-    // Mock streak bonus award
+    // Mock streak bonus award - wait for the request
+    const bonusRequestPromise = page.waitForRequest(
+      request => request.url().includes('award-streak-bonus'),
+      { timeout: 10000 }
+    );
+    
     let awardedCoins = 0;
     await page.route('**/functions/v1/award-streak-bonus', async (route) => {
       const request = route.request();
@@ -50,8 +61,11 @@ test.describe('Streak Bonus Coin Awards', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     
-    // Trigger login flow (which checks streak)
-    await page.waitForTimeout(2000);
+    // Wait for streak bonus API call
+    await bonusRequestPromise.catch(() => console.log('Streak bonus request not made'));
+    
+    // Wait a bit more for the route handler to complete
+    await page.waitForTimeout(1000);
     
     // Verify 10 coins were awarded
     expect(awardedCoins).toBe(10);
@@ -63,18 +77,30 @@ test.describe('Streak Bonus Coin Awards', () => {
     
     // Mock user has 5-day streak
     await page.route('**/rest/v1/user_streaks*', async (route) => {
+      const url = new URL(route.request().url());
+      const isSingle = url.searchParams.toString().includes('Accept=application/vnd.pgrst.object+json') || 
+                       route.request().headers()['accept']?.includes('application/vnd.pgrst.object+json');
+      
+      const streakData = {
+        user_id: 'test_user_id',
+        current_streak: 5,
+        longest_streak: 5,
+        last_confession_date: new Date().toISOString().split('T')[0]
+      };
+      
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify([{
-          user_id: 'test_user_id',
-          current_streak: 5,
-          longest_streak: 5,
-          last_confession_date: new Date().toISOString().split('T')[0]
-        }]),
+        body: JSON.stringify(isSingle ? streakData : [streakData]),
       });
     });
 
+    // Mock streak bonus award - wait for the request
+    const bonusRequestPromise = page.waitForRequest(
+      request => request.url().includes('award-streak-bonus'),
+      { timeout: 10000 }
+    );
+    
     let awardedCoins = 0;
     await page.route('**/functions/v1/award-streak-bonus', async (route) => {
       const request = route.request();
@@ -98,7 +124,12 @@ test.describe('Streak Bonus Coin Awards', () => {
 
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
+    
+    // Wait for streak bonus API call
+    await bonusRequestPromise.catch(() => console.log('Streak bonus request not made'));
+    
+    // Wait a bit more for the route handler to complete
+    await page.waitForTimeout(1000);
     
     expect(awardedCoins).toBe(20);
   });
@@ -109,18 +140,30 @@ test.describe('Streak Bonus Coin Awards', () => {
     
     // Mock user has 7-day streak
     await page.route('**/rest/v1/user_streaks*', async (route) => {
+      const url = new URL(route.request().url());
+      const isSingle = url.searchParams.toString().includes('Accept=application/vnd.pgrst.object+json') || 
+                       route.request().headers()['accept']?.includes('application/vnd.pgrst.object+json');
+      
+      const streakData = {
+        user_id: 'test_user_id',
+        current_streak: 7,
+        longest_streak: 7,
+        last_confession_date: new Date().toISOString().split('T')[0]
+      };
+      
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify([{
-          user_id: 'test_user_id',
-          current_streak: 7,
-          longest_streak: 7,
-          last_confession_date: new Date().toISOString().split('T')[0]
-        }]),
+        body: JSON.stringify(isSingle ? streakData : [streakData]),
       });
     });
 
+    // Mock streak bonus award - wait for the request
+    const bonusRequestPromise = page.waitForRequest(
+      request => request.url().includes('award-streak-bonus'),
+      { timeout: 10000 }
+    );
+    
     let awardedCoins = 0;
     await page.route('**/functions/v1/award-streak-bonus', async (route) => {
       const request = route.request();
@@ -144,7 +187,12 @@ test.describe('Streak Bonus Coin Awards', () => {
 
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
+    
+    // Wait for streak bonus API call
+    await bonusRequestPromise.catch(() => console.log('Streak bonus request not made'));
+    
+    // Wait a bit more for the route handler to complete
+    await page.waitForTimeout(1000);
     
     expect(awardedCoins).toBe(50);
   });
@@ -155,15 +203,21 @@ test.describe('Streak Bonus Coin Awards', () => {
     
     // Mock user has 4-day streak (not a milestone)
     await page.route('**/rest/v1/user_streaks*', async (route) => {
+      const url = new URL(route.request().url());
+      const isSingle = url.searchParams.toString().includes('Accept=application/vnd.pgrst.object+json') || 
+                       route.request().headers()['accept']?.includes('application/vnd.pgrst.object+json');
+      
+      const streakData = {
+        user_id: 'test_user_id',
+        current_streak: 4,
+        longest_streak: 4,
+        last_confession_date: new Date().toISOString().split('T')[0]
+      };
+      
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify([{
-          user_id: 'test_user_id',
-          current_streak: 4,
-          longest_streak: 4,
-          last_confession_date: new Date().toISOString().split('T')[0]
-        }]),
+        body: JSON.stringify(isSingle ? streakData : [streakData]),
       });
     });
 
@@ -179,10 +233,10 @@ test.describe('Streak Bonus Coin Awards', () => {
 
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
     
-    // Function should be called but return no bonus
-    expect(bonusRequested).toBe(true);
+    // Function should NOT be called for non-milestone streaks
+    expect(bonusRequested).toBe(false);
   });
 
   test('streak bonus is idempotent (no duplicate awards)', async ({ page }) => {

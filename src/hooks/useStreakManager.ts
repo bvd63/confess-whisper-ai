@@ -61,6 +61,19 @@ export const useStreakManager = () => {
           level: profile.level || 1,
           isVIP: profile.subscription_status === 'active'
         });
+        
+        // Check for streak bonus milestones (3, 5, 7 days)
+        const currentStreak = streakInfo.current_streak || 0;
+        if ([3, 5, 7].includes(currentStreak)) {
+          // Award streak bonus in background
+          try {
+            await supabase.functions.invoke('award-streak-bonus', {
+              body: { currentStreak }
+            });
+          } catch (err) {
+            console.error('Error awarding streak bonus:', err);
+          }
+        }
       }
     } catch (error) {
       console.error('Error loading streak data:', error);
