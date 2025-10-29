@@ -19,7 +19,6 @@ import { AwardPicker } from "./coins/AwardPicker";
 import { AwardDisplay } from "./coins/AwardDisplay";
 import { BoostDialog } from "./coins/BoostDialog";
 import { AIMakeoverDialog } from "./coins/AIMakeoverDialog";
-import { ConfessionBackgroundDialog } from "./coins/ConfessionBackgroundDialog";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useBoostStatus } from "@/hooks/useBoostStatus";
 import { supabase } from "@/integrations/supabase/client";
@@ -233,11 +232,6 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
               confessionId={confession.id}
               originalContent={confession.content}
               isOwner={isOwner}
-            />
-            <ConfessionBackgroundDialog
-              confessionId={confession.id}
-              isOwner={isOwner}
-              currentBackground={undefined}
             />
           </>
         )}
