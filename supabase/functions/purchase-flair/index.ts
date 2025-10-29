@@ -106,12 +106,6 @@ serve(async (req) => {
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-      
-      // If expired, delete the old entry so we can create a new one
-      await supabase
-        .from('user_flairs')
-        .delete()
-        .eq('id', existingFlair.id);
     }
 
     // Check and deduct coins
@@ -155,10 +149,10 @@ serve(async (req) => {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 5);
 
-    // Purchase flair - if equipping, make it featured and public so it shows everywhere
+    // Purchase flair - use upsert to handle both new and expired flairs
     const { data: purchasedFlair, error: purchaseError } = await supabase
       .from('user_flairs')
-      .insert({
+      .upsert({
         user_id: user.id,
         flair_id: flairId,
         is_equipped: equip,
@@ -167,6 +161,10 @@ serve(async (req) => {
         acquired_at: new Date().toISOString(),
         expires_at: expiresAt.toISOString(),
         purchase_scope: purchaseScope,
+        last_equipped_at: equip ? new Date().toISOString() : null,
+      }, {
+        onConflict: 'user_id,flair_id',
+        ignoreDuplicates: false
       })
       .select()
       .single();
