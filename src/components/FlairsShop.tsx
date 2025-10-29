@@ -327,22 +327,6 @@ export const FlairsShop = ({
     const requiredLevel = tierLevel[flairRequiredPlan as 'free' | 'vip'] || 0;
     return userLevel >= requiredLevel;
   };
-  const getRarityColor = (rarity: string) => {
-    switch (rarity) {
-      case 'common':
-        return 'bg-gray-500';
-      case 'uncommon':
-        return 'bg-green-500';
-      case 'rare':
-        return 'bg-blue-500';
-      case 'epic':
-        return 'bg-purple-500';
-      case 'legendary':
-        return 'bg-amber-500';
-      default:
-        return 'bg-gray-500';
-    }
-  };
 
   // Filter flairs by tier and group them
   // Trophy & Fire are free, Rocket is VIP
@@ -363,10 +347,6 @@ export const FlairsShop = ({
     const onCooldown = cooldownDays !== null;
     const cooldownEnd = getCooldownEnd(flair.id);
     return <Card key={flair.id} className={`p-4 flex flex-col items-center gap-2 relative hover:scale-105 transition-transform ${equipped ? 'ring-2 ring-primary' : ''} ${isLocked ? 'opacity-60' : ''}`}>
-        <Badge className={`absolute top-2 right-2 text-xs ${getRarityColor(flair.rarity)}`}>
-          {t[`rarity_${flair.rarity}` as keyof typeof t] || flair.rarity}
-        </Badge>
-        
         {isLocked && <div className="absolute top-2 left-2">
             <Lock className="w-4 h-4 text-muted-foreground" />
           </div>}
