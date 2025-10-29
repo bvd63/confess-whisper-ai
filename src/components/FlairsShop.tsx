@@ -343,9 +343,11 @@ export const FlairsShop = ({
     const userFlair = userFlairs.find(uf => uf.flair_id === flair.id);
     const canBuy = canPurchase(flair);
     const isLocked = !canBuy;
-    const cooldownDays = getCooldownRemaining(flair.id);
+    
+    // Only show cooldown for active (non-expired) flairs that were unequipped
+    const cooldownDays = (!expired && owned) ? getCooldownRemaining(flair.id) : null;
     const onCooldown = cooldownDays !== null;
-    const cooldownEnd = getCooldownEnd(flair.id);
+    const cooldownEnd = (!expired && owned) ? getCooldownEnd(flair.id) : null;
     return <Card key={flair.id} className={`p-4 flex flex-col items-center gap-2 relative hover:scale-105 transition-transform ${equipped ? 'ring-2 ring-primary' : ''} ${isLocked ? 'opacity-60' : ''}`}>
         {isLocked && <div className="absolute top-2 left-2">
             <Lock className="w-4 h-4 text-muted-foreground" />
