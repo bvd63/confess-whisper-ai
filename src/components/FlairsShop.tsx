@@ -358,23 +358,25 @@ export const FlairsShop = ({
           {t[flair.name_key as keyof typeof t] || flair.name_key}
         </p>
 
-        {isLocked && <Badge variant="secondary" className="text-[10px]">
-            {t.subscription_plan_vip} {t.required}
-          </Badge>}
+        <div className="min-h-[40px] flex flex-col items-center justify-center gap-1">
+          {isLocked && <Badge variant="secondary" className="text-[10px]">
+              {t.subscription_plan_vip} {t.required}
+            </Badge>}
 
-        {owned && !onCooldown && userFlair?.expires_at && (
-          <ExpiryTimer expiresAt={userFlair.expires_at} className="text-[10px]" showIcon={false} />
-        )}
+          {owned && !onCooldown && userFlair?.expires_at && (
+            <ExpiryTimer expiresAt={userFlair.expires_at} className="text-[10px]" showIcon={false} />
+          )}
 
-        {onCooldown && cooldownEnd && (
-          <ExpiryTimer expiresAt={cooldownEnd.toISOString()} className="text-[10px]" showIcon={false} />
-        )}
+          {onCooldown && cooldownEnd && (
+            <ExpiryTimer expiresAt={cooldownEnd.toISOString()} className="text-[10px]" showIcon={false} />
+          )}
 
-        {!owned && !expired && !isLocked && <p className="text-[10px] text-muted-foreground text-center">
-            {t.shop_expires_in.replace('{days}', '5')}
-          </p>}
+          {!owned && !expired && !isLocked && <p className="text-[10px] text-muted-foreground text-center">
+              {t.shop_expires_in.replace('{days}', '5')}
+            </p>}
+        </div>
         
-        <p className="text-xs font-semibold text-primary flex items-center gap-1">
+        <p className="text-xs font-semibold text-primary flex items-center justify-center gap-1">
           <Coins className="w-3 h-3" />
           {flair.cost}
         </p>
