@@ -391,7 +391,7 @@ export const FlairsShop = ({
               {t.upgrade_required}
             </Button>
           ) : (
-            <Button size="sm" variant="outline" onClick={() => handleEquip(userFlair!.id)} className="w-full">
+            <Button size="sm" variant="outline" onClick={() => handleEquip(userFlair!.id)} className="w-full gap-1">
               {t.equip}
             </Button>
           )
