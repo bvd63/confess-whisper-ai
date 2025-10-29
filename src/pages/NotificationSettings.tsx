@@ -9,6 +9,8 @@ import { useSubscription } from "@/state/SubscriptionProvider";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import AppLayout from "@/components/AppLayout";
+import { supabase } from "@/integrations/supabase/client";
+import { NotificationService } from "@/services/notificationService";
 
 const translations = {
   en: {
@@ -85,11 +87,16 @@ const NotificationSettings = () => {
   });
 
   useEffect(() => {
-    // Load settings from localStorage
-    const savedSettings = localStorage.getItem("notificationSettings");
-    if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
-    }
+    const loadSettings = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const service = NotificationService.getInstance();
+      service.setActiveUser(session?.user?.id ?? null);
+      
+      const loadedSettings = await service.getSettings();
+      setSettings(loadedSettings as any);
+    };
+    
+    loadSettings();
   }, []);
 
   const handleSave = () => {

@@ -1205,8 +1205,20 @@ type Translations = {
   
   // Notification Settings
   notification_settings: string;
+  notification_desc: string;
   daily_reminder: string;
   daily_reminder_desc: string;
+  reminder_time: string;
+  streak_protection: string;
+  streak_protection_desc: string;
+  enable_notifications: string;
+  blocked_notice: string;
+  unsupported_notice: string;
+  test_button: string;
+  save_button: string;
+  saved_toast: string;
+  save_failed: string;
+  test_sent: string;
   // streak_reminder already exists above
   
   // Emotional Tones
@@ -3640,8 +3652,20 @@ export const translations: Record<Language, Translations> = {
     
     // Notification Settings
     notification_settings: "Notification Settings",
+    notification_desc: "Manage your reminders and alerts",
     daily_reminder: "Daily Reminder",
     daily_reminder_desc: "Get reminded to share your daily confession",
+    reminder_time: "Reminder Time",
+    streak_protection: "Streak Protection",
+    streak_protection_desc: "Alert before your streak expires",
+    enable_notifications: "Enable Notifications",
+    blocked_notice: "Notifications are blocked. Please enable them in your browser settings.",
+    unsupported_notice: "Notifications are not supported in this browser",
+    test_button: "Send Test Notification",
+    save_button: "Save Settings",
+    saved_toast: "Settings saved",
+    save_failed: "Failed to save settings",
+    test_sent: "Test notification sent!",
     
     // Emotional Tones
     tone_calm: "Calm",
@@ -5402,8 +5426,20 @@ export const translations: Record<Language, Translations> = {
     
     // Notification Settings
     notification_settings: "Configuración de Notificaciones",
+    notification_desc: "Administra tus recordatorios y alertas",
     daily_reminder: "Recordatorio Diario",
     daily_reminder_desc: "Recibe recordatorios para compartir tu confesión diaria",
+    reminder_time: "Hora del Recordatorio",
+    streak_protection: "Protección de Racha",
+    streak_protection_desc: "Alerta antes de que expire tu racha",
+    enable_notifications: "Habilitar Notificaciones",
+    blocked_notice: "Las notificaciones están bloqueadas. Por favor habilítalas en la configuración de tu navegador.",
+    unsupported_notice: "Las notificaciones no son compatibles con este navegador",
+    test_button: "Enviar Notificación de Prueba",
+    save_button: "Guardar Configuración",
+    saved_toast: "Configuración guardada",
+    save_failed: "Error al guardar la configuración",
+    test_sent: "¡Notificación de prueba enviada!",
     
     // Emotional Tones
     tone_calm: "Tranquilo",
@@ -7164,8 +7200,20 @@ export const translations: Record<Language, Translations> = {
     
     // Notification Settings
     notification_settings: "Benachrichtigungseinstellungen",
+    notification_desc: "Verwalte deine Erinnerungen und Benachrichtigungen",
     daily_reminder: "Tägliche Erinnerung",
     daily_reminder_desc: "Werde daran erinnert, dein tägliches Geständnis zu teilen",
+    reminder_time: "Erinnerungszeit",
+    streak_protection: "Streak-Schutz",
+    streak_protection_desc: "Werde benachrichtigt, wenn deine Streak zu brechen droht",
+    enable_notifications: "Benachrichtigungen Aktivieren",
+    blocked_notice: "Benachrichtigungen sind blockiert. Bitte aktiviere sie in deinen Browsereinstellungen.",
+    unsupported_notice: "Benachrichtigungen werden in diesem Browser nicht unterstützt",
+    test_button: "Testbenachrichtigung Senden",
+    save_button: "Einstellungen Speichern",
+    saved_toast: "Einstellungen gespeichert",
+    save_failed: "Fehler beim Speichern der Einstellungen",
+    test_sent: "Testbenachrichtigung gesendet!",
     
     // Emotional Tones
     tone_calm: "Ruhig",

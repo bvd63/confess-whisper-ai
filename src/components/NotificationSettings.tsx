@@ -1,10 +1,11 @@
-import { Bell, Clock, Flame } from 'lucide-react';
+import { Bell, Flame } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { NotificationService } from '@/services/notificationService';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface NotificationSettingsData {
   dailyReminder: boolean;
@@ -14,41 +15,107 @@ interface NotificationSettingsData {
 
 export const NotificationSettings = () => {
   const { t } = useLanguage();
+  const [user, setUser] = useState<any>(null);
   const [settings, setSettings] = useState<NotificationSettingsData>({
     dailyReminder: true,
     dailyReminderTime: '09:00',
     streakReminder: true
   });
   const [permission, setPermission] = useState<NotificationPermission>('default');
+  const [isLoadingSettings, setIsLoadingSettings] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    loadSettings();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
     if ('Notification' in window) {
       setPermission(Notification.permission);
     }
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const loadSettings = () => {
-    const stored = localStorage.getItem('notification_settings');
-    if (stored) {
-      setSettings(JSON.parse(stored));
-    }
-  };
+  useEffect(() => {
+    let isMounted = true;
+
+    const service = NotificationService.getInstance();
+    service.setActiveUser(user?.id ?? null);
+    
+    setIsLoadingSettings(true);
+    service
+      .getSettings()
+      .then(loadedSettings => {
+        if (isMounted) {
+          setSettings(loadedSettings);
+        }
+      })
+      .catch(error => {
+        console.error('Failed to load notification settings', error);
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoadingSettings(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.id]);
+
+  // Debounce helper
+  function debounce<F extends (...args: any[]) => void>(fn: F, wait = 450) {
+    let timeout: any;
+    return (...args: Parameters<F>) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => fn(...args), wait);
+    };
+  }
+
+  const debouncedSave = useMemo(
+    () =>
+      debounce(async (next: NotificationSettingsData) => {
+        setIsSaving(true);
+        try {
+          await NotificationService.getInstance().saveSettings(next);
+          toast.success(t.saved_toast || 'Settings saved');
+        } catch (error) {
+          console.error('Failed to persist notification setting', error);
+          toast.error(t.save_failed || 'Failed to save settings');
+        } finally {
+          setIsSaving(false);
+        }
+      }, 450),
+    [t]
+  );
 
   const updateSetting = async (key: keyof NotificationSettingsData, value: any) => {
-    const newSettings = { ...settings, [key]: value };
-    setSettings(newSettings);
-    localStorage.setItem('notification_settings', JSON.stringify(newSettings));
-    
-    // Update notification schedule
-    await NotificationService.getInstance().saveSettings(newSettings);
-    
-    toast.success('Settings saved');
+    const prev = settings;
+    const next = { ...settings, [key]: value };
+    setSettings(next);
+
+    setIsSaving(true);
+    try {
+      await NotificationService.getInstance().saveSettings(next);
+      toast.success(t.saved_toast || 'Settings saved');
+    } catch (error) {
+      console.error('Failed to persist notification setting', error);
+      toast.error(t.save_failed || 'Failed to save settings');
+      setSettings(prev); // Rollback to previous
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const requestPermission = async () => {
     if (!('Notification' in window)) {
-      toast.error('Notifications are not supported in this browser');
+      toast.error(t.unsupported_notice || 'Notifications are not supported in this browser');
       return;
     }
 
@@ -56,27 +123,54 @@ export const NotificationSettings = () => {
     setPermission(result);
     
     if (result === 'granted') {
-      toast.success('Notifications enabled');
-      await NotificationService.getInstance().initialize();
+      toast.success(t.enable_notifications || 'Notifications enabled');
+      await NotificationService.getInstance().initialize(user?.id ?? undefined);
     } else {
-      toast.error('Notification permission denied');
+      toast.error(t.save_failed || 'Notification permission denied');
     }
   };
+
+  const handleTestNotification = () => {
+    if (!('Notification' in window)) {
+      toast.error(t.unsupported_notice || 'Notifications are not supported in this browser');
+      return;
+    }
+
+    if (permission !== 'granted') {
+      toast.error(t.blocked_notice || 'Please enable notifications first');
+      return;
+    }
+
+    new Notification(t.app_name || 'Confess App', {
+      body: t.test_sent || 'This is a test notification!',
+      icon: '/favicon.ico'
+    });
+    toast.success(t.test_sent || 'Test notification sent!');
+  };
+
+  const isInteractionDisabled = isLoadingSettings || isSaving || permission === 'denied';
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Notification Settings</h3>
+        <div>
+          <h3 className="text-lg font-semibold">{t.notification_settings}</h3>
+          <p className="text-sm text-muted-foreground">{t.notification_desc}</p>
+        </div>
         {permission !== 'granted' && (
-          <Button onClick={requestPermission} size="sm">
-            Enable Notifications
+          <Button 
+            onClick={requestPermission} 
+            size="sm"
+            disabled={isLoadingSettings}
+          >
+            {t.enable_notifications}
           </Button>
         )}
       </div>
 
       {permission === 'denied' && (
-        <div className="p-4 bg-destructive/10 text-destructive rounded-lg text-sm">
-          Notifications are blocked. Please enable them in your browser settings.
+        <div className="p-4 bg-destructive/10 text-destructive rounded-lg text-sm" role="alert">
+          {t.blocked_notice}
         </div>
       )}
       
@@ -85,9 +179,9 @@ export const NotificationSettings = () => {
         <div className="flex items-center gap-3 flex-1">
           <Bell className="w-5 h-5 text-primary" />
           <div>
-            <p className="font-medium">Daily Reminder</p>
+            <p className="font-medium">{t.daily_reminder}</p>
             <p className="text-sm text-muted-foreground">
-              Get reminded to share your daily confession
+              {t.daily_reminder_desc}
             </p>
           </div>
         </div>
@@ -95,14 +189,20 @@ export const NotificationSettings = () => {
           <input
             type="time"
             value={settings.dailyReminderTime}
-            onChange={(e) => updateSetting('dailyReminderTime', e.target.value)}
+            onChange={(e) => {
+              const next = { ...settings, dailyReminderTime: e.target.value };
+              setSettings(next);
+              debouncedSave(next);
+            }}
             className="px-2 py-1 rounded border bg-background"
-            disabled={!settings.dailyReminder || permission !== 'granted'}
+            aria-label={t.reminder_time}
+            disabled={!settings.dailyReminder || isInteractionDisabled}
           />
           <Switch
             checked={settings.dailyReminder}
             onCheckedChange={(v) => updateSetting('dailyReminder', v)}
-            disabled={permission !== 'granted'}
+            disabled={isInteractionDisabled}
+            aria-label={t.daily_reminder}
           />
         </div>
       </div>
@@ -112,18 +212,31 @@ export const NotificationSettings = () => {
         <div className="flex items-center gap-3 flex-1">
           <Flame className="w-5 h-5 text-orange-500" />
           <div>
-            <p className="font-medium">Streak Protection</p>
+            <p className="font-medium">{t.streak_protection}</p>
             <p className="text-sm text-muted-foreground">
-              Alert before your streak expires
+              {t.streak_protection_desc}
             </p>
           </div>
         </div>
         <Switch
           checked={settings.streakReminder}
           onCheckedChange={(v) => updateSetting('streakReminder', v)}
-          disabled={permission !== 'granted'}
+          disabled={isInteractionDisabled}
+          aria-label={t.streak_protection}
         />
       </div>
+
+      {/* Test Button */}
+      {permission === 'granted' && (
+        <Button 
+          onClick={handleTestNotification}
+          variant="outline" 
+          className="w-full"
+          disabled={isInteractionDisabled}
+        >
+          {t.test_button}
+        </Button>
+      )}
     </div>
   );
 };

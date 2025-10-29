@@ -8,12 +8,23 @@ interface NotificationSettings {
 
 export class NotificationService {
   private static instance: NotificationService;
+  private activeUserId: string | null = null;
   
   static getInstance() {
     if (!this.instance) {
       this.instance = new NotificationService();
     }
     return this.instance;
+  }
+
+  setActiveUser(userId: string | null) {
+    this.activeUserId = userId;
+  }
+
+  private getStorageKey(): string {
+    return this.activeUserId 
+      ? `notification_settings_${this.activeUserId}`
+      : 'notification_settings';
   }
 
   private getTranslation(key: string, lang: string = 'en'): string {
@@ -48,7 +59,12 @@ export class NotificationService {
     return translations[currentLang]?.[key] || translations.en[key] || key;
   }
 
-  async initialize() {
+  async initialize(userId?: string) {
+    // Set active user if provided
+    if (userId !== undefined) {
+      this.setActiveUser(userId);
+    }
+
     // Check if browser supports notifications
     if (!('Notification' in window)) {
       console.log('This browser does not support notifications');
@@ -66,17 +82,21 @@ export class NotificationService {
     return false;
   }
 
+  async getSettings(): Promise<NotificationSettings> {
+    const stored = localStorage.getItem(this.getStorageKey());
+    if (stored) {
+      return JSON.parse(stored);
+    }
+    
+    return this.getDefaultSettings();
+  }
+
   async setupDefaultNotifications() {
     const settings = this.getDefaultSettings();
     await this.scheduleNotifications(settings);
   }
 
   private getDefaultSettings(): NotificationSettings {
-    const stored = localStorage.getItem('notification_settings');
-    if (stored) {
-      return JSON.parse(stored);
-    }
-    
     return {
       dailyReminder: true,
       dailyReminderTime: '09:00',
@@ -85,7 +105,7 @@ export class NotificationService {
   }
 
   async saveSettings(settings: NotificationSettings) {
-    localStorage.setItem('notification_settings', JSON.stringify(settings));
+    localStorage.setItem(this.getStorageKey(), JSON.stringify(settings));
     await this.scheduleNotifications(settings);
   }
 
