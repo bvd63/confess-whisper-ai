@@ -1219,6 +1219,9 @@ type Translations = {
   saved_toast: string;
   save_failed: string;
   test_sent: string;
+  notifications_disabled: string;
+  enable_now: string;
+  settings_desc: string;
   // streak_reminder already exists above
   
   // Emotional Tones
@@ -3666,6 +3669,9 @@ export const translations: Record<Language, Translations> = {
     saved_toast: "Settings saved",
     save_failed: "Failed to save settings",
     test_sent: "Test notification sent!",
+    notifications_disabled: "Notifications are disabled",
+    enable_now: "Enable now",
+    settings_desc: "Manage your preferences and notifications",
     
     // Emotional Tones
     tone_calm: "Calm",
@@ -5440,6 +5446,9 @@ export const translations: Record<Language, Translations> = {
     saved_toast: "Configuración guardada",
     save_failed: "Error al guardar la configuración",
     test_sent: "¡Notificación de prueba enviada!",
+    notifications_disabled: "Las notificaciones están deshabilitadas",
+    enable_now: "Habilitar ahora",
+    settings_desc: "Administra tus preferencias y notificaciones",
     
     // Emotional Tones
     tone_calm: "Tranquilo",
@@ -7214,6 +7223,9 @@ export const translations: Record<Language, Translations> = {
     saved_toast: "Einstellungen gespeichert",
     save_failed: "Fehler beim Speichern der Einstellungen",
     test_sent: "Testbenachrichtigung gesendet!",
+    notifications_disabled: "Benachrichtigungen sind deaktiviert",
+    enable_now: "Jetzt aktivieren",
+    settings_desc: "Verwalte deine Einstellungen und Benachrichtigungen",
     
     // Emotional Tones
     tone_calm: "Ruhig",

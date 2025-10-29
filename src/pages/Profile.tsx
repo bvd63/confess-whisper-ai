@@ -327,18 +327,18 @@ const Profile = () => {
                 <div>
                   <h3 className="font-semibold text-sm flex items-center gap-2">
                     <Bell className="w-4 h-4" />
-                    Notification Settings
+                    {t.notification_settings}
                   </h3>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Manage your reminders and alerts
+                    {t.notification_desc}
                   </p>
                 </div>
                 <EnhancedButton
-                  onClick={() => navigate('/settings/notifications')}
+                  onClick={() => navigate('/notification-settings')}
                   variant="outline"
                   size="sm"
                 >
-                  Configure
+                  {t.settings}
                 </EnhancedButton>
               </div>
             </AnimatedCard>

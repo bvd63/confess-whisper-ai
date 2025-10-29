@@ -1,7 +1,7 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { GradientText } from "@/components/GradientText";
-import { Sparkles, Flame, TrendingUp } from "lucide-react";
+import { Sparkles, Flame, TrendingUp, Bell } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import AppLayout from "@/components/AppLayout";
 import FeatureHighlight from "@/components/FeatureHighlight";
@@ -35,6 +35,7 @@ import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { KarmaDisplay } from "@/components/KarmaDisplay";
 import { Loader2 } from "lucide-react";
 import { SubscriptionCard } from "@/components/SubscriptionCard";
+import { Button } from "@/components/ui/button";
 
 // Lazy load heavy components
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
@@ -52,6 +53,7 @@ const Index = () => {
   useSubscriptionCheck(user?.id);
   useMessageNotifications({ userId: user?.id });
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
   
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -76,6 +78,11 @@ const Index = () => {
   useEffect(() => {
     // Track page view
     trackEvent('page_view', { page: 'index' });
+    
+    // Check notification permission
+    if ('Notification' in window) {
+      setNotificationPermission(Notification.permission);
+    }
     
     // Check if user is new (show onboarding)
     const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
@@ -204,6 +211,24 @@ const Index = () => {
 
         {/* Streak Reminder */}
         {user && <StreakReminder userId={user.id} />}
+
+        {/* Smart Banner for Disabled Notifications */}
+        {notificationPermission !== 'granted' && (
+          <div className="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-400/40 text-sm text-yellow-800 dark:text-yellow-300 rounded-lg p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 animate-fade-in">
+            <div className="flex items-center gap-2">
+              <Bell className="w-4 h-4 flex-shrink-0" />
+              <span className="text-xs sm:text-sm">{t.notifications_disabled}</span>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => navigate('/notification-settings')}
+              className="border-yellow-400/40 hover:bg-yellow-400/10 text-yellow-800 dark:text-yellow-300 whitespace-nowrap"
+            >
+              {t.enable_now}
+            </Button>
+          </div>
+        )}
 
         {/* Streak Display Card */}
         {user && streakData && (streakData.currentStreak > 0 || streakData.longestStreak > 0) && (

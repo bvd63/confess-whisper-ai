@@ -2,7 +2,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { EnhancedButton } from "@/components/EnhancedButton";
 
-import { Heart, PlusCircle, LogOut, Crown, User, LogIn, BookMarked, Users, Home, Sparkles, Search, MessageCircle } from "lucide-react";
+import { Heart, PlusCircle, LogOut, Crown, User, LogIn, BookMarked, Users, Home, Sparkles, Search, MessageCircle, Settings } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -87,6 +87,18 @@ const AppHeader = ({
                 <span className="text-xs">{t.anonymous_badge}</span>
               </Badge>
             )}
+            
+            {/* Settings Icon - Always visible */}
+            <Button
+              onClick={() => navigate('/notification-settings')}
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 hover:bg-accent"
+              aria-label={t.settings}
+              title={t.settings}
+            >
+              <Settings className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+            </Button>
             
             <LanguageSelector />
             <ThemeToggle />
