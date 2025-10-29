@@ -16,6 +16,7 @@ import MoodTracker from "@/components/MoodTracker";
 import ImageUpload from "@/components/ImageUpload";
 import DraftManager from "@/components/DraftManager";
 import { CrisisDialog } from "@/components/CrisisDialog";
+import { Switch } from "@/components/ui/switch";
 import { useModerationStatus } from "@/hooks/useModerationStatus";
 import { useCommunities } from "@/hooks/useCommunities";
 import { PolishConfessionButton } from "@/components/PolishConfessionButton";
@@ -44,6 +45,8 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
   const [mood, setMood] = useState<{ mood: string; intensity: number } | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAnonymous, setIsAnonymous] = useState(true);
+  const [userNickname, setUserNickname] = useState<string | null>(null);
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
   const [showCrisisDialog, setShowCrisisDialog] = useState(false);
@@ -58,6 +61,25 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
   const { isKeyboardVisible, keyboardHeight } = useMobileKeyboard();
   const { subscriptionTier } = usePremiumStatus(user?.id || null);
   const isVip = subscriptionTier === 'vip';
+
+  // Fetch user's nickname
+  useEffect(() => {
+    if (!user) return;
+    
+    const fetchNickname = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('nickname')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (data?.nickname) {
+        setUserNickname(data.nickname);
+      }
+    };
+    
+    fetchNickname();
+  }, [user]);
 
   // Check for crisis keywords on content change
   useEffect(() => {
@@ -202,6 +224,8 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
           user_id: user.id,
           image_url: imageUrl,
           community_id: communityId,
+          is_anonymous: isAnonymous,
+          author_display_name_snapshot: isAnonymous ? null : userNickname,
         })
         .select()
         .single();
@@ -368,6 +392,29 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
             <MoodTracker 
               onMoodSelect={(moodValue, intensity) => setMood({ mood: moodValue, intensity })}
             />
+          </div>
+
+          {/* Anonymity Toggle */}
+          <div className="space-y-2 p-3 glass rounded-lg border border-primary/20">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="anonymous-toggle" className="text-sm font-medium cursor-pointer">
+                {t.confession_anonymous_label}
+              </Label>
+              <Switch
+                id="anonymous-toggle"
+                checked={isAnonymous}
+                onCheckedChange={setIsAnonymous}
+                disabled={isSubmitting}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {isAnonymous ? t.confession_anonymous_help_on : t.confession_anonymous_help_off}
+            </p>
+            {!isAnonymous && userNickname && (
+              <p className="text-xs text-primary font-medium">
+                {t.confession_anonymous_preview.replace('{name}', `@${userNickname}`)}
+              </p>
+            )}
           </div>
 
           {aiResponse && (

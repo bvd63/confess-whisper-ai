@@ -11,6 +11,8 @@ interface ConfessionHeaderProps {
   authorNicknameSnapshot?: string | null;
   authorVisibilitySnapshot?: string | null;
   isBoosted?: boolean;
+  isAnonymous?: boolean;
+  authorDisplayName?: string | null;
 }
 
 const ConfessionHeader = memo(({ 
@@ -18,13 +20,20 @@ const ConfessionHeader = memo(({
   createdAt, 
   authorNicknameSnapshot, 
   authorVisibilitySnapshot,
-  isBoosted 
+  isBoosted,
+  isAnonymous,
+  authorDisplayName
 }: ConfessionHeaderProps) => {
   const { t } = useLanguage();
   
   const displayName = useMemo(() => {
+    // New anonymity control: use is_anonymous and author_display_name_snapshot
+    if (isAnonymous !== undefined) {
+      return isAnonymous ? t.confession_author_anonymous : (authorDisplayName ? `@${authorDisplayName}` : t.confession_author_anonymous);
+    }
+    // Fallback to old behavior for backward compatibility
     return getUserDisplayName(authorNicknameSnapshot, authorVisibilitySnapshot, t.user_anonymous);
-  }, [authorNicknameSnapshot, authorVisibilitySnapshot, t.user_anonymous]);
+  }, [isAnonymous, authorDisplayName, authorNicknameSnapshot, authorVisibilitySnapshot, t]);
   
   const getCategoryLabel = useMemo(() => {
     const categoryMap: Record<string, string> = {

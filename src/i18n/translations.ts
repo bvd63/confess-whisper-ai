@@ -665,6 +665,11 @@ type Translations = {
   
   // Confession Header
   confession_anonymous: string;
+  confession_anonymous_label: string;
+  confession_anonymous_help_on: string;
+  confession_anonymous_help_off: string;
+  confession_anonymous_preview: string;
+  confession_author_anonymous: string;
   time_now: string;
   time_minutes: string;
   time_hours: string;
@@ -2127,6 +2132,11 @@ export const translations: Record<Language, Translations> = {
     daily_prompt_share: "Share your thoughts",
     
     confession_anonymous: "Anonymous",
+    confession_anonymous_label: "Post anonymously",
+    confession_anonymous_help_on: "Your identity will remain hidden. Only you can see your confessions.",
+    confession_anonymous_help_off: "Your username will be visible to others.",
+    confession_anonymous_preview: "Posting as: {name}",
+    confession_author_anonymous: "Anonymous",
     time_now: "now",
     time_minutes: "m",
     time_hours: "h",
@@ -4253,6 +4263,11 @@ export const translations: Record<Language, Translations> = {
     daily_prompt_share: "Comparte tus pensamientos",
     
     confession_anonymous: "Anónimo",
+    confession_anonymous_label: "Publicar anónimamente",
+    confession_anonymous_help_on: "Tu identidad permanecerá oculta. Solo tú puedes ver tus confesiones.",
+    confession_anonymous_help_off: "Tu nombre de usuario será visible para otros.",
+    confession_anonymous_preview: "Publicando como: {name}",
+    confession_author_anonymous: "Anónimo",
     time_now: "ahora",
     time_minutes: "m",
     time_hours: "h",
@@ -6012,6 +6027,11 @@ export const translations: Record<Language, Translations> = {
     daily_prompt_share: "Teile deine Gedanken",
     
     confession_anonymous: "Anonym",
+    confession_anonymous_label: "Anonym posten",
+    confession_anonymous_help_on: "Deine Identität bleibt verborgen. Nur du kannst deine Geständnisse sehen.",
+    confession_anonymous_help_off: "Dein Benutzername wird für andere sichtbar sein.",
+    confession_anonymous_preview: "Posten als: {name}",
+    confession_author_anonymous: "Anonym",
     time_now: "jetzt",
     time_minutes: "Min",
     time_hours: "Std",

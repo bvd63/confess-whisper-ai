@@ -55,6 +55,8 @@ interface ConfessionCardProps {
     author_nickname_snapshot?: string | null;
     author_visibility_snapshot?: string | null;
     emotional_tone?: string | null;
+    is_anonymous?: boolean;
+    author_display_name_snapshot?: string | null;
   };
   isPremium: boolean;
   isLiked?: boolean;
@@ -146,6 +148,8 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
             authorNicknameSnapshot={confession.author_nickname_snapshot}
             authorVisibilitySnapshot={confession.author_visibility_snapshot}
             isBoosted={boostStatus.isActive}
+            isAnonymous={confession.is_anonymous}
+            authorDisplayName={confession.author_display_name_snapshot}
           />
           <VIPBadge tier={subscriptionTier as 'free' | 'vip'} size="sm" />
         </div>

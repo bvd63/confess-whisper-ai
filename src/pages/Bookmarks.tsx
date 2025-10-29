@@ -31,6 +31,8 @@ interface Confession {
   ai_response?: string | null;
   ai_deep_insight?: string | null;
   created_at: string;
+  is_anonymous?: boolean;
+  author_display_name_snapshot?: string | null;
 }
 
 const Bookmarks = () => {

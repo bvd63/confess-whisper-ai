@@ -731,6 +731,7 @@ export type Database = {
         Row: {
           ai_deep_insight: string | null
           ai_response: string | null
+          author_display_name_snapshot: string | null
           author_nickname_snapshot: string | null
           author_visibility_snapshot: string | null
           category: string
@@ -742,6 +743,7 @@ export type Database = {
           id: string
           image_blurred: boolean | null
           image_url: string | null
+          is_anonymous: boolean
           is_draft: boolean | null
           is_private: boolean | null
           is_reported: boolean | null
@@ -762,6 +764,7 @@ export type Database = {
         Insert: {
           ai_deep_insight?: string | null
           ai_response?: string | null
+          author_display_name_snapshot?: string | null
           author_nickname_snapshot?: string | null
           author_visibility_snapshot?: string | null
           category?: string
@@ -773,6 +776,7 @@ export type Database = {
           id?: string
           image_blurred?: boolean | null
           image_url?: string | null
+          is_anonymous?: boolean
           is_draft?: boolean | null
           is_private?: boolean | null
           is_reported?: boolean | null
@@ -793,6 +797,7 @@ export type Database = {
         Update: {
           ai_deep_insight?: string | null
           ai_response?: string | null
+          author_display_name_snapshot?: string | null
           author_nickname_snapshot?: string | null
           author_visibility_snapshot?: string | null
           category?: string
@@ -804,6 +809,7 @@ export type Database = {
           id?: string
           image_blurred?: boolean | null
           image_url?: string | null
+          is_anonymous?: boolean
           is_draft?: boolean | null
           is_private?: boolean | null
           is_reported?: boolean | null
