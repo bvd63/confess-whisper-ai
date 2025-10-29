@@ -14,36 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      ai_reflections: {
-        Row: {
-          content: string
-          generated_at: string | null
-          id: string
-          reflection_date: string
-          tone_summary: string | null
-          user_id: string
-          viewed_at: string | null
-        }
-        Insert: {
-          content: string
-          generated_at?: string | null
-          id?: string
-          reflection_date?: string
-          tone_summary?: string | null
-          user_id: string
-          viewed_at?: string | null
-        }
-        Update: {
-          content?: string
-          generated_at?: string | null
-          id?: string
-          reflection_date?: string
-          tone_summary?: string | null
-          user_id?: string
-          viewed_at?: string | null
-        }
-        Relationships: []
-      }
       ai_usage: {
         Row: {
           action_type: string

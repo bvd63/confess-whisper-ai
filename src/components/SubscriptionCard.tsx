@@ -16,7 +16,6 @@ const translations = {
       "Unlimited daily confessions",
       "Priority AI responses",
       "2x karma points",
-      "Daily reflections",
       "No ads experience"
     ],
     upgrade_button: "Upgrade to VIP",
@@ -29,7 +28,6 @@ const translations = {
       "Confesiones diarias ilimitadas",
       "Respuestas AI prioritarias",
       "2x puntos de karma",
-      "Reflexiones diarias",
       "Experiencia sin anuncios"
     ],
     upgrade_button: "Actualizar a VIP",
@@ -42,7 +40,6 @@ const translations = {
       "Unbegrenzte tägliche Geständnisse",
       "Prioritäre KI-Antworten",
       "2x Karma-Punkte",
-      "Tägliche Reflexionen",
       "Werbefreie Erfahrung"
     ],
     upgrade_button: "Auf VIP upgraden",

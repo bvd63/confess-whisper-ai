@@ -29,22 +29,16 @@ export const InstagramBottomNav = () => {
     { tabId: "home" as const, icon: Home, label: t.nav_home, isActive: activeTab === "home" },
     { tabId: "explore" as const, icon: Search, label: t.nav_explore, isActive: activeTab === "explore" },
     { tabId: "compose" as const, icon: PlusSquare, label: "Compose", isActive: location.pathname === "/compose" },
-    { tabId: "reflections" as const, icon: Sparkles, label: "Reflections", isActive: location.pathname === "/reflections", vipOnly: true },
     { tabId: "messages" as const, icon: MessageCircle, label: t.nav_messages, badge: totalUnread, isActive: activeTab === "messages" },
     { tabId: "profile" as const, icon: User, label: t.nav_profile, isActive: activeTab === "profile", showVIPBadge: isVIP },
   ];
 
-  const handleTabClick = (tabId: "home" | "explore" | "messages" | "profile" | "compose" | "reflections") => {
+  const handleTabClick = (tabId: "home" | "explore" | "messages" | "profile" | "compose") => {
     
     
     if (tabId === "compose") {
       // Compose is not a tab, navigate directly without switching tabs
       navigate("/compose");
-      return;
-    }
-
-    if (tabId === "reflections") {
-      navigate("/reflections");
       return;
     }
     
@@ -85,8 +79,7 @@ export const InstagramBottomNav = () => {
                     <Icon
                       className={cn(
                         "w-6 h-6 transition-all duration-200",
-                        active && "scale-110",
-                        item.vipOnly && "text-purple-500"
+                        active && "scale-110"
                       )}
                       strokeWidth={active ? 2.5 : 2}
                     />

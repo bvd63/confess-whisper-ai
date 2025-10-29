@@ -17,8 +17,6 @@ const translations = {
     daily_reminder: "Daily Reminder",
     daily_desc: "Get a daily notification to check in with your emotions",
     reminder_time: "Reminder Time",
-    evening_reflection: "Evening Reflection",
-    evening_desc: "Receive a nightly reflection summary (VIP only)",
     streak_protection: "Streak Protection",
     streak_desc: "Get notified when your streak is about to break",
     quiet_hours: "Quiet Hours",
@@ -37,8 +35,6 @@ const translations = {
     daily_reminder: "Recordatorio Diario",
     daily_desc: "Recibe una notificación diaria para registrar tus emociones",
     reminder_time: "Hora del Recordatorio",
-    evening_reflection: "Reflexión Nocturna",
-    evening_desc: "Recibe un resumen de reflexión nocturno (solo VIP)",
     streak_protection: "Protección de Racha",
     streak_desc: "Recibe notificación cuando tu racha esté a punto de romperse",
     quiet_hours: "Horas Silenciosas",
@@ -57,8 +53,6 @@ const translations = {
     daily_reminder: "Tägliche Erinnerung",
     daily_desc: "Erhalte eine tägliche Benachrichtigung, um deine Emotionen zu überprüfen",
     reminder_time: "Erinnerungszeit",
-    evening_reflection: "Abendreflexion",
-    evening_desc: "Erhalte eine nächtliche Reflexionszusammenfassung (nur VIP)",
     streak_protection: "Streak-Schutz",
     streak_desc: "Werde benachrichtigt, wenn deine Streak zu brechen droht",
     quiet_hours: "Ruhezeiten",
@@ -84,7 +78,6 @@ const NotificationSettings = () => {
   const [settings, setSettings] = useState({
     dailyReminder: false,
     reminderTime: "09:00",
-    eveningReflection: false,
     streakProtection: true,
     quietHoursEnabled: false,
     quietHoursFrom: "22:00",
@@ -183,35 +176,6 @@ const NotificationSettings = () => {
                 </div>
               </CardContent>
             )}
-          </Card>
-
-          {/* Evening Reflection (VIP Only) */}
-          <Card className={!isVIP ? "opacity-50" : ""}>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-purple-500" />
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      {t.evening_reflection}
-                      {!isVIP && (
-                        <span className="text-xs bg-purple-500/20 text-purple-500 px-2 py-0.5 rounded-full">
-                          {t.vip_only}
-                        </span>
-                      )}
-                    </CardTitle>
-                    <CardDescription>{t.evening_desc}</CardDescription>
-                  </div>
-                </div>
-                <Switch
-                  checked={settings.eveningReflection}
-                  onCheckedChange={(checked) =>
-                    setSettings({ ...settings, eveningReflection: checked })
-                  }
-                  disabled={!isVIP}
-                />
-              </div>
-            </CardHeader>
           </Card>
 
           {/* Streak Protection */}

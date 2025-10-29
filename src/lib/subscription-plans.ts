@@ -43,7 +43,6 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     benefits: [
       'All premium features',
       'Priority AI responses',
-      'VIP Reflection Feed',
       'Double coins for streaks',
       'Instant 250 coins on first purchase',
     ],
