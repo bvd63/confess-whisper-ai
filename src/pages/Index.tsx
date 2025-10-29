@@ -88,6 +88,25 @@ const Index = () => {
     if (refCode) {
       localStorage.setItem('referralCode', refCode);
     }
+    
+    // Check for Stripe checkout status
+    const checkoutStatus = urlParams.get('status');
+    if (checkoutStatus === 'success') {
+      toast({
+        title: t.success || 'Success',
+        description: 'VIP Activated! Welcome to premium features.',
+      });
+      // Clean URL
+      window.history.replaceState({}, '', '/');
+    } else if (checkoutStatus === 'cancel') {
+      toast({
+        title: 'Checkout Cancelled',
+        description: 'Your checkout was cancelled. You can try again anytime.',
+        variant: 'destructive',
+      });
+      // Clean URL
+      window.history.replaceState({}, '', '/');
+    }
 
     // Stagger secondary content loading for better perceived performance
     const timer = setTimeout(() => setShowSecondaryContent(true), 300);
