@@ -377,34 +377,48 @@ export const FlairsShop = ({
           {flair.cost}
         </p>
 
-        {expired ? <Button size="sm" onClick={() => handlePurchase(flair)} disabled={purchasing === flair.id || coinsBalance < flair.cost || !canBuy} className="w-full gap-1" variant="outline">
-            <Coins className="w-3 h-3" />
-            {t.buy_again} ({flair.cost})
-          </Button> : owned ? (
-            equipped ? (
-              <Button size="sm" variant="outline" disabled className="w-full gap-1">
-                <Check className="w-3 h-3" />
-                {t.equipped}
-              </Button>
-            ) : (
-              isLocked ? (
-                <Button size="sm" disabled className="w-full gap-1" variant="outline">
-                  <Lock className="w-3 h-3" />
-                  {t.upgrade_required}
-                </Button>
-              ) : (
-                <Button size="sm" variant="outline" onClick={() => handleEquip(userFlair!.id)} className="w-full">
-                  {t.equip}
-                </Button>
-              )
-            )
-) : isLocked ? <Button size="sm" disabled className="w-full gap-1" variant="outline">
+        {owned && !expired ? (
+          equipped ? (
+            <Button size="sm" variant="outline" disabled className="w-full gap-1">
+              <Check className="w-3 h-3" />
+              {t.equipped}
+            </Button>
+          ) : isLocked ? (
+            <Button size="sm" disabled className="w-full gap-1" variant="outline">
+              <Lock className="w-3 h-3" />
+              {t.upgrade_required}
+            </Button>
+          ) : (
+            <Button size="sm" variant="outline" onClick={() => handleEquip(userFlair!.id)} className="w-full">
+              {t.equip}
+            </Button>
+          )
+        ) : isLocked ? (
+          <Button size="sm" disabled className="w-full gap-1" variant="outline">
             <Lock className="w-3 h-3" />
             {t.upgrade_required}
-          </Button> : <Button size="sm" onClick={() => handlePurchase(flair)} disabled={purchasing === flair.id || coinsBalance < flair.cost} className="w-full gap-1">
+          </Button>
+        ) : expired ? (
+          <Button 
+            size="sm" 
+            onClick={() => handlePurchase(flair)} 
+            disabled={purchasing === flair.id || coinsBalance < flair.cost} 
+            className="w-full gap-1"
+          >
+            <Coins className="w-3 h-3" />
+            {t.buy_again} ({flair.cost})
+          </Button>
+        ) : (
+          <Button 
+            size="sm" 
+            onClick={() => handlePurchase(flair)} 
+            disabled={purchasing === flair.id || coinsBalance < flair.cost} 
+            className="w-full gap-1"
+          >
             <Coins className="w-3 h-3" />
             {flair.cost}
-          </Button>}
+          </Button>
+        )}
       </Card>;
   };
   return <Dialog open={open} onOpenChange={onOpenChange}>
