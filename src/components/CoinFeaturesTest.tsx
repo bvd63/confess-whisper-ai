@@ -28,13 +28,7 @@ export const CoinFeaturesTest = () => {
       });
       results.polishFunction = polishError?.message !== 'Function not found';
 
-      // Test 3: Check if boost-confession function exists
-      const { error: boostError } = await supabase.functions.invoke('boost-confession', {
-        body: { confessionId: 'test-id' }
-      });
-      results.boostFunction = boostError?.message !== 'Function not found';
-
-      // Test 4: Check if purchase-flair function exists
+      // Test 3: Check if purchase-flair function exists
       const { error: flairError } = await supabase.functions.invoke('purchase-flair', {
         body: { flairId: 'test-id' }
       });

@@ -14,13 +14,10 @@ import BadgesDisplay from "./BadgesDisplay";
 import FollowButton from "./FollowButton";
 import StreakCounter from "./StreakCounter";
 import { BadgeDisplay } from "./BadgeDisplay";
-import { BoostConfessionButton } from "./BoostConfessionButton";
 import { AwardPicker } from "./coins/AwardPicker";
 import { AwardDisplay } from "./coins/AwardDisplay";
-import { BoostDialog } from "./coins/BoostDialog";
 import { AIMakeoverDialog } from "./coins/AIMakeoverDialog";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
-import { useBoostStatus } from "@/hooks/useBoostStatus";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -73,16 +70,13 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [isAwardPickerOpen, setIsAwardPickerOpen] = useState(false);
-  const [isBoostDialogOpen, setIsBoostDialogOpen] = useState(false);
   const [isAIMakeoverOpen, setIsAIMakeoverOpen] = useState(false);
-  const [isBackgroundDialogOpen, setIsBackgroundDialogOpen] = useState(false);
   const [commentsCount, setCommentsCount] = useState(confession.comments_count || 0);
   const { user } = useCurrentUser();
   const { toast } = useToast();
   const { t } = useLanguage();
   const { purgeConfession } = useCachePurgeOnDelete();
   const { subscriptionTier } = usePremiumStatus(confession.user_id || null);
-  const { boostStatus, refetch: refetchBoost } = useBoostStatus(confession.id);
   const isOwner = user?.id === confession.user_id;
   const { canDelete, deleteTimeLeft } = useEditDeleteWindow(confession.created_at);
   const { vibrate } = useHaptic();
@@ -146,7 +140,6 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
             createdAt={confession.created_at}
             authorNicknameSnapshot={confession.author_nickname_snapshot}
             authorVisibilitySnapshot={confession.author_visibility_snapshot}
-            isBoosted={boostStatus.isActive}
             isAnonymous={confession.is_anonymous}
             authorDisplayName={confession.author_display_name_snapshot}
           />
@@ -220,14 +213,6 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
       <div className="flex items-center gap-2 flex-wrap">
         {user && isOwner && canDelete && (
           <>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsBoostDialogOpen(true)}
-              className="text-xs"
-            >
-              ⚡ Boost
-            </Button>
             <AIMakeoverDialog
               confessionId={confession.id}
               originalContent={confession.content}
@@ -345,16 +330,6 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         open={isAwardPickerOpen}
         onOpenChange={setIsAwardPickerOpen}
         confessionId={confession.id}
-      />
-
-      <BoostDialog
-        open={isBoostDialogOpen}
-        onOpenChange={setIsBoostDialogOpen}
-        confessionId={confession.id}
-        onBoostSuccess={() => {
-          refetchBoost();
-          setIsBoostDialogOpen(false);
-        }}
       />
       </AnimatedCard>
     </NoScreenshotMode>

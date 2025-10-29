@@ -98,7 +98,6 @@ const CoinsDisplay = ({
           </p>
           <ul className="text-[10px] sm:text-xs text-muted-foreground space-y-0.5 sm:space-y-1">
             <li>{t.coins_polish_detail}</li>
-            <li>{t.coins_boost_detail}</li>
             <li>{t.coins_flairs_detail}</li>
           </ul>
         </div>
@@ -138,9 +137,6 @@ const CoinsDisplay = ({
                 }
                 if (type === 'flair_purchase' || type === 'badge_purchase') {
                   return transaction.description || t.coins_flairs_detail;
-                }
-                if (type === 'boost_confession') {
-                  return transaction.description || t.coins_boost_detail;
                 }
                 if (type === 'polish_confession') {
                   return transaction.description || t.coins_polish_detail;

@@ -1,6 +1,6 @@
 import { memo, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Tag, Zap } from "lucide-react";
+import { MessageCircle, Tag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getUserDisplayName } from "@/lib/userDisplayName";
@@ -10,7 +10,6 @@ interface ConfessionHeaderProps {
   createdAt: string;
   authorNicknameSnapshot?: string | null;
   authorVisibilitySnapshot?: string | null;
-  isBoosted?: boolean;
   isAnonymous?: boolean;
   authorDisplayName?: string | null;
 }
@@ -20,7 +19,6 @@ const ConfessionHeader = memo(({
   createdAt, 
   authorNicknameSnapshot, 
   authorVisibilitySnapshot,
-  isBoosted,
   isAnonymous,
   authorDisplayName
 }: ConfessionHeaderProps) => {
@@ -62,12 +60,6 @@ const ConfessionHeader = memo(({
     <div className="flex items-center gap-2 text-muted-foreground text-sm flex-wrap">
       <MessageCircle className="w-4 h-4" />
       <span>{displayName} • {timeAgo}</span>
-      {isBoosted && (
-        <Badge variant="default" className="text-xs gap-1 bg-gradient-to-r from-primary to-primary/80">
-          <Zap className="w-3 h-3 fill-current" />
-          {t.boost_badge}
-        </Badge>
-      )}
       <Badge variant="secondary" className="text-xs gap-1 bg-primary/10 text-primary border-primary/20">
         <Tag className="w-3 h-3" />
         {getCategoryLabel}

@@ -95,7 +95,7 @@ export default function CoinShop({ open, onOpenChange }: CoinShopProps) {
             </span>
           </DialogTitle>
           <p className="text-center text-muted-foreground mt-2">
-            {t.coins_shop_subtitle || 'Get coins to unlock VIP features, boost confessions, and more!'}
+            {t.coins_shop_subtitle || 'Get coins to unlock VIP features and more!'}
           </p>
         </DialogHeader>
 

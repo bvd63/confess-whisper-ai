@@ -4,7 +4,6 @@ import { Heart, Share2, Bookmark, Trash2, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { BoostConfessionButton } from "@/components/BoostConfessionButton";
 import { useHaptic } from "@/hooks/useHaptic";
 
 interface ConfessionActionsProps {
@@ -206,14 +205,6 @@ const ConfessionActions = ({
       >
         <Bookmark className={`w-4 h-4 flex-shrink-0 ${localIsBookmarked ? 'fill-current' : ''} ${isBookmarking ? 'animate-pulse' : ''}`} />
       </Button>
-
-      {/* Boost Button (Owner Only) */}
-      {isOwner && (
-        <BoostConfessionButton 
-          confessionId={confessionId}
-          onBoostSuccess={onLikeChange}
-        />
-      )}
 
       {/* Owner Actions */}
       <div className="ml-auto flex items-center gap-2 sm:gap-2">
