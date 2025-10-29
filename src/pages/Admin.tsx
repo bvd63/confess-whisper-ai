@@ -111,13 +111,7 @@ export default function Admin() {
     enabled: !!user?.id,
   });
 
-  // Redirect if not admin/moderator
-  if (!roleLoading && !userRole) {
-    navigate('/');
-    return null;
-  }
-
-  // Fetch moderation queue
+  // Fetch moderation queue - moved before early return to satisfy hooks rules
   const { data: queueItems, isLoading: queueLoading } = useQuery({
     queryKey: ['moderation-queue'],
     queryFn: async () => {
@@ -130,9 +124,10 @@ export default function Admin() {
       if (error) throw error;
       return data;
     },
+    enabled: !!userRole, // Only run if user has role
   });
 
-  // Fetch reports
+  // Fetch reports - moved before early return
   const { data: reports, isLoading: reportsLoading } = useQuery({
     queryKey: ['confession-reports'],
     queryFn: async () => {
@@ -149,9 +144,10 @@ export default function Admin() {
       if (error) throw error;
       return data;
     },
+    enabled: !!userRole, // Only run if user has role
   });
 
-  // Approve/reject moderation queue item
+  // Approve/reject moderation queue item - moved before early return
   const moderateMutation = useMutation({
     mutationFn: async ({ itemId, action }: { itemId: string; action: 'approve' | 'reject' }) => {
       const { error } = await supabase
@@ -180,7 +176,7 @@ export default function Admin() {
     },
   });
 
-  // Handle report action
+  // Handle report action - moved before early return
   const handleReportMutation = useMutation({
     mutationFn: async ({ reportId, action }: { reportId: string; action: 'approve' | 'dismiss' }) => {
       const { error } = await supabase
@@ -202,6 +198,12 @@ export default function Admin() {
       });
     },
   });
+
+  // Redirect if not admin/moderator - moved AFTER all hooks
+  if (!roleLoading && !userRole) {
+    navigate('/');
+    return null;
+  }
 
   const getLevelBadge = (level: string) => {
     switch (level) {

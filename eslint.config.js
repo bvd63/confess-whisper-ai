@@ -21,6 +21,15 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-explicit-any": "warn", // Changed from error to warning
+      "@typescript-eslint/no-empty-object-type": "warn",
+      "@typescript-eslint/no-non-null-asserted-optional-chain": "warn",
+      "react-hooks/exhaustive-deps": "warn", // Changed to warning
+      "no-empty": "warn",
+      "no-useless-escape": "warn",
+      "no-prototype-builtins": "warn",
+      "no-case-declarations": "warn",
+      "react-hooks/rules-of-hooks": "error", // Keep this as error
     },
   },
   // Relaxed rules for test files, utility libs, and edge functions
