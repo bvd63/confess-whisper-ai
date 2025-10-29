@@ -144,7 +144,9 @@ export const FlairsShop = ({
       setHasLoaded(false);
       loadData();
     }
-  }, [open, loadData]);
+    // Intenționat nu includem loadData în deps pentru a evita bucla de reîncărcare
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   // Real-time listener for user_flairs updates
   useEffect(() => {
@@ -170,7 +172,9 @@ export const FlairsShop = ({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId, open, loadData]);
+    // Intenționat nu includem loadData în deps pentru a evita buclele
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, open]);
 
   const handlePurchase = async (flair: Flair) => {
     setPurchasing(flair.id);
