@@ -1,4 +1,4 @@
-import { Bell, Clock, Moon, Flame } from 'lucide-react';
+import { Bell, Clock, Flame } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useState, useEffect } from 'react';
 import { NotificationService } from '@/services/notificationService';
@@ -9,8 +9,6 @@ import { toast } from 'sonner';
 interface NotificationSettingsData {
   dailyReminder: boolean;
   dailyReminderTime: string;
-  nightPrompt: boolean;
-  nightPromptTime: string;
   streakReminder: boolean;
 }
 
@@ -19,8 +17,6 @@ export const NotificationSettings = () => {
   const [settings, setSettings] = useState<NotificationSettingsData>({
     dailyReminder: true,
     dailyReminderTime: '09:00',
-    nightPrompt: true,
-    nightPromptTime: '21:00',
     streakReminder: true
   });
   const [permission, setPermission] = useState<NotificationPermission>('default');
@@ -106,33 +102,6 @@ export const NotificationSettings = () => {
           <Switch
             checked={settings.dailyReminder}
             onCheckedChange={(v) => updateSetting('dailyReminder', v)}
-            disabled={permission !== 'granted'}
-          />
-        </div>
-      </div>
-
-      {/* Night Prompt */}
-      <div className="flex items-center justify-between p-4 bg-card rounded-lg border">
-        <div className="flex items-center gap-3 flex-1">
-          <Moon className="w-5 h-5 text-primary" />
-          <div>
-            <p className="font-medium">Evening Reflection</p>
-            <p className="text-sm text-muted-foreground">
-              Thoughtful prompts before bedtime
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <input
-            type="time"
-            value={settings.nightPromptTime}
-            onChange={(e) => updateSetting('nightPromptTime', e.target.value)}
-            className="px-2 py-1 rounded border bg-background"
-            disabled={!settings.nightPrompt || permission !== 'granted'}
-          />
-          <Switch
-            checked={settings.nightPrompt}
-            onCheckedChange={(v) => updateSetting('nightPrompt', v)}
             disabled={permission !== 'granted'}
           />
         </div>

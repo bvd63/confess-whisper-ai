@@ -1207,8 +1207,6 @@ type Translations = {
   notification_settings: string;
   daily_reminder: string;
   daily_reminder_desc: string;
-  night_prompt: string;
-  night_prompt_desc: string;
   // streak_reminder already exists above
   
   // Emotional Tones
@@ -3644,8 +3642,6 @@ export const translations: Record<Language, Translations> = {
     notification_settings: "Notification Settings",
     daily_reminder: "Daily Reminder",
     daily_reminder_desc: "Get reminded to share your daily confession",
-    night_prompt: "Evening Reflection",
-    night_prompt_desc: "Thoughtful prompts before bedtime",
     
     // Emotional Tones
     tone_calm: "Calm",
@@ -5408,8 +5404,6 @@ export const translations: Record<Language, Translations> = {
     notification_settings: "Configuración de Notificaciones",
     daily_reminder: "Recordatorio Diario",
     daily_reminder_desc: "Recibe recordatorios para compartir tu confesión diaria",
-    night_prompt: "Reflexión Nocturna",
-    night_prompt_desc: "Impulsos reflexivos antes de dormir",
     
     // Emotional Tones
     tone_calm: "Tranquilo",
@@ -7172,8 +7166,6 @@ export const translations: Record<Language, Translations> = {
     notification_settings: "Benachrichtigungseinstellungen",
     daily_reminder: "Tägliche Erinnerung",
     daily_reminder_desc: "Werde daran erinnert, dein tägliches Geständnis zu teilen",
-    night_prompt: "Abendliche Reflexion",
-    night_prompt_desc: "Nachdenkliche Impulse vor dem Schlafengehen",
     
     // Emotional Tones
     tone_calm: "Ruhig",

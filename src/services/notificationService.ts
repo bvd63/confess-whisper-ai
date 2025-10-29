@@ -3,8 +3,6 @@ import { supabase } from '@/integrations/supabase/client';
 interface NotificationSettings {
   dailyReminder: boolean;
   dailyReminderTime: string;
-  nightPrompt: boolean;
-  nightPromptTime: string;
   streakReminder: boolean;
 }
 
@@ -23,12 +21,6 @@ export class NotificationService {
       en: {
         notification_daily_title: "Time for today's confession",
         notification_daily_body: "Take a moment to reflect and share what's on your mind",
-        notification_night_title: "Evening reflection",
-        night_prompt_1: "How was your day? Share your thoughts anonymously",
-        night_prompt_2: "What's one thing you're grateful for today?",
-        night_prompt_3: "Is there something you need to get off your chest?",
-        night_prompt_4: "What made you smile today?",
-        night_prompt_5: "Any regrets from today? Share them here",
         notification_streak_title: "Don't lose your streak! 🔥",
         notification_streak_body: "You have 4 hours left to keep your streak alive",
         notification_streak_lost_title: "Streak ended 😔",
@@ -37,12 +29,6 @@ export class NotificationService {
       es: {
         notification_daily_title: "Hora de la confesión de hoy",
         notification_daily_body: "Tómate un momento para reflexionar y compartir lo que piensas",
-        notification_night_title: "Reflexión nocturna",
-        night_prompt_1: "¿Cómo estuvo tu día? Comparte tus pensamientos anónimamente",
-        night_prompt_2: "¿Por qué cosa estás agradecido hoy?",
-        night_prompt_3: "¿Hay algo que necesitas sacar de tu pecho?",
-        night_prompt_4: "¿Qué te hizo sonreír hoy?",
-        night_prompt_5: "¿Algún arrepentimiento de hoy? Compártelo aquí",
         notification_streak_title: "¡No pierdas tu racha! 🔥",
         notification_streak_body: "Te quedan 4 horas para mantener tu racha",
         notification_streak_lost_title: "Racha terminada 😔",
@@ -51,12 +37,6 @@ export class NotificationService {
       de: {
         notification_daily_title: "Zeit für deine heutige Beichte",
         notification_daily_body: "Nimm dir einen Moment zum Nachdenken und teile deine Gedanken",
-        notification_night_title: "Abendliche Reflexion",
-        night_prompt_1: "Wie war dein Tag? Teile deine Gedanken anonym",
-        night_prompt_2: "Wofür bist du heute dankbar?",
-        night_prompt_3: "Gibt es etwas, das du loswerden musst?",
-        night_prompt_4: "Was hat dich heute zum Lächeln gebracht?",
-        night_prompt_5: "Bereust du heute etwas? Teile es hier",
         notification_streak_title: "Verliere nicht deine Serie! 🔥",
         notification_streak_body: "Du hast noch 4 Stunden, um deine Serie am Leben zu erhalten",
         notification_streak_lost_title: "Serie beendet 😔",
@@ -100,8 +80,6 @@ export class NotificationService {
     return {
       dailyReminder: true,
       dailyReminderTime: '09:00',
-      nightPrompt: true,
-      nightPromptTime: '21:00',
       streakReminder: true
     };
   }
@@ -133,29 +111,6 @@ export class NotificationService {
           icon: '/favicon.ico',
           badge: '/favicon.ico',
           tag: 'daily-reminder'
-        }
-      );
-    }
-  }
-
-  async showNightPrompt() {
-    if (Notification.permission === 'granted') {
-      const prompts = [
-        'night_prompt_1',
-        'night_prompt_2',
-        'night_prompt_3',
-        'night_prompt_4',
-        'night_prompt_5'
-      ];
-      const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
-      
-      new Notification(
-        this.getTranslation('notification_night_title'),
-        {
-          body: this.getTranslation(randomPrompt),
-          icon: '/favicon.ico',
-          badge: '/favicon.ico',
-          tag: 'night-prompt'
         }
       );
     }
