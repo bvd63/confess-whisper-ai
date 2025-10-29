@@ -1249,7 +1249,6 @@ export type Database = {
         Row: {
           created_at: string | null
           daily_reminder: boolean | null
-          evening_reflection: boolean | null
           id: string
           reminder_time: string | null
           streak_alerts: boolean | null
@@ -1258,7 +1257,6 @@ export type Database = {
         Insert: {
           created_at?: string | null
           daily_reminder?: boolean | null
-          evening_reflection?: boolean | null
           id?: string
           reminder_time?: string | null
           streak_alerts?: boolean | null
@@ -1267,7 +1265,6 @@ export type Database = {
         Update: {
           created_at?: string | null
           daily_reminder?: boolean | null
-          evening_reflection?: boolean | null
           id?: string
           reminder_time?: string | null
           streak_alerts?: boolean | null
