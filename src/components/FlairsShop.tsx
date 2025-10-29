@@ -398,16 +398,6 @@ export const FlairsShop = ({
             <Lock className="w-3 h-3" />
             {t.upgrade_required}
           </Button>
-        ) : expired ? (
-          <Button 
-            size="sm" 
-            onClick={() => handlePurchase(flair)} 
-            disabled={purchasing === flair.id || coinsBalance < flair.cost} 
-            className="w-full gap-1"
-          >
-            <Coins className="w-3 h-3" />
-            {t.buy_again} ({flair.cost})
-          </Button>
         ) : (
           <Button 
             size="sm" 
