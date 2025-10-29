@@ -103,7 +103,7 @@ export const FlairsShop = ({
           console.error('Flairs error:', flairsError);
           throw flairsError;
         }
-        setFlairs(flairsData || []);
+        setFlairs((flairsData || []).filter((f: Flair) => f.name_key !== 'flair_sparkle'));
       } else {
         console.error('Flairs load rejected:', flairsRes.reason);
         throw flairsRes.reason;
