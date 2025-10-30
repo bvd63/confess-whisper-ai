@@ -12,6 +12,7 @@ import { Card } from '@/components/ui/card';
 import { useState, useEffect } from 'react';
 import { useStreakManager } from '@/hooks/useStreakManager';
 import { cn } from '@/lib/utils';
+import { NotificationSettings as NotificationSettingsComponent } from '@/components/NotificationSettings';
 
 interface MenuItemProps {
   icon: React.ElementType;
@@ -126,8 +127,11 @@ const SettingsActivity = () => {
           <MenuItem
             icon={Bell}
             title={t.settings_activity_notifications}
-            onClick={() => navigate('/settings/notifications')}
-          />
+            expanded={expandedSection === 'notifications'}
+            onClick={() => toggleSection('notifications')}
+          >
+            <NotificationSettingsComponent />
+          </MenuItem>
 
           {/* Streak & Rewards */}
           <MenuItem

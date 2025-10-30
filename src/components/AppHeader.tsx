@@ -103,10 +103,6 @@ const AppHeader = ({
                   <Settings className="mr-2 h-4 w-4" />
                   {t.settings_activity_title}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/settings/notifications')}>
-                  <Settings className="mr-2 h-4 w-4" />
-                  {t.notification_settings}
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             
