@@ -1,7 +1,7 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { GradientText } from "@/components/GradientText";
-import { Sparkles, Flame, TrendingUp, Bell } from "lucide-react";
+import { Sparkles, TrendingUp, Bell } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import AppLayout from "@/components/AppLayout";
 import FeatureHighlight from "@/components/FeatureHighlight";
@@ -21,18 +21,12 @@ import SEOHead from "@/components/SEOHead";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePerformanceBudget } from "@/hooks/usePerformanceBudget";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
-import { StreakDisplay } from "@/components/StreakDisplay";
-import StreakReminder from "@/components/StreakReminder";
 import { Card } from "@/components/ui/card";
-import { useStreakManager } from "@/hooks/useStreakManager";
 import { supabase } from "@/integrations/supabase/client";
 
-import { RateLimitIndicator } from "@/components/RateLimitIndicator";
-import { useConfessionRateLimit } from "@/hooks/useConfessionRateLimit";
 import { QuickActions } from "@/components/QuickActions";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Loader2 } from "lucide-react";
-import { SubscriptionCard } from "@/components/SubscriptionCard";
 import { Button } from "@/components/ui/button";
 
 // Lazy load heavy components
@@ -58,8 +52,6 @@ const Index = () => {
   const [showSecondaryContent, setShowSecondaryContent] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  const { isLimited, remainingRequests, totalRequests, getRemainingTime } = useConfessionRateLimit();
-  const { streakData } = useStreakManager();
   
   // Pull to refresh
   const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
@@ -207,57 +199,6 @@ const Index = () => {
           </p>
         </div>
 
-        {/* Streak Reminder */}
-        {user && <StreakReminder userId={user.id} />}
-
-
-        {/* Streak Display Card */}
-        {user && streakData && (streakData.currentStreak > 0 || streakData.longestStreak > 0) && (
-          <Card className="p-4 mb-6 bg-gradient-to-r from-orange-500/10 to-red-500/10 border-orange-500/20 animate-fade-in">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-orange-500/20 rounded-full">
-                  <Flame className="w-5 h-5 text-orange-500" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">
-                    {streakData.currentStreak} Day Streak 🔥
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Best: {streakData.longestStreak} days
-                  </p>
-                </div>
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* Streak Display & Counter */}
-        {user && (
-          <div className="space-y-4 mb-4">
-            <StreakDisplay />
-            <StreakCounter userId={user.id} variant="full" />
-          </div>
-        )}
-
-
-        {/* VIP Upgrade Card - Show only if not VIP */}
-        {user && !isPremium && (
-          <div className="mb-6">
-            <SubscriptionCard />
-          </div>
-        )}
-
-        {/* Rate Limit Indicator */}
-        {user && (
-          <RateLimitIndicator
-            remaining={remainingRequests}
-            total={totalRequests}
-            resetTime={getRemainingTime()}
-            isLimited={isLimited}
-            className="mb-4"
-          />
-        )}
 
         {/* Quote of the Day */}
         {user && (

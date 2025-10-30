@@ -12,6 +12,12 @@ import CoinBalance from "@/components/coins/CoinBalance";
 import StreakCounter from "@/components/StreakCounter";
 import { SyncStatusIndicator } from "@/components/SyncStatusIndicator";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -79,17 +85,30 @@ const AppHeader = ({
           </div>
           
           <div className="flex items-center gap-1 sm:gap-1.5">
-            {/* Settings Icon - Always visible */}
-            <Button
-              onClick={() => navigate('/settings/notifications')}
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0 hover:bg-accent"
-              aria-label={t.settings}
-              title={t.settings}
-            >
-              <Settings className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
-            </Button>
+            {/* Settings Dropdown Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 hover:bg-accent"
+                  aria-label={t.settings}
+                  title={t.settings}
+                >
+                  <Settings className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem onClick={() => navigate('/settings/activity')}>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  {t.settings_activity_title}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/settings/notifications')}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  {t.notification_settings}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             
             <LanguageSelector />
             <ThemeToggle />

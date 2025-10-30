@@ -96,4 +96,10 @@ export interface Translations {
   sensitive_content_warning: string;
   sensitive_content_description: string;
   sensitive_content_view: string;
+  
+  // Settings Activity
+  settings_activity_title: string;
+  settings_activity_streak_summary: string;
+  settings_activity_current_streak: string;
+  settings_activity_usage: string;
 }

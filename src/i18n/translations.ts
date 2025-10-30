@@ -1877,6 +1877,12 @@ type Translations = {
   sensitive_content_description: string;
   sensitive_content_view: string;
   
+  // Settings Activity
+  settings_activity_title: string;
+  settings_activity_streak_summary: string;
+  settings_activity_current_streak: string;
+  settings_activity_usage: string;
+  
   // Additional Loading States
   loading_content: string;
   
@@ -3537,6 +3543,12 @@ export const translations: Record<Language, Translations> = {
     sensitive_content_warning: "Sensitive Content",
     sensitive_content_description: "This content may be disturbing or triggering",
     sensitive_content_view: "View Anyway",
+    
+    // Settings Activity
+    settings_activity_title: "Settings & Activity",
+    settings_activity_streak_summary: "Streak Summary",
+    settings_activity_current_streak: "Current Streak & Rewards",
+    settings_activity_usage: "Usage",
     
     // Additional Loading States
     loading_content: "Loading content",
@@ -5309,6 +5321,12 @@ export const translations: Record<Language, Translations> = {
     sensitive_content_description: "Este contenido puede ser perturbador o activador",
     sensitive_content_view: "Ver De Todos Modos",
     
+    // Settings Activity
+    settings_activity_title: "Configuración y Actividad",
+    settings_activity_streak_summary: "Resumen de Racha",
+    settings_activity_current_streak: "Racha Actual y Recompensas",
+    settings_activity_usage: "Uso",
+    
     // Additional Loading States
     loading_content: "Cargando contenido",
     
@@ -7079,6 +7097,12 @@ export const translations: Record<Language, Translations> = {
     sensitive_content_warning: "Sensibler Inhalt",
     sensitive_content_description: "Dieser Inhalt kann verstörend oder triggernd sein",
     sensitive_content_view: "Trotzdem Ansehen",
+    
+    // Settings Activity
+    settings_activity_title: "Einstellungen & Aktivität",
+    settings_activity_streak_summary: "Streak-Zusammenfassung",
+    settings_activity_current_streak: "Aktuelle Streak & Belohnungen",
+    settings_activity_usage: "Nutzung",
     
     // Additional Loading States
     loading_content: "Inhalt wird geladen",

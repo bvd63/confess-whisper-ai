@@ -64,6 +64,7 @@ const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Performance = lazy(() => import("./pages/admin/Performance"));
 const NotificationSettings = lazy(() => import("./pages/NotificationSettings"));
+const SettingsActivity = lazy(() => import("./pages/SettingsActivity"));
 const SubscriptionTest = lazy(() => import("./pages/SubscriptionTest"));
 
 const AppContent = () => {
@@ -226,6 +227,7 @@ const AppContent = () => {
           <Route path="/test-payments" element={<TestPayments />} />
           <Route path="/test-subscriptions" element={<TestSubscriptions />} />
           <Route path="/settings/notifications" element={<NotificationSettings />} />
+          <Route path="/settings/activity" element={<SettingsActivity />} />
           <Route path="/subscription-test" element={<SubscriptionTest />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
