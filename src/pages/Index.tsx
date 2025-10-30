@@ -210,23 +210,6 @@ const Index = () => {
         {/* Streak Reminder */}
         {user && <StreakReminder userId={user.id} />}
 
-        {/* Smart Banner for Disabled Notifications */}
-        {notificationPermission !== 'granted' && (
-          <div className="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-400/40 text-sm text-yellow-800 dark:text-yellow-300 rounded-lg p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 animate-fade-in">
-            <div className="flex items-center gap-2">
-              <Bell className="w-4 h-4 flex-shrink-0" />
-              <span className="text-xs sm:text-sm">{t.notifications_disabled}</span>
-            </div>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => navigate('/settings/notifications')}
-              className="border-yellow-400/40 hover:bg-yellow-400/10 text-yellow-800 dark:text-yellow-300 whitespace-nowrap"
-            >
-              {t.enable_now}
-            </Button>
-          </div>
-        )}
 
         {/* Streak Display Card */}
         {user && streakData && (streakData.currentStreak > 0 || streakData.longestStreak > 0) && (
