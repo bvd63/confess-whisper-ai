@@ -72,15 +72,15 @@ export const CommunitiesSectionExpanded = () => {
   // Get trending communities (sorted by member count)
   const trendingCommunities = communities?.sort((a, b) => b.member_count - a.member_count).slice(0, 3);
   if (isLoading) {
-    return <Card className="mb-4">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Users className="w-4 h-4" />
+    return <Card className="mb-3">
+        <CardHeader className="pb-2 pt-3 px-3">
+          <CardTitle className="flex items-center gap-1.5 text-base">
+            <Users className="w-3.5 h-3.5" />
             {t.home_communities_title}
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-0">
-          <div className="text-center py-3 text-muted-foreground text-sm">
+        <CardContent className="pt-0 px-3 pb-3">
+          <div className="text-center py-2 text-muted-foreground text-xs">
             {t.loading}
           </div>
         </CardContent>
@@ -89,17 +89,17 @@ export const CommunitiesSectionExpanded = () => {
 
   // Show empty state when no communities exist
   if (!isLoading && (!communities || communities.length === 0)) {
-    return <Card className="mb-4">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Users className="w-4 h-4" />
+    return <Card className="mb-3">
+        <CardHeader className="pb-2 pt-3 px-3">
+          <CardTitle className="flex items-center gap-1.5 text-base">
+            <Users className="w-3.5 h-3.5" />
             {t.home_communities_title}
           </CardTitle>
         </CardHeader>
-        <CardContent className="text-center py-0 pt-0">
-          <Users className="w-10 h-10 mx-auto mb-3 text-muted-foreground opacity-50" />
-          <h3 className="text-base font-semibold mb-2">{t.communities_empty_title || "No Communities Yet"}</h3>
-          <p className="text-muted-foreground text-sm mb-3 max-w-md mx-auto">
+        <CardContent className="text-center py-0 pt-0 px-3 pb-3">
+          <Users className="w-8 h-8 mx-auto mb-2 text-muted-foreground opacity-50" />
+          <h3 className="text-sm font-semibold mb-1.5">{t.communities_empty_title || "No Communities Yet"}</h3>
+          <p className="text-muted-foreground text-xs mb-2 max-w-md mx-auto">
             {t.communities_empty_description}
           </p>
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
@@ -165,34 +165,34 @@ export const CommunitiesSectionExpanded = () => {
         </CardContent>
       </Card>;
   }
-  return <Card className="mb-4">
-      <CardHeader className="pb-3">
+  return <Card className="mb-3">
+      <CardHeader className="pb-2 pt-3 px-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Users className="w-4 h-4" />
+          <CardTitle className="flex items-center gap-1.5 text-base">
+            <Users className="w-3.5 h-3.5" />
             {t.home_communities_title}
           </CardTitle>
-          <Button variant="ghost" size="sm" onClick={() => navigate('/communities')}>
+          <Button variant="ghost" size="sm" onClick={() => navigate('/communities')} className="h-7 text-xs px-2">
             {t.common_view_all}
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4 pt-0">
+      <CardContent className="space-y-2.5 pt-0 px-3 pb-3">
         {/* Search and Create */}
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input placeholder={t.search_placeholder} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
+            <Input placeholder={t.search_placeholder} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-7 h-8 text-xs" />
           </div>
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-            <Button onClick={() => {
+            <Button size="sm" className="h-8 text-xs px-2" onClick={() => {
             if (!user) {
               navigate('/auth');
               return;
             }
             setIsCreateOpen(true);
           }}>
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="w-3 h-3 mr-1" />
               {t.communities_create}
             </Button>
             <DialogContent>
@@ -248,33 +248,33 @@ export const CommunitiesSectionExpanded = () => {
 
         {/* Trending Section */}
         {trendingCommunities && trendingCommunities.length > 0 && <div>
-            <h3 className="text-xs font-semibold mb-2 flex items-center gap-1.5">
-              <TrendingUp className="w-3.5 h-3.5" />
+            <h3 className="text-[10px] font-semibold mb-1.5 flex items-center gap-1">
+              <TrendingUp className="w-3 h-3" />
               {t.communities_trending}
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1.5">
               {trendingCommunities.map(community => <CommunityCard key={community.id} community={community} />)}
             </div>
           </div>}
 
         {/* Filtered Communities Grid */}
         {searchQuery && <div>
-            <h3 className="text-xs font-semibold mb-2">
+            <h3 className="text-[10px] font-semibold mb-1.5">
               {t.search_results}
             </h3>
-            {filteredCommunities && filteredCommunities.length > 0 ? <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+            {filteredCommunities && filteredCommunities.length > 0 ? <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1.5">
                 {filteredCommunities.slice(0, 8).map(community => <CommunityCard key={community.id} community={community} />)}
-              </div> : <p className="text-center text-muted-foreground text-sm py-3">
+              </div> : <p className="text-center text-muted-foreground text-xs py-2">
                 {t.communities_not_found}
               </p>}
           </div>}
 
         {/* All Communities (when no search) */}
         {!searchQuery && communities && communities.length > 3 && <div>
-            <h3 className="text-xs font-semibold mb-2">
+            <h3 className="text-[10px] font-semibold mb-1.5">
               {t.communities_all}
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1.5">
               {communities.slice(0, 8).map(community => <CommunityCard key={community.id} community={community} />)}
             </div>
           </div>}
