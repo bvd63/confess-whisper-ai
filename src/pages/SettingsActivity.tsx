@@ -51,7 +51,7 @@ const MenuItem = ({ icon: Icon, title, onClick, expandable = true, expanded = fa
 const SettingsActivity = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { user } = useCurrentUser();
+  const { user, isLoading } = useCurrentUser();
   const { 
     remainingRequests, 
     totalRequests, 
@@ -64,14 +64,18 @@ const SettingsActivity = () => {
 
   // Navigate to auth if no user - use useEffect to avoid render errors
   useEffect(() => {
-    if (!user) {
+    if (!isLoading && !user) {
       navigate('/auth');
     }
-  }, [user, navigate]);
+  }, [isLoading, user, navigate]);
 
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
   };
+
+  if (isLoading) {
+    return null;
+  }
 
   if (!user) {
     return null;
