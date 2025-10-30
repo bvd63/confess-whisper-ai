@@ -1,4 +1,4 @@
-import { ArrowLeft, ChevronRight, User, Bell, Flame, HelpCircle, Gift, UserX } from 'lucide-react';
+import { ArrowLeft, ChevronRight, User, Bell, Flame, HelpCircle, Gift, UserX, FileText, Shield, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -298,9 +298,46 @@ const SettingsActivity = () => {
           <MenuItem
             icon={HelpCircle}
             title={t.settings_activity_support}
-            expandable={false}
-            onClick={() => navigate('/terms')}
-          />
+            expanded={expandedSection === 'support'}
+            onClick={() => toggleSection('support')}
+          >
+            <div className="space-y-3">
+              <button
+                onClick={() => navigate('/terms')}
+                className="w-full flex items-center justify-between p-3 bg-muted/30 hover:bg-muted/50 rounded-lg transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">{t.terms_of_service}</span>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </button>
+
+              <button
+                onClick={() => navigate('/privacy')}
+                className="w-full flex items-center justify-between p-3 bg-muted/30 hover:bg-muted/50 rounded-lg transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <Shield className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">{t.privacy_policy}</span>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </button>
+
+              <a
+                href="https://lovable.dev/support"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-between p-3 bg-muted/30 hover:bg-muted/50 rounded-lg transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Contact Support</span>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </a>
+            </div>
+          </MenuItem>
         </Card>
       </div>
     </AppLayout>
