@@ -100,7 +100,7 @@ export const CommunitiesSectionExpanded = () => {
           <Users className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
           <h3 className="text-lg font-semibold mb-2">{t.communities_empty_title || "No Communities Yet"}</h3>
           <p className="text-muted-foreground mb-4 max-w-md mx-auto">
-            {t.communities_empty_description || "Create a community and connect with others who share your interests!"}
+            {t.communities_empty_description}
           </p>
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <Button onClick={() => {
