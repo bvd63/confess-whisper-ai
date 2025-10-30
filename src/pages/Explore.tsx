@@ -17,7 +17,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 import { useToast } from "@/hooks/use-toast";
 import { useCommunities } from "@/hooks/useCommunities";
-import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
+import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import { TrendingHashtags } from "@/components/TrendingHashtags";
 import { QuickActions } from "@/components/QuickActions";
 import { useNavigate } from "react-router-dom";
@@ -222,7 +222,7 @@ const Explore = () => {
       />
     )}
     
-    <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
     </>
   );
 };

@@ -20,7 +20,7 @@ import { useSubscriptionCheck } from "@/hooks/useSubscriptionCheck";
 import SEOHead from "@/components/SEOHead";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePerformanceBudget } from "@/hooks/usePerformanceBudget";
-import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
+import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -281,7 +281,7 @@ const Index = () => {
       </footer>
       </Suspense>
 
-      <ManageSubscriptionDialog
+      <UnifiedShopDialog
         open={manageSubDialogOpen}
         onOpenChange={setManageSubDialogOpen}
       />

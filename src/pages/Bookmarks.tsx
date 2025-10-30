@@ -15,7 +15,7 @@ import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
-import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
+import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import VirtualizedConfessions from "@/components/VirtualizedConfessions";
 
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
@@ -195,7 +195,7 @@ const Bookmarks = () => {
         />
       </Suspense>
 
-      <ManageSubscriptionDialog
+      <UnifiedShopDialog
         open={manageSubDialogOpen}
         onOpenChange={setManageSubDialogOpen}
       />

@@ -11,7 +11,7 @@ import FollowingFeed from "@/components/FollowingFeed";
 import FollowStats from "@/components/FollowStats";
 import AppLayout from "@/components/AppLayout";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
-import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
+import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Loader2 } from "lucide-react";
 
@@ -106,7 +106,7 @@ const Following = () => {
         />
       </Suspense>
 
-      <ManageSubscriptionDialog
+      <UnifiedShopDialog
         open={manageSubDialogOpen}
         onOpenChange={setManageSubDialogOpen}
       />

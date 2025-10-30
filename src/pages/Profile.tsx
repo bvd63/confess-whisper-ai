@@ -31,7 +31,7 @@ import { useToast } from "@/hooks/use-toast";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { FlairsShop } from "@/components/FlairsShop";
 import { FlairsShopButton } from "@/components/FlairsShopButton";
-import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
+import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import { useTrialExpiryCheck } from "@/hooks/useTrialExpiryCheck";
 import { SyncSubscriptionButton } from "@/components/SyncSubscriptionButton";
 import { VIPBadge } from "@/components/VIPBadge";
@@ -253,7 +253,7 @@ const Profile = () => {
       
       <InstagramBottomNav />
 
-      <ManageSubscriptionDialog
+      <UnifiedShopDialog
         open={manageSubDialogOpen} 
         onOpenChange={setManageSubDialogOpen}
         onSubscriptionUpdated={checkSubscription}

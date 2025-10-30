@@ -114,7 +114,7 @@ const AppHeader = ({
                   </Badge>
                 )}
                 
-                {/* Always show subscription button - Opens ManageSubscriptionDialog for both upgrade and manage */}
+                {/* Always show subscription button - Opens UnifiedShopDialog for subscriptions and coins */}
                 <Button 
                   data-testid="manage-subscription-btn"
                   onClick={() => onManageSubscription?.()} 
@@ -132,7 +132,7 @@ const AppHeader = ({
                     subscriptionTier === 'free' && "text-white animate-pulse"
                   )} />
                   <span className="hidden sm:inline text-xs ml-1 font-semibold">
-                    {subscriptionTier === 'free' ? 'Upgrade VIP' : t.subs_manage}
+                    {subscriptionTier === 'free' ? 'Subscription & Coins' : 'Manage'}
                   </span>
                 </Button>
                 <NotificationsDropdown />

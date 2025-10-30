@@ -13,7 +13,7 @@ import { AnimatedCard } from "@/components/AnimatedCard";
 import { NetworkStatusIndicator } from "@/components/NetworkStatusIndicator";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { sessionManager } from "@/lib/sessionManager";
-import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
+import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import { useTabNavigation } from "@/contexts/TabNavigationContext";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Loader2 } from "lucide-react";
@@ -222,7 +222,7 @@ const Messages = () => {
       
       
     </AppLayout>
-    <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
     </>
   );
 };

@@ -14,7 +14,7 @@ import { useCommunities } from "@/hooks/useCommunities";
 import { LoadingQuotes } from "@/components/LoadingQuotes";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
+import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 
 const Communities = () => {
   const [category, setCategory] = useState<string>("all");
@@ -174,7 +174,7 @@ const Communities = () => {
         )}
       </div>
     </AppLayout>
-    <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
     </>
   );
 };
