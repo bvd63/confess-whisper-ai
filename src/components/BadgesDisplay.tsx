@@ -181,13 +181,18 @@ const BadgesDisplay = ({
   if (variant === "compact") {
     const earnedBadges = badges.filter(b => b.earned);
     return <TooltipProvider>
-        <div className="flex gap-1 sm:gap-1.5 flex-wrap">
+        <div className="flex gap-0.5 sm:gap-1 flex-wrap">
           {earnedBadges.slice(0, 3).map(badge => {
           const IconComponent = iconMap[badge.icon] || Award;
           const translation = getBadgeTranslation(badge);
           return <Tooltip key={badge.id}>
                 <TooltipTrigger>
-                  
+                  <Badge 
+                    variant="outline" 
+                    className="h-5 sm:h-6 px-1 sm:px-1.5 py-0 gap-0.5 sm:gap-1 text-[10px] sm:text-xs border-primary/30 bg-primary/5"
+                  >
+                    <IconComponent className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-primary" />
+                  </Badge>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="font-semibold text-xs sm:text-sm">{translation.name}</p>
@@ -195,7 +200,7 @@ const BadgesDisplay = ({
                 </TooltipContent>
               </Tooltip>;
         })}
-          {earnedBadges.length > 3 && <Badge variant="outline" className="text-[10px] sm:text-xs h-6 sm:h-auto px-1.5 sm:px-2">
+          {earnedBadges.length > 3 && <Badge variant="outline" className="text-[10px] sm:text-xs h-5 sm:h-6 px-1 sm:px-1.5 py-0 border-primary/30 bg-primary/5">
               +{earnedBadges.length - 3}
             </Badge>}
         </div>

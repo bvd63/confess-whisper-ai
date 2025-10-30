@@ -1,4 +1,3 @@
-import { Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface VIPBadgeProps {
@@ -17,10 +16,10 @@ export const VIPBadge = ({
   // Don't render anything for free tier
   if (tier !== 'vip') return null;
 
-  const sizeClasses = {
-    sm: 'h-4 w-4',
-    md: 'h-5 w-5',
-    lg: 'h-6 w-6'
+  const textSizeClasses = {
+    sm: 'text-sm',
+    md: 'text-base',
+    lg: 'text-lg'
   };
 
   const containerSizeClasses = {
@@ -32,13 +31,14 @@ export const VIPBadge = ({
   return (
     <div
       className={cn(
-        "inline-flex items-center rounded-full bg-purple-500/20 text-purple-500 font-semibold transition-transform hover:scale-105 hover:animate-pulse",
+        "inline-flex items-center rounded-full bg-gradient-to-r from-yellow-500/20 to-amber-500/20 font-semibold transition-transform hover:scale-105",
         showLabel && containerSizeClasses[size],
         className
       )}
+      title="VIP"
     >
-      <Crown className={sizeClasses[size]} />
-      {showLabel && <span>VIP</span>}
+      <span className={cn(textSizeClasses[size], "animate-pulse")}>👑</span>
+      {showLabel && <span className="text-yellow-600">VIP</span>}
     </div>
   );
 };

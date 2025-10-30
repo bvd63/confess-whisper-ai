@@ -4,6 +4,7 @@ import { MessageCircle, Tag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getUserDisplayName } from "@/lib/userDisplayName";
+import BadgesDisplay from "./BadgesDisplay";
 
 interface ConfessionHeaderProps {
   category: string;
@@ -12,6 +13,7 @@ interface ConfessionHeaderProps {
   authorVisibilitySnapshot?: string | null;
   isAnonymous?: boolean;
   authorDisplayName?: string | null;
+  userId?: string | null;
 }
 
 const ConfessionHeader = memo(({ 
@@ -20,7 +22,8 @@ const ConfessionHeader = memo(({
   authorNicknameSnapshot, 
   authorVisibilitySnapshot,
   isAnonymous,
-  authorDisplayName
+  authorDisplayName,
+  userId
 }: ConfessionHeaderProps) => {
   const { t } = useLanguage();
   
@@ -59,7 +62,13 @@ const ConfessionHeader = memo(({
   return (
     <div className="flex items-center gap-2 text-muted-foreground text-sm flex-wrap">
       <MessageCircle className="w-4 h-4" />
-      <span>{displayName} • {timeAgo}</span>
+      <div className="flex items-center gap-1.5 flex-wrap">
+        <span>{displayName}</span>
+        {userId && !isAnonymous && (
+          <BadgesDisplay userId={userId} variant="compact" />
+        )}
+        <span>• {timeAgo}</span>
+      </div>
       <Badge variant="secondary" className="text-xs gap-1 bg-primary/10 text-primary border-primary/20">
         <Tag className="w-3 h-3" />
         {getCategoryLabel}

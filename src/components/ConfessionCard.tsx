@@ -150,6 +150,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
             authorVisibilitySnapshot={confession.author_visibility_snapshot}
             isAnonymous={confession.is_anonymous}
             authorDisplayName={confession.author_display_name_snapshot}
+            userId={confession.user_id}
           />
           <VIPBadge tier={subscriptionTier as 'free' | 'vip'} size="sm" />
         </div>
