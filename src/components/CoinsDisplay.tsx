@@ -100,7 +100,7 @@ const CoinsDisplay = ({
           </p>
           <ul className="text-[10px] sm:text-xs text-muted-foreground space-y-0.5 sm:space-y-1">
             <li>🚀 Boost Confession (15 coins) - Highlight for 1 hour</li>
-            <li>{t.coins_flairs_detail}</li>
+            <li>✨ Profile Flairs - Customize your profile appearance</li>
           </ul>
         </div>
       </Card>
