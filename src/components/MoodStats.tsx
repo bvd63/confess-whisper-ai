@@ -101,7 +101,7 @@ const MoodStats = ({ userId }: MoodStatsProps) => {
   if (moodData.length === 0) return null;
 
   return (
-    <div className="space-y-3 sm:space-y-4">
+    <div className="space-y-2.5 sm:space-y-3">
       <Card className="p-3 sm:p-4">
         <h3 className="text-sm sm:text-base font-semibold mb-2.5 sm:mb-3">{t.mood_distribution}</h3>
         

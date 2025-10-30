@@ -29,8 +29,8 @@ const MoodTracker = ({ onMoodSelect, selectedMood }: MoodTrackerProps) => {
   };
 
   return (
-    <div className="space-y-3 sm:space-y-4">
-      <div className="flex flex-col gap-2">
+    <div className="space-y-2.5 sm:space-y-3">
+      <div className="flex flex-col gap-1.5 sm:gap-2">
         <label className="text-xs sm:text-sm font-medium">{t.mood_how_feeling}</label>
         <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
           {moods.map(({ value, icon: Icon, label, color }) => (
@@ -51,7 +51,7 @@ const MoodTracker = ({ onMoodSelect, selectedMood }: MoodTrackerProps) => {
       </div>
 
       {mood && (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1.5 sm:gap-2">
           <label className="text-xs sm:text-sm font-medium">{t.mood_intensity} (1-5)</label>
           <div className="flex gap-1.5 sm:gap-2">
             {[1, 2, 3, 4, 5].map((level) => (

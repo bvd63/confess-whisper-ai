@@ -151,11 +151,11 @@ export const NotificationSettings = () => {
   const isInteractionDisabled = isLoadingSettings || isSaving || permission === 'denied';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">{t.notification_settings}</h3>
-          <p className="text-sm text-muted-foreground">{t.notification_desc}</p>
+          <h3 className="text-base sm:text-lg font-semibold">{t.notification_settings}</h3>
+          <p className="text-xs sm:text-sm text-muted-foreground">{t.notification_desc}</p>
         </div>
         {permission !== 'granted' && (
           <Button 
@@ -169,23 +169,23 @@ export const NotificationSettings = () => {
       </div>
 
       {permission === 'denied' && (
-        <div className="p-4 bg-destructive/10 text-destructive rounded-lg text-sm" role="alert">
+        <div className="p-3 sm:p-4 bg-destructive/10 text-destructive rounded-lg text-xs sm:text-sm" role="alert">
           {t.blocked_notice}
         </div>
       )}
       
       {/* Daily Reminder */}
-      <div className="flex items-center justify-between p-4 bg-card rounded-lg border">
-        <div className="flex items-center gap-3 flex-1">
-          <Bell className="w-5 h-5 text-primary" />
-          <div>
-            <p className="font-medium">{t.daily_reminder}</p>
-            <p className="text-sm text-muted-foreground">
+      <div className="flex items-center justify-between p-3 sm:p-4 bg-card rounded-lg border">
+        <div className="flex items-center gap-2 sm:gap-2.5 flex-1">
+          <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0" />
+          <div className="min-w-0">
+            <p className="font-medium text-xs sm:text-sm">{t.daily_reminder}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
               {t.daily_reminder_desc}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-2.5 flex-shrink-0">
           <input
             type="time"
             value={settings.dailyReminderTime}
@@ -194,7 +194,7 @@ export const NotificationSettings = () => {
               setSettings(next);
               debouncedSave(next);
             }}
-            className="px-2 py-1 rounded border bg-background"
+            className="px-1.5 sm:px-2 py-0.5 sm:py-1 rounded border bg-background text-xs sm:text-sm"
             aria-label={t.reminder_time}
             disabled={!settings.dailyReminder || isInteractionDisabled}
           />
@@ -208,12 +208,12 @@ export const NotificationSettings = () => {
       </div>
 
       {/* Streak Reminder */}
-      <div className="flex items-center justify-between p-4 bg-card rounded-lg border">
-        <div className="flex items-center gap-3 flex-1">
-          <Flame className="w-5 h-5 text-orange-500" />
-          <div>
-            <p className="font-medium">{t.streak_protection}</p>
-            <p className="text-sm text-muted-foreground">
+      <div className="flex items-center justify-between p-3 sm:p-4 bg-card rounded-lg border">
+        <div className="flex items-center gap-2 sm:gap-2.5 flex-1">
+          <Flame className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500 flex-shrink-0" />
+          <div className="min-w-0">
+            <p className="font-medium text-xs sm:text-sm">{t.streak_protection}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
               {t.streak_protection_desc}
             </p>
           </div>
