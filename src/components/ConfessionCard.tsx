@@ -22,6 +22,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useConfirm } from "@/contexts/ConfirmContext";
+import { notify } from "@/lib/notifications";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useCachePurgeOnDelete } from "@/hooks/useCachePurgeOnDelete";
 import { Copy } from "lucide-react";
@@ -74,7 +76,8 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   const [commentsCount, setCommentsCount] = useState(confession.comments_count || 0);
   const { user } = useCurrentUser();
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const confirm = useConfirm();
   const { purgeConfession } = useCachePurgeOnDelete();
   const { subscriptionTier } = usePremiumStatus(confession.user_id || null);
   const isOwner = user?.id === confession.user_id;
@@ -99,6 +102,14 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   const handleDeleteConfession = async () => {
     if (!user || confession.user_id !== user.id) return;
 
+    const confirmed = await confirm({
+      titleKey: 'confirm.deleteConfession.title',
+      messageKey: 'confirm.deleteConfession.message',
+      variant: 'danger',
+    });
+    
+    if (!confirmed) return;
+
     try {
       const { error } = await supabase
         .from('confessions')
@@ -110,10 +121,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
       // Immediately purge cache
       purgeConfession(confession.id);
 
-      toast({
-        title: t.success_deleted,
-        description: t.confession_deleted,
-      });
+      notify.success('notifications.confessionDeleted', language);
 
       // Refresh the page or notify parent component
       onLikeChange?.();

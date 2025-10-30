@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ArrowUp, ArrowDown, XCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useConfirm } from "@/contexts/ConfirmContext";
+import { notify } from "@/lib/notifications";
 
 interface SubscriptionManagerProps {
   userId: string;
@@ -14,8 +15,9 @@ interface SubscriptionManagerProps {
 }
 
 export const SubscriptionManager = ({ userId, currentTier, onActionComplete }: SubscriptionManagerProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { toast } = useToast();
+  const confirm = useConfirm();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleAction = async (action: 'cancel' | 'upgrade' | 'downgrade', newTier?: string) => {
@@ -92,32 +94,25 @@ export const SubscriptionManager = ({ userId, currentTier, onActionComplete }: S
         )}
 
         {/* Cancel subscription */}
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button 
-              disabled={isLoading}
-              className="w-full"
-              variant="destructive"
-            >
-              <XCircle className="w-4 h-4 mr-2" />
-              {t.subs_cancel}
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>{t.subs_cancel}</AlertDialogTitle>
-              <AlertDialogDescription>
-                {t.subscription_description}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>{t.cancel}</AlertDialogCancel>
-              <AlertDialogAction onClick={() => handleAction('cancel')}>
-                {t.subs_cancel}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <Button 
+          disabled={isLoading}
+          className="w-full"
+          variant="destructive"
+          onClick={async () => {
+            const confirmed = await confirm({
+              titleKey: 'confirm.cancelSubscription.title',
+              messageKey: 'confirm.cancelSubscription.message',
+              variant: 'warning',
+            });
+            
+            if (confirmed) {
+              await handleAction('cancel');
+            }
+          }}
+        >
+          <XCircle className="w-4 h-4 mr-2" />
+          {t.subs_cancel}
+        </Button>
       </CardContent>
     </Card>
   );

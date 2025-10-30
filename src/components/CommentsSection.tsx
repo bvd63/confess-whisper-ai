@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useConfirm } from "@/contexts/ConfirmContext";
+import { notify } from "@/lib/notifications";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { CommentAuthor } from "./CommentAuthor";
@@ -34,7 +36,8 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
   const [isExpanded, setIsExpanded] = useState(false);
   const { user } = useCurrentUser();
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const confirm = useConfirm();
   const { purgeComment } = useCachePurgeOnDelete();
 
   const loadComments = async () => {
@@ -107,6 +110,14 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
   };
 
   const handleDelete = async (commentId: string) => {
+    const confirmed = await confirm({
+      titleKey: 'confirm.deleteComment.title',
+      messageKey: 'confirm.deleteComment.message',
+      variant: 'danger',
+    });
+    
+    if (!confirmed) return;
+
     try {
       const { error } = await supabase
         .from('comments')
@@ -121,10 +132,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
       await loadComments();
       onCommentChange?.();
       
-      toast({
-        title: t.success_deleted,
-        description: t.comments_delete,
-      });
+      notify.success('notifications.commentDeleted', language);
     } catch (error) {
       console.error('Error deleting comment:', error);
       toast({
