@@ -2,22 +2,21 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useConfirm } from '@/contexts/ConfirmContext';
+import { notify } from '@/lib/notifications';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 interface DeleteAccountSectionProps {
   userId: string;
@@ -26,20 +25,25 @@ interface DeleteAccountSectionProps {
 
 export const DeleteAccountSection = ({ userId, userEmail }: DeleteAccountSectionProps) => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const confirm = useConfirm();
   const [confirmText, setConfirmText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleDeleteAccount = async () => {
     if (confirmText !== 'DELETE') {
-      toast({
-        title: t.common_error,
-        description: 'Please type DELETE to confirm',
-        variant: 'destructive',
-      });
+      notify.error('notifications.operationFailed', language);
       return;
     }
+
+    const confirmed = await confirm({
+      titleKey: 'confirm.deleteAccount.title',
+      messageKey: 'confirm.deleteAccount.message',
+      variant: 'danger',
+    });
+    
+    if (!confirmed) return;
 
     setIsDeleting(true);
     try {
@@ -54,20 +58,15 @@ export const DeleteAccountSection = ({ userId, userEmail }: DeleteAccountSection
       // Sign out
       await supabase.auth.signOut();
 
-      toast({
-        title: 'Account deleted successfully',
-      });
+      notify.success('notifications.accountDeleted', language);
       
       navigate('/auth');
     } catch (error) {
       console.error('Error deleting account:', error);
-      toast({
-        title: t.common_error,
-        description: t.error_generic,
-        variant: 'destructive',
-      });
+      notify.error('notifications.operationFailed', language);
     } finally {
       setIsDeleting(false);
+      setIsDialogOpen(false);
     }
   };
 
@@ -81,19 +80,19 @@ export const DeleteAccountSection = ({ userId, userEmail }: DeleteAccountSection
         {t.delete_warning}
       </p>
       
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogTrigger asChild>
           <Button variant="destructive" className="w-full">
             {t.delete_account || 'Delete Account'}
           </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogDescription>
               {t.delete_account_description}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           
           <div className="space-y-2 my-4">
             <Label htmlFor="confirm-delete">
@@ -107,20 +106,23 @@ export const DeleteAccountSection = ({ userId, userEmail }: DeleteAccountSection
             />
           </div>
 
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setConfirmText('')}>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setConfirmText('');
+              setIsDialogOpen(false);
+            }}>
               {t.cancel || 'Cancel'}
-            </AlertDialogCancel>
-            <AlertDialogAction
+            </Button>
+            <Button
               onClick={handleDeleteAccount}
               disabled={isDeleting || confirmText !== 'DELETE'}
-              className="bg-destructive hover:bg-destructive/90"
+              variant="destructive"
             >
               {isDeleting ? t.deleting || 'Deleting...' : t.delete_account || 'Delete Account'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

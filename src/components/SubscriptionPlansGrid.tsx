@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { getPlansForInterval } from "@/lib/subscription-plans";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { getStringTranslation } from "@/lib/translationUtils";
 
 interface SubscriptionPlansGridProps {
   currentPlan: string;
@@ -226,7 +227,7 @@ export const SubscriptionPlansGrid = ({
                   <div className="w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/benefit:bg-purple-500/30 transition-colors">
                     <Check className="w-3.5 h-3.5 text-purple-400" />
                   </div>
-                  <span className="text-sm text-white/90 leading-relaxed">{t[benefit as keyof typeof t] || benefit}</span>
+                  <span className="text-sm text-white/90 leading-relaxed">{getStringTranslation(t, benefit) || benefit}</span>
                 </div>
               ))}
             </div>

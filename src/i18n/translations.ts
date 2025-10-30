@@ -15,6 +15,7 @@ export function ensureLanguage(code: string | null | undefined): Language {
 /**
  * Safe translation helper with strict English fallback
  * Never returns mixed-language strings - falls back atomically to English
+ * Only works for string keys, not nested objects
  */
 export function getTranslation(
   key: keyof Translations,
@@ -22,7 +23,8 @@ export function getTranslation(
 ): string {
   const translation = translations[language]?.[key];
   
-  if (translation !== undefined) {
+  // Only return if it's a string
+  if (typeof translation === 'string') {
     return translation;
   }
   
@@ -37,7 +39,7 @@ export function getTranslation(
     );
   }
   
-  return fallback ?? key;
+  return typeof fallback === 'string' ? fallback : String(key);
 }
 
 type Translations = {
@@ -88,6 +90,57 @@ type Translations = {
   success_deleted: string;
   success_reported: string;
   success_logout: string;
+  
+  // Confirmation dialogs
+  confirm: {
+    logout: {
+      title: string;
+      message: string;
+    };
+    deleteConfession: {
+      title: string;
+      message: string;
+    };
+    deleteAccount: {
+      title: string;
+      message: string;
+    };
+    cancelSubscription: {
+      title: string;
+      message: string;
+    };
+    deleteComment: {
+      title: string;
+      message: string;
+    };
+    reportContent: {
+      title: string;
+      message: string;
+    };
+    generic: {
+      title: string;
+      message: string;
+    };
+  };
+  
+  // Notifications
+  notifications: {
+    loginFailed: string;
+    loginSuccess: string;
+    logoutSuccess: string;
+    confessionDeleted: string;
+    confessionCreated: string;
+    accountDeleted: string;
+    commentDeleted: string;
+    commentAdded: string;
+    subscriptionCanceled: string;
+    subscriptionUpdated: string;
+    reportSubmitted: string;
+    networkError: string;
+    unauthorized: string;
+    operationSuccess: string;
+    operationFailed: string;
+  };
   
   // Validation
   validation_min: string;
@@ -3710,6 +3763,57 @@ export const translations: Record<Language, Translations> = {
     tone_regretful: "Regretful",
     tone_confused: "Confused",
     tone_overwhelmed: "Overwhelmed",
+    
+    // Confirmation dialogs
+    confirm: {
+      logout: {
+        title: "Confirm Logout",
+        message: "You will be signed out from this device.",
+      },
+      deleteConfession: {
+        title: "Delete Confession?",
+        message: "This action cannot be undone.",
+      },
+      deleteAccount: {
+        title: "Delete Account?",
+        message: "All your data will be permanently removed.",
+      },
+      cancelSubscription: {
+        title: "Cancel Subscription?",
+        message: "Your subscription benefits will end at the period's end.",
+      },
+      deleteComment: {
+        title: "Delete Comment?",
+        message: "This comment will be permanently removed.",
+      },
+      reportContent: {
+        title: "Report Content?",
+        message: "Thank you for helping us keep the community safe.",
+      },
+      generic: {
+        title: "Are you sure?",
+        message: "Please confirm your action.",
+      },
+    },
+    
+    // Notifications
+    notifications: {
+      loginFailed: "Invalid email or password.",
+      loginSuccess: "Welcome back!",
+      logoutSuccess: "You've been logged out.",
+      confessionDeleted: "Confession deleted successfully.",
+      confessionCreated: "Your confession was posted!",
+      accountDeleted: "Account permanently deleted.",
+      commentDeleted: "Comment deleted successfully.",
+      commentAdded: "Comment added successfully.",
+      subscriptionCanceled: "Subscription canceled successfully.",
+      subscriptionUpdated: "Subscription updated successfully.",
+      reportSubmitted: "Report submitted. Thank you!",
+      networkError: "Network error. Please try again.",
+      unauthorized: "You must be logged in to perform this action.",
+      operationSuccess: "Operation completed successfully.",
+      operationFailed: "Operation failed. Please try again.",
+    },
   },
   es: {
     app_name: "Confess+",
@@ -5500,6 +5604,57 @@ export const translations: Record<Language, Translations> = {
     tone_regretful: "Arrepentido",
     tone_confused: "Confundido",
     tone_overwhelmed: "Abrumado",
+    
+    // Confirmation dialogs
+    confirm: {
+      logout: {
+        title: "Confirmar cierre de sesión",
+        message: "Serás desconectado de este dispositivo.",
+      },
+      deleteConfession: {
+        title: "¿Eliminar confesión?",
+        message: "Esta acción no se puede deshacer.",
+      },
+      deleteAccount: {
+        title: "¿Eliminar cuenta?",
+        message: "Todos tus datos serán eliminados permanentemente.",
+      },
+      cancelSubscription: {
+        title: "¿Cancelar suscripción?",
+        message: "Los beneficios de tu suscripción terminarán al final del período.",
+      },
+      deleteComment: {
+        title: "¿Eliminar comentario?",
+        message: "Este comentario será eliminado permanentemente.",
+      },
+      reportContent: {
+        title: "¿Reportar contenido?",
+        message: "Gracias por ayudarnos a mantener la comunidad segura.",
+      },
+      generic: {
+        title: "¿Estás seguro?",
+        message: "Por favor, confirma tu acción.",
+      },
+    },
+    
+    // Notifications
+    notifications: {
+      loginFailed: "Correo o contraseña inválidos.",
+      loginSuccess: "¡Bienvenido de nuevo!",
+      logoutSuccess: "Has cerrado sesión.",
+      confessionDeleted: "Confesión eliminada correctamente.",
+      confessionCreated: "¡Tu confesión fue publicada!",
+      accountDeleted: "Cuenta eliminada permanentemente.",
+      commentDeleted: "Comentario eliminado correctamente.",
+      commentAdded: "Comentario agregado correctamente.",
+      subscriptionCanceled: "Suscripción cancelada correctamente.",
+      subscriptionUpdated: "Suscripción actualizada correctamente.",
+      reportSubmitted: "Reporte enviado. ¡Gracias!",
+      networkError: "Error de red. Por favor, intenta de nuevo.",
+      unauthorized: "Debes iniciar sesión para realizar esta acción.",
+      operationSuccess: "Operación completada con éxito.",
+      operationFailed: "Operación fallida. Por favor, intenta de nuevo.",
+    },
   },
   de: {
     app_name: "Confess+",
@@ -7290,5 +7445,56 @@ export const translations: Record<Language, Translations> = {
     tone_regretful: "Bereut",
     tone_confused: "Verwirrt",
     tone_overwhelmed: "Überfordert",
+    
+    // Confirmation dialogs
+    confirm: {
+      logout: {
+        title: "Abmeldung bestätigen",
+        message: "Du wirst von diesem Gerät abgemeldet.",
+      },
+      deleteConfession: {
+        title: "Beichte löschen?",
+        message: "Diese Aktion kann nicht rückgängig gemacht werden.",
+      },
+      deleteAccount: {
+        title: "Konto löschen?",
+        message: "Alle deine Daten werden dauerhaft gelöscht.",
+      },
+      cancelSubscription: {
+        title: "Abonnement kündigen?",
+        message: "Deine Abonnementvorteile enden am Ende der Periode.",
+      },
+      deleteComment: {
+        title: "Kommentar löschen?",
+        message: "Dieser Kommentar wird dauerhaft entfernt.",
+      },
+      reportContent: {
+        title: "Inhalt melden?",
+        message: "Danke, dass du uns hilfst, die Community sicher zu halten.",
+      },
+      generic: {
+        title: "Bist du sicher?",
+        message: "Bitte bestätige deine Aktion.",
+      },
+    },
+    
+    // Notifications
+    notifications: {
+      loginFailed: "Ungültige E-Mail oder Passwort.",
+      loginSuccess: "Willkommen zurück!",
+      logoutSuccess: "Du wurdest abgemeldet.",
+      confessionDeleted: "Beichte erfolgreich gelöscht.",
+      confessionCreated: "Deine Beichte wurde veröffentlicht!",
+      accountDeleted: "Konto dauerhaft gelöscht.",
+      commentDeleted: "Kommentar erfolgreich gelöscht.",
+      commentAdded: "Kommentar erfolgreich hinzugefügt.",
+      subscriptionCanceled: "Abonnement erfolgreich gekündigt.",
+      subscriptionUpdated: "Abonnement erfolgreich aktualisiert.",
+      reportSubmitted: "Meldung eingereicht. Danke!",
+      networkError: "Netzwerkfehler. Bitte versuche es erneut.",
+      unauthorized: "Du musst angemeldet sein, um diese Aktion auszuführen.",
+      operationSuccess: "Operation erfolgreich abgeschlossen.",
+      operationFailed: "Operation fehlgeschlagen. Bitte versuche es erneut.",
+    },
   },
 };

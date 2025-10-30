@@ -2,6 +2,7 @@ import { Check, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { PasswordRule } from "@/hooks/usePasswordValidation";
+import { getStringTranslation } from "@/lib/translationUtils";
 
 interface PasswordRulesChecklistProps {
   rules: Array<PasswordRule & { passed: boolean }>;
@@ -40,7 +41,7 @@ export const PasswordRulesChecklist = ({ rules }: PasswordRulesChecklistProps) =
               <X className="w-3 h-3 text-muted-foreground" />
             )}
           </div>
-          <span>{t[rule.translationKey as keyof typeof t]}</span>
+          <span>{getStringTranslation(t, rule.translationKey)}</span>
         </div>
       ))}
     </div>

@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { validateNicknameFormat } from "@/lib/displayName";
 import { toast } from "sonner";
+import { getStringTranslation } from "@/lib/translationUtils";
 
 interface NicknameSettingsProps {
   userId: string;
@@ -64,7 +65,7 @@ export const NicknameSettings = ({ userId }: NicknameSettingsProps) => {
     // Use new validation function
     const validation = validateNicknameFormat(nickname);
     if (!validation.valid) {
-      toast.error(t[validation.error as keyof typeof t] || t.nickname_invalid);
+      toast.error(getStringTranslation(t, validation.error || 'nickname_invalid') || t.nickname_invalid);
       return;
     }
 

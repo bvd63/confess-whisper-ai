@@ -2,28 +2,31 @@ import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useConfirm } from '@/contexts/ConfirmContext';
+import { notify } from '@/lib/notifications';
 
 export const LogoutSection = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const confirm = useConfirm();
 
   const handleLogout = async () => {
+    const confirmed = await confirm({
+      titleKey: 'confirm.logout.title',
+      messageKey: 'confirm.logout.message',
+      variant: 'warning',
+    });
+    
+    if (!confirmed) return;
+
     try {
       await supabase.auth.signOut();
-      toast({
-        title: t.success_logout,
-      });
+      notify.success('notifications.logoutSuccess', language);
       navigate('/auth');
     } catch (error) {
       console.error('Error logging out:', error);
-      toast({
-        title: t.common_error,
-        description: t.error_generic,
-        variant: 'destructive',
-      });
+      notify.error('notifications.operationFailed', language);
     }
   };
 

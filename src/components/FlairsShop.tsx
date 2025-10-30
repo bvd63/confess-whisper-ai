@@ -11,6 +11,7 @@ import { useCoins } from "@/hooks/useCoins";
 import { ExpiryTimer } from "@/components/ExpiryTimer";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/translated-dialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { getStringTranslation } from "@/lib/translationUtils";
 interface Flair {
   id: string;
   name_key: string;
@@ -355,7 +356,7 @@ export const FlairsShop = ({
         
         <div className="text-4xl">{flair.icon}</div>
         <p className="text-sm font-medium text-center">
-          {t[flair.name_key as keyof typeof t] || flair.name_key}
+          {getStringTranslation(t, flair.name_key) || flair.name_key}
         </p>
 
         <div className="min-h-[40px] flex flex-col items-center justify-center gap-1">

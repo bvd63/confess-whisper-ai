@@ -3,6 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from 'next-themes';
 import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext';
+import { ConfirmProvider } from '@/contexts/ConfirmContext';
 import { TabNavigationProvider } from '@/contexts/TabNavigationContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -253,15 +254,17 @@ function App() {
     <TooltipProvider>
       <Sonner />
       <BrowserRouter>
-        <AnalyticsProvider>
-          <OfflineIndicator />
-          <AppContent />
-          <SystemNotifications />
-          <PerformanceIndicator />
-          <PerformanceMonitor />
-          <InstallPrompt />
-          <UpdatePrompt />
-        </AnalyticsProvider>
+        <ConfirmProvider>
+          <AnalyticsProvider>
+            <OfflineIndicator />
+            <AppContent />
+            <SystemNotifications />
+            <PerformanceIndicator />
+            <PerformanceMonitor />
+            <InstallPrompt />
+            <UpdatePrompt />
+          </AnalyticsProvider>
+        </ConfirmProvider>
       </BrowserRouter>
     </TooltipProvider>
   );
