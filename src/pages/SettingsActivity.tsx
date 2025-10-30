@@ -252,67 +252,13 @@ const SettingsActivity = () => {
             </div>
           </MenuItem>
 
-          {/* Streak & Rewards */}
+          {/* Rewards Hub Link */}
           <MenuItem
             icon={Flame}
-            title={t.settings_activity_streak}
-            expanded={expandedSection === 'streak'}
-            onClick={() => toggleSection('streak')}
-          >
-            {/* Streak Summary */}
-            <div>
-              <h3 className="font-semibold mb-3">{t.settings_activity_streak_summary}</h3>
-              {streakData && (streakData.currentStreak > 0 || streakData.longestStreak > 0) && (
-                <Card className="p-4 bg-gradient-to-r from-orange-500/10 to-red-500/10 border-orange-500/20">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-orange-500/20 rounded-full">
-                        <Flame className="w-5 h-5 text-orange-500" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold">
-                          {streakData.currentStreak} Day Streak 🔥
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          Best: {streakData.longestStreak} days
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold">{streakData.currentStreak} Day Streak</p>
-                      <p className="text-sm text-muted-foreground">{streakData.longestStreak} days</p>
-                    </div>
-                  </div>
-                </Card>
-              )}
-            </div>
-
-            {/* Current Streak & Rewards */}
-            <div>
-              <h3 className="font-semibold mb-3">{t.settings_activity_current_streak}</h3>
-              <StreakDisplay />
-            </div>
-
-            {/* Requests Remaining */}
-            <div>
-              <RateLimitIndicator
-                remaining={remainingRequests}
-                total={totalRequests}
-                resetTime={getRemainingTime()}
-                isLimited={isLimited}
-              />
-            </div>
-          </MenuItem>
-
-          {/* Referral Program */}
-          <MenuItem
-            icon={Gift}
-            title={t.referral_program_title}
-            expanded={expandedSection === 'referral'}
-            onClick={() => toggleSection('referral')}
-          >
-            <ReferralSystem userId={user.id} />
-          </MenuItem>
+            title="Rewards & Achievements"
+            expandable={false}
+            onClick={() => navigate('/rewards')}
+          />
 
           {/* Privacy & Blocking */}
           <MenuItem

@@ -5,7 +5,7 @@ import { EnhancedButton } from "@/components/EnhancedButton";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { GradientText } from "@/components/GradientText";
 import { FloatingElement } from "@/components/FloatingElement";
-import { User, Bell } from "lucide-react";
+import { User, ArrowLeft, Settings, Plus, Crown, MessageCircle, Trophy } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppLayout from "@/components/AppLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -201,10 +201,9 @@ const Profile = () => {
         </div>
 
         <Tabs defaultValue="statistics" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
-          <TabsList className={`grid w-full ${isModerator ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3'} h-auto`}>
+          <TabsList className={`grid w-full ${isModerator ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2'} h-auto`}>
             <TabsTrigger value="statistics" className="text-xs sm:text-sm py-2">{t.profile_statistics}</TabsTrigger>
             <TabsTrigger value="confessions" className="text-xs sm:text-sm py-2">{t.profile_my_confessions}</TabsTrigger>
-            <TabsTrigger value="achievements" className="text-xs sm:text-sm py-2">{t.profile_achievements}</TabsTrigger>
             {isModerator && <TabsTrigger value="moderation" className="text-xs sm:text-sm py-2">{t.profile_moderation}</TabsTrigger>}
           </TabsList>
 
@@ -225,24 +224,25 @@ const Profile = () => {
             <AdvancedAnalytics userId={user.id} />
             
             <WordCloudViz userId={user.id} />
+            
+            {/* Link to Rewards Hub */}
+            <div className="flex justify-center pt-4">
+              <Button 
+                onClick={() => navigate('/rewards?tab=achievements')}
+                variant="outline"
+                className="gap-2"
+              >
+                <Trophy className="w-4 h-4" />
+                View All Achievements
+              </Button>
+            </div>
           </TabsContent>
 
           <TabsContent value="confessions" className="space-y-6">
             <UserConfessionsList />
           </TabsContent>
 
-          <TabsContent value="achievements" className="space-y-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold">{t.badges_your_badges}</h2>
-                  <FlairsShopButton 
-                    onClick={() => setFlairsDialogOpen(true)} 
-                    tier={subscriptionTier as "free" | "vip"}
-                  />
-              </div>
-              <BadgesDisplay userId={user.id} variant="full" />
-            </div>
-          </TabsContent>
+          {/* Achievements tab removed - now in Rewards Hub */}
 
 
           {isModerator && <TabsContent value="moderation" className="space-y-6">

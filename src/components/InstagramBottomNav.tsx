@@ -1,4 +1,4 @@
-import { Home, Search, PlusSquare, MessageCircle, User, Users, Sparkles } from "lucide-react";
+import { Home, Search, PlusSquare, MessageCircle, User, Users, Sparkles, Trophy } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useUnreadCount } from "@/hooks/useUnreadCount";
@@ -28,12 +28,12 @@ export const InstagramBottomNav = () => {
   const navItems = [
     { tabId: "home" as const, icon: Home, label: t.nav_home, isActive: activeTab === "home" },
     { tabId: "explore" as const, icon: Search, label: t.nav_explore, isActive: activeTab === "explore" },
-    { tabId: "compose" as const, icon: PlusSquare, label: "Compose", isActive: location.pathname === "/compose" },
+    { tabId: "rewards" as const, icon: Trophy, label: "Rewards", isActive: location.pathname === "/rewards" },
     { tabId: "messages" as const, icon: MessageCircle, label: t.nav_messages, badge: totalUnread, isActive: activeTab === "messages" },
     { tabId: "profile" as const, icon: User, label: t.nav_profile, isActive: activeTab === "profile", showVIPBadge: isVIP },
   ];
 
-  const handleTabClick = (tabId: "home" | "explore" | "messages" | "profile" | "compose") => {
+  const handleTabClick = (tabId: "home" | "explore" | "messages" | "profile" | "compose" | "rewards") => {
     
     
     if (tabId === "compose") {
@@ -42,8 +42,14 @@ export const InstagramBottomNav = () => {
       return;
     }
     
-    // Special handling for home button when on compose route
-    if (tabId === "home" && location.pathname === "/compose") {
+    if (tabId === "rewards") {
+      // Rewards is not a tab, navigate directly without switching tabs
+      navigate("/rewards");
+      return;
+    }
+    
+    // Special handling for home button when on compose/rewards route
+    if (tabId === "home" && (location.pathname === "/compose" || location.pathname === "/rewards")) {
       navigate("/");
       return;
     }
