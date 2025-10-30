@@ -92,11 +92,8 @@ export const SubscriptionStatusCard = () => {
 
   return (
     <>
-      <Card className={`p-6 bg-gradient-to-br ${tierInfo.bgGradient} border-[#1a1b2e] relative overflow-hidden`}>
-        {/* Background decoration */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-3xl" />
-        
-        <div className="relative space-y-4">
+      <Card className={`p-6 bg-gradient-to-br ${tierInfo.bgGradient} border-[#1a1b2e]`}>
+        <div className="space-y-4">
           {/* Header */}
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
