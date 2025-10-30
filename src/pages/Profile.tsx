@@ -272,10 +272,6 @@ const Profile = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span>2x karma points</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
                     <span>No ads experience</span>
                   </div>
                 </div>

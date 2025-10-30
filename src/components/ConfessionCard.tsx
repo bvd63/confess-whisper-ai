@@ -259,16 +259,11 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
               : "p-3 bg-muted/50"
           )}>
             {subscriptionTier === 'vip' && (
-              <div className="flex items-center gap-2 mb-3">
-                <div className="flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
-                  <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">
-                    VIP Priority AI Response
-                  </span>
-                </div>
-                <div className="ml-auto text-xs text-purple-400/80">
-                  2x Karma Active
-                </div>
+              <div className="flex items-center gap-1.5 mb-3">
+                <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
+                <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">
+                  VIP Priority AI Response
+                </span>
               </div>
             )}
             <p className={cn(

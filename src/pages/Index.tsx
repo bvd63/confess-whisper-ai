@@ -245,13 +245,6 @@ const Index = () => {
                   </p>
                 </div>
               </div>
-              {streakData.currentStreak >= 3 && (
-                <div className="text-right">
-                  <p className="text-xs text-orange-500 font-medium">
-                    {streakData.currentStreak >= 7 ? '2x' : '1.5x'} Karma
-                  </p>
-                </div>
-              )}
             </div>
           </Card>
         )}
