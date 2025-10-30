@@ -107,6 +107,4 @@ export interface Translations {
   settings_activity_usage: string;
   settings_activity_subscription: string;
   settings_activity_support: string;
-  referral_program_section: string;
-  blocked_users_section: string;
 }

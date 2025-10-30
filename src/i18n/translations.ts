@@ -3559,8 +3559,6 @@ export const translations: Record<Language, Translations> = {
     settings_activity_usage: "Usage",
     settings_activity_subscription: "Subscription & Coins",
     settings_activity_support: "Support & Legal",
-    referral_program_section: "Referral Program",
-    blocked_users_section: "Privacy & Blocking",
     
     // Additional Loading States
     loading_content: "Loading content",
@@ -5344,24 +5342,6 @@ export const translations: Record<Language, Translations> = {
     settings_activity_subscription: "Suscripción y Monedas",
     settings_activity_support: "Soporte y Legal",
     
-    // Logout & Delete Account
-    logout: "Cerrar Sesión",
-    logout_success: "Sesión cerrada exitosamente",
-    logout_error: "Error al cerrar sesión",
-    delete_account: "Eliminar Cuenta",
-    delete_account_warning: "Esta acción es permanente y no se puede deshacer. Todos tus datos serán eliminados.",
-    delete_account_confirm_dialog: "¿Estás absolutamente seguro?",
-    delete_account_description: "Esto eliminará permanentemente tu cuenta y todos los datos asociados. Esta acción no se puede deshacer.",
-    delete_account_type_delete: "Escribe DELETE para confirmar",
-    delete_account_success: "Cuenta eliminada exitosamente",
-    delete_account_error: "Error al eliminar cuenta",
-    delete_account_confirm_error: "Por favor escribe DELETE para confirmar",
-    deleting: "Eliminando...",
-    
-    // Sections
-    referral_program_section: "Programa de Referencias",
-    blocked_users_section: "Privacidad y Bloqueos",
-    
     // Additional Loading States
     loading_content: "Cargando contenido",
     
@@ -7143,8 +7123,6 @@ export const translations: Record<Language, Translations> = {
     settings_activity_usage: "Nutzung",
     settings_activity_subscription: "Abonnement & Münzen",
     settings_activity_support: "Support & Rechtliches",
-    referral_program_section: "Empfehlungsprogramm",
-    blocked_users_section: "Datenschutz & Blockierung",
     
     // Additional Loading States
     loading_content: "Inhalt wird geladen",

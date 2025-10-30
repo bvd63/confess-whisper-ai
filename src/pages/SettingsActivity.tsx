@@ -277,7 +277,7 @@ const SettingsActivity = () => {
           {/* Referral Program */}
           <MenuItem
             icon={Gift}
-            title={t.referral_program_section}
+            title={t.referral_program_title}
             expanded={expandedSection === 'referral'}
             onClick={() => toggleSection('referral')}
           >
@@ -287,7 +287,7 @@ const SettingsActivity = () => {
           {/* Privacy & Blocking */}
           <MenuItem
             icon={UserX}
-            title={t.blocked_users_section}
+            title={t.blocked_users_title}
             expanded={expandedSection === 'blocking'}
             onClick={() => toggleSection('blocking')}
           >
