@@ -1,4 +1,4 @@
-import { ArrowLeft, ChevronRight, User, Bell, Flame, HelpCircle, Gift, UserX, FileText, Shield, Mail } from 'lucide-react';
+import { ArrowLeft, ChevronRight, User, Bell, Flame, HelpCircle, Gift, UserX, FileText, Shield, Mail, Globe, Palette } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,8 @@ import { LogoutSection } from '@/components/settings/LogoutSection';
 import { DeleteAccountSection } from '@/components/settings/DeleteAccountSection';
 import ReferralSystem from '@/components/ReferralSystem';
 import BlockedUsers from '@/components/BlockedUsers';
+import { LanguageSelector } from '@/components/LanguageSelector';
+import ThemeToggle from '@/components/ThemeToggle';
 
 interface MenuItemProps {
   icon: React.ElementType;
@@ -216,6 +218,38 @@ const SettingsActivity = () => {
             onClick={() => toggleSection('notifications')}
           >
             <NotificationSettingsComponent />
+          </MenuItem>
+
+          {/* Display & Language */}
+          <MenuItem
+            icon={Globe}
+            title="Display & Language"
+            expanded={expandedSection === 'display'}
+            onClick={() => toggleSection('display')}
+          >
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold mb-3">Language</h3>
+                <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <Globe className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">Select Language</span>
+                  </div>
+                  <LanguageSelector />
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-3">Theme</h3>
+                <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <Palette className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">Appearance</span>
+                  </div>
+                  <ThemeToggle />
+                </div>
+              </div>
+            </div>
           </MenuItem>
 
           {/* Streak & Rewards */}

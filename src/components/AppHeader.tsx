@@ -3,9 +3,7 @@ import { Button } from "@/components/ui/button";
 import { EnhancedButton } from "@/components/EnhancedButton";
 
 import { Heart, PlusCircle, LogOut, Crown, User, LogIn, BookMarked, Users, Home, Sparkles, Search, MessageCircle, Settings } from "lucide-react";
-import { LanguageSelector } from "@/components/LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
-import ThemeToggle from "@/components/ThemeToggle";
 import NotificationsDropdown from "@/components/NotificationsDropdown";
 import CoinsDisplay from "@/components/CoinsDisplay";
 import CoinBalance from "@/components/coins/CoinBalance";
@@ -106,8 +104,6 @@ const AppHeader = ({
               </DropdownMenuContent>
             </DropdownMenu>
             
-            <LanguageSelector />
-            <ThemeToggle />
             {user ? <>
                 <CoinBalance />
                 
