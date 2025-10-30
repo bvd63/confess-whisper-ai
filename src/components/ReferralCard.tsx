@@ -88,59 +88,60 @@ const ReferralCard = () => {
 
   if (isLoading) {
     return (
-      <Card className="p-6 animate-pulse">
-        <div className="h-24 bg-muted rounded" />
+      <Card className="p-4 sm:p-5 animate-pulse">
+        <div className="h-20 bg-muted rounded" />
       </Card>
     );
   }
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-card to-primary/5 border-primary/20 shadow-[var(--shadow-soft)]">
-      <div className="flex items-start gap-4">
-        <div className="p-3 rounded-full bg-primary/20">
-          <Gift className="w-6 h-6 text-primary" />
+    <Card className="p-4 sm:p-5 bg-gradient-to-br from-card to-primary/5 border-primary/20 shadow-[var(--shadow-soft)]">
+      <div className="flex items-start gap-3">
+        <div className="p-2 sm:p-2.5 rounded-full bg-primary/20 flex-shrink-0">
+          <Gift className="w-5 h-5 text-primary" />
         </div>
         
-        <div className="flex-1 space-y-4">
+        <div className="flex-1 space-y-3">
           <div>
-            <h3 className="text-lg font-semibold mb-1">{t.referral_title}</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 className="text-base sm:text-lg font-semibold mb-1">{t.referral_title}</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground">
               {t.referral_description}
             </p>
           </div>
 
           {/* Stats */}
-          <div className="flex items-center gap-2 text-sm">
-            <Users className="w-4 h-4 text-primary" />
+          <div className="flex items-center gap-1.5 text-xs sm:text-sm">
+            <Users className="w-3.5 h-3.5 text-primary" />
             <span className="font-medium">{totalReferrals} {t.referral_friends_invited}</span>
           </div>
 
           {/* Referral Link */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">{t.referral_link_label}</label>
-            <div className="flex gap-2">
+          <div className="space-y-1.5">
+            <label className="text-xs sm:text-sm font-medium">{t.referral_link_label}</label>
+            <div className="flex gap-1.5 sm:gap-2">
               <Input
                 value={`${window.location.origin}/?ref=${referralCode}`}
                 readOnly
-                className="text-sm"
+                className="text-xs sm:text-sm h-8 sm:h-9"
               />
               <Button
                 onClick={copyReferralLink}
                 size="icon"
                 variant="outline"
+                className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0"
               >
-                <Copy className="w-4 h-4" />
+                <Copy className="w-3.5 h-3.5" />
               </Button>
             </div>
           </div>
 
           {/* Social Share Buttons */}
-          <div className="flex gap-2">
+          <div className="flex gap-1.5 sm:gap-2">
             <Button
               onClick={() => shareOnSocial('facebook')}
               variant="outline"
               size="sm"
-              className="flex-1"
+              className="flex-1 text-xs h-8"
             >
               Facebook
             </Button>
@@ -148,7 +149,7 @@ const ReferralCard = () => {
               onClick={() => shareOnSocial('twitter')}
               variant="outline"
               size="sm"
-              className="flex-1"
+              className="flex-1 text-xs h-8"
             >
               Twitter
             </Button>
@@ -156,25 +157,25 @@ const ReferralCard = () => {
               onClick={() => shareOnSocial('whatsapp')}
               variant="outline"
               size="sm"
-              className="flex-1"
+              className="flex-1 text-xs h-8"
             >
               WhatsApp
             </Button>
           </div>
 
           {/* Reward Info */}
-          <div className="space-y-2 p-3 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20">
-            <div className="flex items-center gap-2">
-              <Coins className="w-5 h-5 text-yellow-600" />
-              <p className="font-semibold text-sm">{t.referral_title}</p>
+          <div className="space-y-1.5 p-2 sm:p-2.5 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20">
+            <div className="flex items-center gap-1.5">
+              <Coins className="w-4 h-4 text-yellow-600" />
+              <p className="font-semibold text-xs sm:text-sm">{t.referral_title}</p>
             </div>
-            <ul className="space-y-1.5 text-xs text-muted-foreground">
-              <li className="flex items-start gap-2">
-                <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+            <ul className="space-y-1 text-[10px] sm:text-xs text-muted-foreground">
+              <li className="flex items-start gap-1.5">
+                <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-500 flex-shrink-0 mt-0.5" />
                 <span>{t.referral_reward_referrer}</span>
               </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+              <li className="flex items-start gap-1.5">
+                <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-500 flex-shrink-0 mt-0.5" />
                 <span>{t.referral_reward_referred}</span>
               </li>
             </ul>
@@ -182,13 +183,13 @@ const ReferralCard = () => {
 
           {/* Success Message */}
           {totalReferrals > 0 && (
-            <div className="flex items-start gap-2 p-3 bg-primary/10 rounded-lg">
-              <CheckCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-              <div className="text-sm">
+            <div className="flex items-start gap-1.5 sm:gap-2 p-2 sm:p-2.5 bg-primary/10 rounded-lg">
+              <CheckCircle className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+              <div className="text-xs sm:text-sm">
                 <p className="font-medium text-primary">
                   {totalReferrals} {t.referral_friends_invited}
                 </p>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
                   {t.referral_continue_inviting}
                 </p>
               </div>

@@ -101,11 +101,11 @@ const MoodStats = ({ userId }: MoodStatsProps) => {
   if (moodData.length === 0) return null;
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <Card className="p-4 sm:p-6">
-        <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">{t.mood_distribution}</h3>
+    <div className="space-y-3 sm:space-y-4">
+      <Card className="p-3 sm:p-4">
+        <h3 className="text-sm sm:text-base font-semibold mb-2.5 sm:mb-3">{t.mood_distribution}</h3>
         
-        <div className="h-48 sm:h-64">
+        <div className="h-40 sm:h-48">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -114,7 +114,7 @@ const MoodStats = ({ userId }: MoodStatsProps) => {
                 cy="50%"
                 labelLine={false}
                 label={({ mood, count }) => `${mood} (${count})`}
-                outerRadius={window.innerWidth < 640 ? 60 : 80}
+                outerRadius={window.innerWidth < 640 ? 50 : 65}
                 fill="#8884d8"
                 dataKey="count"
               >
@@ -127,18 +127,18 @@ const MoodStats = ({ userId }: MoodStatsProps) => {
           </ResponsiveContainer>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 mt-4 sm:mt-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5 sm:gap-2 mt-3 sm:mt-4">
           {moodData.map((mood) => {
             const Icon = moodIcons[mood.mood] || Meh;
             return (
               <div 
                 key={mood.mood}
-                className="flex items-center gap-1.5 sm:gap-2 p-2 sm:p-3 rounded-lg bg-accent/50"
+                className="flex items-center gap-1 sm:gap-1.5 p-1.5 sm:p-2 rounded-lg bg-accent/50"
               >
-                <Icon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" style={{ color: moodColors[mood.mood] }} />
+                <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" style={{ color: moodColors[mood.mood] }} />
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm font-medium capitalize truncate">{mood.mood}</p>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground">
+                  <p className="text-[10px] sm:text-xs font-medium capitalize truncate">{mood.mood}</p>
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground">
                     {mood.count}x • {mood.avg_intensity}/5
                   </p>
                 </div>
@@ -149,20 +149,20 @@ const MoodStats = ({ userId }: MoodStatsProps) => {
       </Card>
 
       {timelineData.length > 0 && (
-        <Card className="p-4 sm:p-6">
-          <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">{t.mood_intensity_evolution}</h3>
+        <Card className="p-3 sm:p-4">
+          <h3 className="text-sm sm:text-base font-semibold mb-2.5 sm:mb-3">{t.mood_intensity_evolution}</h3>
           
-          <div className="h-48 sm:h-64">
+          <div className="h-40 sm:h-48">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={timelineData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis 
                   dataKey="date" 
-                  tick={{ fontSize: window.innerWidth < 640 ? 10 : 12 }}
+                  tick={{ fontSize: window.innerWidth < 640 ? 9 : 11 }}
                 />
                 <YAxis 
                   domain={[1, 5]} 
-                  tick={{ fontSize: window.innerWidth < 640 ? 10 : 12 }}
+                  tick={{ fontSize: window.innerWidth < 640 ? 9 : 11 }}
                 />
                 <Tooltip />
                 <Line 

@@ -47,22 +47,22 @@ export const TrendingHashtags = ({ onHashtagClick }: TrendingHashtagsProps) => {
   if (isLoading || !hashtags || hashtags.length === 0) return null;
 
   return (
-    <AnimatedCard className="p-4 sm:p-6" hover="none">
-      <div className="flex items-center gap-2 mb-4">
-        <TrendingUp className="w-5 h-5 text-primary" />
-        <h3 className="font-semibold text-lg">{t.hashtags_trending}</h3>
+    <AnimatedCard className="p-2.5 sm:p-3" hover="none">
+      <div className="flex items-center gap-1.5 mb-2.5 sm:mb-3">
+        <TrendingUp className="w-4 h-4 text-primary" />
+        <h3 className="font-semibold text-sm sm:text-base">{t.hashtags_trending}</h3>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5">
         {hashtags.map(({ tag, count }) => (
           <Badge 
             key={tag}
             variant="secondary"
-            className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+            className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors text-xs px-2 py-0.5"
             onClick={() => onHashtagClick?.(tag)}
           >
-            <Hash className="w-3 h-3 mr-1" />
+            <Hash className="w-3 h-3 mr-0.5" />
             {tag.replace('#', '')}
-            <span className="ml-1 text-xs opacity-70">({count})</span>
+            <span className="ml-1 text-[10px] opacity-70">({count})</span>
           </Badge>
         ))}
       </div>
