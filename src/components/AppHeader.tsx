@@ -82,18 +82,6 @@ const AppHeader = ({
           </div>
           
           <div className="flex items-center gap-1 sm:gap-1.5">
-            {/* Settings Button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0 hover:bg-accent"
-              aria-label={t.settings}
-              title={t.settings}
-              onClick={() => navigate('/settings/activity')}
-            >
-              <Settings className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
-            </Button>
-            
             {user ? <>
                 {/* Payment Failed Warning - Visible before opening dialog */}
                 {subscriptionStatus === 'past_due' && (

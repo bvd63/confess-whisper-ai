@@ -198,6 +198,16 @@ const Profile = () => {
               />
             </div>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-9 w-9 p-0 hover:bg-accent flex-shrink-0"
+            aria-label={t.settings}
+            title={t.settings}
+            onClick={() => navigate('/settings/activity')}
+          >
+            <Settings className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+          </Button>
         </div>
 
         <Tabs defaultValue="statistics" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
