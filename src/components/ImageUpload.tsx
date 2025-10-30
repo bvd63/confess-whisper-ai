@@ -97,7 +97,7 @@ const ImageUpload = ({ onImageUploaded, onImageRemoved, currentImage, disabled }
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5 sm:space-y-2">
       <input
         ref={fileInputRef}
         type="file"
@@ -113,16 +113,16 @@ const ImageUpload = ({ onImageUploaded, onImageRemoved, currentImage, disabled }
           variant="outline"
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled || uploading}
-          className="w-full gap-2 border-primary/20 hover:border-primary/40"
+          className="w-full gap-1.5 sm:gap-2 border-primary/20 hover:border-primary/40 h-9 sm:h-10 text-xs sm:text-sm"
         >
           {uploading ? (
             <>
-              <Upload className="w-4 h-4 animate-pulse" />
+              <Upload className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-pulse" />
               {t.image_uploading}
             </>
           ) : (
             <>
-              <ImageIcon className="w-4 h-4" />
+              <ImageIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               {t.image_add_optional}
             </>
           )}
@@ -132,7 +132,7 @@ const ImageUpload = ({ onImageUploaded, onImageRemoved, currentImage, disabled }
           <OptimizedImage
             src={preview}
             alt={t.ui_image_preview}
-            className="w-full h-48 object-cover"
+            className="w-full h-40 sm:h-48 object-cover"
             width={600}
             height={192}
             priority
@@ -143,9 +143,9 @@ const ImageUpload = ({ onImageUploaded, onImageRemoved, currentImage, disabled }
             size="icon"
             onClick={handleRemove}
             disabled={disabled}
-            className="absolute top-2 right-2"
+            className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 h-7 w-7 sm:h-8 sm:w-8"
           >
-            <X className="w-4 h-4" />
+            <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </Button>
         </div>
       )}
