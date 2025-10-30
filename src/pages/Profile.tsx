@@ -5,7 +5,7 @@ import { EnhancedButton } from "@/components/EnhancedButton";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { GradientText } from "@/components/GradientText";
 import { FloatingElement } from "@/components/FloatingElement";
-import { User, ArrowLeft, Settings, Plus, Crown, MessageCircle, Trophy, LogOut } from 'lucide-react';
+import { User, ArrowLeft, Settings, Plus, Crown, MessageCircle, Trophy, LogOut, RefreshCw } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppLayout from "@/components/AppLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -209,6 +209,28 @@ const Profile = () => {
             >
               <Settings className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
             </Button>
+            {profileData?.stripe_subscription_id && (
+              <Button
+                onClick={async () => {
+                  const { data, error } = await supabase.functions.invoke('fix-subscription-sync');
+                  if (error) throw error;
+                  if (data?.success) {
+                    toast({
+                      title: "Subscription Synced",
+                      description: data.message
+                    });
+                    setTimeout(() => window.location.reload(), 1500);
+                  }
+                }}
+                variant="ghost"
+                size="sm"
+                className="h-9 w-9 p-0 hover:bg-accent flex-shrink-0"
+                aria-label="Sync Subscription"
+                title="Sync Subscription"
+              >
+                <RefreshCw className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+              </Button>
+            )}
             <Button 
               onClick={async () => {
                 await supabase.auth.signOut();
@@ -236,13 +258,6 @@ const Profile = () => {
           </TabsList>
 
           <TabsContent value="statistics" className="space-y-6">
-            {/* Sync Subscription Button (temporary fix for webhook issues) */}
-            {profileData?.stripe_subscription_id && (
-              <div className="flex justify-end mb-4">
-                <SyncSubscriptionButton onSyncComplete={checkSubscription} />
-              </div>
-            )}
-            
             <FollowStats userId={user.id} />
             <UserAnalytics
               onUpgradeClick={() => {}}
