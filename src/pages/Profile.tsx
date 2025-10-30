@@ -5,7 +5,7 @@ import { EnhancedButton } from "@/components/EnhancedButton";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { GradientText } from "@/components/GradientText";
 import { FloatingElement } from "@/components/FloatingElement";
-import { User, ArrowLeft, Settings, Plus, Crown, MessageCircle, Trophy } from 'lucide-react';
+import { User, ArrowLeft, Settings, Plus, Crown, MessageCircle, Trophy, LogOut } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppLayout from "@/components/AppLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -200,20 +200,20 @@ const Profile = () => {
           </div>
           <div className="flex items-center gap-2">
             <Button 
-              data-testid="manage-subscription-btn"
-              onClick={() => setManageSubDialogOpen(true)} 
-              variant={subscriptionTier === 'free' ? 'default' : 'outline'}
+              onClick={async () => {
+                await supabase.auth.signOut();
+                navigate('/');
+                toast({
+                  title: t.success_logout,
+                  description: t.success_logout
+                });
+              }} 
+              variant="outline" 
               size="sm" 
-              className={`h-9 px-3 ${
-                subscriptionTier === 'free' 
-                  ? 'bg-purple-600 hover:bg-purple-700 text-white' 
-                  : 'border-primary/30 hover:bg-primary/10'
-              }`}
+              className="border-primary/30 hover:bg-primary/10 h-9 px-3"
             >
-              <Crown className={`w-4 h-4 ${subscriptionTier === 'free' && 'text-white animate-pulse'}`} />
-              <span className="hidden sm:inline text-xs ml-1 font-semibold">
-                {subscriptionTier === 'free' ? 'Subscription & Coins' : 'Manage'}
-              </span>
+              <LogOut className="w-4 h-4 sm:mr-1" />
+              <span className="hidden sm:inline text-xs">{t.logout}</span>
             </Button>
             <Button
               variant="ghost"
