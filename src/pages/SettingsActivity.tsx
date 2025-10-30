@@ -177,11 +177,6 @@ const SettingsActivity = () => {
           </div>
         </div>
 
-        {/* Breadcrumb */}
-        <div className="px-6 py-3 text-sm text-muted-foreground">
-          {t.settings} / {t.settings_activity_title}
-        </div>
-
         {/* Menu Sections */}
         {/* Rewards Hub - Separate Featured Card */}
         <Card className="mx-4 mt-4 overflow-hidden bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border-amber-500/20">
