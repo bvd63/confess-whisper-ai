@@ -198,16 +198,34 @@ const Profile = () => {
               />
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-9 w-9 p-0 hover:bg-accent flex-shrink-0"
-            aria-label={t.settings}
-            title={t.settings}
-            onClick={() => navigate('/settings/activity')}
-          >
-            <Settings className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button 
+              data-testid="manage-subscription-btn"
+              onClick={() => setManageSubDialogOpen(true)} 
+              variant={subscriptionTier === 'free' ? 'default' : 'outline'}
+              size="sm" 
+              className={`h-9 px-3 ${
+                subscriptionTier === 'free' 
+                  ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+                  : 'border-primary/30 hover:bg-primary/10'
+              }`}
+            >
+              <Crown className={`w-4 h-4 ${subscriptionTier === 'free' && 'text-white animate-pulse'}`} />
+              <span className="hidden sm:inline text-xs ml-1 font-semibold">
+                {subscriptionTier === 'free' ? 'Subscription & Coins' : 'Manage'}
+              </span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-9 w-9 p-0 hover:bg-accent flex-shrink-0"
+              aria-label={t.settings}
+              title={t.settings}
+              onClick={() => navigate('/settings/activity')}
+            >
+              <Settings className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+            </Button>
+          </div>
         </div>
 
         <Tabs defaultValue="statistics" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">

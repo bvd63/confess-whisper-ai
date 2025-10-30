@@ -83,34 +83,6 @@ const AppHeader = ({
           
           <div className="flex items-center gap-1 sm:gap-1.5">
             {user ? <>
-                {/* Payment Failed Warning - Visible before opening dialog */}
-                {subscriptionStatus === 'past_due' && (
-                  <Badge variant="destructive" className="h-6 px-2 text-[10px] sm:text-xs animate-pulse">
-                    Payment Failed - Update Required
-                  </Badge>
-                )}
-                
-                {/* Always show subscription button - Opens UnifiedShopDialog for subscriptions and coins */}
-                <Button 
-                  data-testid="manage-subscription-btn"
-                  onClick={() => onManageSubscription?.()} 
-                  variant={subscriptionTier === 'free' ? 'default' : 'outline'}
-                  size="sm" 
-                  className={cn(
-                    "h-8 px-2 sm:px-3",
-                    subscriptionTier === 'free' 
-                      ? "bg-purple-600 hover:bg-purple-700 text-white" 
-                      : "border-primary/30 hover:bg-primary/10"
-                  )}
-                >
-                  <Crown className={cn(
-                    "w-3 h-3 sm:w-3.5 sm:h-3.5",
-                    subscriptionTier === 'free' && "text-white animate-pulse"
-                  )} />
-                  <span className="hidden sm:inline text-xs ml-1 font-semibold">
-                    {subscriptionTier === 'free' ? 'Subscription & Coins' : 'Manage'}
-                  </span>
-                </Button>
                 <NotificationsDropdown />
                 <Button onClick={handleSignOut} variant="outline" size="sm" className="border-primary/30 hover:bg-primary/10 h-8 px-2 sm:px-3">
                   <LogOut className="w-3 h-3 sm:w-3.5 sm:h-3.5 sm:mr-1" />
