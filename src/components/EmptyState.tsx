@@ -23,21 +23,21 @@ const EmptyState = ({
   return (
     <Card 
       className={cn(
-        "p-8 sm:p-12 text-center animate-fade-in",
+        "p-6 sm:p-8 md:p-12 text-center animate-fade-in",
         "bg-gradient-to-br from-card via-card to-muted/20",
         "border-border/50",
         className
       )}
     >
-      <div className="inline-flex p-6 rounded-full bg-primary/10 mb-6 animate-bounce-subtle">
-        <Icon className="w-12 h-12 text-primary" />
+      <div className="inline-flex p-4 sm:p-5 rounded-full bg-primary/10 mb-4 sm:mb-5 animate-bounce-subtle">
+        <Icon className="w-10 h-10 sm:w-12 sm:h-12 text-primary" />
       </div>
       
-      <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-3">
+      <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-2 sm:mb-3">
         {title}
       </h3>
       
-      <p className="text-sm sm:text-base text-muted-foreground mb-6 max-w-md mx-auto">
+      <p className="text-xs sm:text-sm md:text-base text-muted-foreground mb-4 sm:mb-6 max-w-md mx-auto">
         {description}
       </p>
       
