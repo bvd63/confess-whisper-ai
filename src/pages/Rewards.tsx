@@ -221,26 +221,30 @@ const Rewards = () => {
                 <Flame className="w-4 h-4 text-orange-500" />
                 Streak Milestones
               </h4>
+              <p className="text-xs text-muted-foreground mb-3">
+                Keep your streak alive and earn bonus coins automatically!
+              </p>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-center justify-between">
-                  <span>3 days</span>
-                  <span className="font-semibold text-foreground">+10 coins</span>
+                <li className="flex items-center justify-between p-2 bg-background rounded-md">
+                  <span className="flex items-center gap-2">
+                    <span className="text-lg">🔥</span>
+                    <span>3 days streak</span>
+                  </span>
+                  <span className="font-semibold text-amber-500">+10 coins</span>
                 </li>
-                <li className="flex items-center justify-between">
-                  <span>5 days</span>
-                  <span className="font-semibold text-foreground">+25 coins</span>
+                <li className="flex items-center justify-between p-2 bg-background rounded-md">
+                  <span className="flex items-center gap-2">
+                    <span className="text-lg">🔥🔥</span>
+                    <span>5 days streak</span>
+                  </span>
+                  <span className="font-semibold text-orange-500">+20 coins</span>
                 </li>
-                <li className="flex items-center justify-between">
-                  <span>7 days</span>
-                  <span className="font-semibold text-foreground">+50 coins</span>
-                </li>
-                <li className="flex items-center justify-between">
-                  <span>14 days</span>
-                  <span className="font-semibold text-foreground">+100 coins</span>
-                </li>
-                <li className="flex items-center justify-between">
-                  <span>30 days</span>
-                  <span className="font-semibold text-foreground">+200 coins</span>
+                <li className="flex items-center justify-between p-2 bg-background rounded-md">
+                  <span className="flex items-center gap-2">
+                    <span className="text-lg">🔥🔥🔥</span>
+                    <span>7 days streak</span>
+                  </span>
+                  <span className="font-semibold text-red-500">+50 coins</span>
                 </li>
               </ul>
             </Card>
