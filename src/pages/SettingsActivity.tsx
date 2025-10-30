@@ -9,7 +9,7 @@ import { StreakDisplay } from '@/components/StreakDisplay';
 import { RateLimitIndicator } from '@/components/RateLimitIndicator';
 import { useConfessionRateLimit } from '@/hooks/useConfessionRateLimit';
 import { Card } from '@/components/ui/card';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStreakManager } from '@/hooks/useStreakManager';
 import { cn } from '@/lib/utils';
 
@@ -62,12 +62,18 @@ const SettingsActivity = () => {
   
   const [expandedSection, setExpandedSection] = useState<string | null>('streak');
 
+  // Navigate to auth if no user - use useEffect to avoid render errors
+  useEffect(() => {
+    if (!user) {
+      navigate('/auth');
+    }
+  }, [user, navigate]);
+
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
   };
 
   if (!user) {
-    navigate('/auth');
     return null;
   }
 
