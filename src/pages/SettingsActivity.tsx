@@ -193,6 +193,9 @@ const SettingsActivity = () => {
               onClick={() => navigate('/rewards')}
             />
           </div>
+          
+          {/* Visual Separator */}
+          <div className="h-3 bg-muted" />
 
           {/* Account Settings */}
           <MenuItem
