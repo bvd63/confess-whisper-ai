@@ -1879,9 +1879,14 @@ type Translations = {
   
   // Settings Activity
   settings_activity_title: string;
+  settings_activity_account: string;
+  settings_activity_notifications: string;
+  settings_activity_streak: string;
   settings_activity_streak_summary: string;
   settings_activity_current_streak: string;
   settings_activity_usage: string;
+  settings_activity_subscription: string;
+  settings_activity_support: string;
   
   // Additional Loading States
   loading_content: string;
@@ -3546,9 +3551,14 @@ export const translations: Record<Language, Translations> = {
     
     // Settings Activity
     settings_activity_title: "Settings & Activity",
+    settings_activity_account: "Account Settings",
+    settings_activity_notifications: "Notifications",
+    settings_activity_streak: "Streak & Rewards",
     settings_activity_streak_summary: "Streak Summary",
     settings_activity_current_streak: "Current Streak & Rewards",
     settings_activity_usage: "Usage",
+    settings_activity_subscription: "Subscription & Coins",
+    settings_activity_support: "Support & Legal",
     
     // Additional Loading States
     loading_content: "Loading content",
@@ -5323,9 +5333,14 @@ export const translations: Record<Language, Translations> = {
     
     // Settings Activity
     settings_activity_title: "Configuración y Actividad",
+    settings_activity_account: "Configuración de Cuenta",
+    settings_activity_notifications: "Notificaciones",
+    settings_activity_streak: "Racha y Recompensas",
     settings_activity_streak_summary: "Resumen de Racha",
     settings_activity_current_streak: "Racha Actual y Recompensas",
     settings_activity_usage: "Uso",
+    settings_activity_subscription: "Suscripción y Monedas",
+    settings_activity_support: "Soporte y Legal",
     
     // Additional Loading States
     loading_content: "Cargando contenido",
@@ -7100,9 +7115,14 @@ export const translations: Record<Language, Translations> = {
     
     // Settings Activity
     settings_activity_title: "Einstellungen & Aktivität",
+    settings_activity_account: "Kontoeinstellungen",
+    settings_activity_notifications: "Benachrichtigungen",
+    settings_activity_streak: "Streak & Belohnungen",
     settings_activity_streak_summary: "Streak-Zusammenfassung",
     settings_activity_current_streak: "Aktuelle Streak & Belohnungen",
     settings_activity_usage: "Nutzung",
+    settings_activity_subscription: "Abonnement & Münzen",
+    settings_activity_support: "Support & Rechtliches",
     
     // Additional Loading States
     loading_content: "Inhalt wird geladen",

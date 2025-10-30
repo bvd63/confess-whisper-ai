@@ -99,7 +99,12 @@ export interface Translations {
   
   // Settings Activity
   settings_activity_title: string;
+  settings_activity_account: string;
+  settings_activity_notifications: string;
+  settings_activity_streak: string;
   settings_activity_streak_summary: string;
   settings_activity_current_streak: string;
   settings_activity_usage: string;
+  settings_activity_subscription: string;
+  settings_activity_support: string;
 }
