@@ -29,10 +29,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 import { RateLimitIndicator } from "@/components/RateLimitIndicator";
 import { useConfessionRateLimit } from "@/hooks/useConfessionRateLimit";
-import { useKarma } from "@/hooks/useKarma";
 import { QuickActions } from "@/components/QuickActions";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
-import { KarmaDisplay } from "@/components/KarmaDisplay";
 import { Loader2 } from "lucide-react";
 import { SubscriptionCard } from "@/components/SubscriptionCard";
 import { Button } from "@/components/ui/button";
@@ -266,12 +264,6 @@ const Index = () => {
           </div>
         )}
 
-        {/* Karma Display */}
-        {user && (
-          <div className="mb-4">
-            <KarmaDisplay userId={user.id} variant="full" />
-          </div>
-        )}
 
         {/* VIP Upgrade Card - Show only if not VIP */}
         {user && !isPremium && (

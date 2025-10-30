@@ -1868,12 +1868,6 @@ type Translations = {
   sort_most_liked: string;
   sort_most_commented: string;
   
-  // Karma
-  karma_points: string;
-  karma_level: string;
-  karma_next_level: string;
-  karma_points_to_go: string;
-  
   // Search Suggestions
   search_recent: string;
   search_clear: string;
@@ -3534,12 +3528,6 @@ export const translations: Record<Language, Translations> = {
     
     // Common (continued)
     common_continue: "Continue",
-    
-    // Karma
-    karma_points: "Karma Points",
-    karma_level: "Level",
-    karma_next_level: "Next Level",
-    karma_points_to_go: "points to go",
     
     // Search Suggestions
     search_recent: "Recent",
@@ -5312,12 +5300,6 @@ export const translations: Record<Language, Translations> = {
     // Common (continued)
     common_continue: "Continuar",
     
-    // Karma
-    karma_points: "Puntos de Karma",
-    karma_level: "Nivel",
-    karma_next_level: "Próximo Nivel",
-    karma_points_to_go: "puntos para avanzar",
-    
     // Search Suggestions
     search_recent: "Recientes",
     search_clear: "Limpiar",
@@ -7088,12 +7070,6 @@ export const translations: Record<Language, Translations> = {
     
     // Common (continued)
     common_continue: "Weiter",
-    
-    // Karma
-    karma_points: "Karma-Punkte",
-    karma_level: "Level",
-    karma_next_level: "Nächstes Level",
-    karma_points_to_go: "Punkte bis dahin",
     
     // Search Suggestions
     search_recent: "Kürzlich",

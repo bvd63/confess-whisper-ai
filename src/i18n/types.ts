@@ -88,12 +88,6 @@ export interface Translations {
   // Theme
   theme_oled: string;
   
-  // Karma
-  karma_points: string;
-  karma_level: string;
-  karma_next_level: string;
-  karma_points_to_go: string;
-  
   // Search Suggestions
   search_recent: string;
   search_clear: string;
