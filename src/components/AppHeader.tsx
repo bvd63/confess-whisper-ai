@@ -6,7 +6,6 @@ import { Heart, PlusCircle, LogOut, Crown, User, LogIn, BookMarked, Users, Home,
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationsDropdown from "@/components/NotificationsDropdown";
 import CoinsDisplay from "@/components/CoinsDisplay";
-import CoinBalance from "@/components/coins/CoinBalance";
 import StreakCounter from "@/components/StreakCounter";
 import { SyncStatusIndicator } from "@/components/SyncStatusIndicator";
 import { Badge } from "@/components/ui/badge";
@@ -96,8 +95,6 @@ const AppHeader = ({
             </Button>
             
             {user ? <>
-                <CoinBalance onOpenShop={() => onManageSubscription?.('coins')} />
-                
                 {/* Payment Failed Warning - Visible before opening dialog */}
                 {subscriptionStatus === 'past_due' && (
                   <Badge variant="destructive" className="h-6 px-2 text-[10px] sm:text-xs animate-pulse">
