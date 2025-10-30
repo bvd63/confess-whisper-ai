@@ -1,4 +1,4 @@
-import { ArrowLeft, ChevronRight, User, Bell, Flame, HelpCircle } from 'lucide-react';
+import { ArrowLeft, ChevronRight, User, Bell, Flame, HelpCircle, Gift, UserX } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,10 @@ import { NotificationSettings as NotificationSettingsComponent } from '@/compone
 import { ProfileEditor } from '@/components/ProfileEditor';
 import { EmailDisplay } from '@/components/EmailDisplay';
 import { PasswordChange } from '@/components/PasswordChange';
+import { LogoutSection } from '@/components/settings/LogoutSection';
+import { DeleteAccountSection } from '@/components/settings/DeleteAccountSection';
+import ReferralSystem from '@/components/ReferralSystem';
+import BlockedUsers from '@/components/BlockedUsers';
 
 interface MenuItemProps {
   icon: React.ElementType;
@@ -198,6 +202,9 @@ const SettingsActivity = () => {
                   userId={user.id} 
                   passwordChangedAt={passwordChangedAt} 
                 />
+                
+                <LogoutSection />
+                <DeleteAccountSection userId={user.id} userEmail={user.email || ''} />
               </div>
             )}
           </MenuItem>
@@ -265,6 +272,26 @@ const SettingsActivity = () => {
                 isLimited={isLimited}
               />
             </div>
+          </MenuItem>
+
+          {/* Referral Program */}
+          <MenuItem
+            icon={Gift}
+            title={t.referral_program_section}
+            expanded={expandedSection === 'referral'}
+            onClick={() => toggleSection('referral')}
+          >
+            <ReferralSystem userId={user.id} />
+          </MenuItem>
+
+          {/* Privacy & Blocking */}
+          <MenuItem
+            icon={UserX}
+            title={t.blocked_users_section}
+            expanded={expandedSection === 'blocking'}
+            onClick={() => toggleSection('blocking')}
+          >
+            <BlockedUsers userId={user.id} />
           </MenuItem>
 
           {/* Support & Legal */}
