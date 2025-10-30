@@ -23,16 +23,16 @@ const PrivacyPolicy = () => {
         </div>
       </header>
 
-      <main className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
-        <Card className="p-4 sm:p-6 md:p-8 bg-card border-border/50 shadow-[var(--shadow-soft)]">
-          <div className="flex items-center gap-3 mb-6">
-            <Shield className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl font-bold">{t.privacy_title}</h1>
+      <main className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-5 md:py-6">
+        <Card className="p-4 sm:p-5 md:p-6 bg-card border-border/50 shadow-[var(--shadow-soft)]">
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
+            <Shield className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">{t.privacy_title}</h1>
           </div>
 
-          <div className="space-y-6 text-muted-foreground">
+          <div className="space-y-4 sm:space-y-5 text-muted-foreground">
             <section>
-              <h2 className="text-xl font-semibold text-foreground mb-3">{t.privacy_section_1}</h2>
+              <h2 className="text-base sm:text-lg md:text-xl font-semibold text-foreground mb-2 sm:mb-3">{t.privacy_section_1}</h2>
               <p>{t.privacy_section_1_text}</p>
               <ul className="list-disc pl-6 mt-2 space-y-1">
                 {t.privacy_section_1_list.split(' • ').map((item, i) => (
@@ -42,22 +42,22 @@ const PrivacyPolicy = () => {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground mb-3">{t.privacy_section_2}</h2>
+              <h2 className="text-base sm:text-lg md:text-xl font-semibold text-foreground mb-2 sm:mb-3">{t.privacy_section_2}</h2>
               <p>{t.privacy_section_2_text}</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground mb-3">{t.privacy_section_3}</h2>
+              <h2 className="text-base sm:text-lg md:text-xl font-semibold text-foreground mb-2 sm:mb-3">{t.privacy_section_3}</h2>
               <p>{t.privacy_section_3_text}</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground mb-3">{t.privacy_section_4}</h2>
+              <h2 className="text-base sm:text-lg md:text-xl font-semibold text-foreground mb-2 sm:mb-3">{t.privacy_section_4}</h2>
               <p>{t.privacy_section_4_text}</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground mb-3">{t.privacy_section_5}</h2>
+              <h2 className="text-base sm:text-lg md:text-xl font-semibold text-foreground mb-2 sm:mb-3">{t.privacy_section_5}</h2>
               <p>{t.privacy_section_5_text}</p>
               <ul className="list-disc pl-6 mt-2 space-y-1">
                 {t.privacy_section_5_list.split(' • ').map((item, i) => (
@@ -67,12 +67,12 @@ const PrivacyPolicy = () => {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground mb-3">{t.privacy_section_6}</h2>
+              <h2 className="text-base sm:text-lg md:text-xl font-semibold text-foreground mb-2 sm:mb-3">{t.privacy_section_6}</h2>
               <p>{t.privacy_section_6_text}</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground mb-3">{t.privacy_section_7}</h2>
+              <h2 className="text-base sm:text-lg md:text-xl font-semibold text-foreground mb-2 sm:mb-3">{t.privacy_section_7}</h2>
               <p>{t.privacy_section_7_text}</p>
             </section>
 

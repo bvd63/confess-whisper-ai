@@ -191,7 +191,7 @@ const Index = () => {
             <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
             <span className="text-xs sm:text-sm text-primary font-medium">{t.anonymous_secure}</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-3 px-4">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-3 px-4">
             <GradientText variant="hero">
               {t.home_title}
             </GradientText>
@@ -253,7 +253,7 @@ const Index = () => {
           <TrustBadges />
         
         <div className="text-center py-6 border-t border-border/50">
-          <div className="flex justify-center gap-6 text-sm text-muted-foreground">
+          <div className="flex justify-center gap-4 sm:gap-6 text-sm text-muted-foreground">
             <button
               onClick={() => navigate('/privacy')}
               className="hover:text-primary transition-colors"

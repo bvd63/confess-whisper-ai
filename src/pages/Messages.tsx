@@ -196,9 +196,9 @@ const Messages = () => {
         <AnimatedCard className="overflow-hidden" hover="none">
           {!selectedConversation ? (
             <div>
-              <div className="p-4 sm:p-6 border-b border-border glass"
+              <div className="p-4 sm:p-5 border-b border-border glass"
               >
-                <h1 className="text-xl sm:text-2xl font-bold">{t.messages_title}</h1>
+                <h1 className="text-lg sm:text-xl md:text-2xl font-bold">{t.messages_title}</h1>
               </div>
               <ConversationList
                 currentUserId={user.id}

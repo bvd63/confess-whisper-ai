@@ -231,11 +231,11 @@ export default function Admin() {
   return (
     <>
     <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
-      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
-        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-          <Shield className="h-8 w-8 text-primary" />
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-5">
+        <div className="flex items-center gap-2 mb-4 sm:mb-5">
+          <Shield className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
           <div className="flex-1">
-            <h1 className="text-2xl font-bold">{t('Admin Dashboard')}</h1>
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold">{t('Admin Dashboard')}</h1>
             <p className="text-sm text-muted-foreground">{t('Manage content moderation and reports')}</p>
           </div>
           <div className="flex gap-2">
@@ -270,12 +270,12 @@ export default function Admin() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="queue" className="space-y-4">
+          <TabsContent value="queue" className="space-y-3 sm:space-y-4">
             {queueLoading ? (
-              <Card className="p-6 text-center text-muted-foreground">{t('Loading...')}</Card>
+              <Card className="p-4 sm:p-5 text-center text-muted-foreground">{t('Loading...')}</Card>
             ) : queueItems && queueItems.length > 0 ? (
               queueItems.map((item) => (
-                <Card key={item.id} className="p-6">
+                <Card key={item.id} className="p-4 sm:p-5">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
@@ -322,12 +322,12 @@ export default function Admin() {
             )}
           </TabsContent>
 
-          <TabsContent value="reports" className="space-y-4">
+          <TabsContent value="reports" className="space-y-3 sm:space-y-4">
             {reportsLoading ? (
-              <Card className="p-6 text-center text-muted-foreground">{t('Loading...')}</Card>
+              <Card className="p-4 sm:p-5 text-center text-muted-foreground">{t('Loading...')}</Card>
             ) : reports && reports.length > 0 ? (
               reports.map((report: any) => (
-                <Card key={report.id} className="p-6">
+                <Card key={report.id} className="p-4 sm:p-5">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
