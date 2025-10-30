@@ -80,63 +80,63 @@ const ReferralSystem = ({ userId }: ReferralSystemProps) => {
   const pendingCount = referrals.filter(r => r.status === 'pending').length;
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <Gift className="w-6 h-6 text-primary" />
-        <h3 className="text-lg font-semibold">{t.referral_program_title}</h3>
+    <Card className="p-4 sm:p-5">
+      <div className="flex items-center gap-1.5 sm:gap-2 mb-4 sm:mb-5">
+        <Gift className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+        <h3 className="text-base sm:text-lg font-semibold">{t.referral_program_title}</h3>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="text-center p-4 bg-primary/10 rounded-lg">
-          <Users className="w-6 h-6 text-primary mx-auto mb-2" />
-          <p className="text-2xl font-bold text-primary">{completedCount}</p>
-          <p className="text-xs text-muted-foreground">{t.referral_completed}</p>
+      <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4 sm:mb-5">
+        <div className="text-center p-2.5 sm:p-3 bg-primary/10 rounded-lg">
+          <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary mx-auto mb-1 sm:mb-1.5" />
+          <p className="text-lg sm:text-xl font-bold text-primary">{completedCount}</p>
+          <p className="text-[9px] sm:text-xs text-muted-foreground">{t.referral_completed}</p>
         </div>
-        <div className="text-center p-4 bg-muted/50 rounded-lg">
-          <Users className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
-          <p className="text-2xl font-bold">{pendingCount}</p>
-          <p className="text-xs text-muted-foreground">{t.referral_pending}</p>
+        <div className="text-center p-2.5 sm:p-3 bg-muted/50 rounded-lg">
+          <Users className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground mx-auto mb-1 sm:mb-1.5" />
+          <p className="text-lg sm:text-xl font-bold">{pendingCount}</p>
+          <p className="text-[9px] sm:text-xs text-muted-foreground">{t.referral_pending}</p>
         </div>
-        <div className="text-center p-4 bg-yellow-500/10 rounded-lg">
-          <Coins className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
-          <p className="text-2xl font-bold text-yellow-600">{totalRewards}</p>
-          <p className="text-xs text-muted-foreground">{t.referral_coins_earned}</p>
+        <div className="text-center p-2.5 sm:p-3 bg-yellow-500/10 rounded-lg">
+          <Coins className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500 mx-auto mb-1 sm:mb-1.5" />
+          <p className="text-lg sm:text-xl font-bold text-yellow-600">{totalRewards}</p>
+          <p className="text-[9px] sm:text-xs text-muted-foreground">{t.referral_coins_earned}</p>
         </div>
       </div>
 
       {/* Referral Code */}
-      <div className="space-y-3">
-        <label className="text-sm font-medium">{t.referral_your_code}</label>
-        <div className="flex gap-2">
+      <div className="space-y-2 sm:space-y-2.5">
+        <label className="text-xs sm:text-sm font-medium">{t.referral_your_code}</label>
+        <div className="flex gap-1.5 sm:gap-2">
           <Input
             value={referralCode}
             readOnly
-            className="font-mono text-center text-lg font-bold"
+            className="font-mono text-center text-base sm:text-lg font-bold h-9 sm:h-10"
           />
           <Button
             onClick={copyReferralLink}
             variant="outline"
             size="icon"
-            className="flex-shrink-0"
+            className="flex-shrink-0 h-9 w-9 sm:h-10 sm:w-10"
           >
             {copied ? (
-              <Check className="w-4 h-4 text-green-500" />
+              <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500" />
             ) : (
-              <Copy className="w-4 h-4" />
+              <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             )}
           </Button>
         </div>
       </div>
 
       {/* Benefits */}
-      <div className="mt-6 p-4 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20">
-        <p className="text-sm font-semibold mb-3 flex items-center gap-2">
-          <Coins className="w-4 h-4 text-yellow-600" />
+      <div className="mt-4 sm:mt-5 p-3 sm:p-3.5 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg border border-yellow-500/20">
+        <p className="text-xs sm:text-sm font-semibold mb-2 sm:mb-2.5 flex items-center gap-1.5 sm:gap-2">
+          <Coins className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-600" />
           {t.referral_benefits}
         </p>
-        <ul className="text-xs text-muted-foreground space-y-2">
-          <li className="flex items-start gap-2">
+        <ul className="text-[10px] sm:text-xs text-muted-foreground space-y-1 sm:space-y-1.5">
+          <li className="flex items-start gap-1.5 sm:gap-2">
             <span className="text-yellow-600">•</span>
             <span>{t.referral_reward_referrer}</span>
           </li>

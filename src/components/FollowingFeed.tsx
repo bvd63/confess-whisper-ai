@@ -80,10 +80,10 @@ const FollowingFeed = ({ userId, isPremium, onUpgradeClick }: FollowingFeedProps
 
   if (confessions.length === 0) {
     return (
-      <Card className="p-8 text-center">
-        <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-        <h3 className="text-lg font-semibold mb-2">{t.following_feed_start}</h3>
-        <p className="text-sm text-muted-foreground">
+      <Card className="p-6 sm:p-8 text-center">
+        <Users className="w-10 h-10 sm:w-12 sm:h-12 text-muted-foreground mx-auto mb-3 sm:mb-4" />
+        <h3 className="text-base sm:text-lg font-semibold mb-1.5 sm:mb-2">{t.following_feed_start}</h3>
+        <p className="text-xs sm:text-sm text-muted-foreground">
           {t.following_start_following}
         </p>
       </Card>
@@ -91,11 +91,11 @@ const FollowingFeed = ({ userId, isPremium, onUpgradeClick }: FollowingFeedProps
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 mb-4">
-        <Users className="w-5 h-5 text-primary" />
-        <h2 className="text-xl font-semibold">{t.following_feed_start}</h2>
-        <span className="text-sm text-muted-foreground">
+    <div className="space-y-3 sm:space-y-4">
+      <div className="flex items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+        <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+        <h2 className="text-base sm:text-xl font-semibold">{t.following_feed_start}</h2>
+        <span className="text-xs sm:text-sm text-muted-foreground">
           ({confessions.length} {t.following_count_confessions})
         </span>
       </div>

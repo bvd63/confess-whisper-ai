@@ -21,9 +21,9 @@ export const LoadingQuotes = () => {
   }, [quotes.length]);
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4 p-8">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      <p className="text-sm text-muted-foreground text-center italic animate-fade-in">
+    <div className="flex flex-col items-center justify-center gap-2.5 sm:gap-3 p-4 sm:p-6">
+      <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin text-primary" />
+      <p className="text-xs sm:text-sm text-muted-foreground text-center italic animate-fade-in">
         {quotes[currentQuote]}
       </p>
     </div>
