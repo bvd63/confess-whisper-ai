@@ -5,7 +5,7 @@ import { EnhancedButton } from "@/components/EnhancedButton";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { GradientText } from "@/components/GradientText";
 import { FloatingElement } from "@/components/FloatingElement";
-import { User, Sparkles, CheckCircle, Bell } from "lucide-react";
+import { User, Bell } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppLayout from "@/components/AppLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -217,31 +217,6 @@ const Profile = () => {
             )}
             
             <FollowStats userId={user.id} />
-
-            {/* VIP Benefits Card */}
-            {isVIP && (
-              <AnimatedCard className="p-4 bg-gradient-to-br from-purple-500/10 to-purple-500/5 border-purple-500/20">
-                <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-purple-500" />
-                  VIP Benefits Active
-                </h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span>Unlimited daily confessions</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span>Priority AI responses</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span>No ads experience</span>
-                  </div>
-                </div>
-              </AnimatedCard>
-            )}
-            
             <UserAnalytics
               onUpgradeClick={() => {}}
               onManageSubscription={() => setManageSubDialogOpen(true)}
