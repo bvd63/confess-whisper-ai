@@ -199,7 +199,7 @@ export const NotificationSettings = () => {
             disabled={!settings.dailyReminder || isInteractionDisabled}
           />
           <Switch
-            checked={settings.dailyReminder}
+            checked={settings.dailyReminder ?? false}
             onCheckedChange={(v) => updateSetting('dailyReminder', v)}
             disabled={isInteractionDisabled}
             aria-label={t.daily_reminder}
@@ -219,7 +219,7 @@ export const NotificationSettings = () => {
           </div>
         </div>
         <Switch
-          checked={settings.streakReminder}
+          checked={settings.streakReminder ?? false}
           onCheckedChange={(v) => updateSetting('streakReminder', v)}
           disabled={isInteractionDisabled}
           aria-label={t.streak_protection}

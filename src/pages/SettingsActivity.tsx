@@ -1,4 +1,5 @@
-import { ArrowLeft, ChevronRight, User, Bell, Flame, CreditCard, HelpCircle } from 'lucide-react';
+import { ArrowLeft, ChevronRight, User, Bell, Flame, HelpCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -13,6 +14,9 @@ import { useState, useEffect } from 'react';
 import { useStreakManager } from '@/hooks/useStreakManager';
 import { cn } from '@/lib/utils';
 import { NotificationSettings as NotificationSettingsComponent } from '@/components/NotificationSettings';
+import { ProfileEditor } from '@/components/ProfileEditor';
+import { EmailDisplay } from '@/components/EmailDisplay';
+import { PasswordChange } from '@/components/PasswordChange';
 
 interface MenuItemProps {
   icon: React.ElementType;
@@ -60,6 +64,14 @@ const SettingsActivity = () => {
     isLimited 
   } = useConfessionRateLimit();
   const { streakData } = useStreakManager();
+  const [profileData, setProfileData] = useState<{
+    nickname: string | null;
+    bio: string | null;
+    handle: string | null;
+    privacy_mode: string | null;
+    nickname_updated_at: string | null;
+  } | null>(null);
+  const [passwordChangedAt, setPasswordChangedAt] = useState<string | null>(null);
   
   const [expandedSection, setExpandedSection] = useState<string | null>('streak');
 
@@ -70,8 +82,59 @@ const SettingsActivity = () => {
     }
   }, [isLoading, user, navigate]);
 
+  // Load profile data
+  useEffect(() => {
+    const loadProfileData = async () => {
+      if (!user?.id) return;
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('nickname, bio, handle, privacy_mode, nickname_updated_at, password_changed_at')
+          .eq('user_id', user.id)
+          .single();
+        if (error) throw error;
+        setProfileData({
+          nickname: data.nickname,
+          bio: data.bio,
+          handle: data.handle,
+          privacy_mode: data.privacy_mode,
+          nickname_updated_at: data.nickname_updated_at,
+        });
+        setPasswordChangedAt(data.password_changed_at || null);
+      } catch (error) {
+        console.error('Error loading profile data:', error);
+      }
+    };
+    
+    if (user?.id) {
+      loadProfileData();
+    }
+  }, [user?.id]);
+
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
+  };
+
+  const reloadProfileData = async () => {
+    if (!user?.id) return;
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('nickname, bio, handle, privacy_mode, nickname_updated_at, password_changed_at')
+        .eq('user_id', user.id)
+        .single();
+      if (error) throw error;
+      setProfileData({
+        nickname: data.nickname,
+        bio: data.bio,
+        handle: data.handle,
+        privacy_mode: data.privacy_mode,
+        nickname_updated_at: data.nickname_updated_at,
+      });
+      setPasswordChangedAt(data.password_changed_at || null);
+    } catch (error) {
+      console.error('Error reloading profile data:', error);
+    }
   };
 
   if (isLoading) {
@@ -120,8 +183,24 @@ const SettingsActivity = () => {
           <MenuItem
             icon={User}
             title={t.settings_activity_account}
-            onClick={() => navigate('/profile')}
-          />
+            expanded={expandedSection === 'account'}
+            onClick={() => toggleSection('account')}
+          >
+            {profileData && (
+              <div className="space-y-4">
+                <ProfileEditor 
+                  userId={user.id} 
+                  currentProfile={profileData} 
+                  onUpdate={reloadProfileData} 
+                />
+                <EmailDisplay email={user.email || ''} />
+                <PasswordChange 
+                  userId={user.id} 
+                  passwordChangedAt={passwordChangedAt} 
+                />
+              </div>
+            )}
+          </MenuItem>
 
           {/* Notifications */}
           <MenuItem
