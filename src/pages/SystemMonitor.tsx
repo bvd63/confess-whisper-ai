@@ -7,7 +7,7 @@ import { Navigate } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ManageSubscriptionDialog } from '@/components/ManageSubscriptionDialog';
+import { UnifiedShopDialog } from '@/components/UnifiedShopDialog';
 import { useState } from 'react';
 
 const SystemMonitor = () => {
@@ -23,7 +23,7 @@ const SystemMonitor = () => {
           <div className="text-center">Loading...</div>
         </div>
       </AppLayout>
-      <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+      <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
       </>
     );
   }
@@ -45,7 +45,7 @@ const SystemMonitor = () => {
           </Alert>
         </div>
       </AppLayout>
-      <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+      <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
       </>
     );
   }
@@ -69,7 +69,7 @@ const SystemMonitor = () => {
         </Tabs>
       </div>
     </AppLayout>
-    <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
     </>
   );
 };

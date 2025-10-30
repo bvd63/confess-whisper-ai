@@ -232,7 +232,7 @@ export const UnifiedShopDialog = ({
           </p>
         </DialogHeader>
 
-        <Tabs defaultValue={defaultTab} className="w-full">
+        <Tabs key={`${open}-${defaultTab}`} defaultValue={defaultTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6">
             <TabsTrigger value="subscriptions" className="flex items-center gap-2">
               <Crown className="w-4 h-4" />

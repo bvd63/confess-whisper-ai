@@ -48,6 +48,7 @@ const Index = () => {
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
   
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
+  const [dialogDefaultTab, setDialogDefaultTab] = useState<'subscriptions' | 'coins'>('subscriptions');
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showSecondaryContent, setShowSecondaryContent] = useState(false);
   const { toast } = useToast();
@@ -161,7 +162,10 @@ const Index = () => {
       <SEOHead />
       <AppLayout 
         onNewConfession={handleNewConfession}
-        onManageSubscription={() => setManageSubDialogOpen(true)}
+        onManageSubscription={(defaultTab = 'subscriptions') => {
+          setDialogDefaultTab(defaultTab);
+          setManageSubDialogOpen(true);
+        }}
       >
       {/* Pull to Refresh Indicator */}
       {pullDistance > 0 && (
@@ -284,6 +288,7 @@ const Index = () => {
       <UnifiedShopDialog
         open={manageSubDialogOpen}
         onOpenChange={setManageSubDialogOpen}
+        defaultTab={dialogDefaultTab}
       />
 
       {/* Quick Actions FAB */}

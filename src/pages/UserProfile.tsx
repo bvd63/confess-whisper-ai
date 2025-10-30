@@ -10,7 +10,7 @@ import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { TierProfileCard } from "@/components/TierProfileCard";
-import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
+import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 
 interface UserProfileData {
   nickname: string;
@@ -80,7 +80,7 @@ const UserProfile = () => {
         </div>
         <InstagramBottomNav />
       </AppLayout>
-      <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+      <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
       </>
     );
   }
@@ -94,7 +94,7 @@ const UserProfile = () => {
         </div>
         <InstagramBottomNav />
       </AppLayout>
-      <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+      <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
       </>
     );
   }
@@ -125,7 +125,7 @@ const UserProfile = () => {
       
       <InstagramBottomNav />
     </AppLayout>
-    <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
     </>
   );
 };

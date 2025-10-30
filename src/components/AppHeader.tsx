@@ -26,7 +26,7 @@ import { useState } from "react";
 
 interface AppHeaderProps {
   onNewConfession?: () => void;
-  onManageSubscription?: () => void;
+  onManageSubscription?: (defaultTab?: 'subscriptions' | 'coins') => void;
 }
 const AppHeader = ({
   onNewConfession,
@@ -105,7 +105,7 @@ const AppHeader = ({
             </DropdownMenu>
             
             {user ? <>
-                <CoinBalance />
+                <CoinBalance onOpenShop={() => onManageSubscription?.('coins')} />
                 
                 {/* Payment Failed Warning - Visible before opening dialog */}
                 {subscriptionStatus === 'past_due' && (

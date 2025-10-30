@@ -11,7 +11,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useNavigate } from 'react-router-dom';
 import { Shield, AlertTriangle, CheckCircle, XCircle, Eye } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { ManageSubscriptionDialog } from '@/components/ManageSubscriptionDialog';
+import { UnifiedShopDialog } from '@/components/UnifiedShopDialog';
 
 export default function Admin() {
   const { user } = useCurrentUser();
@@ -389,7 +389,7 @@ export default function Admin() {
         </Tabs>
       </div>
     </AppLayout>
-    <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
     </>
   );
 }

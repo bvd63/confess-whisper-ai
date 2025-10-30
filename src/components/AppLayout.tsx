@@ -4,7 +4,7 @@ import AppHeader from "./AppHeader";
 interface AppLayoutProps {
   children: ReactNode;
   onNewConfession?: () => void;
-  onManageSubscription?: () => void;
+  onManageSubscription?: (defaultTab?: 'subscriptions' | 'coins') => void;
 }
 
 const AppLayout = ({ children, onNewConfession, onManageSubscription }: AppLayoutProps) => {

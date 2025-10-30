@@ -15,7 +15,7 @@ import ConfessionCard from "@/components/ConfessionCard";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
+import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import VirtualizedConfessions from "@/components/VirtualizedConfessions";
 
 const CommunityDetail = () => {
@@ -68,7 +68,7 @@ const CommunityDetail = () => {
       <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
         <LoadingQuotes />
       </AppLayout>
-      <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+      <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
       </>
     );
   }
@@ -84,7 +84,7 @@ const CommunityDetail = () => {
           </Button>
         </div>
       </AppLayout>
-      <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+      <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
       </>
     );
   }
@@ -189,7 +189,7 @@ const CommunityDetail = () => {
         </div>
       </div>
     </AppLayout>
-    <ManageSubscriptionDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
     </>
   );
 };
