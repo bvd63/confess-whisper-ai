@@ -90,7 +90,7 @@ const AppHeader = ({
             
             {/* Settings Icon - Always visible */}
             <Button
-              onClick={() => navigate('/notification-settings')}
+              onClick={() => navigate('/settings/notifications')}
               variant="ghost"
               size="sm"
               className="h-8 w-8 p-0 hover:bg-accent"

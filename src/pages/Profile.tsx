@@ -334,7 +334,7 @@ const Profile = () => {
                   </p>
                 </div>
                 <EnhancedButton
-                  onClick={() => navigate('/notification-settings')}
+                  onClick={() => navigate('/settings/notifications')}
                   variant="outline"
                   size="sm"
                 >

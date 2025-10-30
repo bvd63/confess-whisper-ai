@@ -222,7 +222,7 @@ const Index = () => {
             <Button
               size="sm"
               variant="outline"
-              onClick={() => navigate('/notification-settings')}
+              onClick={() => navigate('/settings/notifications')}
               className="border-yellow-400/40 hover:bg-yellow-400/10 text-yellow-800 dark:text-yellow-300 whitespace-nowrap"
             >
               {t.enable_now}
