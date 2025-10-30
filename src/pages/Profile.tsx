@@ -5,7 +5,7 @@ import { EnhancedButton } from "@/components/EnhancedButton";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { GradientText } from "@/components/GradientText";
 import { FloatingElement } from "@/components/FloatingElement";
-import { User, Settings, Sparkles, CheckCircle, Bell } from "lucide-react";
+import { User, Sparkles, CheckCircle, Bell } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppLayout from "@/components/AppLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,26 +18,18 @@ import UserConfessionsList from "@/components/UserConfessionsList";
 import UserAnalytics from "@/components/UserAnalytics";
 import BadgesDisplay from "@/components/BadgesDisplay";
 import StreakCounter from "@/components/StreakCounter";
-import UserPreferences from "@/components/UserPreferences";
 import WordCloudViz from "@/components/WordCloudViz";
 import FollowStats from "@/components/FollowStats";
 import StreakReminder from "@/components/StreakReminder";
 import AchievementToast from "@/components/AchievementToast";
 import { ReferralRewardNotification } from "@/components/ReferralRewardNotification";
 import AdvancedAnalytics from "@/components/AdvancedAnalytics";
-import ExportDataDialog from "@/components/ExportDataDialog";
 import ModerationPanel from "@/components/ModerationPanel";
 import CoinsDisplay from "@/components/CoinsDisplay";
-import BlockedUsers from "@/components/BlockedUsers";
-import ReferralSystem from "@/components/ReferralSystem";
 
 import { useUserRole } from "@/hooks/useUserRole";
 import { useToast } from "@/hooks/use-toast";
-import { NicknameSettings } from "@/components/NicknameSettings";
-import { EmailDisplay } from "@/components/EmailDisplay";
-import { PasswordChange } from "@/components/PasswordChange";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
-import { ProfileEditor } from "@/components/ProfileEditor";
 import { FlairsShop } from "@/components/FlairsShop";
 import { FlairsShopButton } from "@/components/FlairsShopButton";
 import { ManageSubscriptionDialog } from "@/components/ManageSubscriptionDialog";
@@ -69,18 +61,10 @@ const Profile = () => {
   useMessageNotifications({
     userId: user?.id
   });
-  const [exportDialogOpen, setExportDialogOpen] = useState(false);
-  
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [flairsDialogOpen, setFlairsDialogOpen] = useState(false);
-  const [passwordChangedAt, setPasswordChangedAt] = useState<string | null>(null);
   const [profileData, setProfileData] = useState<{
-    nickname: string | null;
-    bio: string | null;
-    handle: string | null;
-    privacy_mode: string | null;
-    nickname_updated_at: string | null;
     stripe_subscription_id: string | null;
   } | null>(null);
   const {
@@ -99,7 +83,7 @@ const Profile = () => {
       const {
         data,
         error
-      } = await supabase.from('profiles').select('nickname, bio, handle, privacy_mode, nickname_updated_at, stripe_subscription_id').eq('user_id', user.id).single();
+      } = await supabase.from('profiles').select('stripe_subscription_id').eq('user_id', user.id).single();
       if (error) throw error;
       setProfileData(data);
     } catch (error) {
@@ -107,26 +91,11 @@ const Profile = () => {
     }
   }, [user?.id]);
 
-  const loadPasswordChangedAt = useCallback(async () => {
-    if (!user?.id) return;
-    try {
-      const {
-        data,
-        error
-      } = await supabase.from('profiles').select('password_changed_at').eq('user_id', user.id).single();
-      if (error) throw error;
-      setPasswordChangedAt(data?.password_changed_at || null);
-    } catch (error) {
-      console.error('Error loading password changed date:', error);
-    }
-  }, [user?.id]);
-
   useEffect(() => {
     if (user?.id) {
-      loadPasswordChangedAt();
       loadProfileData();
     }
-  }, [user?.id, loadPasswordChangedAt, loadProfileData]);
+  }, [user?.id, loadProfileData]);
 
   const handleManageSubscription = async () => {
     const STRIPE_VIP_CHECKOUT_URL = "https://buy.stripe.com/test_9B600lewecBRavrfcG0Ba00";
@@ -235,11 +204,10 @@ const Profile = () => {
         <StreakReminder userId={user.id} />
 
         <Tabs defaultValue="statistics" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
-          <TabsList className={`grid w-full ${isModerator ? 'grid-cols-3 sm:grid-cols-5' : 'grid-cols-3 sm:grid-cols-4'} h-auto`}>
+          <TabsList className={`grid w-full ${isModerator ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3'} h-auto`}>
             <TabsTrigger value="statistics" className="text-xs sm:text-sm py-2">{t.profile_statistics}</TabsTrigger>
             <TabsTrigger value="confessions" className="text-xs sm:text-sm py-2">{t.profile_my_confessions}</TabsTrigger>
             <TabsTrigger value="achievements" className="text-xs sm:text-sm py-2">{t.profile_achievements}</TabsTrigger>
-            <TabsTrigger value="settings" className="text-xs sm:text-sm py-2">{t.profile_settings}</TabsTrigger>
             {isModerator && <TabsTrigger value="moderation" className="text-xs sm:text-sm py-2">{t.profile_moderation}</TabsTrigger>}
           </TabsList>
 
@@ -304,41 +272,6 @@ const Profile = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="settings" className="space-y-6">
-            {profileData && <ProfileEditor userId={user.id} currentProfile={profileData} onUpdate={loadProfileData} />}
-            <EmailDisplay email={user.email || ''} />
-            <PasswordChange userId={user.id} passwordChangedAt={passwordChangedAt} />
-            <UserPreferences userId={user.id} />
-            
-            <ReferralSystem userId={user.id} />
-            <BlockedUsers userId={user.id} />
-            
-            {/* Auth Testing Dashboard Link */}
-            <AnimatedCard hover="lift" glass className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-sm flex items-center gap-2">
-                    <Settings className="w-4 h-4" />
-                    Security Testing
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Manage sessions and test authentication features
-                  </p>
-                </div>
-                <EnhancedButton
-                  onClick={() => navigate('/auth-test')}
-                  variant="outline"
-                  size="sm"
-                >
-                  Open Dashboard
-                </EnhancedButton>
-              </div>
-            </AnimatedCard>
-            
-            <Button onClick={() => setExportDialogOpen(true)} variant="outline" className="w-full">
-              {t.export_my_data}
-            </Button>
-          </TabsContent>
 
           {isModerator && <TabsContent value="moderation" className="space-y-6">
               <ModerationPanel userId={user.id} />
@@ -347,8 +280,6 @@ const Profile = () => {
       </div>
       
       <InstagramBottomNav />
-
-      <ExportDataDialog open={exportDialogOpen} onOpenChange={setExportDialogOpen} userId={user.id} />
 
       <ManageSubscriptionDialog
         open={manageSubDialogOpen} 
