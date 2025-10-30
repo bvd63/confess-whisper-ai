@@ -64,18 +64,18 @@ const Communities = () => {
     <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
       <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
         {/* Header */}
-        <div className="mb-8 text-center">
-          <Users className="w-16 h-16 mx-auto mb-4 text-primary" />
-          <h1 className="text-4xl font-bold mb-2">
+        <div className="mb-6 sm:mb-8 text-center">
+          <Users className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-3 sm:mb-4 text-primary" />
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1.5 sm:mb-2">
             <GradientText variant="hero">{t.communities_title}</GradientText>
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             {t.communities_discover}
           </p>
         </div>
 
         {/* Filters & Search */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="flex flex-col md:flex-row gap-2.5 sm:gap-3 md:gap-4 mb-4 sm:mb-5 md:mb-6">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input

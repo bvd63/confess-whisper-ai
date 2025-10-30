@@ -102,8 +102,8 @@ const Explore = () => {
 
     if (!confessions || confessions.length === 0) {
       return (
-        <AnimatedCard className="p-8 text-center" hover="none">
-          <p className="text-muted-foreground">{t.ui_no_confessions}</p>
+        <AnimatedCard className="p-6 sm:p-8 text-center" hover="none">
+          <p className="text-sm sm:text-base text-muted-foreground">{t.ui_no_confessions}</p>
         </AnimatedCard>
       );
     }
@@ -161,8 +161,8 @@ const Explore = () => {
         ref={containerRef}
         className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24"
       >
-        <div className="mb-6 sm:mb-8 animate-fade-in">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2">
+        <div className="mb-4 sm:mb-6 md:mb-8 animate-fade-in">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-1.5 sm:mb-2">
             <GradientText variant="hero">{t.explore}</GradientText>
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground">{t.recommended_for_you}</p>
@@ -171,12 +171,12 @@ const Explore = () => {
         <SearchUsersCard />
 
         {/* Communities Section */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-5">
           <CommunitiesSectionExpanded />
         </div>
 
         {/* Trending Hashtags */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-5">
           <TrendingHashtags />
         </div>
 

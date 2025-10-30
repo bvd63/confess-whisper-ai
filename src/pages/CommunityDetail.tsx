@@ -104,14 +104,14 @@ const CommunityDetail = () => {
           {t.communities_back}
         </Button>
 
-        <AnimatedCard glass hover="lift" className="p-6 mb-6">
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-4xl">
+        <AnimatedCard glass hover="lift" className="p-4 sm:p-5 md:p-6 mb-4 sm:mb-5 md:mb-6">
+          <div className="flex items-start justify-between mb-3 sm:mb-4">
+            <div className="flex items-center gap-2.5 sm:gap-3 md:gap-4">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-primary/10 flex items-center justify-center text-2xl sm:text-3xl md:text-4xl">
                 {community.icon || "🌟"}
               </div>
               <div>
-                <h1 className="text-2xl font-bold mb-1">
+                <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-0.5 sm:mb-1">
                   <GradientText variant="hero">{community.name}</GradientText>
                 </h1>
                 <Badge variant="outline">{community.category}</Badge>
@@ -134,10 +134,10 @@ const CommunityDetail = () => {
           </div>
 
           {community.description && (
-            <p className="text-muted-foreground mb-4">{community.description}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">{community.description}</p>
           )}
 
-          <div className="flex items-center gap-6 text-sm text-muted-foreground">
+          <div className="flex items-center gap-3 sm:gap-4 md:gap-5 text-xs sm:text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4" />
               <span>{community.member_count.toLocaleString()} {t.communities_members}</span>
@@ -150,8 +150,8 @@ const CommunityDetail = () => {
         </AnimatedCard>
 
         {/* Confessions */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">{t.communities_recent}</h2>
+        <div className="space-y-3 sm:space-y-4">
+          <h2 className="text-base sm:text-lg md:text-xl font-semibold">{t.communities_recent}</h2>
           {loadingConfessions ? (
             <LoadingQuotes />
           ) : confessions && confessions.length > 15 ? (
@@ -173,9 +173,9 @@ const CommunityDetail = () => {
               </div>
             ))
           ) : (
-            <AnimatedCard glass className="p-8 text-center">
-              <MessageSquare className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-muted-foreground">
+            <AnimatedCard glass className="p-6 sm:p-8 text-center">
+              <MessageSquare className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-muted-foreground" />
+              <p className="text-sm sm:text-base text-muted-foreground">
                 {t.communities_no_posts}
               </p>
               <Button 

@@ -30,18 +30,18 @@ const NearbyConfessions = () => {
     <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
       <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
         {/* Header */}
-        <div className="mb-8 text-center">
-          <MapPin className="w-16 h-16 mx-auto mb-4 text-primary" />
-          <h1 className="text-4xl font-bold mb-2">
+        <div className="mb-6 sm:mb-8 text-center">
+          <MapPin className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-3 sm:mb-4 text-primary" />
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1.5 sm:mb-2">
             <GradientText variant="hero">{t.nearby_title}</GradientText>
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             {t.nearby_discover}
           </p>
         </div>
 
         {/* Controls */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="flex flex-col md:flex-row gap-2.5 sm:gap-3 md:gap-4 mb-4 sm:mb-5 md:mb-6">
           <Select value={radius.toString()} onValueChange={(v) => setRadius(Number(v))}>
             <SelectTrigger className="w-full md:w-48">
               <SelectValue placeholder={t.nearby_radius} />
@@ -80,10 +80,10 @@ const NearbyConfessions = () => {
         {isLoading ? (
           <LoadingQuotes />
         ) : error ? (
-          <AnimatedCard glass className="p-8 text-center">
-            <MapPin className="w-12 h-12 mx-auto mb-4 text-destructive" />
-            <p className="text-muted-foreground mb-2">{t.nearby_no_location}</p>
-            <p className="text-sm text-muted-foreground">
+          <AnimatedCard glass className="p-6 sm:p-8 text-center">
+            <MapPin className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-destructive" />
+            <p className="text-sm sm:text-base text-muted-foreground mb-1.5 sm:mb-2">{t.nearby_no_location}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">
               {t.nearby_enable_location}
             </p>
           </AnimatedCard>
@@ -122,10 +122,10 @@ const NearbyConfessions = () => {
             ))}
           </div>
         ) : (
-          <AnimatedCard glass className="p-8 text-center">
-            <MapPin className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-            <p className="text-muted-foreground mb-2">{t.nearby_none_found}</p>
-            <p className="text-sm text-muted-foreground">
+          <AnimatedCard glass className="p-6 sm:p-8 text-center">
+            <MapPin className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-muted-foreground" />
+            <p className="text-sm sm:text-base text-muted-foreground mb-1.5 sm:mb-2">{t.nearby_none_found}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">
               {t.nearby_increase_radius}
             </p>
           </AnimatedCard>
