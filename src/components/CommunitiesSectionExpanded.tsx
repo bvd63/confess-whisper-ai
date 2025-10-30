@@ -252,7 +252,7 @@ export const CommunitiesSectionExpanded = () => {
               <TrendingUp className="w-4 h-4" />
               {t.communities_trending}
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {trendingCommunities.map(community => <CommunityCard key={community.id} community={community} />)}
             </div>
           </div>}
@@ -262,8 +262,8 @@ export const CommunitiesSectionExpanded = () => {
             <h3 className="text-sm font-semibold mb-3">
               {t.search_results}
             </h3>
-            {filteredCommunities && filteredCommunities.length > 0 ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredCommunities.slice(0, 6).map(community => <CommunityCard key={community.id} community={community} />)}
+            {filteredCommunities && filteredCommunities.length > 0 ? <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {filteredCommunities.slice(0, 8).map(community => <CommunityCard key={community.id} community={community} />)}
               </div> : <p className="text-center text-muted-foreground py-4">
                 {t.communities_not_found}
               </p>}
@@ -274,8 +274,8 @@ export const CommunitiesSectionExpanded = () => {
             <h3 className="text-sm font-semibold mb-3">
               {t.communities_all}
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {communities.slice(0, 6).map(community => <CommunityCard key={community.id} community={community} />)}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {communities.slice(0, 8).map(community => <CommunityCard key={community.id} community={community} />)}
             </div>
           </div>}
       </CardContent>
