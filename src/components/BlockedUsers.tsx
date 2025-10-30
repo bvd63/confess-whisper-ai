@@ -71,34 +71,34 @@ const BlockedUsers = ({ userId }: BlockedUsersProps) => {
 
   if (blockedUsers.length === 0) {
     return (
-      <Card className="p-6 text-center">
-        <UserX className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-        <p className="text-muted-foreground">{t.blocked_users_none}</p>
+      <Card className="p-4 sm:p-5 text-center">
+        <UserX className="w-10 h-10 sm:w-12 sm:h-12 text-muted-foreground mx-auto mb-3 sm:mb-4" />
+        <p className="text-sm sm:text-base text-muted-foreground">{t.blocked_users_none}</p>
       </Card>
     );
   }
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center gap-2 mb-4">
-        <UserX className="w-5 h-5 text-primary" />
-        <h3 className="text-lg font-semibold">{t.blocked_users_title}</h3>
+    <Card className="p-3 sm:p-4">
+      <div className="flex items-center gap-1.5 sm:gap-2 mb-2.5 sm:mb-3">
+        <UserX className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+        <h3 className="text-sm sm:text-base font-semibold">{t.blocked_users_title}</h3>
         <span className="text-sm text-muted-foreground ml-auto">
           {blockedUsers.length}
         </span>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1.5 sm:space-y-2">
         {blockedUsers.map((block) => (
           <div
             key={block.id}
-            className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+            className="flex items-center justify-between p-2 sm:p-2.5 bg-muted/50 rounded-lg"
           >
-            <div className="flex items-center gap-3">
-              <UserX className="w-4 h-4 text-muted-foreground" />
+            <div className="flex items-center gap-2 sm:gap-2.5">
+              <UserX className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />
               <div>
-                <p className="text-sm font-medium">{t.blocked_users_anonymous}</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs sm:text-sm font-medium">{t.blocked_users_anonymous}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">
                   {t.blocked_on} {new Date(block.created_at).toLocaleDateString(
                     language === 'es' ? 'es-ES' : language === 'de' ? 'de-DE' : 'en-US'
                   )}
@@ -110,9 +110,9 @@ const BlockedUsers = ({ userId }: BlockedUsersProps) => {
               variant="ghost"
               size="sm"
               onClick={() => unblockUser(block.id)}
-              className="text-destructive hover:text-destructive"
+              className="text-destructive hover:text-destructive h-8 w-8 p-0"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </Button>
           </div>
         ))}

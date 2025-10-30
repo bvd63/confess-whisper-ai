@@ -86,24 +86,24 @@ const AdvancedAnalytics = ({
   };
   const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', '#8b5cf6', '#f59e0b', '#10b981', '#ec4899'];
   if (loading) return null;
-  return <div className="space-y-6">
+  return <div className="space-y-3 sm:space-y-4">
       {/* Engagement Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {engagementData.map(stat => <Card key={stat.name} className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">{stat.name}</h3>
-              <stat.icon className="w-5 h-5" style={{
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
+        {engagementData.map(stat => <Card key={stat.name} className="p-3 sm:p-4">
+            <div className="flex items-center justify-between mb-2 sm:mb-3">
+              <h3 className="text-sm sm:text-base font-semibold">{stat.name}</h3>
+              <stat.icon className="w-4 h-4 sm:w-5 sm:h-5" style={{
             color: stat.color
           }} />
             </div>
-            <div className="space-y-2">
-              <div className="flex items-baseline gap-2">
-                <p className="text-3xl font-bold" style={{
+            <div className="space-y-1 sm:space-y-1.5">
+              <div className="flex items-baseline gap-1.5 sm:gap-2">
+                <p className="text-2xl sm:text-3xl font-bold" style={{
               color: stat.color
             }}>{stat.value}</p>
-                <span className="text-sm text-muted-foreground">total</span>
+                <span className="text-xs sm:text-sm text-muted-foreground">total</span>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 {t.analytics_average_per}: <span className="font-semibold">{stat.avg}</span>
               </p>
             </div>
@@ -111,10 +111,10 @@ const AdvancedAnalytics = ({
       </div>
 
       {/* Timeline Chart */}
-      <Card className="p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Calendar className="w-5 h-5 text-primary" />
-          <h3 className="text-lg font-semibold">{t.analytics_activity_7days}</h3>
+      <Card className="p-3 sm:p-4">
+        <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+          <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+          <h3 className="text-sm sm:text-base font-semibold">{t.analytics_activity_7days}</h3>
         </div>
         <ResponsiveContainer width="100%" height={200}>
           <LineChart data={timelineData}>

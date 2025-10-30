@@ -43,27 +43,27 @@ export const AdvancedFilters = ({ onFilterChange, communities = [] }: AdvancedFi
   const hasActiveFilters = filters.dateFrom || filters.dateTo || filters.communityId;
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mb-4">
-      <div className="flex items-center justify-between p-3 border rounded-lg bg-background/50">
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mb-3 sm:mb-4">
+      <div className="flex items-center justify-between p-2 sm:p-2.5 border rounded-lg bg-background/50">
         <CollapsibleTrigger asChild>
-          <Button variant="ghost" size="sm" className="gap-2">
+          <Button variant="ghost" size="sm" className="gap-1.5 h-8 text-xs sm:text-sm">
             {t.filters_title}
-            <ChevronDown className={cn("h-4 w-4 transition-transform", isOpen && "rotate-180")} />
+            <ChevronDown className={cn("h-3 w-3 sm:h-4 sm:w-4 transition-transform", isOpen && "rotate-180")} />
           </Button>
         </CollapsibleTrigger>
         {hasActiveFilters && (
-          <Button variant="ghost" size="sm" onClick={clearFilters} className="gap-1">
+          <Button variant="ghost" size="sm" onClick={clearFilters} className="gap-1 h-8 text-xs sm:text-sm">
             <X className="h-3 w-3" />
             {t.filters_clear}
           </Button>
         )}
       </div>
 
-      <CollapsibleContent className="space-y-3 p-3 border border-t-0 rounded-b-lg bg-background/30">
+      <CollapsibleContent className="space-y-2 sm:space-y-2.5 p-2 sm:p-2.5 border border-t-0 rounded-b-lg bg-background/30">
         {/* Date Range */}
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
           <div>
-            <label className="text-xs text-muted-foreground mb-1 block">{t.filters_date}</label>
+            <label className="text-[10px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1 block">{t.filters_date}</label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" size="sm" className="w-full justify-start text-left font-normal">
@@ -82,7 +82,7 @@ export const AdvancedFilters = ({ onFilterChange, communities = [] }: AdvancedFi
             </Popover>
           </div>
           <div>
-            <label className="text-xs text-muted-foreground mb-1 block">&nbsp;</label>
+            <label className="text-[10px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1 block">&nbsp;</label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" size="sm" className="w-full justify-start text-left font-normal">
@@ -105,7 +105,7 @@ export const AdvancedFilters = ({ onFilterChange, communities = [] }: AdvancedFi
         {/* Community Filter */}
         {communities.length > 0 && (
           <div>
-            <label className="text-xs text-muted-foreground mb-1 block">{t.filters_community}</label>
+            <label className="text-[10px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1 block">{t.filters_community}</label>
             <Select
               value={filters.communityId ?? 'all'}
               onValueChange={(value) => updateFilters({ communityId: value === 'all' ? undefined : value })}
@@ -127,7 +127,7 @@ export const AdvancedFilters = ({ onFilterChange, communities = [] }: AdvancedFi
 
         {/* Sort By */}
         <div>
-          <label className="text-xs text-muted-foreground mb-1 block">{t.filters_sort}</label>
+          <label className="text-[10px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1 block">{t.filters_sort}</label>
           <Select
             value={filters.sortBy}
             onValueChange={(value) => updateFilters({ sortBy: value as FilterState['sortBy'] })}

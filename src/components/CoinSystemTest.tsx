@@ -119,17 +119,17 @@ export const CoinSystemTest = () => {
 
   if (!user) {
     return (
-      <Card className="p-6 text-center">
-        <p className="text-muted-foreground">Please log in to run tests</p>
+      <Card className="p-4 sm:p-5 text-center">
+        <p className="text-sm sm:text-base text-muted-foreground">Please log in to run tests</p>
       </Card>
     );
   }
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <Coins className="w-5 h-5 text-yellow-600" />
+    <Card className="p-3 sm:p-4">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <h3 className="text-sm sm:text-base font-semibold flex items-center gap-1.5 sm:gap-2">
+          <Coins className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600" />
           Coin System Testing
         </h3>
         <Button onClick={runTests} disabled={testing}>
@@ -138,26 +138,26 @@ export const CoinSystemTest = () => {
       </div>
 
       {results.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-2.5">
           {results.map((result, index) => (
             <div
               key={index}
-              className="flex items-start gap-3 p-3 rounded-lg border"
+              className="flex items-start gap-2 sm:gap-2.5 p-2 sm:p-2.5 rounded-lg border"
             >
               {result.passed ? (
-                <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 flex-shrink-0" />
               ) : (
-                <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 flex-shrink-0" />
               )}
               <div className="flex-1">
-                <p className="font-medium text-sm">{result.name}</p>
-                <p className="text-xs text-muted-foreground">{result.message}</p>
+                <p className="font-medium text-xs sm:text-sm">{result.name}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">{result.message}</p>
               </div>
             </div>
           ))}
           
-          <div className="mt-4 p-4 bg-primary/10 rounded-lg">
-            <p className="text-sm font-semibold">
+          <div className="mt-3 sm:mt-4 p-2.5 sm:p-3 bg-primary/10 rounded-lg">
+            <p className="text-xs sm:text-sm font-semibold">
               ✅ Score: {results.filter(r => r.passed).length}/{results.length} tests passed
             </p>
           </div>
