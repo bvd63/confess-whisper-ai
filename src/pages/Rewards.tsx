@@ -1,4 +1,5 @@
 import { ArrowLeft, Trophy, Flame, Gift, Award, Star, Coins as CoinsIcon, TrendingUp } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -36,6 +37,8 @@ const Rewards = () => {
   const [searchParams] = useSearchParams();
   const initialTab = searchParams.get('tab') || 'overview';
   const [flairsShopOpen, setFlairsShopOpen] = useState(false);
+  const [badgesCount, setBadgesCount] = useState(0);
+  const [referralsCount, setReferralsCount] = useState(0);
 
   // Navigate to auth if no user
   useEffect(() => {
@@ -43,6 +46,42 @@ const Rewards = () => {
       navigate('/auth');
     }
   }, [isLoading, user, navigate]);
+
+  // Load badges count
+  useEffect(() => {
+    const loadBadgesCount = async () => {
+      if (!user?.id) return;
+      try {
+        const { count } = await supabase
+          .from('user_badges')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .or('expires_at.is.null,expires_at.gt.now()');
+        setBadgesCount(count || 0);
+      } catch (error) {
+        console.error('Error loading badges count:', error);
+      }
+    };
+    loadBadgesCount();
+  }, [user?.id]);
+
+  // Load referrals count
+  useEffect(() => {
+    const loadReferralsCount = async () => {
+      if (!user?.id) return;
+      try {
+        const { count } = await supabase
+          .from('referrals')
+          .select('*', { count: 'exact', head: true })
+          .eq('referrer_user_id', user.id)
+          .eq('status', 'completed');
+        setReferralsCount(count || 0);
+      } catch (error) {
+        console.error('Error loading referrals count:', error);
+      }
+    };
+    loadReferralsCount();
+  }, [user?.id]);
 
   if (isLoading) {
     return null;
@@ -160,9 +199,8 @@ const Rewards = () => {
                   <Award className="w-4 h-4 text-muted-foreground" />
                   <span className="text-xs text-muted-foreground">Badges Earned</span>
                 </div>
-                <p className="text-2xl font-bold">
-                  {/* This will be populated from BadgesDisplay */}
-                  -
+                <p className="text-2xl font-bold text-amber-500">
+                  {badgesCount}
                 </p>
               </Card>
 
@@ -171,9 +209,8 @@ const Rewards = () => {
                   <Gift className="w-4 h-4 text-muted-foreground" />
                   <span className="text-xs text-muted-foreground">Referrals</span>
                 </div>
-                <p className="text-2xl font-bold">
-                  {/* This will be populated from ReferralSystem */}
-                  -
+                <p className="text-2xl font-bold text-green-500">
+                  {referralsCount}
                 </p>
               </Card>
             </div>
