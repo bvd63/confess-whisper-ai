@@ -45,7 +45,6 @@ import { useTrialExpiryCheck } from "@/hooks/useTrialExpiryCheck";
 import { SyncSubscriptionButton } from "@/components/SyncSubscriptionButton";
 import { VIPBadge } from "@/components/VIPBadge";
 
-import { SubscriptionStatusCard } from "@/components/SubscriptionStatusCard";
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 const Profile = () => {
   const navigate = useNavigate();
@@ -306,9 +305,6 @@ const Profile = () => {
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">
-            {/* Subscription Status Card - Prominent display */}
-            <SubscriptionStatusCard />
-            
             {profileData && <ProfileEditor userId={user.id} currentProfile={profileData} onUpdate={loadProfileData} />}
             <EmailDisplay email={user.email || ''} />
             <PasswordChange userId={user.id} passwordChangedAt={passwordChangedAt} />
