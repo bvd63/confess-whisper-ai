@@ -184,13 +184,6 @@ const SettingsActivity = () => {
             </div>
           </MenuItem>
 
-          {/* Subscription & Coins */}
-          <MenuItem
-            icon={CreditCard}
-            title={t.settings_activity_subscription}
-            onClick={() => navigate('/profile')}
-          />
-
           {/* Support & Legal */}
           <MenuItem
             icon={HelpCircle}
