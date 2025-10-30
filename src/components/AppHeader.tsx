@@ -100,7 +100,7 @@ const AppHeader = ({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuItem onClick={() => navigate('/settings/activity')}>
-                  <Sparkles className="mr-2 h-4 w-4" />
+                  <Settings className="mr-2 h-4 w-4" />
                   {t.settings_activity_title}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/settings/notifications')}>
