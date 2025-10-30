@@ -199,6 +199,16 @@ const Profile = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-9 w-9 p-0 hover:bg-accent flex-shrink-0"
+              aria-label={t.settings}
+              title={t.settings}
+              onClick={() => navigate('/settings/activity')}
+            >
+              <Settings className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+            </Button>
             <Button 
               onClick={async () => {
                 await supabase.auth.signOut();
@@ -214,16 +224,6 @@ const Profile = () => {
             >
               <LogOut className="w-4 h-4 sm:mr-1" />
               <span className="hidden sm:inline text-xs">{t.logout}</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-9 w-9 p-0 hover:bg-accent flex-shrink-0"
-              aria-label={t.settings}
-              title={t.settings}
-              onClick={() => navigate('/settings/activity')}
-            >
-              <Settings className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
             </Button>
           </div>
         </div>
