@@ -78,7 +78,7 @@ const SettingsActivity = () => {
   } | null>(null);
   const [passwordChangedAt, setPasswordChangedAt] = useState<string | null>(null);
   
-  const [expandedSection, setExpandedSection] = useState<string | null>('streak');
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
   // Navigate to auth if no user - use useEffect to avoid render errors
   useEffect(() => {
