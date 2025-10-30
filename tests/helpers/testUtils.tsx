@@ -3,6 +3,7 @@ import { ReactElement, ReactNode } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LanguageProvider } from '@/contexts/LanguageContext';
+import { ConfirmProvider } from '@/contexts/ConfirmContext';
 import { vi } from 'vitest';
 
 // Type for chainable Supabase query mock
@@ -155,7 +156,9 @@ export function AllTheProviders({ children }: AllTheProvidersProps) {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <LanguageProvider>
-          {children}
+          <ConfirmProvider>
+            {children}
+          </ConfirmProvider>
         </LanguageProvider>
       </BrowserRouter>
     </QueryClientProvider>

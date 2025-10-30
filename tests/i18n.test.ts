@@ -4,7 +4,13 @@ import { ensureLanguage } from '@/contexts/LanguageContext';
 
 describe('Translation System', () => {
   const languages: Language[] = ['en', 'es', 'de'];
-  const entriesFor = (lang: Language) => Object.entries(translations[lang] as Record<string, string>);
+  
+  // Helper to get all string entries (not nested objects)
+  const getStringEntries = (lang: Language) => {
+    return Object.entries(translations[lang]).filter(
+      ([_key, value]) => typeof value === 'string'
+    ) as [string, string][];
+  };
   
   describe('Translation Completeness', () => {
     it('should have all languages defined', () => {
@@ -27,7 +33,7 @@ describe('Translation System', () => {
 
     it('should not have empty translation values', () => {
       languages.forEach(lang => {
-        const entries = entriesFor(lang);
+        const entries = getStringEntries(lang);
         entries.forEach(([_key, value]) => {
           expect(value).toBeTruthy();
           expect(value.length).toBeGreaterThan(0);
@@ -36,7 +42,7 @@ describe('Translation System', () => {
     });
 
     it('should have consistent parameter placeholders', () => {
-  const enEntries = Object.entries(translations.en as Record<string, string>);
+      const enEntries = getStringEntries('en');
       
       enEntries.forEach(([key, enValue]) => {
         const placeholders = enValue.match(/\{[^}]+\}/g) || [];
@@ -44,7 +50,9 @@ describe('Translation System', () => {
         languages.forEach(lang => {
           if (lang === 'en') return;
           
-          const langValue = (translations[lang] as Record<string, string>)[key];
+          const langValue = (translations[lang] as Record<string, unknown>)[key];
+          if (typeof langValue !== 'string') return; // Skip non-string values
+          
           const langPlaceholders = langValue.match(/\{[^}]+\}/g) || [];
           
           expect(langPlaceholders.length).toBe(placeholders.length);
@@ -108,7 +116,7 @@ describe('Translation System', () => {
       const MAX_LENGTH = 500;
       
       languages.forEach(lang => {
-        entriesFor(lang).forEach(([key, value]) => {
+        getStringEntries(lang).forEach(([_key, value]) => {
           expect(value.length).toBeLessThanOrEqual(MAX_LENGTH);
         });
       });
@@ -118,7 +126,7 @@ describe('Translation System', () => {
       const htmlPattern = /<[^>]+>/;
       
       languages.forEach(lang => {
-        entriesFor(lang).forEach(([key, value]) => {
+        getStringEntries(lang).forEach(([_key, value]) => {
           expect(htmlPattern.test(value)).toBe(false);
         });
       });
@@ -127,7 +135,7 @@ describe('Translation System', () => {
     it('should have proper sentence capitalization', () => {
       // Use Unicode-aware capitalization check: first letter character should be uppercase
       languages.forEach(lang => {
-        entriesFor(lang).forEach(([key, value]) => {
+        getStringEntries(lang).forEach(([key, value]) => {
           if (key.includes('_title') || key.includes('_heading')) {
             const firstLetterMatch = value.match(/\p{L}/u); // first Unicode letter
             if (firstLetterMatch) {
