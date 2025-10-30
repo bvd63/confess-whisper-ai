@@ -13,44 +13,50 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Users, Plus, TrendingUp, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-
 export const CommunitiesSectionExpanded = () => {
-  const { t } = useLanguage();
+  const {
+    t
+  } = useLanguage();
   const navigate = useNavigate();
-  const { user } = useCurrentUser();
-  const { communities, isLoading, createCommunity, isCreating } = useCommunities("all");
-  const { toast } = useToast();
+  const {
+    user
+  } = useCurrentUser();
+  const {
+    communities,
+    isLoading,
+    createCommunity,
+    isCreating
+  } = useCommunities("all");
+  const {
+    toast
+  } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-
   const [newCommunity, setNewCommunity] = useState({
     name: "",
     description: "",
     category: "general",
     slug: "",
-    is_private: false,
+    is_private: false
   });
-
   const handleCreateCommunity = () => {
     if (!user) {
       navigate('/auth');
       toast({
         title: t.error_auth,
         description: t.error_auth,
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     if (!newCommunity.name || !newCommunity.slug) {
       toast({
         title: t.error_generic,
         description: t.validation_required_field,
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     createCommunity(newCommunity);
     setIsCreateOpen(false);
     setNewCommunity({
@@ -58,23 +64,15 @@ export const CommunitiesSectionExpanded = () => {
       description: "",
       category: "general",
       slug: "",
-      is_private: false,
+      is_private: false
     });
   };
-
-  const filteredCommunities = communities?.filter(c =>
-    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredCommunities = communities?.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.description?.toLowerCase().includes(searchQuery.toLowerCase()));
 
   // Get trending communities (sorted by member count)
-  const trendingCommunities = communities
-    ?.sort((a, b) => b.member_count - a.member_count)
-    .slice(0, 3);
-
+  const trendingCommunities = communities?.sort((a, b) => b.member_count - a.member_count).slice(0, 3);
   if (isLoading) {
-    return (
-      <Card className="mb-6">
+    return <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="w-5 h-5" />
@@ -86,21 +84,19 @@ export const CommunitiesSectionExpanded = () => {
             {t.loading}
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>;
   }
 
   // Show empty state when no communities exist
   if (!isLoading && (!communities || communities.length === 0)) {
-    return (
-      <Card className="mb-6">
+    return <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="w-5 h-5" />
             {t.home_communities_title}
           </CardTitle>
         </CardHeader>
-        <CardContent className="text-center py-8">
+        <CardContent className="text-center py-0">
           <Users className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
           <h3 className="text-lg font-semibold mb-2">{t.communities_empty_title || "No Communities Yet"}</h3>
           <p className="text-muted-foreground mb-4 max-w-md mx-auto">
@@ -108,12 +104,12 @@ export const CommunitiesSectionExpanded = () => {
           </p>
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <Button onClick={() => {
-              if (!user) {
-                navigate('/auth');
-                return;
-              }
-              setIsCreateOpen(true);
-            }}>
+            if (!user) {
+              navigate('/auth');
+              return;
+            }
+            setIsCreateOpen(true);
+          }}>
               <Plus className="w-4 h-4 mr-2" />
               {t.communities_create}
             </Button>
@@ -124,31 +120,31 @@ export const CommunitiesSectionExpanded = () => {
               <div className="space-y-4">
                 <div>
                   <Label>{t.communities_name} *</Label>
-                  <Input
-                    value={newCommunity.name}
-                    onChange={(e) => setNewCommunity({ ...newCommunity, name: e.target.value })}
-                    placeholder={t.communities_name}
-                  />
+                  <Input value={newCommunity.name} onChange={e => setNewCommunity({
+                  ...newCommunity,
+                  name: e.target.value
+                })} placeholder={t.communities_name} />
                 </div>
                 <div>
                   <Label>{t.communities_slug_label}</Label>
-                  <Input
-                    value={newCommunity.slug}
-                    onChange={(e) => setNewCommunity({ ...newCommunity, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
-                    placeholder={t.communities_slug_placeholder}
-                  />
+                  <Input value={newCommunity.slug} onChange={e => setNewCommunity({
+                  ...newCommunity,
+                  slug: e.target.value.toLowerCase().replace(/\s+/g, '-')
+                })} placeholder={t.communities_slug_placeholder} />
                 </div>
                 <div>
                   <Label>{t.communities_description}</Label>
-                  <Textarea
-                    value={newCommunity.description}
-                    onChange={(e) => setNewCommunity({ ...newCommunity, description: e.target.value })}
-                    placeholder={t.communities_description}
-                  />
+                  <Textarea value={newCommunity.description} onChange={e => setNewCommunity({
+                  ...newCommunity,
+                  description: e.target.value
+                })} placeholder={t.communities_description} />
                 </div>
                 <div>
                   <Label>{t.communities_category}</Label>
-                  <Select value={newCommunity.category} onValueChange={(v) => setNewCommunity({ ...newCommunity, category: v })}>
+                  <Select value={newCommunity.category} onValueChange={v => setNewCommunity({
+                  ...newCommunity,
+                  category: v
+                })}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -167,23 +163,16 @@ export const CommunitiesSectionExpanded = () => {
             </DialogContent>
           </Dialog>
         </CardContent>
-      </Card>
-    );
+      </Card>;
   }
-
-  return (
-    <Card className="mb-6">
+  return <Card className="mb-6">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Users className="w-5 h-5" />
             {t.home_communities_title}
           </CardTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/communities')}
-          >
+          <Button variant="ghost" size="sm" onClick={() => navigate('/communities')}>
             {t.common_view_all}
           </Button>
         </div>
@@ -193,21 +182,16 @@ export const CommunitiesSectionExpanded = () => {
         <div className="flex gap-2">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder={t.search_placeholder}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
+            <Input placeholder={t.search_placeholder} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
           </div>
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <Button onClick={() => {
-              if (!user) {
-                navigate('/auth');
-                return;
-              }
-              setIsCreateOpen(true);
-            }}>
+            if (!user) {
+              navigate('/auth');
+              return;
+            }
+            setIsCreateOpen(true);
+          }}>
               <Plus className="w-4 h-4 mr-2" />
               {t.communities_create}
             </Button>
@@ -218,31 +202,31 @@ export const CommunitiesSectionExpanded = () => {
               <div className="space-y-4">
                 <div>
                   <Label>{t.communities_name} *</Label>
-                  <Input
-                    value={newCommunity.name}
-                    onChange={(e) => setNewCommunity({ ...newCommunity, name: e.target.value })}
-                    placeholder={t.communities_name}
-                  />
+                  <Input value={newCommunity.name} onChange={e => setNewCommunity({
+                  ...newCommunity,
+                  name: e.target.value
+                })} placeholder={t.communities_name} />
                 </div>
                 <div>
                   <Label>{t.communities_slug_label}</Label>
-                  <Input
-                    value={newCommunity.slug}
-                    onChange={(e) => setNewCommunity({ ...newCommunity, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
-                    placeholder={t.communities_slug_placeholder}
-                  />
+                  <Input value={newCommunity.slug} onChange={e => setNewCommunity({
+                  ...newCommunity,
+                  slug: e.target.value.toLowerCase().replace(/\s+/g, '-')
+                })} placeholder={t.communities_slug_placeholder} />
                 </div>
                 <div>
                   <Label>{t.communities_description}</Label>
-                  <Textarea
-                    value={newCommunity.description}
-                    onChange={(e) => setNewCommunity({ ...newCommunity, description: e.target.value })}
-                    placeholder={t.communities_description}
-                  />
+                  <Textarea value={newCommunity.description} onChange={e => setNewCommunity({
+                  ...newCommunity,
+                  description: e.target.value
+                })} placeholder={t.communities_description} />
                 </div>
                 <div>
                   <Label>{t.communities_category}</Label>
-                  <Select value={newCommunity.category} onValueChange={(v) => setNewCommunity({ ...newCommunity, category: v })}>
+                  <Select value={newCommunity.category} onValueChange={v => setNewCommunity({
+                  ...newCommunity,
+                  category: v
+                })}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -263,54 +247,37 @@ export const CommunitiesSectionExpanded = () => {
         </div>
 
         {/* Trending Section */}
-        {trendingCommunities && trendingCommunities.length > 0 && (
-          <div>
+        {trendingCommunities && trendingCommunities.length > 0 && <div>
             <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
               <TrendingUp className="w-4 h-4" />
               {t.communities_trending}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {trendingCommunities.map((community) => (
-                <CommunityCard key={community.id} community={community} />
-              ))}
+              {trendingCommunities.map(community => <CommunityCard key={community.id} community={community} />)}
             </div>
-          </div>
-        )}
+          </div>}
 
         {/* Filtered Communities Grid */}
-        {searchQuery && (
-          <div>
+        {searchQuery && <div>
             <h3 className="text-sm font-semibold mb-3">
               {t.search_results}
             </h3>
-            {filteredCommunities && filteredCommunities.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredCommunities.slice(0, 6).map((community) => (
-                  <CommunityCard key={community.id} community={community} />
-                ))}
-              </div>
-            ) : (
-              <p className="text-center text-muted-foreground py-4">
+            {filteredCommunities && filteredCommunities.length > 0 ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredCommunities.slice(0, 6).map(community => <CommunityCard key={community.id} community={community} />)}
+              </div> : <p className="text-center text-muted-foreground py-4">
                 {t.communities_not_found}
-              </p>
-            )}
-          </div>
-        )}
+              </p>}
+          </div>}
 
         {/* All Communities (when no search) */}
-        {!searchQuery && communities && communities.length > 3 && (
-          <div>
+        {!searchQuery && communities && communities.length > 3 && <div>
             <h3 className="text-sm font-semibold mb-3">
               {t.communities_all}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {communities.slice(0, 6).map((community) => (
-                <CommunityCard key={community.id} community={community} />
-              ))}
+              {communities.slice(0, 6).map(community => <CommunityCard key={community.id} community={community} />)}
             </div>
-          </div>
-        )}
+          </div>}
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
