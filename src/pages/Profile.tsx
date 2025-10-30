@@ -314,28 +314,6 @@ const Profile = () => {
             <PasswordChange userId={user.id} passwordChangedAt={passwordChangedAt} />
             <UserPreferences userId={user.id} />
             
-            {/* Notification Settings Link */}
-            <AnimatedCard hover="lift" glass className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-sm flex items-center gap-2">
-                    <Bell className="w-4 h-4" />
-                    {t.notification_settings}
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {t.notification_desc}
-                  </p>
-                </div>
-                <EnhancedButton
-                  onClick={() => navigate('/settings/notifications')}
-                  variant="outline"
-                  size="sm"
-                >
-                  {t.settings}
-                </EnhancedButton>
-              </div>
-            </AnimatedCard>
-            
             <ReferralSystem userId={user.id} />
             <BlockedUsers userId={user.id} />
             
