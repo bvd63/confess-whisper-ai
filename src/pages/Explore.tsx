@@ -25,6 +25,7 @@ import { AdvancedFilters, FilterState } from "@/components/AdvancedFilters";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Loader2 } from "lucide-react";
 import VirtualizedConfessions from "@/components/VirtualizedConfessions";
+import { CommunitiesSectionExpanded } from "@/components/CommunitiesSectionExpanded";
 
 const Explore = () => {
   const { t } = useLanguage();
@@ -168,6 +169,11 @@ const Explore = () => {
         </div>
 
         <SearchUsersCard />
+
+        {/* Communities Section */}
+        <div className="mb-6">
+          <CommunitiesSectionExpanded />
+        </div>
 
         {/* Trending Hashtags */}
         <div className="mb-6">
