@@ -104,7 +104,7 @@ const Rewards = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => navigate('/settings/activity')}
+                onClick={() => navigate('/')}
                 className="hover:bg-accent"
               >
                 <ArrowLeft className="h-5 w-5" />
