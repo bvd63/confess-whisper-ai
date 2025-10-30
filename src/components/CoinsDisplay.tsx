@@ -89,6 +89,8 @@ const CoinsDisplay = ({
           </p>
           <ul className="text-[10px] sm:text-xs text-muted-foreground space-y-0.5 sm:space-y-1">
             <li>{t.coins_per_confession_detail}</li>
+            <li>🔥 Streak bonuses: +10/+20/+50 coins at 3/5/7 days</li>
+            <li>🎁 Referral rewards: +20 coins per completed referral</li>
           </ul>
         </div>
 
@@ -97,7 +99,7 @@ const CoinsDisplay = ({
             {t.coins_how_to_spend}
           </p>
           <ul className="text-[10px] sm:text-xs text-muted-foreground space-y-0.5 sm:space-y-1">
-            <li>{t.coins_polish_detail}</li>
+            <li>🚀 Boost Confession (15 coins) - Highlight for 1 hour</li>
             <li>{t.coins_flairs_detail}</li>
           </ul>
         </div>
