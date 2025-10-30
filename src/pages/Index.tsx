@@ -4,7 +4,6 @@ import { GradientText } from "@/components/GradientText";
 import { Sparkles, TrendingUp, Bell } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import AppLayout from "@/components/AppLayout";
-import FeatureHighlight from "@/components/FeatureHighlight";
 import DailyPrompt from "@/components/DailyPrompt";
 import Leaderboard from "@/components/Leaderboard";
 import { QuoteOfTheDay } from "@/components/QuoteOfTheDay";
@@ -218,11 +217,6 @@ const Index = () => {
           <div className="my-4 sm:my-6">
             <Leaderboard />
           </div>
-        )}
-
-        {/* Feature Highlights */}
-        {showSecondaryContent && (
-          <FeatureHighlight />
         )}
 
       </main>

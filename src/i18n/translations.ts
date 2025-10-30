@@ -478,6 +478,14 @@ type Translations = {
   faq_a7: string;
   faq_q8: string;
   faq_a8: string;
+  faq_q9: string;
+  faq_a9: string;
+  faq_q10: string;
+  faq_a10: string;
+  faq_q11: string;
+  faq_a11: string;
+  faq_q12: string;
+  faq_a12: string;
   
   // Settings
   settings_title: string;
@@ -2642,6 +2650,14 @@ export const translations: Record<Language, Translations> = {
     faq_a7: "Yes! All data is encrypted and stored securely. We use best-in-class security practices and comply with GDPR. We do not sell or share your data with third parties.",
     faq_q8: "Can I use the platform for professional counseling?",
     faq_a8: "No. Confess+ does not replace professional counseling. If you're facing serious mental health issues, please contact a specialist. Our platform is for emotional support and personal reflection.",
+    faq_q9: "What makes the AI empathetic?",
+    faq_a9: "Our AI is trained on empathetic conversations and uses advanced language models designed to understand emotions and provide supportive, non-judgmental responses. Every reply is generated uniquely for your situation.",
+    faq_q10: "How anonymous am I really?",
+    faq_a10: "Your identity is 100% confidential. Your confessions cannot be linked to you by other users, and we only collect minimal data necessary for the platform to function. Your name never appears publicly.",
+    faq_q11: "What are Deep Insights?",
+    faq_a11: "Deep Insights are advanced psychological analyses available for VIP members. They provide deeper perspectives, practical advice, and reflective questions to help you understand your situation better.",
+    faq_q12: "How fast are the AI responses?",
+    faq_a12: "AI responses are generated instantly after you submit your confession. VIP members receive priority processing for even faster responses during peak times.",
     
     settings_title: "Settings",
     settings_manage: "Manage your account and privacy",
@@ -4171,6 +4187,14 @@ export const translations: Record<Language, Translations> = {
     faq_a7: "¡Sí! Todos los datos están encriptados y almacenados de forma segura. Usamos las mejores prácticas de seguridad y cumplimos con el GDPR. No vendemos ni compartimos tus datos con terceros.",
     faq_q8: "¿Puedo usar la plataforma para asesoramiento profesional?",
     faq_a8: "No. Confess+ no reemplaza el asesoramiento profesional. Si enfrentas problemas graves de salud mental, por favor contacta a un especialista. Nuestra plataforma es para apoyo emocional y reflexión personal.",
+    faq_q9: "¿Qué hace empática a la IA?",
+    faq_a9: "Nuestra IA está entrenada en conversaciones empáticas y utiliza modelos de lenguaje avanzados diseñados para comprender emociones y proporcionar respuestas de apoyo y sin juicios. Cada respuesta se genera únicamente para tu situación.",
+    faq_q10: "¿Qué tan anónimo soy realmente?",
+    faq_a10: "Tu identidad es 100% confidencial. Tus confesiones no pueden ser vinculadas a ti por otros usuarios, y solo recopilamos datos mínimos necesarios para que la plataforma funcione. Tu nombre nunca aparece públicamente.",
+    faq_q11: "¿Qué son los Deep Insights?",
+    faq_a11: "Los Deep Insights son análisis psicológicos avanzados disponibles para miembros VIP. Proporcionan perspectivas más profundas, consejos prácticos y preguntas reflexivas para ayudarte a comprender mejor tu situación.",
+    faq_q12: "¿Qué tan rápidas son las respuestas de la IA?",
+    faq_a12: "Las respuestas de IA se generan instantáneamente después de enviar tu confesión. Los miembros VIP reciben procesamiento prioritario para respuestas aún más rápidas durante horas pico.",
     
     settings_title: "Configuración",
     settings_manage: "Gestiona tu cuenta y privacidad",
@@ -5953,6 +5977,14 @@ export const translations: Record<Language, Translations> = {
     faq_a7: "Ja! Alle Daten sind verschlüsselt und sicher gespeichert. Wir verwenden erstklassige Sicherheitspraktiken und entsprechen der DSGVO. Wir verkaufen oder teilen deine Daten nicht mit Dritten.",
     faq_q8: "Kann ich die Plattform für professionelle Beratung nutzen?",
     faq_a8: "Nein. Confess+ ersetzt keine professionelle Beratung. Wenn du mit ernsthaften psychischen Problemen konfrontiert bist, wende dich bitte an einen Spezialisten. Unsere Plattform dient der emotionalen Unterstützung und persönlichen Reflexion.",
+    faq_q9: "Was macht die KI empathisch?",
+    faq_a9: "Unsere KI ist auf empathische Gespräche trainiert und verwendet fortschrittliche Sprachmodelle, die entwickelt wurden, um Emotionen zu verstehen und unterstützende, nicht wertende Antworten zu geben. Jede Antwort wird einzigartig für deine Situation generiert.",
+    faq_q10: "Wie anonym bin ich wirklich?",
+    faq_a10: "Deine Identität ist zu 100% vertraulich. Deine Geständnisse können von anderen Nutzern nicht mit dir in Verbindung gebracht werden, und wir sammeln nur minimale Daten, die für den Betrieb der Plattform erforderlich sind. Dein Name erscheint nie öffentlich.",
+    faq_q11: "Was sind Deep Insights?",
+    faq_a11: "Deep Insights sind fortgeschrittene psychologische Analysen, die für VIP-Mitglieder verfügbar sind. Sie bieten tiefere Perspektiven, praktische Ratschläge und reflektierende Fragen, um dir zu helfen, deine Situation besser zu verstehen.",
+    faq_q12: "Wie schnell sind die KI-Antworten?",
+    faq_a12: "KI-Antworten werden sofort generiert, nachdem du dein Geständnis eingereicht hast. VIP-Mitglieder erhalten prioritäre Verarbeitung für noch schnellere Antworten während Spitzenzeiten.",
     
     settings_title: "Einstellungen",
     settings_manage: "Verwalte dein Konto und deine Privatsphäre",

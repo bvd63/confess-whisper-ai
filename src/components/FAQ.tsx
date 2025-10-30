@@ -30,6 +30,18 @@ const FAQ = () => {
   }, {
     question: t.faq_q8,
     answer: t.faq_a8
+  }, {
+    question: t.faq_q9,
+    answer: t.faq_a9
+  }, {
+    question: t.faq_q10,
+    answer: t.faq_a10
+  }, {
+    question: t.faq_q11,
+    answer: t.faq_a11
+  }, {
+    question: t.faq_q12,
+    answer: t.faq_a12
   }];
   return <Card className="p-3 sm:p-4 bg-card border-border/50 shadow-[var(--shadow-soft)] animate-fade-in">
       <div className="flex items-center gap-2 sm:gap-2.5 mb-4 sm:mb-5">
