@@ -183,20 +183,18 @@ const SettingsActivity = () => {
         </div>
 
         {/* Menu Sections */}
-        <Card className="mx-4 my-4 overflow-hidden">
-          {/* Rewards Hub Link - Featured at top */}
-          <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border-b-2 border-amber-500/20">
-            <MenuItem
-              icon={Flame}
-              title="🏆 Rewards & Achievements"
-              expandable={false}
-              onClick={() => navigate('/rewards')}
-            />
-          </div>
-          
-          {/* Visual Separator */}
-          <div className="h-3 bg-muted" />
+        {/* Rewards Hub - Separate Featured Card */}
+        <Card className="mx-4 mt-4 overflow-hidden bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border-amber-500/20">
+          <MenuItem
+            icon={Flame}
+            title="🏆 Rewards & Achievements"
+            expandable={false}
+            onClick={() => navigate('/rewards')}
+          />
+        </Card>
 
+        {/* Regular Settings Card */}
+        <Card className="mx-4 my-4 overflow-hidden">
           {/* Account Settings */}
           <MenuItem
             icon={User}
