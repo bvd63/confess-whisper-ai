@@ -76,55 +76,55 @@ const AchievementBadges = ({ totalConfessions, deepInsightsUsed, isPremium }: Ac
   const unlockedCount = achievements.filter(a => a.unlocked).length;
 
   return (
-    <Card className="p-6 bg-card border-border/50 shadow-[var(--shadow-soft)]">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-full bg-primary/10">
-            <Award className="w-5 h-5 text-primary" />
+    <Card className="p-3 sm:p-4 bg-card border-border/50 shadow-[var(--shadow-soft)]">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 sm:p-2 rounded-full bg-primary/10">
+            <Award className="w-4 h-4 text-primary" />
           </div>
           <div>
-            <h3 className="font-semibold text-foreground">{t.achievements_title}</h3>
-            <p className="text-xs text-muted-foreground">
+            <h3 className="font-semibold text-sm sm:text-base text-foreground">{t.achievements_title}</h3>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
               {unlockedCount} {t.achievements_unlocked}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-2.5">
         {achievements.map((achievement, index) => {
           const Icon = achievement.icon;
           return (
             <div
               key={achievement.id}
-              className={`p-3 rounded-lg border transition-all ${
+              className={`p-2 sm:p-2.5 rounded-lg border transition-all ${
                 achievement.unlocked
                   ? 'bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30 shadow-sm'
                   : 'bg-muted/30 border-border/50 opacity-60'
               } animate-scale-in`}
               style={{ animationDelay: `${index * 50}ms` }}
             >
-              <div className={`inline-flex p-2 rounded-lg mb-2 ${
+              <div className={`inline-flex p-1.5 sm:p-2 rounded-lg mb-1.5 sm:mb-2 ${
                 achievement.unlocked ? 'bg-primary/20' : 'bg-muted'
               }`}>
-                <Icon className={`w-4 h-4 ${
+                <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${
                   achievement.unlocked ? 'text-primary' : 'text-muted-foreground'
                 }`} />
               </div>
               
-              <h4 className={`text-xs font-medium mb-1 ${
+              <h4 className={`text-[10px] sm:text-xs font-medium mb-0.5 sm:mb-1 ${
                 achievement.unlocked ? 'text-foreground' : 'text-muted-foreground'
               }`}>
                 {achievement.title}
               </h4>
               
-              <p className="text-[10px] text-muted-foreground line-clamp-2">
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground line-clamp-2">
                 {achievement.description}
               </p>
 
               {!achievement.unlocked && achievement.progress !== undefined && achievement.target && (
-                <div className="mt-2">
-                  <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-1">
+                <div className="mt-1.5 sm:mt-2">
+                  <div className="flex items-center justify-between text-[9px] sm:text-[10px] text-muted-foreground mb-1">
                     <span>{achievement.progress}/{achievement.target}</span>
                     <span>{Math.round((achievement.progress / achievement.target) * 100)}%</span>
                   </div>

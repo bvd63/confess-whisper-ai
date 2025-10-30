@@ -19,27 +19,27 @@ const FollowStats = ({
     t
   } = useLanguage();
   if (loading) return null;
-  return <Card className="p-6 py-[3px]">
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-3 flex-1">
-          <div className="p-3 rounded-full bg-primary/10">
-            <Users className="h-5 w-5 text-primary" />
+  return <Card className="p-3 sm:p-4">
+      <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-2.5 flex-1">
+          <div className="p-2 sm:p-2.5 rounded-full bg-primary/10">
+            <Users className="h-4 w-4 text-primary" />
           </div>
           <div>
-            <p className="text-2xl font-bold">{followersCount}</p>
-            <p className="text-sm text-muted-foreground">{t.profile_followers}</p>
+            <p className="text-lg sm:text-xl font-bold">{followersCount}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">{t.profile_followers}</p>
           </div>
         </div>
         
-        <div className="h-12 w-px bg-border" />
+        <div className="h-10 w-px bg-border" />
         
-        <div className="flex items-center gap-3 flex-1">
-          <div className="p-3 rounded-full bg-primary/10">
-            <UserPlus className="h-5 w-5 text-primary" />
+        <div className="flex items-center gap-2 sm:gap-2.5 flex-1">
+          <div className="p-2 sm:p-2.5 rounded-full bg-primary/10">
+            <UserPlus className="h-4 w-4 text-primary" />
           </div>
           <div>
-            <p className="text-2xl font-bold">{followingCount}</p>
-            <p className="text-sm text-muted-foreground">{t.profile_following}</p>
+            <p className="text-lg sm:text-xl font-bold">{followingCount}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">{t.profile_following}</p>
           </div>
         </div>
       </div>

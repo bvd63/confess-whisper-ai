@@ -69,33 +69,33 @@ const Leaderboard = () => {
       hover="lift"
       glass
       gradient
-      className="p-4 sm:p-5 md:p-6"
+      className="p-3 sm:p-4"
     >
-      <div className="flex items-center gap-2 mb-4">
-          <Trophy className="w-5 h-5 text-yellow-500" />
-        <h3 className="text-base sm:text-lg font-semibold">{t.leaderboard_top_this_week}</h3>
-        <TrendingUp className="w-4 h-4 text-muted-foreground ml-auto" />
+      <div className="flex items-center gap-1.5 sm:gap-2 mb-3">
+          <Trophy className="w-4 h-4 text-yellow-500" />
+        <h3 className="text-sm sm:text-base font-semibold">{t.leaderboard_top_this_week}</h3>
+        <TrendingUp className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
       </div>
 
-      <div className="space-y-2 sm:space-y-3">
+      <div className="space-y-1.5 sm:space-y-2">
         {leaders.map((leader, index) => (
           <div
             key={leader.user_id}
-            className="flex items-center gap-3 p-3 rounded-lg glass hover-lift transition-all animate-fade-in"
+            className="flex items-center gap-2 sm:gap-2.5 p-2 sm:p-2.5 rounded-lg glass hover-lift transition-all animate-fade-in"
             style={{ animationDelay: `${index * 50}ms` }}
           >
-            <div className="w-8 text-center font-bold text-primary">
+            <div className="w-6 sm:w-7 text-center font-bold text-xs sm:text-sm text-primary">
               #{leader.rank}
             </div>
             
-            <Avatar className="w-10 h-10">
-              <AvatarFallback>
+            <Avatar className="w-8 h-8">
+              <AvatarFallback className="text-xs">
                 {leader.user_id.substring(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
 
-            <div className="flex-1">
-              <p className="text-sm font-medium">
+            <div className="flex-1 min-w-0">
+              <p className="text-xs sm:text-sm font-medium truncate">
                 <UserDisplayName 
                   userId={leader.user_id}
                   maxLength={20}
@@ -103,7 +103,7 @@ const Leaderboard = () => {
                   clickable={false}
                 />
               </p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
                 {leader.confessions_count} {t.leaderboard_confessions} • {leader.total_likes} {t.leaderboard_reactions}
               </p>
             </div>
