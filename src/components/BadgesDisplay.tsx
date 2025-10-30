@@ -150,12 +150,12 @@ const BadgesDisplay = ({
       data: userBadges,
       error: userBadgesError
     } = await supabase.from('user_badges').select('badge_id, earned_at, expires_at, acquired_at').eq('user_id', userId);
-    if (!badgesError && !userBadgesError && allBadges) {
+    if (!badgesError && !userBadgesError && allBadges && Array.isArray(allBadges)) {
       // Filter out expired badges
-      const activeBadges = userBadges?.filter(ub => {
+      const activeBadges = (userBadges && Array.isArray(userBadges)) ? userBadges.filter(ub => {
         if (!ub.expires_at) return true;
         return new Date(ub.expires_at) > new Date();
-      }) || [];
+      }) : [];
       const earnedBadgeIds = new Set(activeBadges.map(ub => ub.badge_id));
       const earnedBadgeMap = new Map(activeBadges.map(ub => [ub.badge_id, {
         earned_at: ub.earned_at,

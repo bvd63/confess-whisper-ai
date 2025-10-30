@@ -36,7 +36,7 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
       .select('reaction_type, user_id')
       .eq('confession_id', confessionId);
 
-    if (allReactions) {
+    if (allReactions && Array.isArray(allReactions)) {
       const counts: Record<string, number> = {};
       const userSet = new Set<string>();
 
