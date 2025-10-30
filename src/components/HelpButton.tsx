@@ -50,49 +50,49 @@ const HelpButton = () => {
         variant="ghost"
         size="icon"
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-[var(--shadow-glow)] animate-bounce-subtle z-50"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-[var(--shadow-glow)] animate-bounce-subtle z-50"
         aria-label={t.common_help_aria}
       >
-        <HelpCircle className="w-6 h-6" />
+        <HelpCircle className="w-5 h-5 sm:w-6 sm:h-6" />
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle className="text-2xl flex items-center gap-2">
-              <HelpCircle className="w-6 h-6 text-primary" />
+            <DialogTitle className="text-lg sm:text-xl md:text-2xl flex items-center gap-1.5 sm:gap-2">
+              <HelpCircle className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               {t.help_dialog_title}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs sm:text-sm">
               {t.help_dialog_desc}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-3 py-4">
+          <div className="space-y-2 sm:space-y-3 py-3 sm:py-4">
             {helpOptions.map((option, index) => {
               const Icon = option.icon;
               return (
                 <Card
                   key={index}
-                  className="p-4 bg-muted/30 border-border/50 hover:bg-muted/50 transition-all cursor-pointer group"
+                  className="p-3 sm:p-4 bg-muted/30 border-border/50 hover:bg-muted/50 transition-all cursor-pointer group"
                   onClick={option.action}
                 >
-                  <div className="flex items-start gap-4">
-                    <div className="p-2 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                      <Icon className="w-5 h-5 text-primary" />
+                  <div className="flex items-start gap-2.5 sm:gap-4">
+                    <div className="p-1.5 sm:p-2 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                      <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-foreground mb-1 flex items-center gap-2">
+                      <h3 className="text-sm sm:text-base font-semibold text-foreground mb-0.5 sm:mb-1 flex items-center gap-1.5 sm:gap-2">
                         {option.title}
-                        <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <ExternalLink className="w-2.5 h-2.5 sm:w-3 sm:h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </h3>
-                      <p className="text-sm text-muted-foreground mb-3">
+                      <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">
                         {option.description}
                       </p>
                       <Button
                         variant="outline"
                         size="sm"
-                        className="text-xs"
+                        className="text-[10px] sm:text-xs h-7 sm:h-8"
                       >
                         {option.buttonText}
                       </Button>
@@ -103,8 +103,8 @@ const HelpButton = () => {
             })}
           </div>
 
-          <div className="pt-4 border-t border-border/50 text-center">
-            <p className="text-sm text-muted-foreground">
+          <div className="pt-3 sm:pt-4 border-t border-border/50 text-center">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               {t.help_response_time}
             </p>
           </div>

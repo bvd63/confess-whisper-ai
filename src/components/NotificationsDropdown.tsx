@@ -238,30 +238,30 @@ const NotificationsDropdown = () => {
     <>
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="w-5 h-5" />
+        <Button variant="ghost" size="icon" className="relative h-8 w-8 sm:h-9 sm:w-9">
+          <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
           {unreadCount > 0 && (
             <Badge 
-              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-primary text-primary-foreground text-xs"
+              className="absolute -top-1 -right-1 h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center p-0 bg-primary text-primary-foreground text-[9px] sm:text-xs"
             >
               {unreadCount > 9 ? '9+' : unreadCount}
             </Badge>
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="end">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-          <h3 className="font-semibold">{t.notifications_title}</h3>
-          <div className="flex gap-1">
+      <PopoverContent className="w-[calc(100vw-2rem)] sm:w-80 p-0" align="end">
+        <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b border-border">
+          <h3 className="text-sm sm:text-base font-semibold">{t.notifications_title}</h3>
+          <div className="flex gap-0.5 sm:gap-1">
             {unreadCount > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={markAllAsRead}
-                className="h-8 text-xs"
+                className="h-7 sm:h-8 text-[10px] sm:text-xs px-1.5 sm:px-2"
               >
-                <Check className="w-3 h-3 mr-1" />
-                {t.notifications_mark_all_read}
+                <Check className="w-3 h-3 mr-0.5 sm:mr-1" />
+                <span className="hidden xs:inline">{t.notifications_mark_all_read}</span>
               </Button>
             )}
             {notifications.length > 0 && (
@@ -269,20 +269,19 @@ const NotificationsDropdown = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => setDeleteAllDialogOpen(true)}
-                className="h-8 text-xs text-destructive hover:text-destructive"
+                className="h-7 sm:h-8 text-[10px] sm:text-xs px-1.5 sm:px-2 text-destructive hover:text-destructive"
               >
-                <Trash2 className="w-3 h-3 mr-1" />
-                {t.notifications_delete_all}
+                <Trash2 className="w-3 h-3" />
               </Button>
             )}
           </div>
         </div>
 
-        <ScrollArea className="h-[400px]">
+        <ScrollArea className="h-[320px] sm:h-[400px]">
           {notifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-              <Bell className="w-12 h-12 mb-2 opacity-50" />
-              <p className="text-sm">{t.notifications_none}</p>
+            <div className="flex flex-col items-center justify-center py-10 sm:py-12 text-muted-foreground">
+              <Bell className="w-10 h-10 sm:w-12 sm:h-12 mb-2 opacity-50" />
+              <p className="text-xs sm:text-sm">{t.notifications_none}</p>
             </div>
           ) : (
             <div className="divide-y divide-border">
@@ -295,32 +294,32 @@ const NotificationsDropdown = () => {
                 >
                   <button
                     onClick={() => handleNotificationClick(notification)}
-                    className="flex-1 px-4 py-3 text-left hover:bg-muted/50 transition-colors"
+                    className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 text-left hover:bg-muted/50 transition-colors"
                   >
-                    <div className="flex items-start gap-3">
-                      <div className="mt-1">
+                    <div className="flex items-start gap-2 sm:gap-3">
+                      <div className="mt-0.5 sm:mt-1">
                         {getNotificationIcon(notification.type)}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-medium">
+                        <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
+                          <span className="text-xs sm:text-sm font-medium truncate">
                             @{notification.triggered_by_nickname || t.anonymous_user}
                           </span>
-                          <span className="text-sm text-muted-foreground">
+                          <span className="text-xs sm:text-sm text-muted-foreground truncate">
                             {getNotificationText(notification)}
                           </span>
                           {!notification.is_read && (
-                            <Badge variant="secondary" className="text-xs bg-primary text-primary-foreground">
+                            <Badge variant="secondary" className="text-[9px] sm:text-xs bg-primary text-primary-foreground px-1 sm:px-1.5 py-0 flex-shrink-0">
                               {t.notification_new}
                             </Badge>
                           )}
                         </div>
                         {notification.comment_content && (
-                          <p className="text-xs text-muted-foreground truncate">
+                          <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
                             "{notification.comment_content}"
                           </p>
                         )}
-                        <p className="text-xs text-muted-foreground mt-1">
+                        <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">
                           {timeAgo(notification.created_at)}
                         </p>
                       </div>
@@ -329,14 +328,14 @@ const NotificationsDropdown = () => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="mr-2 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
+                    className="mr-1.5 sm:mr-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
                     onClick={(e) => {
                       e.stopPropagation();
                       setNotificationToDelete(notification.id);
                       setDeleteDialogOpen(true);
                     }}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </Button>
                 </div>
               ))}
