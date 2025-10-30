@@ -96,58 +96,58 @@ export const SearchUsersCard = () => {
   };
 
   return (
-    <Card className="mb-6">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Search className="w-5 h-5" />
+    <Card className="mb-4">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Search className="w-4 h-4" />
           {t.explore_search_card_title}
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-0">
         <Input
           type="text"
           placeholder={t.explore_search_card_placeholder}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="mb-4"
+          className="mb-3"
         />
 
         {isLoading && (
-          <div className="text-center py-4 text-muted-foreground">
+          <div className="text-center py-3 text-muted-foreground text-sm">
             {t.loading}
           </div>
         )}
 
         {!isLoading && debouncedSearch.length >= 2 && users.length === 0 && (
-          <div className="text-center py-4 text-muted-foreground">
+          <div className="text-center py-3 text-muted-foreground text-sm">
             {t.explore_search_card_no_results}
           </div>
         )}
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           {users.map((user: SearchUser) => (
             <div
               key={user.id}
-              className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent transition-colors"
+              className="flex items-center justify-between p-2 rounded-lg border hover:bg-accent transition-colors"
             >
-              <div className="flex items-center gap-3 flex-1 min-w-0">
-                <Avatar>
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <Avatar className="h-8 w-8">
                   <AvatarImage src={user.avatarUrl || undefined} />
-                  <AvatarFallback>
+                  <AvatarFallback className="text-xs">
                     {user.nickname?.charAt(0).toUpperCase() || "?"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium truncate">@{user.nickname}</div>
+                  <div className="font-medium truncate text-sm">@{user.nickname}</div>
                   {user.bio && (
-                    <div className="text-sm text-muted-foreground truncate">
+                    <div className="text-xs text-muted-foreground truncate">
                       {user.bio}
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <Button
                   size="sm"
                   variant={user.isFollowing ? "outline" : "default"}
