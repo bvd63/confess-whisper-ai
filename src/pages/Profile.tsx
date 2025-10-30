@@ -179,19 +179,19 @@ const Profile = () => {
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-4xl pb-24">
         
         
-        <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8 animate-fade-in">
+        <div className="flex items-center gap-1.5 sm:gap-2 mb-4 sm:mb-6 animate-fade-in">
           <div className="rounded-full">
-            <User className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+            <User className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-primary" />
           </div>
           <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">
                 <GradientText variant="hero">{t.profile_title}</GradientText>
               </h1>
               <VIPBadge tier={subscriptionTier as 'free' | 'vip'} size="lg" showLabel />
             </div>
             {/* Show active equipped flairs */}
-            <div className="mt-2">
+            <div className="mt-1.5 sm:mt-2">
               <BadgesDisplay 
                 userId={user.id} 
                 variant="compact"

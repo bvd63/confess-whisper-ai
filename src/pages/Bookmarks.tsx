@@ -137,14 +137,14 @@ const Bookmarks = () => {
       onManageSubscription={() => setManageSubDialogOpen(true)}
     >
       <main className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
-        <div className="flex items-center gap-2 mb-6 sm:mb-8 animate-fade-in">
-          <Bookmark className="w-5 h-5 sm:w-6 sm:h-6 text-primary animate-pulse-glow" />
-          <h1 className="text-xl sm:text-2xl font-bold">
+        <div className="flex items-center gap-1.5 sm:gap-2 mb-4 sm:mb-6 animate-fade-in">
+          <Bookmark className="w-4 h-4 sm:w-5 sm:h-5 text-primary animate-pulse-glow" />
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold">
             <GradientText variant="hero">{t.bookmarks_title}</GradientText>
           </h1>
         </div>
         {isLoading ? (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-5">
             <ConfessionSkeleton />
             <ConfessionSkeleton />
             <ConfessionSkeleton />
