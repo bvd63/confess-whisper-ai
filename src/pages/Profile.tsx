@@ -20,7 +20,6 @@ import BadgesDisplay from "@/components/BadgesDisplay";
 import StreakCounter from "@/components/StreakCounter";
 import WordCloudViz from "@/components/WordCloudViz";
 import FollowStats from "@/components/FollowStats";
-import StreakReminder from "@/components/StreakReminder";
 import AchievementToast from "@/components/AchievementToast";
 import { ReferralRewardNotification } from "@/components/ReferralRewardNotification";
 import AdvancedAnalytics from "@/components/AdvancedAnalytics";
@@ -200,8 +199,6 @@ const Profile = () => {
             </div>
           </div>
         </div>
-
-        <StreakReminder userId={user.id} />
 
         <Tabs defaultValue="statistics" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
           <TabsList className={`grid w-full ${isModerator ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3'} h-auto`}>

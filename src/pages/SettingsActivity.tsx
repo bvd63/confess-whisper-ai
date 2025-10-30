@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import AppLayout from '@/components/AppLayout';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import StreakReminder from '@/components/StreakReminder';
 import { StreakDisplay } from '@/components/StreakDisplay';
 import { RateLimitIndicator } from '@/components/RateLimitIndicator';
 import { useConfessionRateLimit } from '@/hooks/useConfessionRateLimit';
@@ -226,9 +225,6 @@ const SettingsActivity = () => {
             expanded={expandedSection === 'streak'}
             onClick={() => toggleSection('streak')}
           >
-            {/* Don't lose your streak banner */}
-            <StreakReminder userId={user.id} />
-            
             {/* Streak Summary */}
             <div>
               <h3 className="font-semibold mb-3">{t.settings_activity_streak_summary}</h3>
