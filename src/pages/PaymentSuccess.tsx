@@ -167,48 +167,48 @@ const PaymentSuccess = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-background flex items-center justify-center p-4">
-      <Card className="max-w-md w-full p-8 text-center bg-gradient-to-br from-card to-primary/5 border-primary/30 shadow-[var(--shadow-glow)]">
-        <div className="mb-6 animate-bounce-subtle">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary/70 shadow-[var(--shadow-glow)]">
+      <Card className="max-w-md w-full p-4 sm:p-6 text-center bg-gradient-to-br from-card to-primary/5 border-primary/30 shadow-[var(--shadow-glow)]">
+        <div className="mb-4 sm:mb-5 animate-bounce-subtle">
+          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-gradient-to-br from-primary to-primary/70 shadow-[var(--shadow-glow)]">
             {isProcessing ? (
-              <Loader2 className="w-10 h-10 text-primary-foreground animate-spin" />
+              <Loader2 className="w-8 h-8 sm:w-9 sm:h-9 text-primary-foreground animate-spin" />
             ) : (
-              <CheckCircle className="w-10 h-10 text-primary-foreground" />
+              <CheckCircle className="w-8 h-8 sm:w-9 sm:h-9 text-primary-foreground" />
             )}
           </div>
         </div>
 
-        <h1 className="text-3xl font-bold mb-3 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
           {isProcessing ? "Processing Payment..." : t.payment_success_title}
         </h1>
 
-        <p className="text-muted-foreground mb-6">
+        <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
           {isProcessing ? processingMessage : `Your VIP account has been successfully activated.`}
         </p>
 
-        <div className="space-y-3 mb-8">
-          <div className="flex items-center gap-3 p-3 bg-primary/10 rounded-lg border border-primary/20">
-            <Crown className="w-5 h-5 text-primary" />
-            <span className="text-sm text-foreground">{t.payment_success_deep_insights}</span>
+        <div className="space-y-2 sm:space-y-2.5 mb-6 sm:mb-8">
+          <div className="flex items-center gap-2 sm:gap-2.5 p-2 sm:p-2.5 bg-primary/10 rounded-lg border border-primary/20">
+            <Crown className="w-4 h-4 text-primary flex-shrink-0" />
+            <span className="text-xs sm:text-sm text-foreground">{t.payment_success_deep_insights}</span>
           </div>
-          <div className="flex items-center gap-3 p-3 bg-primary/10 rounded-lg border border-primary/20">
-            <Sparkles className="w-5 h-5 text-primary" />
-            <span className="text-sm text-foreground">{t.payment_success_analysis}</span>
+          <div className="flex items-center gap-2 sm:gap-2.5 p-2 sm:p-2.5 bg-primary/10 rounded-lg border border-primary/20">
+            <Sparkles className="w-4 h-4 text-primary flex-shrink-0" />
+            <span className="text-xs sm:text-sm text-foreground">{t.payment_success_analysis}</span>
           </div>
-          <div className="flex items-center gap-3 p-3 bg-primary/10 rounded-lg border border-primary/20">
-            <CheckCircle className="w-5 h-5 text-primary" />
-            <span className="text-sm text-foreground">{t.payment_success_priority}</span>
+          <div className="flex items-center gap-2 sm:gap-2.5 p-2 sm:p-2.5 bg-primary/10 rounded-lg border border-primary/20">
+            <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
+            <span className="text-xs sm:text-sm text-foreground">{t.payment_success_priority}</span>
           </div>
         </div>
 
         <Button
           onClick={() => navigate("/profile")}
-          className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+          className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 h-9 sm:h-10 text-sm"
         >
           View Your VIP Profile
         </Button>
 
-        <p className="text-xs text-muted-foreground mt-4">
+        <p className="text-xs text-muted-foreground mt-3 sm:mt-4">
           {t.payment_redirecting}
         </p>
       </Card>

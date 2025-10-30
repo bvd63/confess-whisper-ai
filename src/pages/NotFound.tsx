@@ -17,15 +17,15 @@ const NotFound = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-mesh p-4">
-      <AnimatedCard hover="glow" glass className="text-center p-8 sm:p-12 max-w-md">
-        <h1 className="mb-4 text-6xl sm:text-7xl font-bold">
+      <AnimatedCard hover="glow" glass className="text-center p-4 sm:p-6 max-w-md">
+        <h1 className="mb-3 sm:mb-4 text-5xl sm:text-6xl font-bold">
           <GradientText variant="hero">{t.notfound_404}</GradientText>
         </h1>
-        <p className="mb-8 text-xl sm:text-2xl text-muted-foreground">
+        <p className="mb-6 sm:mb-8 text-lg sm:text-xl text-muted-foreground">
           {t.notfound_title}
         </p>
         <EnhancedButton asChild lift>
-          <Link to="/" className="inline-flex items-center gap-2">
+          <Link to="/" className="inline-flex items-center gap-2 text-sm">
             <HomeIcon className="w-4 h-4" />
             {t.notfound_return_home}
           </Link>

@@ -50,30 +50,30 @@ export const InstallPrompt = () => {
   if (!showPrompt || !deferredPrompt) return null;
 
   return (
-    <Card className="fixed bottom-20 left-4 right-4 md:left-auto md:right-4 md:w-96 p-4 shadow-elegant glass-strong animate-slide-up z-50">
+    <Card className="fixed bottom-20 left-4 right-4 md:left-auto md:right-4 md:w-96 p-3 sm:p-3.5 shadow-elegant glass-strong animate-slide-up z-50">
       <button
         onClick={handleDismiss}
-        className="absolute top-2 right-2 p-1 hover:bg-muted rounded-full transition-colors"
+        className="absolute top-1.5 right-1.5 p-1 hover:bg-muted rounded-full transition-colors"
       >
-        <X className="w-4 h-4" />
+        <X className="w-3.5 h-3.5" />
       </button>
       
-      <div className="flex items-start gap-3">
-        <div className="p-2 bg-primary/10 rounded-lg">
-          <Download className="w-5 h-5 text-primary" />
+      <div className="flex items-start gap-2 sm:gap-2.5">
+        <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg flex-shrink-0">
+          <Download className="w-4 h-4 text-primary" />
         </div>
-        <div className="flex-1">
-          <h3 className="font-semibold mb-1">
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold mb-1 text-sm">
             {t.install_app || "Install App"}
           </h3>
-          <p className="text-sm text-muted-foreground mb-3">
+          <p className="text-xs text-muted-foreground mb-2.5">
             {t.install_app_description || "Add ConfessAI to your home screen for a better experience"}
           </p>
-          <div className="flex gap-2">
-            <Button onClick={handleInstall} size="sm" className="flex-1">
+          <div className="flex gap-1.5 sm:gap-2">
+            <Button onClick={handleInstall} size="sm" className="flex-1 h-8 text-xs">
               {t.install || "Install"}
             </Button>
-            <Button onClick={handleDismiss} variant="outline" size="sm">
+            <Button onClick={handleDismiss} variant="outline" size="sm" className="h-8 text-xs">
               {t.not_now || "Not Now"}
             </Button>
           </div>
