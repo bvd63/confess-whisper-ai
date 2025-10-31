@@ -183,20 +183,6 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         </div>
       )}
 
-      {/* Show user badges and streak if available */}
-      {confession.user_id && (
-        <div className="flex items-center gap-3 mb-3 flex-wrap">
-          <BadgesDisplay userId={confession.user_id} variant="compact" />
-          <StreakCounter userId={confession.user_id} variant="compact" />
-          <div className="ml-auto">
-            <FollowButton 
-              targetUserId={confession.user_id} 
-              currentUserId={user?.id || null}
-            />
-          </div>
-        </div>
-      )}
-
       {/* Awards Display */}
       <div className="mb-3">
         <AwardDisplay confessionId={confession.id} />
