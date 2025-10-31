@@ -8,16 +8,16 @@ import ErrorBoundary from "@/components/ErrorBoundaryFallback";
 import { reportWebVitals } from "@/hooks/usePerformanceMonitor";
 import { validateTranslationSystem } from "@/lib/i18nValidator";
 import { prefetchCriticalRoutes } from "@/lib/bundleOptimization";
+import { initOneSignal } from "@/notifications/initOneSignal";
 import AppWrapper from "./components/AppWrapper.tsx";
 import "./index.css";
 
-// Register service worker for PWA (avoid conflict with OneSignal)
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
+// Initialize OneSignal (does not auto-prompt)
+const hasOneSignal = !!import.meta.env.VITE_ONESIGNAL_APP_ID;
+if (hasOneSignal) {
   window.addEventListener('load', () => {
-    const hasOneSignal = !!import.meta.env.VITE_ONESIGNAL_APP_ID;
-
-    if (hasOneSignal) {
-      // If a generic PWA SW is active, unregister it so OneSignal can control the scope
+    // Unregister any conflicting PWA service workers first
+    if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .getRegistrations()
         .then((regs) => {
@@ -30,14 +30,22 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
           });
         })
         .catch(() => {});
-      // Do not register /sw.js when OneSignal is enabled
-      return;
     }
-
-    navigator.serviceWorker.register('/sw.js').catch((error) => {
-      console.error('Service worker registration failed:', error);
+    
+    // Initialize OneSignal
+    initOneSignal().catch((err) => {
+      console.error('[OneSignal] Failed to initialize:', err);
     });
   });
+} else {
+  // Register PWA service worker only if OneSignal is not enabled
+  if ('serviceWorker' in navigator && import.meta.env.PROD) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch((error) => {
+        console.error('Service worker registration failed:', error);
+      });
+    });
+  }
 }
 
 // Start Web Vitals monitoring in production
