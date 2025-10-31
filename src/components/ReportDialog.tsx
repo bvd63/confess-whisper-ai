@@ -8,6 +8,7 @@ import { AlertTriangle, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useConfirm } from "@/contexts/ConfirmContext";
 
 interface ReportDialogProps {
   open: boolean;
@@ -17,7 +18,8 @@ interface ReportDialogProps {
 }
 
 const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialogProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const confirm = useConfirm();
   const [selectedReason, setSelectedReason] = useState("");
   const [details, setDetails] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -52,6 +54,15 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
       });
       return;
     }
+
+    // Ask for confirmation before submitting the report
+    const confirmed = await confirm({
+      titleKey: 'confirm.reportContent.title',
+      messageKey: 'confirm.reportContent.message',
+      variant: 'warning',
+    });
+    
+    if (!confirmed) return;
 
     setSubmitting(true);
 
