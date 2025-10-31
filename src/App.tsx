@@ -26,6 +26,7 @@ import { useBackgroundSync } from '@/hooks/useBackgroundSync';
 import { useDeviceTracking } from '@/hooks/useDeviceTracking';
 import { useInactivityLogout } from '@/hooks/useInactivityLogout';
 import { useSubscriptionConflictCheck } from '@/hooks/useSubscriptionConflictCheck';
+import { useOneSignalInit } from '@/hooks/useOneSignalInit';
 import { useEffect, useState, lazy, Suspense } from 'react';
 import { getSupabase } from "./lib/supabaseClient";
 import { persistenceManager } from '@/lib/persistenceManager';
@@ -110,11 +111,12 @@ const AppContent = () => {
     inactivityTimeout: 30 * 60 * 1000, // 30 minutes
   });
   useSubscriptionConflictCheck(user?.id); // Check for subscription conflicts
+  useOneSignalInit(); // Initialize push notifications
   
   // Initialize NotificationService on mount
   useEffect(() => {
     if (user) {
-      NotificationService.getInstance().initialize().catch(console.error);
+      NotificationService.getInstance().initialize();
     }
   }, [user]);
   

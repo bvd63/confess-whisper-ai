@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { useSubscription } from "@/state/SubscriptionProvider";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Crown, Zap, Calendar, Settings } from "lucide-react";
-import { STRIPE_VIP_CHECKOUT_URL } from "@/lib/stripe-config";
+import { STRIPE_CONFIG } from "@/lib/stripe-config";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -15,13 +15,13 @@ export const SubscriptionStatusCard = () => {
   const openStripeCheckout = () => {
     try {
       if (window.top && window.top !== window) {
-        window.top.location.href = STRIPE_VIP_CHECKOUT_URL;
+        window.top.location.href = STRIPE_CONFIG.CHECKOUT_URL;
       } else {
-        const win = window.open(STRIPE_VIP_CHECKOUT_URL, '_blank', 'noopener');
-        if (!win) window.location.href = STRIPE_VIP_CHECKOUT_URL;
+        const win = window.open(STRIPE_CONFIG.CHECKOUT_URL, '_blank', 'noopener');
+        if (!win) window.location.href = STRIPE_CONFIG.CHECKOUT_URL;
       }
     } catch {
-      window.location.href = STRIPE_VIP_CHECKOUT_URL;
+      window.location.href = STRIPE_CONFIG.CHECKOUT_URL;
     }
   };
 

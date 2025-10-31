@@ -14,6 +14,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useMessageNotifications } from "@/hooks/useMessageNotifications";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useSubscriptionCheck } from "@/hooks/useSubscriptionCheck";
+import { STRIPE_CONFIG } from "@/lib/stripe-config";
 import UserConfessionsList from "@/components/UserConfessionsList";
 import UserAnalytics from "@/components/UserAnalytics";
 import BadgesDisplay from "@/components/BadgesDisplay";
@@ -97,18 +98,16 @@ const Profile = () => {
   }, [user?.id, loadProfileData]);
 
   const handleManageSubscription = async () => {
-    const STRIPE_VIP_CHECKOUT_URL = "https://buy.stripe.com/test_9B600lewecBRavrfcG0Ba00";
-    
     const openStripeCheckout = () => {
       try {
         if (window.top && window.top !== window) {
-          window.top.location.href = STRIPE_VIP_CHECKOUT_URL;
+          window.top.location.href = STRIPE_CONFIG.CHECKOUT_URL;
         } else {
-          const win = window.open(STRIPE_VIP_CHECKOUT_URL, '_blank', 'noopener');
-          if (!win) window.location.href = STRIPE_VIP_CHECKOUT_URL;
+          const win = window.open(STRIPE_CONFIG.CHECKOUT_URL, '_blank', 'noopener');
+          if (!win) window.location.href = STRIPE_CONFIG.CHECKOUT_URL;
         }
       } catch {
-        window.location.href = STRIPE_VIP_CHECKOUT_URL;
+        window.location.href = STRIPE_CONFIG.CHECKOUT_URL;
       }
     };
 

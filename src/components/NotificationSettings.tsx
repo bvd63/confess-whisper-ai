@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { NotificationStatusBadge } from '@/components/NotificationStatusBadge';
 
 interface NotificationSettingsData {
   dailyReminder: boolean;
@@ -153,9 +154,12 @@ export const NotificationSettings = () => {
   return (
     <div className="space-y-4 sm:space-y-5">
       <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-base sm:text-lg font-semibold">{t.notification_settings}</h3>
-          <p className="text-xs sm:text-sm text-muted-foreground">{t.notification_desc}</p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h3 className="text-base sm:text-lg font-semibold">{t.notification_settings}</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground">{t.notification_desc}</p>
+          </div>
+          <NotificationStatusBadge />
         </div>
         {permission !== 'granted' && (
           <Button 
