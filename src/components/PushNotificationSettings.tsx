@@ -156,6 +156,44 @@ export const PushNotificationSettings = () => {
     }
   };
 
+  const runDiagnostics = async () => {
+    try {
+      // @ts-ignore – accesăm obiectul global dacă e prezent
+      const os = (window as any).OneSignal;
+      if (!os) {
+        console.warn('[Diag] OneSignal global not found');
+        notify.error('notifications.operationFailed', language);
+        return;
+      }
+      const [perm, opted, pid] = await Promise.all([
+        os.Notifications.permission,
+        os.User.PushSubscription.optedIn,
+        os.User.PushSubscription.id,
+      ]);
+      console.table({ permission: perm, optedIn: opted, playerId: pid });
+      notify.success('notifications.testSent', language);
+    } catch (e) {
+      console.error('[Diag] Error:', e);
+      notify.error('notifications.operationFailed', language);
+    }
+  };
+
+  const fixServiceWorkers = async () => {
+    try {
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(r => r.unregister()));
+        console.info('[Diag] Unregistered all SW — reloading in 1s…');
+        setTimeout(() => window.location.reload(), 1000);
+      } else {
+        notify.error('notifications.operationFailed', language);
+      }
+    } catch (e) {
+      console.error('[Diag] SW fix error:', e);
+      notify.error('notifications.operationFailed', language);
+    }
+  };
+
   if (!user) return null;
 
   return (
@@ -232,6 +270,16 @@ export const PushNotificationSettings = () => {
           {t.notifications_send_test}
         </Button>
       )}
+
+      {/* Diagnostic Buttons */}
+      <div className="flex gap-3">
+        <Button variant="outline" onClick={runDiagnostics}>
+          Run diagnostics
+        </Button>
+        <Button variant="secondary" onClick={fixServiceWorkers}>
+          Fix SW & reload
+        </Button>
+      </div>
 
       {/* Help Text for Blocked */}
       {permissionStatus === 'denied' && (
