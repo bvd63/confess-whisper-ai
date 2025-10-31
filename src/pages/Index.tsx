@@ -22,7 +22,7 @@ import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 
-import { QuickActions } from "@/components/QuickActions";
+
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -280,14 +280,6 @@ const Index = () => {
         defaultTab={dialogDefaultTab}
       />
 
-      {/* Quick Actions FAB */}
-      {user && (
-        <QuickActions
-          onNewConfession={handleNewConfession}
-          onOpenDrafts={() => navigate('/compose')}
-          onScrollToTop={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        />
-      )}
       
       </AppLayout>
     </>

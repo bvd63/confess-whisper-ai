@@ -19,7 +19,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useCommunities } from "@/hooks/useCommunities";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import { TrendingHashtags } from "@/components/TrendingHashtags";
-import { QuickActions } from "@/components/QuickActions";
 import { useNavigate } from "react-router-dom";
 import { AdvancedFilters, FilterState } from "@/components/AdvancedFilters";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
@@ -218,15 +217,6 @@ const Explore = () => {
       
       <InstagramBottomNav />
     </AppLayout>
-    
-    {/* Quick Actions FAB */}
-    {user && (
-      <QuickActions
-        onNewConfession={() => navigate('/compose')}
-        onOpenDrafts={() => navigate('/compose')}
-        onScrollToTop={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-      />
-    )}
     
     <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
     </>
