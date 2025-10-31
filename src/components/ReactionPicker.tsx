@@ -85,8 +85,8 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
     setIsLoading(true);
 
     try {
+      // If clicking on already selected reaction, remove it
       if (userReactions.has(reactionType)) {
-        // Remove reaction
         const { error } = await supabase
           .from('confession_reactions')
           .delete()
@@ -96,8 +96,17 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
 
         if (error) throw error;
       } else {
-        // Add reaction
-        const { error } = await supabase
+        // Remove all existing reactions for this user on this confession
+        const { error: deleteError } = await supabase
+          .from('confession_reactions')
+          .delete()
+          .eq('confession_id', confessionId)
+          .eq('user_id', userId);
+
+        if (deleteError) throw deleteError;
+
+        // Add the new reaction
+        const { error: insertError } = await supabase
           .from('confession_reactions')
           .insert({
             confession_id: confessionId,
@@ -105,7 +114,7 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
             reaction_type: reactionType,
           });
 
-        if (error) throw error;
+        if (insertError) throw insertError;
       }
     } catch (error) {
       console.error('Error toggling reaction:', error);
