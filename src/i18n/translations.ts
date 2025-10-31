@@ -117,6 +117,18 @@ type Translations = {
       title: string;
       message: string;
     };
+    revokeSession: {
+      title: string;
+      message: string;
+    };
+    revokeAllSessions: {
+      title: string;
+      message: string;
+    };
+    unblockUser: {
+      title: string;
+      message: string;
+    };
     generic: {
       title: string;
       message: string;
@@ -3790,6 +3802,18 @@ export const translations: Record<Language, Translations> = {
         title: "Report Content?",
         message: "Thank you for helping us keep the community safe.",
       },
+      revokeSession: {
+        title: "Revoke Session?",
+        message: "This will log you out from that device.",
+      },
+      revokeAllSessions: {
+        title: "Revoke All Sessions?",
+        message: "This will log you out from all devices except this one.",
+      },
+      unblockUser: {
+        title: "Unblock User?",
+        message: "This user will be able to interact with you again.",
+      },
       generic: {
         title: "Are you sure?",
         message: "Please confirm your action.",
@@ -5631,6 +5655,18 @@ export const translations: Record<Language, Translations> = {
         title: "¿Reportar contenido?",
         message: "Gracias por ayudarnos a mantener la comunidad segura.",
       },
+      revokeSession: {
+        title: "¿Revocar sesión?",
+        message: "Esto cerrará tu sesión en ese dispositivo.",
+      },
+      revokeAllSessions: {
+        title: "¿Revocar todas las sesiones?",
+        message: "Esto cerrará tu sesión en todos los dispositivos excepto este.",
+      },
+      unblockUser: {
+        title: "¿Desbloquear usuario?",
+        message: "Este usuario podrá interactuar contigo nuevamente.",
+      },
       generic: {
         title: "¿Estás seguro?",
         message: "Por favor, confirma tu acción.",
@@ -7471,6 +7507,18 @@ export const translations: Record<Language, Translations> = {
       reportContent: {
         title: "Inhalt melden?",
         message: "Danke, dass du uns hilfst, die Community sicher zu halten.",
+      },
+      revokeSession: {
+        title: "Sitzung widerrufen?",
+        message: "Dies wird dich auf diesem Gerät abmelden.",
+      },
+      revokeAllSessions: {
+        title: "Alle Sitzungen widerrufen?",
+        message: "Dies wird dich auf allen Geräten außer diesem abmelden.",
+      },
+      unblockUser: {
+        title: "Benutzer entsperren?",
+        message: "Dieser Benutzer kann wieder mit dir interagieren.",
       },
       generic: {
         title: "Bist du sicher?",

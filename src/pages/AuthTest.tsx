@@ -16,6 +16,7 @@ import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useConfirm } from "@/contexts/ConfirmContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -24,6 +25,7 @@ export default function AuthTest() {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { toast } = useToast();
+  const confirm = useConfirm();
   const { user, isLoading: userLoading } = useCurrentUser();
   const { listSessions, revokeSession, revokeAllSessions, checkCaptchaRequired } = useEnhancedAuth();
   
@@ -57,6 +59,14 @@ export default function AuthTest() {
   };
 
   const handleRevokeSession = async (sessionId: string) => {
+    const confirmed = await confirm({
+      titleKey: 'confirm.revokeSession.title',
+      messageKey: 'confirm.revokeSession.message',
+      variant: 'warning',
+    });
+    
+    if (!confirmed) return;
+
     try {
       const { error } = await revokeSession(sessionId);
       if (error) throw error;
@@ -75,6 +85,14 @@ export default function AuthTest() {
   };
 
   const handleRevokeAll = async () => {
+    const confirmed = await confirm({
+      titleKey: 'confirm.revokeAllSessions.title',
+      messageKey: 'confirm.revokeAllSessions.message',
+      variant: 'danger',
+    });
+    
+    if (!confirmed) return;
+
     try {
       const { error } = await revokeAllSessions();
       if (error) throw error;

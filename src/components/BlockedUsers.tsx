@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { UserX, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useConfirm } from "@/contexts/ConfirmContext";
 
 interface BlockedUser {
   id: string;
@@ -21,6 +22,7 @@ const BlockedUsers = ({ userId }: BlockedUsersProps) => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const { t, language } = useLanguage();
+  const confirm = useConfirm();
 
   useEffect(() => {
     loadBlockedUsers();
@@ -44,6 +46,14 @@ const BlockedUsers = ({ userId }: BlockedUsersProps) => {
   };
 
   const unblockUser = async (blockId: string) => {
+    const confirmed = await confirm({
+      titleKey: 'confirm.unblockUser.title',
+      messageKey: 'confirm.unblockUser.message',
+      variant: 'default',
+    });
+    
+    if (!confirmed) return;
+
     try {
       const { error } = await supabase
         .from('user_blocks')
