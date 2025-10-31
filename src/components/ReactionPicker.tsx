@@ -1,4 +1,3 @@
-import { Heart, Frown, Zap, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, memo } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,14 +18,35 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
   const [isLoading, setIsLoading] = useState(false);
   
   const reactions = [
-    { type: 'heart', icon: Heart, label: t.reaction_heart, color: 'text-red-500' },
-    { type: 'sad', icon: Frown, label: t.reaction_sad, color: 'text-blue-500' },
-    { type: 'strong', icon: Zap, label: t.reaction_strong, color: 'text-yellow-500' },
-    { type: 'thinking', icon: Lightbulb, label: t.reaction_thinking, color: 'text-purple-500' },
+    { type: 'heart', emoji: '❤️', label: t.reaction_heart, color: 'text-red-500' },
+    { type: 'sad', emoji: '🥺', label: t.reaction_sad, color: 'text-blue-500' },
+    { type: 'strong', emoji: '💪', label: t.reaction_strong, color: 'text-yellow-500' },
+    { type: 'thinking', emoji: '🤔', label: t.reaction_thinking, color: 'text-purple-500' },
   ];
 
   useEffect(() => {
     loadReactions();
+
+    // Setup realtime subscription
+    const channel = supabase
+      .channel(`reactions-${confessionId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'confession_reactions',
+          filter: `confession_id=eq.${confessionId}`
+        },
+        () => {
+          loadReactions();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [confessionId, userId]);
 
   const loadReactions = async () => {
@@ -75,12 +95,6 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
           .eq('reaction_type', reactionType);
 
         if (error) throw error;
-
-        setUserReactions(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(reactionType);
-          return newSet;
-        });
       } else {
         // Add reaction
         const { error } = await supabase
@@ -92,11 +106,7 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
           });
 
         if (error) throw error;
-
-        setUserReactions(prev => new Set(prev).add(reactionType));
       }
-
-      loadReactions();
     } catch (error) {
       console.error('Error toggling reaction:', error);
       toast({
@@ -111,7 +121,7 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
 
   return (
     <div className="flex flex-wrap gap-1 sm:gap-1.5">
-      {reactions.map(({ type, icon: Icon, label, color }) => {
+      {reactions.map(({ type, emoji, label, color }) => {
         const count = reactionCounts[type] || 0;
         const isActive = userReactions.has(type);
 
@@ -123,13 +133,13 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
             onClick={() => toggleReaction(type)}
             disabled={isLoading}
             className={cn(
-              "gap-0.5 sm:gap-1 h-8 sm:h-9 min-w-[40px] sm:min-w-[44px] px-1.5 sm:px-2 touch-manipulation text-xs sm:text-sm",
+              "gap-1 sm:gap-1.5 h-8 sm:h-9 min-w-[44px] sm:min-w-[48px] px-2 sm:px-2.5 touch-manipulation text-xs sm:text-sm transition-transform hover:scale-110 active:scale-95",
               isActive && color
             )}
             title={label}
           >
-            <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
-            {count > 0 && <span className="text-[10px] sm:text-xs">{count}</span>}
+            <span className="text-base sm:text-lg">{emoji}</span>
+            {count > 0 && <span className="text-[10px] sm:text-xs font-semibold">{count}</span>}
           </Button>
         );
       })}
