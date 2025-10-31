@@ -13,6 +13,8 @@ import {
   sendTestNotification 
 } from '@/services/push/oneSignalClient';
 import { notify } from '@/lib/notifications';
+import { supabase } from '@/integrations/supabase/client';
+import { Separator } from '@/components/ui/separator';
 
 export const PushNotificationSettings = () => {
   const { t, language } = useLanguage();
@@ -20,9 +22,12 @@ export const PushNotificationSettings = () => {
   const [pushEnabled, setPushEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [permissionStatus, setPermissionStatus] = useState<NotificationPermission>('default');
+  const [dailyReminder, setDailyReminder] = useState(true);
+  const [streakAlerts, setStreakAlerts] = useState(true);
 
   useEffect(() => {
     checkPushStatus();
+    loadNotificationSettings();
   }, [user]);
 
   const checkPushStatus = async () => {
@@ -31,6 +36,41 @@ export const PushNotificationSettings = () => {
     const enabled = await isPushEnabled();
     setPushEnabled(enabled);
     setPermissionStatus(Notification.permission);
+  };
+
+  const loadNotificationSettings = async () => {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from('notification_settings')
+      .select('daily_reminder, streak_alerts')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (!error && data) {
+      setDailyReminder(data.daily_reminder ?? true);
+      setStreakAlerts(data.streak_alerts ?? true);
+    }
+  };
+
+  const updateNotificationSettings = async (field: 'daily_reminder' | 'streak_alerts', value: boolean) => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('notification_settings')
+      .upsert({
+        user_id: user.id,
+        [field]: value,
+      }, {
+        onConflict: 'user_id'
+      });
+
+    if (error) {
+      console.error('Failed to update notification settings:', error);
+      notify.error('notifications.operationFailed', language);
+    } else {
+      notify.success('settings.saved', language);
+    }
   };
 
   const handleTogglePush = async () => {
@@ -144,6 +184,55 @@ export const PushNotificationSettings = () => {
         <p className="text-xs text-muted-foreground">
           {t.notifications_push_blocked_help}
         </p>
+      )}
+
+      {/* Notification Preferences */}
+      {pushEnabled && (
+        <>
+          <Separator className="my-4" />
+          
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold">{t.notifications_preferences}</h3>
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-sm font-medium">
+                  {t.notifications_daily_reminder}
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  {t.notifications_daily_reminder_desc}
+                </p>
+              </div>
+              <Switch
+                checked={dailyReminder}
+                onCheckedChange={(checked) => {
+                  setDailyReminder(checked);
+                  updateNotificationSettings('daily_reminder', checked);
+                }}
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-sm font-medium">
+                  {t.notifications_streak_alerts}
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  {t.notifications_streak_alerts_desc}
+                </p>
+              </div>
+              <Switch
+                checked={streakAlerts}
+                onCheckedChange={(checked) => {
+                  setStreakAlerts(checked);
+                  updateNotificationSettings('streak_alerts', checked);
+                }}
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

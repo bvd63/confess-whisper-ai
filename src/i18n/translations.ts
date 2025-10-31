@@ -1286,6 +1286,11 @@ type Translations = {
   notifications_push_not_enabled: string;
   notifications_send_test: string;
   notifications_push_blocked_help: string;
+  notifications_preferences: string;
+  notifications_daily_reminder: string;
+  notifications_daily_reminder_desc: string;
+  notifications_streak_alerts: string;
+  notifications_streak_alerts_desc: string;
   notifications_pushEnabled: string;
   notifications_pushDisabled: string;
   notifications_testSent: string;
@@ -3765,6 +3770,11 @@ export const translations: Record<Language, Translations> = {
     notifications_push_not_enabled: "Push notifications not enabled",
     notifications_send_test: "Send Test Notification",
     notifications_push_blocked_help: "To enable push notifications, please allow them in your browser settings",
+    notifications_preferences: "Notification Preferences",
+    notifications_daily_reminder: "Daily Reminders",
+    notifications_daily_reminder_desc: "Receive daily reminders to reflect and confess (7 AM & 7 PM)",
+    notifications_streak_alerts: "Streak Alerts",
+    notifications_streak_alerts_desc: "Get notified when your streak is at risk",
     notifications_pushEnabled: "Push notifications enabled successfully",
     notifications_pushDisabled: "Push notifications disabled",
     notifications_testSent: "Test notification sent successfully",
@@ -5629,6 +5639,11 @@ export const translations: Record<Language, Translations> = {
     notifications_push_not_enabled: "Notificaciones push no habilitadas",
     notifications_send_test: "Enviar Notificación de Prueba",
     notifications_push_blocked_help: "Para habilitar las notificaciones push, permite las en la configuración de tu navegador",
+    notifications_preferences: "Preferencias de Notificaciones",
+    notifications_daily_reminder: "Recordatorios Diarios",
+    notifications_daily_reminder_desc: "Recibe recordatorios diarios para reflexionar y confesar (7 AM y 7 PM)",
+    notifications_streak_alerts: "Alertas de Racha",
+    notifications_streak_alerts_desc: "Recibe notificaciones cuando tu racha esté en riesgo",
     notifications_pushEnabled: "Notificaciones push habilitadas correctamente",
     notifications_pushDisabled: "Notificaciones push deshabilitadas",
     notifications_testSent: "Notificación de prueba enviada correctamente",
@@ -7493,6 +7508,11 @@ export const translations: Record<Language, Translations> = {
     notifications_push_not_enabled: "Push-Benachrichtigungen nicht aktiviert",
     notifications_send_test: "Testbenachrichtigung Senden",
     notifications_push_blocked_help: "Um Push-Benachrichtigungen zu aktivieren, erlaube sie bitte in deinen Browser-Einstellungen",
+    notifications_preferences: "Benachrichtigungseinstellungen",
+    notifications_daily_reminder: "Tägliche Erinnerungen",
+    notifications_daily_reminder_desc: "Erhalte tägliche Erinnerungen zum Reflektieren und Beichten (7 Uhr und 19 Uhr)",
+    notifications_streak_alerts: "Streak-Warnungen",
+    notifications_streak_alerts_desc: "Werde benachrichtigt, wenn dein Streak gefährdet ist",
     notifications_pushEnabled: "Push-Benachrichtigungen erfolgreich aktiviert",
     notifications_pushDisabled: "Push-Benachrichtigungen deaktiviert",
     notifications_testSent: "Testbenachrichtigung erfolgreich gesendet",
