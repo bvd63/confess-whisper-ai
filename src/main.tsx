@@ -8,7 +8,7 @@ import ErrorBoundary from "@/components/ErrorBoundaryFallback";
 import { reportWebVitals } from "@/hooks/usePerformanceMonitor";
 import { validateTranslationSystem } from "@/lib/i18nValidator";
 import { prefetchCriticalRoutes } from "@/lib/bundleOptimization";
-import { initOneSignal } from "@/notifications/initOneSignal";
+import { initOneSignal } from "@/services/push/oneSignalClient";
 import AppWrapper from "./components/AppWrapper.tsx";
 import "./index.css";
 
