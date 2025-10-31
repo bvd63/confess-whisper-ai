@@ -76,6 +76,12 @@ export const PushNotificationSettings = () => {
   const handleTogglePush = async () => {
     if (!user) return;
 
+    // Show a clear message if configuration is missing
+    if (!import.meta.env.VITE_ONESIGNAL_APP_ID) {
+      notify.custom('Configurație lipsă: OneSignal App ID. Te rugăm contactează suportul sau adaugă cheia în setările proiectului.', 'destructive');
+      return;
+    }
+
     setIsLoading(true);
     try {
       if (pushEnabled) {
@@ -142,7 +148,7 @@ export const PushNotificationSettings = () => {
         <Switch
           checked={pushEnabled}
           onCheckedChange={handleTogglePush}
-          disabled={isLoading || permissionStatus === 'denied'}
+          disabled={isLoading}
         />
       </div>
 
