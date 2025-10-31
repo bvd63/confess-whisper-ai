@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import ConfessionCard from '@/components/ConfessionCard';
 import { Card } from '@/components/ui/card';
@@ -18,6 +18,7 @@ interface ProfileTabsProps {
 
 export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, onInsightGenerated }: ProfileTabsProps) => {
   const [activeTab, setActiveTab] = useState('posts');
+  const queryClient = useQueryClient();
 
   // Fetch user's posts
   const { data: posts, isLoading: postsLoading } = useQuery({
@@ -57,6 +58,32 @@ export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, o
     },
     enabled: isOwnProfile,
   });
+
+  // Realtime updates for bookmarks
+  useEffect(() => {
+    if (!isOwnProfile || !userId) return;
+
+    const channel = supabase
+      .channel('bookmarks-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'bookmarks',
+          filter: `user_id=eq.${userId}`,
+        },
+        () => {
+          // Invalidate and refetch bookmarks when any change occurs
+          queryClient.invalidateQueries({ queryKey: ['user-bookmarks', userId] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, isOwnProfile, queryClient]);
 
   const renderConfessions = (confessions: any[] | undefined, loading: boolean, emptyMessage: string) => {
     if (loading) {
