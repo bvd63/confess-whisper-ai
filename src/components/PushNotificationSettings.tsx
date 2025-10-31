@@ -82,32 +82,39 @@ export const PushNotificationSettings = () => {
       return;
     }
 
+    console.log('[PushSettings] Toggle clicked', { currentEnabled: pushEnabled, permission: Notification.permission });
     setIsLoading(true);
     try {
       if (pushEnabled) {
         // Disable push
         await disablePush(user.id);
         setPushEnabled(false);
+        console.log('[PushSettings] Disabled push successfully');
         notify.info('notifications.pushDisabled', language);
       } else {
         // Request permission and enable
         const granted = await requestPushPermission();
+        console.log('[PushSettings] Permission flow result', { granted });
         
         if (granted) {
           await initOneSignal(user.id);
-          setPushEnabled(true);
+          // Re-check state from SDK
+          const enabled = await isPushEnabled();
+          setPushEnabled(enabled);
+          console.log('[PushSettings] Enabled state after init', { enabled });
           notify.success('notifications.pushEnabled', language);
         } else {
           notify.error('notifications.pushBlocked', language);
         }
       }
-      
       setPermissionStatus(Notification.permission);
     } catch (error) {
       console.error('Error toggling push:', error);
       notify.error('notifications.operationFailed', language);
     } finally {
       setIsLoading(false);
+      // final consistency check
+      checkPushStatus();
     }
   };
 
@@ -147,7 +154,7 @@ export const PushNotificationSettings = () => {
         </div>
         <Switch
           checked={pushEnabled}
-          onCheckedChange={handleTogglePush}
+          onCheckedChange={() => handleTogglePush()}
           disabled={isLoading}
         />
       </div>
