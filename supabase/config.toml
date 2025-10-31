@@ -150,15 +150,3 @@ verify_jwt = true
 
 [functions.award-streak-bonus]
 verify_jwt = false
-
-[functions.send-push]
-verify_jwt = false
-
-[functions.cron-daily-notifications]
-verify_jwt = false
-
-[functions.cron-night-notifications]
-verify_jwt = false
-
-[functions.cron-streak-check]
-verify_jwt = false

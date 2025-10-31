@@ -102,34 +102,6 @@ serve(async (req) => {
           log("error", "Profile update failed", { userId: profile.user_id, error: updateError.message });
         } else {
           log("info", "Profile updated", { userId: profile.user_id, tier, status: subscription.status });
-          
-          // Send VIP welcome push notification
-          if (tier === "vip" && event.type === "customer.subscription.created") {
-            try {
-              const pushResponse = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-push`, {
-                method: "POST",
-                headers: {
-                  "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
-                  "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                  userId: profile.user_id,
-                  title: "VIP Activated 💎",
-                  body: "Your Confess+ VIP benefits are now active. Welcome to deeper reflections!",
-                  data: { type: "vip_welcome" }
-                })
-              });
-              
-              if (pushResponse.ok) {
-                log("info", "VIP welcome push sent", { userId: profile.user_id });
-              } else {
-                log("warn", "VIP welcome push failed", { userId: profile.user_id, status: pushResponse.status });
-              }
-            } catch (pushError) {
-              const pushErrorMsg = pushError instanceof Error ? pushError.message : 'Unknown error';
-              log("warn", "Failed to send VIP welcome push", { error: pushErrorMsg });
-            }
-          }
         }
         break;
       }

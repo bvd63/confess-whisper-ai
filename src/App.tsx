@@ -76,15 +76,6 @@ const AppContent = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingChecked, setOnboardingChecked] = useState(false);
 
-  // Link OneSignal user when authenticated
-  useEffect(() => {
-    if (user?.id) {
-      import('@/services/push/oneSignalClient')
-        .then(({ linkOneSignalUser }) => linkOneSignalUser(user.id))
-        .catch(console.error);
-    }
-  }, [user?.id]);
-
   // Check if onboarding is needed
   useEffect(() => {
     const checkOnboarding = async () => {
