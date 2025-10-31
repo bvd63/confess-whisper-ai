@@ -1281,8 +1281,10 @@ type Translations = {
   notification_desc: string;
   notifications_push_title: string;
   notifications_push_description: string;
+  notifications_push_off: string;
   notifications_push_enabled: string;
   notifications_push_blocked: string;
+  notifications_push_granted_not_subscribed: string;
   notifications_push_not_enabled: string;
   notifications_send_test: string;
   notifications_push_blocked_help: string;
@@ -3765,8 +3767,10 @@ export const translations: Record<Language, Translations> = {
     notification_desc: "Manage your reminders and alerts",
     notifications_push_title: "Push Notifications",
     notifications_push_description: "Receive reminders and updates on your device",
+    notifications_push_off: "Notifications are off. Tap to enable",
     notifications_push_enabled: "Push notifications are enabled",
     notifications_push_blocked: "Push is blocked by your browser",
+    notifications_push_granted_not_subscribed: "Permission granted but not subscribed. Tap to finish enabling",
     notifications_push_not_enabled: "Push notifications not enabled",
     notifications_send_test: "Send Test Notification",
     notifications_push_blocked_help: "To enable push notifications, please allow them in your browser settings",
@@ -5634,8 +5638,10 @@ export const translations: Record<Language, Translations> = {
     notification_desc: "Administra tus recordatorios y alertas",
     notifications_push_title: "Notificaciones Push",
     notifications_push_description: "Recibe recordatorios y actualizaciones en tu dispositivo",
+    notifications_push_off: "Las notificaciones están desactivadas. Toca para habilitar",
     notifications_push_enabled: "Las notificaciones push están habilitadas",
     notifications_push_blocked: "Push bloqueado por el navegador",
+    notifications_push_granted_not_subscribed: "Permiso concedido pero no suscrito. Toca para terminar de habilitar",
     notifications_push_not_enabled: "Notificaciones push no habilitadas",
     notifications_send_test: "Enviar Notificación de Prueba",
     notifications_push_blocked_help: "Para habilitar las notificaciones push, permite las en la configuración de tu navegador",
@@ -7503,8 +7509,10 @@ export const translations: Record<Language, Translations> = {
     notification_desc: "Verwalte deine Erinnerungen und Benachrichtigungen",
     notifications_push_title: "Push-Benachrichtigungen",
     notifications_push_description: "Erhalte Erinnerungen und Updates auf deinem Gerät",
+    notifications_push_off: "Benachrichtigungen sind aus. Tippe zum Aktivieren",
     notifications_push_enabled: "Push-Benachrichtigungen sind aktiviert",
     notifications_push_blocked: "Push wird vom Browser blockiert",
+    notifications_push_granted_not_subscribed: "Berechtigung erteilt, aber nicht abonniert. Tippe zum Abschließen der Aktivierung",
     notifications_push_not_enabled: "Push-Benachrichtigungen nicht aktiviert",
     notifications_send_test: "Testbenachrichtigung Senden",
     notifications_push_blocked_help: "Um Push-Benachrichtigungen zu aktivieren, erlaube sie bitte in deinen Browser-Einstellungen",

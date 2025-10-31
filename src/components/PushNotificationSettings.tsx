@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Bell, BellOff, CheckCircle2, XCircle } from 'lucide-react';
+import { Bell, BellOff, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { 
   initOneSignal, 
   requestPushPermission, 
   isPushEnabled, 
+  getPushStatus,
   disablePush,
   sendTestNotification 
 } from '@/services/push/oneSignalClient';
@@ -22,6 +23,8 @@ export const PushNotificationSettings = () => {
   const [pushEnabled, setPushEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [permissionStatus, setPermissionStatus] = useState<NotificationPermission>('default');
+  const [optedIn, setOptedIn] = useState(false);
+  const [playerId, setPlayerId] = useState<string | null>(null);
   const [dailyReminder, setDailyReminder] = useState(true);
   const [streakAlerts, setStreakAlerts] = useState(true);
 
@@ -33,9 +36,11 @@ export const PushNotificationSettings = () => {
   const checkPushStatus = async () => {
     if (!user) return;
     
-    const enabled = await isPushEnabled();
-    setPushEnabled(enabled);
-    setPermissionStatus(Notification.permission);
+    const status = await getPushStatus();
+    setPushEnabled(status.isEnabled);
+    setPermissionStatus(status.permission);
+    setOptedIn(status.optedIn);
+    setPlayerId(status.playerId);
   };
 
   const loadNotificationSettings = async () => {
@@ -99,9 +104,12 @@ export const PushNotificationSettings = () => {
         if (granted) {
           await initOneSignal(user.id);
           // Re-check state from SDK
-          const enabled = await isPushEnabled();
-          setPushEnabled(enabled);
-          console.log('[PushSettings] Enabled state after init', { enabled });
+          const status = await getPushStatus();
+          setPushEnabled(status.isEnabled);
+          setPermissionStatus(status.permission);
+          setOptedIn(status.optedIn);
+          setPlayerId(status.playerId);
+          console.log('[PushSettings] Enabled state after init', status);
           notify.success('notifications.pushEnabled', language);
         } else {
           notify.error('notifications.pushBlocked', language);
@@ -161,26 +169,34 @@ export const PushNotificationSettings = () => {
 
       {/* Permission Status */}
       <div className="flex items-center gap-2 text-sm">
-        {permissionStatus === 'granted' ? (
+        {permissionStatus === 'default' && (
           <>
-            <CheckCircle2 className="w-4 h-4 text-green-500" />
-            <span className="text-green-600">{t.notifications_push_enabled}</span>
+            <BellOff className="w-4 h-4 text-muted-foreground" />
+            <span className="text-muted-foreground">{t.notifications_push_off}</span>
           </>
-        ) : permissionStatus === 'denied' ? (
+        )}
+        {permissionStatus === 'denied' && (
           <>
             <XCircle className="w-4 h-4 text-destructive" />
             <span className="text-destructive">{t.notifications_push_blocked}</span>
           </>
-        ) : (
+        )}
+        {permissionStatus === 'granted' && !optedIn && (
           <>
-            <BellOff className="w-4 h-4 text-muted-foreground" />
-            <span className="text-muted-foreground">{t.notifications_push_not_enabled}</span>
+            <AlertCircle className="w-4 h-4 text-amber-500" />
+            <span className="text-amber-600 dark:text-amber-500">{t.notifications_push_granted_not_subscribed}</span>
+          </>
+        )}
+        {permissionStatus === 'granted' && optedIn && playerId && (
+          <>
+            <CheckCircle2 className="w-4 h-4 text-green-500" />
+            <span className="text-green-600 dark:text-green-500">{t.notifications_push_enabled}</span>
           </>
         )}
       </div>
 
-      {/* Test Notification Button */}
-      {pushEnabled && (
+      {/* Test Notification Button - Only shown when fully enabled */}
+      {pushEnabled && permissionStatus === 'granted' && optedIn && playerId && (
         <Button
           onClick={handleTestNotification}
           disabled={isLoading}
