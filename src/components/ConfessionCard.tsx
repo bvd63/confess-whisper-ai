@@ -194,42 +194,8 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
       </div>
 
       {/* Copy Text Button */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={handleCopyText}
-        className="text-xs gap-1"
-      >
-        <Copy className="h-3 w-3" />
-        <span className="hidden sm:inline">{t.copy_text}</span>
-      </Button>
-
       {/* Interaction Buttons */}
       <div className="flex items-center gap-2 flex-wrap">
-        {user && isOwner && canDelete && (
-          <>
-            <AIMakeoverDialog
-              confessionId={confession.id}
-              originalContent={confession.content}
-              isOwner={isOwner}
-            />
-          </>
-        )}
-        {user && isOwner && canDelete && deleteTimeLeft > 0 && (
-          <span className="text-xs text-muted-foreground ml-auto">
-            {t.delete_available?.replace('{time}', Math.ceil(deleteTimeLeft / 60).toString() + 'm')}
-          </span>
-        )}
-        {user && !isOwner && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsAwardPickerOpen(true)}
-            className="text-xs"
-          >
-            🏆 Give Award
-          </Button>
-        )}
         <ConfessionActions
           confessionId={confession.id}
           confessionUserId={confession.user_id}

@@ -172,29 +172,6 @@ const ConfessionActions = ({
 
   return (
     <div className="flex items-center gap-2 sm:gap-2 flex-wrap">
-      {/* Like Button */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={handleLike}
-        disabled={isLiking}
-        className={`h-12 sm:h-10 min-w-[48px] px-3 sm:px-3 gap-1 sm:gap-2 ${localIsLiked ? 'text-primary' : 'text-muted-foreground'} hover:text-primary transition-colors touch-manipulation ${isLiking ? 'opacity-50' : ''}`}
-      >
-        <Heart className={`w-4 h-4 sm:w-4 sm:h-4 flex-shrink-0 ${localIsLiked ? 'fill-current' : ''} ${isLiking ? 'animate-pulse' : ''}`} />
-        <span className="text-xs sm:text-sm">{localLikesCount}</span>
-      </Button>
-
-      {/* Share Button */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={handleShare}
-        className="h-12 sm:h-10 min-w-[48px] px-3 sm:px-3 gap-1 sm:gap-2 text-muted-foreground hover:text-primary transition-colors touch-manipulation"
-      >
-        <Share2 className="w-4 h-4 flex-shrink-0" />
-        <span className="text-xs sm:text-sm hidden xs:inline">{t.share}</span>
-      </Button>
-
       {/* Bookmark Button */}
       <Button
         variant="ghost"
@@ -216,16 +193,6 @@ const ConfessionActions = ({
             className="h-12 sm:h-10 min-w-[48px] px-3 text-muted-foreground hover:text-destructive transition-colors touch-manipulation"
           >
             <Trash2 className="w-4 h-4 flex-shrink-0" />
-          </Button>
-        )}
-        {onReport && !isOwner && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onReport}
-            className="h-12 sm:h-10 min-w-[48px] px-3 text-muted-foreground hover:text-destructive transition-colors touch-manipulation"
-          >
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
           </Button>
         )}
       </div>
