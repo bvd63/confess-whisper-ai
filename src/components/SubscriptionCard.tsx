@@ -79,6 +79,19 @@ export const SubscriptionCard = () => {
 
       if (error) throw error;
 
+      if (data?.hasActiveSubscription) {
+        toast({
+          title: "Active Subscription",
+          description: "You already have an active subscription. Redirecting to manage it...",
+        });
+        // Open customer portal instead
+        const { data: portalData } = await supabase.functions.invoke('customer-portal');
+        if (portalData?.url) {
+          window.open(portalData.url, '_blank');
+        }
+        return;
+      }
+
       if (data?.url) {
         window.location.href = data.url;
       }

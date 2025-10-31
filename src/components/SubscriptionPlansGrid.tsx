@@ -111,6 +111,19 @@ export const SubscriptionPlansGrid = ({
       });
 
       if (error) throw error;
+
+      if (data?.hasActiveSubscription) {
+        toast({
+          title: "Active Subscription",
+          description: "You already have an active subscription. Opening portal to manage it...",
+        });
+        // Redirect to customer portal
+        const { data: portalData } = await supabase.functions.invoke('customer-portal');
+        if (portalData?.url) {
+          window.open(portalData.url, '_blank');
+        }
+        return;
+      }
       
       if (data?.url) {
         try {

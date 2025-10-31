@@ -36,6 +36,15 @@ export default function SubscriptionTest() {
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout');
       if (error) throw error;
+      
+      if (data?.hasActiveSubscription) {
+        toast({
+          title: "Active Subscription",
+          description: data.message || "You already have an active subscription.",
+        });
+        return;
+      }
+      
       if (data?.url) {
         window.open(data.url, '_blank');
       }
