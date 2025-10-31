@@ -111,6 +111,7 @@ export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, o
           isPremium={isPremium}
           onUpgradeClick={onUpgradeClick}
           onInsightGenerated={onInsightGenerated}
+          allBookmarked={activeTab === 'saved'}
         />
       );
     }
@@ -122,6 +123,7 @@ export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, o
             key={confession.id} 
             confession={confession}
             isPremium={isPremium}
+            isBookmarked={activeTab === 'saved'}
             onUpgradeClick={onUpgradeClick}
             onInsightGenerated={onInsightGenerated}
           />

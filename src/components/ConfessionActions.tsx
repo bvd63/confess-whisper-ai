@@ -181,8 +181,7 @@ const ConfessionActions = ({
         className={`h-12 sm:h-10 min-w-[48px] px-3 sm:px-3 ${localIsBookmarked ? 'text-primary' : 'text-muted-foreground'} hover:text-primary transition-colors touch-manipulation ${isBookmarking ? 'opacity-50' : ''}`}
       >
         <Bookmark 
-          className={`w-4 h-4 flex-shrink-0 ${isBookmarking ? 'animate-pulse' : ''}`}
-          fill={localIsBookmarked ? 'currentColor' : 'none'}
+          className={`w-4 h-4 flex-shrink-0 ${isBookmarking ? 'animate-pulse' : ''} ${localIsBookmarked ? '[&>path]:fill-current' : '[&>path]:fill-none'}`}
         />
       </Button>
 
