@@ -142,7 +142,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         glass
         className="p-3 sm:p-4 md:p-5 mb-3 sm:mb-4 touch-manipulation transition-smooth hover:shadow-lg animate-slide-up"
       >
-        <div className="mb-2 sm:mb-3 flex items-center gap-2">
+        <div className="mb-2 sm:mb-3">
           <ConfessionHeader 
             category={confession.category} 
             createdAt={confession.created_at}
@@ -151,8 +151,8 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
             isAnonymous={confession.is_anonymous}
             authorDisplayName={confession.author_display_name_snapshot}
             userId={confession.user_id}
+            subscriptionTier={subscriptionTier}
           />
-          <VIPBadge tier={subscriptionTier as 'free' | 'vip'} size="sm" />
         </div>
 
         <SensitiveContentWarning isSensitive={isSensitive}>

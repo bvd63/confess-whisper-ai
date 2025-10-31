@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getUserDisplayName } from "@/lib/userDisplayName";
 import BadgesDisplay from "./BadgesDisplay";
+import { VIPBadge } from "./VIPBadge";
 
 interface ConfessionHeaderProps {
   category: string;
@@ -14,6 +15,7 @@ interface ConfessionHeaderProps {
   isAnonymous?: boolean;
   authorDisplayName?: string | null;
   userId?: string | null;
+  subscriptionTier?: string;
 }
 
 const ConfessionHeader = memo(({ 
@@ -23,7 +25,8 @@ const ConfessionHeader = memo(({
   authorVisibilitySnapshot,
   isAnonymous,
   authorDisplayName,
-  userId
+  userId,
+  subscriptionTier
 }: ConfessionHeaderProps) => {
   const { t } = useLanguage();
   
@@ -62,10 +65,13 @@ const ConfessionHeader = memo(({
   return (
     <div className="flex items-center gap-2 text-muted-foreground text-sm flex-wrap">
       <MessageCircle className="w-4 h-4" />
-      <div className="flex items-center gap-1.5 flex-wrap">
+      <div className="flex items-center gap-1 flex-wrap">
         <span>{displayName}</span>
         {userId && !isAnonymous && (
-          <BadgesDisplay userId={userId} variant="compact" />
+          <>
+            <VIPBadge tier={subscriptionTier as 'free' | 'vip'} size="sm" />
+            <BadgesDisplay userId={userId} variant="compact" />
+          </>
         )}
         <span>• {timeAgo}</span>
       </div>
