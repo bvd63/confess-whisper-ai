@@ -172,17 +172,6 @@ const ConfessionActions = ({
 
   return (
     <div className="flex items-center gap-2 sm:gap-2 flex-wrap">
-      {/* Bookmark Button */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={handleBookmark}
-        disabled={isBookmarking}
-        className={`h-12 sm:h-10 min-w-[48px] px-3 sm:px-3 ${localIsBookmarked ? 'text-primary' : 'text-muted-foreground'} hover:text-primary transition-colors touch-manipulation ${isBookmarking ? 'opacity-50' : ''}`}
-      >
-        <Bookmark className={`w-4 h-4 flex-shrink-0 ${localIsBookmarked ? 'fill-current' : ''} ${isBookmarking ? 'animate-pulse' : ''}`} />
-      </Button>
-
       {/* Owner Actions */}
       <div className="ml-auto flex items-center gap-2 sm:gap-2">
         {isOwner && onDelete && (
