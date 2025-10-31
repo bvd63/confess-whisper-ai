@@ -93,34 +93,28 @@ const BadgesDisplay = ({
   if (flairs.length === 0) return null;
 
   if (variant === "compact") {
+    // Show only the first equipped flair
+    const firstFlair = flairs[0];
+    
+    if (!firstFlair) return null;
+    
+    const flairName = t[firstFlair.profile_flairs.name_key as keyof typeof t] as string || firstFlair.profile_flairs.name_key;
+    
     return (
       <TooltipProvider>
-        <div className="flex gap-0.5 sm:gap-1 flex-wrap">
-          {flairs.slice(0, 3).map((flair) => {
-            const flairName = t[flair.profile_flairs.name_key as keyof typeof t] as string || flair.profile_flairs.name_key;
-            
-            return (
-              <Tooltip key={flair.id}>
-                <TooltipTrigger>
-                  <Badge 
-                    variant="outline" 
-                    className="h-5 sm:h-6 px-1 sm:px-1.5 py-0 gap-0.5 sm:gap-1 text-[10px] sm:text-xs border-primary/30 bg-primary/5"
-                  >
-                    <span className="text-xs">{flair.profile_flairs.icon}</span>
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="font-semibold text-xs sm:text-sm">{flairName}</p>
-                </TooltipContent>
-              </Tooltip>
-            );
-          })}
-          {flairs.length > 3 && (
-            <Badge variant="outline" className="text-[10px] sm:text-xs h-5 sm:h-6 px-1 sm:px-1.5 py-0 border-primary/30 bg-primary/5">
-              +{flairs.length - 3}
+        <Tooltip>
+          <TooltipTrigger>
+            <Badge 
+              variant="outline" 
+              className="h-5 sm:h-6 px-1 sm:px-1.5 py-0 gap-0.5 sm:gap-1 text-[10px] sm:text-xs border-primary/30 bg-primary/5"
+            >
+              <span className="text-xs">{firstFlair.profile_flairs.icon}</span>
             </Badge>
-          )}
-        </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="font-semibold text-xs sm:text-sm">{flairName}</p>
+          </TooltipContent>
+        </Tooltip>
       </TooltipProvider>
     );
   }
