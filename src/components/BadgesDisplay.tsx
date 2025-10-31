@@ -93,30 +93,8 @@ const BadgesDisplay = ({
   if (flairs.length === 0) return null;
 
   if (variant === "compact") {
-    // Show only the first equipped flair
-    const firstFlair = flairs[0];
-    
-    if (!firstFlair) return null;
-    
-    const flairName = t[firstFlair.profile_flairs.name_key as keyof typeof t] as string || firstFlair.profile_flairs.name_key;
-    
-    return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger>
-            <Badge 
-              variant="outline" 
-              className="h-5 sm:h-6 px-1 sm:px-1.5 py-0 gap-0.5 sm:gap-1 text-[10px] sm:text-xs border-primary/30 bg-primary/5"
-            >
-              <span className="text-xs">{firstFlair.profile_flairs.icon}</span>
-            </Badge>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p className="font-semibold text-xs sm:text-sm">{flairName}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    );
+    // Don't show flairs in compact mode
+    return null;
   }
 
   return (
