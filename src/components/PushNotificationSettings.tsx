@@ -27,6 +27,7 @@ export const PushNotificationSettings = () => {
   const [playerId, setPlayerId] = useState<string | null>(null);
   const [dailyReminder, setDailyReminder] = useState(true);
   const [streakAlerts, setStreakAlerts] = useState(true);
+  const [showRetry, setShowRetry] = useState(false);
 
   useEffect(() => {
     checkPushStatus();
@@ -109,10 +110,19 @@ export const PushNotificationSettings = () => {
           setPermissionStatus(status.permission);
           setOptedIn(status.optedIn);
           setPlayerId(status.playerId);
+          setShowRetry(false);
           console.log('[PushSettings] Enabled state after init', status);
-          notify.success('notifications.pushEnabled', language);
+          
+          if (status.isEnabled) {
+            notify.success('notifications.pushEnabled', language);
+          } else {
+            // Permission granted but subscription failed
+            setShowRetry(true);
+            notify.custom('Permisiunea a fost acordată, dar abonarea nu s-a finalizat. Te rugăm să încerci din nou.', 'default');
+          }
         } else {
           notify.error('notifications.pushBlocked', language);
+          setShowRetry(false);
         }
       }
       setPermissionStatus(Notification.permission);
@@ -181,10 +191,12 @@ export const PushNotificationSettings = () => {
             <span className="text-destructive">{t.notifications_push_blocked}</span>
           </>
         )}
-        {permissionStatus === 'granted' && !optedIn && (
+      {permissionStatus === 'granted' && !optedIn && (
           <>
             <AlertCircle className="w-4 h-4 text-amber-500" />
-            <span className="text-amber-600 dark:text-amber-500">{t.notifications_push_granted_not_subscribed}</span>
+            <span className="text-amber-600 dark:text-amber-500">
+              {t.notifications_push_granted_not_subscribed || 'Permission granted but not subscribed'}
+            </span>
           </>
         )}
         {permissionStatus === 'granted' && optedIn && playerId && (
@@ -194,6 +206,19 @@ export const PushNotificationSettings = () => {
           </>
         )}
       </div>
+
+      {/* Retry Button - Shown when permission granted but subscription failed */}
+      {showRetry && permissionStatus === 'granted' && !optedIn && (
+        <Button
+          onClick={handleTogglePush}
+          disabled={isLoading}
+          variant="default"
+          size="sm"
+          className="w-full"
+        >
+          Retry
+        </Button>
+      )}
 
       {/* Test Notification Button - Only shown when fully enabled */}
       {pushEnabled && permissionStatus === 'granted' && optedIn && playerId && (

@@ -99,6 +99,19 @@ export async function initOneSignal(userId?: string): Promise<void> {
  * Request push notification permission and subscribe user (v16 API)
  */
 export async function requestPushPermission(): Promise<boolean> {
+  console.log('[OneSignal] Requesting notification permission...');
+  
+  // Check if Service Worker is registered and active
+  if ('serviceWorker' in navigator) {
+    const registration = await navigator.serviceWorker.getRegistration('/');
+    console.log('[OneSignal] Service Worker registration:', registration?.active ? 'Active' : 'Not active', registration);
+    
+    if (!registration || !registration.active) {
+      console.error('[OneSignal] Service Worker not ready - cannot subscribe to push');
+      return false;
+    }
+  }
+  
   try {
     // Check current permission using browser API
     const perm = Notification.permission;
@@ -136,20 +149,26 @@ export async function requestPushPermission(): Promise<boolean> {
       await OneSignal.User.PushSubscription.optIn();
       console.log('[OneSignal] OptIn called, waiting for confirmation...');
       
-      // Poll for subscription status with timeout
-      for (let i = 0; i < 10; i++) {
-        await new Promise(r => setTimeout(r, 300));
+      // Poll for subscription status with extended timeout - 10 seconds
+      const maxAttempts = 30;
+      for (let i = 0; i < maxAttempts; i++) {
+        await new Promise(r => setTimeout(r, 333));
         const optedIn = await OneSignal.User.PushSubscription.optedIn;
         const playerId = await OneSignal.User.PushSubscription.id;
         
+        console.log(`[OneSignal] Waiting for subscription... (${i+1}/${maxAttempts}) optedIn: ${optedIn} playerId: ${playerId}`);
+        
         if (optedIn && playerId) {
-          console.log('[OneSignal] Subscription complete - playerId:', playerId);
+          console.log('[OneSignal] ✅ Subscription confirmed!', { playerId });
           return true;
         }
-        console.log(`[OneSignal] Waiting for subscription... (${i+1}/10) optedIn:`, optedIn, 'playerId:', playerId);
       }
       
-      console.error('[OneSignal] Subscription timeout');
+      console.error('[OneSignal] ❌ Subscription timeout - opted in but no player ID assigned within 10s');
+      console.error('[OneSignal] This usually means:');
+      console.error('  1. Service Worker not properly registered');
+      console.error('  2. Network request to OneSignal failed');
+      console.error('  3. OneSignal App ID configuration issue');
       return false;
     } catch (error) {
       // Retry once on failure
@@ -157,20 +176,24 @@ export async function requestPushPermission(): Promise<boolean> {
       await new Promise(r => setTimeout(r, 600));
       try {
         await OneSignal.User.PushSubscription.optIn();
+        console.log('[OneSignal] Retry OptIn called, waiting for confirmation...');
         
-        // Poll again
-        for (let i = 0; i < 10; i++) {
-          await new Promise(r => setTimeout(r, 300));
+        // Poll again with extended timeout
+        const maxAttempts = 30;
+        for (let i = 0; i < maxAttempts; i++) {
+          await new Promise(r => setTimeout(r, 333));
           const optedIn = await OneSignal.User.PushSubscription.optedIn;
           const playerId = await OneSignal.User.PushSubscription.id;
           
+          console.log(`[OneSignal] Retry waiting... (${i+1}/${maxAttempts}) optedIn: ${optedIn} playerId: ${playerId}`);
+          
           if (optedIn && playerId) {
-            console.log('[OneSignal] Subscription complete (retry) - playerId:', playerId);
+            console.log('[OneSignal] ✅ Subscription confirmed on retry!', { playerId });
             return true;
           }
         }
         
-        console.error('[OneSignal] Subscription timeout (retry)');
+        console.error('[OneSignal] ❌ Subscription timeout on retry');
         return false;
       } catch (retryError) {
         console.error('[OneSignal] OptIn retry failed:', retryError);
@@ -278,18 +301,21 @@ export async function sendTestNotification(userId: string): Promise<boolean> {
 export async function logPushDiagnostics(): Promise<void> {
   if (import.meta.env.PROD) return;
   
+  console.log('=== Push Notification Diagnostics ===');
+  console.log('OneSignal App ID:', import.meta.env.VITE_ONESIGNAL_APP_ID ? 'Configured' : 'MISSING');
+  console.log('Browser permission:', Notification.permission);
+  
+  if ('serviceWorker' in navigator) {
+    const registration = await navigator.serviceWorker.getRegistration('/');
+    console.log('Service Worker:', registration?.active ? '✅ Active' : '❌ Not active');
+    console.log('SW scope:', registration?.scope);
+  }
+  
   try {
-    const permission = Notification.permission;
-    const optedIn = await OneSignal.User.PushSubscription.optedIn;
-    const playerId = await OneSignal.User.PushSubscription.id;
-    
-    console.table({
-      'Browser Permission': permission,
-      'OneSignal OptedIn': optedIn,
-      'Player ID': playerId || 'null',
-      'Fully Enabled': permission === 'granted' && optedIn && !!playerId
-    });
+    const status = await getPushStatus();
+    console.log('Push status:', status);
   } catch (error) {
     console.error('[OneSignal] Diagnostic error:', error);
   }
+  console.log('=====================================');
 }
