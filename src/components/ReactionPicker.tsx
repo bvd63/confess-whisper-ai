@@ -124,6 +124,7 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
       {reactions.map(({ type, emoji, label, color }) => {
         const count = reactionCounts[type] || 0;
         const isActive = userReactions.has(type);
+        const displayCount = count > 99 ? '99+' : count;
 
         return (
           <Button
@@ -133,13 +134,17 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
             onClick={() => toggleReaction(type)}
             disabled={isLoading}
             className={cn(
-              "gap-1 sm:gap-1.5 h-8 sm:h-9 min-w-[44px] sm:min-w-[48px] px-2 sm:px-2.5 touch-manipulation text-xs sm:text-sm transition-transform hover:scale-110 active:scale-95",
+              "flex-col gap-0.5 h-auto min-w-[44px] sm:min-w-[48px] px-2 py-1.5 touch-manipulation transition-transform hover:scale-110 active:scale-95",
               isActive && color
             )}
             title={label}
           >
-            <span className="text-base sm:text-lg">{emoji}</span>
-            {count > 0 && <span className="text-[10px] sm:text-xs font-semibold">{count}</span>}
+            <span className="text-xl sm:text-2xl">{emoji}</span>
+            {count > 0 && (
+              <span className="text-[9px] sm:text-[10px] font-semibold leading-none">
+                {displayCount}
+              </span>
+            )}
           </Button>
         );
       })}
