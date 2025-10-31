@@ -11,9 +11,29 @@ import { prefetchCriticalRoutes } from "@/lib/bundleOptimization";
 import AppWrapper from "./components/AppWrapper.tsx";
 import "./index.css";
 
-// Register service worker for PWA
+// Register service worker for PWA (avoid conflict with OneSignal)
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
+    const hasOneSignal = !!import.meta.env.VITE_ONESIGNAL_APP_ID;
+
+    if (hasOneSignal) {
+      // If a generic PWA SW is active, unregister it so OneSignal can control the scope
+      navigator.serviceWorker
+        .getRegistrations()
+        .then((regs) => {
+          regs.forEach((reg) => {
+            const url = reg.active?.scriptURL || reg.installing?.scriptURL || reg.waiting?.scriptURL || '';
+            if (url.endsWith('/sw.js')) {
+              console.info('[PWA] Unregistering /sw.js to allow OneSignal service worker');
+              reg.unregister();
+            }
+          });
+        })
+        .catch(() => {});
+      // Do not register /sw.js when OneSignal is enabled
+      return;
+    }
+
     navigator.serviceWorker.register('/sw.js').catch((error) => {
       console.error('Service worker registration failed:', error);
     });
