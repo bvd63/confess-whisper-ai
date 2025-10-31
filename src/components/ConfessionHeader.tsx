@@ -64,7 +64,6 @@ const ConfessionHeader = memo(({
 
   return (
     <div className="flex items-center gap-2 text-muted-foreground text-sm flex-wrap">
-      <MessageCircle className="w-4 h-4" />
       <div className="flex items-center gap-1 flex-wrap">
         <span>{displayName}</span>
         {userId && !isAnonymous && (
