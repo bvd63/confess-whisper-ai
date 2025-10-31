@@ -144,15 +144,29 @@ export async function requestPushPermission(): Promise<boolean> {
 
     // Handle already granted permission
     if (Notification.permission === 'granted') {
-      console.log('[OneSignal] Permission already granted, opting in...');
+      console.log('[OneSignal] Permission already granted, checking subscription status...');
       try {
-        await OneSignal.User.PushSubscription.optIn();
+        const currentlyOptedIn = await OneSignal.User.PushSubscription.optedIn;
         const playerId = await OneSignal.User.PushSubscription.id;
-        const optedIn = await OneSignal.User.PushSubscription.optedIn;
-        console.log('[OneSignal] Opt-in complete - playerId:', playerId, 'optedIn:', optedIn);
+        console.log('[OneSignal] Current state - optedIn:', currentlyOptedIn, 'playerId:', playerId);
+        
+        // If not opted in, try to opt in
+        if (!currentlyOptedIn) {
+          console.log('[OneSignal] Not opted in, calling optIn()...');
+          await OneSignal.User.PushSubscription.optIn();
+          
+          // Wait a bit and check again
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          const newOptedIn = await OneSignal.User.PushSubscription.optedIn;
+          const newPlayerId = await OneSignal.User.PushSubscription.id;
+          console.log('[OneSignal] After optIn - optedIn:', newOptedIn, 'playerId:', newPlayerId);
+        } else {
+          console.log('[OneSignal] Already opted in, no action needed');
+        }
+        
         return true;
       } catch (optInError) {
-        console.error('[OneSignal] Failed to opt-in:', optInError);
+        console.error('[OneSignal] Failed to handle subscription:', optInError);
         return false;
       }
     }
