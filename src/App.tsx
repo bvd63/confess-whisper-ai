@@ -76,6 +76,15 @@ const AppContent = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingChecked, setOnboardingChecked] = useState(false);
 
+  // Initialize OneSignal when user is authenticated
+  useEffect(() => {
+    if (user?.id) {
+      import('@/services/push/oneSignalClient')
+        .then(({ initOneSignal }) => initOneSignal(user.id))
+        .catch(console.error);
+    }
+  }, [user?.id]);
+
   // Check if onboarding is needed
   useEffect(() => {
     const checkOnboarding = async () => {

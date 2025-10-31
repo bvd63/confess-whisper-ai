@@ -6,6 +6,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { PushNotificationSettings } from '@/components/PushNotificationSettings';
+import { Separator } from '@/components/ui/separator';
 
 interface NotificationSettingsData {
   dailyReminder: boolean;
@@ -102,12 +104,25 @@ export const NotificationSettings = () => {
 
     setIsSaving(true);
     try {
+      // Save to database
+      if (user?.id) {
+        const dbKey = key === 'dailyReminder' ? 'daily_reminder' : 'streak_alerts';
+        await supabase
+          .from('notification_settings')
+          .upsert({
+            user_id: user.id,
+            [dbKey]: value
+          }, {
+            onConflict: 'user_id'
+          });
+      }
+      
       await NotificationService.getInstance().saveSettings(next);
       toast.success(t.saved_toast || 'Settings saved');
     } catch (error) {
       console.error('Failed to persist notification setting', error);
       toast.error(t.save_failed || 'Failed to save settings');
-      setSettings(prev); // Rollback to previous
+      setSettings(prev);
     } finally {
       setIsSaving(false);
     }
@@ -152,6 +167,12 @@ export const NotificationSettings = () => {
 
   return (
     <div className="space-y-4 sm:space-y-5">
+      {/* Push Notifications Section */}
+      <PushNotificationSettings />
+      
+      <Separator className="my-4" />
+      
+      {/* Local/Fallback Notifications Header */}
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-base sm:text-lg font-semibold">{t.notification_settings}</h3>

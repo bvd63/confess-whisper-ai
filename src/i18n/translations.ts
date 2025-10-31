@@ -1279,6 +1279,17 @@ type Translations = {
   // Notification Settings
   notification_settings: string;
   notification_desc: string;
+  notifications_push_title: string;
+  notifications_push_description: string;
+  notifications_push_enabled: string;
+  notifications_push_blocked: string;
+  notifications_push_not_enabled: string;
+  notifications_send_test: string;
+  notifications_push_blocked_help: string;
+  notifications_pushEnabled: string;
+  notifications_pushDisabled: string;
+  notifications_testSent: string;
+  notifications_testFailed: string;
   daily_reminder: string;
   daily_reminder_desc: string;
   reminder_time: string;
@@ -3747,6 +3758,17 @@ export const translations: Record<Language, Translations> = {
     // Notification Settings
     notification_settings: "Notification Settings",
     notification_desc: "Manage your reminders and alerts",
+    notifications_push_title: "Push Notifications",
+    notifications_push_description: "Receive reminders and updates on your device",
+    notifications_push_enabled: "Push notifications are enabled",
+    notifications_push_blocked: "Push is blocked by your browser",
+    notifications_push_not_enabled: "Push notifications not enabled",
+    notifications_send_test: "Send Test Notification",
+    notifications_push_blocked_help: "To enable push notifications, please allow them in your browser settings",
+    notifications_pushEnabled: "Push notifications enabled successfully",
+    notifications_pushDisabled: "Push notifications disabled",
+    notifications_testSent: "Test notification sent successfully",
+    notifications_testFailed: "Failed to send test notification",
     daily_reminder: "Daily Reminder",
     daily_reminder_desc: "Get reminded to share your daily confession",
     reminder_time: "Reminder Time",
@@ -5600,6 +5622,17 @@ export const translations: Record<Language, Translations> = {
     // Notification Settings
     notification_settings: "Configuración de Notificaciones",
     notification_desc: "Administra tus recordatorios y alertas",
+    notifications_push_title: "Notificaciones Push",
+    notifications_push_description: "Recibe recordatorios y actualizaciones en tu dispositivo",
+    notifications_push_enabled: "Las notificaciones push están habilitadas",
+    notifications_push_blocked: "Push bloqueado por el navegador",
+    notifications_push_not_enabled: "Notificaciones push no habilitadas",
+    notifications_send_test: "Enviar Notificación de Prueba",
+    notifications_push_blocked_help: "Para habilitar las notificaciones push, permite las en la configuración de tu navegador",
+    notifications_pushEnabled: "Notificaciones push habilitadas correctamente",
+    notifications_pushDisabled: "Notificaciones push deshabilitadas",
+    notifications_testSent: "Notificación de prueba enviada correctamente",
+    notifications_testFailed: "Error al enviar notificación de prueba",
     daily_reminder: "Recordatorio Diario",
     daily_reminder_desc: "Recibe recordatorios para compartir tu confesión diaria",
     reminder_time: "Hora del Recordatorio",
@@ -7453,6 +7486,17 @@ export const translations: Record<Language, Translations> = {
     // Notification Settings
     notification_settings: "Benachrichtigungseinstellungen",
     notification_desc: "Verwalte deine Erinnerungen und Benachrichtigungen",
+    notifications_push_title: "Push-Benachrichtigungen",
+    notifications_push_description: "Erhalte Erinnerungen und Updates auf deinem Gerät",
+    notifications_push_enabled: "Push-Benachrichtigungen sind aktiviert",
+    notifications_push_blocked: "Push wird vom Browser blockiert",
+    notifications_push_not_enabled: "Push-Benachrichtigungen nicht aktiviert",
+    notifications_send_test: "Testbenachrichtigung Senden",
+    notifications_push_blocked_help: "Um Push-Benachrichtigungen zu aktivieren, erlaube sie bitte in deinen Browser-Einstellungen",
+    notifications_pushEnabled: "Push-Benachrichtigungen erfolgreich aktiviert",
+    notifications_pushDisabled: "Push-Benachrichtigungen deaktiviert",
+    notifications_testSent: "Testbenachrichtigung erfolgreich gesendet",
+    notifications_testFailed: "Fehler beim Senden der Testbenachrichtigung",
     daily_reminder: "Tägliche Erinnerung",
     daily_reminder_desc: "Werde daran erinnert, dein tägliches Geständnis zu teilen",
     reminder_time: "Erinnerungszeit",
