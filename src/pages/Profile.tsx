@@ -14,8 +14,8 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useMessageNotifications } from "@/hooks/useMessageNotifications";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useSubscriptionCheck } from "@/hooks/useSubscriptionCheck";
+import UserConfessionsList from "@/components/UserConfessionsList";
 import UserAnalytics from "@/components/UserAnalytics";
-import { ProfileTabs } from "@/pages/ProfileTabs";
 import BadgesDisplay from "@/components/BadgesDisplay";
 import StreakCounter from "@/components/StreakCounter";
 import WordCloudViz from "@/components/WordCloudViz";
@@ -184,9 +184,12 @@ const Profile = () => {
             <User className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-primary" />
           </div>
           <div className="flex-1">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">
-              <GradientText variant="hero">{t.profile_title}</GradientText>
-            </h1>
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">
+                <GradientText variant="hero">{t.profile_title}</GradientText>
+              </h1>
+              <VIPBadge tier={subscriptionTier as 'free' | 'vip'} size="lg" showLabel />
+            </div>
             {/* Show active equipped flairs */}
             <div className="mt-1.5 sm:mt-2">
               <BadgesDisplay 
@@ -279,13 +282,7 @@ const Profile = () => {
           </TabsContent>
 
           <TabsContent value="confessions" className="space-y-6">
-            <ProfileTabs 
-              userId={user.id}
-              isOwnProfile={true}
-              isPremium={isPremium}
-              onUpgradeClick={() => setManageSubDialogOpen(true)}
-              onInsightGenerated={() => {}}
-            />
+            <UserConfessionsList />
           </TabsContent>
 
           {/* Achievements tab removed - now in Rewards Hub */}

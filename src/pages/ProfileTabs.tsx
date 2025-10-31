@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import ConfessionCard from '@/components/ConfessionCard';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { FileText, Bookmark } from 'lucide-react';
+import { FileText, Heart, Bookmark } from 'lucide-react';
 import VirtualizedConfessions from '@/components/VirtualizedConfessions';
 
 interface ProfileTabsProps {
@@ -18,7 +18,6 @@ interface ProfileTabsProps {
 
 export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, onInsightGenerated }: ProfileTabsProps) => {
   const [activeTab, setActiveTab] = useState('posts');
-  const queryClient = useQueryClient();
 
   // Fetch user's posts
   const { data: posts, isLoading: postsLoading } = useQuery({
@@ -37,6 +36,26 @@ export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, o
     },
   });
 
+  // Fetch user's liked confessions (only if own profile)
+  const { data: liked, isLoading: likedLoading } = useQuery({
+    queryKey: ['user-liked', userId],
+    queryFn: async () => {
+      if (!isOwnProfile) return [];
+      
+      const { data, error } = await supabase
+        .from('user_likes')
+        .select(`
+          confession_id,
+          confessions (*)
+        `)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data?.map(item => item.confessions).filter(Boolean) || [];
+    },
+    enabled: isOwnProfile,
+  });
 
   // Fetch user's bookmarks (only if own profile)
   const { data: bookmarks, isLoading: bookmarksLoading } = useQuery({
@@ -58,32 +77,6 @@ export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, o
     },
     enabled: isOwnProfile,
   });
-
-  // Realtime updates for bookmarks
-  useEffect(() => {
-    if (!isOwnProfile || !userId) return;
-
-    const channel = supabase
-      .channel('bookmarks-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'bookmarks',
-          filter: `user_id=eq.${userId}`,
-        },
-        () => {
-          // Invalidate and refetch bookmarks when any change occurs
-          queryClient.invalidateQueries({ queryKey: ['user-bookmarks', userId] });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [userId, isOwnProfile, queryClient]);
 
   const renderConfessions = (confessions: any[] | undefined, loading: boolean, emptyMessage: string) => {
     if (loading) {
@@ -111,7 +104,6 @@ export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, o
           isPremium={isPremium}
           onUpgradeClick={onUpgradeClick}
           onInsightGenerated={onInsightGenerated}
-          allBookmarked={activeTab === 'saved'}
         />
       );
     }
@@ -123,7 +115,6 @@ export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, o
             key={confession.id} 
             confession={confession}
             isPremium={isPremium}
-            isBookmarked={activeTab === 'saved'}
             onUpgradeClick={onUpgradeClick}
             onInsightGenerated={onInsightGenerated}
           />
@@ -134,16 +125,22 @@ export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, o
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      <TabsList className="grid w-full grid-cols-2">
+      <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="posts" className="flex items-center gap-2">
           <FileText className="h-4 w-4" />
           <span className="hidden sm:inline">Posts</span>
         </TabsTrigger>
         {isOwnProfile && (
-          <TabsTrigger value="saved" className="flex items-center gap-2">
-            <Bookmark className="h-4 w-4" />
-            <span className="hidden sm:inline">Saved</span>
-          </TabsTrigger>
+          <>
+            <TabsTrigger value="liked" className="flex items-center gap-2">
+              <Heart className="h-4 w-4" />
+              <span className="hidden sm:inline">Liked</span>
+            </TabsTrigger>
+            <TabsTrigger value="saved" className="flex items-center gap-2">
+              <Bookmark className="h-4 w-4" />
+              <span className="hidden sm:inline">Saved</span>
+            </TabsTrigger>
+          </>
         )}
       </TabsList>
 
@@ -152,9 +149,15 @@ export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, o
       </TabsContent>
 
       {isOwnProfile && (
-        <TabsContent value="saved" className="mt-6">
-          {renderConfessions(bookmarks as any[], bookmarksLoading, 'No saved posts yet')}
-        </TabsContent>
+        <>
+          <TabsContent value="liked" className="mt-6">
+            {renderConfessions(liked as any[], likedLoading, 'No liked posts yet')}
+          </TabsContent>
+
+          <TabsContent value="saved" className="mt-6">
+            {renderConfessions(bookmarks as any[], bookmarksLoading, 'No saved posts yet')}
+          </TabsContent>
+        </>
       )}
     </Tabs>
   );

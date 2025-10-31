@@ -9,7 +9,6 @@ interface VirtualizedConfessionsProps {
   onInsightGenerated: () => void;
   itemHeight?: number; // Approximate height per card
   overscan?: number;
-  allBookmarked?: boolean;
 }
 
 /**
@@ -22,7 +21,6 @@ const VirtualizedConfessions = ({
   onInsightGenerated,
   itemHeight = 320,
   overscan = 6,
-  allBookmarked,
 }: VirtualizedConfessionsProps) => {
   const [containerHeight, setContainerHeight] = useState<number>(
     typeof window !== 'undefined' ? Math.max(320, window.innerHeight - 260) : 600
@@ -67,7 +65,6 @@ const VirtualizedConfessions = ({
               <ConfessionCard
                 confession={confession}
                 isPremium={isPremium}
-                isBookmarked={!!allBookmarked}
                 onUpgradeClick={onUpgradeClick}
                 onInsightGenerated={onInsightGenerated}
               />
