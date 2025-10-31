@@ -18,14 +18,26 @@ export async function initOneSignal(userId?: string): Promise<void> {
 
     // Initialize only once
     if (!isInitialized) {
-      await OneSignal.init({ 
-        appId,
-        allowLocalhostAsSecureOrigin: true,
-        serviceWorkerParam: { scope: '/' },
-        serviceWorkerPath: '/OneSignalSDKWorker.js'
-      });
-      isInitialized = true;
-      console.log('[OneSignal] Initialized');
+      try {
+        await OneSignal.init({ 
+          appId,
+          allowLocalhostAsSecureOrigin: true,
+          serviceWorkerParam: { scope: '/' },
+          serviceWorkerPath: '/OneSignalSDKWorker.js'
+        });
+        isInitialized = true;
+        console.log('[OneSignal] Initialized');
+      } catch (err: any) {
+        const msg = err?.message || err?.value?.message || String(err);
+        if (msg?.includes('SDK already initialized')) {
+          // Treat as success and continue
+          isInitialized = true;
+          console.warn('[OneSignal] SDK already initialized, continuing');
+        } else {
+          console.error('[OneSignal] Init error:', err);
+          return; // abort further steps on real init failure
+        }
+      }
     }
 
     // If permission is already denied, don't try to login
@@ -81,14 +93,25 @@ export async function requestPushPermission(): Promise<boolean> {
         console.warn('[OneSignal] Missing App ID');
         return false;
       }
-      await OneSignal.init({
-        appId,
-        allowLocalhostAsSecureOrigin: true,
-        serviceWorkerParam: { scope: '/' },
-        serviceWorkerPath: '/OneSignalSDKWorker.js'
-      });
-      isInitialized = true;
-      console.log('[OneSignal] Initialized (from permission flow)');
+      try {
+        await OneSignal.init({
+          appId,
+          allowLocalhostAsSecureOrigin: true,
+          serviceWorkerParam: { scope: '/' },
+          serviceWorkerPath: '/OneSignalSDKWorker.js'
+        });
+        isInitialized = true;
+        console.log('[OneSignal] Initialized (from permission flow)');
+      } catch (err: any) {
+        const msg = err?.message || err?.value?.message || String(err);
+        if (msg?.includes('SDK already initialized')) {
+          isInitialized = true;
+          console.warn('[OneSignal] SDK already initialized (permission flow), continuing');
+        } else {
+          console.error('[OneSignal] Init error (permission flow):', err);
+          return false;
+        }
+      }
     }
 
     if (Notification.permission === 'granted') {
