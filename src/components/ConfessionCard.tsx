@@ -143,7 +143,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         className="p-3 sm:p-4 md:p-5 mb-3 sm:mb-4 touch-manipulation transition-smooth hover:shadow-lg animate-slide-up relative"
       >
         {/* Action Buttons - Top Right */}
-        <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10">
+        <div className="absolute top-2 right-2 z-10">
           <ConfessionActions
             confessionId={confession.id}
             confessionUserId={confession.user_id}
