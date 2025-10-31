@@ -14,8 +14,8 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useMessageNotifications } from "@/hooks/useMessageNotifications";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useSubscriptionCheck } from "@/hooks/useSubscriptionCheck";
-import UserConfessionsList from "@/components/UserConfessionsList";
 import UserAnalytics from "@/components/UserAnalytics";
+import { ProfileTabs } from "@/pages/ProfileTabs";
 import BadgesDisplay from "@/components/BadgesDisplay";
 import StreakCounter from "@/components/StreakCounter";
 import WordCloudViz from "@/components/WordCloudViz";
@@ -282,7 +282,13 @@ const Profile = () => {
           </TabsContent>
 
           <TabsContent value="confessions" className="space-y-6">
-            <UserConfessionsList />
+            <ProfileTabs 
+              userId={user.id}
+              isOwnProfile={true}
+              isPremium={isPremium}
+              onUpgradeClick={() => setManageSubDialogOpen(true)}
+              onInsightGenerated={() => {}}
+            />
           </TabsContent>
 
           {/* Achievements tab removed - now in Rewards Hub */}
