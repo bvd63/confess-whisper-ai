@@ -184,12 +184,9 @@ const Profile = () => {
             <User className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-primary" />
           </div>
           <div className="flex-1">
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">
-                <GradientText variant="hero">{t.profile_title}</GradientText>
-              </h1>
-              <VIPBadge tier={subscriptionTier as 'free' | 'vip'} size="lg" showLabel />
-            </div>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">
+              <GradientText variant="hero">{t.profile_title}</GradientText>
+            </h1>
             {/* Show active equipped flairs */}
             <div className="mt-1.5 sm:mt-2">
               <BadgesDisplay 
