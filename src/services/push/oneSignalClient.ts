@@ -26,7 +26,21 @@ export async function initOneSignal(userId?: string): Promise<void> {
           serviceWorkerPath: '/OneSignalSDKWorker.js'
         });
         isInitialized = true;
+        
+        // Enable debug logs
+        try {
+          await OneSignal.Debug.setLogLevel('trace');
+        } catch (e) { /* ignore if not available */ }
+        
         console.log('[OneSignal] Initialized');
+        
+        // Log current status
+        try {
+          const permission = await OneSignal.Notifications.permission;
+          const optedIn = await OneSignal.User.PushSubscription.optedIn;
+          const playerId = await OneSignal.User.PushSubscription.id;
+          console.log('[OneSignal] Status - permission:', permission, 'optedIn:', optedIn, 'playerId:', playerId);
+        } catch (e) { /* ignore status check errors */ }
       } catch (err: any) {
         const msg = err?.message || err?.value?.message || String(err);
         if (msg?.includes('SDK already initialized')) {
@@ -101,7 +115,21 @@ export async function requestPushPermission(): Promise<boolean> {
           serviceWorkerPath: '/OneSignalSDKWorker.js'
         });
         isInitialized = true;
+        
+        // Enable debug logs
+        try {
+          await OneSignal.Debug.setLogLevel('trace');
+        } catch (e) { /* ignore if not available */ }
+        
         console.log('[OneSignal] Initialized (from permission flow)');
+        
+        // Log current status
+        try {
+          const permission = await OneSignal.Notifications.permission;
+          const optedIn = await OneSignal.User.PushSubscription.optedIn;
+          const playerId = await OneSignal.User.PushSubscription.id;
+          console.log('[OneSignal] Status - permission:', permission, 'optedIn:', optedIn, 'playerId:', playerId);
+        } catch (e) { /* ignore status check errors */ }
       } catch (err: any) {
         const msg = err?.message || err?.value?.message || String(err);
         if (msg?.includes('SDK already initialized')) {
@@ -116,16 +144,12 @@ export async function requestPushPermission(): Promise<boolean> {
 
     // Handle already granted permission
     if (Notification.permission === 'granted') {
-      console.log('[OneSignal] Permission already granted, checking opt-in status');
+      console.log('[OneSignal] Permission already granted, opting in...');
       try {
-        const isSubscribed = await OneSignal.User.PushSubscription.optedIn;
-        console.log('[OneSignal] Current opt-in status:', isSubscribed);
-        
-        if (!isSubscribed) {
-          console.log('[OneSignal] Opting in to push...');
-          await OneSignal.User.PushSubscription.optIn();
-          console.log('[OneSignal] User opted in to push successfully');
-        }
+        await OneSignal.User.PushSubscription.optIn();
+        const playerId = await OneSignal.User.PushSubscription.id;
+        const optedIn = await OneSignal.User.PushSubscription.optedIn;
+        console.log('[OneSignal] Opt-in complete - playerId:', playerId, 'optedIn:', optedIn);
         return true;
       } catch (optInError) {
         console.error('[OneSignal] Failed to opt-in:', optInError);
@@ -146,7 +170,9 @@ export async function requestPushPermission(): Promise<boolean> {
     // After permission is granted, opt in to push
     if (permission) {
       await OneSignal.User.PushSubscription.optIn();
-      console.log('[OneSignal] User opted in to push');
+      const playerId = await OneSignal.User.PushSubscription.id;
+      const optedIn = await OneSignal.User.PushSubscription.optedIn;
+      console.log('[OneSignal] Opted in - playerId:', playerId, 'optedIn:', optedIn);
     }
     
     return permission;
