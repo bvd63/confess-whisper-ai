@@ -75,6 +75,12 @@ export async function initOneSignal(userId?: string): Promise<void> {
 export async function requestPushPermission(): Promise<boolean> {
   try {
     if (Notification.permission === 'granted') {
+      // Check if already subscribed
+      const isSubscribed = await OneSignal.User.PushSubscription.optedIn;
+      if (!isSubscribed) {
+        await OneSignal.User.PushSubscription.optIn();
+        console.log('[OneSignal] User opted in to push');
+      }
       return true;
     }
 
@@ -84,6 +90,12 @@ export async function requestPushPermission(): Promise<boolean> {
 
     const permission = await OneSignal.Notifications.requestPermission();
     console.log('[OneSignal] Permission result:', permission);
+    
+    // After permission is granted, opt in to push
+    if (permission) {
+      await OneSignal.User.PushSubscription.optIn();
+      console.log('[OneSignal] User opted in to push');
+    }
     
     return permission;
   } catch (error) {
