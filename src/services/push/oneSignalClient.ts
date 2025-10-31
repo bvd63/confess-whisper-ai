@@ -74,6 +74,23 @@ export async function initOneSignal(userId?: string): Promise<void> {
  */
 export async function requestPushPermission(): Promise<boolean> {
   try {
+    // Ensure SDK is initialized before requesting permission
+    if (!isInitialized) {
+      const appId = import.meta.env.VITE_ONESIGNAL_APP_ID;
+      if (!appId) {
+        console.warn('[OneSignal] Missing App ID');
+        return false;
+      }
+      await OneSignal.init({
+        appId,
+        allowLocalhostAsSecureOrigin: true,
+        serviceWorkerParam: { scope: '/' },
+        serviceWorkerPath: '/OneSignalSDKWorker.js'
+      });
+      isInitialized = true;
+      console.log('[OneSignal] Initialized (from permission flow)');
+    }
+
     if (Notification.permission === 'granted') {
       // Check if already subscribed
       const isSubscribed = await OneSignal.User.PushSubscription.optedIn;
@@ -111,8 +128,8 @@ export async function isPushEnabled(): Promise<boolean> {
   try {
     if (!isInitialized) return false;
     const permission = Notification.permission;
-    const optedIn = await OneSignal.Notifications.permission;
-    return permission === 'granted' && optedIn;
+    const optedIn = await OneSignal.User.PushSubscription.optedIn;
+    return permission === 'granted' && !!optedIn;
   } catch {
     return false;
   }
