@@ -140,8 +140,25 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
       <AnimatedCard 
         hover="lift"
         glass
-        className="p-3 sm:p-4 md:p-5 mb-3 sm:mb-4 touch-manipulation transition-smooth hover:shadow-lg animate-slide-up"
+        className="p-3 sm:p-4 md:p-5 mb-3 sm:mb-4 touch-manipulation transition-smooth hover:shadow-lg animate-slide-up relative"
       >
+        {/* Action Buttons - Top Right */}
+        <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10">
+          <ConfessionActions
+            confessionId={confession.id}
+            confessionUserId={confession.user_id}
+            currentUserId={user?.id || null}
+            likesCount={confession.likes_count || 0}
+            isLiked={initialIsLiked || false}
+            isBookmarked={initialIsBookmarked || false}
+            onLikeChange={onLikeChange || (() => {})}
+            onBookmarkChange={onBookmarkChange || (() => {})}
+            onShare={() => setIsShareOpen(true)}
+            onReport={() => setIsReportOpen(true)}
+            onDelete={handleDeleteConfession}
+          />
+        </div>
+
         <div className="mb-2 sm:mb-3">
           <ConfessionHeader 
             category={confession.category} 
@@ -193,23 +210,6 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         <ReactionPicker confessionId={confession.id} userId={user?.id} />
       </div>
 
-      {/* Copy Text Button */}
-      {/* Interaction Buttons */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <ConfessionActions
-          confessionId={confession.id}
-          confessionUserId={confession.user_id}
-          currentUserId={user?.id || null}
-          likesCount={confession.likes_count || 0}
-          isLiked={initialIsLiked || false}
-          isBookmarked={initialIsBookmarked || false}
-          onLikeChange={onLikeChange || (() => {})}
-          onBookmarkChange={onBookmarkChange || (() => {})}
-          onShare={() => setIsShareOpen(true)}
-          onReport={() => setIsReportOpen(true)}
-          onDelete={handleDeleteConfession}
-        />
-      </div>
 
       {confession.ai_response && (
         <>
