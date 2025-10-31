@@ -6,8 +6,9 @@ import { Bell, BellOff, CheckCircle2, XCircle, AlertCircle } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { 
-  initOneSignal, 
+  linkOneSignalUser,
   requestPushPermission, 
+  savePlayerIdToDB,
   isPushEnabled, 
   getPushStatus,
   disablePush,
@@ -103,7 +104,10 @@ export const PushNotificationSettings = () => {
         console.log('[PushSettings] Permission flow result', { granted });
         
         if (granted) {
-          await initOneSignal(user.id);
+          // Link user and save player ID
+          await linkOneSignalUser(user.id);
+          await savePlayerIdToDB(user.id);
+          
           // Re-check state from SDK
           const status = await getPushStatus();
           setPushEnabled(status.isEnabled);
@@ -111,7 +115,7 @@ export const PushNotificationSettings = () => {
           setOptedIn(status.optedIn);
           setPlayerId(status.playerId);
           setShowRetry(false);
-          console.log('[PushSettings] Enabled state after init', status);
+          console.log('[PushSettings] Enabled state after subscription', status);
           
           if (status.isEnabled) {
             notify.success('notifications.pushEnabled', language);
