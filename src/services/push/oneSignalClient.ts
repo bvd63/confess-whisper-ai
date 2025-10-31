@@ -114,20 +114,32 @@ export async function requestPushPermission(): Promise<boolean> {
       }
     }
 
+    // Handle already granted permission
     if (Notification.permission === 'granted') {
-      // Check if already subscribed
-      const isSubscribed = await OneSignal.User.PushSubscription.optedIn;
-      if (!isSubscribed) {
-        await OneSignal.User.PushSubscription.optIn();
-        console.log('[OneSignal] User opted in to push');
+      console.log('[OneSignal] Permission already granted, checking opt-in status');
+      try {
+        const isSubscribed = await OneSignal.User.PushSubscription.optedIn;
+        console.log('[OneSignal] Current opt-in status:', isSubscribed);
+        
+        if (!isSubscribed) {
+          console.log('[OneSignal] Opting in to push...');
+          await OneSignal.User.PushSubscription.optIn();
+          console.log('[OneSignal] User opted in to push successfully');
+        }
+        return true;
+      } catch (optInError) {
+        console.error('[OneSignal] Failed to opt-in:', optInError);
+        return false;
       }
-      return true;
     }
 
     if (Notification.permission === 'denied') {
+      console.log('[OneSignal] Permission denied by user');
       return false;
     }
 
+    // Request permission if not yet granted
+    console.log('[OneSignal] Requesting notification permission...');
     const permission = await OneSignal.Notifications.requestPermission();
     console.log('[OneSignal] Permission result:', permission);
     
