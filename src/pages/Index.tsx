@@ -21,6 +21,9 @@ import { usePerformanceBudget } from "@/hooks/usePerformanceBudget";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import { OneSignalBanner } from "@/components/OneSignalBanner";
+import { oneSignalBannerI18n } from "@/i18n/onesignal";
+import { requestNotificationPermission } from "@/services/onesignal";
 
 
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
@@ -37,13 +40,14 @@ const FAQ = lazy(() => import("@/components/FAQ"));
 const Index = () => {
   const navigate = useNavigate();
   const { trackEvent } = useAnalytics();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useCurrentUser();
   const { isPremium } = usePremiumStatus(user?.id);
   useSubscriptionCheck(user?.id);
   useMessageNotifications({ userId: user?.id });
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
-  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission | 'unsupported'>('default');
+  const [bannerDismissed, setBannerDismissed] = useState(false);
   
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const [dialogDefaultTab, setDialogDefaultTab] = useState<'subscriptions' | 'coins'>('subscriptions');
@@ -71,7 +75,13 @@ const Index = () => {
     // Check notification permission
     if ('Notification' in window) {
       setNotificationPermission(Notification.permission);
+    } else {
+      setNotificationPermission('unsupported');
     }
+    
+    // Check if banner was dismissed
+    const dismissed = localStorage.getItem('onesignal-banner-dismissed') === 'true';
+    setBannerDismissed(dismissed);
     
     // Check if user is new (show onboarding)
     const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
@@ -185,6 +195,30 @@ const Index = () => {
         ref={containerRef}
         className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8"
       >
+        {/* OneSignal Notification Banner */}
+        {user && !bannerDismissed && (
+          <div className="mb-4 sm:mb-6">
+            <OneSignalBanner
+              permission={notificationPermission}
+              onEnable={async () => {
+                const granted = await requestNotificationPermission();
+                if (granted) {
+                  setNotificationPermission('granted');
+                  toast({
+                    title: t.common_success,
+                    description: "Notifications enabled successfully",
+                  });
+                }
+              }}
+              onDismiss={() => {
+                localStorage.setItem('onesignal-banner-dismissed', 'true');
+                setBannerDismissed(true);
+              }}
+              i18n={oneSignalBannerI18n[language as 'en' | 'es' | 'de'] || oneSignalBannerI18n.en}
+            />
+          </div>
+        )}
+
         {/* Welcome Section */}
         <div className="mb-6 sm:mb-8 text-center animate-fade-in">
           <div className="inline-flex items-center gap-2 mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 glass rounded-full border border-primary/20">
@@ -222,7 +256,14 @@ const Index = () => {
       </main>
 
       {/* Dialogs with Suspense for lazy loading */}
-      <Suspense fallback={null}>
+      <Suspense fallback={
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm text-muted-foreground">{t.ui_loading}</p>
+          </div>
+        </div>
+      }>
         <NewConfessionDialog
           open={isNewConfessionOpen}
           onOpenChange={setIsNewConfessionOpen}
@@ -241,14 +282,21 @@ const Index = () => {
       </Suspense>
       
       {/* FAQ Section with Suspense */}
-      <Suspense fallback={null}>
+      <Suspense fallback={
+        <div className="mt-16 animate-pulse space-y-4">
+          <div className="h-8 bg-muted rounded w-1/3 mx-auto" />
+          <div className="h-32 bg-muted rounded" />
+        </div>
+      }>
         <div id="faq-section" className="mt-16">
           <FAQ />
         </div>
       </Suspense>
 
       {/* Footer with trust badges */}
-      <Suspense fallback={null}>
+      <Suspense fallback={
+        <div className="mt-16 h-64 bg-muted/20 rounded animate-pulse" />
+      }>
         <footer className="mt-16">
           <TrustBadges />
         
