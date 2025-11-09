@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, Heart, MessageSquare, UserPlus, MessageCircle, ArrowLeft, Check, Trash2, Filter, Award, Lightbulb, Flame } from "lucide-react";
+import { Bell, Heart, MessageSquare, UserPlus, MessageCircle, ArrowLeft, Check, Trash2, Filter, Award, Lightbulb, Flame, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -34,17 +34,30 @@ interface Notification {
   triggered_by_nickname?: string;
 }
 
+interface GroupedNotification {
+  id: string;
+  type: 'like' | 'comment' | 'follow' | 'message' | 'badge_earned' | 'deep_insight' | 'streak_milestone';
+  confession_id?: string;
+  notifications: Notification[];
+  count: number;
+  hasUnread: boolean;
+  latestDate: string;
+  isExpanded?: boolean;
+}
+
 const NotificationHistory = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { user } = useCurrentUser();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [filteredNotifications, setFilteredNotifications] = useState<Notification[]>([]);
+  const [groupedNotifications, setGroupedNotifications] = useState<GroupedNotification[]>([]);
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteAllDialogOpen, setDeleteAllDialogOpen] = useState(false);
   const [notificationToDelete, setNotificationToDelete] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (user?.id) {
@@ -75,12 +88,86 @@ const NotificationHistory = () => {
 
   useEffect(() => {
     // Apply filter
-    if (filter === 'unread') {
-      setFilteredNotifications(notifications.filter(n => !n.is_read));
-    } else {
-      setFilteredNotifications(notifications);
-    }
+    const filtered = filter === 'unread' 
+      ? notifications.filter(n => !n.is_read)
+      : notifications;
+    
+    setFilteredNotifications(filtered);
+    
+    // Group notifications
+    const grouped = groupNotifications(filtered);
+    setGroupedNotifications(grouped);
   }, [filter, notifications]);
+
+  const groupNotifications = (notifs: Notification[]): GroupedNotification[] => {
+    const groups: Map<string, GroupedNotification> = new Map();
+    
+    notifs.forEach(notif => {
+      // Groupable types: like, comment, follow
+      // Non-groupable: message, badge_earned, deep_insight, streak_milestone
+      const isGroupable = ['like', 'comment', 'follow'].includes(notif.type);
+      
+      if (!isGroupable) {
+        // Create individual group for non-groupable notifications
+        groups.set(notif.id, {
+          id: notif.id,
+          type: notif.type,
+          notifications: [notif],
+          count: 1,
+          hasUnread: !notif.is_read,
+          latestDate: notif.created_at,
+        });
+        return;
+      }
+      
+      // Create group key based on type and related entity
+      let groupKey = '';
+      if (notif.type === 'like' || notif.type === 'comment') {
+        groupKey = `${notif.type}-${notif.confession_id}`;
+      } else if (notif.type === 'follow') {
+        // Group all follows together
+        groupKey = 'follow-all';
+      }
+      
+      if (!groups.has(groupKey)) {
+        groups.set(groupKey, {
+          id: groupKey,
+          type: notif.type,
+          confession_id: notif.confession_id,
+          notifications: [],
+          count: 0,
+          hasUnread: false,
+          latestDate: notif.created_at,
+        });
+      }
+      
+      const group = groups.get(groupKey)!;
+      group.notifications.push(notif);
+      group.count++;
+      if (!notif.is_read) group.hasUnread = true;
+      // Update to latest date
+      if (new Date(notif.created_at) > new Date(group.latestDate)) {
+        group.latestDate = notif.created_at;
+      }
+    });
+    
+    // Convert to array and sort by latest date
+    return Array.from(groups.values()).sort((a, b) => 
+      new Date(b.latestDate).getTime() - new Date(a.latestDate).getTime()
+    );
+  };
+
+  const toggleGroup = (groupId: string) => {
+    setExpandedGroups(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(groupId)) {
+        newSet.delete(groupId);
+      } else {
+        newSet.add(groupId);
+      }
+      return newSet;
+    });
+  };
 
   const loadNotifications = async () => {
     if (!user?.id) return;
@@ -255,6 +342,62 @@ const NotificationHistory = () => {
     }
   };
 
+  const getGroupedNotificationText = (group: GroupedNotification) => {
+    if (group.count === 1) {
+      return getNotificationText(group.notifications[0]);
+    }
+    
+    const names = group.notifications
+      .slice(0, 3)
+      .map(n => n.triggered_by_nickname || 'Someone');
+    
+    const nameText = group.count <= 3
+      ? names.join(', ')
+      : `${names.slice(0, 2).join(', ')} and ${group.count - 2} other${group.count > 3 ? 's' : ''}`;
+    
+    switch (group.type) {
+      case 'like':
+        return `${nameText} liked your confession`;
+      case 'comment':
+        return `${nameText} commented on your confession`;
+      case 'follow':
+        return `${nameText} started following you`;
+      default:
+        return getNotificationText(group.notifications[0]);
+    }
+  };
+
+  const markGroupAsRead = async (group: GroupedNotification) => {
+    const unreadIds = group.notifications
+      .filter(n => !n.is_read)
+      .map(n => n.id);
+    
+    if (unreadIds.length === 0) return;
+    
+    try {
+      await Promise.all(unreadIds.map(id => markAsRead(id)));
+    } catch (error) {
+      console.error('Error marking group as read:', error);
+    }
+  };
+
+  const deleteGroup = async (group: GroupedNotification) => {
+    try {
+      await Promise.all(group.notifications.map(n => deleteNotification(n.id)));
+    } catch (error) {
+      console.error('Error deleting group:', error);
+    }
+  };
+
+  const handleGroupClick = async (group: GroupedNotification) => {
+    if (group.count === 1) {
+      await handleNotificationClick(group.notifications[0]);
+    } else {
+      // For grouped items, just toggle expansion
+      toggleGroup(group.id);
+    }
+  };
+
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
@@ -317,68 +460,154 @@ const NotificationHistory = () => {
               </div>
             ) : (
               <div className="divide-y">
-                {filteredNotifications.map((notification) => (
-                  <div
-                    key={notification.id}
-                    className={`flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors group ${
-                      !notification.is_read ? 'bg-primary/5' : ''
-                    }`}
-                  >
-                    <div className="flex-shrink-0">
-                      {getNotificationIcon(notification.type)}
-                    </div>
-                    
-                    <button
-                      onClick={() => handleNotificationClick(notification)}
-                      className="flex-1 text-left min-w-0"
+                {groupedNotifications.map((group) => (
+                  <div key={group.id}>
+                    {/* Group Header */}
+                    <div
+                      className={`flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors group ${
+                        group.hasUnread ? 'bg-primary/5' : ''
+                      }`}
                     >
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="text-sm font-medium truncate">
-                          {getNotificationText(notification)}
-                        </p>
-                        {!notification.is_read && (
-                          <Badge variant="secondary" className="text-xs bg-primary text-primary-foreground flex-shrink-0">
-                            New
-                          </Badge>
-                        )}
+                      <div className="flex-shrink-0">
+                        {getNotificationIcon(group.type)}
                       </div>
-                      {notification.comment_content && (
-                        <p className="text-sm text-muted-foreground truncate mb-1">
-                          "{notification.comment_content}"
+                      
+                      <button
+                        onClick={() => handleGroupClick(group)}
+                        className="flex-1 text-left min-w-0"
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          {group.count > 1 && (
+                            <div className="flex-shrink-0">
+                              {expandedGroups.has(group.id) ? (
+                                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                              ) : (
+                                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                              )}
+                            </div>
+                          )}
+                          <p className="text-sm font-medium truncate">
+                            {getGroupedNotificationText(group)}
+                          </p>
+                          {group.hasUnread && (
+                            <Badge variant="secondary" className="text-xs bg-primary text-primary-foreground flex-shrink-0">
+                              New
+                            </Badge>
+                          )}
+                          {group.count > 1 && (
+                            <Badge variant="outline" className="text-xs flex-shrink-0">
+                              {group.count}
+                            </Badge>
+                          )}
+                        </div>
+                        {group.count === 1 && group.notifications[0].comment_content && (
+                          <p className="text-sm text-muted-foreground truncate mb-1">
+                            "{group.notifications[0].comment_content}"
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          {timeAgo(group.latestDate)}
                         </p>
-                      )}
-                      <p className="text-xs text-muted-foreground">
-                        {timeAgo(notification.created_at)}
-                      </p>
-                    </button>
+                      </button>
 
-                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      {!notification.is_read && (
+                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {group.hasUnread && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markGroupAsRead(group);
+                            }}
+                          >
+                            <Check className="w-4 h-4" />
+                          </Button>
+                        )}
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8"
+                          className="h-8 w-8 text-destructive hover:text-destructive"
                           onClick={(e) => {
                             e.stopPropagation();
-                            markAsRead(notification.id);
+                            if (group.count === 1) {
+                              setNotificationToDelete(group.notifications[0].id);
+                              setDeleteDialogOpen(true);
+                            } else {
+                              deleteGroup(group);
+                            }
                           }}
                         >
-                          <Check className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4" />
                         </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive hover:text-destructive"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setNotificationToDelete(notification.id);
-                          setDeleteDialogOpen(true);
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      </div>
                     </div>
+
+                    {/* Expanded Individual Notifications */}
+                    {group.count > 1 && expandedGroups.has(group.id) && (
+                      <div className="bg-muted/30">
+                        {group.notifications.map((notification) => (
+                          <div
+                            key={notification.id}
+                            className={`flex items-center gap-4 p-4 pl-16 hover:bg-muted/50 transition-colors group ${
+                              !notification.is_read ? 'bg-primary/5' : ''
+                            }`}
+                          >
+                            <button
+                              onClick={() => handleNotificationClick(notification)}
+                              className="flex-1 text-left min-w-0"
+                            >
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="text-sm font-medium truncate">
+                                  {getNotificationText(notification)}
+                                </p>
+                                {!notification.is_read && (
+                                  <Badge variant="secondary" className="text-xs bg-primary text-primary-foreground flex-shrink-0">
+                                    New
+                                  </Badge>
+                                )}
+                              </div>
+                              {notification.comment_content && (
+                                <p className="text-sm text-muted-foreground truncate mb-1">
+                                  "{notification.comment_content}"
+                                </p>
+                              )}
+                              <p className="text-xs text-muted-foreground">
+                                {timeAgo(notification.created_at)}
+                              </p>
+                            </button>
+
+                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              {!notification.is_read && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    markAsRead(notification.id);
+                                  }}
+                                >
+                                  <Check className="w-4 h-4" />
+                                </Button>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-destructive hover:text-destructive"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setNotificationToDelete(notification.id);
+                                  setDeleteDialogOpen(true);
+                                }}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
