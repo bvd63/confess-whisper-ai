@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { logDebug } from '@/lib/logger';
 
 interface ABTestConfig {
   testId: string;
@@ -76,5 +77,5 @@ const trackEvent = (event: string, data: Record<string, any>) => {
   if (typeof window !== 'undefined' && 'gtag' in window) {
     (window as any).gtag('event', event, data);
   }
-  console.log('AB Test Event:', event, data);
+  logDebug('AB Test Event', { event, ...data });
 };

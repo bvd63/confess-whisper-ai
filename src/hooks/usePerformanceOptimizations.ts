@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useAdaptiveLoading } from './useAdaptiveLoading';
+import { logCache } from '@/lib/logger';
 
 interface PerformanceMetrics {
   fps: number;
@@ -53,7 +54,7 @@ export const usePerformanceOptimizations = () => {
         localStorage.removeItem(key);
       });
 
-      console.log(`Cache optimized: removed ${removeCount} old entries`);
+      logCache('optimize', `removed-${removeCount}-entries`, true);
     }
   }, [measureCacheSize]);
 

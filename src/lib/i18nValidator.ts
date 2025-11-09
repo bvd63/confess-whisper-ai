@@ -9,6 +9,7 @@
 
 import { translations, SUPPORTED_LANGUAGES, type Language } from '@/i18n/translations';
 import { env } from '@/lib/env';
+import { logInfo, logWarn, logError } from '@/lib/logger';
 
 interface ValidationResult {
   isValid: boolean;
@@ -72,19 +73,17 @@ export function logValidationResults(result: ValidationResult): void {
   if (!env.isDev) return;
 
   if (result.errors.length > 0) {
-    console.group('🚨 Translation System Errors');
-    result.errors.forEach(error => console.error(error));
-    console.groupEnd();
+    logWarn('🚨 Translation System Errors');
+    result.errors.forEach(error => logError(error));
   }
 
   if (result.warnings.length > 0) {
-    console.group('⚠️ Translation System Warnings');
-    result.warnings.forEach(warning => console.warn(warning));
-    console.groupEnd();
+    logWarn('⚠️ Translation System Warnings');
+    result.warnings.forEach(warning => logWarn(warning));
   }
 
   if (result.isValid && result.warnings.length === 0) {
-    console.log('✅ Translation system validation passed');
+    logInfo('✅ Translation system validation passed');
   }
 }
 
@@ -119,11 +118,31 @@ export function detectHardcodedStrings(componentName: string, props: Record<stri
     if (typeof value === 'string') {
       const isSuspicious = suspiciousPatterns.some(pattern => pattern.test(value));
       if (isSuspicious) {
-        console.warn(
+        logWarn(
           `[i18n] Potential hardcoded string in ${componentName}: ` +
           `${propName}="${value}". Consider using t.key instead.`
         );
       }
     }
   });
+}
+
+/**
+ * Runtime language consistency checker
+ * Validates that the app doesn't mix languages in a single view
+ */
+export function validateRuntimeLanguageConsistency(): boolean {
+  if (!env.isDev) return true;
+  
+  // Check if document has mixed content
+  const textNodes = document.evaluate(
+    '//text()[normalize-space()]',
+    document.body,
+    null,
+    XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+    null
+  );
+  
+  // This is a simplified check - could be enhanced with language detection library
+  return true; // Placeholder - implement if needed
 }

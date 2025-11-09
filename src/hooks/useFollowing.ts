@@ -1,6 +1,7 @@
 import { useMemo, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useOptimizedQuery } from "./useOptimizedQuery";
+import { logDebug } from "@/lib/logger";
 
 interface UseFollowingOptions {
   userId: string | null;
@@ -63,7 +64,7 @@ export const useFollowing = ({ userId }: UseFollowingOptions) => {
           filter: `follower_id=eq.${userId},following_id=eq.${userId}`,
         },
         (payload) => {
-          console.log('[FOLLOW-REALTIME] Change detected:', payload);
+          logDebug('[FOLLOW-REALTIME] Change detected', payload);
           // Refetch both followers and following on any change
           refetchFollowing();
           refetchFollowers();

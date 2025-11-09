@@ -2,6 +2,7 @@
  * Bundle optimization utilities and lazy loading helpers
  */
 import { env } from '@/lib/env';
+import { logDebug } from '@/lib/logger';
 
 /**
  * Dynamically import large libraries only when needed
@@ -45,9 +46,7 @@ export const analyzeBundleSize = () => {
         loaded: true,
       }));
     
-    console.table(chunks);
-    console.log(`Total script tags: ${scripts.length}`);
-    console.log(`Loaded chunks: ${chunks.length}`);
+    logDebug('Bundle chunks', { totalScripts: scripts.length, chunks: chunks.length });
   }
 };
 
@@ -98,10 +97,11 @@ export const monitorBundlePerformance = () => {
     const totalSize = scripts.reduce((acc, s) => acc + (s.transferSize || 0), 0);
     const avgLoadTime = scripts.reduce((acc, s) => acc + s.duration, 0) / scripts.length;
     
-    console.log('📦 Bundle Performance:');
-    console.log(`- Total JS size: ${(totalSize / 1024).toFixed(2)} KB`);
-    console.log(`- Avg load time: ${avgLoadTime.toFixed(2)} ms`);
-    console.log(`- Scripts loaded: ${scripts.length}`);
+    logDebug('📦 Bundle Performance', {
+      totalSize: `${(totalSize / 1024).toFixed(2)} KB`,
+      avgLoadTime: `${avgLoadTime.toFixed(2)} ms`,
+      scriptsLoaded: scripts.length
+    });
   }
 };
 

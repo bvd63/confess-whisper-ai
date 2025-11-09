@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { logPerformance, logDebug } from '@/lib/logger';
 
 interface PerformanceMetrics {
   renderTime: number;
@@ -15,7 +16,7 @@ export const usePerformanceMonitor = (componentName: string) => {
 
     if (process.env.NODE_ENV === 'development') {
       if (renderTime > 16) { // More than one frame (60fps)
-        console.warn(`[Performance] ${componentName} took ${renderTime.toFixed(2)}ms to render (render #${renderCountRef.current})`);
+        logPerformance(`${componentName} render #${renderCountRef.current}`, renderTime);
       }
     }
 
@@ -34,7 +35,7 @@ export const reportWebVitals = () => {
     const lcpObserver = new PerformanceObserver((list) => {
       const entries = list.getEntries();
       const lastEntry = entries[entries.length - 1] as any;
-      console.log('[Web Vitals] LCP:', lastEntry.renderTime || lastEntry.loadTime);
+      logDebug('[Web Vitals] LCP', { value: lastEntry.renderTime || lastEntry.loadTime });
     });
     
     try {
@@ -47,7 +48,7 @@ export const reportWebVitals = () => {
     const fidObserver = new PerformanceObserver((list) => {
       const entries = list.getEntries();
       entries.forEach((entry: any) => {
-        console.log('[Web Vitals] FID:', entry.processingStart - entry.startTime);
+        logDebug('[Web Vitals] FID', { value: entry.processingStart - entry.startTime });
       });
     });
 
@@ -65,7 +66,7 @@ export const reportWebVitals = () => {
           clsValue += entry.value;
         }
       }
-      console.log('[Web Vitals] CLS:', clsValue);
+      logDebug('[Web Vitals] CLS', { value: clsValue });
     });
 
     try {

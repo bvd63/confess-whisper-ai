@@ -3,6 +3,7 @@
  * Handles data conflicts between local and server state
  */
 
+import { logInfo } from '@/lib/logger';
 interface ConflictResolution<T> {
   resolved: T;
   strategy: 'local' | 'server' | 'merge' | 'newest';
@@ -186,7 +187,7 @@ export class ConflictResolver {
     type: string,
     resolution: ConflictResolution<any>
   ): void {
-    console.log(`🔄 Conflict resolved (${type}):`, {
+    logInfo(`🔄 Conflict resolved (${type})`, {
       strategy: resolution.strategy,
       timestamp: new Date(resolution.timestamp).toISOString()
     });

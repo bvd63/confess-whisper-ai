@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { logCache } from '@/lib/logger';
 
 /**
  * Cache cleanup hook for immediate purge after delete operations
@@ -23,7 +24,7 @@ export const useCachePurgeOnDelete = () => {
       (window as any).gc?.();
     }
 
-    console.log(`[Cache] Purged confession ${confessionId}`);
+    logCache('purge', `confession-${confessionId}`, true);
   }, []);
 
   const purgeComment = useCallback((commentId: string, confessionId: string) => {
@@ -38,7 +39,7 @@ export const useCachePurgeOnDelete = () => {
     );
     sessionKeys.forEach(key => sessionStorage.removeItem(key));
 
-    console.log(`[Cache] Purged comment ${commentId} from confession ${confessionId}`);
+    logCache('purge', `comment-${commentId}`, true);
   }, []);
 
   const purgeMessage = useCallback((messageId: string, conversationId: string) => {
@@ -53,7 +54,7 @@ export const useCachePurgeOnDelete = () => {
     );
     sessionKeys.forEach(key => sessionStorage.removeItem(key));
 
-    console.log(`[Cache] Purged message ${messageId} from conversation ${conversationId}`);
+    logCache('purge', `message-${messageId}`, true);
   }, []);
 
   const purgeConversation = useCallback((conversationId: string) => {
@@ -74,7 +75,7 @@ export const useCachePurgeOnDelete = () => {
     );
     messageKeys.forEach(key => localStorage.removeItem(key));
 
-    console.log(`[Cache] Purged conversation ${conversationId} and all related messages`);
+    logCache('purge', `conversation-${conversationId}`, true);
   }, []);
 
   const purgeAll = useCallback(() => {
@@ -95,7 +96,7 @@ export const useCachePurgeOnDelete = () => {
     );
     sessionKeys.forEach(key => sessionStorage.removeItem(key));
 
-    console.log('[Cache] Purged all app cache');
+    logCache('purge', 'all-cache', true);
   }, []);
 
   return {

@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useNavigate } from 'react-router-dom';
+import { logDebug } from '@/lib/logger';
 
 interface UseMessageNotificationsProps {
   userId: string | undefined;
@@ -29,7 +30,7 @@ export const useMessageNotifications = ({ userId, enabled = true }: UseMessageNo
     try {
       audioRef.current = new Audio('/notification.mp3');
     } catch (e) {
-      console.log('Notification sound not available');
+      logDebug('Notification sound not available');
     }
   }, []);
 
@@ -74,7 +75,7 @@ export const useMessageNotifications = ({ userId, enabled = true }: UseMessageNo
 
           // Play notification sound
           if (audioRef.current) {
-            audioRef.current.play().catch(e => console.log('Could not play sound:', e));
+            audioRef.current.play().catch(e => logDebug('Could not play notification sound', { error: e }));
           }
 
           // Show browser notification

@@ -6,6 +6,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { offlineQueue } from './offlineQueue';
 import { persistenceManager } from './persistenceManager';
+import { logInfo, logWarn, logError } from '@/lib/logger';
 
 class SyncScheduler {
   private syncIntervals: Map<string, number> = new Map();
@@ -40,7 +41,7 @@ class SyncScheduler {
     }, 60 * 60 * 1000);
     this.syncIntervals.set('cleanup', cleanupId);
 
-    console.log('📅 Sync scheduler started');
+    logInfo('📅 Sync scheduler started');
   }
 
   /**
@@ -51,7 +52,7 @@ class SyncScheduler {
       window.clearInterval(id);
     });
     this.syncIntervals.clear();
-    console.log('⏹️ Sync scheduler stopped');
+    logInfo('⏹️ Sync scheduler stopped');
   }
 
   /**
@@ -72,7 +73,7 @@ class SyncScheduler {
         window.dispatchEvent(new CustomEvent('quick-sync', { detail: { userId } }));
       }
     } catch (error) {
-      console.error('Quick sync failed:', error);
+      logError('Quick sync failed', error instanceof Error ? error : undefined);
     } finally {
       this.isSyncing = false;
     }
@@ -93,16 +94,16 @@ class SyncScheduler {
       });
 
       if (error) {
-        console.error('Deep sync validation failed:', error);
+        logError('Deep sync validation failed', error instanceof Error ? error : undefined);
       } else if (data?.result?.issues?.length > 0) {
-        console.warn('⚠️ Data validation issues found:', data.result.issues);
+        logWarn('⚠️ Data validation issues found', { issues: data.result.issues });
         
         // Trigger data repair
         window.dispatchEvent(new CustomEvent('data-validation-issues', {
           detail: { issues: data.result.issues }
         }));
       } else {
-        console.log('✅ Data validation passed');
+        logInfo('✅ Data validation passed');
       }
 
       // Recalculate unread counts
@@ -114,7 +115,7 @@ class SyncScheduler {
         await persistenceManager.set('state', `unread_counts_${userId}`, countsData.result.counts);
       }
     } catch (error) {
-      console.error('Deep sync failed:', error);
+      logError('Deep sync failed', error instanceof Error ? error : undefined);
     } finally {
       this.isSyncing = false;
     }
@@ -124,7 +125,7 @@ class SyncScheduler {
    * Force immediate sync
    */
   async forceSync(userId: string): Promise<void> {
-    console.log('🔄 Force sync initiated');
+    logInfo('🔄 Force sync initiated');
     await this.quickSync(userId);
     await this.deepSync(userId);
   }

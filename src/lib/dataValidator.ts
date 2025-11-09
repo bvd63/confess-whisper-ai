@@ -3,6 +3,7 @@
  * Ensures data integrity across local and server storage
  */
 
+import { logInfo, logError } from '@/lib/logger';
 import { persistenceManager } from './persistenceManager';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -143,7 +144,7 @@ class DataValidator {
    * Fix common data inconsistencies
    */
   async repairData(userId: string): Promise<void> {
-    console.log('🔧 Starting data repair...');
+    logInfo('🔧 Starting data repair');
 
     try {
       // Clear expired cache entries
@@ -163,9 +164,9 @@ class DataValidator {
         }
       }
 
-      console.log('✅ Data repair completed');
+      logInfo('✅ Data repair completed');
     } catch (error) {
-      console.error('❌ Data repair failed:', error);
+      logError('❌ Data repair failed', error instanceof Error ? error : undefined);
       throw error;
     }
   }

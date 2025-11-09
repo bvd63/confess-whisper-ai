@@ -3,6 +3,7 @@
  * Batch and throttle analytics events to reduce network calls
  */
 import { env } from '@/lib/env';
+import { logDebug } from '@/lib/logger';
 
 interface AnalyticsEvent {
   name: string;
@@ -64,9 +65,7 @@ class AnalyticsOptimizer {
     try {
       // Send batched events
       // In production, replace with actual analytics endpoint
-      if (env.isDev) {
-        console.log('📊 Analytics batch:', events.length, 'events');
-      }
+      logDebug('📊 Analytics batch', { count: events.length });
 
       // Example: Send to your analytics service
       // await fetch('/api/analytics/batch', {

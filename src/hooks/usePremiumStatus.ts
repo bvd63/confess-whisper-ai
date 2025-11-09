@@ -1,6 +1,7 @@
 import { useMemo, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useOptimizedQuery } from "./useOptimizedQuery";
+import { logDebug } from "@/lib/logger";
 
 export const usePremiumStatus = (userId: string | null | undefined) => {
   const { data, isLoading, refetch } = useOptimizedQuery<any>({
@@ -60,9 +61,7 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
           filter: `user_id=eq.${userId}`,
         },
         () => {
-          if (import.meta.env.DEV) {
-            console.log('[usePremiumStatus] Profile updated, refetching...');
-          }
+          logDebug('[usePremiumStatus] Profile updated, refetching');
           refetch();
         }
       )
