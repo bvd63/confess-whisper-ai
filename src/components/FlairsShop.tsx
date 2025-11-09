@@ -58,7 +58,6 @@ export const FlairsShop = ({
   } = useCoins(userId);
 
   const loadData = useCallback(async (retryCount = 0) => {
-    console.log('[FlairsShop] loadData start', { retryCount, hasLoadedBefore: hasLoaded });
     setLoading((prev) => (hasLoaded ? prev : true));
     setError(null);
 
@@ -85,7 +84,6 @@ export const FlairsShop = ({
         flairsPromise,
         userFlairsPromise,
       ]);
-      console.log('[FlairsShop] settled', { profileStatus: profileRes.status, flairsStatus: flairsRes.status, userFlairsStatus: userFlairsRes.status });
 
       // Profile tier
       if (profileRes.status === 'fulfilled') {
@@ -123,25 +121,21 @@ export const FlairsShop = ({
       refetchCoins();
       setHasLoaded(true);
       setError(null);
-      console.log('[FlairsShop] loadData success, setHasLoaded(true)');
     } catch (e: any) {
       const msg = e?.message || 'Failed to load flairs';
       // Retry transient network errors up to 2 times
       if (msg.includes('Failed to fetch') && retryCount < 2) {
-        console.log(`Retrying flairs load... attempt ${retryCount + 1}`);
         setTimeout(() => loadData(retryCount + 1), 800);
         return;
       }
       setError(msg);
     } finally {
       setLoading(false);
-      console.log('[FlairsShop] loadData end -> setLoading(false)');
     }
   }, [userId, refetchCoins, hasLoaded]);
 
   useEffect(() => {
     if (open) {
-      console.log('[FlairsShop] open effect triggered', { open });
       setHasLoaded(false);
       loadData();
     }

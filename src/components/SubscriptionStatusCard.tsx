@@ -114,9 +114,15 @@ export const SubscriptionStatusCard = () => {
 
           {/* Subscription details */}
           {subscriptionTier !== 'free' && subscriptionEnd && (
-            <div className="flex items-center gap-2 text-sm text-gray-400 pt-2 border-t border-white/10">
-              <Calendar className="w-4 h-4" />
-              <span>Renews on {formatDate(subscriptionEnd)}</span>
+            <div className="space-y-2 pt-2 border-t border-white/10">
+              <div className="flex items-center gap-2 text-sm text-gray-400">
+                <Calendar className="w-4 h-4" />
+                <span>Renews on {formatDate(subscriptionEnd)}</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <span>Synced with Stripe</span>
+              </div>
             </div>
           )}
 
