@@ -1,8 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/integrations/supabase/types';
+import { env } from '@/lib/env';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const SUPABASE_URL = env.client.supabaseUrl;
+const SUPABASE_PUBLISHABLE_KEY = env.client.supabaseAnonKey;
 
 /**
  * Enhanced Supabase client with connection pooling for scalability

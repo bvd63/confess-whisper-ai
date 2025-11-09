@@ -2,11 +2,12 @@
  * Stripe Configuration - Single Source of Truth
  * All Stripe price IDs and subscription tiers from environment variables
  */
+import { env } from '@/lib/env';
 
 // Read Stripe configuration from environment variables
 export const STRIPE_PRICE = {
-  VIP_MONTHLY: import.meta.env.VITE_STRIPE_PRICE_VIP_MONTHLY || 'price_1SLWHvR7kygIyYg9dL3xhz5Y',
-  VIP_YEARLY: import.meta.env.VITE_STRIPE_PRICE_VIP_YEARLY || 'price_1SLWIRR7kygIyYg9pqq3rWD4',
+  VIP_MONTHLY: env.client.stripePriceVipMonthId,
+  VIP_YEARLY: env.client.stripePriceVipYearId,
 };
 
 export const STRIPE_CONFIG = {

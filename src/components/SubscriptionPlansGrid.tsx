@@ -8,6 +8,8 @@ import { getPlansForInterval } from "@/lib/subscription-plans";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getStringTranslation } from "@/lib/translationUtils";
+import { env } from "@/lib/env";
+import { newIdempotencyKey } from "@/lib/idempotency";
 
 interface SubscriptionPlansGridProps {
   currentPlan: string;
@@ -107,7 +109,10 @@ export const SubscriptionPlansGrid = ({
       }
 
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { priceId }
+        body: { priceId },
+        headers: {
+          'Idempotency-Key': newIdempotencyKey()
+        }
       });
 
       if (error) throw error;

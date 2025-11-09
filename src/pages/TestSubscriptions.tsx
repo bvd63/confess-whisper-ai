@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { env } from "@/lib/env";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -104,7 +105,7 @@ export default function TestSubscriptions() {
   const testPreviewUpgrade = () =>
     runTest("Preview Upgrade to VIP", async () => {
       // Note: This requires knowing the actual Stripe price ID for VIP
-      const vipPriceId = import.meta.env.VITE_STRIPE_PRICE_VIP_MONTHLY || "price_1SJ0vwR7kygIyYg9OeCiqV00";
+      const vipPriceId = env.client.stripePriceVipMonthId;
       const { data, error } = await supabase.functions.invoke("billing-preview", {
         body: { targetPriceId: vipPriceId },
       });

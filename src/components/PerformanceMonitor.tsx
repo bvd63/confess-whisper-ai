@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { usePerformanceOptimizations } from '@/hooks/usePerformanceOptimizations';
+import { env } from '@/lib/env';
 import { Activity, Database, Zap } from 'lucide-react';
 
 export const PerformanceMonitor = () => {
@@ -9,7 +10,7 @@ export const PerformanceMonitor = () => {
   const { metrics, optimizeCache } = usePerformanceOptimizations();
 
   // Only show in development
-  if (import.meta.env.PROD) return null;
+  if (env.isProd) return null;
 
   if (!isVisible) {
     return (

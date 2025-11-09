@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { observability } from '@/lib/observability';
+import { env } from '@/lib/env';
 import { Activity, Database, TrendingUp, Zap } from 'lucide-react';
 
 interface PerformanceMetrics {
@@ -60,7 +61,7 @@ export const PerformanceIndicator = () => {
   }, []);
 
   // Don't show in production
-  if (import.meta.env.PROD) {
+  if (env.isProd) {
     return null;
   }
 

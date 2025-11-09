@@ -8,11 +8,22 @@ import ErrorBoundary from "@/components/ErrorBoundaryFallback";
 import { reportWebVitals } from "@/hooks/usePerformanceMonitor";
 import { validateTranslationSystem } from "@/lib/i18nValidator";
 import { prefetchCriticalRoutes } from "@/lib/bundleOptimization";
+import { initSentry } from "@/lib/sentry";
+import { initOneSignal } from "@/lib/onesignal";
 import AppWrapper from "./components/AppWrapper.tsx";
+import { env } from "@/lib/env";
 import "./index.css";
 
+// Initialize Sentry error tracking
+initSentry();
+
+// Initialize OneSignal push notifications (browser-only)
+if (typeof window !== 'undefined') {
+  initOneSignal().catch(err => console.error('OneSignal init failed:', err));
+}
+
 // Register service worker for PWA
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
+if ('serviceWorker' in navigator && env.isProd) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch((error) => {
       console.error('Service worker registration failed:', error);
@@ -21,12 +32,12 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
 }
 
 // Start Web Vitals monitoring in production
-if (import.meta.env.PROD) {
+if (env.isProd) {
   reportWebVitals();
 }
 
 // Validate translation system completeness in development
-if (import.meta.env.DEV) {
+if (env.isDev) {
   validateTranslationSystem();
 }
 

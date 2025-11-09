@@ -1,3 +1,5 @@
+import { env } from '@/lib/env';
+
 export type Language = 'en' | 'es' | 'de';
 
 // Supported languages whitelist
@@ -32,7 +34,7 @@ export function getTranslation(
   const fallback = translations.en[key];
   
   // Log warning in development when fallback occurs
-  if (import.meta.env.DEV && language !== 'en') {
+  if (env.isDev && language !== 'en') {
     console.warn(
       `[i18n] Missing translation for key "${key}" in language "${language}". ` +
       `Falling back to English.`

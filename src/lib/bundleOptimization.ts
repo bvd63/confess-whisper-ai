@@ -1,6 +1,7 @@
 /**
  * Bundle optimization utilities and lazy loading helpers
  */
+import { env } from '@/lib/env';
 
 /**
  * Dynamically import large libraries only when needed
@@ -35,7 +36,7 @@ export const preloadRoute = (importFn: () => Promise<any>) => {
  * Bundle size analyzer - logs current loaded chunks (dev only)
  */
 export const analyzeBundleSize = () => {
-  if (import.meta.env.DEV) {
+  if (env.isDev) {
     const scripts = Array.from(document.scripts);
     const chunks = scripts
       .filter(s => s.src.includes('assets'))
@@ -105,7 +106,7 @@ export const monitorBundlePerformance = () => {
 };
 
 // Auto-monitor in dev mode
-if (import.meta.env.DEV) {
+if (env.isDev) {
   if (typeof window !== 'undefined') {
     window.addEventListener('load', () => {
       setTimeout(() => {

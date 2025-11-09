@@ -1,4 +1,7 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from '@/integrations/supabase/client';
+import { env } from '@/lib/env';
+
+/**
 
 export type AiLocale = 'en' | 'es' | 'de';
 
@@ -78,5 +81,5 @@ export async function getAiReply({
  * Check if AI service is available (for feature gating)
  */
 export function isAiServiceAvailable(): boolean {
-  return !!import.meta.env.VITE_SUPABASE_URL;
+  return !!env.client.supabaseUrl;
 }

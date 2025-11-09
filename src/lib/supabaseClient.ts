@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
-import type { SupabaseClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { env } from '@/lib/env';
 
 let _instance: SupabaseClient | null = null;
 
@@ -29,8 +30,8 @@ const supabaseOptions = {
 export function getSupabase(): SupabaseClient {
   if (_instance) return _instance;
 
-  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
-  const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
+  const SUPABASE_URL = env.client.supabaseUrl;
+  const SUPABASE_PUBLISHABLE_KEY = env.client.supabaseAnonKey;
 
   _instance = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     auth: supabaseOptions.auth,

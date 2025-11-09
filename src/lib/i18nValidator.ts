@@ -8,6 +8,7 @@
  */
 
 import { translations, SUPPORTED_LANGUAGES, type Language } from '@/i18n/translations';
+import { env } from '@/lib/env';
 
 interface ValidationResult {
   isValid: boolean;
@@ -68,7 +69,7 @@ export function validateLanguageCode(code: string | null | undefined): boolean {
  * Logs validation results in development mode
  */
 export function logValidationResults(result: ValidationResult): void {
-  if (!import.meta.env.DEV) return;
+  if (!env.isDev) return;
 
   if (result.errors.length > 0) {
     console.group('🚨 Translation System Errors');
@@ -93,7 +94,7 @@ export function logValidationResults(result: ValidationResult): void {
 export function validateTranslationSystem(): ValidationResult {
   const completenessResult = validateTranslationCompleteness();
   
-  if (import.meta.env.DEV) {
+  if (env.isDev) {
     logValidationResults(completenessResult);
   }
   
@@ -105,7 +106,7 @@ export function validateTranslationSystem(): ValidationResult {
  * This is a runtime check that logs warnings for potential hardcoded text
  */
 export function detectHardcodedStrings(componentName: string, props: Record<string, any>): void {
-  if (!import.meta.env.DEV) return;
+  if (!env.isDev) return;
   
   const suspiciousProps = ['title', 'placeholder', 'aria-label', 'alt'];
   const suspiciousPatterns = [

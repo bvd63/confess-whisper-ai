@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { env } from "@/lib/env";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,7 @@ export const SearchUsersCard = () => {
       
       // Call edge function with GET and query parameter in URL
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/search-users?nickname=${encodeURIComponent(debouncedSearch)}`,
+        `${env.client.supabaseUrl}/functions/v1/search-users?nickname=${encodeURIComponent(debouncedSearch)}`,
         {
           headers: {
             Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,

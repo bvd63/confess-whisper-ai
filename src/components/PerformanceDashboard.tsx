@@ -8,14 +8,17 @@ import { usePerformanceOptimizations } from '@/hooks/usePerformanceOptimizations
  * Performance monitoring dashboard - only visible in dev mode
  * Shows real-time FPS, memory usage, cache size, and adaptive settings
  */
-const PerformanceDashboard = () => {
+import { useAuth } from '@/hooks/useAuth';
+import { env } from '@/lib/env';
+
+export const PerformanceDashboard = () => {
   const { metrics, adaptiveConfig } = usePerformanceOptimizations();
   const [isVisible, setIsVisible] = useState(false);
 
   // Only show in development or when manually enabled
   useEffect(() => {
     const showDashboard = 
-      import.meta.env.DEV || 
+      env.isDev || 
       localStorage.getItem('showPerformanceDashboard') === 'true';
     setIsVisible(showDashboard);
   }, []);

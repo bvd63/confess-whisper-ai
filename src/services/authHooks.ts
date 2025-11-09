@@ -2,6 +2,7 @@
  * Authentication-related hooks and utilities
  * Handles streak bonuses and other daily login rewards
  */
+import { env } from '@/lib/env';
 
 export async function onDailyLogin({
   userId,
@@ -11,7 +12,7 @@ export async function onDailyLogin({
   currentStreak: number;
 }): Promise<void> {
   try {
-    const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/award-streak-bonus`;
+    const url = `${env.client.supabaseUrl}/functions/v1/award-streak-bonus`;
     await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

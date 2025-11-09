@@ -2,6 +2,7 @@
  * Analytics optimization utilities
  * Batch and throttle analytics events to reduce network calls
  */
+import { env } from '@/lib/env';
 
 interface AnalyticsEvent {
   name: string;
@@ -63,7 +64,7 @@ class AnalyticsOptimizer {
     try {
       // Send batched events
       // In production, replace with actual analytics endpoint
-      if (import.meta.env.DEV) {
+      if (env.isDev) {
         console.log('📊 Analytics batch:', events.length, 'events');
       }
 

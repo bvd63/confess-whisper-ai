@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { env } from '@/lib/env';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -51,14 +52,14 @@ class ObservabilityService {
     };
 
     // Structured logging in JSON format
-    if (import.meta.env.DEV) {
+    if (env.isDev) {
       console.log(JSON.stringify(logEntry, null, 2));
     } else {
       console.log(JSON.stringify(logEntry));
     }
 
     // Send to analytics in production
-    if (!import.meta.env.DEV && level === 'error') {
+    if (!env.isDev && level === 'error') {
       this.sendErrorToAnalytics(logEntry);
     }
   }
