@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { persistenceManager } from '@/lib/persistenceManager';
+import { logError } from '@/lib/logger';
 
 /**
  * Hook for tracking unread message counts across conversations
@@ -102,7 +103,7 @@ export const useUnreadCount = (userId: string | null) => {
       // Cache the counts
       await persistenceManager.set('state', `unread_counts_${userId}`, counts);
     } catch (error) {
-      console.error('Error loading unread counts:', error);
+      logError('Error loading unread counts', error as Error);
     }
   };
 
@@ -128,7 +129,7 @@ export const useUnreadCount = (userId: string | null) => {
       // Update cache
       await persistenceManager.set('state', `unread_counts_${userId}`, unreadCounts);
     } catch (error) {
-      console.error('Error marking conversation as read:', error);
+      logError('Error marking conversation as read', error as Error);
     }
   };
 

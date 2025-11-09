@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { logError } from '@/lib/logger';
 
 export const useReadReceipts = (conversationId: string | null, userId: string | null) => {
   const markAsRead = useCallback(async (messageId: string) => {
@@ -14,7 +15,7 @@ export const useReadReceipts = (conversationId: string | null, userId: string | 
         .neq('sender_id', userId)
         .is('read_at', null);
     } catch (error) {
-      console.error('Error marking message as read:', error);
+      logError('Error marking message as read', error as Error);
     }
   }, [conversationId, userId]);
 
@@ -37,7 +38,7 @@ export const useReadReceipts = (conversationId: string | null, userId: string | 
         .eq('conversation_id', conversationId)
         .eq('user_id', userId);
     } catch (error) {
-      console.error('Error marking conversation as read:', error);
+      logError('Error marking conversation as read', error as Error);
     }
   }, [conversationId, userId]);
 

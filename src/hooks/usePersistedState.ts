@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { persistenceManager } from '@/lib/persistenceManager';
+import { logError } from '@/lib/logger';
 
 /**
  * Hook for persisting state across sessions
@@ -23,7 +24,7 @@ export const usePersistedState = <T>(
         }
         setIsLoaded(true);
       } catch (error) {
-        console.error(`Failed to load persisted state for ${key}:`, error);
+        logError(`Failed to load persisted state for ${key}`, error as Error);
         setIsLoaded(true);
       }
     };
@@ -39,7 +40,7 @@ export const usePersistedState = <T>(
         
         // Persist asynchronously
         persistenceManager.set(store, key, newValue).catch(error => {
-          console.error(`Failed to persist state for ${key}:`, error);
+          logError(`Failed to persist state for ${key}`, error as Error);
         });
 
         return newValue;
@@ -52,7 +53,7 @@ export const usePersistedState = <T>(
   const clearPersistedState = useCallback(() => {
     setState(initialValue);
     persistenceManager.remove(store, key).catch(error => {
-      console.error(`Failed to clear persisted state for ${key}:`, error);
+      logError(`Failed to clear persisted state for ${key}`, error as Error);
     });
   }, [key, store, initialValue]);
 

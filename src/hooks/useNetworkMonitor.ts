@@ -1,4 +1,5 @@
 import { useEffect, useCallback, useRef } from 'react';
+import { logWarn, logError } from '@/lib/logger';
 
 interface NetworkMonitorMetrics {
   totalRequests: number;
@@ -42,10 +43,10 @@ export const useNetworkMonitor = () => {
     // Log warnings in development
     if (process.env.NODE_ENV === 'development') {
       if (duration > 1000) {
-        console.warn(`[Network] Slow request detected: ${url} (${duration}ms)`);
+        logWarn(`[Network] Slow request detected: ${url} (${duration}ms)`);
       }
       if (!success) {
-        console.error(`[Network] Failed request: ${url}`);
+        logError(`[Network] Failed request: ${url}`);
       }
     }
   }, []);

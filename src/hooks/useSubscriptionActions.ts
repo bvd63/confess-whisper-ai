@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { STRIPE_PRICE } from "@/lib/stripe-config";
+import { logError } from "@/lib/logger";
 
 interface SubscriptionActionResult {
   success: boolean;
@@ -42,7 +43,7 @@ export const useSubscriptionActions = () => {
       });
       return { success: true, message: data?.message };
     } catch (error) {
-      console.error('Upgrade error:', error);
+      logError('Upgrade error', error as Error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       toast({ title: "Upgrade Failed", description: errorMessage, variant: "destructive" });
       return { success: false, error: errorMessage };
@@ -70,7 +71,7 @@ export const useSubscriptionActions = () => {
       });
       return { success: true, message: data?.message };
     } catch (error) {
-      console.error('Downgrade error:', error);
+      logError('Downgrade error', error as Error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       toast({ title: "Downgrade Failed", description: errorMessage, variant: "destructive" });
       return { success: false, error: errorMessage };

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { logError } from "@/lib/logger";
 
 export const useUserRole = (userId: string | undefined) => {
   const [role, setRole] = useState<string | null>(null);
@@ -26,7 +27,7 @@ export const useUserRole = (userId: string | undefined) => {
 
       setRole(data?.role || null);
     } catch (error) {
-      console.error('Error checking user role:', error);
+      logError('Error checking user role', error as Error);
       setRole(null);
     } finally {
       setLoading(false);

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { logError } from '@/lib/logger';
 
 export interface NotificationMetrics {
   totalSent: number;
@@ -188,7 +189,7 @@ export const useNotificationAnalytics = (startDate: Date, endDate: Date) => {
       setPeakTimes(peakData);
 
     } catch (err) {
-      console.error('Error fetching notification analytics:', err);
+      logError('Error fetching notification analytics', err as Error);
       setError(err instanceof Error ? err.message : 'Failed to load analytics');
     } finally {
       setLoading(false);

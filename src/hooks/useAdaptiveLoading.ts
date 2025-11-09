@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { logWarn } from '@/lib/logger';
 
 interface DeviceCapabilities {
   networkSpeed: 'slow-2g' | '2g' | '3g' | '4g' | 'unknown';
@@ -74,7 +75,7 @@ export const useAdaptiveLoading = (): AdaptiveConfig => {
           batteryLevel = battery.level;
           isLowPowerMode = battery.level < 0.2 || battery.charging === false;
         } catch (error) {
-          console.warn('Battery API not available');
+          logWarn('Battery API not available', error as Error);
         }
       }
 

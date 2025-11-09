@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useCachePurgeOnDelete } from './useCachePurgeOnDelete';
+import { logError } from '@/lib/logger';
 
 /**
  * GDPR compliance hook for data export and account deletion
@@ -65,7 +66,7 @@ export const useGDPR = () => {
 
       return true;
     } catch (error) {
-      console.error('Error exporting user data:', error);
+      logError('Error exporting user data', error as Error);
       throw error;
     } finally {
       setIsProcessing(false);
@@ -104,7 +105,7 @@ export const useGDPR = () => {
 
       return true;
     } catch (error) {
-      console.error('Error deleting account:', error);
+      logError('Error deleting account', error as Error);
       throw error;
     } finally {
       setIsProcessing(false);
@@ -123,7 +124,7 @@ export const useGDPR = () => {
 
       return true;
     } catch (error) {
-      console.error('Error logging consent:', error);
+      logError('Error logging consent', error as Error);
       return false;
     }
   }, []);

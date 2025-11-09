@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/i18n/translations';
+import { logError } from '@/lib/logger';
 
 /**
  * Hook to check for recent subscription conflicts and notify user
@@ -29,7 +30,7 @@ export const useSubscriptionConflictCheck = (userId?: string) => {
           .limit(1);
 
         if (error) {
-          console.error('Error checking subscription conflicts:', error);
+          logError('Error checking subscription conflicts', error);
           return;
         }
 
@@ -52,7 +53,7 @@ export const useSubscriptionConflictCheck = (userId?: string) => {
           }
         }
       } catch (error) {
-        console.error('Error in conflict check:', error);
+        logError('Error in conflict check', error as Error);
       }
     };
 

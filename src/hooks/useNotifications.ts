@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { getNicknameCached, primeNicknameCache } from '@/lib/nicknameCache';
+import { logError } from '@/lib/logger';
 
 interface Notification {
   id: string;
@@ -65,7 +66,7 @@ export const useNotifications = (userId: string | null) => {
       setNotifications(notificationsWithNicknames);
       setUnreadCount(notificationsWithNicknames.filter(n => !n.is_read).length);
     } catch (error) {
-      console.error('Error loading notifications:', error);
+      logError('Error loading notifications', error as Error);
     } finally {
       setIsLoading(false);
     }
@@ -85,7 +86,7 @@ export const useNotifications = (userId: string | null) => {
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      logError('Error marking notification as read', error as Error);
     }
   }, []);
 
@@ -105,7 +106,7 @@ export const useNotifications = (userId: string | null) => {
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
       setUnreadCount(0);
     } catch (error) {
-      console.error('Error marking all as read:', error);
+      logError('Error marking all as read', error as Error);
     }
   }, [userId]);
 
@@ -129,7 +130,7 @@ export const useNotifications = (userId: string | null) => {
       // Purge from cache
       localStorage.removeItem(`notification_${notificationId}`);
     } catch (error) {
-      console.error('Error deleting notification:', error);
+      logError('Error deleting notification', error as Error);
     }
   }, []);
 
@@ -156,7 +157,7 @@ export const useNotifications = (userId: string | null) => {
         }
       });
     } catch (error) {
-      console.error('Error deleting all notifications:', error);
+      logError('Error deleting all notifications', error as Error);
     }
   }, [userId]);
 

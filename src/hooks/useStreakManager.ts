@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useCurrentUser } from './useCurrentUser';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { logError } from '@/lib/logger';
 
 interface StreakData {
   currentStreak: number;
@@ -71,12 +72,12 @@ export const useStreakManager = () => {
               body: { currentStreak }
             });
           } catch (err) {
-            console.error('Error awarding streak bonus:', err);
+            logError('Error awarding streak bonus', err as Error);
           }
         }
       }
     } catch (error) {
-      console.error('Error loading streak data:', error);
+      logError('Error loading streak data', error as Error);
     } finally {
       setLoading(false);
     }
@@ -150,7 +151,7 @@ export const useStreakManager = () => {
         };
       }
     } catch (error) {
-      console.error('Error checking streak:', error);
+      logError('Error checking streak', error as Error);
       return null;
     }
   }, [user]);
@@ -226,7 +227,7 @@ export const useStreakManager = () => {
       await loadStreakData();
       
     } catch (error) {
-      console.error('Error updating streak:', error);
+      logError('Error updating streak', error as Error);
     }
   }, [user, checkStreak, loadStreakData, t]);
 
@@ -265,7 +266,7 @@ export const useStreakManager = () => {
         }
       }
     } catch (error) {
-      console.error('Error checking badge unlocks:', error);
+      logError('Error checking badge unlocks', error as Error);
     }
   };
 

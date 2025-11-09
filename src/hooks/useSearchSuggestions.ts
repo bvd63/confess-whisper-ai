@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { logError } from '@/lib/logger';
 
 const RECENT_SEARCHES_KEY = 'recent-searches';
 const MAX_RECENT = 5;
@@ -19,7 +20,7 @@ export function useSearchSuggestions() {
       try {
         setRecentSearches(JSON.parse(stored));
       } catch (e) {
-        console.error('Failed to parse recent searches:', e);
+        logError('Failed to parse recent searches', e as Error);
       }
     }
   }, []);

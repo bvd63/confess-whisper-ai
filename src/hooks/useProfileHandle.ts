@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { logError } from '@/lib/logger';
 
 export const useProfileHandle = (userId: string | null) => {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -18,7 +19,7 @@ export const useProfileHandle = (userId: string | null) => {
       // Let the caller handle the update
       return data;
     } catch (error) {
-      console.error('Error generating handle:', error);
+      logError('Error generating handle', error as Error);
       return null;
     } finally {
       setIsGenerating(false);

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { getFollowStatsCached, invalidateFollowCache } from '@/lib/followCache';
+import { logError } from '@/lib/logger';
 
 interface FollowStats {
   followers: number;
@@ -60,7 +61,7 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
         isFollowedBy,
       });
     } catch (error) {
-      console.error('Error loading follow stats:', error);
+      logError('Error loading follow stats', error as Error);
     } finally {
       setIsLoading(false);
     }
@@ -89,7 +90,7 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
       // Invalidate cache to force fresh data next time
       invalidateFollowCache(targetUserId);
     } catch (error) {
-      console.error('Error following user:', error);
+      logError('Error following user', error as Error);
       throw error;
     } finally {
       setIsProcessing(false);
@@ -118,7 +119,7 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
       // Invalidate cache to force fresh data next time
       invalidateFollowCache(targetUserId);
     } catch (error) {
-      console.error('Error unfollowing user:', error);
+      logError('Error unfollowing user', error as Error);
       throw error;
     } finally {
       setIsProcessing(false);

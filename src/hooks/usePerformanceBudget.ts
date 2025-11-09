@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { observability } from '@/lib/observability';
+import { logError, logWarn } from '@/lib/logger';
 
 interface PerformanceBudget {
   p95Threshold: number;
@@ -27,12 +28,12 @@ export const usePerformanceBudget = (budget: PerformanceBudget = DEFAULT_BUDGET)
         
         if (stats.p95 > budget.p95Threshold) {
           if (import.meta.env.DEV) {
-            console.error(`🚨 PERFORMANCE BUDGET EXCEEDED: ${name} p95=${stats.p95}ms (limit: ${budget.p95Threshold}ms)`);
+            logError(`🚨 PERFORMANCE BUDGET EXCEEDED: ${name} p95=${stats.p95}ms (limit: ${budget.p95Threshold}ms)`);
           }
           reportedIssues.add(issueKey);
         } else if (stats.p95 > budget.warningThreshold) {
           if (import.meta.env.DEV) {
-            console.warn(`⚠️ PERFORMANCE WARNING: ${name} p95=${stats.p95}ms (approaching limit: ${budget.p95Threshold}ms)`);
+            logWarn(`⚠️ PERFORMANCE WARNING: ${name} p95=${stats.p95}ms (approaching limit: ${budget.p95Threshold}ms)`);
           }
           reportedIssues.add(issueKey);
         }

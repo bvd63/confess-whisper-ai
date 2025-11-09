@@ -10,6 +10,7 @@ import {
   savePlayerIdToProfile 
 } from '@/services/onesignal';
 import { useCurrentUser } from './useCurrentUser';
+import { logError } from '@/lib/logger';
 
 export const useOneSignalInit = () => {
   const { user } = useCurrentUser();
@@ -35,7 +36,7 @@ export const useOneSignalInit = () => {
         }
       } catch (error) {
         if (import.meta.env.DEV) {
-          console.error('[OneSignal] Initialization failed:', error);
+          logError('[OneSignal] Initialization failed', error as Error);
         }
       }
     };

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { getNicknameCached } from '@/lib/nicknameCache';
+import { logError } from '@/lib/logger';
 
 export const useTypingIndicator = (conversationId: string | null, userId: string | null) => {
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
@@ -74,7 +75,7 @@ export const useTypingIndicator = (conversationId: string | null, userId: string
         }, 3000);
       }
     } catch (error) {
-      console.error('Error updating typing status:', error);
+      logError('Error updating typing status', error as Error);
     }
   }, [conversationId, userId]);
 

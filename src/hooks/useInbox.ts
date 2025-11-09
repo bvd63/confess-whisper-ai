@@ -4,6 +4,7 @@ import { useCachePurgeOnDelete } from './useCachePurgeOnDelete';
 import { getNicknameCached, primeNicknameCache } from '@/lib/nicknameCache';
 import { persistenceManager } from '@/lib/persistenceManager';
 import { useUnreadCount } from './useUnreadCount';
+import { logError, logWarn } from '@/lib/logger';
 
 interface Conversation {
   id: string;
@@ -38,7 +39,7 @@ export const useInbox = (userId: string | null) => {
         setIsLoading(false);
       }
     } catch (error) {
-      console.error('Failed to load cached conversations:', error);
+      logError('Failed to load cached conversations', error as Error);
     }
 
     try {
@@ -136,11 +137,11 @@ export const useInbox = (userId: string | null) => {
           conversationDetails
         );
       } catch (cacheError) {
-        console.warn('Failed to cache conversations:', cacheError);
+        logWarn('Failed to cache conversations', cacheError as Error);
         // Continue - caching is optional
       }
     } catch (error) {
-      console.error('Error loading conversations:', error);
+      logError('Error loading conversations', error as Error);
       setConversations([]); // Ensure state is set even on error
     } finally {
       setIsLoading(false);
@@ -167,7 +168,7 @@ export const useInbox = (userId: string | null) => {
         await persistenceManager.remove('conversations', `inbox_${userId}`);
       }
     } catch (error) {
-      console.error('Error deleting conversation:', error);
+      logError('Error deleting conversation', error as Error);
       throw error;
     }
   }, [userId, purgeConversation]);

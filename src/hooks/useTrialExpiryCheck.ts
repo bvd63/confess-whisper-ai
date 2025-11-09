@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { logError } from '@/lib/logger';
 
 /**
  * Hook to periodically check if the user's trial has expired
@@ -39,7 +40,7 @@ export const useTrialExpiryCheck = (userId: string | null, isOnTrial: boolean) =
         const { data, error } = await supabase.functions.invoke('check-trial-expiry');
         
         if (error) {
-          console.error('[TRIAL-EXPIRY-CHECK] Error:', error);
+          logError('[TRIAL-EXPIRY-CHECK] Error', error);
           return;
         }
 
@@ -55,7 +56,7 @@ export const useTrialExpiryCheck = (userId: string | null, isOnTrial: boolean) =
           wasOnTrial.current = false;
         }
       } catch (error) {
-        console.error('[TRIAL-EXPIRY-CHECK] Error:', error);
+        logError('[TRIAL-EXPIRY-CHECK] Error', error as Error);
       }
     };
 

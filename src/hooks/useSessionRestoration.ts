@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sessionManager } from '@/lib/sessionManager';
 import { useCurrentUser } from './useCurrentUser';
+import { logError } from '@/lib/logger';
 
 /**
  * Hook to restore user's last session state on app load
@@ -33,7 +34,7 @@ export const useSessionRestoration = () => {
           }
         }
       } catch (error) {
-        console.error('Error restoring session:', error);
+        logError('Error restoring session', error as Error);
       } finally {
         setIsRestoring(false);
       }

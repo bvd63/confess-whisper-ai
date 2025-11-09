@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { logError } from '@/lib/logger';
 
 export type ModerationLevel = 'safe' | 'borderline' | 'unsafe';
 
@@ -51,7 +52,7 @@ export const useModerationStatus = () => {
         flagged: !isSafe,
       };
     } catch (error) {
-      console.error('Moderation error:', error);
+      logError('Moderation error', error as Error);
       // Fail open but log for review
       return {
         level: 'safe',

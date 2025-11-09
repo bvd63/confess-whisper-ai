@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useNetworkStatus } from './useNetworkStatus';
+import { logError } from '@/lib/logger';
 
 interface QueueItem {
   id: string;
@@ -39,7 +40,7 @@ export const useOfflineQueue = () => {
         // Success - remove from queue
         setQueue(prev => prev.slice(1));
       } catch (error) {
-        console.error('Queue item failed:', error);
+        logError('Queue item failed', error as Error);
         
         if (item.retries < MAX_RETRIES) {
           // Retry with exponential backoff
