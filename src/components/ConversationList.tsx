@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { UserDisplayName } from "@/components/UserDisplayName";
 import { BadgeDisplay } from "@/components/BadgeDisplay";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { logError } from "@/lib/logger";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -138,7 +139,7 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
         .in('conversation_id', visibleConversationIds);
 
       if (participantError) {
-        console.error("Error loading participants:", participantError);
+        logError("Error loading participants", participantError);
         throw participantError;
       }
       
@@ -172,7 +173,7 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
         .in('user_id', uniqueOtherUserIds);
 
       if (profilesError) {
-        console.error('Error loading profiles:', profilesError);
+        logError('Error loading profiles', profilesError);
         // Continue without profiles rather than throwing
       }
 
@@ -240,7 +241,7 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
 
       setConversations(conversationsList);
     } catch (error) {
-      console.error('Error loading conversations:', error);
+      logError('Error loading conversations', error instanceof Error ? error : undefined);
     } finally {
       setLoading(false);
     }
@@ -263,7 +264,7 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
       // Reload to ensure sync with backend
       await loadConversations();
     } catch (error) {
-      console.error('Error deleting conversation:', error);
+      logError('Error deleting conversation', error instanceof Error ? error : undefined);
       toast.error(t.error_generic);
     } finally {
       setDeleteDialogOpen(false);

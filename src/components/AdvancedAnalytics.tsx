@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
 import { TrendingUp, Calendar, Heart, MessageSquare } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { logError } from "@/lib/logger";
 interface AdvancedAnalyticsProps {
   userId: string;
 }
@@ -79,7 +80,7 @@ const AdvancedAnalytics = ({
         color: '#3b82f6'
       }]);
     } catch (error) {
-      console.error('Error loading analytics:', error);
+      logError('Error loading analytics', error instanceof Error ? error : undefined);
     } finally {
       setLoading(false);
     }

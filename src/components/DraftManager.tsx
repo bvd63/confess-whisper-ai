@@ -6,6 +6,7 @@ import { FileEdit, Trash2, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { logError } from "@/lib/logger";
 
 interface Draft {
   id: string;
@@ -40,7 +41,7 @@ const DraftManager = ({ userId, onSelectDraft }: DraftManagerProps) => {
   if (error) throw error;
   setDrafts(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error('Error loading drafts:', error);
+      logError('Error loading drafts', error instanceof Error ? error : undefined);
     } finally {
       setLoading(false);
     }
@@ -65,7 +66,7 @@ const DraftManager = ({ userId, onSelectDraft }: DraftManagerProps) => {
         description: t.draft_deleted_desc,
       });
     } catch (error) {
-      console.error('Error deleting draft:', error);
+      logError('Error deleting draft', error instanceof Error ? error : undefined);
       toast({
         title: t.common_error,
         description: t.draft_delete_error_desc,

@@ -5,6 +5,7 @@ import { Sparkles, Loader2, Crown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { logError } from "@/lib/logger";
 
 interface DeepInsightDialogProps {
   open: boolean;
@@ -56,7 +57,7 @@ const DeepInsightDialog = ({
       }
 
     } catch (error) {
-      console.error('Error generating deep insight:', error);
+      logError('Error generating deep insight', error instanceof Error ? error : undefined);
       toast({
         title: t.error_generic,
         description: t.error_generic,
@@ -86,7 +87,7 @@ const DeepInsightDialog = ({
       });
       onInsightGenerated();
     } catch (error) {
-      console.error('Error deleting insight:', error);
+      logError('Error deleting insight', error instanceof Error ? error : undefined);
       toast({
         title: t.error_generic,
         variant: "destructive",

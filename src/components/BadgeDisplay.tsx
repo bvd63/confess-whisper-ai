@@ -4,6 +4,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { ProfileTierBadge } from "./ProfileTierBadge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { format } from "date-fns";
+import { logError } from "@/lib/logger";
 
 interface UserBadge {
   id: string;
@@ -139,7 +140,7 @@ export const BadgeDisplay = ({
 
       setBadges(allBadges);
     } catch (error) {
-      console.error("Error loading badges:", error);
+      logError("Error loading badges", error instanceof Error ? error : undefined);
     } finally {
       setLoading(false);
     }

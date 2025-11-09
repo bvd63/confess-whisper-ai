@@ -14,6 +14,7 @@ import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { CommentAuthor } from "./CommentAuthor";
 import { sanitizeComment } from "@/lib/security/sanitizer";
 import { addCsrfHeader } from "@/lib/security/csrf";
+import { logError } from "@/lib/logger";
 
 interface Comment {
   id: string;
@@ -51,7 +52,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
       if (error) throw error;
       setComments(data || []);
     } catch (error) {
-      console.error('Error loading comments:', error);
+      logError('Error loading comments', error instanceof Error ? error : undefined);
     }
   };
 
@@ -98,7 +99,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
         description: t.comments_submit,
       });
     } catch (error) {
-      console.error('Error posting comment:', error);
+      logError('Error posting comment', error instanceof Error ? error : undefined);
       toast({
         title: t.error_generic,
         description: t.error_submit,
@@ -134,7 +135,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
       
       notify.success('notifications.commentDeleted', language);
     } catch (error) {
-      console.error('Error deleting comment:', error);
+      logError('Error deleting comment', error instanceof Error ? error : undefined);
       toast({
         title: t.error_generic,
         description: t.error_delete,

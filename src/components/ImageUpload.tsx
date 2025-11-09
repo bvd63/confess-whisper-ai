@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { OptimizedImage } from "./OptimizedImage";
+import { logError } from "@/lib/logger";
 
 interface ImageUploadProps {
   onImageUploaded: (url: string) => void;
@@ -77,7 +78,7 @@ const ImageUpload = ({ onImageUploaded, onImageRemoved, currentImage, disabled }
         description: t.image_upload_error,
       });
     } catch (error) {
-      console.error('Error uploading image:', error);
+      logError('Error uploading image', error instanceof Error ? error : undefined);
       toast({
         title: t.common_error,
         description: t.image_upload_error,

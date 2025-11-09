@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
+import { logError } from "@/lib/logger";
 
 interface Comment {
   id: string;
@@ -70,7 +71,7 @@ const CommentThread = ({
       setIsReplying(false);
       onReplyAdded();
     } catch (error) {
-      console.error('Error posting reply:', error);
+      logError('Error posting reply', error instanceof Error ? error : undefined);
       toast({
         title: t.common_error,
         description: t.comment_reply_error,

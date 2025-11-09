@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCoins } from "@/hooks/useCoins";
+import { logError } from "@/lib/logger";
 interface Transaction {
   id: string;
   amount: number;
@@ -42,7 +43,7 @@ const CoinsDisplay = ({
       }).limit(50);
       setTransactions(data || []);
     } catch (error) {
-      console.error('Error loading transactions:', error);
+      logError('Error loading transactions', error instanceof Error ? error : undefined);
     }
   };
   const handleShowHistory = () => {

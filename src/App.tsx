@@ -35,6 +35,7 @@ import { dataValidator } from '@/lib/dataValidator';
 import { syncScheduler } from '@/lib/syncScheduler';
 import { Onboarding } from "./components/Onboarding";
 import { PageLoading } from "./components/LoadingStates";
+import { logError, logWarn } from '@/lib/logger';
 
 // Lazy load all routes for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -97,7 +98,7 @@ const AppContent = () => {
         }
         setOnboardingChecked(true);
       } catch (error) {
-        console.error('Onboarding check error:', error);
+        logError('Onboarding check failed', error instanceof Error ? error : undefined);
         setOnboardingChecked(true);
       }
     };
@@ -131,7 +132,7 @@ const AppContent = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_OUT') {
         syncScheduler.stopPeriodicSync();
-        await persistenceManager.clearAllUserData().catch(console.error);
+        await persistenceManager.clearAllUserData().catch((err) => logError('Failed to clear user data', err instanceof Error ? err : undefined));
         localStorage.removeItem('stay_logged_in');
         setStayLoggedIn(false);
       } else if (event === 'SIGNED_IN' && session?.user) {
@@ -150,7 +151,7 @@ const AppContent = () => {
           try {
             await dataValidator.repairData(session.user.id);
           } catch (error) {
-            console.error('Data repair failed:', error);
+            logError('Data repair failed', error instanceof Error ? error : undefined);
           }
         }, 2000); // Wait 2s after login
       }
@@ -158,7 +159,7 @@ const AppContent = () => {
 
     // Clear expired cache weekly
     const clearExpired = () => {
-      persistenceManager.clearExpiredData().catch(console.error);
+      persistenceManager.clearExpiredData().catch((err) => logError('Failed to clear expired data', err instanceof Error ? err : undefined));
     };
     const clearInterval_1 = setInterval(clearExpired, 7 * 24 * 60 * 60 * 1000);
 
@@ -166,10 +167,10 @@ const AppContent = () => {
     const healthCheck = () => {
       dataValidator.checkCacheHealth().then(result => {
         if (!result.isValid) {
-          console.error('❌ Cache health issues:', result.errors);
+          logError('Cache health issues detected', undefined, { errors: result.errors });
         }
         if (result.warnings.length > 0) {
-          console.warn('⚠️ Cache warnings:', result.warnings);
+          logWarn('Cache warnings detected', { warnings: result.warnings });
         }
       });
     };

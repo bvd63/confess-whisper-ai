@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
+import { logError } from "@/lib/logger";
 
 interface FollowButtonProps {
   targetUserId: string;
@@ -89,7 +90,7 @@ const FollowButton = ({ targetUserId, currentUserId }: FollowButtonProps) => {
         });
       }
     } catch (error) {
-      console.error('Error toggling follow:', error);
+      logError('Error toggling follow', error instanceof Error ? error : undefined);
       toast({
         title: t.follow_error,
         description: t.follow_error_desc,

@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useHaptic } from "@/hooks/useHaptic";
+import { logError } from "@/lib/logger";
 
 interface ConfessionActionsProps {
   confessionId: string;
@@ -86,7 +87,7 @@ const ConfessionActions = ({
       // Revert on error
       setLocalIsLiked(!newLiked);
       setLocalLikesCount(likesCount);
-      console.error('Error updating like:', error);
+      logError('Error updating like', error instanceof Error ? error : undefined);
       toast({
         title: t.error_generic,
         description: t.error_generic,
@@ -146,7 +147,7 @@ const ConfessionActions = ({
     } catch (error) {
       // Revert on error
       setLocalIsBookmarked(!newBookmarked);
-      console.error('Error updating bookmark:', error);
+      logError('Error updating bookmark', error instanceof Error ? error : undefined);
       toast({
         title: t.error_generic,
         description: t.error_generic,
@@ -163,7 +164,7 @@ const ConfessionActions = ({
     try {
       await supabase.rpc('increment_share_count', { confession_id: confessionId });
     } catch (error) {
-      console.error('Error tracking share:', error);
+      logError('Error tracking share', error instanceof Error ? error : undefined);
     }
     onShare();
   };

@@ -19,6 +19,7 @@ import {
 import { MoreVertical, VolumeX, Volume2, Ban, Trash } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { logError } from '@/lib/logger';
 
 interface ConversationActionsProps {
   conversationId: string;
@@ -54,7 +55,7 @@ export const ConversationActions = ({
         description: isMuted ? 'You will receive notifications' : 'Notifications disabled',
       });
     } catch (error) {
-      console.error('Error toggling mute:', error);
+      logError('Error toggling mute', error instanceof Error ? error : undefined);
       toast({
         title: 'Error',
         description: 'Failed to update mute status',
@@ -81,7 +82,7 @@ export const ConversationActions = ({
         });
       }
     } catch (error) {
-      console.error('Error deleting conversation:', error);
+      logError('Error deleting conversation', error instanceof Error ? error : undefined);
       toast({
         title: 'Error',
         description: 'Failed to delete conversation',

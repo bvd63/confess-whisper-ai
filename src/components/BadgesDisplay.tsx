@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { logError } from "@/lib/logger";
 
 interface BadgesDisplayProps {
   userId: string;
@@ -83,7 +84,7 @@ const BadgesDisplay = ({
 
       setFlairs(activeFlairs);
     } catch (error) {
-      console.error('Error loading flairs:', error);
+      logError('Error loading flairs', error instanceof Error ? error : undefined);
     } finally {
       setLoading(false);
     }

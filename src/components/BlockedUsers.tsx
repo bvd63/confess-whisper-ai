@@ -6,6 +6,7 @@ import { UserX, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useConfirm } from "@/contexts/ConfirmContext";
+import { logError } from "@/lib/logger";
 
 interface BlockedUser {
   id: string;
@@ -39,7 +40,7 @@ const BlockedUsers = ({ userId }: BlockedUsersProps) => {
       if (error) throw error;
       setBlockedUsers(data || []);
     } catch (error) {
-      console.error('Error loading blocked users:', error);
+      logError('Error loading blocked users', error instanceof Error ? error : undefined);
     } finally {
       setLoading(false);
     }
@@ -68,7 +69,7 @@ const BlockedUsers = ({ userId }: BlockedUsersProps) => {
         description: t.blocked_user_unblocked_desc,
       });
     } catch (error) {
-      console.error('Error unblocking user:', error);
+      logError('Error unblocking user', error instanceof Error ? error : undefined);
       toast({
         title: t.common_error,
         description: t.blocked_users_error,

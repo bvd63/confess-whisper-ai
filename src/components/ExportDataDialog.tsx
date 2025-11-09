@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { logError } from "@/lib/logger";
 
 interface ExportDataDialogProps {
   open: boolean;
@@ -122,7 +123,7 @@ const ExportDataDialog = ({ open, onOpenChange, userId }: ExportDataDialogProps)
 
       onOpenChange(false);
     } catch (error) {
-      console.error('Error exporting data:', error);
+      logError('Error exporting data', error instanceof Error ? error : undefined);
       toast({
         title: t.common_error,
         description: t.export_error,

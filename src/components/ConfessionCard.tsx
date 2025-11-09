@@ -36,6 +36,7 @@ import { NoScreenshotMode } from "./NoScreenshotMode";
 import { EmotionalTone } from "./EmotionalTone";
 import { VIPBadge } from "./VIPBadge";
 import { sanitizeConfession } from "@/lib/security/sanitizer";
+import { logError } from "@/lib/logger";
 
 interface ConfessionCardProps {
   confession: {
@@ -95,7 +96,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         duration: 2000,
       });
     } catch (error) {
-      console.error('Failed to copy text:', error);
+      logError('Failed to copy text', error instanceof Error ? error : undefined);
     }
   };
 
@@ -126,7 +127,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
       // Refresh the page or notify parent component
       onLikeChange?.();
     } catch (error) {
-      console.error('Error deleting confession:', error);
+      logError('Error deleting confession', error instanceof Error ? error : undefined);
       toast({
         title: t.error_generic,
         description: t.error_delete,

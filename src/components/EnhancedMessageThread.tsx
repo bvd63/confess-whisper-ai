@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useCachePurgeOnDelete } from "@/hooks/useCachePurgeOnDelete";
 import { getNicknameCached } from "@/lib/nicknameCache";
+import { logError } from "@/lib/logger";
 
 interface Message {
   id: string;
@@ -162,7 +163,7 @@ export const EnhancedMessageThread = ({
 
       setMessages(visibleMessages);
     } catch (error) {
-      console.error('Error loading messages:', error);
+      logError('Error loading messages', error instanceof Error ? error : undefined);
     }
   };
 
@@ -179,7 +180,7 @@ export const EnhancedMessageThread = ({
             body: { messageId: msg.id }
           });
         } catch (error) {
-          console.error('Error marking message as delivered:', error);
+          logError('Error marking message as delivered', error instanceof Error ? error : undefined);
         }
       });
     }
@@ -201,7 +202,7 @@ export const EnhancedMessageThread = ({
         body: { messageId: lastUnseenId }
       });
     } catch (error) {
-      console.error('Error marking messages as seen:', error);
+      logError('Error marking messages as seen', error instanceof Error ? error : undefined);
     }
   };
 
@@ -245,7 +246,7 @@ export const EnhancedMessageThread = ({
 
       if (error) throw error;
     } catch (error) {
-      console.error('Error sending message:', error);
+      logError('Error sending message', error instanceof Error ? error : undefined);
       
       // Mark as failed
       setMessages((prev) =>
@@ -277,7 +278,7 @@ export const EnhancedMessageThread = ({
       // Remove failed message
       setMessages((prev) => prev.filter((m) => m.id !== message.id));
     } catch (error) {
-      console.error('Error retrying message:', error);
+      logError('Error retrying message', error instanceof Error ? error : undefined);
       toast.error(t.error_generic);
     } finally {
       setSending(false);
@@ -297,7 +298,7 @@ export const EnhancedMessageThread = ({
       purgeMessage(messageId, conversationId);
       toast.success(t.success_deleted);
     } catch (error) {
-      console.error('Error deleting message:', error);
+      logError('Error deleting message', error instanceof Error ? error : undefined);
       toast.error(t.error_delete);
     }
   };
@@ -333,7 +334,7 @@ export const EnhancedMessageThread = ({
       });
       if (error) throw error;
     } catch (error) {
-      console.error('Error adding reaction:', error);
+      logError('Error adding reaction', error instanceof Error ? error : undefined);
       toast.error(t.error_generic);
     }
   };
@@ -345,7 +346,7 @@ export const EnhancedMessageThread = ({
       });
       if (error) throw error;
     } catch (error) {
-      console.error('Error removing reaction:', error);
+      logError('Error removing reaction', error instanceof Error ? error : undefined);
     }
   };
 
