@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { logInfo } from "@/lib/logger";
 
 /**
  * Notifies users when an update is available
@@ -52,7 +53,7 @@ export const UpdatePrompt = () => {
           const currentVersion = localStorage.getItem('app-version');
           
           if (currentVersion && currentVersion !== version) {
-            console.log(`🆕 New version available: ${version} (current: ${currentVersion})`);
+            logInfo('🆕 New version available', { version, currentVersion });
             setShowPrompt(true);
             setTimeout(() => setIsVisible(true), 100);
           }

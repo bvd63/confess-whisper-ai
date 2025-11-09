@@ -8,6 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCoins } from "@/hooks/useCoins";
+import { logDebug, logError } from "@/lib/logger";
 import { ExpiryTimer } from "@/components/ExpiryTimer";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/translated-dialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -158,9 +159,7 @@ export const FlairsShop = ({
           filter: `user_id=eq.${userId}`,
         },
         (payload) => {
-          if (import.meta.env.DEV) {
-            console.log('[FlairsShop] Real-time update:', payload);
-          }
+          logDebug('[FlairsShop] Real-time update', payload);
           loadData();
         }
       )
@@ -176,9 +175,7 @@ export const FlairsShop = ({
   const handlePurchase = async (flair: Flair) => {
     setPurchasing(flair.id);
     try {
-      if (import.meta.env.DEV) {
-        console.log('[FlairsShop] Purchasing flair:', flair.id, flair.name_key);
-      }
+      logDebug('[FlairsShop] Purchasing flair', { flairId: flair.id, nameKey: flair.name_key });
       
       const {
         data,
@@ -190,13 +187,11 @@ export const FlairsShop = ({
         }
       });
       
-      if (import.meta.env.DEV) {
-        console.log('[FlairsShop] Purchase response:', { data, error });
-      }
+      logDebug('[FlairsShop] Purchase response', { data, error });
       
       if (error) throw error;
       if (data?.error) {
-        console.error('[FlairsShop] Purchase error from function:', data.error);
+        logError('[FlairsShop] Purchase error from function', data.error);
         toast({
           title: t.error_generic,
           description: data.error,

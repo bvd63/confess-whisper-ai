@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { offlineQueue } from '@/lib/offlineQueue';
 import { persistenceManager } from '@/lib/persistenceManager';
+import { logInfo } from '@/lib/logger';
 
 /**
  * Hook for background sync when app regains focus
@@ -10,7 +11,7 @@ export const useBackgroundSync = () => {
   useEffect(() => {
     const handleVisibilityChange = async () => {
       if (document.visibilityState === 'visible') {
-        console.log('🔄 App regained focus, starting background sync...');
+        logInfo('🔄 App regained focus, starting background sync');
         
         // Process offline queue
         if (navigator.onLine) {
@@ -23,7 +24,7 @@ export const useBackgroundSync = () => {
     };
 
     const handleOnline = async () => {
-      console.log('🌐 Network connection restored, syncing data...');
+      logInfo('🌐 Network connection restored, syncing data');
       await offlineQueue.processQueue();
       window.dispatchEvent(new Event('network-restored'));
     };

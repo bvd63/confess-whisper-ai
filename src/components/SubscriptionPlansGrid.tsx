@@ -8,6 +8,7 @@ import { getPlansForInterval } from "@/lib/subscription-plans";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getStringTranslation } from "@/lib/translationUtils";
+import { logDebug } from "@/lib/logger";
 import { env } from "@/lib/env";
 import { newIdempotencyKey } from "@/lib/idempotency";
 
@@ -81,7 +82,7 @@ export const SubscriptionPlansGrid = ({
   const isCurrentPlan = (plan: any) => plan.id === currentPlan && plan.interval === currentInterval;
 
   const handleCheckout = async (priceId: string) => {
-    console.log('🔍 Stripe Checkout Debug:', {
+    logDebug('🔍 Stripe Checkout Debug', {
       priceId,
       hasValue: !!priceId,
       length: priceId?.length || 0,

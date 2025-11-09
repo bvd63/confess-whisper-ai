@@ -9,6 +9,7 @@ import FollowButton from "@/components/FollowButton";
 import { UserDisplayName } from "@/components/UserDisplayName";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/ui/button";
+import { logDebug, logError } from "@/lib/logger";
 
 interface UserSearchResult {
   user_id: string;
@@ -80,13 +81,13 @@ export const UserSearch = ({ currentUserId }: UserSearchProps) => {
   const searchUsers = async (query: string) => {
     setLoading(true);
     try {
-      console.log("Searching for users with query:", query);
+      logDebug("Searching for users", { query });
       const { data, error } = await supabase.functions.invoke('search-users', {
         body: { nickname: query }
       });
 
       if (error) {
-        console.error("Search error:", error);
+        logError("Search error", error);
         throw error;
       }
 
@@ -97,10 +98,10 @@ export const UserSearch = ({ currentUserId }: UserSearchProps) => {
         subscription_tier: u.subscriptionTier,
       }));
 
-      console.log("Search results (edge):", mapped);
+      logDebug("Search results (edge)", { count: mapped.length });
       setResults(mapped);
     } catch (error) {
-      console.error("Error searching users:", error);
+      logError("Error searching users", error instanceof Error ? error : undefined);
       setResults([]);
     } finally {
       setLoading(false);

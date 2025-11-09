@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { type Language, translations } from '@/i18n/translations';
 import { persistenceManager } from '@/lib/persistenceManager';
+import { logDebug, logError } from '@/lib/logger';
 
 interface LanguageContextType {
   language: Language;
@@ -44,22 +45,16 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
         const saved = await persistenceManager.getLanguage();
         if (saved) {
           const validLang = ensureLanguage(saved);
-          if (import.meta.env.DEV) {
-            console.log('[LanguageContext] Loaded from persistence:', validLang);
-          }
+          logDebug('[LanguageContext] Loaded from persistence', { language: validLang });
           setLanguageState(validLang);
         } else {
           const detected = detectBrowserLanguage();
-          if (import.meta.env.DEV) {
-            console.log('[LanguageContext] Detected browser language:', detected);
-          }
+          logDebug('[LanguageContext] Detected browser language', { language: detected });
           setLanguageState(detected);
           await persistenceManager.saveLanguage(detected);
         }
       } catch (error) {
-        if (import.meta.env.DEV) {
-          console.error('[LanguageContext] Error loading language:', error);
-        }
+        logError('[LanguageContext] Error loading language', error instanceof Error ? error : undefined);
         const detected = detectBrowserLanguage();
         setLanguageState(detected);
       }
@@ -74,9 +69,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
 
   const setLanguage = async (lang: Language) => {
     const validLang = ensureLanguage(lang);
-    if (import.meta.env.DEV) {
-      console.log('[LanguageContext] Setting language to:', validLang);
-    }
+    logDebug('[LanguageContext] Setting language', { language: validLang });
     setLanguageState(validLang);
     
     try {
@@ -84,17 +77,13 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
       // Force full reload to ensure complete language switch with no mixed strings
       window.location.reload();
     } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error('[LanguageContext] Error saving language:', error);
-      }
+      logError('[LanguageContext] Error saving language', error instanceof Error ? error : undefined);
     }
   };
 
   useEffect(() => {
     document.documentElement.lang = language;
-    if (import.meta.env.DEV) {
-      console.log('[LanguageContext] HTML lang attribute set to:', language);
-    }
+    logDebug('[LanguageContext] HTML lang attribute set', { language });
   }, [language]);
 
   const value = {
