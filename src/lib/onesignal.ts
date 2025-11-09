@@ -3,6 +3,7 @@
  * Browser-only initialization with environment validation
  */
 import { env } from '@/lib/env';
+import { logDebug, logError, logWarn } from '@/lib/logger';
 
 let oneSignalInitialized = false;
 
@@ -13,13 +14,13 @@ let oneSignalInitialized = false;
 export async function initOneSignal(): Promise<void> {
   // Guard: Only run in browser
   if (typeof window === 'undefined') {
-    console.warn('[OneSignal] Skipping initialization - not in browser context');
+    logWarn('[OneSignal] Skipping initialization - not in browser context');
     return;
   }
 
   // Guard: Only initialize once
   if (oneSignalInitialized) {
-    console.log('[OneSignal] Already initialized');
+    logDebug('[OneSignal] Already initialized');
     return;
   }
 
@@ -27,7 +28,7 @@ export async function initOneSignal(): Promise<void> {
     const appId = env.client.oneSignalAppId;
     
     if (!appId) {
-      console.error('[OneSignal] App ID not configured');
+      logError('[OneSignal] App ID not configured');
       return;
     }
 
@@ -41,9 +42,9 @@ export async function initOneSignal(): Promise<void> {
     });
 
     oneSignalInitialized = true;
-    console.log('[OneSignal] Initialized successfully');
+    logDebug('[OneSignal] Initialized successfully');
   } catch (error) {
-    console.error('[OneSignal] Initialization failed:', error);
+    logError('[OneSignal] Initialization failed', error as Error);
   }
 }
 
@@ -65,7 +66,7 @@ export async function requestNotificationPermission(): Promise<boolean> {
     const permission = await OneSignal.Notifications.requestPermission();
     return permission;
   } catch (error) {
-    console.error('[OneSignal] Permission request failed:', error);
+    logError('[OneSignal] Permission request failed', error as Error);
     return false;
   }
 }
@@ -98,8 +99,8 @@ export async function setOneSignalUserId(userId: string): Promise<void> {
     const OneSignal = OneSignalDeferred.default;
     
     await OneSignal.login(userId);
-    console.log('[OneSignal] User ID set:', userId);
+    logDebug('[OneSignal] User ID set', { userId });
   } catch (error) {
-    console.error('[OneSignal] Failed to set user ID:', error);
+    logError('[OneSignal] Failed to set user ID', error as Error);
   }
 }

@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { logDebug, logError } from '@/lib/logger';
 
 interface NotificationSettings {
   dailyReminder: boolean;
@@ -67,7 +68,7 @@ export class NotificationService {
 
     // Check if browser supports notifications
     if (!('Notification' in window)) {
-      console.log('This browser does not support notifications');
+      logDebug('This browser does not support notifications');
       return false;
     }
 
@@ -116,7 +117,7 @@ export class NotificationService {
     // 2. Server-side push notifications
     // 3. Or implement using Capacitor Local Notifications for mobile
     
-    console.log('Notification settings updated:', settings);
+    logDebug('Notification settings updated', { settings });
     
     // For now, we'll set up browser notifications that trigger based on user interaction
     // This is a placeholder for the full implementation
@@ -167,7 +168,7 @@ export class NotificationService {
         }
       }
     } catch (error) {
-      console.error('Error checking streak for notification:', error);
+      logError('Error checking streak for notification', error as Error);
     }
   }
 

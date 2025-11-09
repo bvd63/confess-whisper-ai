@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
 import { useQueryClient } from '@tanstack/react-query';
+import { logDebug, logError } from '@/lib/logger';
 
 export default function CoinPurchaseSuccess() {
   const navigate = useNavigate();
@@ -25,21 +26,21 @@ export default function CoinPurchaseSuccess() {
       }
 
       try {
-        console.log('[SUCCESS PAGE] Verifying purchase for session:', sessionId);
+        logDebug('[SUCCESS PAGE] Verifying purchase for session', { sessionId });
         
         const { data, error } = await supabase.functions.invoke('verify-coin-purchase', {
           body: { sessionId }
         });
 
         if (error) {
-          console.error('[SUCCESS PAGE] Verification error:', error);
+          logError('[SUCCESS PAGE] Verification error', error);
           toast.error('Failed to verify purchase');
         } else if (data?.success) {
-          console.log('[SUCCESS PAGE] Verification result:', data);
+          logDebug('[SUCCESS PAGE] Verification result', { data });
           if (data.already_awarded) {
-            console.log('[SUCCESS PAGE] Coins were already awarded');
+            logDebug('[SUCCESS PAGE] Coins were already awarded');
           } else {
-            console.log('[SUCCESS PAGE] Coins awarded:', data.coins_awarded);
+            logDebug('[SUCCESS PAGE] Coins awarded', { coins_awarded: data.coins_awarded });
             setCoinsAwarded(data.coins_awarded);
           }
           
@@ -54,7 +55,7 @@ export default function CoinPurchaseSuccess() {
           queryClient.invalidateQueries({ queryKey: ['coinBalance'] });
         }
       } catch (err) {
-        console.error('[SUCCESS PAGE] Verification failed:', err);
+        logError('[SUCCESS PAGE] Verification failed', err as Error);
       } finally {
         setVerifying(false);
       }

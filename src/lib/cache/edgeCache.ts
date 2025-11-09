@@ -3,6 +3,8 @@
  * Manages cache strategies for different resource types
  */
 
+import { logDebug, logError, logWarn } from '@/lib/logger';
+
 interface CacheConfig {
   staticAssets: number;    // 24 hours for images, fonts
   apiResponses: number;    // 5 minutes for API calls
@@ -60,11 +62,11 @@ export class EdgeCacheManager {
       }
       
       await Promise.all(deletePromises);
-      console.log(`[EdgeCache] Invalidated ${deletedCount} entries matching: ${pattern}`);
+      logDebug(`[EdgeCache] Invalidated ${deletedCount} entries matching: ${pattern}`);
       
       return deletedCount;
     } catch (error) {
-      console.error('[EdgeCache] Invalidation failed:', error);
+      logError('[EdgeCache] Invalidation failed', error as Error);
       return 0;
     }
   }
@@ -87,17 +89,17 @@ export class EdgeCacheManager {
         try {
           const response = await fetch(asset);
           if (response.ok) {
-            await cache.put(asset, response);
+          await cache.put(asset, response);
           }
         } catch (err) {
-          console.warn(`[EdgeCache] Failed to warm cache for ${asset}:`, err);
+          logWarn(`[EdgeCache] Failed to warm cache for ${asset}`, { error: err });
         }
       });
 
       await Promise.allSettled(fetchPromises);
-      console.log('[EdgeCache] Cache warming completed');
+      logDebug('[EdgeCache] Cache warming completed');
     } catch (error) {
-      console.error('[EdgeCache] Cache warming failed:', error);
+      logError('[EdgeCache] Cache warming failed', error as Error);
     }
   }
 
@@ -123,7 +125,7 @@ export class EdgeCacheManager {
         entryCount: keys.length,
       };
     } catch (error) {
-      console.error('[EdgeCache] Failed to get cache stats:', error);
+      logError('[EdgeCache] Failed to get cache stats', error as Error);
       return { size: 0, entryCount: 0 };
     }
   }
@@ -135,10 +137,10 @@ export class EdgeCacheManager {
     try {
       const cacheNames = await caches.keys();
       await Promise.all(cacheNames.map(name => caches.delete(name)));
-      console.log('[EdgeCache] All caches cleared');
+      logDebug('[EdgeCache] All caches cleared');
       return true;
     } catch (error) {
-      console.error('[EdgeCache] Failed to clear cache:', error);
+      logError('[EdgeCache] Failed to clear cache', error as Error);
       return false;
     }
   }

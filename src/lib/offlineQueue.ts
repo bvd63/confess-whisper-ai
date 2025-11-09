@@ -5,6 +5,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { persistenceManager } from './persistenceManager';
+import { logDebug, logError } from '@/lib/logger';
 
 interface QueuedOperation {
   id: string;
@@ -39,7 +40,7 @@ class OfflineQueue {
         this.processQueue();
       }
     } catch (error) {
-      console.error('Failed to initialize offline queue:', error);
+      logError('Failed to initialize offline queue', error as Error);
     }
 
     // Listen for online/offline events
@@ -140,9 +141,9 @@ class OfflineQueue {
         this.queue.shift();
         await persistenceManager.remove('state', `queue_${op.id}`);
 
-        console.log(`✅ Successfully processed queued operation: ${op.type}`);
+        logDebug(`Successfully processed queued operation: ${op.type}`);
       } catch (error) {
-        console.error(`❌ Failed to process operation ${op.type}:`, error);
+        logError(`Failed to process operation ${op.type}`, error as Error);
 
         // Increment retry count and track last retry time
         op.retryCount++;
@@ -150,7 +151,7 @@ class OfflineQueue {
 
         if (op.retryCount >= op.maxRetries) {
           // Max retries reached - remove from queue
-          console.error(`Max retries reached for operation ${op.id}, removing from queue`);
+          logError(`Max retries reached for operation ${op.id}, removing from queue`);
           this.queue.shift();
           await persistenceManager.remove('state', `queue_${op.id}`);
         } else {
@@ -191,5 +192,5 @@ export const offlineQueue = new OfflineQueue();
 
 // Initialize on import
 offlineQueue.init().catch(err => {
-  console.error('Failed to initialize offline queue:', err);
+  logError('Failed to initialize offline queue', err as Error);
 });

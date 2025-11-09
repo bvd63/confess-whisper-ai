@@ -2,10 +2,12 @@
  * Toast utilities - wrappers for the existing toast system
  */
 
+import { logDebug, logError } from '@/lib/logger';
+
 export function toastError(msg: string): void {
-  console.error('[Toast Error]', msg);
+  logError('[Toast Error]', undefined, { message: msg });
 }
 
 export function toastOk(msg: string): void {
-  console.log('[Toast Success]', msg);
+  logDebug('[Toast Success]', { message: msg });
 }

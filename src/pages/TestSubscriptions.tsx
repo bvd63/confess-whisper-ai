@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, CheckCircle, XCircle, Crown, Zap } from "lucide-react";
+import { logDebug } from "@/lib/logger";
 
 type TestResult = {
   name: string;
@@ -97,7 +98,7 @@ export default function TestSubscriptions() {
         throw new Error(message || "Checkout failed");
       }
       toast({ title: "Checkout URL Ready", description: "Check console for URL" });
-      console.log("Checkout URL:", (data as any)?.url);
+      logDebug("Checkout URL", { url: (data as any)?.url });
       return data;
     });
 

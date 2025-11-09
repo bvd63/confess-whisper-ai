@@ -2,6 +2,8 @@
  * Enhanced error recovery system with auto-save and retry
  */
 
+import { logDebug, logError, logWarn } from '@/lib/logger';
+
 interface DraftData {
   content: string;
   timestamp: number;
@@ -26,7 +28,7 @@ class ErrorRecovery {
       };
       localStorage.setItem(this.DRAFT_KEY, JSON.stringify(draft));
     } catch (error) {
-      console.error('Failed to save draft:', error);
+      logError('Failed to save draft', error as Error);
     }
   }
 
@@ -49,7 +51,7 @@ class ErrorRecovery {
 
       return draft;
     } catch (error) {
-      console.error('Failed to recover draft:', error);
+      logError('Failed to recover draft', error as Error);
       return null;
     }
   }
@@ -61,7 +63,7 @@ class ErrorRecovery {
     try {
       localStorage.removeItem(this.DRAFT_KEY);
     } catch (error) {
-      console.error('Failed to clear draft:', error);
+      logError('Failed to clear draft', error as Error);
     }
   }
 
@@ -148,7 +150,7 @@ class ErrorRecovery {
         this.sendErrorToBackend(errorEntry);
       }
     } catch (e) {
-      console.error('Failed to log error:', e);
+      logError('Failed to log error', e as Error);
     }
   }
 
@@ -193,7 +195,7 @@ class ErrorRecovery {
       });
     } catch (e) {
       // Silently fail - don't want error reporting to cause more errors
-      console.warn('Failed to send error to backend:', e);
+      logWarn('Failed to send error to backend', { error: e });
     }
   }
 
@@ -207,7 +209,7 @@ class ErrorRecovery {
     // Try to recover draft
     const draft = this.recoverDraft();
     if (draft) {
-      console.log('Recovered draft:', draft);
+      logDebug('Recovered draft', { draft });
     }
 
     // Execute fallback if provided
@@ -215,7 +217,7 @@ class ErrorRecovery {
       try {
         fallback();
       } catch (e) {
-        console.error('Fallback failed:', e);
+        logError('Fallback failed', e as Error);
       }
     }
   }
@@ -248,7 +250,7 @@ class ErrorRecovery {
     try {
       localStorage.removeItem(this.ERROR_LOG_KEY);
     } catch (error) {
-      console.error('Failed to clear error log:', error);
+      logError('Failed to clear error log', error as Error);
     }
   }
 }

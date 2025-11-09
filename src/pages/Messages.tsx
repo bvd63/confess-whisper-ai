@@ -17,6 +17,7 @@ import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import { useTabNavigation } from "@/contexts/TabNavigationContext";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Loader2 } from "lucide-react";
+import { logDebug, logError } from "@/lib/logger";
 
 
 const Messages = () => {
@@ -45,7 +46,7 @@ const Messages = () => {
   // Restore scroll position when returning to conversation list
   useScrollRestoration(!selectedConversation);
 
-  console.log('[Messages] Render state:', {
+  logDebug('[Messages] Render state', {
     activeTab,
     selectedConversation,
     otherUserId,
@@ -56,7 +57,7 @@ const Messages = () => {
   // Only clear state when navigating away from /messages
   useEffect(() => {
     const onMessagesRoute = location.pathname.startsWith('/messages');
-    console.log('[Messages] Route check:', {
+    logDebug('[Messages] Route check', {
       onMessagesRoute,
       selectedConversation,
       pathname: location.pathname,
@@ -102,7 +103,7 @@ const Messages = () => {
       // Ensure messages tab stack reflects deep-linked conversation
       pushToTabStack('messages', `/messages`);
     } catch (error) {
-      console.error('Error starting conversation:', error);
+      logError('Error starting conversation', error as Error);
     }
   };
 
@@ -125,7 +126,7 @@ const Messages = () => {
       if (error) throw error;
       setOtherUserNickname(data?.nickname || null);
     } catch (error) {
-      console.error('Error loading user info:', error);
+      logError('Error loading user info', error as Error);
       setOtherUserNickname(null);
     }
   };
@@ -133,7 +134,7 @@ const Messages = () => {
   const handleConversationSelect = async (conversationId: string, userId: string) => {
     // Validate userId before proceeding
     if (!userId || userId.trim() === '') {
-      console.error('Invalid userId provided to handleConversationSelect');
+      logError('Invalid userId provided to handleConversationSelect');
       toast.error(t.error_generic);
       return;
     }
