@@ -3,7 +3,12 @@
  */
 
 import { useEffect } from 'react';
-import { initializeOneSignal, setOneSignalUserId } from '@/services/onesignal';
+import { 
+  initializeOneSignal, 
+  setOneSignalUserId, 
+  getOneSignalPlayerId,
+  savePlayerIdToProfile 
+} from '@/services/onesignal';
 import { useCurrentUser } from './useCurrentUser';
 
 export const useOneSignalInit = () => {
@@ -21,6 +26,12 @@ export const useOneSignalInit = () => {
         if (initialized && user?.id) {
           // Link user with OneSignal for targeted notifications
           await setOneSignalUserId(user.id);
+          
+          // Save player ID to profile for backend notifications
+          const playerId = await getOneSignalPlayerId();
+          if (playerId) {
+            await savePlayerIdToProfile(user.id, playerId);
+          }
         }
       } catch (error) {
         if (import.meta.env.DEV) {

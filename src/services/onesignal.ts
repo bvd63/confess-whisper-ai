@@ -156,3 +156,27 @@ export const getOneSignalPlayerId = async (): Promise<string | null> => {
     return null;
   }
 };
+
+/**
+ * Save OneSignal player ID to user profile
+ */
+export const savePlayerIdToProfile = async (userId: string, playerId: string): Promise<void> => {
+  try {
+    const { supabase } = await import('@/integrations/supabase/client');
+    
+    const { error } = await supabase
+      .from('profiles')
+      .update({ onesignal_player_id: playerId })
+      .eq('user_id', userId);
+
+    if (error) {
+      if (import.meta.env.DEV) {
+        console.error('[OneSignal] Failed to save player ID:', error);
+      }
+    }
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.error('[OneSignal] Failed to save player ID:', error);
+    }
+  }
+};

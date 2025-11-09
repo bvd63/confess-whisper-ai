@@ -1420,6 +1420,7 @@ export type Database = {
             | null
           onboarding_completed: boolean | null
           onboarding_completed_at: string | null
+          onesignal_player_id: string | null
           password_changed_at: string | null
           posts_count: number | null
           privacy_mode: string | null
@@ -1464,6 +1465,7 @@ export type Database = {
             | null
           onboarding_completed?: boolean | null
           onboarding_completed_at?: string | null
+          onesignal_player_id?: string | null
           password_changed_at?: string | null
           posts_count?: number | null
           privacy_mode?: string | null
@@ -1508,6 +1510,7 @@ export type Database = {
             | null
           onboarding_completed?: boolean | null
           onboarding_completed_at?: string | null
+          onesignal_player_id?: string | null
           password_changed_at?: string | null
           posts_count?: number | null
           privacy_mode?: string | null
@@ -2196,6 +2199,30 @@ export type Database = {
           font_size?: string | null
           id?: string
           theme?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_push_tokens: {
+        Row: {
+          created_at: string | null
+          provider: string
+          token: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          provider: string
+          token: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          provider?: string
+          token?: string
           updated_at?: string | null
           user_id?: string
         }
