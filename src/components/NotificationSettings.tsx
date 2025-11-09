@@ -8,6 +8,8 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { NotificationStatusBadge } from '@/components/NotificationStatusBadge';
 import { NotificationPreferences } from '@/components/NotificationPreferences';
+import { useNavigate } from 'react-router-dom';
+import { History } from 'lucide-react';
 
 interface NotificationSettingsData {
   dailyReminder: boolean;
@@ -17,6 +19,7 @@ interface NotificationSettingsData {
 
 export const NotificationSettings = () => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [settings, setSettings] = useState<NotificationSettingsData>({
     dailyReminder: true,
@@ -245,8 +248,18 @@ export const NotificationSettings = () => {
 
       {/* Push Notification Preferences */}
       {permission === 'granted' && (
-        <div className="pt-4">
+        <div className="pt-4 space-y-4">
           <NotificationPreferences />
+          
+          {/* Link to Notification History */}
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => navigate('/notifications')}
+          >
+            <History className="w-4 h-4 mr-2" />
+            View Notification History
+          </Button>
         </div>
       )}
     </div>

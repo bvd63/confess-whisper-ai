@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Bell, Heart, MessageSquare, Check, Trash2 } from "lucide-react";
+import { Bell, Heart, MessageSquare, Check, Trash2, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -275,6 +275,22 @@ const NotificationsDropdown = () => {
               </Button>
             )}
           </div>
+        </div>
+
+        {/* View All Button */}
+        <div className="px-3 sm:px-4 py-2 border-b border-border bg-muted/30">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start text-xs"
+            onClick={() => {
+              navigate('/notifications');
+              setIsOpen(false);
+            }}
+          >
+            <History className="w-3 h-3 mr-2" />
+            View All Notifications
+          </Button>
         </div>
 
         <ScrollArea className="h-[320px] sm:h-[400px]">

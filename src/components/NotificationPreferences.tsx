@@ -3,8 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bell, Heart, MessageSquare, UserPlus, MessageCircle } from "lucide-react";
+import { Bell, Heart, MessageSquare, UserPlus, MessageCircle, Send } from "lucide-react";
 import { toast } from "sonner";
 
 interface NotificationPreference {
@@ -23,6 +24,7 @@ export const NotificationPreferences = () => {
     notify_messages: true,
   });
   const [loading, setLoading] = useState(true);
+  const [testingSending, setTestingSending] = useState(false);
 
   useEffect(() => {
     if (user?.id) {
@@ -85,6 +87,31 @@ export const NotificationPreferences = () => {
       toast.error("Failed to update preference");
       // Revert optimistic update
       loadPreferences();
+    }
+  };
+
+  const sendTestNotification = async () => {
+    if (!user?.id) return;
+    
+    setTestingSending(true);
+    try {
+      const { error } = await supabase.functions.invoke('send-notification', {
+        body: {
+          userId: user.id,
+          type: 'like',
+          triggeredBy: user.id,
+          confessionId: '00000000-0000-0000-0000-000000000000',
+        }
+      });
+
+      if (error) throw error;
+      
+      toast.success("Test notification sent! Check your device.");
+    } catch (error) {
+      console.error("Error sending test notification:", error);
+      toast.error("Failed to send test notification");
+    } finally {
+      setTestingSending(false);
     }
   };
 
@@ -160,8 +187,24 @@ export const NotificationPreferences = () => {
                 onCheckedChange={(checked) => updatePreference(item.key, checked)}
               />
             </div>
-          );
-        })}
+            );
+          })}
+        
+        {/* Test Notification Button */}
+        <div className="pt-4 border-t">
+          <Button
+            onClick={sendTestNotification}
+            disabled={testingSending}
+            variant="outline"
+            className="w-full"
+          >
+            <Send className="w-4 h-4 mr-2" />
+            {testingSending ? "Sending..." : "Send Test Notification"}
+          </Button>
+          <p className="text-xs text-muted-foreground mt-2 text-center">
+            Send a test push notification to verify it's working
+          </p>
+        </div>
       </CardContent>
     </Card>
   );

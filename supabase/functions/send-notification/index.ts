@@ -23,6 +23,47 @@ const logStep = (step: string, details?: any) => {
   console.log(`[SEND-NOTIFICATION] ${step}${detailsStr}`);
 };
 
+// Check for recent similar notifications (for batching)
+const checkRecentNotifications = async (
+  supabaseClient: any,
+  userId: string,
+  type: string,
+  confessionId: string | undefined,
+  minutesWindow: number = 5
+): Promise<{ shouldBatch: boolean; count: number }> => {
+  const timeAgo = new Date(Date.now() - minutesWindow * 60 * 1000).toISOString();
+  
+  const { data, error } = await supabaseClient
+    .from("notifications")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("type", type)
+    .gte("created_at", timeAgo);
+
+  if (error) {
+    logStep("Error checking recent notifications", { error });
+    return { shouldBatch: false, count: 0 };
+  }
+
+  // For confession-specific notifications, check if they're for the same confession
+  if (confessionId && type !== 'follow' && type !== 'message') {
+    const { data: confessionNotifs } = await supabaseClient
+      .from("notifications")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("type", type)
+      .eq("confession_id", confessionId)
+      .gte("created_at", timeAgo);
+    
+    return { 
+      shouldBatch: (confessionNotifs?.length || 0) > 0, 
+      count: (confessionNotifs?.length || 0) + 1 
+    };
+  }
+
+  return { shouldBatch: (data?.length || 0) > 0, count: (data?.length || 0) + 1 };
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -95,6 +136,15 @@ serve(async (req) => {
       }
     }
 
+    // Check for recent similar notifications (batching)
+    const batchCheck = await checkRecentNotifications(
+      supabaseClient,
+      payload.userId,
+      payload.type,
+      payload.confessionId,
+      5 // 5 minute window
+    );
+
     // Get triggered by user's nickname
     const { data: triggeredByProfile } = await supabaseClient
       .from("profiles")
@@ -111,18 +161,30 @@ serve(async (req) => {
 
     switch (payload.type) {
       case "like":
-        heading = "New Like! 💖";
-        message = `${triggeredByName} liked your confession`;
+        heading = batchCheck.shouldBatch 
+          ? `${batchCheck.count} New Likes! 💖` 
+          : "New Like! 💖";
+        message = batchCheck.shouldBatch
+          ? `${triggeredByName} and ${batchCheck.count - 1} other${batchCheck.count > 2 ? 's' : ''} liked your confession`
+          : `${triggeredByName} liked your confession`;
         url = `/confession/${payload.confessionId}`;
         break;
       case "comment":
-        heading = "New Comment 💬";
-        message = `${triggeredByName}: ${payload.commentContent?.substring(0, 50)}${payload.commentContent && payload.commentContent.length > 50 ? "..." : ""}`;
+        heading = batchCheck.shouldBatch
+          ? `${batchCheck.count} New Comments 💬`
+          : "New Comment 💬";
+        message = batchCheck.shouldBatch
+          ? `${triggeredByName} and ${batchCheck.count - 1} other${batchCheck.count > 2 ? 's' : ''} commented on your confession`
+          : `${triggeredByName}: ${payload.commentContent?.substring(0, 50)}${payload.commentContent && payload.commentContent.length > 50 ? "..." : ""}`;
         url = `/confession/${payload.confessionId}`;
         break;
       case "follow":
-        heading = "New Follower! 👥";
-        message = `${triggeredByName} started following you`;
+        heading = batchCheck.shouldBatch
+          ? `${batchCheck.count} New Followers! 👥`
+          : "New Follower! 👥";
+        message = batchCheck.shouldBatch
+          ? `${triggeredByName} and ${batchCheck.count - 1} other${batchCheck.count > 2 ? 's' : ''} followed you`
+          : `${triggeredByName} started following you`;
         url = `/profile/${payload.triggeredBy}`;
         break;
       case "message":
@@ -132,6 +194,20 @@ serve(async (req) => {
         break;
       default:
         throw new Error("Unknown notification type");
+    }
+
+    // Skip sending push notification if batching (already sent one recently)
+    if (batchCheck.shouldBatch && batchCheck.count > 2) {
+      logStep("Skipping push notification due to batching", { count: batchCheck.count });
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: "Notification batched, push skipped",
+          batched: true,
+          count: batchCheck.count
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      );
     }
 
     logStep("Sending OneSignal notification", { heading, playerId: recipientProfile.onesignal_player_id });
