@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { getSupabase } from '@/lib/supabaseClient';
+import { logError } from '@/lib/logger';
 
 interface RateLimitState {
   isLimited: boolean;
@@ -41,7 +42,7 @@ export const useConfessionRateLimit = () => {
       });
 
       if (error) {
-        console.error('Rate limit check error:', error);
+        logError('Rate limit check error', error);
         return true; // Allow on error
       }
 
@@ -74,7 +75,7 @@ export const useConfessionRateLimit = () => {
 
       return true;
     } catch (error) {
-      console.error('Rate limit check failed:', error);
+      logError('Rate limit check failed', error as Error);
       return true; // Allow on error
     }
   }, [supabase]);

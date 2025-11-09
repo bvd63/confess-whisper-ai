@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { logError } from "@/lib/logger";
 
 interface UseConfessionInteractionsProps {
   userId: string | null;
@@ -32,7 +33,7 @@ export const useConfessionInteractions = ({ userId }: UseConfessionInteractionsP
         setBookmarkedConfessions(new Set(bookmarksResult.data.map(bookmark => bookmark.confession_id)));
       }
     } catch (error) {
-      console.error('Error loading user interactions:', error);
+      logError('Error loading user interactions', error as Error);
     } finally {
       setIsLoading(false);
     }

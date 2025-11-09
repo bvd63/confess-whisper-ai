@@ -10,6 +10,7 @@ import EmptyState from "@/components/EmptyState";
 import { BookMarked } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import VirtualizedConfessions from "@/components/VirtualizedConfessions";
+import { logError } from "@/lib/logger";
 
 type Confession = Tables<"confessions">;
 
@@ -40,7 +41,7 @@ const UserConfessionsList = () => {
       if (error) throw error;
       setConfessions(data || []);
     } catch (error) {
-      console.error("Error fetching user confessions:", error);
+      logError("Error fetching user confessions", error as Error);
     } finally {
       setLoading(false);
     }

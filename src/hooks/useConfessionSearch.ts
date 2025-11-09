@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SearchFilters } from "@/components/SearchBar";
+import { logError } from "@/lib/logger";
 
 export const useConfessionSearch = () => {
   const [confessions, setConfessions] = useState<any[]>([]);
@@ -91,7 +92,7 @@ export const useConfessionSearch = () => {
 
       setConfessions(data || []);
     } catch (error) {
-      console.error('Error searching confessions:', error);
+      logError('Error searching confessions', error as Error);
       setConfessions([]);
     } finally {
       setLoading(false);

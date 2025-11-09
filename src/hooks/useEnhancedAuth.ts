@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { logError } from '@/lib/logger';
 
 interface SessionMetadata {
   deviceId?: string;
@@ -35,7 +36,7 @@ export const useEnhancedAuth = () => {
       if (error) throw error;
       return data?.required || false;
     } catch (error) {
-      console.error('Error checking CAPTCHA requirement:', error);
+      logError('Error checking CAPTCHA requirement', error as Error);
       return false;
     }
   };
@@ -96,7 +97,7 @@ export const useEnhancedAuth = () => {
 
       return { data, error: null };
     } catch (error) {
-      console.error('Enhanced login error:', error);
+      logError('Enhanced login error', error as Error);
       toast({
         title: t.common_error,
         description: t.common_something_went_wrong,
@@ -127,7 +128,7 @@ export const useEnhancedAuth = () => {
       setSessions(data.sessions || []);
       return { data: data.sessions, error: null };
     } catch (error) {
-      console.error('Error listing sessions:', error);
+      logError('Error listing sessions', error as Error);
       toast({
         title: t.common_error,
         description: t.common_something_went_wrong,
@@ -166,7 +167,7 @@ export const useEnhancedAuth = () => {
 
       return { success: true, error: null };
     } catch (error) {
-      console.error('Error revoking session:', error);
+      logError('Error revoking session', error as Error);
       toast({
         title: t.common_error,
         description: t.common_something_went_wrong,
@@ -208,7 +209,7 @@ export const useEnhancedAuth = () => {
 
       return { success: true, error: null };
     } catch (error) {
-      console.error('Error revoking all sessions:', error);
+      logError('Error revoking all sessions', error as Error);
       toast({
         title: t.common_error,
         description: t.common_something_went_wrong,

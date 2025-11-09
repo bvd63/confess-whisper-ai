@@ -7,6 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { SubscriptionPlansGrid } from "./SubscriptionPlansGrid";
 import { getPriceIdForTier } from "@/lib/stripe-config";
 import type { BillingCycle } from "@/lib/stripe-config";
+import { logError } from "@/lib/logger";
 
 interface SubscriptionPlansProps {
   open: boolean;
@@ -87,7 +88,7 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
         await goToStripeCheckout(data.url);
       }
     } catch (error) {
-      console.error('Error creating checkout session:', error);
+      logError('Error creating checkout session', error as Error);
       toast({
         title: t.common_error,
         description: t.subscription_payment_error_desc,

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Crown, MessageSquare, Heart, Settings, FileText } from "lucide-react";
 import { Button } from "./ui/button";
 import { ProfileTierBadge } from "./ProfileTierBadge";
+import { logError } from "@/lib/logger";
 interface UserAnalyticsProps {
   userId?: string;
   onUpgradeClick?: () => void;
@@ -86,7 +87,7 @@ const UserAnalytics = ({
         totalComments
       });
     } catch (error) {
-      console.error("Error fetching user stats:", error);
+      logError("Error fetching user stats", error as Error);
     }
   };
   const statCards = [{

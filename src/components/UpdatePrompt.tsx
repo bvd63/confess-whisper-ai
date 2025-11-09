@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { logInfo } from "@/lib/logger";
+import { logInfo, logDebug } from "@/lib/logger";
 
 /**
  * Notifies users when an update is available
@@ -62,7 +62,7 @@ export const UpdatePrompt = () => {
         }
       } catch (error) {
         // Silently fail - version checking is not critical
-        console.debug('Version check failed:', error);
+        logDebug('Version check failed', { error });
       }
     };
 

@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useReadReceipts } from './useReadReceipts';
 import { offlineQueue } from '@/lib/offlineQueue';
 import { toast } from 'sonner';
+import { logError } from '@/lib/logger';
 
 interface Message {
   id: string;
@@ -52,7 +53,7 @@ export const useConversation = (conversationId: string | null, userId: string | 
       
       setMessages(typedMessages);
     } catch (error) {
-      console.error('Error loading messages:', error);
+      logError('Error loading messages', error as Error);
     } finally {
       setIsLoading(false);
     }
@@ -112,7 +113,7 @@ export const useConversation = (conversationId: string | null, userId: string | 
       };
       setMessages(prev => prev.map(m => m.id === tempId ? typedMessage : m));
     } catch (error) {
-      console.error('Error sending message:', error);
+      logError('Error sending message', error as Error);
       
       // Remove temp message
       setMessages(prev => prev.filter(m => m.id !== tempId));
@@ -145,7 +146,7 @@ export const useConversation = (conversationId: string | null, userId: string | 
           body: { messageId }
         });
       } catch (error) {
-        console.error('Error marking message as delivered:', error);
+        logError('Error marking message as delivered', error as Error);
       }
     }
   }, []);
@@ -156,7 +157,7 @@ export const useConversation = (conversationId: string | null, userId: string | 
         body: { messageId }
       });
     } catch (error) {
-      console.error('Error marking message as seen:', error);
+      logError('Error marking message as seen', error as Error);
     }
   }, []);
 

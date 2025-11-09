@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { logError } from "@/lib/logger";
 
 interface CoinsData {
   balance: number;
@@ -37,7 +38,7 @@ export const useCoins = (userId: string | undefined) => {
         });
       } catch (error) {
         if (import.meta.env.DEV) {
-          console.error('Error loading coins:', error);
+          logError('Error loading coins', error as Error);
         }
         setCoinsData({ balance: 0, lifetimeEarned: 0, loading: false });
       }
@@ -94,7 +95,7 @@ export const useCoins = (userId: string | undefined) => {
       });
     } catch (error) {
       if (import.meta.env.DEV) {
-        console.error('Error refetching coins:', error);
+        logError('Error refetching coins', error as Error);
       }
       setCoinsData(prev => ({ ...prev, loading: false }));
     }

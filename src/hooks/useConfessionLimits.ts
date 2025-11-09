@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "./useCurrentUser";
 import { usePremiumStatus } from "./usePremiumStatus";
+import { logError } from "@/lib/logger";
 
 interface ConfessionLimitInfo {
   canPost: boolean;
@@ -61,7 +62,7 @@ export const useConfessionLimits = () => {
         isLoading: false,
       });
     } catch (error) {
-      console.error('Error checking confession limits:', error);
+      logError('Error checking confession limits', error as Error);
       setLimitInfo(prev => ({ ...prev, isLoading: false }));
     }
   }, [user]);
@@ -77,7 +78,7 @@ export const useConfessionLimits = () => {
       // Refresh limits after incrementing
       await checkLimits();
     } catch (error) {
-      console.error('Error incrementing confession count:', error);
+      logError('Error incrementing confession count', error as Error);
     }
   }, [user, checkLimits]);
 

@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trash2, RefreshCw } from 'lucide-react';
 import { useCachePurgeOnDelete } from '@/hooks/useCachePurgeOnDelete';
+import { logDebug } from '@/lib/logger';
 
 export const CacheMonitor = () => {
   const [cacheStats, setCacheStats] = useState({
@@ -31,7 +32,7 @@ export const CacheMonitor = () => {
         totalSize += (localStorage.getItem(key) || '').length + key.length;
       } catch (error) {
         // Ignore storage errors for individual keys
-        console.debug('Failed to get size for key:', key, error);
+        logDebug('Failed to get size for key', { key, error });
       }
     });
 

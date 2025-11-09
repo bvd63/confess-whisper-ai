@@ -1,5 +1,6 @@
 import { useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { logError } from '@/lib/logger';
 
 export type AnalyticsEvent = 
   | 'page_view'
@@ -48,7 +49,7 @@ export const useAnalytics = () => {
 
       await supabase.from('analytics_events').insert(events);
     } catch (error) {
-      console.error('Analytics batch error:', error);
+      logError('Analytics batch error', error as Error);
     }
   }, []);
 
