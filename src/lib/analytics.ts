@@ -14,7 +14,13 @@ type AnalyticsEvent =
   | 'comment'
   | 'share'
   | 'bookmark'
-  | 'deep_insight_generated';
+  | 'deep_insight_generated'
+  | 'notification_sent'
+  | 'notification_received'
+  | 'notification_clicked'
+  | 'notification_dismissed'
+  | 'notification_read'
+  | 'notification_group_expanded';
 
 interface AnalyticsEventData {
   [key: string]: any;

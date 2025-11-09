@@ -14,7 +14,13 @@ export type AnalyticsEvent =
   | 'auth_login'
   | 'referral_shared'
   | 'performance_metric'
-  | 'pull_to_refresh';
+  | 'pull_to_refresh'
+  | 'notification_sent'
+  | 'notification_received'
+  | 'notification_clicked'
+  | 'notification_dismissed'
+  | 'notification_read'
+  | 'notification_group_expanded';
 
 interface EventData {
   [key: string]: any;

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, Heart, MessageSquare, UserPlus, MessageCircle, ArrowLeft, Check, Trash2, Filter, Award, Lightbulb, Flame, ChevronDown, ChevronRight } from "lucide-react";
+import { Bell, Heart, MessageSquare, UserPlus, MessageCircle, ArrowLeft, Check, Trash2, Filter, Award, Lightbulb, Flame, ChevronDown, ChevronRight, BarChart3 } from "lucide-react";
+import { analytics } from '@/lib/analytics';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -213,6 +214,11 @@ const NotificationHistory = () => {
 
   const markAsRead = async (notificationId: string) => {
     try {
+      // Track read event
+      analytics.track('notification_read', {
+        notificationId,
+      });
+      
       const { error } = await supabase.functions.invoke('manage-notifications', {
         body: { action: 'mark_read', notificationId },
       });
@@ -242,6 +248,11 @@ const NotificationHistory = () => {
 
   const deleteNotification = async (notificationId: string) => {
     try {
+      // Track delete event
+      analytics.track('notification_dismissed', {
+        notificationId,
+      });
+      
       const { error } = await supabase.functions.invoke('manage-notifications', {
         body: { action: 'delete', notificationId },
       });
@@ -276,6 +287,12 @@ const NotificationHistory = () => {
   };
 
   const handleNotificationClick = async (notification: Notification) => {
+    // Track click event
+    analytics.track('notification_clicked', {
+      notification_type: notification.type,
+      notificationId: notification.id,
+    });
+    
     await markAsRead(notification.id);
     
     if (notification.type === 'message' && notification.triggered_by) {
@@ -390,11 +407,17 @@ const NotificationHistory = () => {
   };
 
   const handleGroupClick = async (group: GroupedNotification) => {
-    if (group.count === 1) {
-      await handleNotificationClick(group.notifications[0]);
-    } else {
+    // Track group expansion for multi-notification groups
+    if (group.count > 1) {
+      analytics.track('notification_group_expanded', {
+        notification_type: group.type,
+        count: group.count,
+      });
+      
       // For grouped items, just toggle expansion
       toggleGroup(group.id);
+    } else {
+      await handleNotificationClick(group.notifications[0]);
     }
   };
 
@@ -404,31 +427,45 @@ const NotificationHistory = () => {
     <AppLayout>
       <div className="container mx-auto px-4 py-6 max-w-4xl pb-24">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate(-1)}
-            className="flex-shrink-0"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold">Notification History</h1>
-            <p className="text-sm text-muted-foreground">
-              {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}` : 'All caught up!'}
-            </p>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(-1)}
+              className="flex-shrink-0"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold">Notification History</h1>
+              <p className="text-sm text-muted-foreground">
+                {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}` : 'All caught up!'}
+              </p>
+            </div>
           </div>
-          {unreadCount > 0 && (
+          
+          <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={markAllAsRead}
+              onClick={() => navigate('/notifications/analytics')}
+              className="gap-2"
             >
-              <Check className="w-4 h-4 mr-2" />
-              Mark All Read
+              <BarChart3 className="w-4 h-4" />
+              <span className="hidden sm:inline">Analytics</span>
             </Button>
-          )}
+            {unreadCount > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={markAllAsRead}
+              >
+                <Check className="w-4 h-4 mr-2" />
+                Mark all read
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Filter Tabs */}

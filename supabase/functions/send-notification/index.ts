@@ -242,6 +242,22 @@ serve(async (req) => {
 
     logStep("Notification sent successfully", { recipients: oneSignalData.recipients });
 
+    // Track notification sent event in analytics
+    try {
+      await supabaseClient.from('analytics_events').insert({
+        user_id: payload.userId,
+        event_type: 'notification_sent',
+        event_data: {
+          notification_type: payload.type,
+          notificationId: oneSignalData.id,
+          triggered_by: payload.triggeredBy,
+        },
+      });
+    } catch (analyticsError) {
+      logStep("Failed to track analytics", { error: analyticsError });
+      // Don't fail the whole request if analytics fails
+    }
+
     return new Response(
       JSON.stringify({ 
         success: true, 

@@ -69,6 +69,7 @@ const SettingsActivity = lazy(() => import("./pages/SettingsActivity"));
 const SubscriptionTest = lazy(() => import("./pages/SubscriptionTest"));
 const Rewards = lazy(() => import("./pages/Rewards"));
 const NotificationHistory = lazy(() => import("./pages/NotificationHistory"));
+const NotificationAnalytics = lazy(() => import("./pages/NotificationAnalytics"));
 
 const AppContent = () => {
   const { user } = useAuth();
@@ -234,6 +235,7 @@ const AppContent = () => {
           <Route path="/subscription-test" element={<SubscriptionTest />} />
           <Route path="/rewards" element={<Rewards />} />
           <Route path="/notifications" element={<NotificationHistory />} />
+          <Route path="/notifications/analytics" element={<NotificationAnalytics />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="*" element={<NotFound />} />

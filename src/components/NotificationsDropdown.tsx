@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Bell, Heart, MessageSquare, Check, Trash2, History } from "lucide-react";
+import { Bell, Heart, MessageSquare, Check, Trash2, History, BarChart3 } from "lucide-react";
+import { analytics } from '@/lib/analytics';
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -112,6 +113,11 @@ const NotificationsDropdown = () => {
 
   const markAsRead = async (notificationId: string) => {
     try {
+      // Track read event
+      analytics.track('notification_read', {
+        notificationId,
+      });
+      
       const { error } = await supabase.functions.invoke('manage-notifications', {
         body: { action: 'mark_read', notificationId },
       });
@@ -140,6 +146,11 @@ const NotificationsDropdown = () => {
 
   const deleteNotification = async (notificationId: string) => {
     try {
+      // Track delete event
+      analytics.track('notification_dismissed', {
+        notificationId,
+      });
+      
       const { error } = await supabase.functions.invoke('manage-notifications', {
         body: { action: 'delete', notificationId },
       });
@@ -174,6 +185,12 @@ const NotificationsDropdown = () => {
   };
 
   const handleNotificationClick = async (notification: Notification) => {
+    // Track click event
+    analytics.track('notification_clicked', {
+      notification_type: notification.type,
+      notificationId: notification.id,
+    });
+    
     await markAsRead(notification.id);
     
     // For message notifications, navigate to specific conversation via query param
@@ -277,8 +294,8 @@ const NotificationsDropdown = () => {
           </div>
         </div>
 
-        {/* View All Button */}
-        <div className="px-3 sm:px-4 py-2 border-b border-border bg-muted/30">
+        {/* View All and Analytics Buttons */}
+        <div className="px-3 sm:px-4 py-2 border-b border-border bg-muted/30 space-y-1">
           <Button
             variant="ghost"
             size="sm"
@@ -290,6 +307,18 @@ const NotificationsDropdown = () => {
           >
             <History className="w-3 h-3 mr-2" />
             View All Notifications
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start text-xs"
+            onClick={() => {
+              navigate('/notifications/analytics');
+              setIsOpen(false);
+            }}
+          >
+            <BarChart3 className="w-3 h-3 mr-2" />
+            View Analytics
           </Button>
         </div>
 
