@@ -87,7 +87,9 @@ const Profile = () => {
       if (error) throw error;
       setProfileData(data);
     } catch (error) {
-      console.error('Error loading profile data:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error loading profile data:', error);
+      }
     }
   }, [user?.id]);
 
@@ -138,7 +140,9 @@ const Profile = () => {
         }
       }
     } catch (error) {
-      console.error('Error opening portal:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error opening portal:', error);
+      }
       toast({
         title: "Opening Checkout",
         description: "Redirecting to subscription page...",

@@ -26,10 +26,14 @@ export const usePerformanceBudget = (budget: PerformanceBudget = DEFAULT_BUDGET)
         if (reportedIssues.has(issueKey)) return;
         
         if (stats.p95 > budget.p95Threshold) {
-          console.error(`🚨 PERFORMANCE BUDGET EXCEEDED: ${name} p95=${stats.p95}ms (limit: ${budget.p95Threshold}ms)`);
+          if (import.meta.env.DEV) {
+            console.error(`🚨 PERFORMANCE BUDGET EXCEEDED: ${name} p95=${stats.p95}ms (limit: ${budget.p95Threshold}ms)`);
+          }
           reportedIssues.add(issueKey);
         } else if (stats.p95 > budget.warningThreshold) {
-          console.warn(`⚠️ PERFORMANCE WARNING: ${name} p95=${stats.p95}ms (approaching limit: ${budget.p95Threshold}ms)`);
+          if (import.meta.env.DEV) {
+            console.warn(`⚠️ PERFORMANCE WARNING: ${name} p95=${stats.p95}ms (approaching limit: ${budget.p95Threshold}ms)`);
+          }
           reportedIssues.add(issueKey);
         }
       });

@@ -60,7 +60,9 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
           filter: `user_id=eq.${userId}`,
         },
         () => {
-          console.log('[usePremiumStatus] Profile updated, refetching...');
+          if (import.meta.env.DEV) {
+            console.log('[usePremiumStatus] Profile updated, refetching...');
+          }
           refetch();
         }
       )

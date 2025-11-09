@@ -36,7 +36,9 @@ export const useCoins = (userId: string | undefined) => {
           loading: false,
         });
       } catch (error) {
-        console.error('Error loading coins:', error);
+        if (import.meta.env.DEV) {
+          console.error('Error loading coins:', error);
+        }
         setCoinsData({ balance: 0, lifetimeEarned: 0, loading: false });
       }
     };
@@ -91,7 +93,9 @@ export const useCoins = (userId: string | undefined) => {
         loading: false,
       });
     } catch (error) {
-      console.error('Error refetching coins:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error refetching coins:', error);
+      }
       setCoinsData(prev => ({ ...prev, loading: false }));
     }
   };
