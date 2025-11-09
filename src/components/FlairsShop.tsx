@@ -158,7 +158,9 @@ export const FlairsShop = ({
           filter: `user_id=eq.${userId}`,
         },
         (payload) => {
-          console.log('[FlairsShop] Real-time update:', payload);
+          if (import.meta.env.DEV) {
+            console.log('[FlairsShop] Real-time update:', payload);
+          }
           loadData();
         }
       )
@@ -174,7 +176,9 @@ export const FlairsShop = ({
   const handlePurchase = async (flair: Flair) => {
     setPurchasing(flair.id);
     try {
-      console.log('[FlairsShop] Purchasing flair:', flair.id, flair.name_key);
+      if (import.meta.env.DEV) {
+        console.log('[FlairsShop] Purchasing flair:', flair.id, flair.name_key);
+      }
       
       const {
         data,
@@ -186,7 +190,9 @@ export const FlairsShop = ({
         }
       });
       
-      console.log('[FlairsShop] Purchase response:', { data, error });
+      if (import.meta.env.DEV) {
+        console.log('[FlairsShop] Purchase response:', { data, error });
+      }
       
       if (error) throw error;
       if (data?.error) {
