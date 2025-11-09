@@ -17,6 +17,7 @@ import { NetworkStatusIndicator } from '@/components/NetworkStatusIndicator';
 import { NotificationService } from '@/services/notificationService';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { UpdatePrompt } from '@/components/UpdatePrompt';
+import { VersionIndicator } from '@/components/VersionIndicator';
 import { CheckoutStatusHandler } from '@/components/CheckoutStatusHandler';
 
 import { useAuth } from '@/hooks/useAuth';
@@ -186,6 +187,11 @@ const AppContent = () => {
   return (
     <div className="relative pb-16">
       <div data-testid="app-ready" style={{ display: 'none' }} />
+      
+      {/* Version indicator in bottom left corner */}
+      <div className="fixed bottom-20 left-4 z-40">
+        <VersionIndicator />
+      </div>
       
       {/* Onboarding overlay */}
       {onboardingChecked && showOnboarding && user && (

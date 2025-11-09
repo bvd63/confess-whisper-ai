@@ -1,5 +1,7 @@
-const CACHE_NAME = 'confesiuni-cache-v2';
-const RUNTIME_CACHE = 'runtime-v2';
+// Dynamic cache name based on timestamp to force updates
+const VERSION = new Date().getTime();
+const CACHE_NAME = `confesiuni-cache-v${VERSION}`;
+const RUNTIME_CACHE = `runtime-v${VERSION}`;
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -17,18 +19,31 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate service worker
+// Activate service worker - aggressively clear old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME && name !== RUNTIME_CACHE)
-          .map((name) => caches.delete(name))
+        cacheNames.map((name) => {
+          // Delete ALL old caches to force fresh content
+          if (name !== CACHE_NAME && name !== RUNTIME_CACHE) {
+            console.log('🗑️ Deleting old cache:', name);
+            return caches.delete(name);
+          }
+        })
       );
+    }).then(() => {
+      // Force immediate control of all clients
+      return self.clients.claim();
+    }).then(() => {
+      // Notify all clients about the update
+      return self.clients.matchAll().then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage({ type: 'SW_UPDATED' });
+        });
+      });
     })
   );
-  self.clients.claim();
 });
 
 // Fetch strategy with smart caching

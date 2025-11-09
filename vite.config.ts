@@ -9,6 +9,9 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    headers: {
+      'Cache-Control': 'no-cache',
+    },
   },
   build: {
     sourcemap: false,
@@ -19,6 +22,10 @@ export default defineConfig(({ mode }) => ({
           'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-tabs'],
           'supabase': ['@supabase/supabase-js'],
         },
+        // Add timestamp to filenames to force cache busting
+        entryFileNames: `assets/[name]-[hash]-${Date.now()}.js`,
+        chunkFileNames: `assets/[name]-[hash]-${Date.now()}.js`,
+        assetFileNames: `assets/[name]-[hash]-${Date.now()}.[ext]`,
       },
     },
     chunkSizeWarningLimit: 1000,

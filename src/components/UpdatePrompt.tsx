@@ -11,6 +11,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 export const UpdatePrompt = () => {
   const [showPrompt, setShowPrompt] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [autoReloadCountdown, setAutoReloadCountdown] = useState(30);
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -35,11 +36,15 @@ export const UpdatePrompt = () => {
       });
     }
 
-    // Check for version updates via periodic polling (fallback)
+    // Check for version updates via periodic polling (more frequent)
     const checkForUpdates = async () => {
       try {
-        const response = await fetch('/version.json', {
+        const response = await fetch('/version.json?t=' + Date.now(), {
           cache: 'no-cache',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+          },
         });
         
         if (response.ok) {
@@ -47,6 +52,7 @@ export const UpdatePrompt = () => {
           const currentVersion = localStorage.getItem('app-version');
           
           if (currentVersion && currentVersion !== version) {
+            console.log(`🆕 New version available: ${version} (current: ${currentVersion})`);
             setShowPrompt(true);
             setTimeout(() => setIsVisible(true), 100);
           }
@@ -59,11 +65,32 @@ export const UpdatePrompt = () => {
       }
     };
 
-    // Check on mount and every 30 minutes
-    checkForUpdates();
-    const interval = setInterval(checkForUpdates, 30 * 60 * 1000);
+    // Listen for service worker updates
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data?.type === 'SW_UPDATED') {
+          setShowPrompt(true);
+          setTimeout(() => setIsVisible(true), 100);
+        }
+      });
+    }
 
-    return () => clearInterval(interval);
+    // Check on mount, on page visibility change, and every 5 minutes
+    checkForUpdates();
+    const interval = setInterval(checkForUpdates, 5 * 60 * 1000);
+
+    // Check when user returns to tab
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        checkForUpdates();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   const handleRefresh = () => {
@@ -74,6 +101,23 @@ export const UpdatePrompt = () => {
     setIsVisible(false);
     setTimeout(() => setShowPrompt(false), 300);
   };
+
+  // Auto-reload countdown after 30 seconds
+  useEffect(() => {
+    if (!showPrompt) return;
+
+    const countdownInterval = setInterval(() => {
+      setAutoReloadCountdown((prev) => {
+        if (prev <= 1) {
+          handleRefresh();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(countdownInterval);
+  }, [showPrompt]);
 
   if (!showPrompt) return null;
 
@@ -93,6 +137,9 @@ export const UpdatePrompt = () => {
             </h3>
             <p className="text-xs text-muted-foreground mb-3">
               {t.update_available_description}
+            </p>
+            <p className="text-xs text-muted-foreground/60 mb-2">
+              Auto-refresh în {autoReloadCountdown}s
             </p>
             <div className="flex items-center gap-2">
               <Button
