@@ -23,7 +23,9 @@ export const initializeOneSignal = async (): Promise<boolean> => {
   const appId = import.meta.env.VITE_ONESIGNAL_APP_ID;
   
   if (!appId) {
-    console.warn('[OneSignal] App ID not configured');
+    if (import.meta.env.DEV) {
+      console.warn('[OneSignal] App ID not configured');
+    }
     return false;
   }
 
@@ -51,7 +53,9 @@ export const initializeOneSignal = async (): Promise<boolean> => {
     isInitialized = true;
     return true;
   } catch (error) {
-    console.error('[OneSignal] Initialization failed:', error);
+    if (import.meta.env.DEV) {
+      console.error('[OneSignal] Initialization failed:', error);
+    }
     return false;
   }
 };
@@ -70,7 +74,9 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
     const permission = await window.OneSignal.Notifications.requestPermission();
     return permission === 'granted';
   } catch (error) {
-    console.error('[OneSignal] Permission request failed:', error);
+    if (import.meta.env.DEV) {
+      console.error('[OneSignal] Permission request failed:', error);
+    }
     return false;
   }
 };
@@ -114,7 +120,9 @@ export const setOneSignalUserId = async (userId: string): Promise<void> => {
     // @ts-ignore
     await window.OneSignal.login(userId);
   } catch (error) {
-    console.error('[OneSignal] Failed to set user ID:', error);
+    if (import.meta.env.DEV) {
+      console.error('[OneSignal] Failed to set user ID:', error);
+    }
   }
 };
 
@@ -128,7 +136,9 @@ export const sendOneSignalTag = async (key: string, value: string): Promise<void
     // @ts-ignore
     await window.OneSignal.User.addTag(key, value);
   } catch (error) {
-    console.error('[OneSignal] Failed to send tag:', error);
+    if (import.meta.env.DEV) {
+      console.error('[OneSignal] Failed to send tag:', error);
+    }
   }
 };
 

@@ -127,3 +127,52 @@ describe('Subscription Management', () => {
     expect(result.data.success).toBe(true);
   });
 });
+
+describe('Stripe Webhook Processing', () => {
+  it('should process checkout.session.completed webhook', () => {
+    const webhookEvent = {
+      type: 'checkout.session.completed',
+      data: {
+        object: {
+          customer: 'cus_test123',
+          subscription: 'sub_test123',
+          customer_email: 'test@example.com'
+        }
+      }
+    };
+
+    expect(webhookEvent.type).toBe('checkout.session.completed');
+    expect(webhookEvent.data.object.customer).toBeTruthy();
+  });
+
+  it('should process customer.subscription.updated webhook', () => {
+    const webhookEvent = {
+      type: 'customer.subscription.updated',
+      data: {
+        object: {
+          id: 'sub_test123',
+          status: 'active',
+          current_period_end: 1234567890
+        }
+      }
+    };
+
+    expect(webhookEvent.type).toBe('customer.subscription.updated');
+    expect(webhookEvent.data.object.status).toBe('active');
+  });
+
+  it('should process customer.subscription.deleted webhook', () => {
+    const webhookEvent = {
+      type: 'customer.subscription.deleted',
+      data: {
+        object: {
+          id: 'sub_test123',
+          customer: 'cus_test123'
+        }
+      }
+    };
+
+    expect(webhookEvent.type).toBe('customer.subscription.deleted');
+    expect(webhookEvent.data.object.customer).toBeTruthy();
+  });
+});

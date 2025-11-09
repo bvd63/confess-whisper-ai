@@ -50,7 +50,9 @@ export const SubscriptionStatusCard = () => {
         }
       }
     } catch (error) {
-      console.error('Error opening portal:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error opening portal:', error);
+      }
       toast.error("Opening checkout instead...");
       openStripeCheckout();
     }

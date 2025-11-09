@@ -23,7 +23,9 @@ export const useOneSignalInit = () => {
           await setOneSignalUserId(user.id);
         }
       } catch (error) {
-        console.error('[OneSignal] Initialization failed:', error);
+        if (import.meta.env.DEV) {
+          console.error('[OneSignal] Initialization failed:', error);
+        }
       }
     };
 

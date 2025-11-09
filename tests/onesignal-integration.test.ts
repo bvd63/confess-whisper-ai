@@ -61,3 +61,50 @@ describe('OneSignal Integration', () => {
     expect(result).toBe(false);
   });
 });
+
+describe('OneSignal User Tracking', () => {
+  beforeEach(() => {
+    global.window = {
+      OneSignal: {
+        init: vi.fn().mockResolvedValue(true),
+        login: vi.fn().mockResolvedValue(true),
+        User: {
+          addTag: vi.fn().mockResolvedValue(true),
+          PushSubscription: {
+            id: 'test-player-id-123'
+          }
+        },
+        Notifications: {
+          permission: 'granted'
+        }
+      }
+    } as any;
+  });
+
+  it('should link user ID to OneSignal', async () => {
+    await setOneSignalUserId('user-123');
+    expect(global.window.OneSignal.login).toHaveBeenCalledWith('user-123');
+  });
+
+  it('should send tags for user segmentation', async () => {
+    const { sendOneSignalTag } = await import('@/services/onesignal');
+    await sendOneSignalTag('subscription_tier', 'vip');
+    expect(global.window.OneSignal.User.addTag).toHaveBeenCalledWith('subscription_tier', 'vip');
+  });
+
+  it('should get player ID', async () => {
+    const { getOneSignalPlayerId } = await import('@/services/onesignal');
+    const playerId = await getOneSignalPlayerId();
+    expect(playerId).toBe('test-player-id-123');
+  });
+});
+
+describe('OneSignal Notification Preferences', () => {
+  it('should check notification permission status', () => {
+    const { getNotificationPermission } = require('@/services/onesignal');
+    
+    global.window = { Notification: { permission: 'granted' } } as any;
+    const permission = getNotificationPermission();
+    expect(['granted', 'denied', 'default']).toContain(permission);
+  });
+});
