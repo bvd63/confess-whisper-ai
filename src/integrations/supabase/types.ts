@@ -1250,24 +1250,39 @@ export type Database = {
           created_at: string | null
           daily_reminder: boolean | null
           id: string
+          notify_comments: boolean | null
+          notify_follows: boolean | null
+          notify_likes: boolean | null
+          notify_messages: boolean | null
           reminder_time: string | null
           streak_alerts: boolean | null
+          updated_at: string | null
           user_id: string
         }
         Insert: {
           created_at?: string | null
           daily_reminder?: boolean | null
           id?: string
+          notify_comments?: boolean | null
+          notify_follows?: boolean | null
+          notify_likes?: boolean | null
+          notify_messages?: boolean | null
           reminder_time?: string | null
           streak_alerts?: boolean | null
+          updated_at?: string | null
           user_id: string
         }
         Update: {
           created_at?: string | null
           daily_reminder?: boolean | null
           id?: string
+          notify_comments?: boolean | null
+          notify_follows?: boolean | null
+          notify_likes?: boolean | null
+          notify_messages?: boolean | null
           reminder_time?: string | null
           streak_alerts?: boolean | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []

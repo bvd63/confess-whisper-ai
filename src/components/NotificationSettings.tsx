@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { NotificationStatusBadge } from '@/components/NotificationStatusBadge';
+import { NotificationPreferences } from '@/components/NotificationPreferences';
 
 interface NotificationSettingsData {
   dailyReminder: boolean;
@@ -240,6 +241,13 @@ export const NotificationSettings = () => {
         >
           {t.test_button}
         </Button>
+      )}
+
+      {/* Push Notification Preferences */}
+      {permission === 'granted' && (
+        <div className="pt-4">
+          <NotificationPreferences />
+        </div>
       )}
     </div>
   );

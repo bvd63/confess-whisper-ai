@@ -68,6 +68,33 @@ serve(async (req) => {
       );
     }
 
+    // Check user notification preferences
+    const { data: notificationSettings } = await supabaseClient
+      .from("notification_settings")
+      .select("notify_likes, notify_comments, notify_follows, notify_messages")
+      .eq("user_id", payload.userId)
+      .single();
+
+    // If settings exist, check if this notification type is enabled
+    if (notificationSettings) {
+      const typePreferenceMap = {
+        like: notificationSettings.notify_likes,
+        comment: notificationSettings.notify_comments,
+        follow: notificationSettings.notify_follows,
+        message: notificationSettings.notify_messages,
+      };
+
+      const isEnabled = typePreferenceMap[payload.type];
+      
+      if (isEnabled === false) {
+        logStep("User has disabled this notification type", { type: payload.type });
+        return new Response(
+          JSON.stringify({ message: "Notification type disabled by user preferences" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+        );
+      }
+    }
+
     // Get triggered by user's nickname
     const { data: triggeredByProfile } = await supabaseClient
       .from("profiles")

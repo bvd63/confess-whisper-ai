@@ -1293,6 +1293,16 @@ type Translations = {
   save_failed: string;
   test_sent: string;
   notifications_disabled: string;
+  push_notification_preferences: string;
+  push_notification_preferences_desc: string;
+  notify_likes: string;
+  notify_likes_desc: string;
+  notify_comments: string;
+  notify_comments_desc: string;
+  notify_follows: string;
+  notify_follows_desc: string;
+  notify_messages: string;
+  notify_messages_desc: string;
   enable_now: string;
   settings_desc: string;
   // streak_reminder already exists above
@@ -3763,6 +3773,16 @@ export const translations: Record<Language, Translations> = {
     notifications_disabled: "Notifications are disabled",
     enable_now: "Enable now",
     settings_desc: "Manage your preferences and notifications",
+    push_notification_preferences: "Push Notification Preferences",
+    push_notification_preferences_desc: "Customize which push notifications you want to receive",
+    notify_likes: "Likes",
+    notify_likes_desc: "Get notified when someone likes your confession",
+    notify_comments: "Comments",
+    notify_comments_desc: "Get notified when someone comments on your confession",
+    notify_follows: "Follows",
+    notify_follows_desc: "Get notified when someone follows you",
+    notify_messages: "Messages",
+    notify_messages_desc: "Get notified when you receive a direct message",
     
     // Emotional Tones
     tone_calm: "Calm",
@@ -5616,6 +5636,16 @@ export const translations: Record<Language, Translations> = {
     notifications_disabled: "Las notificaciones están deshabilitadas",
     enable_now: "Habilitar ahora",
     settings_desc: "Administra tus preferencias y notificaciones",
+    push_notification_preferences: "Preferencias de Notificaciones Push",
+    push_notification_preferences_desc: "Personaliza qué notificaciones push deseas recibir",
+    notify_likes: "Me gusta",
+    notify_likes_desc: "Recibe notificaciones cuando alguien le guste tu confesión",
+    notify_comments: "Comentarios",
+    notify_comments_desc: "Recibe notificaciones cuando alguien comente tu confesión",
+    notify_follows: "Seguidores",
+    notify_follows_desc: "Recibe notificaciones cuando alguien te siga",
+    notify_messages: "Mensajes",
+    notify_messages_desc: "Recibe notificaciones cuando recibas un mensaje directo",
     
     // Emotional Tones
     tone_calm: "Tranquilo",
@@ -7469,6 +7499,16 @@ export const translations: Record<Language, Translations> = {
     notifications_disabled: "Benachrichtigungen sind deaktiviert",
     enable_now: "Jetzt aktivieren",
     settings_desc: "Verwalte deine Einstellungen und Benachrichtigungen",
+    push_notification_preferences: "Push-Benachrichtigungseinstellungen",
+    push_notification_preferences_desc: "Passe an, welche Push-Benachrichtigungen du erhalten möchtest",
+    notify_likes: "Likes",
+    notify_likes_desc: "Erhalte Benachrichtigungen, wenn jemand dein Geständnis liked",
+    notify_comments: "Kommentare",
+    notify_comments_desc: "Erhalte Benachrichtigungen, wenn jemand dein Geständnis kommentiert",
+    notify_follows: "Follower",
+    notify_follows_desc: "Erhalte Benachrichtigungen, wenn dir jemand folgt",
+    notify_messages: "Nachrichten",
+    notify_messages_desc: "Erhalte Benachrichtigungen, wenn du eine Direktnachricht erhältst",
     
     // Emotional Tones
     tone_calm: "Ruhig",
