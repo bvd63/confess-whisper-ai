@@ -2,8 +2,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { env } from '@/lib/env';
 
 /**
-
-export type AiLocale = 'en' | 'es' | 'de';
+ * Supported locales for AI responses
+ */
+export type AiLocale = 'en' | 'es' | 'de' | 'ro';
 
 export interface AiReplyRequest {
   text: string;

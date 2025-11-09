@@ -72,7 +72,7 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
   try {
     // @ts-ignore
     const permission = await window.OneSignal.Notifications.requestPermission();
-    return permission === 'granted';
+    return permission === true;
   } catch (error) {
     if (import.meta.env.DEV) {
       console.error('[OneSignal] Permission request failed:', error);
@@ -102,7 +102,7 @@ export const isPushEnabled = async (): Promise<boolean> => {
     const isPushSupported = await window.OneSignal.Notifications.isPushSupported();
     // @ts-ignore
     const permission = await window.OneSignal.Notifications.permission;
-    return isPushSupported && permission === 'granted';
+    return isPushSupported && permission === true;
   } catch {
     return false;
   }

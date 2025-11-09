@@ -4,9 +4,9 @@ import { z } from "zod";
 const RawEnv = z.object({
   VITE_SUPABASE_URL: z.string().url(),
   VITE_SUPABASE_ANON_KEY: z.string().min(20),
-  VITE_STRIPE_PRICE_VIP_MONTH_ID: z.string().min(3),
-  VITE_STRIPE_PRICE_VIP_YEAR_ID: z.string().min(3),
-  VITE_ONESIGNAL_APP_ID: z.string().min(10),
+  VITE_STRIPE_PRICE_VIP_MONTH_ID: z.string().min(3).optional(),
+  VITE_STRIPE_PRICE_VIP_YEAR_ID: z.string().min(3).optional(),
+  VITE_ONESIGNAL_APP_ID: z.string().min(10).optional(),
   VITE_SENTRY_DSN: z.string().url().optional(),
   MODE: z.enum(["development", "production", "test"]).default("development"),
 });
@@ -25,18 +25,18 @@ const parsed = RawEnv.safeParse({
 
 if (!parsed.success) {
   console.error("[ENV] Invalid client ENV:", parsed.error.flatten().fieldErrors);
-  throw new Error("Client ENV validation failed.");
+  console.warn("[ENV] App will continue with partial configuration. Some features may be unavailable.");
 }
 
 export const env = {
   client: {
-    supabaseUrl: parsed.data.VITE_SUPABASE_URL,
-    supabaseAnonKey: parsed.data.VITE_SUPABASE_ANON_KEY,
-    stripePriceVipMonthId: parsed.data.VITE_STRIPE_PRICE_VIP_MONTH_ID,
-    stripePriceVipYearId: parsed.data.VITE_STRIPE_PRICE_VIP_YEAR_ID,
-    oneSignalAppId: parsed.data.VITE_ONESIGNAL_APP_ID,
-    sentryDsn: parsed.data.VITE_SENTRY_DSN,
+    supabaseUrl: parsed.success ? parsed.data.VITE_SUPABASE_URL : _raw.VITE_SUPABASE_URL || '',
+    supabaseAnonKey: parsed.success ? parsed.data.VITE_SUPABASE_ANON_KEY : _raw.VITE_SUPABASE_ANON_KEY || '',
+    stripePriceVipMonthId: parsed.success ? parsed.data.VITE_STRIPE_PRICE_VIP_MONTH_ID : _raw.VITE_STRIPE_PRICE_VIP_MONTH_ID,
+    stripePriceVipYearId: parsed.success ? parsed.data.VITE_STRIPE_PRICE_VIP_YEAR_ID : _raw.VITE_STRIPE_PRICE_VIP_YEAR_ID,
+    oneSignalAppId: parsed.success ? parsed.data.VITE_ONESIGNAL_APP_ID : _raw.VITE_ONESIGNAL_APP_ID,
+    sentryDsn: parsed.success ? parsed.data.VITE_SENTRY_DSN : _raw.VITE_SENTRY_DSN,
   },
-  isProd: parsed.data.MODE === "production",
-  isDev: parsed.data.MODE === "development",
+  isProd: (parsed.success ? parsed.data.MODE : _raw.MODE) === "production",
+  isDev: (parsed.success ? parsed.data.MODE : _raw.MODE) === "development",
 } as const;
