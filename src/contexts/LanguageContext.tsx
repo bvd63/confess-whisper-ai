@@ -44,16 +44,22 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
         const saved = await persistenceManager.getLanguage();
         if (saved) {
           const validLang = ensureLanguage(saved);
-          console.log('[LanguageContext] Loaded from persistence:', validLang);
+          if (import.meta.env.DEV) {
+            console.log('[LanguageContext] Loaded from persistence:', validLang);
+          }
           setLanguageState(validLang);
         } else {
           const detected = detectBrowserLanguage();
-          console.log('[LanguageContext] Detected browser language:', detected);
+          if (import.meta.env.DEV) {
+            console.log('[LanguageContext] Detected browser language:', detected);
+          }
           setLanguageState(detected);
           await persistenceManager.saveLanguage(detected);
         }
       } catch (error) {
-        console.error('[LanguageContext] Error loading language:', error);
+        if (import.meta.env.DEV) {
+          console.error('[LanguageContext] Error loading language:', error);
+        }
         const detected = detectBrowserLanguage();
         setLanguageState(detected);
       }
@@ -68,7 +74,9 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
 
   const setLanguage = async (lang: Language) => {
     const validLang = ensureLanguage(lang);
-    console.log('[LanguageContext] Setting language to:', validLang);
+    if (import.meta.env.DEV) {
+      console.log('[LanguageContext] Setting language to:', validLang);
+    }
     setLanguageState(validLang);
     
     try {
@@ -76,13 +84,17 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
       // Force full reload to ensure complete language switch with no mixed strings
       window.location.reload();
     } catch (error) {
-      console.error('[LanguageContext] Error saving language:', error);
+      if (import.meta.env.DEV) {
+        console.error('[LanguageContext] Error saving language:', error);
+      }
     }
   };
 
   useEffect(() => {
     document.documentElement.lang = language;
-    console.log('[LanguageContext] HTML lang attribute set to:', language);
+    if (import.meta.env.DEV) {
+      console.log('[LanguageContext] HTML lang attribute set to:', language);
+    }
   }, [language]);
 
   const value = {
