@@ -14,6 +14,7 @@ export default defineConfig({
     baseURL: 'http://localhost:8080',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    headless: true, // Force headless mode for Codespaces/CI
   },
   projects: [
     {
