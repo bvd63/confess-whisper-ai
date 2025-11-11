@@ -4,10 +4,12 @@ export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  retries: process.env.CI ? 2 : 1,
+  workers: process.env.CI ? 1 : 2,
+  timeout: 60000, // 60s per test
   reporter: [
     ['html'],
+    ['list'],
     ['json', { outputFile: 'test-results/results.json' }],
   ],
   use: {
@@ -15,6 +17,8 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     headless: true, // Force headless mode for Codespaces/CI
+    actionTimeout: 15000, // 15s for actions
+    navigationTimeout: 30000, // 30s for page loads
   },
   projects: [
     {

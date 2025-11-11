@@ -10,7 +10,7 @@ import {
   setOneSignalUserId 
 } from '@/services/onesignal';
 
-describe.skip('OneSignal Integration', () => {
+describe('OneSignal Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
@@ -62,7 +62,7 @@ describe.skip('OneSignal Integration', () => {
   });
 });
 
-describe.skip('OneSignal User Tracking', () => {
+describe('OneSignal User Tracking', () => {
   beforeEach(() => {
     global.window = {
       OneSignal: {
@@ -99,7 +99,7 @@ describe.skip('OneSignal User Tracking', () => {
   });
 });
 
-describe.skip('OneSignal Notification Preferences', () => {
+describe('OneSignal Notification Preferences', () => {
   it('should check notification permission status', () => {
     const { getNotificationPermission } = require('@/services/onesignal');
     

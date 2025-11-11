@@ -1,0 +1,265 @@
+# Page snapshot
+
+```yaml
+- generic:
+  - generic:
+    - region "Notifications alt+T"
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - img
+            - generic: v1.0.0
+            - generic: (2025-01-15)
+          - button:
+            - img
+      - generic:
+        - banner:
+          - generic:
+            - generic:
+              - generic:
+                - img
+                - heading [level=1]: Confess+
+              - generic:
+                - button:
+                  - img
+                  - generic: Manage
+                - button:
+                  - img
+        - main:
+          - generic:
+            - region:
+              - generic:
+                - generic:
+                  - heading [level=4]: Enable notifications
+                  - paragraph: Get alerts for replies, messages, and new posts. You can change this anytime in your browser settings.
+                  - generic:
+                    - button: Enable
+                    - button: Not now
+          - generic:
+            - generic:
+              - img
+              - generic: 100% Anonymous & Secure
+            - heading [level=2]: Anonymous Confessions
+            - paragraph: A safe space where you can share anything anonymously.
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - img
+              - heading [level=2]: Frequently Asked Questions
+            - generic:
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: Is it really anonymous?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: How does the AI work?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: What is Deep Insight?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: Can I delete my confessions?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: What does the VIP subscription offer?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: How does the referral program work?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: Is my data secure?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: Can I use the platform for professional counseling?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: What makes the AI empathetic?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: How anonymous am I really?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: What are Deep Insights?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: How fast are the AI responses?
+                    - img
+        - contentinfo:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - img
+                - generic:
+                  - paragraph: 100% Anonymous
+                  - paragraph: Your identity remains confidential
+              - generic:
+                - generic:
+                  - img
+                - generic:
+                  - paragraph: SSL Secure
+                  - paragraph: All data is encrypted
+              - generic:
+                - generic:
+                  - img
+                - generic:
+                  - paragraph: AI Moderation
+                  - paragraph: Content automatically verified
+              - generic:
+                - generic:
+                  - img
+                - generic:
+                  - paragraph: Safe Community
+                  - paragraph: Judgment-free space
+          - generic:
+            - generic:
+              - button: Privacy Policy
+              - button: Terms of Service
+            - paragraph: © 2025 Confess+. All rights reserved.
+    - generic:
+      - generic:
+        - img
+        - generic: 259ms
+    - button:
+      - img
+  - navigation [ref=e1]:
+    - tablist [ref=e2]:
+      - tab [selected] [ref=e3] [cursor=pointer]:
+        - img [ref=e5]
+      - tab [ref=e9] [cursor=pointer]:
+        - img [ref=e11]
+      - tab [ref=e14] [cursor=pointer]:
+        - img [ref=e16]
+      - tab [ref=e18] [cursor=pointer]:
+        - img [ref=e20]
+      - tab [ref=e22] [cursor=pointer]:
+        - img [ref=e24]
+  - dialog "👑 Subscription & Coins" [ref=e31]:
+    - generic [ref=e32]:
+      - heading "👑 Subscription & Coins" [level=2] [ref=e33]:
+        - generic [ref=e34]: 👑
+        - text: Subscription & Coins
+      - paragraph [ref=e35]: Manage your subscription and purchase coins
+    - generic [ref=e36]:
+      - tablist [ref=e37]:
+        - tab "Subscriptions" [selected] [ref=e38] [cursor=pointer]:
+          - img [ref=e39]
+          - text: Subscriptions
+        - tab "Coin Shop" [ref=e41] [cursor=pointer]:
+          - img [ref=e42]
+          - text: Coin Shop
+      - tabpanel "Subscriptions" [active] [ref=e47]:
+        - generic [ref=e48]:
+          - generic [ref=e50]:
+            - button "Monthly" [ref=e51] [cursor=pointer]
+            - button "Yearly -34%" [ref=e52] [cursor=pointer]:
+              - text: Yearly
+              - generic [ref=e53]: "-34%"
+          - generic [ref=e54]:
+            - generic [ref=e55]:
+              - generic [ref=e56]:
+                - generic [ref=e57]:
+                  - generic [ref=e58]: ✨
+                  - heading "Free" [level=3] [ref=e59]
+                - generic [ref=e60]:
+                  - generic [ref=e61]: $0
+                  - text: /per month
+                - paragraph [ref=e62]: Billed monthly
+              - generic [ref=e63]:
+                - generic [ref=e64]:
+                  - img [ref=e66]
+                  - generic [ref=e68]: 5 confessions per day
+                - generic [ref=e69]:
+                  - img [ref=e71]
+                  - generic [ref=e73]: Basic AI responses
+                - generic [ref=e74]:
+                  - img [ref=e76]
+                  - generic [ref=e78]: Standard support
+                - generic [ref=e79]:
+                  - img [ref=e81]
+                  - generic [ref=e83]: Basic badges & achievements
+                - generic [ref=e84]:
+                  - img [ref=e86]
+                  - generic [ref=e88]: Public confessions only
+                - generic [ref=e89]:
+                  - img [ref=e91]
+                  - generic [ref=e93]: Standard coin rewards
+                - generic [ref=e94]:
+                  - img [ref=e96]
+                  - generic [ref=e98]: Community access
+              - button "Downgrade to Free" [ref=e99] [cursor=pointer]
+            - generic [ref=e100]:
+              - generic [ref=e101]: Active
+              - generic [ref=e102]:
+                - generic [ref=e103]:
+                  - generic [ref=e104]: 👑
+                  - heading "VIP" [level=3] [ref=e105]
+                - generic [ref=e106]:
+                  - generic [ref=e107]: $6.99
+                  - text: /per month
+                - paragraph [ref=e108]: Billed monthly
+              - generic [ref=e109]:
+                - generic [ref=e110]:
+                  - img [ref=e112]
+                  - generic [ref=e114]: Unlimited daily confessions
+                - generic [ref=e115]:
+                  - img [ref=e117]
+                  - generic [ref=e119]: Priority AI responses & insights
+                - generic [ref=e120]:
+                  - img [ref=e122]
+                  - generic [ref=e124]: Double coins for streaks
+                - generic [ref=e125]:
+                  - img [ref=e127]
+                  - generic [ref=e129]: 250 coins bonus on signup
+                - generic [ref=e130]:
+                  - img [ref=e132]
+                  - generic [ref=e134]: Private confessions feature
+                - generic [ref=e135]:
+                  - img [ref=e137]
+                  - generic [ref=e139]: Exclusive VIP badges & flairs
+                - generic [ref=e140]:
+                  - img [ref=e142]
+                  - generic [ref=e144]: Advanced analytics dashboard
+                - generic [ref=e145]:
+                  - img [ref=e147]
+                  - generic [ref=e149]: Ad-free experience
+                - generic [ref=e150]:
+                  - img [ref=e152]
+                  - generic [ref=e154]: Early access to new features
+                - generic [ref=e155]:
+                  - img [ref=e157]
+                  - generic [ref=e159]: Priority customer support
+              - generic [ref=e160]:
+                - paragraph [ref=e161]: "⚠️ Configuration Issue: Price ID missing"
+                - paragraph [ref=e162]: "Expected: price_1XXX... | Got: \"\""
+              - button "Manage Subscription" [ref=e163] [cursor=pointer]
+        - paragraph [ref=e164]: You can cancel anytime from account settings. No long-term commitments.
+    - button "Close" [ref=e165] [cursor=pointer]:
+      - img [ref=e166]
+      - generic [ref=e169]: Close
+```
