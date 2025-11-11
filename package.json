@@ -18,7 +18,8 @@
     "check:env": "tsx scripts/check-env.ts",
     "analyze": "vite build --mode analyze",
     "coverage": "vitest --coverage",
-    "audit": "npm audit --omit=dev"
+    "audit": "npm audit --omit=dev",
+    "prebuild": "tsx scripts/update-version.ts"
   },
   "dependencies": {
     "@axe-core/playwright": "^4.10.2",
