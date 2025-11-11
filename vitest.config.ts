@@ -7,14 +7,23 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./tests/setup.ts'],
-    exclude: [...configDefaults.exclude, 'tests/e2e/**']
+    exclude: [...configDefaults.exclude, 'tests/e2e/**'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        'dist/',
+        'tests/',
+        '**/*.config.{js,ts}',
+        '**/*.test.{js,ts,jsx,tsx}',
+        '**/mockData.ts'
+      ]
+    }
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      // Alias dompurify to a lightweight mock for unit tests
-      'dompurify': path.resolve(__dirname, './tests/mocks/dompurify.ts')
+      '@': path.resolve(__dirname, './src')
     }
   }
 })
