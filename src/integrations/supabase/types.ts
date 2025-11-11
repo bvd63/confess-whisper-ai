@@ -1450,11 +1450,13 @@ export type Database = {
           tone_history: Json | null
           total_points: number | null
           total_referrals: number | null
+          trial_activated_at: string | null
           trial_active: boolean | null
           trial_end_date: string | null
           trial_premium_ends_at: string | null
           trial_premium_started_at: string | null
           trial_premium_used: boolean | null
+          trial_used: boolean | null
           user_id: string
         }
         Insert: {
@@ -1495,11 +1497,13 @@ export type Database = {
           tone_history?: Json | null
           total_points?: number | null
           total_referrals?: number | null
+          trial_activated_at?: string | null
           trial_active?: boolean | null
           trial_end_date?: string | null
           trial_premium_ends_at?: string | null
           trial_premium_started_at?: string | null
           trial_premium_used?: boolean | null
+          trial_used?: boolean | null
           user_id: string
         }
         Update: {
@@ -1540,11 +1544,13 @@ export type Database = {
           tone_history?: Json | null
           total_points?: number | null
           total_referrals?: number | null
+          trial_activated_at?: string | null
           trial_active?: boolean | null
           trial_end_date?: string | null
           trial_premium_ends_at?: string | null
           trial_premium_started_at?: string | null
           trial_premium_used?: boolean | null
+          trial_used?: boolean | null
           user_id?: string
         }
         Relationships: []
@@ -2429,6 +2435,7 @@ export type Database = {
       }
     }
     Functions: {
+      activate_trial: { Args: { _user_id: string }; Returns: Json }
       award_coins:
         | {
             Args: {
@@ -2460,6 +2467,7 @@ export type Database = {
         Returns: number
       }
       can_user_post_confession: { Args: { _user_id: string }; Returns: Json }
+      check_trial_expiry: { Args: { _user_id: string }; Returns: Json }
       cleanup_expired_rate_limits: { Args: never; Returns: undefined }
       cleanup_expired_sessions: { Args: never; Returns: undefined }
       cleanup_old_failed_attempts: { Args: never; Returns: undefined }

@@ -47,12 +47,14 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
       // Read from profiles table directly since it has the subscription tier
       const { data: profile } = await supabase
         .from("profiles")
-        .select("subscription_tier, is_premium, subscription_ends_at, stripe_subscription_id, subscription_cancel_at_period_end")
+        .select("subscription_tier, is_premium, subscription_ends_at, stripe_subscription_id, subscription_cancel_at_period_end, trial_active, trial_premium_ends_at")
         .eq("user_id", user.id)
         .maybeSingle();
 
       if (mounted) {
-        const tier = (profile?.subscription_tier === 'vip' || profile?.is_premium) ? 'vip' : 'free';
+        // Check if trial is active and not expired
+        const trialActive = profile?.trial_active && profile?.trial_premium_ends_at && new Date(profile.trial_premium_ends_at) > new Date();
+        const tier = (profile?.subscription_tier === 'vip' || profile?.is_premium || trialActive) ? 'vip' : 'free';
         const isVip = tier === 'vip';
         
         setEnt({
@@ -82,12 +84,14 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
           async () => {
             const { data: updatedProfile } = await supabase
               .from("profiles")
-              .select("subscription_tier, is_premium, subscription_ends_at, stripe_subscription_id, subscription_cancel_at_period_end")
+              .select("subscription_tier, is_premium, subscription_ends_at, stripe_subscription_id, subscription_cancel_at_period_end, trial_active, trial_premium_ends_at")
               .eq("user_id", user.id)
               .maybeSingle();
             
             if (updatedProfile && mounted) {
-              const tier = (updatedProfile.subscription_tier === 'vip' || updatedProfile.is_premium) ? 'vip' : 'free';
+              // Check if trial is active and not expired
+              const trialActive = updatedProfile.trial_active && updatedProfile.trial_premium_ends_at && new Date(updatedProfile.trial_premium_ends_at) > new Date();
+              const tier = (updatedProfile.subscription_tier === 'vip' || updatedProfile.is_premium || trialActive) ? 'vip' : 'free';
               const isVip = tier === 'vip';
               
               setEnt({

@@ -34,6 +34,10 @@ import { persistenceManager } from '@/lib/persistenceManager';
 import { dataValidator } from '@/lib/dataValidator';
 import { syncScheduler } from '@/lib/syncScheduler';
 import { Onboarding } from "./components/Onboarding";
+import { VIPOnboardingModal } from "./components/onboarding/VIPOnboardingModal";
+import { TrialBanner } from "./components/onboarding/TrialBanner";
+import { useTrialStatus } from "./hooks/useTrialStatus";
+import { useNavigate } from "react-router-dom";
 import { PageLoading } from "./components/LoadingStates";
 import { logError, logWarn } from '@/lib/logger';
 
@@ -75,11 +79,14 @@ const NotificationAnalytics = lazy(() => import("./pages/NotificationAnalytics")
 
 const AppContent = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [stayLoggedIn, setStayLoggedIn] = useState(() => {
     return localStorage.getItem('stay_logged_in') === 'true';
   });
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showVIPOnboarding, setShowVIPOnboarding] = useState(false);
   const [onboardingChecked, setOnboardingChecked] = useState(false);
+  const { trialStatus } = useTrialStatus();
 
   // Check if onboarding is needed
   useEffect(() => {
@@ -89,11 +96,15 @@ const AppContent = () => {
       try {
         const { data } = await getSupabase()
           .from('profiles')
-          .select('onboarding_completed')
+          .select('onboarding_completed, trial_used, trial_active')
           .eq('user_id', user.id)
           .single();
         
-        if (data && !data.onboarding_completed) {
+        if (data && !data.onboarding_completed && !data.trial_used) {
+          // Show VIP onboarding for new users who haven't used trial
+          setShowVIPOnboarding(true);
+        } else if (data && !data.onboarding_completed) {
+          // Show regular onboarding
           setShowOnboarding(true);
         }
         setOnboardingChecked(true);
@@ -194,7 +205,26 @@ const AppContent = () => {
         <VersionIndicator />
       </div>
       
-      {/* Onboarding overlay */}
+      {/* Trial banner */}
+      {trialStatus.isActive && trialStatus.daysRemaining !== null && trialStatus.daysRemaining <= 3 && (
+        <TrialBanner 
+          daysRemaining={trialStatus.daysRemaining} 
+          onUpgrade={() => navigate('/profile?section=subscription')}
+        />
+      )}
+      
+      {/* VIP Onboarding modal for new users */}
+      {onboardingChecked && showVIPOnboarding && user && (
+        <VIPOnboardingModal
+          open={showVIPOnboarding}
+          onOpenChange={setShowVIPOnboarding}
+          onTrialActivated={() => {
+            setShowVIPOnboarding(false);
+          }}
+        />
+      )}
+      
+      {/* Regular onboarding overlay for users who skipped VIP trial */}
       {onboardingChecked && showOnboarding && user && (
         <Onboarding
           userId={user.id}
