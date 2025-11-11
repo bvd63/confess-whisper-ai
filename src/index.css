@@ -399,3 +399,38 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* === Mobile & Tablet Optimization Layer === */
+
+/* Safe area for iPhone notch & edge devices */
+:root {
+  --safe-area-top: env(safe-area-inset-top);
+  --safe-area-bottom: env(safe-area-inset-bottom);
+}
+
+body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+/* Minimum touch target (44x44px) - Already covered by .touch-target but adding for buttons */
+button:not(.no-touch-min), .btn:not(.no-touch-min), [role="button"]:not(.no-touch-min), .icon-btn:not(.no-touch-min) {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* Smooth scrolling and momentum on iOS */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Tablet-specific layout helpers */
+@layer components {
+  .tablet-grid {
+    @apply grid md:grid-cols-2 lg:grid-cols-3 gap-4;
+  }
+  .tablet-container {
+    @apply max-w-screen-lg mx-auto px-4;
+  }
+}

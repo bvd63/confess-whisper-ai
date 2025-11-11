@@ -14,7 +14,12 @@ export default {
     },
     extend: {
       screens: {
-        xs: "475px",
+        xs: "360px",
+        sm: "480px",
+        md: "768px",
+        lg: "1024px",
+        xl: "1280px",
+        "2xl": "1536px",
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -64,6 +69,7 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        safe: "var(--safe-area-bottom)",
       },
       borderRadius: {
         lg: "var(--radius)",

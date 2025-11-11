@@ -1,71 +1,38 @@
-import { memo } from 'react';
-import { cn } from '@/lib/utils';
+import React, { memo } from "react";
 
-interface ResponsiveImageProps {
-  src: string;
+interface ResponsiveImageSource {
+  srcset: string;
+  media: string;
+}
+
+interface ResponsiveImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'alt'> {
   alt: string;
-  className?: string;
-  sizes?: string;
-  priority?: boolean;
-  onLoad?: () => void;
-  onError?: () => void;
+  sources?: ResponsiveImageSource[];
 }
 
 /**
- * Responsive image component optimized for mobile devices
- * Automatically generates srcset for different screen densities
- * Uses native lazy loading for better performance
+ * Universal responsive image component with lazy loading
+ * Supports multiple source tags for different viewport sizes
  */
-const ResponsiveImage = memo(({
-  src,
-  alt,
-  className,
-  sizes = '100vw',
-  priority = false,
-  onLoad,
-  onError,
-}: ResponsiveImageProps) => {
-  // Generate responsive image sizes (if using a CDN that supports sizing)
-  // For Supabase storage, we'd need to implement image transformations
-  const getSrcSet = (baseSrc: string) => {
-    // Check if using a CDN with automatic image optimization
-    if (baseSrc.includes('supabase') || baseSrc.includes('cdn')) {
-      // For now, just return the base source
-      // TODO: Implement Supabase image transformations when available
-      return undefined;
-    }
-    return undefined;
-  };
-
-  return (
-    <picture>
-      {/* WebP format for modern browsers */}
-      {src.includes('http') && (
-        <source
-          type="image/webp"
-          srcSet={getSrcSet(src)}
-          sizes={sizes}
-        />
-      )}
-      
-      {/* Fallback image */}
-      <img
-        src={src}
-        alt={alt}
-        className={cn(
-          'w-full h-auto object-cover',
-          className
-        )}
-        loading={priority ? 'eager' : 'lazy'}
-        decoding="async"
-        onLoad={onLoad}
-        onError={onError}
-        // Prevent layout shift
-        style={{ contentVisibility: 'auto' }}
-      />
-    </picture>
-  );
-});
+export const ResponsiveImage = memo<ResponsiveImageProps>(({ 
+  alt, 
+  sources = [], 
+  loading = "lazy",
+  decoding = "async",
+  ...props 
+}) => (
+  <picture>
+    {sources.map((s, i) => (
+      <source key={i} srcSet={s.srcset} media={s.media} />
+    ))}
+    <img
+      loading={loading}
+      decoding={decoding}
+      alt={alt}
+      {...props}
+    />
+  </picture>
+));
 
 ResponsiveImage.displayName = 'ResponsiveImage';
 

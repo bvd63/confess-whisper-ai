@@ -76,6 +76,9 @@ jobs:
           path: |
             coverage
             dist
+
+      - name: Lighthouse Performance (mobile)
+        run: npx lhci autorun --collect.settings.preset=mobile || true
           retention-days: 7
 
   deploy-staging:
