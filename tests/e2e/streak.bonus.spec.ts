@@ -31,12 +31,7 @@ test.describe('Streak Bonus Coin Awards', () => {
       });
     });
 
-    // Mock streak bonus award - wait for the request
-    const bonusRequestPromise = page.waitForRequest(
-      request => request.url().includes('award-streak-bonus'),
-      { timeout: 10000 }
-    );
-    
+    // Mock streak bonus award
     let awardedCoins = 0;
     await page.route('**/functions/v1/award-streak-bonus', async (route) => {
       const request = route.request();
@@ -58,14 +53,12 @@ test.describe('Streak Bonus Coin Awards', () => {
       }
     });
 
-    await page.goto('/');
+    // Navigate to rewards page which triggers useStreakManager hook
+    await page.goto('/rewards');
     await page.waitForLoadState('networkidle');
     
-    // Wait for streak bonus API call
-    await bonusRequestPromise.catch(() => console.log('Streak bonus request not made'));
-    
-    // Wait a bit more for the route handler to complete
-    await page.waitForTimeout(1000);
+    // Wait for the streak bonus to be processed
+    await page.waitForTimeout(2000);
     
     // Verify 10 coins were awarded
     expect(awardedCoins).toBe(10);
@@ -95,12 +88,7 @@ test.describe('Streak Bonus Coin Awards', () => {
       });
     });
 
-    // Mock streak bonus award - wait for the request
-    const bonusRequestPromise = page.waitForRequest(
-      request => request.url().includes('award-streak-bonus'),
-      { timeout: 10000 }
-    );
-    
+    // Mock streak bonus award
     let awardedCoins = 0;
     await page.route('**/functions/v1/award-streak-bonus', async (route) => {
       const request = route.request();
@@ -122,14 +110,12 @@ test.describe('Streak Bonus Coin Awards', () => {
       }
     });
 
-    await page.goto('/');
+    // Navigate to rewards page which triggers useStreakManager hook
+    await page.goto('/rewards');
     await page.waitForLoadState('networkidle');
     
-    // Wait for streak bonus API call
-    await bonusRequestPromise.catch(() => console.log('Streak bonus request not made'));
-    
-    // Wait a bit more for the route handler to complete
-    await page.waitForTimeout(1000);
+    // Wait for the streak bonus to be processed
+    await page.waitForTimeout(2000);
     
     expect(awardedCoins).toBe(20);
   });
@@ -158,12 +144,7 @@ test.describe('Streak Bonus Coin Awards', () => {
       });
     });
 
-    // Mock streak bonus award - wait for the request
-    const bonusRequestPromise = page.waitForRequest(
-      request => request.url().includes('award-streak-bonus'),
-      { timeout: 10000 }
-    );
-    
+    // Mock streak bonus award
     let awardedCoins = 0;
     await page.route('**/functions/v1/award-streak-bonus', async (route) => {
       const request = route.request();
@@ -185,14 +166,12 @@ test.describe('Streak Bonus Coin Awards', () => {
       }
     });
 
-    await page.goto('/');
+    // Navigate to rewards page which triggers useStreakManager hook
+    await page.goto('/rewards');
     await page.waitForLoadState('networkidle');
     
-    // Wait for streak bonus API call
-    await bonusRequestPromise.catch(() => console.log('Streak bonus request not made'));
-    
-    // Wait a bit more for the route handler to complete
-    await page.waitForTimeout(1000);
+    // Wait for the streak bonus to be processed
+    await page.waitForTimeout(2000);
     
     expect(awardedCoins).toBe(50);
   });

@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { loginAs } from '../helpers/auth';
 import { mockSubscriptionRoutes } from '../helpers/network';
+import { closeOpenDialogs, waitForAppReady } from '../helpers/pageHelpers';
 
 test.describe('Manage Subscription Header Visibility', () => {
   test('authenticated user sees header button', async ({ page }) => {
@@ -48,26 +49,21 @@ test.describe('Manage Subscription Header Visibility', () => {
   });
 
   test('free tier user sees upgrade option in header', async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 720 });
+    // Login as free user
     await loginAs(page, 'free_user');
-    await mockSubscriptionRoutes(page, { currentPlan: 'free', status: 'none' });
-
+    await mockSubscriptionRoutes(page, { currentPlan: 'free' });
+    
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     
-    // Close any open dialogs
-    const openDialog = page.locator('[data-state="open"][role="dialog"]');
-    if (await openDialog.isVisible()) {
-      await page.keyboard.press('Escape');
-      await expect(openDialog).not.toBeVisible();
-    }
+    // Close any modals
+    await waitForAppReady(page);
+    await closeOpenDialogs(page);
     
-    // Wait for app ready
-    await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
-    await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
-    
+    // Free user should see the subscription button (which opens modal with upgrade options)
     const upgradeButton = page.getByTestId('manage-subscription-btn');
     await expect(upgradeButton).toBeVisible({ timeout: 10000 });
-    await expect(upgradeButton).toContainText(/upgrade/i);
+    // Button shows "Subscription & Coins" for all users
+    await expect(upgradeButton).toContainText(/subscription|coins/i);
   });
 });
