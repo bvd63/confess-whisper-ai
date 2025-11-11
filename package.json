@@ -14,7 +14,7 @@
     "test:integration": "vitest --run tests/integration",
     "test:e2e": "playwright test --project=chromium",
     "test:ci": "npm run test:unit && npm run test:integration && npm run test:e2e",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
     "check:env": "tsx scripts/check-env.ts",
     "analyze": "vite build --mode analyze",
     "coverage": "vitest --coverage",
