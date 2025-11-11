@@ -30,7 +30,7 @@ export const initializeOneSignal = async (): Promise<boolean> => {
   }
 
   try {
-    // @ts-ignore - OneSignal global
+    // @ts-expect-error - OneSignal global
     if (!window.OneSignal) {
       const script = document.createElement('script');
       script.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
@@ -42,7 +42,7 @@ export const initializeOneSignal = async (): Promise<boolean> => {
       });
     }
 
-    // @ts-ignore
+    // @ts-expect-error
     await window.OneSignal.init({
       appId,
       serviceWorkerPath: '/OneSignalSDKWorker.js',
@@ -70,7 +70,7 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
   }
 
   try {
-    // @ts-ignore
+    // @ts-expect-error - OneSignal Notifications API
     const permission = await window.OneSignal.Notifications.requestPermission();
     return permission === true;
   } catch (error) {
@@ -98,9 +98,9 @@ export const isPushEnabled = async (): Promise<boolean> => {
   if (!isInitialized) return false;
   
   try {
-    // @ts-ignore
+    // @ts-expect-error - OneSignal Notifications API
     const isPushSupported = await window.OneSignal.Notifications.isPushSupported();
-    // @ts-ignore
+    // @ts-expect-error - OneSignal Notifications API
     const permission = await window.OneSignal.Notifications.permission;
     return isPushSupported && permission === true;
   } catch {
@@ -117,7 +117,7 @@ export const setOneSignalUserId = async (userId: string): Promise<void> => {
   }
 
   try {
-    // @ts-ignore
+    // @ts-expect-error - OneSignal User API
     await window.OneSignal.login(userId);
   } catch (error) {
     if (import.meta.env.DEV) {
@@ -133,7 +133,7 @@ export const sendOneSignalTag = async (key: string, value: string): Promise<void
   if (!isInitialized) return;
 
   try {
-    // @ts-ignore
+    // @ts-expect-error - OneSignal User API
     await window.OneSignal.User.addTag(key, value);
   } catch (error) {
     if (import.meta.env.DEV) {
@@ -149,7 +149,7 @@ export const getOneSignalPlayerId = async (): Promise<string | null> => {
   if (!isInitialized) return null;
 
   try {
-    // @ts-ignore
+    // @ts-expect-error - OneSignal User API
     const subscription = await window.OneSignal.User.PushSubscription.id;
     return subscription;
   } catch {

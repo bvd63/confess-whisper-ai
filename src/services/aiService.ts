@@ -4,7 +4,7 @@ import { env } from '@/lib/env';
 /**
  * Supported locales for AI responses
  */
-export type AiLocale = 'en' | 'es' | 'de' | 'ro';
+export type AiLocale = 'en' | 'es' | 'de';
 
 export interface AiReplyRequest {
   text: string;

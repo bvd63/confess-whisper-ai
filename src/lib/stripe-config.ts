@@ -13,7 +13,7 @@ export const STRIPE_PRICE = {
 export const STRIPE_CONFIG = {
   SECRET_KEY: import.meta.env.VITE_STRIPE_SECRET_KEY,
   WEBHOOK_SECRET: import.meta.env.VITE_STRIPE_WEBHOOK_SECRET,
-  CHECKOUT_URL: import.meta.env.VITE_STRIPE_VIP_CHECKOUT_URL || "https://buy.stripe.com/test_9B600lewecBRavrfcG0Ba00",
+  CHECKOUT_URL: import.meta.env.VITE_STRIPE_VIP_CHECKOUT_URL,
 };
 
 export const SUBSCRIPTION_TIERS = {
