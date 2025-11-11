@@ -11,11 +11,13 @@ interface EnvValidationResult {
 
 const REQUIRED_VARS = [
   'VITE_SUPABASE_URL',
-  'VITE_SUPABASE_ANON_KEY',
+  'VITE_SUPABASE_PUBLISHABLE_KEY',
 ];
 
 const OPTIONAL_VARS = [
-  'VITE_STRIPE_PUBLISHABLE_KEY',
+  'VITE_STRIPE_PRICE_VIP_MONTH_ID',
+  'VITE_STRIPE_PRICE_VIP_YEAR_ID',
+  'VITE_ONESIGNAL_APP_ID',
 ];
 
 export function validateEnvironment(): EnvValidationResult {
