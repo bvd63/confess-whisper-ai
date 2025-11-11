@@ -116,6 +116,9 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: ^1.2.7
         version: 1.2.8(@types/react-dom@18.3.7(@types/react@18.3.26))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@sentry/react':
+        specifier: ^10.24.0
+        version: 10.24.0(react@18.3.1)
       '@supabase/supabase-js':
         specifier: ^2.75.0
         version: 2.76.1
@@ -152,6 +155,9 @@ importers:
       date-fns:
         specifier: ^3.6.0
         version: 3.6.0
+      dompurify:
+        specifier: ^3.3.0
+        version: 3.3.0
       embla-carousel-react:
         specifier: ^8.6.0
         version: 8.6.0(react@18.3.1)
@@ -179,6 +185,9 @@ importers:
       react-hook-form:
         specifier: ^7.61.1
         version: 7.65.0(react@18.3.1)
+      react-onesignal:
+        specifier: ^3.4.0
+        version: 3.4.0
       react-resizable-panels:
         specifier: ^2.1.9
         version: 2.1.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -219,6 +228,9 @@ importers:
       '@testing-library/dom':
         specifier: ^10.4.1
         version: 10.4.1
+      '@types/dompurify':
+        specifier: ^3.2.0
+        version: 3.2.0
       '@types/node':
         specifier: ^22.16.5
         version: 22.18.12
@@ -246,6 +258,9 @@ importers:
       eslint-plugin-react-refresh:
         specifier: ^0.4.20
         version: 0.4.24(eslint@9.39.1(jiti@1.21.7))
+      fake-indexeddb:
+        specifier: ^6.2.5
+        version: 6.2.5
       globals:
         specifier: ^15.15.0
         version: 15.15.0
@@ -1993,6 +2008,36 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@sentry-internal/browser-utils@10.24.0':
+    resolution: {integrity: sha512-2nLj5TgPc/KkGy7LCW9sBGJT0CT+9U+Vlqa8yl7APd5agzxrpRyTcm4hPBBOw5tw7D4NWWUMulFxtZKZzT/Rcw==}
+    engines: {node: '>=18'}
+
+  '@sentry-internal/feedback@10.24.0':
+    resolution: {integrity: sha512-leYFQfgax50sYTEgkcEzPP8lTvtE12nryJSsdtPNym6gmQgA2SN20oSRNlxo1AitNpwNnTkj+ow/Y9ytrJlXUQ==}
+    engines: {node: '>=18'}
+
+  '@sentry-internal/replay-canvas@10.24.0':
+    resolution: {integrity: sha512-pjNZ+/L/ct0huutkTQrcR+V/v3ICf5wKE8OOB2Dt3DcjNsbLKtUsy9Um6bCbSz/fRI8K/ZFlVLjiIQkMW+WX0Q==}
+    engines: {node: '>=18'}
+
+  '@sentry-internal/replay@10.24.0':
+    resolution: {integrity: sha512-xqSw3sCu5yxDQFpo/42t1zzxe+6kn542DRwHNBqIBd0CWN7un/j5YIW1Sq/+TdHYGbeG8LzD5UOuvZsT4zF2nQ==}
+    engines: {node: '>=18'}
+
+  '@sentry/browser@10.24.0':
+    resolution: {integrity: sha512-kKSNYupPIIk02+4OVR13qpJ8/uzsf6SrCzgxr6EvdK8qEuGYLJyM6lLJze/C5BZTSsam6UGAfahrSI1K5il8oQ==}
+    engines: {node: '>=18'}
+
+  '@sentry/core@10.24.0':
+    resolution: {integrity: sha512-apJ1NtCK/Kt5uTytee+4rhhcTm4u3+z0bESH8GNMXMcuJ/A3Rvy3HUh+gqCx4BTOR0Sa44dbMvJcm/ewO+mzVg==}
+    engines: {node: '>=18'}
+
+  '@sentry/react@10.24.0':
+    resolution: {integrity: sha512-HW83v7LC5E06H/cYtU4fnlOV5fykNl5QkrOoZzKrYfAUCh4T11gjd4RvlvI+WaXb6nhD+gW2YLu95iIRHid/TA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      react: ^16.14.0 || 17.x || 18.x || 19.x
+
   '@sindresorhus/is@4.6.0':
     resolution: {integrity: sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw==}
     engines: {node: '>=10'}
@@ -2184,6 +2229,10 @@ packages:
 
   '@types/deep-eql@4.0.2':
     resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
+
+  '@types/dompurify@3.2.0':
+    resolution: {integrity: sha512-Fgg31wv9QbLDA0SpTOXO3MaxySc4DKGLi8sna4/Utjo4r3ZRPdCt4UQee8BWr+Q5z21yifghREPJGYaEOEIACg==}
+    deprecated: This is a stub types definition. dompurify provides its own type definitions, so you do not need this installed.
 
   '@types/estree@0.0.39':
     resolution: {integrity: sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==}
@@ -2806,6 +2855,9 @@ packages:
   dom-helpers@5.2.1:
     resolution: {integrity: sha512-nRCa7CK3VTrM2NmGkIy4cbK7IZlgBE/PYMn55rrXefr5xXDP0LdtfPnblFDoVdcAfslJ7or6iqAUnx0CCGIWQA==}
 
+  dompurify@3.3.0:
+    resolution: {integrity: sha512-r+f6MYR1gGN1eJv0TVQbhA7if/U7P87cdPl3HN5rikqaBSBxLiCb/b9O+2eG0cxz0ghyU+mU1QkbsOwERMYlWQ==}
+
   dotenv@17.2.3:
     resolution: {integrity: sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w==}
     engines: {node: '>=12'}
@@ -2975,6 +3027,10 @@ packages:
   expect-type@1.2.2:
     resolution: {integrity: sha512-JhFGDVJ7tmDJItKhYgJCGLOWjuK9vPxiXoUFLwLDc99NlmklilbiQJwoctZtt13+xMw91MCk/REan6MWHqDjyA==}
     engines: {node: '>=12.0.0'}
+
+  fake-indexeddb@6.2.5:
+    resolution: {integrity: sha512-CGnyrvbhPlWYMngksqrSSUT1BAVP49dZocrHuK0SvtR0D5TMs5wP0o3j7jexDJW01KSadjBp1M/71o/KR3nD1w==}
+    engines: {node: '>=18'}
 
   fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
@@ -3195,6 +3251,9 @@ packages:
   hasown@2.0.2:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
+
+  hoist-non-react-statics@3.3.2:
+    resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
 
   hosted-git-info@2.8.9:
     resolution: {integrity: sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==}
@@ -3989,6 +4048,10 @@ packages:
 
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
+
+  react-onesignal@3.4.0:
+    resolution: {integrity: sha512-iUAUZVw4lCtQbT4FPxpTDYPrfdYJPDFZERnYSd2ho6aNf/76vBG1v6HLMhTCjtNkQ2ufAW9L97N/pZuNvjEEUw==}
+    engines: {node: '>=14', npm: '>=6'}
 
   react-remove-scroll-bar@2.3.8:
     resolution: {integrity: sha512-9r+yi9+mgU33AKcj6IbT9oRCO78WriSj6t/cF8DWBZJ9aOGPOTEDvdUDz1FwKim7QXWwmHqtdHnRJfhAxEG46Q==}
@@ -6709,6 +6772,41 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.52.5':
     optional: true
 
+  '@sentry-internal/browser-utils@10.24.0':
+    dependencies:
+      '@sentry/core': 10.24.0
+
+  '@sentry-internal/feedback@10.24.0':
+    dependencies:
+      '@sentry/core': 10.24.0
+
+  '@sentry-internal/replay-canvas@10.24.0':
+    dependencies:
+      '@sentry-internal/replay': 10.24.0
+      '@sentry/core': 10.24.0
+
+  '@sentry-internal/replay@10.24.0':
+    dependencies:
+      '@sentry-internal/browser-utils': 10.24.0
+      '@sentry/core': 10.24.0
+
+  '@sentry/browser@10.24.0':
+    dependencies:
+      '@sentry-internal/browser-utils': 10.24.0
+      '@sentry-internal/feedback': 10.24.0
+      '@sentry-internal/replay': 10.24.0
+      '@sentry-internal/replay-canvas': 10.24.0
+      '@sentry/core': 10.24.0
+
+  '@sentry/core@10.24.0': {}
+
+  '@sentry/react@10.24.0(react@18.3.1)':
+    dependencies:
+      '@sentry/browser': 10.24.0
+      '@sentry/core': 10.24.0
+      hoist-non-react-statics: 3.3.2
+      react: 18.3.1
+
   '@sindresorhus/is@4.6.0': {}
 
   '@standard-schema/spec@1.0.0': {}
@@ -6908,6 +7006,10 @@ snapshots:
   '@types/d3-timer@3.0.2': {}
 
   '@types/deep-eql@4.0.2': {}
+
+  '@types/dompurify@3.2.0':
+    dependencies:
+      dompurify: 3.3.0
 
   '@types/estree@0.0.39': {}
 
@@ -7567,6 +7669,10 @@ snapshots:
       '@babel/runtime': 7.28.4
       csstype: 3.1.3
 
+  dompurify@3.3.0:
+    optionalDependencies:
+      '@types/trusted-types': 2.0.7
+
   dotenv@17.2.3: {}
 
   dunder-proto@1.0.1:
@@ -7818,6 +7924,8 @@ snapshots:
 
   expect-type@1.2.2: {}
 
+  fake-indexeddb@6.2.5: {}
+
   fast-deep-equal@3.1.3: {}
 
   fast-equals@5.3.2: {}
@@ -8046,6 +8154,10 @@ snapshots:
   hasown@2.0.2:
     dependencies:
       function-bind: 1.1.2
+
+  hoist-non-react-statics@3.3.2:
+    dependencies:
+      react-is: 16.13.1
 
   hosted-git-info@2.8.9: {}
 
@@ -8818,6 +8930,8 @@ snapshots:
   react-is@17.0.2: {}
 
   react-is@18.3.1: {}
+
+  react-onesignal@3.4.0: {}
 
   react-remove-scroll-bar@2.3.8(@types/react@18.3.26)(react@18.3.1):
     dependencies:

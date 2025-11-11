@@ -23,10 +23,18 @@ describe('useIntersectionObserver', () => {
 
   beforeEach(() => {
     mockObserver = new MockIntersectionObserver(vi.fn());
-    global.IntersectionObserver = vi.fn().mockImplementation((callback) => {
-      mockObserver = new MockIntersectionObserver(callback);
-      return mockObserver;
-    }) as any;
+    global.IntersectionObserver = class {
+      observe = mockObserver.observe;
+      disconnect = mockObserver.disconnect;
+      unobserve = mockObserver.unobserve;
+      
+      constructor(callback: IntersectionObserverCallback) {
+        mockObserver = new MockIntersectionObserver(callback);
+        this.observe = mockObserver.observe;
+        this.disconnect = mockObserver.disconnect;
+        this.unobserve = mockObserver.unobserve;
+      }
+    } as any;
   });
 
   it('should initialize with isIntersecting=false', () => {
