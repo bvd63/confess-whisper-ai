@@ -563,6 +563,22 @@ type Translations = {
   settings_delete_warning: string;
   settings_data_exported: string;
   settings_export_error: string;
+  settings_sessions_title: string;
+  settings_sessions_description: string;
+  settings_sessions_refresh: string;
+  settings_sessions_revoke_all: string;
+  settings_sessions_empty: string;
+  settings_sessions_current_device: string;
+  settings_sessions_signed_in: string;
+  settings_sessions_last_active: string;
+  settings_sessions_ip: string;
+  settings_sessions_device_id: string;
+  settings_sessions_unknown_agent: string;
+  settings_sessions_rotate_current: string;
+  settings_sessions_rotate_success: string;
+  settings_sessions_rotate_error: string;
+  settings_sessions_expires_at: string;
+  settings_sessions_expires_soon: string;
   
   // Profile Page
   profile_verifying: string;
@@ -1380,6 +1396,8 @@ type Translations = {
   coins_per_confession: string;
   
   // Confession actions
+  confession_invalid_content: string;
+  confession_too_short: string;
   confession_deleted: string;
   confession_your_confession: string;
   confession_reported_success: string;
@@ -2379,7 +2397,9 @@ export const translations: Record<Language, Translations> = {
     
     coins_per_confession: "coins for each confession",
     
-    confession_deleted: "Confession was deleted",
+  confession_invalid_content: "Confession content is invalid.",
+  confession_too_short: "Confession must be at least 10 characters long.",
+  confession_deleted: "Confession was deleted",
     confession_your_confession: "Your confession:",
     confession_reported_success: "Confession was reported",
     confession_report_error: "Could not report confession",
@@ -2744,6 +2764,22 @@ export const translations: Record<Language, Translations> = {
     settings_delete_warning: "This action is permanent and cannot be undone",
     settings_data_exported: "Data Exported",
     settings_export_error: "Could not export data",
+  settings_sessions_title: "Active Sessions",
+  settings_sessions_description: "Review devices signed in to your account and end sessions you don't recognize.",
+  settings_sessions_refresh: "Refresh",
+  settings_sessions_revoke_all: "Sign out everywhere",
+  settings_sessions_empty: "No other active sessions detected.",
+  settings_sessions_current_device: "This device",
+  settings_sessions_signed_in: "Signed in: {time}",
+  settings_sessions_last_active: "Last active: {time}",
+  settings_sessions_ip: "IP: {ip}",
+  settings_sessions_device_id: "Device ID: {id}",
+  settings_sessions_unknown_agent: "Browser session",
+  settings_sessions_rotate_current: "Rotate session token",
+  settings_sessions_rotate_success: "Session token refreshed.",
+  settings_sessions_rotate_error: "Couldn't rotate the session. Try again.",
+  settings_sessions_expires_at: "Expires: {time}",
+  settings_sessions_expires_soon: "Expiring soon",
     
     profile_verifying: "Verifying...",
     
@@ -4354,6 +4390,22 @@ export const translations: Record<Language, Translations> = {
     settings_delete_warning: "Esta acción es permanente y no se puede deshacer",
     settings_data_exported: "Datos Exportados",
     settings_export_error: "No se pudieron exportar los datos",
+    settings_sessions_title: "Sesiones activas",
+    settings_sessions_description: "Revisa los dispositivos conectados a tu cuenta y cierra sesiones que no reconozcas.",
+    settings_sessions_refresh: "Actualizar",
+    settings_sessions_revoke_all: "Cerrar sesión en todos",
+    settings_sessions_empty: "No se detectaron otras sesiones activas.",
+    settings_sessions_current_device: "Este dispositivo",
+    settings_sessions_signed_in: "Inicio de sesión: {time}",
+    settings_sessions_last_active: "Última actividad: {time}",
+    settings_sessions_ip: "IP: {ip}",
+    settings_sessions_device_id: "ID del dispositivo: {id}",
+    settings_sessions_unknown_agent: "Sesión del navegador",
+  settings_sessions_rotate_current: "Rotar token de sesión",
+  settings_sessions_rotate_success: "Token de sesión actualizado.",
+  settings_sessions_rotate_error: "No se pudo rotar la sesión. Inténtalo de nuevo.",
+  settings_sessions_expires_at: "Expira: {time}",
+  settings_sessions_expires_soon: "Expira pronto",
     
     profile_verifying: "Verificando...",
     
@@ -4617,7 +4669,9 @@ export const translations: Record<Language, Translations> = {
     
     coins_per_confession: "monedas por cada confesión",
     
-    confession_deleted: "La confesión fue eliminada",
+  confession_invalid_content: "El contenido de la confesión no es válido.",
+  confession_too_short: "La confesión debe tener al menos 10 caracteres.",
+  confession_deleted: "La confesión fue eliminada",
     confession_your_confession: "Tu confesión:",
     confession_reported_success: "La confesión fue reportada",
     confession_report_error: "No se pudo reportar la confesión",
@@ -6217,6 +6271,22 @@ export const translations: Record<Language, Translations> = {
     settings_delete_warning: "Diese Aktion ist dauerhaft und kann nicht rückgängig gemacht werden",
     settings_data_exported: "Daten Exportiert",
     settings_export_error: "Daten konnten nicht exportiert werden",
+  settings_sessions_title: "Aktive Sitzungen",
+  settings_sessions_description: "Überprüfe angemeldete Geräte und beende Sitzungen, die du nicht kennst.",
+  settings_sessions_refresh: "Aktualisieren",
+  settings_sessions_revoke_all: "Überall abmelden",
+  settings_sessions_empty: "Keine weiteren aktiven Sitzungen gefunden.",
+  settings_sessions_current_device: "Dieses Gerät",
+  settings_sessions_signed_in: "Angemeldet seit: {time}",
+  settings_sessions_last_active: "Zuletzt aktiv: {time}",
+  settings_sessions_ip: "IP: {ip}",
+  settings_sessions_device_id: "Geräte-ID: {id}",
+  settings_sessions_unknown_agent: "Browsersitzung",
+  settings_sessions_rotate_current: "Sitzungstoken erneuern",
+  settings_sessions_rotate_success: "Sitzungstoken aktualisiert.",
+  settings_sessions_rotate_error: "Sitzung konnte nicht erneuert werden. Bitte erneut versuchen.",
+  settings_sessions_expires_at: "Läuft ab: {time}",
+  settings_sessions_expires_soon: "Läuft bald ab",
     
     profile_verifying: "Überprüfung...",
     
@@ -6480,7 +6550,9 @@ export const translations: Record<Language, Translations> = {
     
     coins_per_confession: "Münzen für jedes Geständnis",
     
-    confession_deleted: "Das Geständnis wurde gelöscht",
+  confession_invalid_content: "Der Geständnisinhalt ist ungültig.",
+  confession_too_short: "Das Geständnis muss mindestens 10 Zeichen lang sein.",
+  confession_deleted: "Das Geständnis wurde gelöscht",
     confession_your_confession: "Dein Geständnis:",
     confession_reported_success: "Das Geständnis wurde gemeldet",
     confession_report_error: "Das Geständnis konnte nicht gemeldet werden",

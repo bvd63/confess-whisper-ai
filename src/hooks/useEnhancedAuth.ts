@@ -19,6 +19,7 @@ interface EnhancedAuthSession {
   created_at: string;
   expires_at: string;
   last_refreshed_at: string | null;
+  stay_connected: boolean | null;
 }
 
 export const useEnhancedAuth = () => {
@@ -87,7 +88,10 @@ export const useEnhancedAuth = () => {
       if (data.refreshToken) {
         localStorage.setItem('refresh_token', data.refreshToken);
         localStorage.setItem('device_id', metadata.deviceId!);
-        localStorage.setItem('stay_signed_in', String(metadata.stayConnected));
+        localStorage.setItem('stay_signed_in', String(data.stayConnected ?? metadata.stayConnected));
+        if (data.expiresAt) {
+          localStorage.setItem('refresh_expires_at', data.expiresAt);
+        }
       }
 
       toast({
@@ -203,6 +207,8 @@ export const useEnhancedAuth = () => {
       // Clear local session data
       localStorage.removeItem('refresh_token');
       localStorage.removeItem('device_id');
+  localStorage.removeItem('refresh_expires_at');
+  localStorage.removeItem('stay_signed_in');
 
       // Sign out
       await supabase.auth.signOut();
@@ -221,6 +227,73 @@ export const useEnhancedAuth = () => {
     }
   };
 
+  const rotateCurrentSession = async () => {
+    setLoading(true);
+    try {
+      const refreshToken = localStorage.getItem('refresh_token');
+      if (!refreshToken) {
+        throw new Error('missing_refresh_token');
+      }
+
+      const metadata: SessionMetadata = {
+        deviceId: localStorage.getItem('device_id') || undefined,
+        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
+        ipAddress: undefined,
+        stayConnected: localStorage.getItem('stay_signed_in') === 'true',
+      };
+
+      const { data, error } = await supabase.functions.invoke('enhanced-auth?action=refresh-session', {
+        body: {
+          refreshToken,
+          sessionMetadata: metadata,
+        },
+      });
+
+      if (error) throw error;
+
+      if (!data?.refreshToken) {
+        throw new Error('invalid_response');
+      }
+
+      localStorage.setItem('refresh_token', data.refreshToken);
+      if (data.expiresAt) {
+        localStorage.setItem('refresh_expires_at', data.expiresAt);
+      }
+      if (typeof data.stayConnected === 'boolean') {
+        localStorage.setItem('stay_signed_in', String(data.stayConnected));
+      }
+
+      toast({
+        title: t.common_success,
+        description: t.settings_sessions_rotate_success,
+      });
+
+      await listSessions();
+
+      return { success: true, error: null };
+    } catch (error) {
+      logError('Error rotating session', error as Error);
+
+      const status = (error as { status?: number }).status;
+      if (status === 401 || status === 403) {
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('device_id');
+        localStorage.removeItem('refresh_expires_at');
+        localStorage.removeItem('stay_signed_in');
+        await supabase.auth.signOut();
+      }
+
+      toast({
+        title: t.common_error,
+        description: t.settings_sessions_rotate_error,
+        variant: 'destructive',
+      });
+      return { error };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     loading,
     sessions,
@@ -229,6 +302,7 @@ export const useEnhancedAuth = () => {
     listSessions,
     revokeSession,
     revokeAllSessions,
+    rotateCurrentSession,
   };
 };
 

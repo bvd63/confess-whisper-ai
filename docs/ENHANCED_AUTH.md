@@ -66,6 +66,7 @@ Real-time visual feedback for each requirement:
 - Persists user preference in session metadata
 - Managed by enhanced-auth edge function
 - Secure token rotation on refresh
+- Manual refresh available under **Settings → Active Sessions** for the current device without impacting other sessions.
 
 ### 7. Rate Limiting
 
@@ -74,9 +75,11 @@ Real-time visual feedback for each requirement:
 - Returns 429 status with `common.rate_limit` message
 
 **Login Protection:**
-- Max 5 failed login attempts per email per 15 minutes
-- Triggers CAPTCHA requirement after threshold
-- Account lockout for 30 minutes after multiple failures
+- Max 5 failed login attempts per vector (email, IP address, device, and combined email+IP+device) per 15 minutes
+- Triggers CAPTCHA requirement and short lockout after threshold on any vector
+- Account lockout for 30 minutes after repeated failures or rate-limit violations
+- Per-user session creation limited to 5 new sessions per rolling hour
+- Session rotation API enforces the same limits and logs every manual refresh for auditability.
 
 ### 8. Security Event Logging
 

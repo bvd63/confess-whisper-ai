@@ -17,6 +17,8 @@ interface ReportDialogProps {
   userId: string | null;
 }
 
+const MAX_DETAILS_LENGTH = 1000;
+
 const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialogProps) => {
   const { t, language } = useLanguage();
   const confirm = useConfirm();
@@ -67,43 +69,62 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
     setSubmitting(true);
 
     try {
-      // Check if already reported
-      const { data: existing } = await supabase
-        .from('confession_reports')
-        .select('id')
-        .eq('confession_id', confessionId)
-        .eq('reporter_id', userId)
-        .maybeSingle();
+      const response = await supabase.functions.invoke('report-confession', {
+        body: {
+          confessionId,
+          reason: selectedReason,
+          details: details.trim() || undefined,
+          language,
+        },
+      });
 
-      if (existing) {
+      if (response.error) {
+        const status = typeof response.error.status === 'number' ? response.error.status : 400;
+        const rawMessage = typeof response.error.message === 'string' ? response.error.message : undefined;
+        let parsed: { messageKey?: string; retryAfter?: number } | null = null;
+
+        if (rawMessage) {
+          try {
+            parsed = JSON.parse(rawMessage);
+          } catch (parseError) {
+            console.warn('Failed to parse report-confession error payload', parseError);
+          }
+        }
+
+        if (status === 409 || (rawMessage && rawMessage.includes('ALREADY_REPORTED'))) {
+          toast({
+            title: t.report_already_reported_title,
+            description: t.report_already_reported_desc,
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (status === 429 || parsed?.messageKey === 'common.rate_limit') {
+          toast({
+            title: t.rate_limit_title,
+            description: t.common_rate_limit,
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (status === 401) {
+          toast({
+            title: t.auth_error,
+            description: t.auth_error_generic,
+            variant: "destructive",
+          });
+          return;
+        }
+
         toast({
-          title: t.report_already_reported_title,
-          description: t.report_already_reported_desc,
+          title: t.common_error,
+          description: t.report_submit_error_desc,
           variant: "destructive",
         });
-        setSubmitting(false);
         return;
       }
-
-      // Create report
-      const { error: reportError } = await supabase
-        .from('confession_reports')
-        .insert({
-          confession_id: confessionId,
-          reporter_id: userId,
-          reason: selectedReason,
-          details: details.trim() || null,
-        });
-
-      if (reportError) throw reportError;
-
-      // Mark confession as reported
-      const { error: updateError } = await supabase
-        .from('confessions')
-        .update({ is_reported: true })
-        .eq('id', confessionId);
-
-      if (updateError) throw updateError;
 
       toast({
         title: t.success_reported,
@@ -164,10 +185,14 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
               id="details"
               placeholder={t.report_details_placeholder}
               value={details}
-              onChange={(e) => setDetails(e.target.value)}
+              onChange={(e) => setDetails(e.target.value.slice(0, MAX_DETAILS_LENGTH))}
               className="min-h-[80px] sm:min-h-[100px] text-xs sm:text-sm"
               disabled={submitting}
+              maxLength={MAX_DETAILS_LENGTH}
             />
+            <div className="flex justify-end text-[10px] sm:text-xs text-muted-foreground">
+              {details.length}/{MAX_DETAILS_LENGTH}
+            </div>
           </div>
 
           <div className="flex gap-2">

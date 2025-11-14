@@ -1,115 +1,100 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect } from "vitest";
+import {
+  resolveTier,
+  deriveCadence,
+  buildSubscriptionRecord,
+  isDuplicateEventError,
+  shouldAwardBonus,
+  VIP_BONUS_AMOUNT,
+  VIP_BONUS_DESCRIPTION,
+  VIP_BONUS_TYPE,
+} from "../../supabase/functions/stripe-webhook/utils";
 
-describe('Stripe Webhook Integration', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+describe("stripe-webhook utils", () => {
+  const priceEnv = {
+    vipMonthly: "price_vip_month",
+    vipYearly: "price_vip_year",
+    premiumMonthly: "price_premium_month",
+    premiumYearly: "price_premium_year",
+  };
 
-  describe('checkout.session.completed', () => {
-    it('should handle successful checkout', async () => {
-      const mockEvent = {
-        id: 'evt_test_001',
-        type: 'checkout.session.completed',
-        data: {
-          object: {
-            id: 'cs_test_001',
-            mode: 'subscription',
-            customer: 'cus_test_001',
-            subscription: 'sub_test_001',
-          },
-        },
-      };
-
-      // Webhook should process event and update subscription
-      expect(mockEvent.type).toBe('checkout.session.completed');
-      expect(mockEvent.data.object.mode).toBe('subscription');
+  describe("resolveTier", () => {
+    it("returns vip for configured VIP price IDs", () => {
+      expect(resolveTier("price_vip_month", priceEnv)).toBe("vip");
+      expect(resolveTier("price_vip_year", priceEnv)).toBe("vip");
     });
 
-    it('should award bonus coins for VIP subscription', async () => {
-      const mockSubscription = {
-        id: 'sub_test_vip',
-        customer: 'cus_test_001',
-        items: {
-          data: [{
-            price: {
-              id: 'price_vip_monthly',
-            },
-          }],
-        },
-        status: 'active',
-      };
-
-      // Verify VIP tier detection
-      const priceId = mockSubscription.items.data[0].price.id;
-      expect(priceId).toContain('vip');
+    it("returns premium for configured premium prices", () => {
+      expect(resolveTier("price_premium_year", priceEnv)).toBe("premium");
     });
 
-    it('should not award duplicate bonus coins', async () => {
-      // Test idempotency - bonus coins should only be awarded once
-      const userId = 'user_test_001';
-      const bonusType = 'subscription_bonus';
-      
-      expect(userId).toBeTruthy();
-      expect(bonusType).toBe('subscription_bonus');
+    it("defaults to free when price is missing or not configured", () => {
+      expect(resolveTier(undefined, priceEnv)).toBe("free");
+      expect(resolveTier("unknown_price", priceEnv)).toBe("free");
     });
   });
 
-  describe('subscription lifecycle', () => {
-    it('should handle subscription.created event', async () => {
-      const mockEvent = {
-        type: 'customer.subscription.created',
-        data: {
-          object: {
-            id: 'sub_test_001',
-            status: 'active',
-          },
-        },
-      };
+  describe("buildSubscriptionRecord", () => {
+    it("creates an upsert payload with ISO timestamps", () => {
+      const result = buildSubscriptionRecord({
+        userId: "user-1",
+        subscriptionId: "sub-1",
+        customerId: "cus-1",
+        status: "active",
+        tier: "vip",
+        cadence: "monthly",
+        priceId: "price_vip_month",
+        currentPeriodStart: 1700000000,
+        currentPeriodEnd: 1700600000,
+        cancelAtPeriodEnd: false,
+        canceledAt: null,
+      });
 
-      expect(mockEvent.type).toBe('customer.subscription.created');
-    });
-
-    it('should handle subscription.updated event', async () => {
-      const mockEvent = {
-        type: 'customer.subscription.updated',
-        data: {
-          object: {
-            id: 'sub_test_001',
-            status: 'active',
-            cancel_at_period_end: false,
-          },
-        },
-      };
-
-      expect(mockEvent.type).toBe('customer.subscription.updated');
-    });
-
-    it('should handle subscription.deleted event', async () => {
-      const mockEvent = {
-        type: 'customer.subscription.deleted',
-        data: {
-          object: {
-            id: 'sub_test_001',
-            status: 'canceled',
-          },
-        },
-      };
-
-      expect(mockEvent.type).toBe('customer.subscription.deleted');
+      expect(result).toMatchObject({
+        user_id: "user-1",
+        stripe_subscription_id: "sub-1",
+        tier: "vip",
+        cadence: "monthly",
+        price_id: "price_vip_month",
+        cancel_at_period_end: false,
+        canceled_at: null,
+      });
+      expect(result.current_period_start).toEqual(new Date(1700000000 * 1000).toISOString());
+      expect(result.current_period_end).toEqual(new Date(1700600000 * 1000).toISOString());
     });
   });
 
-  describe('idempotency', () => {
-    it('should detect duplicate webhook events', async () => {
-      const eventId = 'evt_test_duplicate';
-      
-      // First processing
-      const firstProcess = { eventId, processed: true };
-      
-      // Second processing (should be skipped)
-      const secondProcess = { eventId, processed: false };
-      
-      expect(firstProcess.eventId).toBe(secondProcess.eventId);
+  describe("deriveCadence", () => {
+    it("maps annual intervals to yearly cadence", () => {
+      expect(deriveCadence("year")).toBe("yearly");
+    });
+
+    it("defaults to monthly for other values", () => {
+      expect(deriveCadence("month")).toBe("monthly");
+      expect(deriveCadence(undefined)).toBe("monthly");
+    });
+  });
+
+  describe("shouldAwardBonus", () => {
+    it("returns true only for VIP tier without existing bonus", () => {
+      expect(shouldAwardBonus("vip", false)).toBe(true);
+      expect(shouldAwardBonus("vip", true)).toBe(false);
+      expect(shouldAwardBonus("premium", false)).toBe(false);
+    });
+
+    it("exposes constants for the bonus payload", () => {
+      expect(VIP_BONUS_TYPE).toBe("subscription_bonus");
+      expect(VIP_BONUS_DESCRIPTION).toBe("VIP Welcome Bonus");
+      expect(VIP_BONUS_AMOUNT).toBeGreaterThan(0);
+    });
+  });
+
+  describe("idempotency helper", () => {
+    it("detects unique violation error codes", () => {
+      expect(isDuplicateEventError({ code: "23505" })).toBe(true);
+      expect(isDuplicateEventError({ code: "unique_violation" })).toBe(true);
+      expect(isDuplicateEventError({ code: "PGRST" })).toBe(false);
+      expect(isDuplicateEventError(undefined)).toBe(false);
     });
   });
 });

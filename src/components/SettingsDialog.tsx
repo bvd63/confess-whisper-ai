@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,13 +11,16 @@ import { EnhancedButton } from "@/components/EnhancedButton";
 
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 import { FontSizeControl } from "@/components/FontSizeControl";
-import { Settings, Download, Trash2, LogOut, Loader2, Shield, Crown } from "lucide-react";
+import { Settings, Download, Trash2, LogOut, Loader2, Shield, Crown, RefreshCw, Smartphone, Clock, Lock, RotateCcw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
+import { useConfirm } from "@/contexts/ConfirmContext";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,6 +46,14 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const { t } = useLanguage();
   const { user } = useCurrentUser();
   const { subscriptionTier, subscriptionEndsAt, isOnTrial, trialEndDate } = usePremiumStatus(user?.id);
+  const confirm = useConfirm();
+  const { sessions: activeSessions, listSessions, revokeSession, revokeAllSessions, rotateCurrentSession } = useEnhancedAuth();
+  const [sessionsLoaded, setSessionsLoaded] = useState(false);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
+  const [revokingSessionId, setRevokingSessionId] = useState<string | null>(null);
+  const [revokingAll, setRevokingAll] = useState(false);
+  const currentDeviceId = typeof window !== 'undefined' ? localStorage.getItem('device_id') : null;
+  const [rotatingCurrent, setRotatingCurrent] = useState(false);
 
   // Get benefits list based on tier
   const getBenefits = () => {
@@ -160,6 +171,63 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
     }
   };
 
+  const handleRefreshSessions = useCallback(async () => {
+    setSessionsLoading(true);
+    await listSessions();
+    setSessionsLoaded(true);
+    setSessionsLoading(false);
+  }, [listSessions]);
+
+  useEffect(() => {
+    if (open && !sessionsLoaded && !sessionsLoading) {
+      void handleRefreshSessions();
+    }
+  }, [open, sessionsLoaded, sessionsLoading, handleRefreshSessions]);
+
+  const handleRevokeSession = useCallback(async (sessionId: string) => {
+    const confirmed = await confirm({
+      titleKey: 'confirm.revokeSession.title',
+      messageKey: 'confirm.revokeSession.message',
+      variant: 'warning',
+    });
+
+    if (!confirmed) return;
+
+    setRevokingSessionId(sessionId);
+    await revokeSession(sessionId);
+    setRevokingSessionId(null);
+  }, [confirm, revokeSession]);
+
+  const handleRevokeAllSessions = useCallback(async () => {
+    const confirmed = await confirm({
+      titleKey: 'confirm.revokeAllSessions.title',
+      messageKey: 'confirm.revokeAllSessions.message',
+      variant: 'danger',
+    });
+
+    if (!confirmed) return;
+
+    setRevokingAll(true);
+    await revokeAllSessions();
+    setRevokingAll(false);
+  }, [confirm, revokeAllSessions]);
+
+  const handleRotateCurrentSession = useCallback(async () => {
+    setRotatingCurrent(true);
+    try {
+      await rotateCurrentSession();
+    } finally {
+      setRotatingCurrent(false);
+    }
+  }, [rotateCurrentSession]);
+
+  const formatDateTime = (iso?: string | null) => {
+    if (!iso) return '—';
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return '—';
+    return date.toLocaleString();
+  };
+
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -268,6 +336,165 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
                       </>
                     )}
                   </EnhancedButton>
+                </div>
+              </div>
+            </div>
+
+            {/* Active Sessions */}
+            <div className="p-3 sm:p-4 border border-border/50 rounded-lg glass hover-lift transition-colors">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="p-1.5 sm:p-2 rounded-full bg-primary/10">
+                  <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                    <div>
+                      <h3 className="font-semibold text-sm sm:text-base text-foreground mb-1">
+                        {t.settings_sessions_title}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        {t.settings_sessions_description}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <EnhancedButton
+                        onClick={handleRefreshSessions}
+                        variant="outline"
+                        size="sm"
+                        disabled={sessionsLoading || revokingAll}
+                        className="text-xs sm:text-sm"
+                      >
+                        {sessionsLoading ? (
+                          <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 mr-2 animate-spin" />
+                        ) : (
+                          <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                        )}
+                        {t.settings_sessions_refresh}
+                      </EnhancedButton>
+                      <EnhancedButton
+                        onClick={handleRevokeAllSessions}
+                        variant="destructive"
+                        size="sm"
+                        disabled={revokingAll || !sessionsLoaded || activeSessions.length === 0}
+                        className="text-xs sm:text-sm"
+                      >
+                        {revokingAll ? (
+                          <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 mr-2 animate-spin" />
+                        ) : (
+                          <LogOut className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                        )}
+                        {t.settings_sessions_revoke_all}
+                      </EnhancedButton>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 space-y-2">
+                    {sessionsLoading && !sessionsLoaded ? (
+                      <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        {t.submitting}
+                      </div>
+                    ) : sessionsLoaded && activeSessions.length === 0 ? (
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        {t.settings_sessions_empty}
+                      </p>
+                    ) : (
+                      activeSessions.map((session) => {
+                        const isCurrentDevice = Boolean(session.device_id && currentDeviceId && session.device_id === currentDeviceId);
+                        const isRevoking = revokingSessionId === session.id;
+                        const lastActive = formatDateTime(session.last_refreshed_at ?? session.created_at);
+                        const signedInAt = formatDateTime(session.created_at);
+                        const expiresAt = session.expires_at ? formatDateTime(session.expires_at) : null;
+                        const expiresSoon = session.expires_at
+                          ? new Date(session.expires_at).getTime() - Date.now() < 1000 * 60 * 60 * 24
+                          : false;
+
+                        return (
+                          <div
+                            key={session.id}
+                            className="p-3 border border-border/50 rounded-lg bg-background/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+                          >
+                            <div className="space-y-1 text-xs sm:text-sm text-muted-foreground">
+                              <div className="flex items-center gap-2 text-foreground">
+                                <Smartphone className="w-3 h-3" />
+                                <span>{session.user_agent || t.settings_sessions_unknown_agent}</span>
+                                {isCurrentDevice && (
+                                  <Badge variant="outline" className="text-[10px] sm:text-xs">
+                                    {t.settings_sessions_current_device}
+                                  </Badge>
+                                )}
+                                {session.stay_connected && (
+                                  <Badge variant="outline" className="text-[10px] sm:text-xs">
+                                    {t.auth_stay_signed_in}
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                <span>{t.settings_sessions_signed_in.replace('{time}', signedInAt)}</span>
+                              </div>
+                              <p>{t.settings_sessions_last_active.replace('{time}', lastActive)}</p>
+                              {expiresAt && (
+                                <p className="flex items-center gap-2">
+                                  {t.settings_sessions_expires_at.replace('{time}', expiresAt)}
+                                  {expiresSoon && (
+                                    <Badge variant="outline" className="text-[10px] sm:text-xs text-amber-600 border-amber-500/60">
+                                      {t.settings_sessions_expires_soon}
+                                    </Badge>
+                                  )}
+                                </p>
+                              )}
+                              {session.ip_address && (
+                                <p>{t.settings_sessions_ip.replace('{ip}', session.ip_address)}</p>
+                              )}
+                              {session.device_id && (
+                                <p>
+                                  {t.settings_sessions_device_id.replace(
+                                    '{id}',
+                                    session.device_id.length > 18
+                                      ? `${session.device_id.slice(0, 18)}...`
+                                      : session.device_id
+                                  )}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex flex-wrap gap-2 self-start sm:self-auto">
+                              {isCurrentDevice && (
+                                <EnhancedButton
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={handleRotateCurrentSession}
+                                  disabled={rotatingCurrent || revokingAll}
+                                  className="text-xs sm:text-sm"
+                                >
+                                  {rotatingCurrent ? (
+                                    <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 mr-2 animate-spin" />
+                                  ) : (
+                                    <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                                  )}
+                                  {t.settings_sessions_rotate_current}
+                                </EnhancedButton>
+                              )}
+                              <EnhancedButton
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleRevokeSession(session.id)}
+                                disabled={isRevoking || revokingAll}
+                                className="text-xs sm:text-sm"
+                              >
+                                {isRevoking ? (
+                                  <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 mr-2 animate-spin" />
+                                ) : (
+                                  <LogOut className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                                )}
+                                {t.logout}
+                              </EnhancedButton>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

@@ -1,6 +1,8 @@
 // src/lib/env.ts
 import { z } from "zod";
 
+const booleanString = z.enum(["true", "false"]).optional();
+
 const RawEnv = z.object({
   VITE_SUPABASE_URL: z.string().url(),
   VITE_SUPABASE_PUBLISHABLE_KEY: z.string().min(20),
@@ -8,6 +10,13 @@ const RawEnv = z.object({
   VITE_STRIPE_PRICE_VIP_YEAR_ID: z.string().optional(),
   VITE_ONESIGNAL_APP_ID: z.string().optional(),
   VITE_SENTRY_DSN: z.string().url().optional(),
+  VITE_FEATURE_PASSWORDLESS: booleanString,
+  VITE_FEATURE_OFFLINE_QUEUE: booleanString,
+  VITE_FEATURE_BACKGROUND_QUEUE: booleanString,
+  VITE_FEATURE_PWA_PROMPT: booleanString,
+  VITE_FEATURE_PROFILE_MINI_ANALYTICS: booleanString,
+  VITE_WEB_SHARE_ENABLED: booleanString,
+  VITE_CONFESSION_TURNSTILE_REQUIRED: booleanString,
   MODE: z.enum(["development", "production", "test"]).default("development"),
 });
 
@@ -20,6 +29,13 @@ const parsed = RawEnv.safeParse({
   VITE_STRIPE_PRICE_VIP_YEAR_ID: _raw.VITE_STRIPE_PRICE_VIP_YEAR_ID,
   VITE_ONESIGNAL_APP_ID: _raw.VITE_ONESIGNAL_APP_ID,
   VITE_SENTRY_DSN: _raw.VITE_SENTRY_DSN,
+  VITE_FEATURE_PASSWORDLESS: _raw.VITE_FEATURE_PASSWORDLESS,
+  VITE_FEATURE_OFFLINE_QUEUE: _raw.VITE_FEATURE_OFFLINE_QUEUE,
+  VITE_FEATURE_BACKGROUND_QUEUE: _raw.VITE_FEATURE_BACKGROUND_QUEUE,
+  VITE_FEATURE_PWA_PROMPT: _raw.VITE_FEATURE_PWA_PROMPT,
+  VITE_FEATURE_PROFILE_MINI_ANALYTICS: _raw.VITE_FEATURE_PROFILE_MINI_ANALYTICS,
+  VITE_WEB_SHARE_ENABLED: _raw.VITE_WEB_SHARE_ENABLED,
+  VITE_CONFESSION_TURNSTILE_REQUIRED: _raw.VITE_CONFESSION_TURNSTILE_REQUIRED,
   MODE: _raw.MODE,
 });
 
@@ -41,6 +57,15 @@ export const env = {
     stripePriceVipYearId: parsed.data?.VITE_STRIPE_PRICE_VIP_YEAR_ID || _raw.VITE_STRIPE_PRICE_VIP_YEAR_ID,
     oneSignalAppId: parsed.data?.VITE_ONESIGNAL_APP_ID || _raw.VITE_ONESIGNAL_APP_ID,
     sentryDsn: parsed.data?.VITE_SENTRY_DSN || _raw.VITE_SENTRY_DSN,
+  },
+  features: {
+    passwordless: (parsed.data?.VITE_FEATURE_PASSWORDLESS || _raw.VITE_FEATURE_PASSWORDLESS) === "true",
+    offlineQueue: (parsed.data?.VITE_FEATURE_OFFLINE_QUEUE || _raw.VITE_FEATURE_OFFLINE_QUEUE) === "true",
+    backgroundQueue: (parsed.data?.VITE_FEATURE_BACKGROUND_QUEUE || _raw.VITE_FEATURE_BACKGROUND_QUEUE) === "true",
+    pwaPrompt: (parsed.data?.VITE_FEATURE_PWA_PROMPT || _raw.VITE_FEATURE_PWA_PROMPT) !== "false",
+    profileMiniAnalytics: (parsed.data?.VITE_FEATURE_PROFILE_MINI_ANALYTICS || _raw.VITE_FEATURE_PROFILE_MINI_ANALYTICS) !== "false",
+    webShareEnabled: (parsed.data?.VITE_WEB_SHARE_ENABLED || _raw.VITE_WEB_SHARE_ENABLED) !== "false",
+    confessionTurnstileRequired: (parsed.data?.VITE_CONFESSION_TURNSTILE_REQUIRED || _raw.VITE_CONFESSION_TURNSTILE_REQUIRED) !== "false",
   },
   isProd: (parsed.data?.MODE || _raw.MODE) === "production",
   isDev: (parsed.data?.MODE || _raw.MODE) === "development",

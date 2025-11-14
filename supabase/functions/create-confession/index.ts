@@ -1,0 +1,298 @@
+import type {} from "../deno-shims.d.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import {
+  normalizeCreateConfessionPayload,
+} from "./utils.ts";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+interface RateLimitResponse {
+  allowed?: boolean;
+  remaining?: number;
+  retryAfter?: number;
+  resetAt?: string;
+  identifierType?: "user" | "ip";
+}
+
+async function verifyCaptcha(token: string, remoteIp?: string): Promise<{ success: boolean; error?: string }> {
+  const turnstileSecret = Deno.env.get("TURNSTILE_SECRET");
+
+  if (!turnstileSecret) {
+    console.warn("[create-confession] TURNSTILE_SECRET not configured – skipping CAPTCHA verification");
+    return { success: true as const };
+  }
+
+  try {
+    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        secret: turnstileSecret,
+        response: token,
+        remoteip: remoteIp,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      console.error("[create-confession] CAPTCHA verification failed", data);
+      return { success: false as const, error: "auth.captcha_failed" };
+    }
+
+    return { success: true as const };
+  } catch (error) {
+    console.error("[create-confession] CAPTCHA verification error", error);
+    return { success: false as const, error: "auth.captcha_failed" };
+  }
+}
+
+const jsonResponse = (body: Record<string, unknown>, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      ...corsHeaders,
+      "Content-Type": "application/json",
+    },
+  });
+
+const logSecurityEvent = async (
+  client: ReturnType<typeof createClient>,
+  {
+    userId,
+    eventType,
+    eventData,
+    ipAddress,
+    userAgent,
+  }: {
+    userId?: string | null;
+    eventType: string;
+    eventData?: Record<string, unknown> | null;
+    ipAddress?: string | null;
+    userAgent?: string | null;
+  },
+) => {
+  if (!client) return;
+
+  try {
+    await client.rpc("log_security_event", {
+      _user_id: userId ?? null,
+      _event_type: eventType,
+      _event_data: eventData ?? null,
+      _ip_address: ipAddress ?? null,
+      _user_agent: userAgent ?? null,
+    });
+  } catch (error) {
+    console.warn("[create-confession] Failed to log security event", error);
+  }
+};
+
+serve(async (req: Request) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+
+  if (!supabaseUrl || !anonKey || !serviceKey) {
+    console.error("[create-confession] Missing Supabase configuration");
+    return jsonResponse({ error: "CONFIGURATION_ERROR", message: "Server is misconfigured" }, 500);
+  }
+
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) {
+    return jsonResponse({ error: "UNAUTHORIZED", messageKey: "common.unauthorized" }, 401);
+  }
+
+  const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+    || req.headers.get("x-real-ip")
+    || "unknown";
+  const userAgent = req.headers.get("user-agent") ?? "unknown";
+
+  try {
+    const supabaseClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const serviceClient = createClient(supabaseUrl, serviceKey);
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabaseClient.auth.getUser();
+
+    if (userError || !user) {
+      return jsonResponse({ error: "UNAUTHORIZED", messageKey: "common.unauthorized" }, 401);
+    }
+
+    let rawBody: unknown;
+    try {
+      rawBody = await req.json();
+    } catch (parseError) {
+      console.warn("[create-confession] Failed to parse request body", parseError);
+      return jsonResponse({ error: "INVALID_JSON", messageKey: "common.invalid_request" }, 400);
+    }
+
+    const normalizedBody = normalizeCreateConfessionPayload(rawBody);
+
+    if (!normalizedBody.ok) {
+      await logSecurityEvent(serviceClient, {
+        userId: user.id,
+        eventType: "confession_validation_failed",
+        eventData: {
+          reason: normalizedBody.error.logReason,
+          ...(normalizedBody.error.context ?? {}),
+        },
+        ipAddress: clientIp,
+        userAgent,
+      });
+
+      const errorResponse = normalizedBody.error.code === "INVALID_CONTENT"
+        ? {
+            error: "INVALID_CONTENT",
+            messageKey: "confession.invalid_content",
+            message: "Confession content is invalid.",
+          }
+        : {
+            error: "CONTENT_TOO_SHORT",
+            messageKey: "confession.too_short",
+            message: "Confession must be at least 10 characters long.",
+          };
+
+      return jsonResponse(errorResponse, 400);
+    }
+
+    const payload = normalizedBody.data;
+
+    const enforceCaptcha = (Deno.env.get("CONFESSION_TURNSTILE_REQUIRED") ?? "true") !== "false";
+
+    if (enforceCaptcha) {
+      if (!payload.captchaToken) {
+        await logSecurityEvent(serviceClient, {
+          userId: user.id,
+          eventType: "confession_captcha_failed",
+          eventData: { reason: "missing_token" },
+          ipAddress: clientIp,
+          userAgent,
+        });
+        return jsonResponse({ error: "CAPTCHA_REQUIRED", messageKey: "auth.captcha_failed" }, 403);
+      }
+
+      const captchaResult = await verifyCaptcha(payload.captchaToken, clientIp);
+      if (!captchaResult.success) {
+        await logSecurityEvent(serviceClient, {
+          userId: user.id,
+          eventType: "confession_captcha_failed",
+          eventData: { reason: captchaResult.error ?? "verification_failed" },
+          ipAddress: clientIp,
+          userAgent,
+        });
+        return jsonResponse({ error: "CAPTCHA_FAILED", messageKey: captchaResult.error ?? "auth.captcha_failed" }, 403);
+      }
+    } else if (payload.captchaToken) {
+      // If token provided but enforcement disabled, verify opportunistically
+      await verifyCaptcha(payload.captchaToken, clientIp);
+    }
+
+    const rateLimitResult = await serviceClient.functions.invoke<RateLimitResponse>("rate-limit", {
+      body: {
+        action: "confession_create",
+        userId: user.id,
+        ip: clientIp,
+      },
+    });
+
+    if (!rateLimitResult.error && rateLimitResult.data && rateLimitResult.data.allowed === false) {
+      await logSecurityEvent(serviceClient, {
+        userId: user.id,
+        eventType: "confession_rate_limited",
+        eventData: {
+          retryAfter: rateLimitResult.data.retryAfter ?? null,
+          remaining: rateLimitResult.data.remaining ?? null,
+        },
+        ipAddress: clientIp,
+        userAgent,
+      });
+      return jsonResponse({
+        error: "RATE_LIMIT",
+        messageKey: "common.rate_limit",
+        retryAfter: rateLimitResult.data.retryAfter,
+      }, 429);
+    }
+
+    if (rateLimitResult.error) {
+      await logSecurityEvent(serviceClient, {
+        userId: user.id,
+        eventType: "confession_rate_limit_error",
+        eventData: { error: rateLimitResult.error.message ?? rateLimitResult.error },
+        ipAddress: clientIp,
+        userAgent,
+      });
+    }
+
+    const { data: confessionInsert, error: insertError } = await serviceClient
+      .from("confessions")
+      .insert({
+        content: payload.content,
+        category: payload.category,
+        user_id: user.id,
+        image_url: payload.imageUrl,
+        community_id: payload.communityId,
+        is_anonymous: payload.isAnonymous,
+        ai_response: payload.aiResponse,
+        author_display_name_snapshot: payload.isAnonymous ? null : payload.authorDisplayName,
+      })
+      .select()
+      .single();
+
+    if (insertError || !confessionInsert) {
+      console.error("[create-confession] Failed to insert confession", insertError);
+      await logSecurityEvent(serviceClient, {
+        userId: user.id,
+        eventType: "confession_create_failed",
+        eventData: { reason: insertError?.message ?? "insert_failed" },
+        ipAddress: clientIp,
+        userAgent,
+      });
+      return jsonResponse({ error: "DATABASE_ERROR", messageKey: "common.something_went_wrong" }, 500);
+    }
+
+    const sanitizedMood = payload.mood;
+
+    if (sanitizedMood?.mood) {
+      const { error: moodError } = await serviceClient
+        .from("mood_entries")
+        .insert({
+          user_id: user.id,
+          confession_id: confessionInsert.id,
+          mood: sanitizedMood.mood,
+          intensity: sanitizedMood.intensity,
+        });
+
+      if (moodError) {
+        console.error("[create-confession] Failed to insert mood entry", moodError);
+      }
+    }
+
+    await logSecurityEvent(serviceClient, {
+      userId: user.id,
+      eventType: "confession_created",
+      eventData: { confessionId: confessionInsert.id },
+      ipAddress: clientIp,
+      userAgent,
+    });
+
+    return jsonResponse({
+      confession: confessionInsert,
+      rateLimit: rateLimitResult.data ?? null,
+    }, 201);
+  } catch (error) {
+    console.error("[create-confession] Unexpected error", error);
+    return jsonResponse({ error: "INTERNAL_ERROR", messageKey: "common.something_went_wrong" }, 500);
+  }
+});

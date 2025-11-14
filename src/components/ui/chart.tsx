@@ -57,6 +57,40 @@ import { cn } from "@/lib/utils";
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const;
+const SAFE_COLOR_FALLBACK = "hsl(var(--foreground))";
+const COLOR_ALLOW_LIST = [
+  /^#[0-9A-Fa-f]{3,8}$/,
+  /^rgb\(\s*(?:\d{1,3}\s*,\s*){2}\d{1,3}\s*\)$/,
+  /^rgba\(\s*(?:\d{1,3}\s*,\s*){3}(?:0|1|0?\.\d+)\s*\)$/,
+  /^hsl\(\s*\d{1,3}\s*,\s*\d{1,3}%\s*,\s*\d{1,3}%\s*\)$/,
+  /^hsla\(\s*\d{1,3}\s*,\s*\d{1,3}%\s*,\s*\d{1,3}%\s*,\s*(?:0|1|0?\.\d+)\s*\)$/,
+  /^var\(--[a-z0-9-]+\)$/i,
+  /^hsl\(var\(--[a-z0-9-]+\)\)$/i,
+  /^hsla\(var\(--[a-z0-9-]+\),\s*(?:0|1|0?\.\d+)\s*\)$/i,
+];
+
+const sanitizeColor = (value?: string | null): string | null => {
+  if (!value) {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  if (trimmed.toLowerCase() === "transparent") {
+    return "transparent";
+  }
+
+  if (COLOR_ALLOW_LIST.some((pattern) => pattern.test(trimmed))) {
+    return trimmed;
+  }
+
+  return SAFE_COLOR_FALLBACK;
+};
+
+type ThemeRecord = Record<keyof typeof THEMES, string>;
 
 export type ChartConfig = {
   [k in string]: {
@@ -117,26 +151,34 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
     return null;
   }
 
-  return (
-    <style
-      dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
-          .map(
-            ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
-${colorConfig
-  .map(([key, itemConfig]) => {
-    const color = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] || itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
-  })
-  .join("\n")}
-}
-`,
-          )
-          .join("\n"),
-      }}
-    />
-  );
+  const cssContent = Object.entries(THEMES)
+    .map(([themeKey, prefix]) => {
+      const declarations = colorConfig
+        .map(([key, itemConfig]) => {
+          const themeColor = (itemConfig as { theme?: ThemeRecord }).theme?.[
+            themeKey as keyof typeof THEMES
+          ];
+          const directColor = (itemConfig as { color?: string }).color;
+          const sanitized = sanitizeColor(themeColor ?? directColor);
+          return sanitized ? `  --color-${key}: ${sanitized};` : null;
+        })
+        .filter(Boolean)
+        .join("\n");
+
+      if (!declarations) {
+        return null;
+      }
+
+      return `${prefix} [data-chart=${id}] {\n${declarations}\n}`;
+    })
+    .filter(Boolean)
+    .join("\n");
+
+  if (!cssContent) {
+    return null;
+  }
+
+  return <style dangerouslySetInnerHTML={{ __html: cssContent }} />;
 };
 
 const ChartTooltip = RechartsPrimitive.Tooltip;

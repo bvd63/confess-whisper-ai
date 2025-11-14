@@ -12,6 +12,34 @@ export interface NotificationPreferences {
   streakCompleted: boolean;
 }
 
+interface OneSignalNotifications {
+  requestPermission: () => Promise<boolean | 'granted' | 'denied' | 'default'>;
+  isPushSupported: () => Promise<boolean>;
+  permission: Promise<boolean | 'granted' | 'denied' | 'default'> | boolean | 'granted' | 'denied' | 'default';
+}
+
+interface OneSignalPushSubscription {
+  id: Promise<string | null> | string | null;
+}
+
+interface OneSignalUser {
+  addTag?: (key: string, value: string) => Promise<void>;
+  PushSubscription: OneSignalPushSubscription;
+}
+
+interface OneSignalSDK {
+  init: (config: Record<string, unknown>) => Promise<void>;
+  login: (userId: string) => Promise<void>;
+  Notifications: OneSignalNotifications;
+  User: OneSignalUser;
+}
+
+declare global {
+  interface Window {
+    OneSignal?: OneSignalSDK;
+  }
+}
+
 /**
  * Initialize OneSignal SDK
  */
@@ -30,7 +58,6 @@ export const initializeOneSignal = async (): Promise<boolean> => {
   }
 
   try {
-    // @ts-expect-error - OneSignal global
     if (!window.OneSignal) {
       const script = document.createElement('script');
       script.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
@@ -42,7 +69,6 @@ export const initializeOneSignal = async (): Promise<boolean> => {
       });
     }
 
-    // @ts-expect-error
     await window.OneSignal.init({
       appId,
       serviceWorkerPath: '/OneSignalSDKWorker.js',
@@ -70,9 +96,8 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
   }
 
   try {
-    // @ts-expect-error - OneSignal Notifications API
     const permission = await window.OneSignal.Notifications.requestPermission();
-    return permission === true;
+    return permission === true || permission === 'granted';
   } catch (error) {
     if (import.meta.env.DEV) {
       console.error('[OneSignal] Permission request failed:', error);
@@ -98,10 +123,11 @@ export const isPushEnabled = async (): Promise<boolean> => {
   if (!isInitialized) return false;
   
   try {
-    // @ts-expect-error - OneSignal Notifications API
     const isPushSupported = await window.OneSignal.Notifications.isPushSupported();
-    // @ts-expect-error - OneSignal Notifications API
     const permission = await window.OneSignal.Notifications.permission;
+    if (typeof permission === 'string') {
+      return isPushSupported && permission === 'granted';
+    }
     return isPushSupported && permission === true;
   } catch {
     return false;
@@ -117,7 +143,6 @@ export const setOneSignalUserId = async (userId: string): Promise<void> => {
   }
 
   try {
-    // @ts-expect-error - OneSignal User API
     await window.OneSignal.login(userId);
   } catch (error) {
     if (import.meta.env.DEV) {
@@ -133,7 +158,6 @@ export const sendOneSignalTag = async (key: string, value: string): Promise<void
   if (!isInitialized) return;
 
   try {
-    // @ts-expect-error - OneSignal User API
     await window.OneSignal.User.addTag(key, value);
   } catch (error) {
     if (import.meta.env.DEV) {
@@ -149,7 +173,6 @@ export const getOneSignalPlayerId = async (): Promise<string | null> => {
   if (!isInitialized) return null;
 
   try {
-    // @ts-expect-error - OneSignal User API
     const subscription = await window.OneSignal.User.PushSubscription.id;
     return subscription;
   } catch {
@@ -178,5 +201,14 @@ export const savePlayerIdToProfile = async (userId: string, playerId: string): P
     if (import.meta.env.DEV) {
       console.error('[OneSignal] Failed to save player ID:', error);
     }
+  }
+};
+
+/**
+ * Test helper: reset initialization flag between vitest runs
+ */
+export const __resetOneSignalState = (): void => {
+  if (typeof import.meta !== 'undefined' && import.meta.env?.VITEST) {
+    isInitialized = false;
   }
 };

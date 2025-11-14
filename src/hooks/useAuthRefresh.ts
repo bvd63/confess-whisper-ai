@@ -10,6 +10,60 @@ export const useAuthRefresh = () => {
   const refreshTimeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
+    const rotateManagedRefreshToken = async () => {
+      const storedToken = localStorage.getItem('refresh_token');
+      if (!storedToken) {
+        return;
+      }
+
+      try {
+        const deviceId = localStorage.getItem('device_id') || undefined;
+        const stayConnected = localStorage.getItem('stay_signed_in') === 'true';
+
+        const { data, error } = await supabase.functions.invoke('enhanced-auth?action=refresh-session', {
+          body: {
+            refreshToken: storedToken,
+            sessionMetadata: {
+              deviceId,
+              userAgent: navigator.userAgent,
+              stayConnected,
+            },
+          },
+        });
+
+        if (error || data?.error) {
+          observability.warn('Managed refresh rotation failed', {
+            metadata: {
+              supabaseError: error?.message,
+              edgeError: data?.error,
+            },
+          });
+
+          if (data?.error === 'REFRESH_TOKEN_EXPIRED' || data?.error === 'INVALID_REFRESH_TOKEN' || data?.error === 'UNAUTHORIZED') {
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('refresh_expires_at');
+            await supabase.auth.signOut();
+            window.location.href = '/auth';
+          }
+          return;
+        }
+
+        if (data?.refreshToken) {
+          localStorage.setItem('refresh_token', data.refreshToken);
+        }
+
+        if (typeof data?.stayConnected === 'boolean') {
+          localStorage.setItem('stay_signed_in', String(data.stayConnected));
+        }
+
+        if (data?.expiresAt) {
+          localStorage.setItem('refresh_expires_at', data.expiresAt);
+        }
+      } catch (error) {
+        observability.error('Refresh token rotation exception', error as Error);
+      }
+    };
+
     const setupTokenRefresh = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       
@@ -59,6 +113,8 @@ export const useAuthRefresh = () => {
                   : 'unknown',
               },
             });
+
+            await rotateManagedRefreshToken();
             
             // Schedule next refresh
             setupTokenRefresh();
@@ -81,6 +137,9 @@ export const useAuthRefresh = () => {
         if (refreshTimeoutRef.current) {
           clearTimeout(refreshTimeoutRef.current);
         }
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('refresh_expires_at');
+        localStorage.removeItem('stay_signed_in');
       }
     });
 

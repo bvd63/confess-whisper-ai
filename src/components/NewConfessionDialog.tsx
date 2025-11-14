@@ -25,6 +25,9 @@ import { useConfessionLimits } from "@/hooks/useConfessionLimits";
 import { useMobileKeyboard } from "@/hooks/useMobileKeyboard";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { getAiReply, type AiLocale } from "@/services/aiService";
+import { Turnstile } from "@marsidev/react-turnstile";
+import { env } from "@/lib/env";
+import { normalizeCreateConfessionPayload } from "../../supabase/functions/create-confession/utils";
 
 const confessionSchema = z.object({
   content: z.string()
@@ -32,6 +35,9 @@ const confessionSchema = z.object({
     .min(10, { message: "Confession must be at least 10 characters" })
     .max(2000, { message: "Confession cannot exceed 2000 characters" })
 });
+
+const isFunctionInvokeError = (value: unknown): value is { status?: number; message?: string } =>
+  typeof value === 'object' && value !== null && ('status' in value || 'message' in value);
 
 interface NewConfessionDialogProps {
   open: boolean;
@@ -61,6 +67,17 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
   const { isKeyboardVisible, keyboardHeight } = useMobileKeyboard();
   const { subscriptionTier } = usePremiumStatus(user?.id || null);
   const isVip = subscriptionTier === 'vip';
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [turnstileError, setTurnstileError] = useState(false);
+  const [captchaRenderKey, setCaptchaRenderKey] = useState(0);
+
+  useEffect(() => {
+    if (!open) {
+      setCaptchaToken(null);
+      setTurnstileError(false);
+      setCaptchaRenderKey((key) => key + 1);
+    }
+  }, [open]);
 
   // Fetch user's nickname
   useEffect(() => {
@@ -150,22 +167,56 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
     }
 
     // Validate input
-    const validation = confessionSchema.safeParse({ content });
-    if (!validation.success) {
-      toast({
-        title: t.error_generic,
-        description: validation.error.errors[0].message,
-        variant: "destructive",
-      });
+    const normalized = normalizeCreateConfessionPayload({
+      content,
+      category,
+      communityId,
+      imageUrl,
+      isAnonymous,
+      aiResponse: aiResponse ?? undefined,
+      mood,
+      captchaToken,
+      authorDisplayName: isAnonymous ? null : userNickname,
+    });
+
+    if (!normalized.ok) {
+      const { error } = normalized;
+      if (error.code === "INVALID_CONTENT") {
+        toast({
+          title: t.error_generic,
+          description: t.confession_invalid_content ?? "Confession content is invalid.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: t.error_generic,
+          description: t.confession_too_short ?? "Confession must be at least 10 characters long.",
+          variant: "destructive",
+        });
+      }
       return;
     }
+
+    const normalizedPayload = normalized.data;
 
     setIsSubmitting(true);
 
     try {
-      // Step 1: Moderate content first
+      // If Turnstile is required by feature flag, ensure we have a token
+      if (env.features.confessionTurnstileRequired && !captchaToken) {
+        toast({
+          title: t.error_generic,
+          description: t.auth_captcha_failed || "Please complete the CAPTCHA before submitting.",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Step 1: Moderate content first. Include captchaToken when available so server-side
+      // code (if extended) can verify the token before accepting a confession.
       const { data: moderationData, error: moderationError } = await supabase.functions.invoke('ai-moderation', {
-        body: { content, language }
+        body: { content, language, captchaToken }
       });
 
       if (moderationError) {
@@ -215,35 +266,87 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
         return;
       }
 
-      const { data: confessionData, error: dbError } = await supabase
-        .from('confessions')
-        .insert({
-          content: sanitizeConfession(content.trim()),
-          ai_response: responseText,
-          category: category,
-          user_id: user.id,
-          image_url: imageUrl,
-          community_id: communityId,
-          is_anonymous: isAnonymous,
-          author_display_name_snapshot: isAnonymous ? null : userNickname,
-        })
-        .select()
-        .single();
+      const creationResponse = await supabase.functions.invoke('create-confession', {
+        body: {
+          ...normalizedPayload,
+          aiResponse: responseText ?? normalizedPayload.aiResponse,
+        },
+      });
 
-      if (dbError) throw dbError;
+      if (creationResponse.error) {
+        const rawError = creationResponse.error;
+        const errorStatus = isFunctionInvokeError(rawError) && typeof rawError.status === 'number'
+          ? rawError.status
+          : 400;
 
-      // Save mood if provided
-      if (mood && confessionData) {
-        await supabase.from('mood_entries').insert({
-          user_id: user.id,
-          confession_id: confessionData.id,
-          mood: mood.mood,
-          intensity: mood.intensity,
-        });
+        let messageKey: string | undefined;
+        let serverMessage = isFunctionInvokeError(rawError) && typeof rawError.message === 'string'
+          ? rawError.message
+          : undefined;
+
+        if (serverMessage) {
+          try {
+            const parsed = JSON.parse(serverMessage);
+            messageKey = parsed?.messageKey ?? messageKey;
+            serverMessage = parsed?.message || serverMessage;
+          } catch (parseError) {
+            console.warn('Failed to parse confession creation error payload:', parseError);
+          }
+        }
+
+        const responsePayload = creationResponse.data as { messageKey?: string; message?: string } | undefined;
+        if (!messageKey && typeof responsePayload?.messageKey === 'string') {
+          messageKey = responsePayload.messageKey;
+        }
+        if (!serverMessage && typeof responsePayload?.message === 'string') {
+          serverMessage = responsePayload.message;
+        }
+
+        const translationKey = messageKey?.replace(/\./g, '_');
+        const localizedMessage = translationKey && translationKey in t
+          ? t[translationKey as keyof typeof t] as string
+          : undefined;
+        const fallbackMessage = localizedMessage || serverMessage || t.error_submit;
+
+        if (errorStatus === 429 || messageKey === 'common.rate_limit') {
+          toast({
+            title: t.rate_limit_title || t.error_generic,
+            description: localizedMessage || t.common_rate_limit || serverMessage || t.error_submit,
+            variant: "destructive",
+          });
+        } else if (errorStatus === 403 || messageKey === 'auth.captcha_failed') {
+          setTurnstileError(true);
+          setCaptchaToken(null);
+          setCaptchaRenderKey((key) => key + 1);
+          toast({
+            title: t.error_generic,
+            description: localizedMessage || t.auth_captcha_failed || serverMessage || t.error_submit,
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: t.error_generic,
+            description: fallbackMessage,
+            variant: "destructive",
+          });
+        }
+
+        return;
+      }
+
+      const confessionData = creationResponse.data?.confession;
+
+      if (!confessionData) {
+        throw new Error('Confession creation failed');
       }
 
       // Increment confession count
       await incrementCount();
+
+      // Reset CAPTCHA state after a successful submission
+      setCaptchaToken(null);
+      setTurnstileError(false);
+      setCaptchaRenderKey((key) => key + 1);
 
       toast({
         title: t.success_sent,
@@ -426,6 +529,34 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
               <p className="text-sm text-foreground/90 leading-relaxed italic">
                 {aiResponse}
               </p>
+            </div>
+          )}
+
+          {env.features.confessionTurnstileRequired && (
+            <div className="space-y-2">
+              {turnstileError && (
+                <p className="text-xs text-destructive">{t.auth_captcha_failed || 'CAPTCHA failed, please try again.'}</p>
+              )}
+              <Turnstile
+                key={captchaRenderKey}
+                siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
+                onSuccess={(token) => {
+                  setCaptchaToken(token);
+                  setTurnstileError(false);
+                }}
+                onError={() => {
+                  setCaptchaToken(null);
+                  setTurnstileError(true);
+                }}
+                onExpire={() => {
+                  setCaptchaToken(null);
+                  setTurnstileError(true);
+                }}
+                options={{
+                  theme: 'auto',
+                  size: 'normal',
+                }}
+              />
             </div>
           )}
 

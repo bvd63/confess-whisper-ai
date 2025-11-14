@@ -8,8 +8,11 @@ const corsHeaders = {
 
 // Environment configuration
 const SESSION_MAX_PER_USER = 5;
+const SESSION_CREATION_WINDOW_MINUTES = 60;
+const SESSION_CREATION_MAX_PER_WINDOW = 5;
 const REFRESH_TTL_SHORT = 2 * 24 * 60 * 60 * 1000; // 2 days
 const REFRESH_TTL_LONG = 30 * 24 * 60 * 60 * 1000; // 30 days
+const REFRESH_MIN_ROTATION_INTERVAL = 60 * 1000; // 1 minute
 const FAILED_ATTEMPT_WINDOW = 15; // minutes
 const MAX_FAILED_ATTEMPTS = 5;
 const CAPTCHA_LOCKOUT_DURATION = 30; // minutes
@@ -18,6 +21,69 @@ const MAX_SIGNUP_ATTEMPTS = 5;
 
 // Strong password policy
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{}.,?:;|<>]).{10,}$/;
+
+interface RateLimitResponse {
+  allowed?: boolean;
+  remaining?: number;
+  retryAfter?: number;
+  resetAt?: string;
+  identifierType?: 'user' | 'ip';
+}
+
+interface RateLimitCheckResult {
+  allowed: boolean;
+  remaining?: number;
+  retryAfter?: number;
+  identifierType?: 'user' | 'ip';
+}
+
+async function enforceRateLimit(
+  client: ReturnType<typeof createClient>,
+  {
+    action,
+    userId,
+    ip,
+  }: {
+    action: string;
+    userId?: string | null;
+    ip?: string | null;
+  },
+): Promise<RateLimitCheckResult> {
+  if (!client) {
+    return { allowed: true };
+  }
+
+  if (!userId && !ip) {
+    return { allowed: true };
+  }
+
+  try {
+    const result = await client.functions.invoke<RateLimitResponse>('rate-limit', {
+      body: {
+        action,
+        userId: userId ?? undefined,
+        ip: ip ?? undefined,
+      },
+    });
+
+    if (!result.error && result.data && result.data.allowed === false) {
+      return {
+        allowed: false,
+        remaining: result.data.remaining,
+        retryAfter: result.data.retryAfter,
+        identifierType: result.data.identifierType,
+      };
+    }
+
+    if (result.error) {
+      console.warn(`[enhanced-auth] Rate limit error for ${action}`, result.error);
+    }
+  } catch (error) {
+    console.error(`[enhanced-auth] Rate limit invocation failed for ${action}`, error);
+  }
+
+  return { allowed: true };
+}
 
 interface VerifyCaptchaRequest {
   captchaToken: string;
@@ -34,7 +100,7 @@ interface SessionMetadata {
 interface AuthRequest {
   email: string;
   password?: string;
-  captchaToken: string;
+  captchaToken?: string;
   sessionMetadata?: SessionMetadata;
 }
 
@@ -117,6 +183,7 @@ serve(async (req) => {
                      req.headers.get('x-real-ip') || 
                      'unknown';
     const userAgent = req.headers.get('user-agent') || 'unknown';
+    const requestOrigin = req.headers.get('origin') || undefined;
 
     // Handle different auth actions
     switch (action) {
@@ -136,87 +203,225 @@ serve(async (req) => {
 
       case 'enhanced-login': {
         const { email, password, captchaToken, sessionMetadata }: AuthRequest = await req.json();
-        
-        // Check if CAPTCHA is required for this email
+        const normalizedEmail = email.toLowerCase().trim();
+        const metadataDeviceId = sessionMetadata?.deviceId?.trim() || 'unknown';
+        const metadataUserAgent = sessionMetadata?.userAgent || userAgent;
+        const metadataIp = sessionMetadata?.ipAddress || clientIp;
+        const stayConnectedPreference = sessionMetadata?.stayConnected ?? false;
+
+        const loginRateLimit = await enforceRateLimit(supabaseClient, {
+          action: 'auth_login',
+          userId: normalizedEmail,
+          ip: clientIp,
+        });
+
+        if (!loginRateLimit.allowed) {
+          await supabaseClient
+            .rpc('log_security_event', {
+              _user_id: null,
+              _event_type: 'login_rate_limited',
+              _event_data: {
+                email: normalizedEmail,
+                remaining: loginRateLimit.remaining ?? 0,
+                identifierType: loginRateLimit.identifierType ?? 'ip',
+              },
+              _ip_address: metadataIp,
+              _user_agent: metadataUserAgent,
+            })
+            .catch((err) => console.warn('[enhanced-auth] Failed to log login rate limit event', err));
+
+          const rateLimitHeaders = loginRateLimit.retryAfter
+            ? { 'Retry-After': loginRateLimit.retryAfter.toString() }
+            : {};
+
+          return new Response(
+            JSON.stringify({
+              error: 'RATE_LIMIT',
+              messageKey: 'common.rate_limit',
+              retryAfter: loginRateLimit.retryAfter,
+            }),
+            {
+              status: 429,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json', ...rateLimitHeaders },
+            }
+          );
+        }
+
+        const attemptWindowStartIso = new Date(Date.now() - FAILED_ATTEMPT_WINDOW * 60 * 1000).toISOString();
+
+        const [
+          { count: ipFailureCount },
+          { count: deviceFailureCount },
+          { count: comboFailureCount },
+        ] = await Promise.all([
+          supabaseClient
+            .from('failed_login_attempts')
+            .select('id', { count: 'exact', head: true })
+            .eq('ip_address', clientIp)
+            .gte('attempted_at', attemptWindowStartIso),
+          supabaseClient
+            .from('failed_login_attempts')
+            .select('id', { count: 'exact', head: true })
+            .eq('device_id', metadataDeviceId)
+            .gte('attempted_at', attemptWindowStartIso),
+          supabaseClient
+            .from('failed_login_attempts')
+            .select('id', { count: 'exact', head: true })
+            .eq('email', normalizedEmail)
+            .eq('ip_address', clientIp)
+            .eq('device_id', metadataDeviceId)
+            .gte('attempted_at', attemptWindowStartIso),
+        ]);
+
+        const combinedFailureCount = Math.max(
+          ipFailureCount ?? 0,
+          deviceFailureCount ?? 0,
+          comboFailureCount ?? 0,
+        );
+
+        if (combinedFailureCount >= MAX_FAILED_ATTEMPTS) {
+          await supabaseClient
+            .from('captcha_requirements')
+            .upsert({
+              email: normalizedEmail,
+              required_until: new Date(Date.now() + CAPTCHA_LOCKOUT_DURATION * 60 * 1000).toISOString(),
+              reason: 'rate_limit_vector',
+            }, { onConflict: 'email' });
+
+          return new Response(
+            JSON.stringify({
+              error: 'RATE_LIMIT',
+              messageKey: 'common.rate_limit',
+            }),
+            { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
         const { data: captchaRequired } = await supabaseClient
-          .rpc('is_captcha_required', { _email: email.toLowerCase() });
+          .rpc('is_captcha_required', { _email: normalizedEmail });
 
         if (captchaRequired) {
+          if (!captchaToken || typeof captchaToken !== 'string') {
+            return new Response(
+              JSON.stringify({
+                error: 'CAPTCHA_REQUIRED',
+                messageKey: 'auth.captcha_failed',
+              }),
+              { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+
           const captchaResult = await verifyCaptcha(captchaToken, clientIp);
           if (!captchaResult.success) {
             return new Response(
-              JSON.stringify({ 
-                error: 'CAPTCHA_FAILED', 
-                messageKey: captchaResult.error 
+              JSON.stringify({
+                error: 'CAPTCHA_FAILED',
+                messageKey: captchaResult.error,
               }),
               { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
             );
           }
         }
 
-        // Attempt sign in
         const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
-          email,
+          email: normalizedEmail,
           password: password!,
         });
 
         if (authError) {
-          // Log failed attempt
           await supabaseClient
             .from('failed_login_attempts')
             .insert({
-              email: email.toLowerCase(),
+              email: normalizedEmail,
               ip_address: clientIp,
               user_agent: userAgent,
+              device_id: metadataDeviceId,
               failure_reason: authError.message,
+              attempted_at: new Date().toISOString(),
             });
 
-          // Check if we need to require CAPTCHA
-          const { data: failureCount } = await supabaseClient
-            .rpc('get_failed_login_count', { _email: email.toLowerCase(), _minutes: FAILED_ATTEMPT_WINDOW });
+          const { data: emailFailureCount } = await supabaseClient
+            .rpc('get_failed_login_count', { _email: normalizedEmail, _minutes: FAILED_ATTEMPT_WINDOW });
 
-          if (failureCount && failureCount >= MAX_FAILED_ATTEMPTS) {
+          const [
+            { count: updatedIpFailures },
+            { count: updatedDeviceFailures },
+            { count: updatedComboFailures },
+          ] = await Promise.all([
+            supabaseClient
+              .from('failed_login_attempts')
+              .select('id', { count: 'exact', head: true })
+              .eq('ip_address', clientIp)
+              .gte('attempted_at', attemptWindowStartIso),
+            supabaseClient
+              .from('failed_login_attempts')
+              .select('id', { count: 'exact', head: true })
+              .eq('device_id', metadataDeviceId)
+              .gte('attempted_at', attemptWindowStartIso),
+            supabaseClient
+              .from('failed_login_attempts')
+              .select('id', { count: 'exact', head: true })
+              .eq('email', normalizedEmail)
+              .eq('ip_address', clientIp)
+              .eq('device_id', metadataDeviceId)
+              .gte('attempted_at', attemptWindowStartIso),
+          ]);
+
+          const exceededThreshold = [
+            emailFailureCount ?? 0,
+            updatedIpFailures ?? 0,
+            updatedDeviceFailures ?? 0,
+            updatedComboFailures ?? 0,
+          ].some((count) => count >= MAX_FAILED_ATTEMPTS);
+
+          if (exceededThreshold) {
             await supabaseClient
               .from('captcha_requirements')
               .upsert({
-                email: email.toLowerCase(),
+                email: normalizedEmail,
                 required_until: new Date(Date.now() + CAPTCHA_LOCKOUT_DURATION * 60 * 1000).toISOString(),
                 reason: 'multiple_failed_attempts',
               }, { onConflict: 'email' });
 
             return new Response(
-              JSON.stringify({ 
-                error: 'ACCOUNT_LOCKED', 
-                messageKey: 'auth.account_locked' 
+              JSON.stringify({
+                error: 'ACCOUNT_LOCKED',
+                messageKey: 'auth.account_locked',
               }),
               { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
             );
           }
 
           return new Response(
-            JSON.stringify({ 
-              error: 'INVALID_CREDENTIALS', 
-              messageKey: 'auth.invalid_credentials' 
+            JSON.stringify({
+              error: 'INVALID_CREDENTIALS',
+              messageKey: 'auth.invalid_credentials',
             }),
             { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
 
-        // Create session tracking
-        const refreshToken = generateRefreshToken();
-        const tokenHash = hashToken(refreshToken);
-        const stayConnected = sessionMetadata?.stayConnected || false;
-        const expiresAt = new Date(Date.now() + (stayConnected ? REFRESH_TTL_LONG : REFRESH_TTL_SHORT));
+        if (!authData?.user || !authData.session) {
+          return new Response(
+            JSON.stringify({
+              error: 'INVALID_RESPONSE',
+              messageKey: 'common.something_went_wrong',
+            }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
 
-        // Check session limit
+        const refreshToken = generateRefreshToken();
+        const tokenHash = await hashToken(refreshToken);
+        const sessionExpiresAt = new Date(Date.now() + (stayConnectedPreference ? REFRESH_TTL_LONG : REFRESH_TTL_SHORT));
+
         const { count: sessionCount } = await supabaseClient
           .from('auth_sessions')
-          .select('*', { count: 'exact', head: true })
+          .select('id', { count: 'exact', head: true })
           .eq('user_id', authData.user.id)
           .is('revoked_at', null);
 
         if (sessionCount && sessionCount >= SESSION_MAX_PER_USER) {
-          // Revoke oldest session
           const { data: oldestSession } = await supabaseClient
             .from('auth_sessions')
             .select('id')
@@ -234,35 +439,210 @@ serve(async (req) => {
           }
         }
 
-        // Create new session
+        const sessionWindowStartIso = new Date(Date.now() - SESSION_CREATION_WINDOW_MINUTES * 60 * 1000).toISOString();
+        const { count: recentSessionCount } = await supabaseClient
+          .from('auth_sessions')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', authData.user.id)
+          .gte('created_at', sessionWindowStartIso);
+
+        if ((recentSessionCount ?? 0) >= SESSION_CREATION_MAX_PER_WINDOW) {
+          await supabaseClient
+            .rpc('log_security_event', {
+              _user_id: authData.user.id,
+              _event_type: 'session_rate_limited',
+              _event_data: { windowMinutes: SESSION_CREATION_WINDOW_MINUTES },
+              _ip_address: metadataIp,
+              _user_agent: metadataUserAgent,
+            });
+
+          return new Response(
+            JSON.stringify({
+              error: 'RATE_LIMIT',
+              messageKey: 'common.rate_limit',
+            }),
+            { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const now = new Date();
         await supabaseClient
           .from('auth_sessions')
           .insert({
             user_id: authData.user.id,
             token_hash: tokenHash,
-            device_id: sessionMetadata?.deviceId,
-            user_agent: sessionMetadata?.userAgent || userAgent,
-            ip_address: sessionMetadata?.ipAddress || clientIp,
-            expires_at: expiresAt.toISOString(),
-            stay_connected: stayConnected,
+            device_id: metadataDeviceId,
+            user_agent: metadataUserAgent,
+            ip_address: metadataIp,
+            created_at: now.toISOString(),
+            expires_at: sessionExpiresAt.toISOString(),
+            last_refreshed_at: now.toISOString(),
+            stay_connected: stayConnectedPreference,
           });
 
-        // Log security event
         await supabaseClient
           .rpc('log_security_event', {
             _user_id: authData.user.id,
             _event_type: 'login_success',
-            _event_data: { deviceId: sessionMetadata?.deviceId },
-            _ip_address: clientIp,
-            _user_agent: userAgent,
+            _event_data: { deviceId: metadataDeviceId },
+            _ip_address: metadataIp,
+            _user_agent: metadataUserAgent,
           });
 
         return new Response(
-          JSON.stringify({ 
+          JSON.stringify({
             user: authData.user,
             session: authData.session,
             refreshToken,
-            expiresAt: expiresAt.toISOString(),
+            expiresAt: sessionExpiresAt.toISOString(),
+            stayConnected: stayConnectedPreference,
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      case 'refresh-session': {
+        const { refreshToken, sessionMetadata }: { refreshToken?: string; sessionMetadata?: SessionMetadata } = await req.json();
+
+        if (!refreshToken || typeof refreshToken !== 'string') {
+          return new Response(
+            JSON.stringify({ error: 'INVALID_REQUEST', messageKey: 'common.something_went_wrong' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const tokenHash = await hashToken(refreshToken);
+        const { data: sessionRecord } = await supabaseClient
+          .from('auth_sessions')
+          .select('id, user_id, device_id, user_agent, ip_address, expires_at, revoked_at, last_refreshed_at, stay_connected')
+          .eq('token_hash', tokenHash)
+          .limit(1)
+          .single();
+
+        if (!sessionRecord || sessionRecord.revoked_at) {
+          return new Response(
+            JSON.stringify({ error: 'INVALID_REFRESH_TOKEN', messageKey: 'common.unauthorized' }),
+            { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const refreshRateLimit = await enforceRateLimit(supabaseClient, {
+          action: 'auth_refresh',
+          userId: sessionRecord.user_id,
+          ip: sessionMetadata?.ipAddress || clientIp,
+        });
+
+        if (!refreshRateLimit.allowed) {
+          await supabaseClient
+            .rpc('log_security_event', {
+              _user_id: sessionRecord.user_id,
+              _event_type: 'refresh_rate_limited',
+              _event_data: {
+                sessionId: sessionRecord.id,
+                remaining: refreshRateLimit.remaining ?? 0,
+                identifierType: refreshRateLimit.identifierType ?? 'ip',
+              },
+              _ip_address: sessionMetadata?.ipAddress || clientIp,
+              _user_agent: sessionMetadata?.userAgent || userAgent,
+            })
+            .catch((err) => console.warn('[enhanced-auth] Failed to log refresh rate limit event', err));
+
+          const rateLimitHeaders = refreshRateLimit.retryAfter
+            ? { 'Retry-After': refreshRateLimit.retryAfter.toString() }
+            : {};
+
+          return new Response(
+            JSON.stringify({
+              error: 'RATE_LIMIT',
+              messageKey: 'common.rate_limit',
+              retryAfter: refreshRateLimit.retryAfter,
+            }),
+            {
+              status: 429,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json', ...rateLimitHeaders },
+            }
+          );
+        }
+
+        const now = new Date();
+        const sessionExpiry = new Date(sessionRecord.expires_at);
+
+        if (sessionExpiry.getTime() <= now.getTime()) {
+          await supabaseClient
+            .from('auth_sessions')
+            .update({ revoked_at: now.toISOString() })
+            .eq('id', sessionRecord.id);
+
+          await supabaseClient
+            .rpc('log_security_event', {
+              _user_id: sessionRecord.user_id,
+              _event_type: 'refresh_token_expired',
+              _event_data: { sessionId: sessionRecord.id },
+              _ip_address: sessionMetadata?.ipAddress || clientIp,
+              _user_agent: sessionMetadata?.userAgent || userAgent,
+            });
+
+          return new Response(
+            JSON.stringify({ error: 'REFRESH_TOKEN_EXPIRED', messageKey: 'auth.session_revoked' }),
+            { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        if (sessionRecord.last_refreshed_at) {
+          const lastRefreshedAt = new Date(sessionRecord.last_refreshed_at);
+          if (now.getTime() - lastRefreshedAt.getTime() < REFRESH_MIN_ROTATION_INTERVAL) {
+            return new Response(
+              JSON.stringify({ error: 'RATE_LIMIT', messageKey: 'common.rate_limit' }),
+              { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+        }
+
+        const authHeader = req.headers.get('Authorization');
+        if (authHeader) {
+          const bearerToken = authHeader.replace('Bearer ', '');
+          const { data: { user: authUser } = { user: null } } = await supabaseClient.auth.getUser(bearerToken);
+          if (!authUser || authUser.id !== sessionRecord.user_id) {
+            return new Response(
+              JSON.stringify({ error: 'UNAUTHORIZED', messageKey: 'common.unauthorized' }),
+              { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+        }
+
+        const stayConnected = sessionMetadata?.stayConnected ?? sessionRecord.stay_connected ?? false;
+        const newRefreshToken = generateRefreshToken();
+        const newTokenHash = await hashToken(newRefreshToken);
+        const newExpiryDate = new Date(now.getTime() + (stayConnected ? REFRESH_TTL_LONG : REFRESH_TTL_SHORT));
+
+        await supabaseClient
+          .from('auth_sessions')
+          .update({
+            token_hash: newTokenHash,
+            expires_at: newExpiryDate.toISOString(),
+            last_refreshed_at: now.toISOString(),
+            stay_connected: stayConnected,
+            device_id: sessionMetadata?.deviceId || sessionRecord.device_id,
+            user_agent: sessionMetadata?.userAgent || sessionRecord.user_agent,
+            ip_address: sessionMetadata?.ipAddress || sessionRecord.ip_address,
+          })
+          .eq('id', sessionRecord.id);
+
+        await supabaseClient
+          .rpc('log_security_event', {
+            _user_id: sessionRecord.user_id,
+            _event_type: 'refresh_token_rotated',
+            _event_data: { sessionId: sessionRecord.id },
+            _ip_address: sessionMetadata?.ipAddress || clientIp,
+            _user_agent: sessionMetadata?.userAgent || userAgent,
+          });
+
+        return new Response(
+          JSON.stringify({
+            refreshToken: newRefreshToken,
+            expiresAt: newExpiryDate.toISOString(),
+            stayConnected,
+            sessionId: sessionRecord.id,
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
@@ -273,6 +653,44 @@ serve(async (req) => {
         
         // Normalize email
         const normalizedEmail = email.toLowerCase().trim();
+
+        const signupRateLimit = await enforceRateLimit(supabaseClient, {
+          action: 'auth_signup',
+          userId: normalizedEmail,
+          ip: clientIp,
+        });
+
+        if (!signupRateLimit.allowed) {
+          await supabaseClient
+            .rpc('log_security_event', {
+              _user_id: null,
+              _event_type: 'signup_rate_limited',
+              _event_data: {
+                email: normalizedEmail,
+                remaining: signupRateLimit.remaining ?? 0,
+                identifierType: signupRateLimit.identifierType ?? 'ip',
+              },
+              _ip_address: clientIp,
+              _user_agent: userAgent,
+            })
+            .catch((err) => console.warn('[enhanced-auth] Failed to log signup rate limit event', err));
+
+          const rateLimitHeaders = signupRateLimit.retryAfter
+            ? { 'Retry-After': signupRateLimit.retryAfter.toString() }
+            : {};
+
+          return new Response(
+            JSON.stringify({
+              error: 'RATE_LIMIT',
+              messageKey: 'common.rate_limit',
+              retryAfter: signupRateLimit.retryAfter,
+            }),
+            {
+              status: 429,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json', ...rateLimitHeaders },
+            }
+          );
+        }
         
         // Validate password strength
         const passwordValidation = validatePasswordStrength(password);
@@ -286,6 +704,16 @@ serve(async (req) => {
           );
         }
         
+        if (!captchaToken || typeof captchaToken !== 'string') {
+          return new Response(
+            JSON.stringify({
+              error: 'CAPTCHA_REQUIRED',
+              messageKey: 'auth.captcha_failed',
+            }),
+            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
         // Verify CAPTCHA
         const captchaResult = await verifyCaptcha(captchaToken, clientIp);
         if (!captchaResult.success) {
@@ -297,6 +725,94 @@ serve(async (req) => {
             { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
+              case 'request-password-reset': {
+                const { email, captchaToken }: { email?: string; captchaToken?: string } = await req.json();
+
+                const normalizedEmail = email?.toLowerCase().trim();
+                if (!normalizedEmail) {
+                  return new Response(
+                    JSON.stringify({ error: 'INVALID_REQUEST', messageKey: 'common.invalid_request' }),
+                    { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+                  );
+                }
+
+                if (!captchaToken || typeof captchaToken !== 'string') {
+                  return new Response(
+                    JSON.stringify({ error: 'CAPTCHA_REQUIRED', messageKey: 'auth.captcha_failed' }),
+                    { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+                  );
+                }
+
+                const passwordResetRateLimit = await enforceRateLimit(supabaseClient, {
+                  action: 'auth_password_reset',
+                  userId: normalizedEmail,
+                  ip: clientIp,
+                });
+
+                if (!passwordResetRateLimit.allowed) {
+                  await supabaseClient
+                    .rpc('log_security_event', {
+                      _user_id: null,
+                      _event_type: 'password_reset_rate_limited',
+                      _event_data: {
+                        email: normalizedEmail,
+                        remaining: passwordResetRateLimit.remaining ?? 0,
+                        identifierType: passwordResetRateLimit.identifierType ?? 'ip',
+                      },
+                      _ip_address: clientIp,
+                      _user_agent: userAgent,
+                    })
+                    .catch((err) => console.warn('[enhanced-auth] Failed to log password reset rate limit event', err));
+
+                  const rateLimitHeaders = passwordResetRateLimit.retryAfter
+                    ? { 'Retry-After': passwordResetRateLimit.retryAfter.toString() }
+                    : {};
+
+                  return new Response(
+                    JSON.stringify({
+                      error: 'RATE_LIMIT',
+                      messageKey: 'common.rate_limit',
+                      retryAfter: passwordResetRateLimit.retryAfter,
+                    }),
+                    {
+                      status: 429,
+                      headers: { ...corsHeaders, 'Content-Type': 'application/json', ...rateLimitHeaders },
+                    }
+                  );
+                }
+
+                const captchaResult = await verifyCaptcha(captchaToken, clientIp);
+                if (!captchaResult.success) {
+                  return new Response(
+                    JSON.stringify({ error: 'CAPTCHA_FAILED', messageKey: captchaResult.error }),
+                    { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+                  );
+                }
+
+                const redirectTarget = Deno.env.get('PASSWORD_RESET_REDIRECT_URL')
+                  || (requestOrigin ? `${requestOrigin.replace(/\/$/, '')}/reset-password` : undefined);
+
+                try {
+                  await supabaseClient.auth.resetPasswordForEmail(normalizedEmail, redirectTarget ? { redirectTo: redirectTarget } : undefined);
+                } catch (error) {
+                  console.error('[enhanced-auth] Password reset request failed', error);
+                }
+
+                await supabaseClient
+                  .rpc('log_security_event', {
+                    _user_id: null,
+                    _event_type: 'password_reset_requested',
+                    _event_data: { email: normalizedEmail },
+                    _ip_address: clientIp,
+                    _user_agent: userAgent,
+                  })
+                  .catch((err) => console.warn('[enhanced-auth] Failed to log password reset request', err));
+
+                return new Response(
+                  JSON.stringify({ success: true, messageKey: 'auth.forgot_password_success' }),
+                  { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+                );
+              }
         
         // Check rate limiting for signup attempts from this IP
         const { data: recentSignups } = await supabaseClient
@@ -440,7 +956,7 @@ serve(async (req) => {
 
         const { data: sessions } = await supabaseClient
           .from('auth_sessions')
-          .select('id, device_id, user_agent, ip_address, created_at, expires_at, last_refreshed_at')
+          .select('id, device_id, user_agent, ip_address, created_at, expires_at, last_refreshed_at, stay_connected')
           .eq('user_id', user.id)
           .is('revoked_at', null)
           .order('created_at', { ascending: false });

@@ -50,18 +50,39 @@ npm run test
 
 ## 🔧 Environment Setup (5 minutes)
 
-### Required for Stripe Integration
-
-Create a `.env` file in the root:
+1. Copy the example file:
 
 ```bash
-# Stripe Configuration (get from dashboard.stripe.com)
-VITE_STRIPE_PRICE_VIP_MONTHLY=price_xxxxxxxxxxxxx
-VITE_STRIPE_PRICE_VIP_YEARLY=price_xxxxxxxxxxxxx
+cp .env.example .env.local
+```
 
-# Supabase (already configured via Lovable Cloud)
-VITE_SUPABASE_URL=https://fxwvlbopvnjjjrzshqvw.supabase.co
-VITE_SUPABASE_ANON_KEY=[already-configured]
+2. Fill in required values in `.env.local`:
+
+```bash
+# Supabase (required)
+VITE_SUPABASE_URL="https://your-project.supabase.co"
+VITE_SUPABASE_PUBLISHABLE_KEY="public-anon-key"
+
+# Stripe Price IDs (required for VIP checkout)
+VITE_STRIPE_PRICE_VIP_MONTH_ID="price_xxxxxxxxxxxxx"
+VITE_STRIPE_PRICE_VIP_YEAR_ID="price_xxxxxxxxxxxxx"
+
+# Feature flags (tweak per environment)
+VITE_FEATURE_PASSWORDLESS="false"
+VITE_FEATURE_OFFLINE_QUEUE="true"
+VITE_FEATURE_BACKGROUND_QUEUE="false"
+VITE_FEATURE_PWA_PROMPT="true"
+VITE_FEATURE_PROFILE_MINI_ANALYTICS="true"
+VITE_CONFESSION_TURNSTILE_REQUIRED="true"
+VITE_WEB_SHARE_ENABLED="true"
+```
+
+3. Platform secrets (never commit): configure via deployment provider
+
+```
+TURNSTILE_SECRET=...
+STRIPE_WEBHOOK_SECRET=...
+SUPABASE_SERVICE_ROLE_KEY=...
 ```
 
 **Where to get Stripe Price IDs:**

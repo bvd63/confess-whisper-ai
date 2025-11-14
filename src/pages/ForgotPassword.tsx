@@ -10,6 +10,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { FunctionsHttpError } from "@supabase/supabase-js";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
@@ -47,16 +48,53 @@ export default function ForgotPassword() {
     setError("");
 
     try {
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${window.location.origin}/reset-password`,
+      const { data, error } = await supabase.functions.invoke("enhanced-auth?action=request-password-reset", {
+        body: {
+          email: email.trim(),
+          captchaToken,
+        },
       });
 
-      if (resetError) throw resetError;
+      if (error) {
+        let errorMessage = t.auth_error_generic;
+        if (error instanceof FunctionsHttpError && error.context?.response) {
+          try {
+            const details = await error.context.response.json();
+            const messageKey = details?.messageKey as string | undefined;
+            if (messageKey) {
+              const translationKey = messageKey.replace(/\./g, "_");
+              errorMessage = (t[translationKey as keyof typeof t] as string) || errorMessage;
+            } else if (details?.error === "RATE_LIMIT") {
+              errorMessage = t.common_rate_limit;
+            }
+          } catch (parseError) {
+            console.warn("Failed to parse password reset error", parseError);
+          }
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        setError(errorMessage);
+        if (error instanceof FunctionsHttpError && error.status === 403) {
+          setCaptchaToken("");
+        }
+        return;
+      }
+
+      if (data?.error) {
+        const translationKey = data.messageKey?.replace(/\./g, "_");
+        setError(
+          translationKey && (t[translationKey as keyof typeof t] as string)
+            ? (t[translationKey as keyof typeof t] as string)
+            : t.auth_error_generic
+        );
+        return;
+      }
 
       setSuccess(true);
+      setCaptchaToken("");
     } catch (err: any) {
-      // Always show generic message for security (no user enumeration)
-      setSuccess(true);
+      console.error("Password reset request failed", err);
+      setError(err.message || t.auth_error_generic);
     } finally {
       setIsLoading(false);
     }

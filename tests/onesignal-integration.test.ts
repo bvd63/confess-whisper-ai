@@ -2,13 +2,27 @@
  * OneSignal Push Notifications Tests
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { 
   initializeOneSignal, 
   requestNotificationPermission,
   isPushEnabled,
-  setOneSignalUserId 
+  setOneSignalUserId,
+  sendOneSignalTag,
+  getOneSignalPlayerId,
+  getNotificationPermission,
+  __resetOneSignalState
 } from '@/services/onesignal';
+
+beforeEach(() => {
+  __resetOneSignalState();
+  vi.unstubAllEnvs();
+  vi.stubEnv('VITE_ONESIGNAL_APP_ID', 'test-app-id');
+});
+
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 
 describe('OneSignal Integration', () => {
   beforeEach(() => {
@@ -55,7 +69,7 @@ describe('OneSignal Integration', () => {
   });
 
   it('should handle initialization failure gracefully', async () => {
-    global.window.OneSignal.init = vi.fn().mockRejectedValue(new Error('Init failed'));
+    (global.window as any).OneSignal.init = vi.fn().mockRejectedValue(new Error('Init failed'));
     
     const result = await initializeOneSignal();
     expect(result).toBe(false);
@@ -83,17 +97,17 @@ describe('OneSignal User Tracking', () => {
 
   it('should link user ID to OneSignal', async () => {
     await setOneSignalUserId('user-123');
-    expect(global.window.OneSignal.login).toHaveBeenCalledWith('user-123');
+    expect((global.window as any).OneSignal.login).toHaveBeenCalledWith('user-123');
   });
 
   it('should send tags for user segmentation', async () => {
-    const { sendOneSignalTag } = await import('@/services/onesignal');
+    await initializeOneSignal();
     await sendOneSignalTag('subscription_tier', 'vip');
-    expect(global.window.OneSignal.User.addTag).toHaveBeenCalledWith('subscription_tier', 'vip');
+    expect((global.window as any).OneSignal.User.addTag).toHaveBeenCalledWith('subscription_tier', 'vip');
   });
 
   it('should get player ID', async () => {
-    const { getOneSignalPlayerId } = await import('@/services/onesignal');
+    await initializeOneSignal();
     const playerId = await getOneSignalPlayerId();
     expect(playerId).toBe('test-player-id-123');
   });
@@ -101,9 +115,8 @@ describe('OneSignal User Tracking', () => {
 
 describe('OneSignal Notification Preferences', () => {
   it('should check notification permission status', () => {
-    const { getNotificationPermission } = require('@/services/onesignal');
-    
-    global.window = { Notification: { permission: 'granted' } } as any;
+    (global as any).Notification = { permission: 'granted' };
+    global.window = { Notification: (global as any).Notification } as any;
     const permission = getNotificationPermission();
     expect(['granted', 'denied', 'default']).toContain(permission);
   });

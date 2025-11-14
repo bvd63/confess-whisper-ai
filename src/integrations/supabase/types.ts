@@ -970,6 +970,7 @@ export type Database = {
           failure_reason: string | null
           id: string
           ip_address: string | null
+          device_id: string | null
           user_agent: string | null
         }
         Insert: {
@@ -979,6 +980,7 @@ export type Database = {
           failure_reason?: string | null
           id?: string
           ip_address?: string | null
+          device_id?: string | null
           user_agent?: string | null
         }
         Update: {
@@ -988,6 +990,7 @@ export type Database = {
           failure_reason?: string | null
           id?: string
           ip_address?: string | null
+          device_id?: string | null
           user_agent?: string | null
         }
         Relationships: []

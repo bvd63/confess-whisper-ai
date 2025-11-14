@@ -1,9 +1,10 @@
-import { render, RenderOptions } from '@testing-library/react';
-import { ReactElement, ReactNode } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import { render, type RenderOptions } from '@testing-library/react';
+import { type ReactElement, type ReactNode } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { LanguageProvider } from '@/contexts/LanguageContext';
-import { ConfirmProvider } from '@/contexts/ConfirmContext';
+import { LanguageProvider } from '../../src/contexts/LanguageContext';
+import { ConfirmProvider } from '../../src/contexts/ConfirmContext';
 import { vi } from 'vitest';
 
 // Type for chainable Supabase query mock
@@ -37,7 +38,106 @@ type ChainableMock = {
 
 // Complete Supabase mock for subscription tests
 vi.mock('@/integrations/supabase/client', () => {
-  const mockFunctionsInvoke = vi.fn().mockResolvedValue({ data: null, error: null });
+  const mockFunctionsInvoke = vi.fn(async (name: string) => {
+    if (name === 'ai-moderation') {
+      return { data: { is_safe: true }, error: null };
+    }
+
+    if (name === 'create-confession') {
+      return {
+        data: {
+          confession: {
+            id: 'test-confession',
+            content: 'safe confession',
+            category: 'other',
+            created_at: new Date().toISOString(),
+          },
+          rateLimit: null,
+        },
+        error: null,
+      };
+    }
+
+    if (name === 'report-confession') {
+      return {
+        data: {
+          success: true,
+          messageKey: 'report.success',
+        },
+        error: null,
+      };
+    }
+
+    if (name.startsWith('enhanced-auth')) {
+      const params = name.split('?')[1] ?? '';
+      const searchParams = new URLSearchParams(params);
+      const action = searchParams.get('action');
+
+      switch (action) {
+        case 'list-sessions':
+          return {
+            data: {
+              sessions: [],
+            },
+            error: null,
+          };
+        case 'refresh-session':
+          return {
+            data: {
+              refreshToken: 'mock-refresh-token-2',
+              expiresAt: new Date(Date.now() + 3600 * 1000).toISOString(),
+              stayConnected: false,
+              sessionId: 'session-mock',
+            },
+            error: null,
+          };
+        case 'revoke-session':
+          return {
+            data: {
+              success: true,
+              messageKey: 'auth.session_revoked',
+            },
+            error: null,
+          };
+        case 'revoke-all-sessions':
+          return {
+            data: {
+              success: true,
+              messageKey: 'auth.all_sessions_revoked',
+            },
+            error: null,
+          };
+        case 'enhanced-login':
+          return {
+            data: {
+              user: {
+                id: 'test-user',
+                email: 'test@example.com',
+              },
+              session: {
+                access_token: 'mock-access-token',
+                refresh_token: 'mock-refresh-token',
+              },
+              refreshToken: 'mock-refresh-token',
+              expiresAt: new Date(Date.now() + 3600 * 1000).toISOString(),
+              stayConnected: false,
+            },
+            error: null,
+          };
+        case 'check-captcha-required':
+          return {
+            data: {
+              required: false,
+            },
+            error: null,
+          };
+        default:
+          return { data: null, error: null };
+      }
+    }
+
+    return { data: null, error: null };
+  });
   
   // Create mock result object
   const mockResult = {
@@ -97,7 +197,18 @@ vi.mock('@/integrations/supabase/client', () => {
           error: null
         }),
         getSession: vi.fn().mockResolvedValue({
-          data: { session: { user: { id: 'test-user' } } },
+          data: { session: { user: { id: 'test-user' }, access_token: 'mock-access-token' } },
+          error: null
+        }),
+        refreshSession: vi.fn().mockResolvedValue({
+          data: { session: null },
+          error: null
+        }),
+        setSession: vi.fn().mockResolvedValue({
+          data: { session: { access_token: 'mock-access-token', refresh_token: 'mock-refresh-token' } },
+          error: null
+        }),
+        signOut: vi.fn().mockResolvedValue({
           error: null
         }),
         onAuthStateChange: vi.fn(() => ({
@@ -132,7 +243,7 @@ vi.mock('@/integrations/supabase/client', () => {
       })),
       removeChannel: vi.fn()
     }
-  }
+  };
 });
 
 const createTestQueryClient = () =>
