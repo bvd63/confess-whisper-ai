@@ -6,7 +6,7 @@ import { GradientText } from "@/components/GradientText";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, MessageSquare, ArrowLeft, Settings, Lock, Globe } from "lucide-react";
+import { Users, MessageSquare, ArrowLeft, Settings, Lock, Globe, Plus } from "lucide-react";
 import { useCommunityMembers } from "@/hooks/useCommunities";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -141,11 +141,11 @@ const CommunityDetail = () => {
             </div>
             <div className="flex gap-2">
             <Button
-              variant={isMember ? "outline" : "default"}
+              variant={isMember ? "outline" : isPending ? "ghost" : "default"}
               onClick={() => isMember ? leaveCommunity() : joinCommunity(community.is_private || false)}
-              disabled={isJoining || isLeaving}
+              disabled={isJoining || isLeaving || isPending}
             >
-              {isMember ? t.communities_leave : t.communities_join}
+              {isPending ? t.communities_pending : isMember ? t.communities_leave : community.is_private ? t.communities_request_join : t.communities_join}
             </Button>
               {(isAdmin || isModerator) && (
                 <Button 
@@ -177,7 +177,18 @@ const CommunityDetail = () => {
 
         {/* Confessions */}
         <div className="space-y-3 sm:space-y-4">
-          <h2 className="text-base sm:text-lg md:text-xl font-semibold">{t.communities_recent}</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-base sm:text-lg md:text-xl font-semibold">{t.communities_recent}</h2>
+            {isMember && (
+              <Button 
+                size="sm"
+                onClick={() => navigate('/compose', { state: { communityId: id } })}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                {t.new_confession}
+              </Button>
+            )}
+          </div>
           {!isMember && community?.is_private ? (
             <AnimatedCard glass className="p-6 sm:p-8 text-center">
               <Lock className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-muted-foreground" />
@@ -217,12 +228,14 @@ const CommunityDetail = () => {
               <p className="text-sm sm:text-base text-muted-foreground">
                 {t.communities_no_posts}
               </p>
-              <Button 
-                onClick={() => navigate('/compose', { state: { communityId: id } })} 
-                className="mt-4"
-              >
-                {t.communities_create_confession}
-              </Button>
+              {isMember && (
+                <Button 
+                  onClick={() => navigate('/compose', { state: { communityId: id } })} 
+                  className="mt-4"
+                >
+                  {t.communities_create_confession}
+                </Button>
+              )}
             </AnimatedCard>
           )}
         </div>
