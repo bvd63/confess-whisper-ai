@@ -6,6 +6,7 @@ import { Gift, Copy, Users, CheckCircle, Coins } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { logError } from "@/lib/logger";
 
 const ReferralCard = () => {
   const [referralCode, setReferralCode] = useState<string>("");
@@ -48,7 +49,7 @@ const ReferralCard = () => {
         setTotalReferrals(profile.total_referrals || 0);
       }
     } catch (error) {
-      console.error('Error loading referral data:', error);
+      logError('Error loading referral data', error as Error);
     } finally {
       setIsLoading(false);
     }
