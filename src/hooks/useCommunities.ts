@@ -53,6 +53,7 @@ export const useCommunities = (category?: string) => {
           community_id: data.id,
           user_id: user.id,
           role: 'admin',
+          status: 'active',
         });
 
       return data;
