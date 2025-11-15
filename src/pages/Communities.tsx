@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AppLayout from "@/components/AppLayout";
 import { GradientText } from "@/components/GradientText";
 
@@ -16,7 +16,7 @@ import { LoadingQuotes } from "@/components/LoadingQuotes";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 const Communities = () => {
@@ -27,6 +27,7 @@ const Communities = () => {
   const { toast } = useToast();
   const { t } = useLanguage();
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
   
   // Fetch current user
   const { data: userData } = useQuery({
@@ -52,6 +53,28 @@ const Communities = () => {
     },
     enabled: !!userData,
   });
+
+  // Real-time subscription for communities list
+  useEffect(() => {
+    const channel = supabase
+      .channel('communities-list')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'communities',
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['communities'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   const [newCommunity, setNewCommunity] = useState({
     name: "",

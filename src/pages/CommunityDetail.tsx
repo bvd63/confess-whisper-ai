@@ -13,15 +13,17 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { LoadingQuotes } from "@/components/LoadingQuotes";
 import ConfessionCard from "@/components/ConfessionCard";
 import { AnimatedCard } from "@/components/AnimatedCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import VirtualizedConfessions from "@/components/VirtualizedConfessions";
 import { CommunityManagement } from "@/components/CommunityManagement";
+import { useQueryClient } from "@tanstack/react-query";
 
 const CommunityDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   
   const { user } = useCurrentUser();
   const { membership, isMember, isPending, isAdmin, isModerator, joinCommunity, leaveCommunity, isJoining, isLeaving } = 
@@ -63,6 +65,57 @@ const CommunityDetail = () => {
     },
     enabled: !!id && (!community?.is_private || isMember),
   });
+
+  // Real-time subscription for new confessions in this community
+  useEffect(() => {
+    if (!id) return;
+
+    const channel = supabase
+      .channel(`community-confessions-${id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'confessions',
+          filter: `community_id=eq.${id}`,
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['community-confessions', id] });
+          queryClient.invalidateQueries({ queryKey: ['community', id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [id, queryClient]);
+
+  // Real-time subscription for community updates (member count, etc)
+  useEffect(() => {
+    if (!id) return;
+
+    const channel = supabase
+      .channel(`community-${id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'communities',
+          filter: `id=eq.${id}`,
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['community', id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [id, queryClient]);
 
   if (loadingCommunity) {
     return (

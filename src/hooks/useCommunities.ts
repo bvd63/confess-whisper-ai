@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
 
 export const useCommunities = (category?: string) => {
   const { toast } = useToast();
@@ -100,6 +101,34 @@ export const useCommunityMembers = (communityId: string) => {
     },
     enabled: !!communityId,
   });
+
+  // Real-time subscription for member changes
+  useEffect(() => {
+    if (!communityId) return;
+
+    const channel = supabase
+      .channel(`community-members-${communityId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'community_members',
+          filter: `community_id=eq.${communityId}`,
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['community-members', communityId] });
+          queryClient.invalidateQueries({ queryKey: ['community-membership', communityId] });
+          queryClient.invalidateQueries({ queryKey: ['community-pending', communityId] });
+          queryClient.invalidateQueries({ queryKey: ['communities'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [communityId, queryClient]);
 
   const { data: membership } = useQuery({
     queryKey: ['community-membership', communityId],
