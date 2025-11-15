@@ -76,7 +76,7 @@ export const useCommunities = (category?: string) => {
   return {
     communities,
     isLoading,
-    createCommunity: createCommunity.mutate,
+    createCommunity: createCommunity.mutateAsync,
     isCreating: createCommunity.isPending,
   };
 };
