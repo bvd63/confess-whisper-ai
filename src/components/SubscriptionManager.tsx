@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useConfirm } from "@/contexts/ConfirmContext";
 import { notify } from "@/lib/notifications";
+import { logError } from "@/lib/logger";
 
 interface SubscriptionManagerProps {
   userId: string;
@@ -45,7 +46,7 @@ export const SubscriptionManager = ({ userId, currentTier, onActionComplete }: S
 
       onActionComplete?.();
     } catch (error) {
-      console.error('Error managing subscription:', error);
+      logError('Error managing subscription', error as Error);
       toast({
         title: t.error_generic,
         description: t.error_generic,

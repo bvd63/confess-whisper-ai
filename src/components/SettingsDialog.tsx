@@ -31,6 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { logError } from "@/lib/logger";
 
 interface SettingsDialogProps {
   open: boolean;
@@ -124,7 +125,7 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
         description: t.settings_data_exported,
       });
     } catch (error) {
-      console.error('Error exporting data:', error);
+      logError('Error exporting data', error as Error);
       toast({
         title: t.common_error,
         description: t.settings_export_error,
@@ -159,7 +160,7 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
 
       navigate('/');
     } catch (error) {
-      console.error('Error deleting account:', error);
+      logError('Error deleting account', error as Error);
       toast({
         title: t.error_generic,
         description: t.error_delete,

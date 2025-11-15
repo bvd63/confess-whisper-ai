@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { STRIPE_PRICE } from "@/lib/stripe-config";
+import { logError } from "@/lib/logger";
 
 const translations = {
   en: {
@@ -96,7 +97,7 @@ export const SubscriptionCard = () => {
         window.location.href = data.url;
       }
     } catch (error) {
-      console.error("Checkout error:", error);
+      logError("Checkout error", error as Error);
       toast({
         title: "Error",
         description: "Failed to start checkout. Please try again.",

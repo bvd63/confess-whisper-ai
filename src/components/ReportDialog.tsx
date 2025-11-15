@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useConfirm } from "@/contexts/ConfirmContext";
+import { logWarn, logError } from "@/lib/logger";
 
 interface ReportDialogProps {
   open: boolean;
@@ -87,7 +88,7 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
           try {
             parsed = JSON.parse(rawMessage);
           } catch (parseError) {
-            console.warn('Failed to parse report-confession error payload', parseError);
+            logWarn('Failed to parse report-confession error payload', { parseError });
           }
         }
 
@@ -135,7 +136,7 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
       setSelectedReason("");
       setDetails("");
     } catch (error) {
-      console.error('Error submitting report:', error);
+      logError('Error submitting report', error as Error);
       toast({
         title: t.common_error,
         description: t.report_submit_error_desc,
