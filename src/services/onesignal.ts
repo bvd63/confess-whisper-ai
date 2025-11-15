@@ -3,6 +3,8 @@
  * Handles web push notifications initialization and management
  */
 
+import { logWarn, logError } from '@/lib/logger';
+
 let isInitialized = false;
 
 export interface NotificationPreferences {
@@ -52,7 +54,7 @@ export const initializeOneSignal = async (): Promise<boolean> => {
   
   if (!appId) {
     if (import.meta.env.DEV) {
-      console.warn('[OneSignal] App ID not configured');
+      logWarn('[OneSignal] App ID not configured');
     }
     return false;
   }
@@ -80,7 +82,7 @@ export const initializeOneSignal = async (): Promise<boolean> => {
     return true;
   } catch (error) {
     if (import.meta.env.DEV) {
-      console.error('[OneSignal] Initialization failed:', error);
+      logError('[OneSignal] Initialization failed', error as Error);
     }
     return false;
   }
@@ -100,7 +102,7 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
     return permission === true || permission === 'granted';
   } catch (error) {
     if (import.meta.env.DEV) {
-      console.error('[OneSignal] Permission request failed:', error);
+      logError('[OneSignal] Permission request failed', error as Error);
     }
     return false;
   }
@@ -146,7 +148,7 @@ export const setOneSignalUserId = async (userId: string): Promise<void> => {
     await window.OneSignal.login(userId);
   } catch (error) {
     if (import.meta.env.DEV) {
-      console.error('[OneSignal] Failed to set user ID:', error);
+      logError('[OneSignal] Failed to set user ID', error as Error);
     }
   }
 };
@@ -161,7 +163,7 @@ export const sendOneSignalTag = async (key: string, value: string): Promise<void
     await window.OneSignal.User.addTag(key, value);
   } catch (error) {
     if (import.meta.env.DEV) {
-      console.error('[OneSignal] Failed to send tag:', error);
+      logError('[OneSignal] Failed to send tag', error as Error);
     }
   }
 };
@@ -194,12 +196,12 @@ export const savePlayerIdToProfile = async (userId: string, playerId: string): P
 
     if (error) {
       if (import.meta.env.DEV) {
-        console.error('[OneSignal] Failed to save player ID:', error);
+        logError('[OneSignal] Failed to save player ID', error);
       }
     }
   } catch (error) {
     if (import.meta.env.DEV) {
-      console.error('[OneSignal] Failed to save player ID:', error);
+      logError('[OneSignal] Failed to save player ID', error as Error);
     }
   }
 };

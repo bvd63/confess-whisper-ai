@@ -4,6 +4,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { logError } from "@/lib/logger";
 
 export const SyncSubscriptionButton = ({ onSyncComplete }: { onSyncComplete?: () => void }) => {
   const { t } = useLanguage();
@@ -32,7 +33,7 @@ export const SyncSubscriptionButton = ({ onSyncComplete }: { onSyncComplete?: ()
         throw new Error(data?.error || 'Sync failed');
       }
     } catch (error: any) {
-      console.error('Sync error:', error);
+      logError('Sync error', error);
       toast.error('Failed to sync subscription', {
         description: error.message || 'Please try again or contact support',
       });

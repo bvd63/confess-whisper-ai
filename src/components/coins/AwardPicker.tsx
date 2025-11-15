@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
+import { logError } from '@/lib/logger';
 
 interface AwardPickerProps {
   open: boolean;
@@ -105,7 +106,7 @@ export const AwardPicker = ({ open, onOpenChange, confessionId }: AwardPickerPro
       onOpenChange(false);
       setSelectedAward(null);
     } catch (error) {
-      console.error('Error giving award:', error);
+      logError('Error giving award', error as Error);
       toast.error('Failed to give award. Please try again.');
     } finally {
       setLoading(false);

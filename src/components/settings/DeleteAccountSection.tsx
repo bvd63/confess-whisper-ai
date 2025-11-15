@@ -17,6 +17,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { logError } from '@/lib/logger';
 
 interface DeleteAccountSectionProps {
   userId: string;
@@ -62,7 +63,7 @@ export const DeleteAccountSection = ({ userId, userEmail }: DeleteAccountSection
       
       navigate('/auth');
     } catch (error) {
-      console.error('Error deleting account:', error);
+      logError('Error deleting account', error as Error);
       notify.error('notifications.operationFailed', language);
     } finally {
       setIsDeleting(false);
