@@ -1760,6 +1760,8 @@ type Translations = {
   communities_create_error: string;
   communities_join: string;
   communities_leave: string;
+  communities_pending: string;
+  communities_request_join: string;
   communities_members: string;
   communities_posts: string;
   communities_not_found: string;
@@ -3424,6 +3426,8 @@ export const translations: Record<Language, Translations> = {
     communities_create_error: "Failed to create community",
     communities_join: "Join",
     communities_leave: "Leave",
+    communities_pending: "Pending",
+    communities_request_join: "Request to Join",
     communities_members: "members",
     communities_posts: "posts",
     communities_not_found: "Community not found",
@@ -5305,6 +5309,8 @@ export const translations: Record<Language, Translations> = {
     communities_create_error: "Error al crear la comunidad",
     communities_join: "Unirse",
     communities_leave: "Salir",
+    communities_pending: "Pendiente",
+    communities_request_join: "Solicitar Unirse",
     communities_members: "miembros",
     communities_posts: "publicaciones",
     communities_not_found: "Comunidad no encontrada",
@@ -7186,6 +7192,8 @@ export const translations: Record<Language, Translations> = {
     communities_create_error: "Fehler beim Erstellen der Community",
     communities_join: "Beitreten",
     communities_leave: "Verlassen",
+    communities_pending: "Ausstehend",
+    communities_request_join: "Beitritt anfragen",
     communities_members: "Mitglieder",
     communities_posts: "Beiträge",
     communities_not_found: "Community nicht gefunden",
