@@ -19,8 +19,8 @@ const REQUIRED_ENV = [
   "SUPABASE_SERVICE_ROLE_KEY",
   "STRIPE_SECRET_KEY",
   "STRIPE_WEBHOOK_SECRET",
-  "PRICE_VIP_MONTHLY",
-  "PRICE_VIP_YEARLY",
+  "STRIPE_PRICE_VIP_MONTHLY",
+  "STRIPE_PRICE_VIP_YEARLY",
 ];
 
 const missingEnv = REQUIRED_ENV.filter((key) => !Deno.env.get(key));
@@ -49,10 +49,10 @@ const logError = (payload: Record<string, unknown>) => {
 type StripeSubscription = Stripe.Subscription;
 
 const priceConfig = {
-  vipMonthly: Deno.env.get("PRICE_VIP_MONTHLY") ?? null,
-  vipYearly: Deno.env.get("PRICE_VIP_YEARLY") ?? null,
-  premiumMonthly: Deno.env.get("PRICE_PREMIUM_MONTHLY") ?? null,
-  premiumYearly: Deno.env.get("PRICE_PREMIUM_YEARLY") ?? null,
+  vipMonthly: Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") ?? null,
+  vipYearly: Deno.env.get("STRIPE_PRICE_VIP_YEARLY") ?? null,
+  premiumMonthly: Deno.env.get("STRIPE_PRICE_PREMIUM_MONTHLY") ?? null,
+  premiumYearly: Deno.env.get("STRIPE_PRICE_PREMIUM_YEARLY") ?? null,
 };
 
 const extractUserId = async (supabase: SupabaseClient, customerId: string): Promise<string | null> => {
