@@ -1,7 +1,7 @@
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, MessageSquare } from "lucide-react";
+import { Users, MessageSquare, Lock, Globe } from "lucide-react";
 import { useCommunityMembers } from "@/hooks/useCommunities";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -17,6 +17,7 @@ interface CommunityCardProps {
     member_count: number;
     post_count: number;
     is_private: boolean;
+    language: string | null;
   };
 }
 
@@ -53,11 +54,25 @@ export const CommunityCard = ({ community }: CommunityCardProps) => {
           <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-sm">
             {community.icon || "🌟"}
           </div>
-          <div>
-            <h3 className="font-semibold text-xs text-foreground">{community.name}</h3>
-            <Badge variant="outline" className="mt-0.5 text-[10px] h-4 px-1">
-              {community.category}
-            </Badge>
+          <div className="flex-1">
+            <div className="flex items-center gap-1">
+              <h3 className="font-semibold text-xs text-foreground">{community.name}</h3>
+              {community.is_private ? (
+                <Lock className="w-2.5 h-2.5 text-muted-foreground" />
+              ) : (
+                <Globe className="w-2.5 h-2.5 text-muted-foreground" />
+              )}
+            </div>
+            <div className="flex gap-1 mt-0.5">
+              <Badge variant="outline" className="text-[10px] h-4 px-1">
+                {community.category}
+              </Badge>
+              {community.language && (
+                <Badge variant="secondary" className="text-[10px] h-4 px-1 uppercase">
+                  {community.language}
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
         <Button
@@ -65,7 +80,7 @@ export const CommunityCard = ({ community }: CommunityCardProps) => {
           variant={isMember ? "outline" : isPending ? "ghost" : "default"}
           onClick={handleToggleMembership}
           disabled={isJoining || isLeaving || isPending}
-          className="h-6 text-[10px] px-1.5"
+          className="h-6 text-[10px] px-1.5 shrink-0"
         >
           {getButtonText()}
         </Button>

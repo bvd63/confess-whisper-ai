@@ -6,6 +6,7 @@ const Compose = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(true);
+  const initialCommunityId = (location.state as { communityId?: string })?.communityId;
 
   // Close dialog and navigate away when location changes away from /compose
   useEffect(() => {
@@ -31,6 +32,7 @@ const Compose = () => {
       open={open} 
       onOpenChange={handleOpenChange}
       onConfessionCreated={handleConfessionCreated}
+      initialCommunityId={initialCommunityId}
     />
   );
 };

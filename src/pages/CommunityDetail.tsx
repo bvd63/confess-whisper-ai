@@ -6,7 +6,7 @@ import { GradientText } from "@/components/GradientText";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, MessageSquare, ArrowLeft, Settings } from "lucide-react";
+import { Users, MessageSquare, ArrowLeft, Settings, Lock, Globe } from "lucide-react";
 import { useCommunityMembers } from "@/hooks/useCommunities";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -24,7 +24,7 @@ const CommunityDetail = () => {
   const navigate = useNavigate();
   
   const { user } = useCurrentUser();
-  const { membership, isMember, isAdmin, isModerator, joinCommunity, leaveCommunity, isJoining, isLeaving } = 
+  const { membership, isMember, isPending, isAdmin, isModerator, joinCommunity, leaveCommunity, isJoining, isLeaving } = 
     useCommunityMembers(id!);
   const { isPremium } = usePremiumStatus(user?.id);
   const { t } = useLanguage();
@@ -61,7 +61,7 @@ const CommunityDetail = () => {
       if (error) throw error;
       return data;
     },
-    enabled: !!id,
+    enabled: !!id && (!community?.is_private || isMember),
   });
 
   if (loadingCommunity) {
@@ -113,10 +113,30 @@ const CommunityDetail = () => {
                 {community.icon || "🌟"}
               </div>
               <div>
-                <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-0.5 sm:mb-1">
-                  <GradientText variant="hero">{community.name}</GradientText>
-                </h1>
-                <Badge variant="outline">{community.category}</Badge>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-lg sm:text-xl md:text-2xl font-bold">
+                    <GradientText variant="hero">{community.name}</GradientText>
+                  </h1>
+                  {community.is_private ? (
+                    <Badge variant="secondary" className="flex items-center gap-1">
+                      <Lock className="w-3 h-3" />
+                      {t.communities_private}
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="flex items-center gap-1">
+                      <Globe className="w-3 h-3" />
+                      {t.communities_public}
+                    </Badge>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Badge variant="outline">{community.category}</Badge>
+                  {community.language && (
+                    <Badge variant="secondary" className="uppercase">
+                      {community.language}
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex gap-2">
@@ -158,7 +178,20 @@ const CommunityDetail = () => {
         {/* Confessions */}
         <div className="space-y-3 sm:space-y-4">
           <h2 className="text-base sm:text-lg md:text-xl font-semibold">{t.communities_recent}</h2>
-          {loadingConfessions ? (
+          {!isMember && community?.is_private ? (
+            <AnimatedCard glass className="p-6 sm:p-8 text-center">
+              <Lock className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-muted-foreground" />
+              <p className="text-sm sm:text-base text-muted-foreground mb-4">
+                {t.communities_private_access}
+              </p>
+              <Button
+                onClick={() => joinCommunity(true)}
+                disabled={isJoining || isPending}
+              >
+                {isPending ? t.communities_pending : t.communities_request_join}
+              </Button>
+            </AnimatedCard>
+          ) : loadingConfessions ? (
             <LoadingQuotes />
           ) : confessions && confessions.length > 15 ? (
             <VirtualizedConfessions
@@ -185,7 +218,7 @@ const CommunityDetail = () => {
                 {t.communities_no_posts}
               </p>
               <Button 
-                onClick={() => navigate('/compose')} 
+                onClick={() => navigate('/compose', { state: { communityId: id } })} 
                 className="mt-4"
               >
                 {t.communities_create_confession}

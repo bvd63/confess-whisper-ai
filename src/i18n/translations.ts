@@ -1773,6 +1773,7 @@ type Translations = {
   communities_approve: string;
   communities_reject: string;
   communities_no_requests: string;
+  communities_private_access: string;
   communities_members: string;
   communities_posts: string;
   communities_not_found: string;
@@ -3450,6 +3451,7 @@ export const translations: Record<Language, Translations> = {
     communities_approve: "Approve",
     communities_reject: "Reject",
     communities_no_requests: "No pending requests",
+    communities_private_access: "This is a private community. Join to see posts.",
     communities_members: "members",
     communities_posts: "posts",
     communities_not_found: "Community not found",
@@ -5344,6 +5346,7 @@ export const translations: Record<Language, Translations> = {
     communities_approve: "Aprobar",
     communities_reject: "Rechazar",
     communities_no_requests: "No hay solicitudes pendientes",
+    communities_private_access: "Esta es una comunidad privada. Únete para ver publicaciones.",
     communities_members: "miembros",
     communities_posts: "publicaciones",
     communities_not_found: "Comunidad no encontrada",
@@ -7238,6 +7241,7 @@ export const translations: Record<Language, Translations> = {
     communities_approve: "Genehmigen",
     communities_reject: "Ablehnen",
     communities_no_requests: "Keine ausstehenden Anfragen",
+    communities_private_access: "Dies ist eine private Community. Tritt bei, um Beiträge zu sehen.",
     communities_members: "Mitglieder",
     communities_posts: "Beiträge",
     communities_not_found: "Community nicht gefunden",
