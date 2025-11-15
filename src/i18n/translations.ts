@@ -1747,6 +1747,9 @@ type Translations = {
   // Communities
   communities_title: string;
   communities_discover: string;
+  communities_my: string;
+  communities_none_joined: string;
+  communities_browse: string;
   communities_create: string;
   communities_category: string;
   communities_name: string;
@@ -3425,6 +3428,9 @@ export const translations: Record<Language, Translations> = {
     // Communities
     communities_title: "Communities",
     communities_discover: "Discover communities that share your interests",
+    communities_my: "My Communities",
+    communities_none_joined: "You haven't joined any communities yet.",
+    communities_browse: "Browse Communities",
     communities_create: "Create Community",
     communities_category: "Category",
     communities_name: "Community Name",
@@ -5320,6 +5326,9 @@ export const translations: Record<Language, Translations> = {
     // Communities
     communities_title: "Comunidades",
     communities_discover: "Descubre comunidades que comparten tus intereses",
+    communities_my: "Mis Comunidades",
+    communities_none_joined: "Aún no te has unido a ninguna comunidad.",
+    communities_browse: "Explorar Comunidades",
     communities_create: "Crear Comunidad",
     communities_category: "Categoría",
     communities_name: "Nombre de la Comunidad",
@@ -7215,6 +7224,9 @@ export const translations: Record<Language, Translations> = {
     // Communities
     communities_title: "Communities",
     communities_discover: "Entdecke Communities, die deine Interessen teilen",
+    communities_my: "Meine Communities",
+    communities_none_joined: "Du hast dich noch keiner Community angeschlossen.",
+    communities_browse: "Communities durchsuchen",
     communities_create: "Community erstellen",
     communities_category: "Kategorie",
     communities_name: "Community-Name",
