@@ -5,6 +5,7 @@ import { Send, Loader2 } from 'lucide-react';
 import { useTypingIndicator } from '@/hooks/useTypingIndicator';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { persistenceManager } from '@/lib/persistenceManager';
+import { logError } from '@/lib/logger';
 
 interface MessageInputProps {
   conversationId: string;
@@ -69,7 +70,7 @@ export const MessageInput = ({ conversationId, userId, onSend, disabled }: Messa
       await persistenceManager.removeDraft(conversationId);
       textareaRef.current?.focus();
     } catch (error) {
-      console.error('Error sending message:', error);
+      logError('Error sending message', error as Error);
     } finally {
       setIsSending(false);
     }

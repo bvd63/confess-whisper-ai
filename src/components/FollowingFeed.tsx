@@ -9,6 +9,7 @@ import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import VirtualizedConfessions from "@/components/VirtualizedConfessions";
+import { logError } from "@/lib/logger";
 
 interface FollowingFeedProps {
   userId: string;
@@ -58,7 +59,7 @@ const FollowingFeed = ({ userId, isPremium, onUpgradeClick }: FollowingFeedProps
 
       setConfessions(confessionsData || []);
     } catch (err) {
-      console.error('Error loading following feed:', err);
+      logError('Error loading following feed', err as Error);
       setError(t.following_load_error);
     } finally {
       setLoading(false);

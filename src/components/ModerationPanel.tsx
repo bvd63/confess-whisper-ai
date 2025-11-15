@@ -15,6 +15,7 @@ import {
   DialogDescription,
 } from "@/components/ui/translated-dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { logError } from "@/lib/logger";
 
 interface Confession {
   id: string;
@@ -57,7 +58,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
 
       setUserRole(data?.role || null);
     } catch (error) {
-      console.error('Error checking user role:', error);
+      logError('Error checking user role', error as Error);
     }
   };
 
@@ -94,7 +95,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
         setConfessions(data || []);
       }
     } catch (error) {
-      console.error('Error loading confessions:', error);
+      logError('Error loading confessions', error as Error);
     } finally {
       setLoading(false);
     }
@@ -153,7 +154,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
       setModerationReason("");
       loadConfessions();
     } catch (error) {
-      console.error('Error moderating confession:', error);
+      logError('Error moderating confession', error as Error);
       toast({
         title: t.common_error,
         description: t.moderation_error_action,

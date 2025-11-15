@@ -5,6 +5,7 @@ import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { useCoins } from "@/hooks/useCoins";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { supabase } from "@/integrations/supabase/client";
+import { logError } from "@/lib/logger";
 
 export const CoinFeaturesTest = () => {
   const { user } = useCurrentUser();
@@ -44,7 +45,7 @@ export const CoinFeaturesTest = () => {
 
       setTestResults(results);
     } catch (error) {
-      console.error('Test error:', error);
+      logError('Coin features test error', error as Error);
     } finally {
       setTesting(false);
     }
