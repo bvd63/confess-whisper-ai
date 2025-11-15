@@ -22,6 +22,7 @@ import ReferralSystem from '@/components/ReferralSystem';
 import BlockedUsers from '@/components/BlockedUsers';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import ThemeToggle from '@/components/ThemeToggle';
+import { logError } from '@/lib/logger';
 
 interface MenuItemProps {
   icon: React.ElementType;
@@ -107,7 +108,7 @@ const SettingsActivity = () => {
         });
         setPasswordChangedAt(data.password_changed_at || null);
       } catch (error) {
-        console.error('Error loading profile data:', error);
+        logError('Error loading profile data', error as Error);
       }
     };
     
@@ -138,7 +139,7 @@ const SettingsActivity = () => {
       });
       setPasswordChangedAt(data.password_changed_at || null);
     } catch (error) {
-      console.error('Error reloading profile data:', error);
+      logError('Error reloading profile data', error as Error);
     }
   };
 

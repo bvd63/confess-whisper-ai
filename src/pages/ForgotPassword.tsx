@@ -11,6 +11,7 @@ import { Turnstile } from "@marsidev/react-turnstile";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { FunctionsHttpError } from "@supabase/supabase-js";
+import { logError, logWarn } from "@/lib/logger";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
@@ -68,7 +69,7 @@ export default function ForgotPassword() {
               errorMessage = t.common_rate_limit;
             }
           } catch (parseError) {
-            console.warn("Failed to parse password reset error", parseError);
+            logWarn("Failed to parse password reset error", { error: parseError });
           }
         } else if (error.message) {
           errorMessage = error.message;
@@ -93,7 +94,7 @@ export default function ForgotPassword() {
       setSuccess(true);
       setCaptchaToken("");
     } catch (err: any) {
-      console.error("Password reset request failed", err);
+      logError("Password reset request failed", err as Error);
       setError(err.message || t.auth_error_generic);
     } finally {
       setIsLoading(false);

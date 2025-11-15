@@ -8,7 +8,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { Skeleton } from "@/components/ui/skeleton";
-
+import { logError } from "@/lib/logger";
 import { TierProfileCard } from "@/components/TierProfileCard";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 
@@ -59,7 +59,7 @@ const UserProfile = () => {
       setProfile(profileData);
       setConfessionsCount(count || 0);
     } catch (error) {
-      console.error("Error loading profile:", error);
+      logError("Error loading profile", error as Error);
     } finally {
       setIsLoading(false);
     }

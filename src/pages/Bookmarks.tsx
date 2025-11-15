@@ -17,6 +17,7 @@ import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import VirtualizedConfessions from "@/components/VirtualizedConfessions";
+import { logError } from "@/lib/logger";
 
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 
@@ -97,7 +98,7 @@ const Bookmarks = () => {
 
       setConfessions(sorted);
     } catch (error) {
-      console.error('Error loading bookmarked confessions:', error);
+      logError('Error loading bookmarked confessions', error as Error);
       toast({
         title: t.error_generic,
         description: t.error_load,
@@ -122,7 +123,7 @@ const Bookmarks = () => {
         description: t.success_reported,
       });
     } catch (error) {
-      console.error('Error reporting confession:', error);
+      logError('Error reporting confession', error as Error);
       toast({
         title: t.error_generic,
         description: t.error_generic,

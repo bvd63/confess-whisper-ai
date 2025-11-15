@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import AppLayout from "@/components/AppLayout";
+import { logError } from "@/lib/logger";
 
 interface Notification {
   id: string;
@@ -205,7 +206,7 @@ const NotificationHistory = () => {
 
       setNotifications(notificationsWithNicknames);
     } catch (error) {
-      console.error('Error loading notifications:', error);
+      logError('Error loading notifications', error as Error);
       toast.error('Failed to load notifications');
     } finally {
       setLoading(false);
@@ -226,7 +227,7 @@ const NotificationHistory = () => {
       if (error) throw error;
       await loadNotifications();
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      logError('Error marking notification as read', error as Error);
       toast.error('Failed to mark as read');
     }
   };
@@ -241,7 +242,7 @@ const NotificationHistory = () => {
       toast.success('All notifications marked as read');
       await loadNotifications();
     } catch (error) {
-      console.error('Error marking all as read:', error);
+      logError('Error marking all as read', error as Error);
       toast.error('Failed to mark all as read');
     }
   };
@@ -261,7 +262,7 @@ const NotificationHistory = () => {
       toast.success('Notification deleted');
       await loadNotifications();
     } catch (error) {
-      console.error('Error deleting notification:', error);
+      logError('Error deleting notification', error as Error);
       toast.error('Failed to delete notification');
     } finally {
       setDeleteDialogOpen(false);
@@ -279,7 +280,7 @@ const NotificationHistory = () => {
       toast.success('All notifications deleted');
       await loadNotifications();
     } catch (error) {
-      console.error('Error deleting all notifications:', error);
+      logError('Error deleting all notifications', error as Error);
       toast.error('Failed to delete all');
     } finally {
       setDeleteAllDialogOpen(false);
@@ -394,7 +395,7 @@ const NotificationHistory = () => {
     try {
       await Promise.all(unreadIds.map(id => markAsRead(id)));
     } catch (error) {
-      console.error('Error marking group as read:', error);
+      logError('Error marking group as read', error as Error);
     }
   };
 
@@ -402,7 +403,7 @@ const NotificationHistory = () => {
     try {
       await Promise.all(group.notifications.map(n => deleteNotification(n.id)));
     } catch (error) {
-      console.error('Error deleting group:', error);
+      logError('Error deleting group', error as Error);
     }
   };
 

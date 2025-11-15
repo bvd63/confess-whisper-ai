@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import confetti from "canvas-confetti";
+import { logError } from "@/lib/logger";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
@@ -89,7 +90,7 @@ const PaymentSuccess = () => {
           });
 
           if (error) {
-            console.error('Billing confirmation error:', error);
+            logError('Billing confirmation error', error as Error);
             return false;
           }
 
@@ -140,7 +141,7 @@ const PaymentSuccess = () => {
 
           return false;
         } catch (error) {
-          console.error('Error polling confirmation:', error);
+          logError('Error polling confirmation', error as Error);
           return false;
         }
       };

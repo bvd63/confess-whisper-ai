@@ -6,6 +6,7 @@ import { EnhancedButton } from "@/components/EnhancedButton";
 import { Heart, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { logError } from "@/lib/logger";
 
 export default function EmailVerification() {
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ export default function EmailVerification() {
           setStatus('error');
         }
       } catch (error) {
-        console.error('Email verification error:', error);
+        logError('Email verification error', error as Error);
         setStatus('error');
       }
     };

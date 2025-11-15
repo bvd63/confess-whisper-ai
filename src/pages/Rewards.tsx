@@ -21,6 +21,7 @@ import { useSubscription } from '@/state/SubscriptionProvider';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { logError } from '@/lib/logger';
 
 const Rewards = () => {
   const navigate = useNavigate();
@@ -59,7 +60,7 @@ const Rewards = () => {
           .or('expires_at.is.null,expires_at.gt.now()');
         setBadgesCount(count || 0);
       } catch (error) {
-        console.error('Error loading badges count:', error);
+        logError('Error loading badges count', error as Error);
       }
     };
     loadBadgesCount();
@@ -77,7 +78,7 @@ const Rewards = () => {
           .eq('status', 'completed');
         setReferralsCount(count || 0);
       } catch (error) {
-        console.error('Error loading referrals count:', error);
+        logError('Error loading referrals count', error as Error);
       }
     };
     loadReferralsCount();

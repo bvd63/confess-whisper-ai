@@ -13,6 +13,7 @@ import { initOneSignal } from "@/lib/onesignal";
 import { initPerformanceMonitoring } from "@/lib/performance";
 import AppWrapper from "./components/AppWrapper.tsx";
 import { env } from "@/lib/env";
+import { logError } from "@/lib/logger";
 import "./index.css";
 
 // Initialize Sentry error tracking
@@ -23,14 +24,14 @@ initPerformanceMonitoring();
 
 // Initialize OneSignal push notifications (browser-only)
 if (typeof window !== 'undefined') {
-  initOneSignal().catch(err => console.error('OneSignal init failed:', err));
+  initOneSignal().catch(err => logError('OneSignal init failed', err as Error));
 }
 
 // Register service worker for PWA
 if ('serviceWorker' in navigator && env.isProd) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch((error) => {
-      console.error('Service worker registration failed:', error);
+      logError('Service worker registration failed', error as Error);
     });
   });
 }
