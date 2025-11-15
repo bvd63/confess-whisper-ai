@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import confetti from "canvas-confetti";
+import { logError } from "@/lib/logger";
 
 interface OnboardingProps {
   userId: string;
@@ -93,7 +94,7 @@ export const Onboarding = ({ userId, onComplete }: OnboardingProps) => {
         .eq("user_id", userId);
       onComplete();
     } catch (error) {
-      console.error("Error skipping onboarding:", error);
+      logError("Error skipping onboarding", error as Error);
     } finally {
       setLoading(false);
     }
@@ -145,7 +146,7 @@ export const Onboarding = ({ userId, onComplete }: OnboardingProps) => {
 
       setStep(3);
     } catch (error) {
-      console.error("Error saving confession:", error);
+      logError("Error saving confession", error as Error);
       toast({
         title: t.error_save,
         variant: "destructive"
@@ -172,7 +173,7 @@ export const Onboarding = ({ userId, onComplete }: OnboardingProps) => {
         .eq("user_id", userId);
       onComplete();
     } catch (error) {
-      console.error("Error completing onboarding:", error);
+      logError("Error completing onboarding", error as Error);
     } finally {
       setLoading(false);
     }

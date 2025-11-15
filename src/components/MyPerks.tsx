@@ -8,6 +8,7 @@ import { Badge } from "./ui/badge";
 import { format } from "date-fns";
 import { Eye, EyeOff, Star, StarOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { logError } from "@/lib/logger";
 
 interface UserPerk {
   id: string;
@@ -106,7 +107,7 @@ export const MyPerks = ({ userId, subscriptionTier, subscriptionEndsAt }: MyPerk
 
       setPerks(allPerks);
     } catch (error) {
-      console.error("Error loading perks:", error);
+      logError("Error loading perks", error as Error);
     } finally {
       setLoading(false);
     }

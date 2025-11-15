@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { logError } from "@/lib/logger";
 
 interface ReactionPickerProps {
   confessionId: string;
@@ -117,7 +118,7 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
         if (insertError) throw insertError;
       }
     } catch (error) {
-      console.error('Error toggling reaction:', error);
+      logError('Error toggling reaction', error as Error);
       toast({
         title: t.common_error,
         description: t.reaction_update_error,

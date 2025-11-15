@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { validateNicknameFormat } from "@/lib/displayName";
 import { toast } from "sonner";
 import { getStringTranslation } from "@/lib/translationUtils";
+import { logError } from "@/lib/logger";
 
 interface NicknameSettingsProps {
   userId: string;
@@ -52,7 +53,7 @@ export const NicknameSettings = ({ userId }: NicknameSettingsProps) => {
         setDaysRemaining(remaining);
       }
     } catch (error) {
-      console.error("Error loading nickname:", error);
+      logError("Error loading nickname", error as Error);
     }
   };
 
@@ -98,7 +99,7 @@ export const NicknameSettings = ({ userId }: NicknameSettingsProps) => {
         toast.success(t.nickname_updated);
       }
     } catch (error) {
-      console.error("Error updating nickname:", error);
+      logError("Error updating nickname", error as Error);
       toast.error(t.nickname_error);
     } finally {
       setLoading(false);
@@ -118,7 +119,7 @@ export const NicknameSettings = ({ userId }: NicknameSettingsProps) => {
       setIsNicknamePublic(!isNicknamePublic);
       toast.success(t.settings_updated);
     } catch (error) {
-      console.error("Error updating nickname visibility:", error);
+      logError("Error updating nickname visibility", error as Error);
       toast.error(t.error_generic);
     } finally {
       setLoading(false);
