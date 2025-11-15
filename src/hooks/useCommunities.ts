@@ -91,7 +91,8 @@ export const useCommunityMembers = (communityId: string) => {
       const { data, error } = await supabase
         .from('community_members')
         .select('*, profiles(*)')
-        .eq('community_id', communityId);
+        .eq('community_id', communityId)
+        .eq('status', 'active');
 
       if (error) throw error;
       return data;
@@ -118,8 +119,23 @@ export const useCommunityMembers = (communityId: string) => {
     enabled: !!communityId,
   });
 
+  const { data: pendingRequests } = useQuery({
+    queryKey: ['community-pending', communityId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('community_members')
+        .select('*, profiles(*)')
+        .eq('community_id', communityId)
+        .eq('status', 'pending');
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!communityId && (membership?.role === 'admin' || membership?.role === 'moderator'),
+  });
+
   const joinCommunity = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (isPrivate: boolean) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
@@ -129,17 +145,20 @@ export const useCommunityMembers = (communityId: string) => {
           community_id: communityId,
           user_id: user.id,
           role: 'member',
+          status: isPrivate ? 'pending' : 'active',
         });
 
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_data, isPrivate) => {
       queryClient.invalidateQueries({ queryKey: ['community-members', communityId] });
       queryClient.invalidateQueries({ queryKey: ['community-membership', communityId] });
       queryClient.invalidateQueries({ queryKey: ['communities'] });
       toast({
-        title: "Joined community",
-        description: "You are now a member of this community.",
+        title: isPrivate ? "Request sent" : "Joined community",
+        description: isPrivate
+          ? "Your request to join is pending approval."
+          : "You are now a member of this community.",
       });
     },
     onError: (error: Error) => {
@@ -147,6 +166,79 @@ export const useCommunityMembers = (communityId: string) => {
         title: "Error",
         description: error.message,
         variant: "destructive",
+      });
+    },
+  });
+
+  const approveMember = useMutation({
+    mutationFn: async (membershipId: string) => {
+      const { error } = await supabase
+        .from('community_members')
+        .update({ status: 'active' })
+        .eq('id', membershipId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['community-members', communityId] });
+      queryClient.invalidateQueries({ queryKey: ['community-pending', communityId] });
+      toast({
+        title: "Member approved",
+        description: "The user can now access this community.",
+      });
+    },
+  });
+
+  const rejectMember = useMutation({
+    mutationFn: async (membershipId: string) => {
+      const { error } = await supabase
+        .from('community_members')
+        .delete()
+        .eq('id', membershipId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['community-pending', communityId] });
+      toast({
+        title: "Request rejected",
+        description: "The join request has been rejected.",
+      });
+    },
+  });
+
+  const updateMemberRole = useMutation({
+    mutationFn: async ({ membershipId, newRole }: { membershipId: string; newRole: string }) => {
+      const { error } = await supabase
+        .from('community_members')
+        .update({ role: newRole })
+        .eq('id', membershipId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['community-members', communityId] });
+      toast({
+        title: "Role updated",
+        description: "Member role has been updated successfully.",
+      });
+    },
+  });
+
+  const kickMember = useMutation({
+    mutationFn: async (membershipId: string) => {
+      const { error } = await supabase
+        .from('community_members')
+        .update({ status: 'banned' })
+        .eq('id', membershipId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['community-members', communityId] });
+      toast({
+        title: "Member removed",
+        description: "The member has been removed from this community.",
       });
     },
   });
@@ -185,10 +277,18 @@ export const useCommunityMembers = (communityId: string) => {
   return {
     members,
     membership,
+    pendingRequests,
     isLoading,
-    isMember: !!membership,
+    isMember: membership?.status === 'active',
+    isPending: membership?.status === 'pending',
+    isAdmin: membership?.role === 'admin',
+    isModerator: membership?.role === 'moderator',
     joinCommunity: joinCommunity.mutate,
     leaveCommunity: leaveCommunity.mutate,
+    approveMember: approveMember.mutate,
+    rejectMember: rejectMember.mutate,
+    updateMemberRole: updateMemberRole.mutate,
+    kickMember: kickMember.mutate,
     isJoining: joinCommunity.isPending,
     isLeaving: leaveCommunity.isPending,
   };

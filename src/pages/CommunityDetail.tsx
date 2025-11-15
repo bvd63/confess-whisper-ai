@@ -118,13 +118,13 @@ const CommunityDetail = () => {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button
-                variant={isMember ? "outline" : "default"}
-                onClick={() => isMember ? leaveCommunity() : joinCommunity()}
-                disabled={isJoining || isLeaving}
-              >
-                {isMember ? t.communities_leave : t.communities_join}
-              </Button>
+            <Button
+              variant={isMember ? "outline" : "default"}
+              onClick={() => isMember ? leaveCommunity() : joinCommunity(community.is_private || false)}
+              disabled={isJoining || isLeaving}
+            >
+              {isMember ? t.communities_leave : t.communities_join}
+            </Button>
               {membership?.role === 'admin' && (
                 <Button variant="ghost" size="icon">
                   <Settings className="w-4 h-4" />

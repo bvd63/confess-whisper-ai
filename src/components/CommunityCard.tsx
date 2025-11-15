@@ -22,7 +22,7 @@ interface CommunityCardProps {
 
 export const CommunityCard = ({ community }: CommunityCardProps) => {
   const navigate = useNavigate();
-  const { isMember, joinCommunity, leaveCommunity, isJoining, isLeaving } = 
+  const { isMember, isPending, joinCommunity, leaveCommunity, isJoining, isLeaving } = 
     useCommunityMembers(community.id);
   const { t } = useLanguage();
 
@@ -30,9 +30,15 @@ export const CommunityCard = ({ community }: CommunityCardProps) => {
     e.stopPropagation();
     if (isMember) {
       leaveCommunity();
-    } else {
-      joinCommunity();
+    } else if (!isPending) {
+      joinCommunity(community.is_private || false);
     }
+  };
+
+  const getButtonText = () => {
+    if (isPending) return t.communities_pending;
+    if (isMember) return t.communities_leave;
+    return community.is_private ? t.communities_request_join : t.communities_join;
   };
 
   return (
@@ -56,12 +62,12 @@ export const CommunityCard = ({ community }: CommunityCardProps) => {
         </div>
         <Button
           size="sm"
-          variant={isMember ? "outline" : "default"}
+          variant={isMember ? "outline" : isPending ? "ghost" : "default"}
           onClick={handleToggleMembership}
-          disabled={isJoining || isLeaving}
+          disabled={isJoining || isLeaving || isPending}
           className="h-6 text-[10px] px-1.5"
         >
-          {isMember ? t.communities_leave : t.communities_join}
+          {getButtonText()}
         </Button>
       </div>
 

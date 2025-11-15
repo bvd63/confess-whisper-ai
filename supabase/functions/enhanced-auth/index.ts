@@ -725,95 +725,7 @@ serve(async (req) => {
             { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
-              case 'request-password-reset': {
-                const { email, captchaToken }: { email?: string; captchaToken?: string } = await req.json();
 
-                const normalizedEmail = email?.toLowerCase().trim();
-                if (!normalizedEmail) {
-                  return new Response(
-                    JSON.stringify({ error: 'INVALID_REQUEST', messageKey: 'common.invalid_request' }),
-                    { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-                  );
-                }
-
-                if (!captchaToken || typeof captchaToken !== 'string') {
-                  return new Response(
-                    JSON.stringify({ error: 'CAPTCHA_REQUIRED', messageKey: 'auth.captcha_failed' }),
-                    { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-                  );
-                }
-
-                const passwordResetRateLimit = await enforceRateLimit(supabaseClient, {
-                  action: 'auth_password_reset',
-                  userId: normalizedEmail,
-                  ip: clientIp,
-                });
-
-                if (!passwordResetRateLimit.allowed) {
-                  await supabaseClient
-                    .rpc('log_security_event', {
-                      _user_id: null,
-                      _event_type: 'password_reset_rate_limited',
-                      _event_data: {
-                        email: normalizedEmail,
-                        remaining: passwordResetRateLimit.remaining ?? 0,
-                        identifierType: passwordResetRateLimit.identifierType ?? 'ip',
-                      },
-                      _ip_address: clientIp,
-                      _user_agent: userAgent,
-                    })
-                    .catch((err) => console.warn('[enhanced-auth] Failed to log password reset rate limit event', err));
-
-                  const rateLimitHeaders = passwordResetRateLimit.retryAfter
-                    ? { 'Retry-After': passwordResetRateLimit.retryAfter.toString() }
-                    : {};
-
-                  return new Response(
-                    JSON.stringify({
-                      error: 'RATE_LIMIT',
-                      messageKey: 'common.rate_limit',
-                      retryAfter: passwordResetRateLimit.retryAfter,
-                    }),
-                    {
-                      status: 429,
-                      headers: { ...corsHeaders, 'Content-Type': 'application/json', ...rateLimitHeaders },
-                    }
-                  );
-                }
-
-                const captchaResult = await verifyCaptcha(captchaToken, clientIp);
-                if (!captchaResult.success) {
-                  return new Response(
-                    JSON.stringify({ error: 'CAPTCHA_FAILED', messageKey: captchaResult.error }),
-                    { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-                  );
-                }
-
-                const redirectTarget = Deno.env.get('PASSWORD_RESET_REDIRECT_URL')
-                  || (requestOrigin ? `${requestOrigin.replace(/\/$/, '')}/reset-password` : undefined);
-
-                try {
-                  await supabaseClient.auth.resetPasswordForEmail(normalizedEmail, redirectTarget ? { redirectTo: redirectTarget } : undefined);
-                } catch (error) {
-                  console.error('[enhanced-auth] Password reset request failed', error);
-                }
-
-                await supabaseClient
-                  .rpc('log_security_event', {
-                    _user_id: null,
-                    _event_type: 'password_reset_requested',
-                    _event_data: { email: normalizedEmail },
-                    _ip_address: clientIp,
-                    _user_agent: userAgent,
-                  })
-                  .catch((err) => console.warn('[enhanced-auth] Failed to log password reset request', err));
-
-                return new Response(
-                  JSON.stringify({ success: true, messageKey: 'auth.forgot_password_success' }),
-                  { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-                );
-              }
-        
         // Check rate limiting for signup attempts from this IP
         const { data: recentSignups } = await supabaseClient
           .from('failed_login_attempts')
@@ -847,6 +759,95 @@ serve(async (req) => {
             valid: true,
             messageKey: 'auth.validation_passed' 
           }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      case 'request-password-reset': {
+        const { email, captchaToken }: { email?: string; captchaToken?: string } = await req.json();
+
+        const normalizedEmail = email?.toLowerCase().trim();
+        if (!normalizedEmail) {
+          return new Response(
+            JSON.stringify({ error: 'INVALID_REQUEST', messageKey: 'common.invalid_request' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        if (!captchaToken || typeof captchaToken !== 'string') {
+          return new Response(
+            JSON.stringify({ error: 'CAPTCHA_REQUIRED', messageKey: 'auth.captcha_failed' }),
+            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const passwordResetRateLimit = await enforceRateLimit(supabaseClient, {
+          action: 'auth_password_reset',
+          userId: normalizedEmail,
+          ip: clientIp,
+        });
+
+        if (!passwordResetRateLimit.allowed) {
+          await supabaseClient
+            .rpc('log_security_event', {
+              _user_id: null,
+              _event_type: 'password_reset_rate_limited',
+              _event_data: {
+                email: normalizedEmail,
+                remaining: passwordResetRateLimit.remaining ?? 0,
+                identifierType: passwordResetRateLimit.identifierType ?? 'ip',
+              },
+              _ip_address: clientIp,
+              _user_agent: userAgent,
+            })
+            .catch((err) => console.warn('[enhanced-auth] Failed to log password reset rate limit event', err));
+
+          const rateLimitHeaders = passwordResetRateLimit.retryAfter
+            ? { 'Retry-After': passwordResetRateLimit.retryAfter.toString() }
+            : {};
+
+          return new Response(
+            JSON.stringify({
+              error: 'RATE_LIMIT',
+              messageKey: 'common.rate_limit',
+              retryAfter: passwordResetRateLimit.retryAfter,
+            }),
+            {
+              status: 429,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json', ...rateLimitHeaders },
+            }
+          );
+        }
+
+        const passwordResetCaptchaResult = await verifyCaptcha(captchaToken, clientIp);
+        if (!passwordResetCaptchaResult.success) {
+          return new Response(
+            JSON.stringify({ error: 'CAPTCHA_FAILED', messageKey: passwordResetCaptchaResult.error }),
+            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const redirectTarget = Deno.env.get('PASSWORD_RESET_REDIRECT_URL')
+          || (requestOrigin ? `${requestOrigin.replace(/\/$/, '')}/reset-password` : undefined);
+
+        try {
+          await supabaseClient.auth.resetPasswordForEmail(normalizedEmail, redirectTarget ? { redirectTo: redirectTarget } : undefined);
+        } catch (error) {
+          console.error('[enhanced-auth] Password reset request failed', error);
+        }
+
+        await supabaseClient
+          .rpc('log_security_event', {
+            _user_id: null,
+            _event_type: 'password_reset_requested',
+            _event_data: { email: normalizedEmail },
+            _ip_address: clientIp,
+            _user_agent: userAgent,
+          })
+          .catch((err) => console.warn('[enhanced-auth] Failed to log password reset request', err));
+
+        return new Response(
+          JSON.stringify({ success: true, messageKey: 'auth.forgot_password_success' }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
