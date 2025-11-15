@@ -31,6 +31,7 @@ const Communities = () => {
     category: "general",
     slug: "",
     is_private: false,
+    language: "en",
   });
 
   const handleCreateCommunity = () => {
@@ -51,6 +52,7 @@ const Communities = () => {
       category: "general",
       slug: "",
       is_private: false,
+      language: "en",
     });
   };
 
@@ -144,6 +146,31 @@ const Communities = () => {
                       <SelectItem value="mental-health">{t.communities_filter_mental_health}</SelectItem>
                       <SelectItem value="relationships">{t.communities_filter_relationships}</SelectItem>
                       <SelectItem value="work">{t.communities_filter_work}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>{t.communities_language}</Label>
+                  <Select value={newCommunity.language} onValueChange={(v) => setNewCommunity({ ...newCommunity, language: v })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en">English</SelectItem>
+                      <SelectItem value="es">Español</SelectItem>
+                      <SelectItem value="de">Deutsch</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>{t.communities_visibility}</Label>
+                  <Select value={newCommunity.is_private ? "private" : "public"} onValueChange={(v) => setNewCommunity({ ...newCommunity, is_private: v === "private" })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="public">{t.communities_public}</SelectItem>
+                      <SelectItem value="private">{t.communities_private}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

@@ -1762,6 +1762,17 @@ type Translations = {
   communities_leave: string;
   communities_pending: string;
   communities_request_join: string;
+  communities_language: string;
+  communities_visibility: string;
+  communities_public: string;
+  communities_manage: string;
+  communities_requests: string;
+  communities_anonymous: string;
+  communities_promote: string;
+  communities_demote: string;
+  communities_approve: string;
+  communities_reject: string;
+  communities_no_requests: string;
   communities_members: string;
   communities_posts: string;
   communities_not_found: string;
@@ -3428,6 +3439,17 @@ export const translations: Record<Language, Translations> = {
     communities_leave: "Leave",
     communities_pending: "Pending",
     communities_request_join: "Request to Join",
+    communities_language: "Language",
+    communities_visibility: "Visibility",
+    communities_public: "Public",
+    communities_manage: "Manage Community",
+    communities_requests: "Join Requests",
+    communities_anonymous: "Anonymous User",
+    communities_promote: "Promote to Moderator",
+    communities_demote: "Demote to Member",
+    communities_approve: "Approve",
+    communities_reject: "Reject",
+    communities_no_requests: "No pending requests",
     communities_members: "members",
     communities_posts: "posts",
     communities_not_found: "Community not found",
@@ -5311,6 +5333,17 @@ export const translations: Record<Language, Translations> = {
     communities_leave: "Salir",
     communities_pending: "Pendiente",
     communities_request_join: "Solicitar Unirse",
+    communities_language: "Idioma",
+    communities_visibility: "Visibilidad",
+    communities_public: "Público",
+    communities_manage: "Administrar Comunidad",
+    communities_requests: "Solicitudes de Unión",
+    communities_anonymous: "Usuario Anónimo",
+    communities_promote: "Promover a Moderador",
+    communities_demote: "Degradar a Miembro",
+    communities_approve: "Aprobar",
+    communities_reject: "Rechazar",
+    communities_no_requests: "No hay solicitudes pendientes",
     communities_members: "miembros",
     communities_posts: "publicaciones",
     communities_not_found: "Comunidad no encontrada",
@@ -7193,7 +7226,18 @@ export const translations: Record<Language, Translations> = {
     communities_join: "Beitreten",
     communities_leave: "Verlassen",
     communities_pending: "Ausstehend",
-    communities_request_join: "Beitritt anfragen",
+    communities_request_join: "Beitrittsanfrage",
+    communities_language: "Sprache",
+    communities_visibility: "Sichtbarkeit",
+    communities_public: "Öffentlich",
+    communities_manage: "Community Verwalten",
+    communities_requests: "Beitrittsanfragen",
+    communities_anonymous: "Anonymer Benutzer",
+    communities_promote: "Zum Moderator Befördern",
+    communities_demote: "Zum Mitglied Degradieren",
+    communities_approve: "Genehmigen",
+    communities_reject: "Ablehnen",
+    communities_no_requests: "Keine ausstehenden Anfragen",
     communities_members: "Mitglieder",
     communities_posts: "Beiträge",
     communities_not_found: "Community nicht gefunden",
