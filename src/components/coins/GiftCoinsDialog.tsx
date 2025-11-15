@@ -10,6 +10,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
+import { logError } from '@/lib/logger';
 
 interface GiftCoinsDialogProps {
   open: boolean;
@@ -87,7 +88,7 @@ export const GiftCoinsDialog = ({
       setIsAnonymous(false);
       onOpenChange(false);
     } catch (error) {
-      console.error('Error gifting coins:', error);
+      logError('Error gifting coins', error as Error);
       toast.error('Failed to gift coins. Please try again.');
     } finally {
       setLoading(false);

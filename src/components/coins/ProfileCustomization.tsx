@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
+import { logError } from '@/lib/logger';
 
 interface ProfileCustomizationProps {
   open: boolean;
@@ -106,7 +107,7 @@ export const ProfileCustomization = ({ open, onOpenChange, userId }: ProfileCust
       queryClient.invalidateQueries({ queryKey: ['profileCustomizations', userId] });
       setSelectedTheme(null);
     } catch (error) {
-      console.error('Error purchasing theme:', error);
+      logError('Error purchasing theme', error as Error);
       toast.error('Failed to purchase theme. Please try again.');
     } finally {
       setLoading(false);
@@ -146,7 +147,7 @@ export const ProfileCustomization = ({ open, onOpenChange, userId }: ProfileCust
       queryClient.invalidateQueries({ queryKey: ['profileCustomizations', userId] });
       setSelectedBadge(null);
     } catch (error) {
-      console.error('Error purchasing badge:', error);
+      logError('Error purchasing badge', error as Error);
       toast.error('Failed to purchase badge. Please try again.');
     } finally {
       setLoading(false);

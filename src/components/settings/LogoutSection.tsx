@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useConfirm } from '@/contexts/ConfirmContext';
 import { notify } from '@/lib/notifications';
+import { logError } from '@/lib/logger';
 
 export const LogoutSection = () => {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ export const LogoutSection = () => {
       notify.success('notifications.logoutSuccess', language);
       navigate('/auth');
     } catch (error) {
-      console.error('Error logging out:', error);
+      logError('Error logging out', error as Error);
       notify.error('notifications.operationFailed', language);
     }
   };

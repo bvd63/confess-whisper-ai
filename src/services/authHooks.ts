@@ -3,6 +3,7 @@
  * Handles streak bonuses and other daily login rewards
  */
 import { env } from '@/lib/env';
+import { logError } from '@/lib/logger';
 
 export async function onDailyLogin({
   userId,
@@ -19,6 +20,6 @@ export async function onDailyLogin({
       body: JSON.stringify({ userId, currentStreak }),
     });
   } catch (error) {
-    console.error('Failed to check streak bonus:', error);
+    logError('Failed to check streak bonus', error as Error);
   }
 }

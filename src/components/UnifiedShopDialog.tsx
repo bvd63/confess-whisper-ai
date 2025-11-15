@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Loader2, Crown, Coins, Sparkles, TrendingUp, Zap } from "lucide-react";
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
+import { logWarn, logError } from "@/lib/logger";
 
 interface CoinPackage {
   id: string;
@@ -78,7 +79,7 @@ export const UnifiedShopDialog = ({
         setInterval(detectedInterval);
       }
     } catch (error) {
-      console.error('Error loading subscription:', error);
+      logError('Error loading subscription', error as Error);
     } finally {
       setLoading(false);
     }
@@ -113,7 +114,7 @@ export const UnifiedShopDialog = ({
             return;
           }
         } catch (e) {
-          console.warn('customer-portal VIP pre-check failed, will fallback', e);
+          logWarn('customer-portal VIP pre-check failed, will fallback', { error: e });
         }
       }
 
@@ -143,7 +144,7 @@ export const UnifiedShopDialog = ({
             return;
           }
         } catch (e) {
-          console.warn('customer-portal failed, fallback to checkout', e);
+          logWarn('customer-portal failed, fallback to checkout', { error: e });
         }
 
         const { data: upData, error: upErr } = await supabase.functions.invoke('billing-upgrade', {
@@ -169,7 +170,7 @@ export const UnifiedShopDialog = ({
         return;
       }
     } catch (error: unknown) {
-      console.error('Error processing subscription change:', error);
+      logError('Error processing subscription change', error as Error);
       const msg = (error as { message?: string })?.message || t.subscription_errors_generic || t.upgradeFailed || 'An error occurred';
       toast.error(msg);
     } finally {
@@ -202,7 +203,7 @@ export const UnifiedShopDialog = ({
         }
       }
     } catch (error) {
-      console.error('Purchase error:', error);
+      logError('Purchase error', error as Error);
       toast.error(t.coins_purchase_error || 'Failed to create checkout session');
     } finally {
       setCoinLoading(null);

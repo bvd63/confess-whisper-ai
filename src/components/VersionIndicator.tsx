@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Info, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { logError } from '@/lib/logger';
 
 /**
  * Displays current app version and allows manual update check
@@ -34,7 +35,7 @@ export const VersionIndicator = () => {
         }
       }
     } catch (error) {
-      console.error('Failed to load version:', error);
+      logError('Failed to load version', error as Error);
     }
   };
 
@@ -60,7 +61,7 @@ export const VersionIndicator = () => {
         }
       }
     } catch (error) {
-      console.error('Update check failed:', error);
+      logError('Update check failed', error as Error);
     } finally {
       setIsChecking(false);
     }
