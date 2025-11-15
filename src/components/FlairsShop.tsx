@@ -210,7 +210,7 @@ export const FlairsShop = ({
       // Reload data
       await loadData();
     } catch (error) {
-      console.error('[FlairsShop] Error purchasing flair:', error);
+      logError('[FlairsShop] Error purchasing flair', error as Error);
       toast({
         title: t.error_generic,
         description: t.flair_purchase_error,
@@ -284,7 +284,7 @@ export const FlairsShop = ({
       });
       await loadData();
     } catch (error) {
-      console.error('Error equipping flair:', error);
+      logError('Error equipping flair', error as Error);
       toast({
         title: t.error_generic,
         description: t.error_generic,
