@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bell, Heart, MessageSquare, UserPlus, MessageCircle, Send } from "lucide-react";
 import { toast } from "sonner";
+import { logError } from "@/lib/logger";
 
 interface NotificationPreference {
   notify_likes: boolean;
@@ -57,7 +58,7 @@ export const NotificationPreferences = () => {
         setPreferences(data);
       }
     } catch (error) {
-      console.error("Error loading notification preferences:", error);
+      logError("Error loading notification preferences", error as Error);
       toast.error("Failed to load notification preferences");
     } finally {
       setLoading(false);
@@ -83,7 +84,7 @@ export const NotificationPreferences = () => {
 
       toast.success("Notification preference updated");
     } catch (error) {
-      console.error("Error updating notification preference:", error);
+      logError("Error updating notification preference", error as Error);
       toast.error("Failed to update preference");
       // Revert optimistic update
       loadPreferences();
@@ -108,7 +109,7 @@ export const NotificationPreferences = () => {
       
       toast.success("Test notification sent! Check your device.");
     } catch (error) {
-      console.error("Error sending test notification:", error);
+      logError("Error sending test notification", error as Error);
       toast.error("Failed to send test notification");
     } finally {
       setTestingSending(false);

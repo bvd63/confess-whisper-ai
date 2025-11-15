@@ -10,6 +10,7 @@ import { NotificationStatusBadge } from '@/components/NotificationStatusBadge';
 import { NotificationPreferences } from '@/components/NotificationPreferences';
 import { useNavigate } from 'react-router-dom';
 import { History } from 'lucide-react';
+import { logError } from '@/lib/logger';
 
 interface NotificationSettingsData {
   dailyReminder: boolean;
@@ -61,7 +62,7 @@ export const NotificationSettings = () => {
         }
       })
       .catch(error => {
-        console.error('Failed to load notification settings', error);
+        logError('Failed to load notification settings', error);
       })
       .finally(() => {
         if (isMounted) {
@@ -91,7 +92,7 @@ export const NotificationSettings = () => {
           await NotificationService.getInstance().saveSettings(next);
           toast.success(t.saved_toast || 'Settings saved');
         } catch (error) {
-          console.error('Failed to persist notification setting', error);
+          logError('Failed to persist notification setting', error);
           toast.error(t.save_failed || 'Failed to save settings');
         } finally {
           setIsSaving(false);
@@ -110,7 +111,7 @@ export const NotificationSettings = () => {
       await NotificationService.getInstance().saveSettings(next);
       toast.success(t.saved_toast || 'Settings saved');
     } catch (error) {
-      console.error('Failed to persist notification setting', error);
+      logError('Failed to persist notification setting', error);
       toast.error(t.save_failed || 'Failed to save settings');
       setSettings(prev); // Rollback to previous
     } finally {

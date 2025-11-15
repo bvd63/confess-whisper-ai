@@ -4,6 +4,7 @@ import { Sparkles, Coins, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { logError } from "@/lib/logger";
 
 interface PolishConfessionButtonProps {
   confessionText: string;
@@ -58,7 +59,7 @@ export const PolishConfessionButton = ({
         });
       }
     } catch (error) {
-      console.error('Error polishing confession:', error);
+      logError('Error polishing confession', error as Error);
       toast({
         title: t.error_generic,
         description: t.polish_error,

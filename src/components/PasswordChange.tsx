@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Lock } from "lucide-react";
+import { logError } from "@/lib/logger";
 
 interface PasswordChangeProps {
   userId: string;
@@ -88,7 +89,7 @@ export const PasswordChange = ({ userId, passwordChangedAt }: PasswordChangeProp
       // Trigger parent to reload the password_changed_at
       window.location.reload();
     } catch (error: any) {
-      console.error('Error changing password:', error);
+      logError('Error changing password', error);
       toast.error(error.message || t.error_generic);
     } finally {
       setLoading(false);
