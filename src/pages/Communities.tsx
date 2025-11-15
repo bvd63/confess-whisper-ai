@@ -29,13 +29,12 @@ const Communities = () => {
     name: "",
     description: "",
     category: "general",
-    slug: "",
     is_private: false,
     language: "en",
   });
 
   const handleCreateCommunity = async () => {
-    if (!newCommunity.name || !newCommunity.slug) {
+    if (!newCommunity.name.trim()) {
       toast({
         title: t.error_generic,
         description: t.validation_required_field,
@@ -45,13 +44,23 @@ const Communities = () => {
     }
 
     try {
-      await createCommunity(newCommunity);
+      // Generate slug from name: lowercase, spaces to hyphens, remove invalid chars
+      const slug = newCommunity.name
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '')
+        .replace(/^-+|-+$/g, '');
+
+      await createCommunity({
+        ...newCommunity,
+        slug,
+      });
       setIsCreateOpen(false);
       setNewCommunity({
         name: "",
         description: "",
         category: "general",
-        slug: "",
         is_private: false,
         language: "en",
       });
@@ -124,14 +133,6 @@ const Communities = () => {
                   />
                 </div>
                 <div>
-                  <Label>{t.communities_slug_label}</Label>
-                  <Input
-                    value={newCommunity.slug}
-                    onChange={(e) => setNewCommunity({ ...newCommunity, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
-                    placeholder={t.communities_slug_placeholder}
-                  />
-                </div>
-                <div>
                   <Label>{t.communities_description}</Label>
                   <Textarea
                     value={newCommunity.description}
@@ -154,20 +155,7 @@ const Communities = () => {
                   </Select>
                 </div>
                 <div>
-                  <Label>{t.communities_language}</Label>
-                  <Select value={newCommunity.language} onValueChange={(v) => setNewCommunity({ ...newCommunity, language: v })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="en">English</SelectItem>
-                      <SelectItem value="es">Español</SelectItem>
-                      <SelectItem value="de">Deutsch</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>{t.communities_visibility}</Label>
+                  <Label>{t.communities_visibility} *</Label>
                   <Select value={newCommunity.is_private ? "private" : "public"} onValueChange={(v) => setNewCommunity({ ...newCommunity, is_private: v === "private" })}>
                     <SelectTrigger>
                       <SelectValue />
