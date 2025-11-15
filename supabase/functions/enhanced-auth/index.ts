@@ -38,7 +38,7 @@ interface RateLimitCheckResult {
 }
 
 async function enforceRateLimit(
-  client: ReturnType<typeof createClient>,
+  client: any,
   {
     action,
     userId,
@@ -58,7 +58,7 @@ async function enforceRateLimit(
   }
 
   try {
-    const result = await client.functions.invoke<RateLimitResponse>('rate-limit', {
+    const result = await client.functions.invoke('rate-limit', {
       body: {
         action,
         userId: userId ?? undefined,
@@ -66,12 +66,12 @@ async function enforceRateLimit(
       },
     });
 
-    if (!result.error && result.data && result.data.allowed === false) {
+    if (!result.error && result.data && (result.data as any).allowed === false) {
       return {
         allowed: false,
-        remaining: result.data.remaining,
-        retryAfter: result.data.retryAfter,
-        identifierType: result.data.identifierType,
+        remaining: (result.data as any).remaining,
+        retryAfter: (result.data as any).retryAfter,
+        identifierType: (result.data as any).identifierType,
       };
     }
 
@@ -83,6 +83,32 @@ async function enforceRateLimit(
   }
 
   return { allowed: true };
+}
+
+// Helper to log security events without throwing errors
+async function logSecurityEvent(
+  client: any,
+  userId: string | null,
+  eventType: string,
+  eventData: Record<string, unknown>,
+  ipAddress: string | null,
+  userAgent: string | null
+): Promise<void> {
+  try {
+    const { error } = await client.rpc('log_security_event', {
+      _user_id: userId,
+      _event_type: eventType,
+      _event_data: eventData,
+      _ip_address: ipAddress,
+      _user_agent: userAgent,
+    });
+    
+    if (error) {
+      console.warn(`[enhanced-auth] Failed to log security event: ${eventType}`, error);
+    }
+  } catch (err) {
+    console.warn(`[enhanced-auth] Exception logging security event: ${eventType}`, err);
+  }
 }
 
 interface VerifyCaptchaRequest {
@@ -216,23 +242,27 @@ serve(async (req) => {
         });
 
         if (!loginRateLimit.allowed) {
-          await supabaseClient
-            .rpc('log_security_event', {
-              _user_id: null,
-              _event_type: 'login_rate_limited',
-              _event_data: {
-                email: normalizedEmail,
-                remaining: loginRateLimit.remaining ?? 0,
-                identifierType: loginRateLimit.identifierType ?? 'ip',
-              },
-              _ip_address: metadataIp,
-              _user_agent: metadataUserAgent,
-            })
-            .catch((err) => console.warn('[enhanced-auth] Failed to log login rate limit event', err));
+          await logSecurityEvent(
+            supabaseClient,
+            null,
+            'login_rate_limited',
+            {
+              email: normalizedEmail,
+              remaining: loginRateLimit.remaining ?? 0,
+              identifierType: loginRateLimit.identifierType ?? 'ip',
+            },
+            metadataIp,
+            metadataUserAgent
+          );
 
-          const rateLimitHeaders = loginRateLimit.retryAfter
-            ? { 'Retry-After': loginRateLimit.retryAfter.toString() }
-            : {};
+          const responseHeaders: Record<string, string> = {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          };
+          
+          if (loginRateLimit.retryAfter) {
+            responseHeaders['Retry-After'] = loginRateLimit.retryAfter.toString();
+          }
 
           return new Response(
             JSON.stringify({
@@ -242,7 +272,7 @@ serve(async (req) => {
             }),
             {
               status: 429,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json', ...rateLimitHeaders },
+              headers: responseHeaders,
             }
           );
         }
@@ -533,23 +563,27 @@ serve(async (req) => {
         });
 
         if (!refreshRateLimit.allowed) {
-          await supabaseClient
-            .rpc('log_security_event', {
-              _user_id: sessionRecord.user_id,
-              _event_type: 'refresh_rate_limited',
-              _event_data: {
-                sessionId: sessionRecord.id,
-                remaining: refreshRateLimit.remaining ?? 0,
-                identifierType: refreshRateLimit.identifierType ?? 'ip',
-              },
-              _ip_address: sessionMetadata?.ipAddress || clientIp,
-              _user_agent: sessionMetadata?.userAgent || userAgent,
-            })
-            .catch((err) => console.warn('[enhanced-auth] Failed to log refresh rate limit event', err));
+          await logSecurityEvent(
+            supabaseClient,
+            sessionRecord.user_id,
+            'refresh_rate_limited',
+            {
+              sessionId: sessionRecord.id,
+              remaining: refreshRateLimit.remaining ?? 0,
+              identifierType: refreshRateLimit.identifierType ?? 'ip',
+            },
+            sessionMetadata?.ipAddress || clientIp,
+            sessionMetadata?.userAgent || userAgent
+          );
 
-          const rateLimitHeaders = refreshRateLimit.retryAfter
-            ? { 'Retry-After': refreshRateLimit.retryAfter.toString() }
-            : {};
+          const responseHeaders: Record<string, string> = {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          };
+          
+          if (refreshRateLimit.retryAfter) {
+            responseHeaders['Retry-After'] = refreshRateLimit.retryAfter.toString();
+          }
 
           return new Response(
             JSON.stringify({
@@ -559,7 +593,7 @@ serve(async (req) => {
             }),
             {
               status: 429,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json', ...rateLimitHeaders },
+              headers: responseHeaders,
             }
           );
         }
@@ -661,23 +695,27 @@ serve(async (req) => {
         });
 
         if (!signupRateLimit.allowed) {
-          await supabaseClient
-            .rpc('log_security_event', {
-              _user_id: null,
-              _event_type: 'signup_rate_limited',
-              _event_data: {
-                email: normalizedEmail,
-                remaining: signupRateLimit.remaining ?? 0,
-                identifierType: signupRateLimit.identifierType ?? 'ip',
-              },
-              _ip_address: clientIp,
-              _user_agent: userAgent,
-            })
-            .catch((err) => console.warn('[enhanced-auth] Failed to log signup rate limit event', err));
+          await logSecurityEvent(
+            supabaseClient,
+            null,
+            'signup_rate_limited',
+            {
+              email: normalizedEmail,
+              remaining: signupRateLimit.remaining ?? 0,
+              identifierType: signupRateLimit.identifierType ?? 'ip',
+            },
+            clientIp,
+            userAgent
+          );
 
-          const rateLimitHeaders = signupRateLimit.retryAfter
-            ? { 'Retry-After': signupRateLimit.retryAfter.toString() }
-            : {};
+          const responseHeaders: Record<string, string> = {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          };
+          
+          if (signupRateLimit.retryAfter) {
+            responseHeaders['Retry-After'] = signupRateLimit.retryAfter.toString();
+          }
 
           return new Response(
             JSON.stringify({
@@ -687,7 +725,7 @@ serve(async (req) => {
             }),
             {
               status: 429,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json', ...rateLimitHeaders },
+              headers: responseHeaders,
             }
           );
         }
@@ -788,23 +826,27 @@ serve(async (req) => {
         });
 
         if (!passwordResetRateLimit.allowed) {
-          await supabaseClient
-            .rpc('log_security_event', {
-              _user_id: null,
-              _event_type: 'password_reset_rate_limited',
-              _event_data: {
-                email: normalizedEmail,
-                remaining: passwordResetRateLimit.remaining ?? 0,
-                identifierType: passwordResetRateLimit.identifierType ?? 'ip',
-              },
-              _ip_address: clientIp,
-              _user_agent: userAgent,
-            })
-            .catch((err) => console.warn('[enhanced-auth] Failed to log password reset rate limit event', err));
+          await logSecurityEvent(
+            supabaseClient,
+            null,
+            'password_reset_rate_limited',
+            {
+              email: normalizedEmail,
+              remaining: passwordResetRateLimit.remaining ?? 0,
+              identifierType: passwordResetRateLimit.identifierType ?? 'ip',
+            },
+            clientIp,
+            userAgent
+          );
 
-          const rateLimitHeaders = passwordResetRateLimit.retryAfter
-            ? { 'Retry-After': passwordResetRateLimit.retryAfter.toString() }
-            : {};
+          const responseHeaders: Record<string, string> = {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          };
+          
+          if (passwordResetRateLimit.retryAfter) {
+            responseHeaders['Retry-After'] = passwordResetRateLimit.retryAfter.toString();
+          }
 
           return new Response(
             JSON.stringify({
@@ -814,7 +856,7 @@ serve(async (req) => {
             }),
             {
               status: 429,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json', ...rateLimitHeaders },
+              headers: responseHeaders,
             }
           );
         }
@@ -836,15 +878,14 @@ serve(async (req) => {
           console.error('[enhanced-auth] Password reset request failed', error);
         }
 
-        await supabaseClient
-          .rpc('log_security_event', {
-            _user_id: null,
-            _event_type: 'password_reset_requested',
-            _event_data: { email: normalizedEmail },
-            _ip_address: clientIp,
-            _user_agent: userAgent,
-          })
-          .catch((err) => console.warn('[enhanced-auth] Failed to log password reset request', err));
+        await logSecurityEvent(
+          supabaseClient,
+          null,
+          'password_reset_requested',
+          { email: normalizedEmail },
+          clientIp,
+          userAgent
+        );
 
         return new Response(
           JSON.stringify({ success: true, messageKey: 'auth.forgot_password_success' }),

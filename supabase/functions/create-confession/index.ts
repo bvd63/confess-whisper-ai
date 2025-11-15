@@ -1,4 +1,3 @@
-import type {} from "../deno-shims.d.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import {
@@ -61,7 +60,7 @@ const jsonResponse = (body: Record<string, unknown>, status = 200) =>
   });
 
 const logSecurityEvent = async (
-  client: ReturnType<typeof createClient>,
+  client: any,
   {
     userId,
     eventType,
@@ -79,13 +78,17 @@ const logSecurityEvent = async (
   if (!client) return;
 
   try {
-    await client.rpc("log_security_event", {
+    const { error } = await client.rpc("log_security_event", {
       _user_id: userId ?? null,
       _event_type: eventType,
       _event_data: eventData ?? null,
       _ip_address: ipAddress ?? null,
       _user_agent: userAgent ?? null,
     });
+    
+    if (error) {
+      console.warn("[create-confession] Failed to log security event", error);
+    }
   } catch (error) {
     console.warn("[create-confession] Failed to log security event", error);
   }
