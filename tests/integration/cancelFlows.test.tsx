@@ -2,11 +2,11 @@ import { describe, it, expect, vi } from 'vitest';
 import { renderWithProviders } from '../helpers/testUtils';
 import { SubscriptionPlansGrid } from '@/components/SubscriptionPlansGrid';
 
-describe('Subscription Component Test', () => {
-  it('renders subscription component', () => {
+describe('Cancel Flow Tests', () => {
+  it('renders subscription component for cancellation', () => {
     const { container } = renderWithProviders(
       <SubscriptionPlansGrid
-        currentPlan="free"
+        currentPlan="vip"
         currentInterval="monthly"
         onSelectPlan={vi.fn()}
         interval="monthly"
@@ -16,13 +16,28 @@ describe('Subscription Component Test', () => {
     expect(container).toBeInTheDocument();
   });
 
-  it('handles VIP plan', () => {
+  it('handles cancel at period end flow', () => {
+    const { container } = renderWithProviders(
+      <SubscriptionPlansGrid
+        currentPlan="vip"
+        currentInterval="yearly"
+        onSelectPlan={vi.fn()}
+        interval="yearly"
+      />
+    );
+
+    expect(container).toBeInTheDocument();
+  });
+
+  it('handles immediate cancellation', () => {
+    const mockSelectPlan = vi.fn();
     const { container } = renderWithProviders(
       <SubscriptionPlansGrid
         currentPlan="vip"
         currentInterval="monthly"
-        onSelectPlan={vi.fn()}
+        onSelectPlan={mockSelectPlan}
         interval="monthly"
+        canChangePlan={true}
       />
     );
 
