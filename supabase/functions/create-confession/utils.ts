@@ -70,7 +70,7 @@ export type NormalizeCreateConfessionError =
 const normalizeMood = (value: unknown): NormalizedMood | null => {
   if (!value || typeof value !== "object") return null;
   const moodValue = typeof (value as { mood?: unknown }).mood === "string"
-    ? (value as { mood?: string }).mood.slice(0, MAX_MOOD_LENGTH)
+    ? ((value as { mood?: string }).mood || "").slice(0, MAX_MOOD_LENGTH)
     : undefined;
   const intensityRaw = (value as { intensity?: unknown }).intensity;
   const intensity = clampIntensity(intensityRaw ?? null);
