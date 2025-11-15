@@ -2,6 +2,7 @@
  * Mobile Utilities
  * Helper functions for mobile device detection, optimization, and UX improvements
  */
+import { logWarn, logError } from '@/lib/logger';
 
 /**
  * Device Detection Utilities
@@ -200,7 +201,7 @@ export const lockOrientation = async (
       }
     }
   } catch (error) {
-    console.warn('Orientation lock not supported:', error);
+    logWarn('Orientation lock not supported', error as Error);
   }
 };
 
@@ -266,7 +267,7 @@ export const getStorageEstimate = async (): Promise<{
     
     return { usage, quota, percentage };
   } catch (error) {
-    console.warn('Storage estimate not available:', error);
+    logWarn('Storage estimate not available', error as Error);
     return null;
   }
 };
@@ -291,7 +292,7 @@ export const getBatteryStatus = async (): Promise<{
       charging: battery.charging,
     };
   } catch (error) {
-    console.warn('Battery API not available:', error);
+    logWarn('Battery API not available', error as Error);
     return null;
   }
 };
@@ -339,7 +340,7 @@ export const copyToClipboard = async (text: string): Promise<boolean> => {
       return success;
     }
   } catch (error) {
-    console.error('Failed to copy to clipboard:', error);
+    logError('Failed to copy to clipboard', error as Error);
     return false;
   }
 };
@@ -366,7 +367,7 @@ export const shareContent = async (data: {
     await navigator.share(data);
     return true;
   } catch (error) {
-    console.warn('Share failed:', error);
+    logWarn('Share failed', error as Error);
     return false;
   }
 };

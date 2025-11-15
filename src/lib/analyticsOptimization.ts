@@ -3,7 +3,7 @@
  * Batch and throttle analytics events to reduce network calls
  */
 import { env } from '@/lib/env';
-import { logDebug } from '@/lib/logger';
+import { logDebug, logError } from '@/lib/logger';
 
 interface AnalyticsEvent {
   name: string;
@@ -74,7 +74,7 @@ class AnalyticsOptimizer {
       //   body: JSON.stringify({ events }),
       // });
     } catch (error) {
-      console.error('Failed to send analytics batch:', error);
+      logError('Failed to send analytics batch', error as Error);
       // Re-queue failed events
       this.queue.unshift(...events);
     }

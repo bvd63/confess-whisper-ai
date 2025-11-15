@@ -4,6 +4,7 @@
  */
 
 import { persistenceMonitor } from './persistenceMonitor';
+import { logWarn, logError } from '@/lib/logger';
 
 interface PersistenceOptions {
   ttl?: number; // Time to live in milliseconds
@@ -39,7 +40,7 @@ class PersistenceManager {
           try {
             db.deleteObjectStore('conversations');
           } catch (e) {
-            console.warn('Could not delete conversations store during upgrade:', e);
+            logWarn('Could not delete conversations store during upgrade', e as Error);
           }
         }
 
@@ -238,12 +239,12 @@ class PersistenceManager {
             if (now - item.timestamp > maxAge) {
               cursor.delete();
             }
-            cursor.continue();
-          }
-        };
-      } catch (error) {
-        console.error(`Error clearing expired data from ${storeName}:`, error);
-      }
+          cursor.continue();
+        }
+      };
+    } catch (error) {
+      logError(`Error clearing expired data from ${storeName}`, error as Error);
+    }
     }
   }
 
@@ -253,5 +254,5 @@ export const persistenceManager = new PersistenceManager();
 
 // Initialize on import
 persistenceManager.init().catch(err => {
-  console.error('Failed to initialize persistence manager:', err);
+  logError('Failed to initialize persistence manager', err as Error);
 });
