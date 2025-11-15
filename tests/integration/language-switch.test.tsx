@@ -10,9 +10,9 @@ const TestComponent = () => {
   return (
     <div>
       <p data-testid="current-language">{language}</p>
-      <p data-testid="welcome-text">{t.welcome || 'Welcome'}</p>
+      <p data-testid="welcome-text">{t.home_title || 'Welcome'}</p>
       <p data-testid="subscription-title">{t.subscription_title || 'Subscription'}</p>
-      <p data-testid="auth-signin">{t.auth_signIn || 'Sign In'}</p>
+      <p data-testid="auth-signin">{t.auth_signin || 'Sign In'}</p>
       <Button onClick={() => setLanguage('en')}>English</Button>
       <Button onClick={() => setLanguage('es')}>Español</Button>
       <Button onClick={() => setLanguage('de')}>Deutsch</Button>

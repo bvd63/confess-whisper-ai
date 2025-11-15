@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { useSubscription } from "@/state/SubscriptionProvider";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Crown, Zap, Calendar, Settings } from "lucide-react";
-import { STRIPE_CONFIG } from "@/lib/stripe-config";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -12,16 +11,19 @@ export const SubscriptionStatusCard = () => {
   const { subscriptionTier, subscriptionEnd, isLoading } = useSubscription();
   const { t } = useLanguage();
 
-  const openStripeCheckout = () => {
+  const handleUpgrade = async () => {
     try {
-      if (window.top && window.top !== window) {
-        window.top.location.href = STRIPE_CONFIG.CHECKOUT_URL;
-      } else {
-        const win = window.open(STRIPE_CONFIG.CHECKOUT_URL, '_blank', 'noopener');
-        if (!win) window.location.href = STRIPE_CONFIG.CHECKOUT_URL;
+      const { data, error } = await supabase.functions.invoke('billing-buy', {
+        body: { tier: 'vip', cycle: 'monthly' }
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.open(data.url, '_blank', 'noopener');
       }
-    } catch {
-      window.location.href = STRIPE_CONFIG.CHECKOUT_URL;
+    } catch (error) {
+      toast.error(t.error_generic || "Failed to start checkout");
     }
   };
 
@@ -32,8 +34,7 @@ export const SubscriptionStatusCard = () => {
       if (error) throw error;
       
       if (data?.error) {
-        toast.error("No active subscription found. Redirecting to checkout...");
-        openStripeCheckout();
+        toast.error("No active subscription found. Please upgrade first.");
         return;
       }
       
@@ -50,11 +51,7 @@ export const SubscriptionStatusCard = () => {
         }
       }
     } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error('Error opening portal:', error);
-      }
-      toast.error("Opening checkout instead...");
-      openStripeCheckout();
+      toast.error("Failed to open subscription management");
     }
   };
 
@@ -132,7 +129,7 @@ export const SubscriptionStatusCard = () => {
           <div className="flex gap-2 pt-2">
             {subscriptionTier === 'free' ? (
               <Button 
-                onClick={openStripeCheckout}
+                onClick={handleUpgrade}
                 className="flex-1 gap-2 bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400"
               >
                 <Crown className="w-4 h-4" />

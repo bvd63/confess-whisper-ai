@@ -4,12 +4,13 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { STRIPE_PRICE, STRIPE_CONFIG } from '@/lib/stripe-config';
+import { STRIPE_PRICE } from '@/lib/stripe-config';
+import { env } from '@/lib/env';
 
 describe('Stripe Configuration', () => {
   it('should have valid price IDs configured', () => {
     // Allow empty price IDs in development/test environment
-    if (import.meta.env.MODE === 'production') {
+    if (env.isProd) {
       expect(STRIPE_PRICE.VIP_MONTHLY).toBeTruthy();
       expect(STRIPE_PRICE.VIP_YEARLY).toBeTruthy();
       expect(STRIPE_PRICE.VIP_MONTHLY).toMatch(/^price_/);
@@ -19,12 +20,6 @@ describe('Stripe Configuration', () => {
       expect(typeof STRIPE_PRICE.VIP_MONTHLY).toBe('string');
       expect(typeof STRIPE_PRICE.VIP_YEARLY).toBe('string');
     }
-  });
-
-  it.skip('should have checkout URL configured', () => {
-    // Skipped: CHECKOUT_URL now comes from env, no hardcoded fallback
-    expect(STRIPE_CONFIG.CHECKOUT_URL).toBeTruthy();
-    expect(STRIPE_CONFIG.CHECKOUT_URL).toMatch(/^https:\/\//);
   });
 });
 

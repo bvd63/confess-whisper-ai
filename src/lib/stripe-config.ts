@@ -6,14 +6,8 @@ import { env } from '@/lib/env';
 
 // Read Stripe configuration from environment variables
 export const STRIPE_PRICE = {
-  VIP_MONTHLY: env.client.stripePriceVipMonthId,
-  VIP_YEARLY: env.client.stripePriceVipYearId,
-};
-
-export const STRIPE_CONFIG = {
-  SECRET_KEY: import.meta.env.VITE_STRIPE_SECRET_KEY,
-  WEBHOOK_SECRET: import.meta.env.VITE_STRIPE_WEBHOOK_SECRET,
-  CHECKOUT_URL: import.meta.env.VITE_STRIPE_VIP_CHECKOUT_URL,
+  VIP_MONTHLY: env.client.stripePriceVipMonthly,
+  VIP_YEARLY: env.client.stripePriceVipYearly,
 };
 
 export const SUBSCRIPTION_TIERS = {
@@ -31,3 +25,4 @@ export const getPriceIdForTier = (tier: SubscriptionTier, cycle: BillingCycle = 
   }
   return null;
 };
+
