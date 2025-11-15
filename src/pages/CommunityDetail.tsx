@@ -17,17 +17,19 @@ import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import VirtualizedConfessions from "@/components/VirtualizedConfessions";
+import { CommunityManagement } from "@/components/CommunityManagement";
 
 const CommunityDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
   const { user } = useCurrentUser();
-  const { membership, isMember, joinCommunity, leaveCommunity, isJoining, isLeaving } = 
+  const { membership, isMember, isAdmin, isModerator, joinCommunity, leaveCommunity, isJoining, isLeaving } = 
     useCommunityMembers(id!);
   const { isPremium } = usePremiumStatus(user?.id);
   const { t } = useLanguage();
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
+  const [manageCommunityOpen, setManageCommunityOpen] = useState(false);
 
   const { data: community, isLoading: loadingCommunity } = useQuery({
     queryKey: ['community', id],
@@ -125,8 +127,12 @@ const CommunityDetail = () => {
             >
               {isMember ? t.communities_leave : t.communities_join}
             </Button>
-              {membership?.role === 'admin' && (
-                <Button variant="ghost" size="icon">
+              {(isAdmin || isModerator) && (
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => setManageCommunityOpen(true)}
+                >
                   <Settings className="w-4 h-4" />
                 </Button>
               )}
@@ -190,6 +196,13 @@ const CommunityDetail = () => {
       </div>
     </AppLayout>
     <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    <CommunityManagement 
+      open={manageCommunityOpen} 
+      onOpenChange={setManageCommunityOpen}
+      communityId={id!}
+      isAdmin={isAdmin}
+      isModerator={isModerator}
+    />
     </>
   );
 };
