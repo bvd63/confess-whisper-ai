@@ -106,7 +106,7 @@ export default function TestSubscriptions() {
   const testPreviewUpgrade = () =>
     runTest("Preview Upgrade to VIP", async () => {
       // Note: This requires knowing the actual Stripe price ID for VIP
-      const vipPriceId = env.client.stripePriceVipMonthId;
+      const vipPriceId = env.client.stripePriceVipMonthly;
       const { data, error } = await supabase.functions.invoke("billing-preview", {
         body: { targetPriceId: vipPriceId },
       });

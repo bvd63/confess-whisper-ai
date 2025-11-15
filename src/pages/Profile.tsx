@@ -14,7 +14,6 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useMessageNotifications } from "@/hooks/useMessageNotifications";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useSubscriptionCheck } from "@/hooks/useSubscriptionCheck";
-import { STRIPE_CONFIG } from "@/lib/stripe-config";
 import UserConfessionsList from "@/components/UserConfessionsList";
 import UserAnalytics from "@/components/UserAnalytics";
 import BadgesDisplay from "@/components/BadgesDisplay";
@@ -100,19 +99,6 @@ const Profile = () => {
   }, [user?.id, loadProfileData]);
 
   const handleManageSubscription = async () => {
-    const openStripeCheckout = () => {
-      try {
-        if (window.top && window.top !== window) {
-          window.top.location.href = STRIPE_CONFIG.CHECKOUT_URL;
-        } else {
-          const win = window.open(STRIPE_CONFIG.CHECKOUT_URL, '_blank', 'noopener');
-          if (!win) window.location.href = STRIPE_CONFIG.CHECKOUT_URL;
-        }
-      } catch {
-        window.location.href = STRIPE_CONFIG.CHECKOUT_URL;
-      }
-    };
-
     try {
       const { data, error } = await supabase.functions.invoke('customer-portal');
       
@@ -121,9 +107,8 @@ const Profile = () => {
       if (data?.error) {
         toast({
           title: "No Active Subscription",
-          description: "Redirecting to checkout...",
+          description: "Please upgrade to VIP first.",
         });
-        openStripeCheckout();
         return;
       }
       
@@ -140,14 +125,10 @@ const Profile = () => {
         }
       }
     } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error('Error opening portal:', error);
-      }
       toast({
-        title: "Opening Checkout",
-        description: "Redirecting to subscription page...",
+        title: "Error",
+        description: "Failed to open subscription management",
       });
-      openStripeCheckout();
     }
   };
 

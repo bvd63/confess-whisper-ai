@@ -19,13 +19,13 @@ if (env.client.supabaseUrl && env.client.supabaseAnonKey) {
 }
 
 // Check optional Stripe configuration
-if (env.client.stripePriceVipMonthId || env.client.stripePriceVipYearId) {
+if (env.client.stripePriceVipMonthly || env.client.stripePriceVipYearly) {
   console.log("✅ Stripe Price IDs: Configured");
-  if (env.client.stripePriceVipMonthId) {
-    console.log(`   - Monthly: ${env.client.stripePriceVipMonthId}`);
+  if (env.client.stripePriceVipMonthly) {
+    console.log(`   - Monthly: ${env.client.stripePriceVipMonthly}`);
   }
-  if (env.client.stripePriceVipYearId) {
-    console.log(`   - Yearly: ${env.client.stripePriceVipYearId}`);
+  if (env.client.stripePriceVipYearly) {
+    console.log(`   - Yearly: ${env.client.stripePriceVipYearly}`);
   }
 } else {
   console.log("⚠️  Stripe Price IDs: Not configured (optional)");

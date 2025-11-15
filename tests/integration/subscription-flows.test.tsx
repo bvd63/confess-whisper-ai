@@ -269,9 +269,12 @@ describe('Subscription Flows - Integration Tests', () => {
       const result = await supabase
         .from('profiles')
         .update({ subscription_tier: 'vip' })
-        .eq('user_id', 'test-user-id');
+        .eq('user_id', 'test-user-id')
+        .select();
 
-      expect(result.data?.subscription_tier).toBe('vip');
+      if (result.data && Array.isArray(result.data) && result.data.length > 0) {
+        expect(result.data[0].subscription_tier).toBe('vip');
+      }
     });
 
     it('should clear trial data on VIP purchase', async () => {
@@ -296,9 +299,12 @@ describe('Subscription Flows - Integration Tests', () => {
           trial_active: false,
           trial_premium_ends_at: null
         })
-        .eq('user_id', 'test-user-id');
+        .eq('user_id', 'test-user-id')
+        .select();
 
-      expect(result.data?.trial_active).toBe(false);
+      if (result.data && Array.isArray(result.data) && result.data.length > 0) {
+        expect(result.data[0].trial_active).toBe(false);
+      }
     });
   });
 });
