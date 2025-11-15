@@ -27,6 +27,7 @@ import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { getAiReply, type AiLocale } from "@/services/aiService";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { env } from "@/lib/env";
+import { logError } from "@/lib/logger";
 import { normalizeCreateConfessionPayload } from "../../supabase/functions/create-confession/utils";
 
 const confessionSchema = z.object({
@@ -144,7 +145,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
           }
         }
       } catch (error) {
-        console.error('Error auto-saving draft:', error);
+        logError('Error auto-saving draft', error);
       }
     }, 5000);
 

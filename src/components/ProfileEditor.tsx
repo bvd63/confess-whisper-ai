@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, User, Clock } from 'lucide-react';
 import { useProfileHandle } from '@/hooks/useProfileHandle';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { logError } from '@/lib/logger';
 
 interface ProfileEditorProps {
   userId: string;
@@ -105,7 +106,7 @@ export const ProfileEditor = ({
         .eq('user_id', userId);
       
       if (error) {
-        console.error('Profile update error:', error);
+        logError('Profile update error', error);
         throw error;
       }
       
