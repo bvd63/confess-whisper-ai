@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { env } from '@/lib/env';
+import { logError } from '@/lib/logger';
 
 /**
  * Supported locales for AI responses
@@ -46,7 +47,7 @@ export async function getAiReply({
     );
 
     if (error) {
-      console.error('[AI-SERVICE] Edge function error:', error);
+      logError('[AI-SERVICE] Edge function error', error);
       
       // Handle specific error cases
       if (error.message?.includes('429')) {
@@ -60,14 +61,14 @@ export async function getAiReply({
     }
 
     if (!data?.ok || !data.answer) {
-      console.error('[AI-SERVICE] Invalid response:', data);
+      logError('[AI-SERVICE] Invalid response', undefined, { data });
       throw new Error(data?.error || 'Invalid AI response');
     }
 
     return data.answer;
 
   } catch (error) {
-    console.error('[AI-SERVICE] Error:', error);
+    logError('[AI-SERVICE] Error', error as Error);
     
     // Re-throw with user-friendly message
     if (error instanceof Error) {

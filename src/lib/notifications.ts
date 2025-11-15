@@ -5,6 +5,7 @@
 
 import { toast as toastFn } from '@/hooks/use-toast';
 import { translations, type Language } from '@/i18n/translations';
+import { logWarn } from '@/lib/logger';
 
 // Helper to get nested translation
 function getNestedTranslation(key: string, language: Language): string {
@@ -21,6 +22,7 @@ function getNestedTranslation(key: string, language: Language): string {
         if (value && typeof value === 'object' && fallbackKey in value) {
           value = value[fallbackKey];
         } else {
+          logWarn('[Notifications] Translation key not found', { key, language });
           return key; // Return key if not found even in English
         }
       }

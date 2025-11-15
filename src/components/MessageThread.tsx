@@ -7,6 +7,7 @@ import { Send, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { UserDisplayName } from "./UserDisplayName";
+import { logError } from "@/lib/logger";
 
 interface Message {
   id: string;
@@ -80,7 +81,7 @@ export const MessageThread = ({
       if (error) throw error;
       setMessages(data || []);
     } catch (error) {
-      console.error('Error loading messages:', error);
+      logError('Error loading messages', error as Error);
     }
   };
 
@@ -103,7 +104,7 @@ export const MessageThread = ({
 
       setNewMessage("");
     } catch (error) {
-      console.error('Error sending message:', error);
+      logError('Error sending message', error as Error);
       toast.error(t.error_generic);
     } finally {
       setSending(false);
