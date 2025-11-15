@@ -67,6 +67,11 @@ export const CommunityCard = ({ community }: CommunityCardProps) => {
               <Badge variant="outline" className="text-[10px] h-4 px-1">
                 {community.category}
               </Badge>
+              {community.is_private && (
+                <Badge variant="secondary" className="text-[10px] h-4 px-1">
+                  {t.communities_private}
+                </Badge>
+              )}
               {community.language && (
                 <Badge variant="secondary" className="text-[10px] h-4 px-1 uppercase">
                   {community.language}
