@@ -9,12 +9,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, Plus, Search } from "lucide-react";
 import { useCommunities } from "@/hooks/useCommunities";
 import { LoadingQuotes } from "@/components/LoadingQuotes";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Communities = () => {
   const [category, setCategory] = useState<string>("all");
@@ -24,6 +27,31 @@ const Communities = () => {
   const { toast } = useToast();
   const { t } = useLanguage();
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
+  
+  // Fetch current user
+  const { data: userData } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      return user;
+    },
+  });
+  
+  // Fetch user's memberships
+  const { data: userMemberships } = useQuery({
+    queryKey: ['user-memberships', userData?.id],
+    queryFn: async () => {
+      if (!userData) return [];
+      const { data, error } = await supabase
+        .from('community_members')
+        .select('community_id')
+        .eq('user_id', userData.id)
+        .eq('status', 'active');
+      if (error) throw error;
+      return data?.map(m => m.community_id) || [];
+    },
+    enabled: !!userData,
+  });
 
   const [newCommunity, setNewCommunity] = useState({
     name: "",
@@ -73,6 +101,12 @@ const Communities = () => {
     c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const myCommunities = filteredCommunities?.filter(c =>
+    userMemberships?.includes(c.id)
+  );
+
+  const discoverCommunities = filteredCommunities;
 
   return (
     <>
@@ -174,23 +208,54 @@ const Communities = () => {
           </Dialog>
         </div>
 
-        {/* Communities Grid */}
-        {isLoading ? (
-          <LoadingQuotes />
-        ) : filteredCommunities && filteredCommunities.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredCommunities.map((community, index) => (
-              <div key={community.id} style={{ animationDelay: `${index * 50}ms` }}>
-                <CommunityCard community={community} />
+        {/* Communities Tabs */}
+        <Tabs defaultValue="discover" className="w-full">
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6">
+            <TabsTrigger value="my">{t.communities_my}</TabsTrigger>
+            <TabsTrigger value="discover">{t.communities_discover}</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="my">
+            {isLoading ? (
+              <LoadingQuotes />
+            ) : myCommunities && myCommunities.length > 0 ? (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {myCommunities.map((community, index) => (
+                  <div key={community.id} style={{ animationDelay: `${index * 50}ms` }}>
+                    <CommunityCard community={community} />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <Users className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-            <p className="text-muted-foreground">{t.communities_not_found}</p>
-          </div>
-        )}
+            ) : (
+              <div className="text-center py-12">
+                <Users className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground">{t.communities_none_joined}</p>
+                <Button variant="outline" className="mt-4" onClick={() => document.querySelector<HTMLElement>('[value="discover"]')?.click()}>
+                  {t.communities_browse}
+                </Button>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="discover">
+            {isLoading ? (
+              <LoadingQuotes />
+            ) : discoverCommunities && discoverCommunities.length > 0 ? (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {discoverCommunities.map((community, index) => (
+                  <div key={community.id} style={{ animationDelay: `${index * 50}ms` }}>
+                    <CommunityCard community={community} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Users className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground">{t.communities_not_found}</p>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
     </AppLayout>
     <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
