@@ -19,6 +19,7 @@ import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
 import { PasswordRulesChecklist } from "@/components/PasswordRulesChecklist";
 import { cn } from "@/lib/utils";
 import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
+import { logError } from "@/lib/logger";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -168,7 +169,7 @@ const Auth = () => {
               });
             }
           } catch (err) {
-            console.error('Error checking streak bonus:', err);
+            logError('Error checking streak bonus', err as Error);
           }
         }
 
@@ -223,7 +224,7 @@ const Auth = () => {
             });
             localStorage.removeItem('referralCode');
           } catch (refError) {
-            console.error('Error processing referral:', refError);
+            logError('Error processing referral', refError as Error);
           }
         }
 

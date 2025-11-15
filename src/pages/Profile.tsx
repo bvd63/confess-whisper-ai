@@ -35,6 +35,7 @@ import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import { useTrialExpiryCheck } from "@/hooks/useTrialExpiryCheck";
 import { SyncSubscriptionButton } from "@/components/SyncSubscriptionButton";
 import { VIPBadge } from "@/components/VIPBadge";
+import { logError } from "@/lib/logger";
 
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 const Profile = () => {
@@ -87,7 +88,7 @@ const Profile = () => {
       setProfileData(data);
     } catch (error) {
       if (import.meta.env.DEV) {
-        console.error('Error loading profile data:', error);
+        logError('Error loading profile data', error as Error);
       }
     }
   }, [user?.id]);

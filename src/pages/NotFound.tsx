@@ -4,7 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { EnhancedButton } from "@/components/EnhancedButton";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { GradientText } from "@/components/GradientText";
-
+import { logError } from "@/lib/logger";
 import { HomeIcon } from "lucide-react";
 
 const NotFound = () => {
@@ -12,7 +12,7 @@ const NotFound = () => {
   const { t } = useLanguage();
 
   useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
+    logError("404 Error: User attempted to access non-existent route", undefined, { pathname: location.pathname });
   }, [location.pathname]);
 
   return (
