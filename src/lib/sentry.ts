@@ -4,6 +4,7 @@
  */
 import * as Sentry from '@sentry/react';
 import { env } from '@/lib/env';
+import { logError } from '@/lib/logger';
 
 let sentryInitialized = false;
 
@@ -87,7 +88,7 @@ export function setSentryUser(context: SentryUserContext): void {
       Sentry.setTag('locale', context.locale);
     }
   } catch (error) {
-    console.error('[Sentry] Failed to set user context:', error);
+    logError('[Sentry] Failed to set user context', error as Error);
   }
 }
 
@@ -100,7 +101,7 @@ export function setSentryRoute(route: string): void {
   try {
     Sentry.setTag('route', route);
   } catch (error) {
-    console.error('[Sentry] Failed to set route:', error);
+    logError('[Sentry] Failed to set route', error as Error);
   }
 }
 
@@ -109,7 +110,7 @@ export function setSentryRoute(route: string): void {
  */
 export function captureSentryError(error: Error, context?: Record<string, any>): void {
   if (!sentryInitialized) {
-    console.error('[Sentry not initialized]', error, context);
+    logError('[Sentry not initialized]', error, context);
     return;
   }
 
@@ -118,7 +119,7 @@ export function captureSentryError(error: Error, context?: Record<string, any>):
       extra: context,
     });
   } catch (err) {
-    console.error('[Sentry] Failed to capture error:', err);
+    logError('[Sentry] Failed to capture error', err as Error);
   }
 }
 
@@ -131,6 +132,6 @@ export function captureSentryMessage(message: string, level: Sentry.SeverityLeve
   try {
     Sentry.captureMessage(message, level);
   } catch (error) {
-    console.error('[Sentry] Failed to capture message:', error);
+    logError('[Sentry] Failed to capture message', error as Error);
   }
 }

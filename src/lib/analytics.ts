@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { logError } from '@/lib/logger';
 
 type AnalyticsEvent = 
   | 'confession_posted'
@@ -78,7 +79,7 @@ class Analytics {
 
       await supabase.from('analytics_events').insert(events);
     } catch (error) {
-      console.error('Analytics flush error:', error);
+      logError('Analytics flush error', error as Error);
       // Re-queue failed events (up to limit)
       if (this.queue.length < 100) {
         this.queue.unshift(...batch.slice(0, 50));

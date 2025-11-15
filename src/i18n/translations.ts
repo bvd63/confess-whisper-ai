@@ -1,4 +1,5 @@
 import { env } from '@/lib/env';
+import { logWarn } from '@/lib/logger';
 
 export type Language = 'en' | 'es' | 'de';
 
@@ -35,7 +36,7 @@ export function getTranslation(
   
   // Log warning in development when fallback occurs
   if (env.isDev && language !== 'en') {
-    console.warn(
+    logWarn(
       `[i18n] Missing translation for key "${key}" in language "${language}". ` +
       `Falling back to English.`
     );

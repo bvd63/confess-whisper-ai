@@ -1,6 +1,8 @@
 /**
  * Advanced cache manager with LRU eviction, TTL, and offline queue
  */
+import { logError } from '@/lib/logger';
+
 interface CacheItem<T> {
   data: T;
   timestamp: number;
@@ -157,7 +159,7 @@ class CacheManager {
         
         if (item.retryCount >= item.maxRetries) {
           // Max retries reached - remove from queue
-          console.error(`Failed operation after ${item.maxRetries} retries:`, error);
+          logError(`Failed operation after ${item.maxRetries} retries`, error as Error);
           this.offlineQueue.shift();
         } else {
           // Exponential backoff

@@ -2,6 +2,7 @@
  * Lighthouse Performance Monitor
  * Tracks Core Web Vitals and provides auto-fix suggestions
  */
+import { logWarn } from '@/lib/logger';
 
 interface PerformanceBudget {
   lcp: number;      // Largest Contentful Paint
@@ -81,7 +82,7 @@ export class LighthouseMonitor {
       observer.observe({ type: 'largest-contentful-paint', buffered: true });
       this.observer = observer;
     } catch (error) {
-      console.warn('[LighthouseMonitor] LCP observation not supported');
+      logWarn('[LighthouseMonitor] LCP observation not supported');
     }
   }
 
@@ -97,7 +98,7 @@ export class LighthouseMonitor {
 
       observer.observe({ type: 'first-input', buffered: true });
     } catch (error) {
-      console.warn('[LighthouseMonitor] FID observation not supported');
+      logWarn('[LighthouseMonitor] FID observation not supported');
     }
   }
 
@@ -117,7 +118,7 @@ export class LighthouseMonitor {
 
       observer.observe({ type: 'layout-shift', buffered: true });
     } catch (error) {
-      console.warn('[LighthouseMonitor] CLS observation not supported');
+      logWarn('[LighthouseMonitor] CLS observation not supported');
     }
   }
 
@@ -153,7 +154,7 @@ export class LighthouseMonitor {
 
       observer.observe({ type: 'paint', buffered: true });
     } catch (error) {
-      console.warn('[LighthouseMonitor] FCP observation not supported');
+      logWarn('[LighthouseMonitor] FCP observation not supported');
     }
   }
 

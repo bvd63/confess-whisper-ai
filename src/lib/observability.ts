@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { env } from '@/lib/env';
+import { logError as logErr } from '@/lib/logger';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -196,7 +197,7 @@ class ObservabilityService {
       }
     } catch (e) {
       // Fail silently to avoid infinite loops
-      console.error('Failed to send error to analytics', e);
+      logErr('Failed to send error to analytics', e as Error);
     }
   }
 

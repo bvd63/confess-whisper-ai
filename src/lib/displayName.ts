@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { logError } from '@/lib/logger';
 
 /**
  * User display information
@@ -74,7 +75,7 @@ export async function fetchUserDisplayInfo(userId: string): Promise<UserDisplayI
       .maybeSingle();
 
     if (error) {
-      console.error('Error fetching user display info:', error);
+      logError('Error fetching user display info', error as Error);
       return null;
     }
 
@@ -88,7 +89,7 @@ export async function fetchUserDisplayInfo(userId: string): Promise<UserDisplayI
       userId: data.user_id,
     };
   } catch (error) {
-    console.error('Error in fetchUserDisplayInfo:', error);
+    logError('Error in fetchUserDisplayInfo', error as Error);
     return null;
   }
 }

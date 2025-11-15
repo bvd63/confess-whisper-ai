@@ -1,5 +1,6 @@
 // src/lib/env.ts
 import { z } from "zod";
+import { logError, logWarn } from '@/lib/logger';
 
 const booleanString = z.enum(["true", "false"]).optional();
 
@@ -40,13 +41,13 @@ const parsed = RawEnv.safeParse({
 });
 
 if (!parsed.success) {
-  console.error("[ENV] Invalid client ENV:", parsed.error.flatten().fieldErrors);
+  logError("[ENV] Invalid client ENV", new Error(JSON.stringify(parsed.error.flatten().fieldErrors)));
   // Only throw if Supabase credentials are missing (required for app to function)
   const errors = parsed.error.flatten().fieldErrors;
   if (errors.VITE_SUPABASE_URL || errors.VITE_SUPABASE_PUBLISHABLE_KEY) {
     throw new Error("Critical environment variables missing: Supabase credentials are required");
   }
-  console.warn("[ENV] Some optional features may be unavailable (Stripe, OneSignal)");
+  logWarn("[ENV] Some optional features may be unavailable (Stripe, OneSignal)");
 }
 
 export const env = {

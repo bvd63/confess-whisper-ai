@@ -2,6 +2,7 @@
  * Database Query Optimization Utilities
  * Provides batching, cursor pagination, and query optimization helpers
  */
+import { logError, logWarn } from '@/lib/logger';
 
 /**
  * Query Batcher - Deduplicates and batches similar queries
@@ -108,7 +109,7 @@ export function parseCursor(cursor: string | null): Record<string, unknown> | nu
   try {
     return JSON.parse(atob(cursor));
   } catch (error) {
-    console.error('[QueryOptimizer] Failed to parse cursor:', error);
+    logError('[QueryOptimizer] Failed to parse cursor', error as Error);
     return null;
   }
 }
@@ -211,7 +212,7 @@ export async function measureQuery<T>(
     queryMonitor.recordQuery(queryName, duration);
 
     if (duration > 1000) {
-      console.warn(`[QueryOptimizer] Slow query detected: ${queryName} (${duration.toFixed(2)}ms)`);
+      logWarn(`[QueryOptimizer] Slow query detected: ${queryName} (${duration.toFixed(2)}ms)`);
     }
 
     return result;

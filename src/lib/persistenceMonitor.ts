@@ -2,6 +2,7 @@
  * Performance monitoring for persistence operations
  * Tracks operation times, success rates, and cache hit rates
  */
+import { logWarn } from '@/lib/logger';
 
 interface OperationMetric {
   operation: string;
@@ -39,7 +40,7 @@ class PersistenceMonitor {
 
       // Log slow operations
       if (duration > 100) {
-        console.warn(`Slow persistence operation: ${operation} took ${duration.toFixed(2)}ms`);
+        logWarn(`Slow persistence operation: ${operation} took ${duration.toFixed(2)}ms`);
       }
     }
   }

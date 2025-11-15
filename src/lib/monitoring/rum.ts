@@ -2,6 +2,7 @@
  * Real User Monitoring (RUM) system
  * Tracks Web Vitals, user journey, errors, and API performance
  */
+import { logWarn, logError } from '@/lib/logger';
 
 interface WebVital {
   name: string;
@@ -88,7 +89,7 @@ class RealUserMonitoring {
         });
         lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
       } catch (e) {
-        console.warn('LCP tracking failed:', e);
+        logWarn('LCP tracking failed', e as Error);
       }
 
       // First Input Delay
@@ -106,7 +107,7 @@ class RealUserMonitoring {
         });
         fidObserver.observe({ entryTypes: ['first-input'] });
       } catch (e) {
-        console.warn('FID tracking failed:', e);
+        logWarn('FID tracking failed', e as Error);
       }
 
       // Cumulative Layout Shift
@@ -129,7 +130,7 @@ class RealUserMonitoring {
         });
         clsObserver.observe({ entryTypes: ['layout-shift'] });
       } catch (e) {
-        console.warn('CLS tracking failed:', e);
+        logWarn('CLS tracking failed', e as Error);
       }
     }
 
@@ -238,7 +239,7 @@ class RealUserMonitoring {
         });
         observer.observe({ entryTypes: ['resource'] });
       } catch (e) {
-        console.warn('API performance tracking failed:', e);
+        logWarn('API performance tracking failed', e as Error);
       }
     }
   }
@@ -341,7 +342,7 @@ class RealUserMonitoring {
       this.webVitals = [];
       this.errors = [];
     } catch (error) {
-      console.error('Failed to send RUM data:', error);
+      logError('Failed to send RUM data', error as Error);
     }
   }
 
