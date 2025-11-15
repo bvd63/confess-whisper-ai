@@ -43,9 +43,10 @@ interface NewConfessionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfessionCreated: () => void;
+  initialCommunityId?: string | null;
 }
 
-const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewConfessionDialogProps) => {
+const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialCommunityId }: NewConfessionDialogProps) => {
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("other");
   const [mood, setMood] = useState<{ mood: string; intensity: number } | null>(null);
@@ -57,7 +58,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
   const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
   const [showCrisisDialog, setShowCrisisDialog] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [communityId, setCommunityId] = useState<string | null>(null);
+  const [communityId, setCommunityId] = useState<string | null>(initialCommunityId || null);
   const { user } = useCurrentUser();
   const { toast } = useToast();
   const { language, t } = useLanguage();
