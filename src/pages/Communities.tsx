@@ -34,7 +34,7 @@ const Communities = () => {
     language: "en",
   });
 
-  const handleCreateCommunity = () => {
+  const handleCreateCommunity = async () => {
     if (!newCommunity.name || !newCommunity.slug) {
       toast({
         title: t.error_generic,
@@ -44,16 +44,20 @@ const Communities = () => {
       return;
     }
 
-    createCommunity(newCommunity);
-    setIsCreateOpen(false);
-    setNewCommunity({
-      name: "",
-      description: "",
-      category: "general",
-      slug: "",
-      is_private: false,
-      language: "en",
-    });
+    try {
+      await createCommunity(newCommunity);
+      setIsCreateOpen(false);
+      setNewCommunity({
+        name: "",
+        description: "",
+        category: "general",
+        slug: "",
+        is_private: false,
+        language: "en",
+      });
+    } catch (error) {
+      // Error is already handled by the mutation's onError
+    }
   };
 
   const filteredCommunities = communities?.filter(c =>
