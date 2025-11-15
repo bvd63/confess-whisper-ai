@@ -107,11 +107,12 @@ describe("create-confession utils", () => {
     it("rejects payloads with sanitized content shorter than 10 characters", () => {
       const result = normalizeCreateConfessionPayload({ content: "   too short  " });
       expect(result.ok).toBe(false);
-      if (result.ok) throw new Error("expected failure");
-      expect(result.error.code).toBe("CONTENT_TOO_SHORT");
-      expect(result.error.logReason).toBe("content_too_short");
-      expect(result.error.context.originalLength).toBe("   too short  ".length);
-      expect(result.error.context.sanitizedLength).toBeLessThan(10);
+      if (result.ok === false) {
+        expect(result.error.code).toBe("CONTENT_TOO_SHORT");
+        expect(result.error.logReason).toBe("content_too_short");
+        expect(result.error.context.originalLength).toBe("   too short  ".length);
+        expect(result.error.context.sanitizedLength).toBeLessThan(10);
+      }
     });
 
     it("trims optional captcha tokens and returns null when absent", () => {

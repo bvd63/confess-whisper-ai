@@ -179,9 +179,9 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated }: NewCon
       authorDisplayName: isAnonymous ? null : userNickname,
     });
 
-    if (!normalized.ok) {
-      const { error } = normalized;
-      if (error.code === "INVALID_CONTENT") {
+    if (normalized.ok === false) {
+      const errorCode = normalized.error.code;
+      if (errorCode === "INVALID_CONTENT") {
         toast({
           title: t.error_generic,
           description: t.confession_invalid_content ?? "Confession content is invalid.",

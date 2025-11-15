@@ -74,7 +74,7 @@ export default function ForgotPassword() {
           errorMessage = error.message;
         }
         setError(errorMessage);
-        if (error instanceof FunctionsHttpError && error.status === 403) {
+        if (error instanceof FunctionsHttpError) {
           setCaptchaToken("");
         }
         return;
