@@ -30,7 +30,7 @@ export function initSentry(): void {
   // Guard: Only initialize if DSN is configured
   const dsn = env.client.sentryDsn;
   if (!dsn) {
-    console.log('[Sentry] DSN not configured - skipping initialization');
+    // Sentry DSN not configured - initialization skipped
     return;
   }
 
@@ -62,9 +62,9 @@ export function initSentry(): void {
     });
 
     sentryInitialized = true;
-    console.log('[Sentry] Initialized successfully');
+    // Sentry initialized successfully
   } catch (error) {
-    console.error('[Sentry] Initialization failed:', error);
+    // Sentry initialization failed - continuing without tracking
   }
 }
 

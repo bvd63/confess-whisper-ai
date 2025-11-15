@@ -53,9 +53,9 @@ class ObservabilityService {
 
     // Structured logging in JSON format
     if (env.isDev) {
+      // Development: formatted JSON logging
+      // eslint-disable-next-line no-console
       console.log(JSON.stringify(logEntry, null, 2));
-    } else {
-      console.log(JSON.stringify(logEntry));
     }
 
     // Send to analytics in production
