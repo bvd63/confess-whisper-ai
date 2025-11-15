@@ -72,7 +72,7 @@ serve(async (req) => {
           const price = preferred.items.data[0]?.price;
           const cadence = price?.recurring?.interval === "year" ? "yearly" : "monthly";
           const tier =
-            (price?.id === Deno.env.get("PRICE_VIP_MONTHLY") || price?.id === Deno.env.get("PRICE_VIP_YEARLY")) ? "vip" : "free";
+            (price?.id === Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || price?.id === Deno.env.get("STRIPE_PRICE_VIP_YEARLY")) ? "vip" : "free";
 
           await supabase.from("subscriptions").upsert({
             user_id: user.id,
@@ -145,7 +145,7 @@ serve(async (req) => {
 
 function inferTier(priceId?: string) {
   if (!priceId) return "free";
-  if (priceId === Deno.env.get("PRICE_VIP_MONTHLY") || priceId === Deno.env.get("PRICE_VIP_YEARLY")) return "vip";
+  if (priceId === Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || priceId === Deno.env.get("STRIPE_PRICE_VIP_YEARLY")) return "vip";
   return "free";
 }
 function inferCadence(interval?: string) {
