@@ -89,33 +89,33 @@ export const FlairsShop = ({
       // Profile tier
       if (profileRes.status === 'fulfilled') {
         const { data: profile, error: profileError } = profileRes.value as any;
-        if (profileError) console.error('Profile error:', profileError);
+        if (profileError) logError('Profile error', profileError);
         const tier = (profile?.subscription_tier || 'free') as 'free' | 'vip';
         setUserTier(tier);
       } else {
-        console.error('Profile load rejected:', profileRes.reason);
+        logError('Profile load rejected', profileRes.reason);
       }
 
       // Flairs list
       if (flairsRes.status === 'fulfilled') {
         const { data: flairsData, error: flairsError } = flairsRes.value as any;
         if (flairsError) {
-          console.error('Flairs error:', flairsError);
+          logError('Flairs error', flairsError);
           throw flairsError;
         }
         setFlairs((flairsData || []).filter((f: Flair) => f.name_key !== 'flair_sparkle'));
       } else {
-        console.error('Flairs load rejected:', flairsRes.reason);
+        logError('Flairs load rejected', flairsRes.reason);
         throw flairsRes.reason;
       }
 
       // User flairs
       if (userFlairsRes.status === 'fulfilled') {
         const { data: userFlairsData, error: userFlairsError } = userFlairsRes.value as any;
-        if (userFlairsError) console.error('User flairs error:', userFlairsError);
+        if (userFlairsError) logError('User flairs error', userFlairsError);
         setUserFlairs(userFlairsData || []);
       } else {
-        console.error('User flairs load rejected:', userFlairsRes.reason);
+        logError('User flairs load rejected', userFlairsRes.reason);
       }
 
       // Trigger coins refetch without blocking (useCoins has realtime subscription)

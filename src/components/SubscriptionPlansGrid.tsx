@@ -8,7 +8,7 @@ import { getPlansForInterval } from "@/lib/subscription-plans";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getStringTranslation } from "@/lib/translationUtils";
-import { logDebug } from "@/lib/logger";
+import { logDebug, logError } from "@/lib/logger";
 import { env } from "@/lib/env";
 import { newIdempotencyKey } from "@/lib/idempotency";
 
@@ -51,7 +51,7 @@ export const SubscriptionPlansGrid = ({
         throw new Error('No portal URL received');
       }
     } catch (error) {
-      console.error('Portal error:', error);
+      logError('Portal error', error);
       toast({
         title: "Error",
         description: "Failed to open customer portal. Please try again.",

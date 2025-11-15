@@ -24,6 +24,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { logError } from "@/lib/logger";
 
 interface Notification {
   id: string;
@@ -107,7 +108,7 @@ const NotificationsDropdown = () => {
       setNotifications(notificationsWithNicknames);
       setUnreadCount(notificationsWithNicknames?.filter((n) => !n.is_read).length || 0);
     } catch (error) {
-      console.error('Error loading notifications:', error);
+      logError('Error loading notifications', error);
     }
   };
 
@@ -125,7 +126,7 @@ const NotificationsDropdown = () => {
       if (error) throw error;
       await loadNotifications();
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      logError('Error marking notification as read', error);
     }
   };
 
@@ -139,7 +140,7 @@ const NotificationsDropdown = () => {
       toast.success(t.notifications_marked_read || 'All marked as read');
       await loadNotifications();
     } catch (error) {
-      console.error('Error marking all as read:', error);
+      logError('Error marking all as read', error);
       toast.error(t.error_generic);
     }
   };
@@ -159,7 +160,7 @@ const NotificationsDropdown = () => {
       toast.success(t.notifications_deleted || 'Notification deleted');
       await loadNotifications();
     } catch (error) {
-      console.error('Error deleting notification:', error);
+      logError('Error deleting notification', error);
       toast.error(t.error_generic);
     } finally {
       setDeleteDialogOpen(false);
@@ -177,7 +178,7 @@ const NotificationsDropdown = () => {
       toast.success(t.notifications_all_deleted || 'All notifications deleted');
       await loadNotifications();
     } catch (error) {
-      console.error('Error deleting all notifications:', error);
+      logError('Error deleting all notifications', error);
       toast.error(t.error_generic);
     } finally {
       setDeleteAllDialogOpen(false);
