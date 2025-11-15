@@ -27,7 +27,7 @@ import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { getAiReply, type AiLocale } from "@/services/aiService";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { env } from "@/lib/env";
-import { logError } from "@/lib/logger";
+import { logError, logWarn } from "@/lib/logger";
 import { normalizeCreateConfessionPayload } from "../../supabase/functions/create-confession/utils";
 
 const confessionSchema = z.object({
@@ -222,7 +222,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
       });
 
       if (moderationError) {
-        console.error('Moderation error:', moderationError);
+        logError('Moderation error', moderationError as Error);
         // Continue even if moderation fails
       }
 
@@ -254,7 +254,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
         
         setAiResponse(responseText);
       } catch (aiError) {
-        console.error('AI response error:', aiError);
+        logError('AI response error', aiError as Error);
         // Continue without AI response - not critical
         responseText = null;
       }
@@ -292,7 +292,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
             messageKey = parsed?.messageKey ?? messageKey;
             serverMessage = parsed?.message || serverMessage;
           } catch (parseError) {
-            console.warn('Failed to parse confession creation error payload:', parseError);
+            logWarn('Failed to parse confession creation error payload', { error: parseError });
           }
         }
 
@@ -375,7 +375,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
       }, 3000);
 
     } catch (error) {
-      console.error('Error submitting confession:', error);
+      logError('Error submitting confession', error as Error);
       toast({
         title: t.error_generic,
         description: t.error_submit,

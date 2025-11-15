@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { sessionManager } from '@/lib/sessionManager';
-import { logDebug } from '@/lib/logger';
+import { logDebug, logError, logWarn } from '@/lib/logger';
 
 type TabId = 'home' | 'explore' | 'messages' | 'profile';
 
@@ -74,7 +74,7 @@ export const TabNavigationProvider: React.FC<{ children: React.ReactNode }> = ({
         return sanitized;
       }
     } catch (e) {
-      console.error('Failed to parse tab stacks:', e);
+      logError('Failed to parse tab stacks', e as Error);
     }
 
     return defaults;
@@ -136,7 +136,7 @@ export const TabNavigationProvider: React.FC<{ children: React.ReactNode }> = ({
         }
       }
     } catch (e) {
-      console.warn('Tab restore skipped:', e);
+      logWarn('Tab restore skipped', { error: e });
     }
   }, []);
 

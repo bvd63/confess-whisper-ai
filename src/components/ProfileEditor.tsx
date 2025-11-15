@@ -116,7 +116,7 @@ export const ProfileEditor = ({
       });
       onUpdate();
     } catch (error) {
-      console.error('Error updating profile:', error);
+      logError('Error updating profile', error as Error);
       toast({
         title: t.common_error,
         description: t.profile_update_error,
@@ -141,7 +141,7 @@ export const ProfileEditor = ({
         .eq('user_id', userId);
       
       if (error) {
-        console.error('Profile update error:', error);
+        logError('Profile update error', error);
         throw error;
       }
       
@@ -151,7 +151,7 @@ export const ProfileEditor = ({
       });
       onUpdate();
     } catch (error) {
-      console.error('Error updating profile:', error);
+      logError('Error updating profile', error as Error);
       toast({
         title: t.common_error,
         description: t.profile_update_error,

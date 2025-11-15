@@ -141,7 +141,7 @@ const FollowingFeed = ({ userId, isPremium, onUpgradeClick }: FollowingFeedProps
                   description: t.confession_reported_success,
                 });
               } catch (error) {
-                console.error('Error reporting:', error);
+                logError('Error reporting', error as Error);
                 toast({
                   title: t.common_error,
                   description: t.confession_report_error,

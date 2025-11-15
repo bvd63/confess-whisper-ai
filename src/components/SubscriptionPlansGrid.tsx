@@ -8,7 +8,7 @@ import { getPlansForInterval } from "@/lib/subscription-plans";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getStringTranslation } from "@/lib/translationUtils";
-import { logDebug, logError } from "@/lib/logger";
+import { logDebug, logError, logWarn } from "@/lib/logger";
 import { env } from "@/lib/env";
 import { newIdempotencyKey } from "@/lib/idempotency";
 
@@ -145,7 +145,7 @@ export const SubscriptionPlansGrid = ({
         throw new Error('No checkout URL received');
       }
     } catch (error) {
-      console.error('Checkout error:', error);
+      logError('Checkout error', error as Error);
       toast({
         title: "Error",
         description: "Failed to create checkout session. Please try again.",
@@ -272,7 +272,7 @@ export const SubscriptionPlansGrid = ({
                   onSelectPlan(plan.id, '');
                 } else {
                   if (!plan.priceId) {
-                    console.warn(`Price ID missing for ${plan.id} - ${interval}`);
+                    logWarn(`Price ID missing for ${plan.id} - ${interval}`, { planId: plan.id, interval });
                   }
                   handleCheckout(plan.priceId);
                 }
