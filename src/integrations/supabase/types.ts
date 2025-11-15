@@ -2498,6 +2498,10 @@ export type Database = {
         Args: { base_nickname: string }
         Returns: string
       }
+      get_community_member_role: {
+        Args: { _community_id: string; _user_id: string }
+        Returns: string
+      }
       get_conversation_partner: {
         Args: { conv_id: string; current_user_id: string }
         Returns: string
@@ -2555,6 +2559,10 @@ export type Database = {
       }
       is_captcha_required: { Args: { _email: string }; Returns: boolean }
       is_community_admin: {
+        Args: { _community_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_community_member: {
         Args: { _community_id: string; _user_id: string }
         Returns: boolean
       }
