@@ -49,7 +49,7 @@
 
 ## Architecture at a Glance
 
-```
+```text
 User Action
     ↓
 Optimistic Update (instant UI)
@@ -63,7 +63,7 @@ Failed? → Add to Offline Queue
 Network Restored?
     ↓
 Process Queue → Retry with Backoff
-```
+```text
 
 ## Important Files
 
@@ -94,21 +94,21 @@ Process Queue → Retry with Backoff
 
 ### 1. Storage Strategy
 
-```
+```text
 In-Memory Cache (fastest)
     ↓
 IndexedDB (persistent)
     ↓
 Supabase (source of truth)
-```
+```text
 
 ### 2. Sync Cycle
 
-```
+```text
 Every 30s:  Quick sync (process queue, refresh counts)
 Every 5min: Deep sync (validate data, recalculate)
 Every 1hr:  Cleanup (clear expired cache)
-```
+```text
 
 ### 3. Conflict Resolution
 
@@ -127,7 +127,7 @@ Every 1hr:  Cleanup (clear expired cache)
 ✅ Data validation passed          # No issues found
 ⚠️ Slow persistence operation     # >100ms operation
 🔄 Conflict resolved (type)       # Conflict handled
-```
+```text
 
 ### Performance Tracking
 
@@ -143,19 +143,19 @@ Every 1hr:  Cleanup (clear expired cache)
 
 ## Troubleshooting
 
-### Messages not syncing?
+### Messages not syncing
 
 1. Check network indicator shows "Synced"
 2. Look for errors in console
 3. Run `dataValidator.checkDataConsistency(userId)`
 
-### Session not restoring?
+### Session not restoring
 
 1. Check if `sessionManager.restoreSession()` returns data
 2. Verify route is being saved
 3. Check IndexedDB has session data
 
-### Cache issues?
+### Cache issues
 
 1. Clear cache: `persistenceManager.clearAllUserData()`
 2. Force sync: `syncScheduler.forceSync(userId)`

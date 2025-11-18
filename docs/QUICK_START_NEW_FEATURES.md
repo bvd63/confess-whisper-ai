@@ -211,27 +211,27 @@ import { QuickActions } from "@/components/QuickActions";
 
 ### Visual Elements Added
 
-**Rate Limit Indicator**
+#### Rate Limit Indicator
 
 - Progress bar with percentage
 - Warning state (yellow) when low
 - Blocked state (red) when exceeded
 - Countdown timer
 
-**Quick Actions FAB**
+#### Quick Actions FAB
 
 - Floating button (bottom right)
 - Expands to show 3 actions
 - Smooth animations
 - Mobile-optimized
 
-**Network Status Badge**
+#### Network Status Badge
 
 - Small indicator in header
 - Shows online/offline status
 - Displays queue count when offline
 
-**Advanced Filters**
+#### Advanced Filters
 
 - Collapsible section
 - Date pickers
@@ -244,7 +244,8 @@ import { QuickActions } from "@/components/QuickActions";
 
 ### New Features You'll Notice
 
-**1. Safety Check**
+#### 1. Safety Check
+
 When posting, you'll be warned if you accidentally include:
 
 - Email addresses
@@ -252,35 +253,39 @@ When posting, you'll be warned if you accidentally include:
 - Credit card numbers
 - Addresses
 
-**2. Post Limits**
+#### 2. Post Limits
+
 You can see:
 
 - How many posts you have left
 - When your limit resets
 - Clear warnings when you're rate limited
 
-**3. Quick Actions**
+#### 3. Quick Actions
+
 Tap the floating button to quickly:
 
 - Create a new post
 - View your drafts
 - Scroll to top of feed
 
-**4. Advanced Filters** (Explore page)
+#### 4. Advanced Filters (Explore page)
+
 Filter posts by:
 
 - Date range
 - Community
 - Sort order (newest, trending, etc.)
 
-**5. Better Analytics** (VIP users)
+#### 5. Better Analytics (VIP users)
+
 See detailed stats about:
 
 - Post performance
 - Engagement trends
 - Best posting times
 
-**6. Offline Support**
+#### 6. Offline Support
 
 - Continue using app offline
 - Posts saved automatically

@@ -13,7 +13,7 @@
 - [ ] No commented-out code blocks
 - [ ] Proper error handling in all async operations
 
-### Testing
+### Testing Suite
 
 - [ ] Unit tests passing (`npm test`)
 - [ ] Integration tests passing
@@ -34,10 +34,12 @@
 
 - [ ] **All new UI text uses translation keys** (no hardcoded strings)
 - [ ] **Translation completeness check:**
+
   ```bash
   # Verify all keys exist in all languages
   node scripts/check-i18n-completeness.js
   ```
+
 - [ ] **Test each language renders without mixing:**
   - [ ] English (EN) - Full app walkthrough
   - [ ] Spanish (ES) - Full app walkthrough
@@ -89,7 +91,7 @@
 - [ ] No memory leaks detected
 - [ ] Caching strategy implemented for new features
 
-### Documentation
+### Documentation Updates
 
 - [ ] API changes documented
 - [ ] User-facing changes documented
@@ -224,7 +226,7 @@
 
 ## Post-Release
 
-### Documentation
+### Deployment Documentation
 
 - [ ] Release notes finalized
 - [ ] Changelog updated
@@ -240,7 +242,7 @@
 
 ## Checklist for Hotfix Releases
 
-_Use abbreviated checklist for urgent fixes_
+Use the abbreviated checklist below for urgent fixes only.
 
 ### Critical Items Only
 
@@ -284,7 +286,7 @@ _Use abbreviated checklist for urgent fixes_
 
 ## Emergency Deployment Exception
 
-_Only use in true emergencies (security, data loss, critical outage)_
+Only use this path for true emergencies (security, data loss, critical outage).
 
 **Minimum Requirements:**
 
@@ -322,7 +324,7 @@ _Only use in true emergencies (security, data loss, critical outage)_
 
 ## Tools & Resources
 
-### Testing
+### Post-Deployment Testing
 
 - **E2E:** Manual testing in preview
 - **Load Testing:** k6 or Artillery (to be set up)
@@ -336,7 +338,7 @@ _Only use in true emergencies (security, data loss, critical outage)_
 - **Errors:** Console logs (Sentry to be added)
 - **Metrics:** Custom analytics (Prometheus to be added)
 
-### Communication
+### Post-Deployment Communication
 
 - **Internal:** Team chat
 - **Users:** In-app banner, email (if critical)

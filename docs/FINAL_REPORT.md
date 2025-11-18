@@ -228,7 +228,7 @@ ConfessAI has undergone a comprehensive remediation process, transforming from a
 
 ### Test Distribution
 
-```
+```text
 Total Tests: 118
 ├── Unit Tests: 19 (16%)
 │   ├── Subscription UI: 2
@@ -273,7 +273,7 @@ Total Tests: 118
 
 ### Tech Stack
 
-```
+```text
 Frontend:
 ├── React 18.3.1
 ├── TypeScript 5.x
@@ -568,6 +568,7 @@ All systems are operational and production-ready. The application can be launche
 ### Required (5 minutes)
 
 1. **Configure Stripe Price IDs**
+
    ```bash
    # Add to environment variables
    VITE_STRIPE_PRICE_VIP_MONTH_ID=price_xxxxxxxxxxxxx
@@ -683,8 +684,8 @@ All systems are operational and production-ready. The application can be launche
 
 ### External Services
 
-- **Supabase Support:** support@supabase.io
-- **Stripe Support:** support@stripe.com
+- **Supabase Support:** [support@supabase.io](mailto:support@supabase.io)
+- **Stripe Support:** [support@stripe.com](mailto:support@stripe.com)
 - **Lovable Support:** Discord community
 
 ### Documentation
@@ -699,7 +700,7 @@ All systems are operational and production-ready. The application can be launche
 
 ### Transformation Journey
 
-```
+```text
 Initial State (7.5/10)
 ├── Unused dependencies (+500KB)
 ├── Test coverage ~40%

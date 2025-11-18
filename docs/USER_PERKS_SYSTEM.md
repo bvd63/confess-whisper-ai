@@ -81,7 +81,7 @@ Complete implementation of tier-based user perks system with visual distinctions
 
 #### Catalog Structure
 
-```
+```text
 Items 1-3:   Available to FREE/PREMIUM/VIP (all tiers)
 Items 4-7:   PREMIUM/VIP only (locked for Free)
 Items 8-10:  VIP only (locked for Free & Premium)
@@ -169,7 +169,7 @@ Each item shows:
 
 #### Supported Languages: English, Spanish, German
 
-**Tier Labels**
+#### Tier Labels
 
 ```typescript
 profile_tiers_free: "Free Member" / "Miembro Gratis" / "Kostenloses Mitglied";
@@ -182,7 +182,7 @@ profile_tiers_expires: "Expires on {date}" /
   "Läuft ab am {date}";
 ```
 
-**Perks System**
+#### Perks System
 
 ```typescript
 perks_title: "My Perks" / "Mis Ventajas" / "Meine Vorteile";
@@ -194,7 +194,7 @@ perks_badges_status_active: "Active" / "Activo" / "Aktiv";
 perks_badges_status_expired: "Expired" / "Expirado" / "Abgelaufen";
 ```
 
-**Shop**
+#### Shop
 
 ```typescript
 shop_title: "Flairs Shop" / "Tienda de Distintivos" / "Flair-Shop";
@@ -210,7 +210,7 @@ shop_expiresIn: "Expires in {days} days" /
   "Läuft ab in {days} Tagen";
 ```
 
-**Flair Names** (10 sample flairs)
+#### Flair Names (10 sample flairs)
 
 ```typescript
 flair_fire: "🔥 Fire" / "🔥 Fuego" / "🔥 Feuer";
@@ -301,7 +301,7 @@ supabase
 
 ## 📁 File Structure
 
-```
+```text
 src/
 ├── components/
 │   ├── ProfileTierBadge.tsx       ✨ NEW
@@ -629,4 +629,4 @@ flair_newitem: {
 ✅ **Security**: Server-side validation, RLS policies, input sanitization
 ✅ **Performance**: Optimized queries, memoization, indexed lookups
 
-**System is production-ready! 🎉**
+System is production-ready! 🎉

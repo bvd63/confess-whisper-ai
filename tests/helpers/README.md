@@ -6,7 +6,7 @@ This directory contains utility functions for Playwright E2E tests to ensure rel
 
 Provides programmatic login without real backend calls.
 
-### Usage
+### Auth Usage Example
 
 ```typescript
 import { loginAs } from '../helpers/auth';
@@ -33,7 +33,7 @@ test.beforeEach(async ({ page }) => {
 
 Mocks all subscription-related API routes to prevent real network calls during tests.
 
-### Usage
+### Network Usage Example
 
 ```typescript
 import { mockSubscriptionRoutes } from '../helpers/network';
@@ -158,12 +158,15 @@ expect(somethingAboutLoadingState).toBe(true);
 ## Available Test IDs
 
 ### App-Level
+
 - `app-ready` - Root app hydration indicator (non-visual)
 
 ### Header
+
 - `manage-subscription-btn` - Manage/Upgrade subscription button
 
 ### Subscription Modal
+
 - `manage-subscription-modal` - Modal root container
 - `action-upgrade` - Upgrade action button
 - `action-downgrade` - Downgrade action button  

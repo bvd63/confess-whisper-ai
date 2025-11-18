@@ -1,6 +1,6 @@
 # JWT Rotation & Turnstile Hardening Design
 
-_Last updated: 2025-11-15_
+## Last Updated: 2025-11-15
 
 ## 1. Objective
 
@@ -28,7 +28,7 @@ _Last updated: 2025-11-15_
 | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `public.auth_sessions`        | Add `stay_connected BOOLEAN DEFAULT false` (if missing in prod), `rotation_count INTEGER DEFAULT 0`, `refresh_nonce UUID DEFAULT gen_random_uuid()`, `email TEXT`, `anomaly_reason TEXT`, `captcha_verified_at TIMESTAMPTZ` | Track session duration preference, monitor unusual rotation volume, correlate Supabase session vs. managed refresh token, and persist normalized email for CAPTCHA enforcement. |
 | `public.captcha_requirements` | Add `reason TEXT`, `device_id TEXT`, `ip_address TEXT`                                                                                                                                                                      | Existing migration already has `reason`; extend index to include device/IP to scope requirements more granularly.                                                               |
-| `public.security_events`      | No schema change; ensure `event_data` captures anomaly metadata.                                                                                                                                                            |
+| `public.security_events`      | No schema change; ensure `event_data` captures anomaly metadata.                                                                                                                                                            | Already stores flexible JSON payloads; keep schema stable while enriching event data from new flows. |
 
 > _Note_: Verify the latest migration (20251020140842…) before applying new DDL to avoid dropping the table again.
 
@@ -111,12 +111,10 @@ interface RefreshSessionBody {
 
 ### Response Variants
 
-| Case             | Status | Body                                                                                      |
-| ---------------- | ------ | ----------------------------------------------------------------------------------------- |
-| Success          | 200    | `{ refreshToken, expiresAt, stayConnected, requiresCaptcha: false }`                      |
-| CAPTCHA required | 403    | `{ error: 'CAPTCHA_REQUIRED', messageKey: 'auth.captcha_failed', requiresCaptcha: true }` |
-| Replay / Revoked | 401    | `{ error: 'INVALID_REFRESH_TOKEN', messageKey: 'auth.session_invalid' }`                  |
-| Rate limited     | 429    | `{ error: 'RATE_LIMIT', retryAfter }`                                                     |
+- **Success (200)** – `{ refreshToken, expiresAt, stayConnected, requiresCaptcha: false }`
+- **CAPTCHA required (403)** – `{ error: 'CAPTCHA_REQUIRED', messageKey: 'auth.captcha_failed', requiresCaptcha: true }`
+- **Replay / Revoked (401)** – `{ error: 'INVALID_REFRESH_TOKEN', messageKey: 'auth.session_invalid' }`
+- **Rate limited (429)** – `{ error: 'RATE_LIMIT', retryAfter }`
 
 Frontend hooks already bubble `error` + `messageKey`. The new `CaptchaChallengeContext` renders a reusable modal (via `CaptchaChallengeDialog`) and hands `useAuthRefresh` / `useEnhancedAuth` a promise that resolves with the Turnstile token so we can retry rotations seamlessly.
 

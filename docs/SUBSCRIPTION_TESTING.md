@@ -75,7 +75,7 @@ Navigate to `/test-subscriptions` to access the comprehensive test suite.
 
 ### Complete Purchase Flow Test
 
-```
+```text
 1. Start with no subscription (Free tier)
 2. Check Subscription → Verify "free" tier
 3. Create Checkout → Get Stripe checkout URL
@@ -85,7 +85,7 @@ Navigate to `/test-subscriptions` to access the comprehensive test suite.
 
 ### Upgrade Flow Test
 
-```
+```text
 1. Have active Premium subscription
 2. Preview Upgrade → See VIP costs
 3. Upgrade to VIP → Immediate change
@@ -95,7 +95,7 @@ Navigate to `/test-subscriptions` to access the comprehensive test suite.
 
 ### Downgrade Flow Test
 
-```
+```text
 1. Have active VIP subscription
 2. Downgrade to Premium → Scheduled for period end
 3. Check Subscription → Still shows "vip" until end
@@ -105,7 +105,7 @@ Navigate to `/test-subscriptions` to access the comprehensive test suite.
 
 ### Cancel & Reactivate Flow Test
 
-```
+```text
 1. Have active subscription
 2. Cancel Subscription → Access until period end
 3. Check Subscription → Shows cancel_at_period_end

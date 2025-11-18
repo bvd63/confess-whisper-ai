@@ -88,7 +88,7 @@ usePerformanceBudget({
     p95: 200, // 95th percentile should be under 200ms
   },
 });
-```
+```text
 
 The system:
 
@@ -218,7 +218,7 @@ Ensure proper indexes exist for frequently queried columns:
 
 Performance budget violations are logged to console:
 
-```
+```text
 🚨 PERFORMANCE BUDGET EXCEEDED: query_followers p95=728ms (limit: 200ms)
 ```
 

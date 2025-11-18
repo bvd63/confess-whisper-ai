@@ -19,7 +19,7 @@ ConfessAI uses a multi-layered monitoring approach:
 
 ### Endpoint URL
 
-```
+```bash
 GET https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/health
 ```
 
@@ -65,7 +65,7 @@ GET https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/health
 
 **Setup Steps:**
 
-1. Sign up at https://uptimerobot.com
+1. Sign up at [https://uptimerobot.com](https://uptimerobot.com)
 2. Create new monitor:
    - **Monitor Type:** HTTP(s)
    - **URL:** `https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/health`
@@ -93,7 +93,7 @@ GET https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/health
 
 **Setup Steps:**
 
-1. Sign up at https://betterstack.com
+1. Sign up at [https://betterstack.com](https://betterstack.com)
 2. Create new uptime monitor:
    - **URL:** `https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/health`
    - **Interval:** 30 seconds
@@ -360,7 +360,7 @@ curl https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/health
 
 #### Step 2: Check Supabase Status (1 minute)
 
-- Visit: https://status.supabase.com
+- Visit: [https://status.supabase.com](https://status.supabase.com)
 - Check for ongoing incidents
 - Review scheduled maintenance
 

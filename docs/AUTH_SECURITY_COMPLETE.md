@@ -181,7 +181,7 @@ Supabase automatically sends localized emails based on user's browser language:
 
 ### Supabase Auth Settings (via Lovable Cloud)
 
-```
+```text
 Email confirmation: ENABLED ✅
 Auto-confirm email: DISABLED ✅
 Allow signups: ENABLED ✅
@@ -191,7 +191,7 @@ JWT expiry: 3600 seconds (1 hour) ✅
 
 ### Environment Variables Required
 
-```
+```text
 VITE_TURNSTILE_SITE_KEY=<your-cloudflare-site-key>
 TURNSTILE_SECRET=<your-cloudflare-secret> (in Supabase secrets)
 ```

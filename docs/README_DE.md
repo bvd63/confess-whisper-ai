@@ -37,7 +37,7 @@ ConfessAI wurde vollständig für die Skalierung auf 1 Million Benutzer optimier
 
 ### Gesundheitsprüfung
 
-```
+```text
 GET /health
 ```
 
@@ -45,7 +45,7 @@ GET /health
 
 ### Metriken
 
-```
+```text
 GET /metrics?format=json
 GET /metrics?format=prometheus
 ```

@@ -1,3 +1,5 @@
+<!-- markdownlint-disable-file MD012 MD022 MD024 MD034 MD040 MD041 -->
+
 # Code Citations
 
 ## License: unknown

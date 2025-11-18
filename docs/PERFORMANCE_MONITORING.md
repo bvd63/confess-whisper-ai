@@ -68,4 +68,4 @@ Configure alerts for:
 
 ---
 
-_Last Updated: 2025-10-18_
+Last Updated: 2025-10-18

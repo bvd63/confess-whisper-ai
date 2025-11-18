@@ -46,7 +46,7 @@ Located in the app header, shows:
 
 **Sync Operations:**
 
-```
+```text
 📅 Sync scheduler started
 🔄 Quick sync completed
 🔍 Deep sync starting...
@@ -55,20 +55,20 @@ Located in the app header, shows:
 
 **Performance Warnings:**
 
-```
+```text
 ⚠️ Slow persistence operation: [operation] took [duration]ms
 ```
 
 **Data Validation:**
 
-```
+```text
 ✅ All conversations validated
 ⚠️ Data validation issues detected: [details]
 ```
 
 **Cache Operations:**
 
-```
+```text
 💾 Cache hit: [key]
 ❌ Cache miss: [key]
 🗑️ Cache cleared for user
@@ -116,7 +116,7 @@ observability.recordMetric({
 
 **Circuit Breaker Open:**
 
-```
+```text
 ⚠️ Circuit breaker opened for [service]
 ```
 
@@ -125,7 +125,7 @@ observability.recordMetric({
 
 **High Queue Depth:**
 
-```
+```text
 ⚠️ [N] operations queued (offline mode)
 ```
 
@@ -134,7 +134,7 @@ observability.recordMetric({
 
 **Storage Quota Exceeded:**
 
-```
+```text
 ❌ Storage quota exceeded
 ```
 
@@ -145,7 +145,7 @@ observability.recordMetric({
 
 **Slow Operations:**
 
-```
+```text
 ⚠️ Slow operation detected: [operation] took [duration]ms
 ```
 
@@ -154,7 +154,7 @@ observability.recordMetric({
 
 **Data Validation Failed:**
 
-```
+```text
 ⚠️ Validation failed for conversation [id]
 ```
 
@@ -245,7 +245,7 @@ SELECT * FROM cron.job;
 
 ### Application Health
 
-```bash
+```text
 GET /health
 ```
 
@@ -253,7 +253,7 @@ Returns: System status, database connectivity, cache status
 
 ### Metrics Endpoint
 
-```bash
+```text
 GET /metrics?format=json
 ```
 
@@ -282,7 +282,8 @@ Returns: Performance metrics, latency percentiles, error rates
    ```
 
 4. **Monitor Operation Duration**
-   ```typescript
+
+  ```typescript
    const start = performance.now();
    // ... operation ...
    observability.recordMetric({
@@ -290,7 +291,7 @@ Returns: Performance metrics, latency percentiles, error rates
      value: performance.now() - start,
      unit: "ms",
    });
-   ```
+  ```
 
 ### For Admins
 
@@ -318,4 +319,4 @@ Returns: Performance metrics, latency percentiles, error rates
 
 ---
 
-_Last Updated: 2025-10-18_
+Last Updated: 2025-10-18

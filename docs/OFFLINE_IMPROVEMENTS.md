@@ -16,6 +16,7 @@
    - Surface queue state via a context provider that lives next to `TabNavigationProvider` inside `AppContent`.
 3. **Mutation wrappers**
    - Introduce `enqueueMutation({ type, mutationFn, data })` helper so Chat/Confession modules can replace ad-hoc Supabase calls with a single guard:
+
      ```ts
      if (!navigator.onLine) {
        await offlineQueue.addOperation(
@@ -27,6 +28,7 @@
      }
      return sendMessage(payload);
      ```
+
    - Add retry jitter + exponential backoff caps (current queue tops at 30s) to avoid thundering herds when the network returns.
 4. **Visibility + tooling**
    - Log queue depth to `observability.recordMetric('offlineQueue_length', ...)` so the perf budget hook can catch pathological builds.

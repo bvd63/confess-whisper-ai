@@ -118,7 +118,7 @@ Tests run automatically on:
 
 ### Common Issues
 
-**Stripe Tests Failing**
+#### Stripe Tests Failing
 
 ```bash
 # Check environment variables
@@ -129,7 +129,7 @@ echo $PRICE_VIP_MONTHLY
 npm run test -- stripe-integration
 ```
 
-**OneSignal Tests Failing**
+#### OneSignal Tests Failing
 
 ```bash
 # Check OneSignal App ID

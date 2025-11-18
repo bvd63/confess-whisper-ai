@@ -37,7 +37,7 @@ ConfessAI ha sido completamente optimizado para escalar a 1 millón de usuarios 
 
 ### Health Check
 
-```
+```text
 GET /health
 ```
 
@@ -45,7 +45,7 @@ Verifica el estado del sistema, base de datos y almacenamiento.
 
 ### Métricas
 
-```
+```text
 GET /metrics?format=json
 GET /metrics?format=prometheus
 ```

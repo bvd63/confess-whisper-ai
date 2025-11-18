@@ -1,7 +1,18 @@
 -- JWT rotation + Turnstile hardening storage updates
 
--- Ensure pgcrypto is available for gen_random_uuid()
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_extension WHERE extname = 'pgcrypto'
+  ) THEN
+    EXECUTE 'CREATE EXTENSION pgcrypto';
+  END IF;
+EXCEPTION
+  WHEN insufficient_privilege THEN
+    -- Skip when the current role is not allowed to create extensions.
+    NULL;
+END;
+$$;
 
 -- Expand auth_sessions metadata for rotation tracking
 ALTER TABLE public.auth_sessions

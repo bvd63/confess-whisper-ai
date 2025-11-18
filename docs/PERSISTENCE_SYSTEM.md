@@ -143,7 +143,7 @@ SIGNED_IN:
 SIGNED_OUT:
   - Stop periodic sync
   - Clear all user data
-```
+```text
 
 ### useConversation.ts
 
@@ -154,7 +154,7 @@ sendMessage():
   - Try send to Supabase
   - On error: Queue for retry
   - Remove temp message
-```
+```text
 
 ### useInbox.ts
 
@@ -165,13 +165,13 @@ loadConversations():
   - Fetch from Supabase if needed
   - Update cache
   - Integrate unread counts
-```
+```text
 
 ## Data Flow
 
 ### Message Send (Online)
 
-```
+```text
 User types → sendMessage()
   ↓
 Optimistic update (temp message)
@@ -179,11 +179,11 @@ Optimistic update (temp message)
 Supabase insert
   ↓
 Success: Replace temp with real message
-```
+```text
 
 ### Message Send (Offline)
 
-```
+```text
 User types → sendMessage()
   ↓
 Optimistic update (temp message)
@@ -197,11 +197,10 @@ Remove temp message
 [Network restored]
   ↓
 Process queue → Retry send
-```
+```text
 
 ### Background Sync Cycle
 
-```
 Every 30s:
   ↓
 Quick sync
@@ -227,6 +226,7 @@ Cleanup
 Clear expired cache
   ↓
 Remove stale data
+
 ```
 
 ## Performance Features
@@ -275,13 +275,13 @@ Remove stale data
 
 ### Console Logs
 
-```
+```text
 📦 Persistence operation logged
 🔄 Sync scheduler started
 ⚠️ Slow persistence operation
 ✅ Data validation passed
 🔄 Conflict resolved
-```
+```text
 
 ### Performance Tracking
 

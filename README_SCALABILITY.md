@@ -121,7 +121,7 @@ All scalability optimizations have been successfully implemented with full multi
 
 ### Currently Active Console Logs:
 
-```
+```text
 ✅ Translation system validation passed
 ✅ Circuit breaker initialized: supabase
 ✅ Circuit breaker initialized: ai-service

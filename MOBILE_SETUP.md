@@ -15,6 +15,7 @@ ConfessAI now supports native iOS and Android apps using Capacitor!
 
 1. Click the **"Export to GitHub"** button in Lovable
 2. Clone your repository locally:
+
    ```bash
    git clone <your-repo-url>
    cd confess-whisper-ai

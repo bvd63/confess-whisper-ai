@@ -146,7 +146,7 @@ JOIN profiles ON confessions.user_id = profiles.user_id
 
 All critical indexes are now deployed:
 
-**Confessions (5 indexes)**
+#### Confessions (5 indexes)
 
 - `idx_confessions_created_at` - Time-based sorting
 - `idx_confessions_likes_count` - Popular sorting
@@ -155,23 +155,23 @@ All critical indexes are now deployed:
 - `idx_confessions_moderation_status` - Status filtering
 - `idx_confessions_user_status` (composite) - User + status queries
 
-**Comments (2 indexes)**
+#### Comments (2 indexes)
 
 - `idx_comments_confession_id` - Comments per confession
 - `idx_comments_user_id` - User's comments
 
-**Notifications (2 indexes)**
+#### Notifications (2 indexes)
 
 - `idx_notifications_user_id_created` - User notifications feed
 - `idx_notifications_read_status` - Unread filtering
 
-**Messages (3 indexes)**
+#### Messages (3 indexes)
 
 - `idx_messages_conversation_created` - Conversation history
 - `idx_messages_sender` - Sent messages
 - `idx_messages_unread` (composite) - Unread message queries
 
-**Social (4 indexes)**
+#### Social (4 indexes)
 
 - `idx_user_follows_follower` - Following list
 - `idx_user_follows_following` - Followers list
@@ -320,6 +320,4 @@ The combination of:
 
 Results in **p95 latency consistently under 200ms** even under load.
 
----
-
-_Last Updated: 2025-10-18_
+**Last Updated:** 2025-10-18

@@ -115,7 +115,7 @@
 - [ ] Landscape orientation works
 - [ ] Different screen sizes work (small to large)
 
-### Performance
+### Performance Metrics
 
 - [ ] App loads fast on mobile (< 3s)
 - [ ] Scrolling is smooth (60fps)
@@ -375,7 +375,7 @@
 - First Input Delay < 100ms
 - Lighthouse Score > 90
 
-### User Experience
+### User Experience Metrics
 
 - Bounce rate < 40%
 - Session duration > 3 minutes

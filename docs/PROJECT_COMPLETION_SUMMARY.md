@@ -91,7 +91,7 @@ ConfessAI has been transformed from a 7.5/10 application to a **production-ready
 
 ### Test Distribution
 
-```
+```text
 Total: 118 tests (95%+ coverage)
 
 Unit Tests: 19
@@ -116,7 +116,7 @@ Edge Cases: 55
 ├── Authentication (3)
 ├── Data Validation (4)
 └── URL Redirects (2)
-```
+```text
 
 ### Coverage by Module
 
@@ -351,7 +351,7 @@ Edge Cases: 55
 
 ### Current State
 
-```
+```text
 ✅ Code Quality:        10/10
 ✅ Test Coverage:       95%+ (118 tests)
 ✅ Documentation:       Complete (8 docs)
@@ -369,7 +369,9 @@ The application can be launched immediately after:
 2. Running pre-launch verification (5 min)
 3. Setting up monitoring (5 min)
 
-**Total time to production: 35 minutes**
+### Total Time to Production
+
+Total time to production: 35 minutes
 
 ---
 
@@ -405,8 +407,8 @@ ConfessAI is a **best-in-class production-ready application** with:
 
 ### External Support
 
-- **Supabase:** support@supabase.io
-- **Stripe:** support@stripe.com
+- **Supabase:** [support@supabase.io](mailto:support@supabase.io)
+- **Stripe:** [support@stripe.com](mailto:support@stripe.com)
 - **Lovable:** Discord community
 
 ---

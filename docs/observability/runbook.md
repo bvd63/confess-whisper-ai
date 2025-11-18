@@ -18,7 +18,7 @@
 
 ### Architecture
 
-```
+```text
 User → Lovable CDN → React SPA
                     ↓
            Supabase Edge Functions
@@ -75,13 +75,7 @@ LIMIT 10;
 
 ### Edge Function Health
 
-Check Edge Function logs:
-
-```bash
-# In Lovable Cloud dashboard
-# Navigate to: Backend → Functions → Logs
-# Filter by: Last 1 hour, Error level
-```
+Check Edge Function logs (Lovable Cloud dashboard → Backend → Functions → Logs → Last hour, Error level)
 
 ### Authentication Health
 
@@ -106,15 +100,7 @@ AND payload->>'status' = 'failed';
 
 **Diagnosis:**
 
-```bash
-# Check Edge Function errors
-# Lovable Cloud: Backend → Functions → Logs
-# Look for: Error level, Last 15 minutes
-
-# Check database performance
--- Run health checks above
--- Look for: slow queries, connection pool exhaustion
-```
+Check Edge Function errors (Lovable Cloud → Backend → Functions → Logs) and database performance (health checks above) focusing on slow queries or pool exhaustion.
 
 **Resolution:**
 
@@ -258,10 +244,7 @@ EXPLAIN ANALYZE <slow_query_here>;
 
 **Diagnosis:**
 
-```bash
-# Check Edge Function logs for ai-confession-response and ai-moderation
-# Look for: timeout errors, API key issues, rate limit errors
-```
+Check Edge Function logs for `ai-confession-response` and `ai-moderation` (look for timeout, API key, or rate-limit errors).
 
 **Resolution:**
 
@@ -437,19 +420,11 @@ FROM profiles;
 
 #### 1. Database Migrations
 
-```bash
-# Migrations run automatically via Lovable Cloud
-# Verify migration success in Supabase dashboard
-# Backend → Database → Migrations
-```
+Lovable Cloud runs migrations automatically; verify success in Supabase dashboard → Backend → Database → Migrations.
 
 #### 2. Code Deployment
 
-```bash
-# Lovable automatically deploys on code changes
-# Monitor deployment progress in Lovable dashboard
-# Check build logs for errors
-```
+Lovable deploys on code changes; monitor progress and build logs in the Lovable dashboard.
 
 #### 3. Post-Deployment Verification
 
@@ -552,14 +527,14 @@ DROP POLICY IF EXISTS "new_policy" ON table_name;
 
 ### External Services Support
 
-- **Supabase:** support@supabase.io (Enterprise support)
-- **Stripe:** https://support.stripe.com
-- **Lovable Cloud:** support@lovable.dev
+- **Supabase:** [support@supabase.io](mailto:support@supabase.io) (Enterprise support)
+- **Stripe:** [https://support.stripe.com](https://support.stripe.com)
+- **Lovable Cloud:** [support@lovable.dev](mailto:support@lovable.dev)
 
 ### Status Pages
 
-- Supabase: https://status.supabase.com
-- Stripe: https://status.stripe.com
+- Supabase: [https://status.supabase.com](https://status.supabase.com)
+- Stripe: [https://status.stripe.com](https://status.stripe.com)
 
 ## Incident Response Process
 

@@ -316,6 +316,7 @@ npm run deploy:production
    - Remove React.memo if re-render issues occur
 
 3. **Full Rollback:**
+
    ```bash
    # Revert to previous version
    git revert <commit-hash>

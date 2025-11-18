@@ -234,7 +234,7 @@ npm run test:coverage  # With coverage report
 
 ### OneSignal Setup
 
-- [ ] Create OneSignal app at https://onesignal.com
+- [ ] Create OneSignal app at [https://onesignal.com](https://onesignal.com)
 - [ ] Add `VITE_ONESIGNAL_APP_ID` to environment
 - [ ] Configure allowed origins in OneSignal dashboard
 - [ ] Add your production domain to allowed origins

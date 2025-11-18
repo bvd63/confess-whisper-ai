@@ -9,7 +9,7 @@ Load testing ensures ConfessAI can handle 1M users and 10K concurrent connection
 **k6** - Primary load testing tool
 
 - Install: `brew install k6` (macOS) or [download](https://k6.io/docs/getting-started/installation/)
-- Docs: https://k6.io/docs/
+- Docs: [k6 documentation](https://k6.io/docs/)
 
 ## Running Load Tests
 
@@ -47,7 +47,7 @@ The load test simulates realistic user behavior:
 
 ## Load Profile
 
-```
+```text
 Stage 1: 0 → 100 users    (2 min)  - Warm-up
 Stage 2: 100 → 1K users   (5 min)  - Ramp up
 Stage 3: 1K → 5K users    (10 min) - Stress
@@ -82,7 +82,7 @@ Peak concurrent: 10,000 users
 
 ### Good Results
 
-```
+```text
 http_req_duration...: avg=95ms  p(95)=180ms p(99)=450ms
 http_req_failed.....: 0.05%
 errors..............: 0.03%

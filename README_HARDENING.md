@@ -1,6 +1,6 @@
 # ConfessAI – Hardening & CI/CD v2.0 🛡️
 
-**Complete CI/CD Pipeline + Security Hardening + Performance Monitoring**
+## Complete CI/CD Pipeline + Security Hardening + Performance Monitoring
 
 ---
 
@@ -179,7 +179,7 @@ npm run test:ci
 
 ---
 
-## 🌍 Environment Validation
+## 🌍 Environment Validation Workflow
 
 ### File: `scripts/check-env.ts`
 
@@ -199,7 +199,7 @@ npm run check:env
 
 **Output Example:**
 
-```
+```text
 🔍 Validating environment configuration...
 
 ✅ Supabase credentials: Valid
@@ -376,7 +376,7 @@ npm run test:e2e
 
 ---
 
-**Built with ❤️ using Lovable Cloud**
+## Built with ❤️ using Lovable Cloud
 
 _Last Updated: 2025-11-11_  
 _Version: 2.0.0_  

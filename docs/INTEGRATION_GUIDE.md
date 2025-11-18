@@ -481,7 +481,7 @@ When adding optimization to existing code:
 
 ---
 
-## Need Help?
+## Need Help
 
 - **Documentation**: `/docs` folder
 - **Tests**: `/tests` folder

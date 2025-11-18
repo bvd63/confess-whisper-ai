@@ -182,8 +182,8 @@ All checks must pass ✅
 ## Support Contacts
 
 - **Technical Issues:** Check runbook at `docs/observability/runbook.md`
-- **Lovable Support:** support@lovable.dev
-- **Supabase Status:** https://status.supabase.com
+- **Lovable Support:** [support@lovable.dev](mailto:support@lovable.dev)
+- **Supabase Status:** [https://status.supabase.com](https://status.supabase.com)
 
 ---
 

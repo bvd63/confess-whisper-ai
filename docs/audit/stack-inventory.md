@@ -144,7 +144,7 @@ This document provides a comprehensive inventory of the ConfessAI technology sta
 
 #### Validation Results
 
-```
+```text
 EN: 805 keys ✓
 ES: 805 keys ✓
 DE: 805 keys ✓

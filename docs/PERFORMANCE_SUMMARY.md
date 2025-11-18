@@ -11,7 +11,7 @@
 
 ### Performance Improvements
 
-```
+```text
 🚀 Load Time:     3.5s → 1.8s    (-49% / 1.7s faster)
 ⚡ Query Speed:   987ms → 50ms   (-95% / cached)
 🖼️ Images:       800ms → 200ms  (-75% / WebP + lazy load)

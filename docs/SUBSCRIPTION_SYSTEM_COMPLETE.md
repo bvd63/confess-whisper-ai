@@ -21,7 +21,7 @@ Complete Stripe-based subscription system with 3 tiers (Free, Premium, VIP), sup
 
 ### High-Level Flow
 
-```
+```text
 User → Frontend Component → Edge Function → Stripe API → Webhook → Database Update
 ```
 
@@ -616,7 +616,7 @@ All tables have RLS enabled with policies:
 
 ### Test Flow
 
-```
+```text
 1. Check Subscription → Verify current tier
 2. Create Checkout → Get Stripe URL
 3. Complete payment (test card: 4242 4242 4242 4242)
@@ -687,13 +687,13 @@ All tables have RLS enabled with policies:
 
 **Webhook Endpoint**:
 
-```
+```text
 https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/stripe-webhook
 ```
 
 **Test Page**:
 
-```
+```text
 https://your-domain.com/test-subscriptions
 ```
 
@@ -703,17 +703,17 @@ https://your-domain.com/test-subscriptions
 
 ### Common Issues
 
-**"Already subscribed" Error**
+#### "Already subscribed" Error
 
 - User trying to create new checkout with active subscription
 - Solution: Use upgrade/downgrade instead
 
-**Subscription Not Syncing**
+#### Subscription Not Syncing
 
 - Webhook might have failed
 - Solution: Use `/test-subscriptions` → "Fix Sync"
 
-**Wrong Tier Displayed**
+#### Wrong Tier Displayed
 
 - Cache or missed webhook
 - Solution: Run `check-subscription` or `fix-subscription-sync`

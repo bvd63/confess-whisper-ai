@@ -24,7 +24,7 @@ This document details the comprehensive updates to the coin and badge systems im
 - **Duration Label**: Shop items show "Active for 5 days" text
 - **Auto-filtering**: Expired items excluded from active displays
 
-#### Components:
+#### Expiry Components:
 
 - `ExpiryTimer.tsx` - Reusable countdown component
 - `useTimeRemaining.ts` - Hook for calculating time remaining
@@ -85,7 +85,7 @@ CREATE FUNCTION process_referral_rewards()
 - No self-referrals (blocked in `process-referral` function)
 - First confession requirement prevents abuse
 
-#### Components:
+#### Referral Components:
 
 - `ReferralCard.tsx` - Updated with coin-based rewards display
 - `ReferralRewardNotification.tsx` - Real-time toast notifications

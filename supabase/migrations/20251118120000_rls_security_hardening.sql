@@ -1,10 +1,21 @@
 -- RLS + security hardening across Supabase tables
 
--- Ensure UPDATE policy also validates new data belongs to the same user
-ALTER POLICY "Users can update their own sessions"
-  ON public.auth_sessions
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'auth_sessions'
+      AND policyname = 'Users can update their own sessions'
+  ) THEN
+    EXECUTE format(
+      'ALTER POLICY %I ON public.auth_sessions USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);',
+      'Users can update their own sessions'
+    );
+  END IF;
+END;
+$$;
 
 -- Allow authenticated users to revoke their own sessions via DELETE
 DROP POLICY IF EXISTS "Users can delete their own sessions" ON public.auth_sessions;

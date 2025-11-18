@@ -336,7 +336,7 @@ Before production deployment:
 
 ---
 
-## 📞 Need Help?
+## 📞 Need Help
 
 - **Technical Issues:** Check `docs/` folder first
 - **Stripe Questions:** `docs/STRIPE_PRICE_ID_SETUP.md`

@@ -382,7 +382,7 @@ Translation keys added to:
 - Only renders visible items + overscan
 - Configurable item heights
 
-### Rate Limiting
+### Client Rate Limiting
 
 - Client-side rate limit tracking
 - Prevents unnecessary API calls
@@ -410,7 +410,7 @@ Translation keys added to:
 - Pre-submission warnings
 - User can review before posting
 
-### Rate Limiting
+### API Rate Limiting
 
 - 100 requests per 15 minutes
 - Prevents spam and abuse

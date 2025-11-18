@@ -126,4 +126,4 @@ All UI flows should be tested in all three languages to ensure:
 
 ---
 
-_Last Updated: 2025-10-18_
+Last updated: 2025-10-18

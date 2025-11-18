@@ -1,6 +1,6 @@
 # ConfessAI 🎭
 
-**Production-Ready Anonymous Confession Platform**
+## Production-Ready Anonymous Confession Platform
 
 [![App Score](https://img.shields.io/badge/App%20Score-10%2F10-brightgreen)](docs/FINAL_REPORT.md)
 [![Security](https://img.shields.io/badge/Security-Enterprise-brightgreen)](SECURITY.md)
@@ -158,7 +158,7 @@
 
 ---
 
-**Built with ❤️ using Lovable Cloud**
+## Built with ❤️ using Lovable Cloud
 
 _Last Updated: 2025-10-26_  
 _Version: 1.0.0_  

@@ -1,6 +1,7 @@
+---
 name: CI Pipeline
 
-on:
+'on':
   push:
     branches: [main, develop]
   pull_request:
@@ -18,59 +19,70 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Type Check
-        run: npx tsc --noEmit
+        run: pnpm exec tsc --noEmit
 
       - name: Lint & Auto-Fix
-        run: npm run lint -- --fix || true
+        run: pnpm lint --fix || true
 
       - name: ENV Validation
-        run: npm run check:env
+        run: pnpm check:env
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: >-
+            ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
       - name: Unit Tests
-        run: npm run test:unit
+        run: pnpm test:unit
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: >-
+            ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
       - name: Integration Tests
-        run: npm run test:integration
+        run: pnpm test:integration
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: >-
+            ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
       - name: E2E Tests
-        run: npm run test:e2e
+        run: pnpm test:e2e
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: >-
+            ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
       - name: Coverage Report
-        run: npm run coverage
+        run: pnpm coverage
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: >-
+            ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
       - name: Build (production)
-        run: npm run build
+        run: pnpm build
 
       - name: Admin Bundle Guard
-        run: npm run guard:admin-chunk
+        run: pnpm guard:admin-chunk
 
       - name: Bundle Size Report
-        run: npm run analyze || true
+        run: pnpm analyze || true
 
       - name: Save reports
         uses: actions/upload-artifact@v4

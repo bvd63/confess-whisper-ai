@@ -89,7 +89,7 @@ Configure in Stripe Dashboard → Developers → Webhooks:
 
 **Endpoint URL:**
 
-```
+```text
 https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/stripe-webhook
 ```
 

@@ -80,8 +80,6 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
 AS $$
-DECLARE
-  is_sender BOOLEAN;
 BEGIN
   -- Check if user is sender for all their messages in this conversation
   UPDATE messages

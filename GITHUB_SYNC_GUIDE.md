@@ -28,7 +28,7 @@ After connection, all changes will automatically sync:
 
 Your GitHub repository will contain:
 
-```
+```text
 confessai/
 ├── .github/
 │   └── workflows/
@@ -195,7 +195,7 @@ The repository includes a complete CI/CD pipeline (`.github/workflows/ci.yml`):
 
 Configure these in GitHub → Settings → Secrets:
 
-```
+```text
 VITE_SUPABASE_URL
 VITE_SUPABASE_PUBLISHABLE_KEY
 ```
@@ -351,14 +351,14 @@ No data migration needed - just point your hosting to Supabase!
 
 ### Lovable:
 
-- **Docs**: https://docs.lovable.dev/
-- **GitHub Integration**: https://docs.lovable.dev/features/github
-- **Discord**: https://discord.com/channels/lovable
+- **Docs**: [docs.lovable.dev](https://docs.lovable.dev/)
+- **GitHub Integration**: [GitHub integration guide](https://docs.lovable.dev/features/github)
+- **Discord**: [Lovable Discord](https://discord.com/channels/lovable)
 
 ### GitHub:
 
-- **Actions Docs**: https://docs.github.com/actions
-- **Security**: https://docs.github.com/security
+- **Actions Docs**: [docs.github.com/actions](https://docs.github.com/actions)
+- **Security**: [docs.github.com/security](https://docs.github.com/security)
 
 ---
 

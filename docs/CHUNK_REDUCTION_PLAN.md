@@ -10,7 +10,7 @@ Goal: shrink the `admin-tools-*` bundle from 866 KB → < 400 KB raw without
 
 **Strategy**: load translations per language via dynamic imports while keeping the narrow `getTranslation`/`ensureLanguage` helpers synchronous.
 
-### Steps
+### Translation Steps
 
 1. **Split assets**
    - ✅ Extracted each language payload into `src/i18n/lang/{lang}.ts` modules so Vite can tree-shake per-locale chunks.
@@ -41,7 +41,7 @@ Goal: shrink the `admin-tools-*` bundle from 866 KB → < 400 KB raw without
 
 **Strategy**: convert the Sentry module into a thin async wrapper that only loads the SDK (and heavy helpers like `persistenceMonitor`) inside guarded dynamic imports.
 
-### Steps
+### Implementation Steps
 
 1. **Refactor `src/lib/sentry.ts`**
    - ✅ `initSentry()` lazily imports `@sentry/react` only in prod, caches the module, and guards helper calls behind the async loader.
