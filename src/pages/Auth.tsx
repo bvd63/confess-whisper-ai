@@ -237,9 +237,15 @@ const Auth = () => {
         // Don't auto-navigate - user needs to verify email first
       }
     } catch (error: any) {
+      // Detect invalid credentials error and show specific message
+      const errorMessage = error.message || '';
+      const isInvalidCredentials = errorMessage.toLowerCase().includes('invalid') && 
+                                   (errorMessage.toLowerCase().includes('credentials') || 
+                                    errorMessage.toLowerCase().includes('login'));
+      
       toast({
         title: t.auth_error,
-        description: error.message || t.auth_error_generic,
+        description: isInvalidCredentials ? t.auth_invalid_credentials : (error.message || t.auth_error_generic),
         variant: "destructive",
       });
     } finally {
