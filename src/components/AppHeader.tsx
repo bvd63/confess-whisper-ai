@@ -111,6 +111,7 @@ const AppHeader = ({
                     {subscriptionTier === 'free' ? 'Subscription & Coins' : 'Manage'}
                   </span>
                 </Button>
+                <CoinsDisplay userId={user.id} variant="compact" />
                 <NotificationsDropdown />
               </> : <Button onClick={() => navigate('/auth')} variant="outline" size="sm" className="border-primary/30 hover:bg-primary/10 h-8 px-2 sm:px-3">
                 <LogIn className="w-3 h-3 sm:w-3.5 sm:h-3.5 sm:mr-1" />
