@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { Loader2, Crown, Coins, Sparkles, TrendingUp, Zap } from "lucide-react";
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { logWarn, logError } from "@/lib/logger";
+import { logWarn, logError, logDebug } from "@/lib/logger";
 
 interface CoinPackage {
   id: string;
@@ -61,6 +61,36 @@ export const UnifiedShopDialog = ({
   useEffect(() => {
     if (open && user) {
       loadSubscriptionStatus();
+
+      // Set up real-time subscription to profiles table
+      const channel = supabase
+        .channel('profile-subscription-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'profiles',
+            filter: `user_id=eq.${user.id}`,
+          },
+          (payload) => {
+            logDebug('Real-time subscription update received', payload);
+            const newProfile = payload.new as any;
+            if (newProfile.subscription_tier) {
+              setCurrentPlan(newProfile.subscription_tier);
+            }
+            if (newProfile.subscription_cadence) {
+              const newInterval = newProfile.subscription_cadence as 'monthly' | 'yearly';
+              setCurrentInterval(newInterval);
+              setInterval(newInterval);
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [open, user]);
 
@@ -68,13 +98,14 @@ export const UnifiedShopDialog = ({
     try {
       const { data: profile } = await supabase
         .from('profiles')
-        .select('subscription_tier, stripe_subscription_id')
+        .select('subscription_tier, stripe_subscription_id, subscription_cadence')
         .eq('user_id', user?.id)
         .maybeSingle();
 
       if (profile) {
         setCurrentPlan(profile.subscription_tier || 'free');
-        const detectedInterval = profile.stripe_subscription_id?.includes('year') ? 'yearly' : 'monthly';
+        // Use subscription_cadence from database, fallback to monthly if not set
+        const detectedInterval = (profile.subscription_cadence as 'monthly' | 'yearly') || 'monthly';
         setCurrentInterval(detectedInterval);
         setInterval(detectedInterval);
       }
