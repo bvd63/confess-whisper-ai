@@ -267,7 +267,10 @@ export const SubscriptionPlansGrid = ({
             {/* Action Button */}
             <Button
               onClick={() => {
-                if (isCurrentPlan(plan)) {
+                // If user has VIP (regardless of interval), open portal to manage/change subscription
+                if (currentPlan === 'vip' && plan.id === 'vip') {
+                  handleOpenPortal();
+                } else if (isCurrentPlan(plan)) {
                   handleOpenPortal();
                 } else if (plan.id === 'free') {
                   onSelectPlan(plan.id, '');
@@ -279,14 +282,16 @@ export const SubscriptionPlansGrid = ({
                 }
               }}
               disabled={
-                (isLoading || !canChangePlan || (plan.id !== 'free' && !plan.priceId)) && !isCurrentPlan(plan) || 
+                (isLoading || !canChangePlan || (plan.id !== 'free' && !plan.priceId)) && !(currentPlan === 'vip' && plan.id === 'vip') || 
                 portalLoading
               }
               className="w-full py-6 rounded-lg font-semibold transition-all duration-300 bg-transparent border-2 border-white hover:bg-white text-white hover:text-black hover:scale-[1.02] disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-white disabled:scale-100"
             >
-              {isCurrentPlan(plan) 
+              {(currentPlan === 'vip' && plan.id === 'vip')
                 ? (portalLoading ? 'Opening Portal...' : 'Manage Subscription') 
-                : getButtonText(plan)}
+                : isCurrentPlan(plan) 
+                  ? (portalLoading ? 'Opening Portal...' : 'Manage Subscription') 
+                  : getButtonText(plan)}
             </Button>
           </Card>
         ))}
