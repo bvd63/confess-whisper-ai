@@ -8,6 +8,9 @@ import {
   VIP_BONUS_AMOUNT,
   VIP_BONUS_DESCRIPTION,
   VIP_BONUS_TYPE,
+  parseStripeSignatureTimestamp,
+  isSignatureTimestampFresh,
+  isNegativeInvoice,
 } from "../../supabase/functions/stripe-webhook/utils";
 
 describe("stripe-webhook utils", () => {
@@ -95,6 +98,43 @@ describe("stripe-webhook utils", () => {
       expect(isDuplicateEventError({ code: "unique_violation" })).toBe(true);
       expect(isDuplicateEventError({ code: "PGRST" })).toBe(false);
       expect(isDuplicateEventError(undefined)).toBe(false);
+    });
+  });
+
+  describe("signature timestamp helpers", () => {
+    it("parses timestamps from Stripe signature header", () => {
+      const header = "t=1700000000,v1=abc,v0=def";
+      expect(parseStripeSignatureTimestamp(header)).toBe(1_700_000_000);
+    });
+
+    it("returns null for malformed headers", () => {
+      expect(parseStripeSignatureTimestamp(null)).toBeNull();
+      expect(parseStripeSignatureTimestamp("v1=abc")).toBeNull();
+    });
+
+    it("validates timestamp freshness within tolerance", () => {
+      const now = 1_700_000_500;
+      expect(isSignatureTimestampFresh(1_700_000_400, 300, now)).toBe(true);
+      expect(isSignatureTimestampFresh(1_699_999_000, 100, now)).toBe(false);
+      expect(isSignatureTimestampFresh(null, 300, now)).toBe(false);
+    });
+  });
+
+  describe("negative invoice detection", () => {
+    it("flags invoices with negative totals", () => {
+      expect(isNegativeInvoice({ total: -100 })).toBe(true);
+      expect(isNegativeInvoice({ amount_paid: -1 })).toBe(true);
+      expect(isNegativeInvoice({ subtotal: -50 })).toBe(true);
+    });
+
+    it("flags negative line items", () => {
+      expect(isNegativeInvoice({ lines: { data: [{ amount: -25 }] } })).toBe(true);
+    });
+
+    it("allows positive or zero invoices", () => {
+      expect(isNegativeInvoice({ total: 0 })).toBe(false);
+      expect(isNegativeInvoice({ amount_paid: 100 })).toBe(false);
+      expect(isNegativeInvoice(undefined)).toBe(false);
     });
   });
 });

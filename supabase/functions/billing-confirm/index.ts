@@ -1,6 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import {
+  buildPriceAllowlist,
+  buildPriceTierMap,
+  isAllowedPriceId,
+  resolveTierFromPriceMap,
+} from "../_shared/stripe-price-allowlist.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,11 +17,14 @@ const log = (level: string, message: string, data?: any) => {
   console.log(JSON.stringify({ level, message, data, timestamp: new Date().toISOString() }));
 };
 
-// Map Stripe Price IDs to our tiers - dynamically built from environment
-const PRICE_ID_TO_TIER: Record<string, "free" | "vip"> = {
-  [Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || ""]: "vip",
-  [Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || ""]: "vip",
-};
+const envGetter = (key: string) => Deno.env.get(key) ?? null;
+const stripePriceAllowlist = buildPriceAllowlist(envGetter);
+const stripePriceTierMap = buildPriceTierMap(envGetter);
+
+if (stripePriceAllowlist.size === 0 || stripePriceTierMap.size === 0) {
+  console.error(JSON.stringify({ level: "error", message: "billing-confirm missing Stripe price configuration" }));
+  throw new Error("billing-confirm configuration error: Stripe price IDs not set");
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -96,7 +105,16 @@ serve(async (req) => {
     // Load subscription to determine tier and end date
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     const priceId = subscription.items.data[0]?.price?.id || "";
-    const tier = PRICE_ID_TO_TIER[priceId] || "free";
+
+    if (!isAllowedPriceId(priceId, stripePriceAllowlist)) {
+      log("error", "Unrecognized price id in billing-confirm", { priceId, subscriptionId });
+      return new Response(
+        JSON.stringify({ processing: true, message: "unknown_price_id" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 },
+      );
+    }
+
+    const tier = resolveTierFromPriceMap(priceId, stripePriceTierMap) ?? "free";
     const endEpoch = (subscription as any)?.current_period_end;
     const endsAtISO = typeof endEpoch === 'number' && !Number.isNaN(endEpoch)
       ? new Date(endEpoch * 1000).toISOString()

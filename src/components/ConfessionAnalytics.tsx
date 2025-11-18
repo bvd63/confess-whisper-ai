@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { useRecharts } from '@/hooks/useRecharts';
 
 interface ConfessionAnalyticsProps {
   views: number;
@@ -11,8 +11,11 @@ interface ConfessionAnalyticsProps {
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--muted))'];
 
+const CARTESIAN_AND_PIE_SCOPES = ['cartesianCore', 'bar', 'pie'] as const;
+
 export const ConfessionAnalytics = ({ views, likes, comments, shares }: ConfessionAnalyticsProps) => {
   const { t } = useLanguage();
+  const recharts = useRecharts(CARTESIAN_AND_PIE_SCOPES);
 
   const engagementData = [
     { name: t.views, value: views },
@@ -27,6 +30,12 @@ export const ConfessionAnalytics = ({ views, likes, comments, shares }: Confessi
     { hour: '12-18', engagement: 78 },
     { hour: '18-24', engagement: 65 },
   ];
+
+  if (!recharts) {
+    return null;
+  }
+
+  const { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, CartesianGrid, XAxis, YAxis, Bar } = recharts;
 
   return (
     <div className="space-y-6">

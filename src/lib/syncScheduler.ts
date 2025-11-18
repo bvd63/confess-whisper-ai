@@ -3,10 +3,14 @@
  * Manages periodic background sync operations
  */
 
-import { supabase } from '@/integrations/supabase/client';
 import { offlineQueue } from './offlineQueue';
 import { persistenceManager } from './persistenceManager';
 import { logInfo, logWarn, logError } from '@/lib/logger';
+
+const loadSupabaseClient = async () => {
+  const { getSupabaseClient } = await import('@/integrations/supabase/safeClient');
+  return getSupabaseClient();
+};
 
 class SyncScheduler {
   private syncIntervals: Map<string, number> = new Map();
@@ -68,6 +72,7 @@ class SyncScheduler {
       await offlineQueue.processQueue();
 
       // Refresh unread counts
+      const supabase = await loadSupabaseClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         window.dispatchEvent(new CustomEvent('quick-sync', { detail: { userId } }));
@@ -89,6 +94,7 @@ class SyncScheduler {
 
     try {
       // Call server-side sync function for data validation
+      const supabase = await loadSupabaseClient();
       const { data, error } = await supabase.functions.invoke('sync-user-data', {
         body: { userId, operation: 'validate-data' }
       });

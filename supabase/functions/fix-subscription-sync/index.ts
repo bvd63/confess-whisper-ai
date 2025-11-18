@@ -1,22 +1,30 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import {
+  buildPriceAllowlist,
+  buildPriceTierMap,
+  emitPriceGuardDecision,
+  resolveTierFromPriceMap,
+} from "../_shared/stripe-price-allowlist.ts";
+import {
+  buildSubscriptionSyncTelemetry,
+  emitStripeMonitorEvent,
+} from "../_shared/stripe-monitoring.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const PRICE_ID_TO_TIER: Record<string, string> = {
-  [Deno.env.get("STRIPE_PRICE_PREMIUM_MONTHLY") || ""]: 'premium',
-  [Deno.env.get("STRIPE_PRICE_PREMIUM_YEARLY") || ""]: 'premium',
-  [Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || ""]: 'vip',
-  [Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || ""]: 'vip',
-};
+const envGetter = (key: string) => Deno.env.get(key) ?? null;
+const stripePriceAllowlist = buildPriceAllowlist(envGetter);
+const stripePriceTierMap = buildPriceTierMap(envGetter);
 
-const getTierFromPriceId = (priceId: string): string => {
-  return PRICE_ID_TO_TIER[priceId] || 'free';
-};
+if (stripePriceAllowlist.size === 0 || stripePriceTierMap.size === 0) {
+  console.error(JSON.stringify({ level: "error", message: "fix-subscription-sync missing Stripe price configuration" }));
+  throw new Error("fix-subscription-sync configuration error: Stripe price IDs not set");
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -52,7 +60,7 @@ serve(async (req) => {
     // Get user profile
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("stripe_subscription_id, stripe_customer_id")
+      .select("stripe_subscription_id, stripe_customer_id, subscription_tier")
       .eq("user_id", user.id)
       .single();
 
@@ -65,8 +73,19 @@ serve(async (req) => {
 
     // Fetch subscription from Stripe
     const subscription = await stripe.subscriptions.retrieve(profile.stripe_subscription_id);
-    const priceId = subscription.items.data[0]?.price.id;
-    const tier = getTierFromPriceId(priceId);
+    const priceId = subscription.items.data[0]?.price.id ?? null;
+    const priceDecision = emitPriceGuardDecision(priceId, stripePriceAllowlist, {
+      component: "fix-subscription-sync",
+      action: "sync_subscription",
+      correlationId: subscription.id,
+    });
+
+    if (!priceDecision.allowed) {
+      console.error(JSON.stringify({ level: "error", message: "Unknown price id during sync", priceId }));
+      throw new Error("Unknown price id for subscription");
+    }
+
+    const tier = resolveTierFromPriceMap(priceDecision.normalizedPriceId, stripePriceTierMap) || 'free';
 
     console.log("Stripe subscription:", {
       id: subscription.id,
@@ -94,10 +113,31 @@ serve(async (req) => {
 
     if (updateError) {
       console.error("Update error:", updateError);
+      emitStripeMonitorEvent({
+        component: "fix-subscription-sync",
+        event: "subscription_sync",
+        severity: "error",
+        metadata: {
+          userId: user.id,
+          stripeStatus: subscription.status,
+          priceId: priceDecision.normalizedPriceId,
+          error: updateError.message,
+        },
+      });
       throw updateError;
     }
 
     console.log("✅ Subscription synced successfully!");
+
+    const telemetry = buildSubscriptionSyncTelemetry({
+      component: "fix-subscription-sync",
+      userId: user.id,
+      stripeStatus: subscription.status,
+      resolvedTier: tier,
+      existingTier: profile?.subscription_tier ?? null,
+      priceId: priceDecision.normalizedPriceId,
+    });
+    emitStripeMonitorEvent(telemetry);
 
     return new Response(
       JSON.stringify({

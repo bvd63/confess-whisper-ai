@@ -2,19 +2,23 @@
 const VERSION = new Date().getTime();
 const CACHE_NAME = `confesiuni-cache-v${VERSION}`;
 const RUNTIME_CACHE = `runtime-v${VERSION}`;
-const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/offline.html',
-  '/manifest.json',
-];
+const API_CACHE = `api-v${VERSION}`;
+
+const STATIC_ASSETS = ['/index.html', '/offline.html', '/manifest.json'];
+const CRITICAL_ROUTES = ['/', '/explore', '/messages', '/profile', '/notifications'];
+const STATIC_EXTENSIONS = ['image', 'script', 'style', 'font'];
+const API_ROUTE_PREFIXES = ['/api/', '/functions/', '/rpc/'];
 
 // Install service worker
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
-    })
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      await cache.addAll(STATIC_ASSETS);
+
+      const routeRequests = CRITICAL_ROUTES.map((path) => new Request(path, { cache: 'reload' }));
+      await cache.addAll(routeRequests);
+    })()
   );
   self.skipWaiting();
 });
@@ -26,7 +30,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((name) => {
           // Delete ALL old caches to force fresh content
-          if (name !== CACHE_NAME && name !== RUNTIME_CACHE) {
+          if (name !== CACHE_NAME && name !== RUNTIME_CACHE && name !== API_CACHE) {
             console.log('🗑️ Deleting old cache:', name);
             return caches.delete(name);
           }
@@ -60,8 +64,8 @@ self.addEventListener('fetch', (event) => {
   // Skip external origins
   if (url.origin !== location.origin) return;
   
-  // Network first for HTML pages
-  if (request.destination === 'document') {
+  // Network first for HTML pages / navigations
+  if (request.mode === 'navigate' || request.destination === 'document') {
     event.respondWith(
       fetch(request)
         .then((response) => {
@@ -70,16 +74,36 @@ self.addEventListener('fetch', (event) => {
             .then((cache) => cache.put(request, responseClone));
           return response;
         })
-        .catch(() => caches.match(request).then(cached => cached || caches.match('/offline.html')))
+        .catch(() =>
+          caches.match(request).then((cached) => cached || caches.match('/offline.html'))
+        )
+    );
+    return;
+  }
+
+  // API requests (Network first with cached fallback)
+  if (url.origin === location.origin && API_ROUTE_PREFIXES.some((prefix) => url.pathname.startsWith(prefix))) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          const clone = response.clone();
+          caches.open(API_CACHE).then((cache) => cache.put(request, clone));
+          return response;
+        })
+        .catch(async () => {
+          const cachedResponse = await caches.match(request);
+          if (cachedResponse) return cachedResponse;
+          return new Response(JSON.stringify({ offline: true }), {
+            status: 503,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        })
     );
     return;
   }
   
   // Cache first for static assets (images, scripts, styles)
-  if (request.destination === 'image' || 
-      request.destination === 'script' || 
-      request.destination === 'style' ||
-      request.destination === 'font') {
+  if (STATIC_EXTENSIONS.includes(request.destination)) {
     event.respondWith(
       caches.match(request)
         .then((cached) => {

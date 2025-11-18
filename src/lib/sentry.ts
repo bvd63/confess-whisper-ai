@@ -2,10 +2,13 @@
  * Sentry Client Initialization
  * Error tracking with user context and tags
  */
-import * as Sentry from '@sentry/react';
 import { env } from '@/lib/env';
 
+type SentrySeverityLevel = import('@sentry/react').SeverityLevel;
+
 let sentryInitialized = false;
+let sentryModule: typeof import('@sentry/react') | null = null;
+let sentryLoadPromise: Promise<typeof import('@sentry/react')> | null = null;
 
 export interface SentryUserContext {
   userId?: string;
@@ -13,12 +16,31 @@ export interface SentryUserContext {
   locale?: string;
 }
 
+async function loadSentrySdk(): Promise<typeof import('@sentry/react')> {
+  if (sentryModule) {
+    return sentryModule;
+  }
+
+  if (!sentryLoadPromise) {
+    sentryLoadPromise = import('@sentry/react').then((mod) => {
+      sentryModule = mod;
+      return mod;
+    });
+  }
+
+  return sentryLoadPromise;
+}
+
 /**
  * Initialize Sentry client (browser-only)
  */
-export function initSentry(): void {
+export async function initSentry(): Promise<void> {
   // Guard: Only run in browser
   if (typeof window === 'undefined') {
+    return;
+  }
+
+  if (!env.isProd) {
     return;
   }
 
@@ -30,11 +52,14 @@ export function initSentry(): void {
   // Guard: Only initialize if DSN is configured
   const dsn = env.client.sentryDsn;
   if (!dsn) {
-    console.log('[Sentry] DSN not configured - skipping initialization');
+    if (env.isDev) {
+      console.warn('[Sentry] DSN not configured - skipping initialization');
+    }
     return;
   }
 
   try {
+    const Sentry = await loadSentrySdk();
     Sentry.init({
       dsn,
       environment: env.isProd ? 'production' : 'development',
@@ -62,7 +87,7 @@ export function initSentry(): void {
     });
 
     sentryInitialized = true;
-    console.log('[Sentry] Initialized successfully');
+    console.info('[Sentry] Initialized successfully');
   } catch (error) {
     console.error('[Sentry] Initialization failed:', error);
   }
@@ -72,19 +97,19 @@ export function initSentry(): void {
  * Set user context for Sentry
  */
 export function setSentryUser(context: SentryUserContext): void {
-  if (!sentryInitialized) return;
+  if (!sentryInitialized || !sentryModule) return;
 
   try {
-    Sentry.setUser({
+    sentryModule.setUser({
       id: context.userId,
     });
 
     // Set tags for filtering
     if (context.plan) {
-      Sentry.setTag('plan', context.plan);
+      sentryModule.setTag('plan', context.plan);
     }
     if (context.locale) {
-      Sentry.setTag('locale', context.locale);
+      sentryModule.setTag('locale', context.locale);
     }
   } catch (error) {
     console.error('[Sentry] Failed to set user context:', error);
@@ -95,10 +120,10 @@ export function setSentryUser(context: SentryUserContext): void {
  * Set current route tag
  */
 export function setSentryRoute(route: string): void {
-  if (!sentryInitialized) return;
+  if (!sentryInitialized || !sentryModule) return;
 
   try {
-    Sentry.setTag('route', route);
+    sentryModule.setTag('route', route);
   } catch (error) {
     console.error('[Sentry] Failed to set route:', error);
   }
@@ -113,8 +138,13 @@ export function captureSentryError(error: Error, context?: Record<string, any>):
     return;
   }
 
+  if (!sentryModule) {
+    console.error('[Sentry] SDK not loaded');
+    return;
+  }
+
   try {
-    Sentry.captureException(error, {
+    sentryModule.captureException(error, {
       extra: context,
     });
   } catch (err) {
@@ -125,11 +155,11 @@ export function captureSentryError(error: Error, context?: Record<string, any>):
 /**
  * Capture a message manually
  */
-export function captureSentryMessage(message: string, level: Sentry.SeverityLevel = 'info'): void {
-  if (!sentryInitialized) return;
+export function captureSentryMessage(message: string, level: SentrySeverityLevel = 'info'): void {
+  if (!sentryInitialized || !sentryModule) return;
 
   try {
-    Sentry.captureMessage(message, level);
+    sentryModule.captureMessage(message, level);
   } catch (error) {
     console.error('[Sentry] Failed to capture message:', error);
   }

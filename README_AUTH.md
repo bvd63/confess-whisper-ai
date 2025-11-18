@@ -9,24 +9,28 @@ This project features a comprehensive, production-ready authentication security 
 ### Access Points
 
 1. **Main Authentication Page**: `/auth`
-   - Login and signup with password validation
-   - CAPTCHA protection after failed attempts
-   - "Stay logged in" option
+
+- Login and signup with password validation
+- CAPTCHA protection after failed attempts
+- "Stay logged in" option
 
 2. **Testing Dashboard**: `/auth-test` (requires login)
-   - View and manage active sessions
-   - Test CAPTCHA requirements
-   - Manually trigger data cleanup
-   - Monitor security settings
+
+- View and manage active sessions
+- Test CAPTCHA requirements
+- Manually trigger data cleanup
+- Monitor security settings
 
 3. **Profile Settings**: `/profile` → Settings tab
-   - Quick access to auth testing dashboard
-   - Password change
-   - Email management
+
+- Quick access to auth testing dashboard
+- Password change
+- Email management
 
 4. **Admin Panel**: `/admin`
-   - Direct link to auth testing dashboard
-   - Additional security monitoring
+
+- Direct link to auth testing dashboard
+- Additional security monitoring
 
 ## ✨ Features
 
@@ -41,6 +45,7 @@ This project features a comprehensive, production-ready authentication security 
   - Cloudflare Turnstile integration
   - Automatically required after 3 failed login attempts
   - 30-minute enforcement window
+  - Suspicious refresh/session rotation attempts open an in-app Turnstile modal before new credentials are issued
 
 - **Rate Limiting**
   - 5 login attempts per 15 minutes per IP
@@ -51,7 +56,7 @@ This project features a comprehensive, production-ready authentication security 
   - Max 5 concurrent sessions per user
   - Automatic session expiration (2-30 days)
   - Device tracking with notifications
-  - Manual session revocation
+  - Manual session revocation + rotate-current-session button (surfaces Turnstile challenge when backend demands)
 
 - **Auto-Logout on Inactivity**
   - 30-minute timeout (configurable)
@@ -71,6 +76,7 @@ This project features a comprehensive, production-ready authentication security 
   - See device information
   - Check session expiration dates
   - Revoke individual or all sessions
+  - Rotate the current session to force refresh token regeneration (modal challenge appears if anomaly detected)
 
 - **CAPTCHA Testing**
   - Check if CAPTCHA is required for any email
@@ -102,7 +108,7 @@ This project features a comprehensive, production-ready authentication security 
 
 ## 📁 File Structure
 
-```
+```text
 ├── src/
 │   ├── hooks/
 │   │   ├── useEnhancedAuth.ts          # Enhanced auth operations
@@ -173,86 +179,101 @@ Comprehensive documentation available in the `docs/` folder:
 ### Manual Testing
 
 1. **Registration Flow**
-   - Test weak password rejection
-   - Verify CAPTCHA requirement
-   - Check email verification
+
+- Test weak password rejection
+- Verify CAPTCHA requirement
+- Check email verification
 
 2. **Login Flow**
-   - Test valid/invalid credentials
-   - Verify CAPTCHA after 3 failed attempts
-   - Test "Stay logged in" option
+
+- Test valid/invalid credentials
+- Verify CAPTCHA after 3 failed attempts
+- Test "Stay logged in" option
 
 3. **Session Management**
-   - View active sessions at `/auth-test`
-   - Test session revocation
-   - Verify auto-logout
+
+- View active sessions at `/auth-test`
+- Test session revocation
+- Verify auto-logout
 
 4. **Password Reset**
-   - Request password reset
-   - Follow email link
-   - Verify all sessions revoked
+
+- Request password reset
+- Follow email link
+- Verify all sessions revoked
 
 ### Using the Testing Dashboard
 
 Navigate to `/auth-test` (requires authentication):
 
 1. **Session Management Tab**
-   - Click "Refresh" to load sessions
-   - View device and IP information
-   - Revoke individual or all sessions
+
+- Click "Refresh" to load sessions
+- View device and IP information
+- Revoke individual or all sessions
 
 2. **CAPTCHA Testing Tab**
-   - Enter any email address
-   - Click "Check CAPTCHA Requirement"
-   - View enforcement status
+
+- Enter any email address
+- Click "Check CAPTCHA Requirement"
+- View enforcement status
 
 3. **Data Cleanup Tab**
-   - Click "Run Cleanup Now"
-   - Monitor cleanup results
-   - View cron job status
+
+- Click "Run Cleanup Now"
+- Monitor cleanup results
+- View cron job status
 
 ## 🚨 Security Best Practices
 
 1. **Never log sensitive data**
-   - Passwords (even hashed)
-   - Full email addresses in public logs
-   - User IP addresses publicly
+
+- Passwords (even hashed)
+- Full email addresses in public logs
+- User IP addresses publicly
 
 2. **Monitor security events regularly**
-   - Review failed login rates
-   - Check for unusual session patterns
-   - Monitor CAPTCHA enforcement rates
+
+- Review failed login rates
+- Check for unusual session patterns
+- Monitor CAPTCHA enforcement rates
 
 3. **Keep dependencies updated**
-   - Supabase client library
-   - React and security packages
-   - Test after updates
+
+- Supabase client library
+- React and security packages
+- Test after updates
 
 4. **Regular security audits**
-   - Review RLS policies
-   - Check edge function permissions
-   - Verify rate limiting effectiveness
+
+- Review RLS policies
+- Check edge function permissions
+- Verify rate limiting effectiveness
 
 ## 🆘 Troubleshooting
 
 ### Common Issues
 
 **Login Issues:**
+
 - Check if CAPTCHA is required (view in testing dashboard)
 - Verify email is confirmed
 - Check failed login attempts
 
 **Session Issues:**
+
 - Clear browser local storage
 - Check session count (max 5 per user)
 - Verify "stay logged in" preference
 
 **CAPTCHA Issues:**
+
 - Verify `VITE_TURNSTILE_SITE_KEY` is set
 - Check Cloudflare Turnstile dashboard
 - Test in incognito mode
 
 **Cron Job Issues:**
+
 - Check Supabase logs
 - Manually trigger: `SELECT trigger_auth_cleanup()`
 - Verify cron.schedule is active
@@ -260,6 +281,7 @@ Navigate to `/auth-test` (requires authentication):
 ## 📞 Support
 
 For issues or questions:
+
 1. Check documentation in `docs/` folder
 2. Use testing dashboard at `/auth-test`
 3. Review edge function logs in Lovable Cloud
@@ -268,6 +290,7 @@ For issues or questions:
 ## 🎯 Production Checklist
 
 Before deploying:
+
 - [ ] Environment variables configured
 - [ ] Email templates customized
 - [ ] Cron job scheduled
@@ -280,6 +303,7 @@ Before deploying:
 ## 📊 Monitoring Metrics
 
 Track these metrics in production:
+
 - Failed login rate per hour
 - CAPTCHA requirement rate
 - Active sessions per user

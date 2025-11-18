@@ -17,15 +17,17 @@ All edge function requests are validated using Zod schemas defined in `src/lib/v
 **Rate Limit:** 5 requests/minute per user
 
 **Request:**
+
 ```typescript
 {
-  confession: string;     // 10-5000 chars
-  type: 'basic' | 'deep'; // default: 'basic'
-  language: 'en' | 'es' | 'de'; // default: 'en'
+  confession: string; // 10-5000 chars
+  type: "basic" | "deep"; // default: 'basic'
+  language: "en" | "es" | "de"; // default: 'en'
 }
 ```
 
 **Response (Success):**
+
 ```typescript
 {
   response: string; // AI-generated response
@@ -33,6 +35,7 @@ All edge function requests are validated using Zod schemas defined in `src/lib/v
 ```
 
 **Response (Error):**
+
 ```typescript
 {
   error: string;
@@ -41,6 +44,7 @@ All edge function requests are validated using Zod schemas defined in `src/lib/v
 ```
 
 **Status Codes:**
+
 - `200` - Success
 - `401` - Unauthorized
 - `429` - Rate limit exceeded
@@ -58,14 +62,16 @@ All edge function requests are validated using Zod schemas defined in `src/lib/v
 **Rate Limit:** 20 requests/minute
 
 **Request:**
+
 ```typescript
 {
   content: string; // 1-5000 chars
-  language: 'en' | 'es' | 'de'; // default: 'en'
+  language: "en" | "es" | "de"; // default: 'en'
 }
 ```
 
 **Response:**
+
 ```typescript
 {
   safe: boolean;
@@ -84,15 +90,17 @@ All edge function requests are validated using Zod schemas defined in `src/lib/v
 **Authentication:** Required (JWT)
 
 **Request:**
+
 ```typescript
 {
   priceId: string; // Starts with 'price_'
   planName: string;
-  billingCycle: 'monthly' | 'yearly';
+  billingCycle: "monthly" | "yearly";
 }
 ```
 
 **Response:**
+
 ```typescript
 {
   url: string; // Stripe checkout URL
@@ -108,6 +116,7 @@ All edge function requests are validated using Zod schemas defined in `src/lib/v
 **Authentication:** Required (JWT)
 
 **Response:**
+
 ```typescript
 {
   isActive: boolean;
@@ -125,6 +134,7 @@ All edge function requests are validated using Zod schemas defined in `src/lib/v
 **Authentication:** Required (JWT)
 
 **Response:**
+
 ```typescript
 {
   url: string; // Portal URL
@@ -140,6 +150,7 @@ All edge function requests are validated using Zod schemas defined in `src/lib/v
 **Authentication:** Required (JWT)
 
 **Request:**
+
 ```typescript
 {
   referralCode: string; // 6-20 chars
@@ -147,6 +158,7 @@ All edge function requests are validated using Zod schemas defined in `src/lib/v
 ```
 
 **Response:**
+
 ```typescript
 {
   success: boolean;
@@ -166,6 +178,7 @@ All edge function requests are validated using Zod schemas defined in `src/lib/v
 **Authentication:** Optional
 
 **Request:**
+
 ```typescript
 {
   action: string; // e.g., 'confession_create'
@@ -175,6 +188,7 @@ All edge function requests are validated using Zod schemas defined in `src/lib/v
 ```
 
 **Response:**
+
 ```typescript
 {
   allowed: boolean;
@@ -194,6 +208,7 @@ All edge function requests are validated using Zod schemas defined in `src/lib/v
 **Authentication:** Not required (public)
 
 **Response:**
+
 ```typescript
 {
   status: 'healthy' | 'degraded' | 'unhealthy';
@@ -222,6 +237,7 @@ All edge function requests are validated using Zod schemas defined in `src/lib/v
 **Authentication:** Required for POST, optional for GET
 
 **POST Request (Record Metric):**
+
 ```typescript
 {
   name: string;
@@ -232,29 +248,34 @@ All edge function requests are validated using Zod schemas defined in `src/lib/v
 ```
 
 **GET Query Parameters:**
+
 - `format`: 'json' | 'prometheus' (default: 'json')
 - `name`: Filter by metric name
 - `start`: Unix timestamp (filter start)
 - `end`: Unix timestamp (filter end)
 
 **GET Response (JSON):**
+
 ```typescript
 {
   total: number;
   timeRange: {
     start: number | null;
     end: number | null;
-  };
-  metrics: Record<string, {
-    count: number;
-    sum: number;
-    avg: number;
-    min: number;
-    max: number;
-    p50: number;
-    p95: number;
-    p99: number;
-  }>;
+  }
+  metrics: Record<
+    string,
+    {
+      count: number;
+      sum: number;
+      avg: number;
+      min: number;
+      max: number;
+      p50: number;
+      p95: number;
+      p99: number;
+    }
+  >;
 }
 ```
 
@@ -263,21 +284,24 @@ All edge function requests are validated using Zod schemas defined in `src/lib/v
 ## Common Error Responses
 
 ### 401 Unauthorized
+
 ```typescript
 {
-  error: 'Unauthorized'
+  error: "Unauthorized";
 }
 ```
 
 ### 429 Rate Limit Exceeded
+
 ```typescript
 {
-  error: 'Rate limit exceeded. Please try again later.';
+  error: "Rate limit exceeded. Please try again later.";
   retryAfter: number; // seconds
 }
 ```
 
 ### 400 Bad Request
+
 ```typescript
 {
   error: string; // Validation error message
@@ -285,6 +309,7 @@ All edge function requests are validated using Zod schemas defined in `src/lib/v
 ```
 
 ### 500 Internal Server Error
+
 ```typescript
 {
   error: string; // Error description
@@ -295,27 +320,29 @@ All edge function requests are validated using Zod schemas defined in `src/lib/v
 
 ## Rate Limits
 
-| Action | Limit | Window |
-|--------|-------|--------|
-| AI Requests | 5 | 1 minute |
-| Confession Create | 10 | 1 minute |
-| Comment Create | 20 | 1 minute |
-| Message Send | 30 | 1 minute |
-| Default | 50 | 1 minute |
+| Action            | Limit | Window   |
+| ----------------- | ----- | -------- |
+| AI Requests       | 5     | 1 minute |
+| Confession Create | 10    | 1 minute |
+| Comment Create    | 20    | 1 minute |
+| Message Send      | 30    | 1 minute |
+| Default           | 50    | 1 minute |
 
 ---
 
 ## Security Headers
 
 All responses include:
-```
+
+```text
 Access-Control-Allow-Origin: *
 Access-Control-Allow-Headers: authorization, x-client-info, apikey, content-type
 Content-Type: application/json
 ```
 
 Rate-limited responses also include:
-```
+
+```text
 Retry-After: <seconds>
 ```
 
@@ -324,16 +351,19 @@ Retry-After: <seconds>
 ## Testing Edge Functions
 
 ```typescript
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from "@/integrations/supabase/client";
 
 // Example: AI response
-const { data, error } = await supabase.functions.invoke('ai-confession-response', {
-  body: {
-    confession: 'My confession text here',
-    type: 'basic',
-    language: 'en'
-  }
-});
+const { data, error } = await supabase.functions.invoke(
+  "ai-confession-response",
+  {
+    body: {
+      confession: "My confession text here",
+      type: "basic",
+      language: "en",
+    },
+  },
+);
 ```
 
 ---

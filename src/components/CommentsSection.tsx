@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, memo, useCallback } from "react";
 import { useCachePurgeOnDelete } from "@/hooks/useCachePurgeOnDelete";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -41,7 +41,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
   const confirm = useConfirm();
   const { purgeComment } = useCachePurgeOnDelete();
 
-  const loadComments = async () => {
+  const loadComments = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('comments')
@@ -54,14 +54,13 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
     } catch (error) {
       logError('Error loading comments', error instanceof Error ? error : undefined);
     }
-  };
+  }, [confessionId]);
 
   useEffect(() => {
     if (isExpanded) {
       loadComments();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isExpanded, confessionId]);
+  }, [isExpanded, loadComments]);
 
   const handleSubmit = async () => {
     if (!newComment.trim() || !user) return;

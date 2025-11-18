@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Users } from "lucide-react";
@@ -9,6 +9,7 @@ import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import VirtualizedConfessions from "@/components/VirtualizedConfessions";
+import type { Database } from "@/integrations/supabase/types";
 
 interface FollowingFeedProps {
   userId: string;
@@ -16,19 +17,17 @@ interface FollowingFeedProps {
   onUpgradeClick: () => void;
 }
 
+type ConfessionRow = Database["public"]["Tables"]["confessions"]["Row"];
+
 const FollowingFeed = ({ userId, isPremium, onUpgradeClick }: FollowingFeedProps) => {
-  const [confessions, setConfessions] = useState<any[]>([]);
+  const [confessions, setConfessions] = useState<ConfessionRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { likedConfessions, bookmarkedConfessions, reloadLikes, reloadBookmarks } = useConfessionInteractions({ userId });
   const { toast } = useToast();
   const { t } = useLanguage();
 
-  useEffect(() => {
-    loadFollowingConfessions();
-  }, [userId]);
-
-  const loadFollowingConfessions = async () => {
+  const loadFollowingConfessions = useCallback(async () => {
     try {
       // Get list of users the current user is following
       const { data: following, error: followError } = await supabase
@@ -63,7 +62,11 @@ const FollowingFeed = ({ userId, isPremium, onUpgradeClick }: FollowingFeedProps
     } finally {
       setLoading(false);
     }
-  };
+  }, [t.following_load_error, userId]);
+
+  useEffect(() => {
+    loadFollowingConfessions();
+  }, [loadFollowingConfessions]);
 
   if (loading) {
     return <LoadingQuotes />;

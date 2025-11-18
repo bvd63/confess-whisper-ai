@@ -1,61 +1,73 @@
 # Automated Cron Jobs
 
 ## Overview
+
 The system uses PostgreSQL cron jobs to automate maintenance tasks and keep data fresh.
 
 ## Active Cron Jobs
 
 ### 1. Daily Quote Rotation
+
 **Schedule**: Every day at midnight UTC (00:00)
 **Function**: `rotate-qotd`
 **Purpose**: Rotates the quote of the day
-```
+
+```text
 Cron: 0 0 * * *
 ```
 
 ### 2. Soft Delete Cleanup
+
 **Schedule**: Every Sunday at 2 AM UTC
 **Function**: `cleanup-soft-deletes`
 **Purpose**: Permanently removes soft-deleted records older than 30 days
-```
+
+```text
 Cron: 0 2 * * 0
 ```
 
 ### 3. Trending Confessions Refresh
+
 **Schedule**: Every hour on the hour
 **Purpose**: Refreshes materialized view for trending content
-```
+
+```text
 Cron: 0 * * * *
 ```
 
 ## Monitoring
 
 ### View Active Cron Jobs
+
 ```sql
 SELECT * FROM cron.job;
 ```
 
 ### View Cron Job History
+
 ```sql
-SELECT * FROM cron.job_run_details 
-ORDER BY start_time DESC 
+SELECT * FROM cron.job_run_details
+ORDER BY start_time DESC
 LIMIT 10;
 ```
 
 ### View Cron Logs (Admin Only)
+
 ```sql
-SELECT * FROM cron_job_logs 
+SELECT * FROM cron_job_logs
 ORDER BY executed_at DESC;
 ```
 
 ## Management
 
 ### Unschedule a Job
+
 ```sql
 SELECT cron.unschedule('job-name');
 ```
 
 ### Update Schedule
+
 ```sql
 -- First unschedule
 SELECT cron.unschedule('rotate-daily-quote');
@@ -70,29 +82,35 @@ SELECT cron.schedule(
 
 ## Troubleshooting
 
-### Job Not Running?
+### Job Not Running
+
 1. Check if extension is enabled:
+
 ```sql
 SELECT * FROM pg_extension WHERE extname = 'pg_cron';
 ```
 
 2. Check job status:
+
 ```sql
 SELECT * FROM cron.job WHERE jobname = 'rotate-daily-quote';
 ```
 
 3. Check recent runs:
+
 ```sql
-SELECT * FROM cron.job_run_details 
+SELECT * FROM cron.job_run_details
 WHERE jobid = (SELECT jobid FROM cron.job WHERE jobname = 'rotate-daily-quote')
 ORDER BY start_time DESC
 LIMIT 5;
 ```
 
 ### Failed Jobs
+
 Check logs for errors:
+
 ```sql
-SELECT * FROM cron.job_run_details 
+SELECT * FROM cron.job_run_details
 WHERE status = 'failed'
 ORDER BY start_time DESC;
 ```
@@ -108,6 +126,7 @@ ORDER BY start_time DESC;
 
 1. Create the edge function
 2. Add cron schedule via migration:
+
 ```sql
 SELECT cron.schedule(
   'job-name',
@@ -123,6 +142,7 @@ SELECT cron.schedule(
 ```
 
 3. Test manually:
+
 ```sql
 SELECT cron.schedule(
   'test-job',
@@ -135,7 +155,7 @@ SELECT cron.schedule(
 
 ## Cron Expression Guide
 
-```
+```text
 * * * * *
 │ │ │ │ │
 │ │ │ │ └─ Day of week (0-7, Sunday=0 or 7)
@@ -146,6 +166,7 @@ SELECT cron.schedule(
 ```
 
 Examples:
+
 - `0 0 * * *` - Daily at midnight
 - `0 */6 * * *` - Every 6 hours
 - `0 9 * * 1` - Every Monday at 9 AM

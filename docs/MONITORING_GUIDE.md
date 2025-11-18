@@ -5,6 +5,7 @@ Complete guide for monitoring the ConfessAI persistence system and overall appli
 ## 📊 Monitoring Dashboard
 
 ### Accessing the Dashboard
+
 Admins can access the real-time monitoring dashboard at `/system-monitor`. This provides:
 
 - **Sync Status**: Current synchronization state (Offline, Syncing, Synced)
@@ -16,6 +17,7 @@ Admins can access the real-time monitoring dashboard at `/system-monitor`. This 
 ### Key Metrics Tracked
 
 #### Performance Metrics
+
 - **Total Operations**: Number of persistence operations in the last minute
 - **Success Rate**: Percentage of successful operations (target: >99%)
 - **Average Duration**: Mean operation latency (target: <50ms)
@@ -23,6 +25,7 @@ Admins can access the real-time monitoring dashboard at `/system-monitor`. This 
 - **Slow Operations**: Operations exceeding 100ms threshold
 
 #### Storage Metrics
+
 - **Storage Usage**: Percentage of available quota used
 - **Cache Size**: Current IndexedDB usage
 - **Queued Operations**: Number of pending offline operations
@@ -30,7 +33,9 @@ Admins can access the real-time monitoring dashboard at `/system-monitor`. This 
 ## 🔍 Real-Time Monitoring
 
 ### Network Status Indicator
+
 Located in the app header, shows:
+
 - 🟢 **Synced**: All data synchronized, network online
 - 🔵 **Syncing**: Background sync in progress
 - 🔴 **Offline**: No network connection, queued operations shown
@@ -40,6 +45,7 @@ Located in the app header, shows:
 #### Important Log Patterns
 
 **Sync Operations:**
+
 ```
 📅 Sync scheduler started
 🔄 Quick sync completed
@@ -48,17 +54,20 @@ Located in the app header, shows:
 ```
 
 **Performance Warnings:**
+
 ```
 ⚠️ Slow persistence operation: [operation] took [duration]ms
 ```
 
 **Data Validation:**
+
 ```
 ✅ All conversations validated
 ⚠️ Data validation issues detected: [details]
 ```
 
 **Cache Operations:**
+
 ```
 💾 Cache hit: [key]
 ❌ Cache miss: [key]
@@ -72,73 +81,83 @@ Located in the app header, shows:
 The app uses a centralized observability service (`src/lib/observability.ts`) for structured logging and metrics:
 
 ```typescript
-import { observability } from '@/lib/observability';
+import { observability } from "@/lib/observability";
 
 // Log with context
-observability.info('Operation completed', {
-  requestId: 'req-123',
-  userId: 'user-456',
-  duration: 50
+observability.info("Operation completed", {
+  requestId: "req-123",
+  userId: "user-456",
+  duration: 50,
 });
 
 // Record metrics
 observability.recordMetric({
-  name: 'operation_duration',
+  name: "operation_duration",
   value: 50,
-  unit: 'ms',
-  tags: { operation: 'sync' }
+  unit: "ms",
+  tags: { operation: "sync" },
 });
 ```
 
 ### Performance Targets
 
-| Metric | Target | Warning | Critical |
-|--------|--------|---------|----------|
-| p50 Latency | <50ms | >100ms | >200ms |
-| p95 Latency | <100ms | >200ms | >500ms |
-| p99 Latency | <200ms | >500ms | >1000ms |
-| Success Rate | >99.5% | <99% | <95% |
-| Cache Hit Rate | >80% | <70% | <60% |
-| Sync Queue | <5 ops | >20 ops | >50 ops |
+| Metric         | Target | Warning | Critical |
+| -------------- | ------ | ------- | -------- |
+| p50 Latency    | <50ms  | >100ms  | >200ms   |
+| p95 Latency    | <100ms | >200ms  | >500ms   |
+| p99 Latency    | <200ms | >500ms  | >1000ms  |
+| Success Rate   | >99.5% | <99%    | <95%     |
+| Cache Hit Rate | >80%   | <70%    | <60%     |
+| Sync Queue     | <5 ops | >20 ops | >50 ops  |
 
 ## 🚨 Alerting & Issues
 
 ### Critical Issues
 
 **Circuit Breaker Open:**
+
 ```
 ⚠️ Circuit breaker opened for [service]
 ```
+
 - **Impact**: Service temporarily unavailable
 - **Action**: System will auto-recover; check service health
 
 **High Queue Depth:**
+
 ```
 ⚠️ [N] operations queued (offline mode)
 ```
+
 - **Impact**: Data not synced to server
 - **Action**: Verify network connectivity
 
 **Storage Quota Exceeded:**
+
 ```
 ❌ Storage quota exceeded
 ```
+
 - **Impact**: New data cannot be cached
 - **Action**: Clear old cache data or increase quota
 
 ### Warnings
 
 **Slow Operations:**
+
 ```
 ⚠️ Slow operation detected: [operation] took [duration]ms
 ```
+
 - **Impact**: Degraded user experience
 - **Action**: Monitor frequency; investigate if persistent
 
 **Data Validation Failed:**
+
 ```
 ⚠️ Validation failed for conversation [id]
 ```
+
 - **Impact**: Data inconsistency detected
 - **Action**: System will attempt auto-repair
 
@@ -147,17 +166,20 @@ observability.recordMetric({
 ### Browser DevTools
 
 #### IndexedDB Inspector
+
 1. Open DevTools → Application → Storage → IndexedDB
 2. Inspect databases:
    - `confessions-db`: Main application data
    - Contains stores: `drafts`, `state`, `preferences`, `queue`
 
 #### Network Monitor
+
 - Filter by `supabase` to see API calls
 - Check for failed requests or high latency
 - Monitor WebSocket connections for realtime
 
 #### Console Logs
+
 - Filter by `[PERSISTENCE]` for cache operations
 - Filter by `[SYNC]` for background sync events
 - Filter by `[OBSERVABILITY]` for metrics
@@ -170,14 +192,17 @@ Open browser console and run:
 // Check persistence health
 window.checkPersistenceHealth = async () => {
   const estimate = await navigator.storage.estimate();
-  console.log('Storage:', estimate);
-  console.log('Usage:', (estimate.usage / estimate.quota * 100).toFixed(2) + '%');
+  console.log("Storage:", estimate);
+  console.log(
+    "Usage:",
+    ((estimate.usage / estimate.quota) * 100).toFixed(2) + "%",
+  );
 };
 
 // Force sync
 window.forceSync = () => {
-  window.dispatchEvent(new Event('app-focus-sync'));
-  console.log('Sync triggered');
+  window.dispatchEvent(new Event("app-focus-sync"));
+  console.log("Sync triggered");
 };
 
 // Clear all cache
@@ -186,7 +211,7 @@ window.clearAllCache = async () => {
   for (const db of dbs) {
     indexedDB.deleteDatabase(db.name);
   }
-  console.log('All caches cleared');
+  console.log("All caches cleared");
 };
 ```
 
@@ -194,22 +219,24 @@ window.clearAllCache = async () => {
 
 ### Scheduled Jobs
 
-| Job | Schedule | Purpose | Monitor |
-|-----|----------|---------|---------|
-| rotate-daily-quote | Daily 00:00 UTC | Update quote of the day | Check `quotes` table |
-| cleanup-soft-deletes | Weekly Sun 02:00 | Remove old deleted records | Check `cron_job_logs` |
-| refresh-trending | Hourly | Update trending view | Query `trending_confessions` |
+| Job                  | Schedule         | Purpose                    | Monitor                      |
+| -------------------- | ---------------- | -------------------------- | ---------------------------- |
+| rotate-daily-quote   | Daily 00:00 UTC  | Update quote of the day    | Check `quotes` table         |
+| cleanup-soft-deletes | Weekly Sun 02:00 | Remove old deleted records | Check `cron_job_logs`        |
+| refresh-trending     | Hourly           | Update trending view       | Query `trending_confessions` |
 
 ### Monitoring Cron Jobs
 
 Query the cron logs table (admin only):
+
 ```sql
-SELECT * FROM cron_job_logs 
-ORDER BY executed_at DESC 
+SELECT * FROM cron_job_logs
+ORDER BY executed_at DESC
 LIMIT 10;
 ```
 
 Check job schedules:
+
 ```sql
 SELECT * FROM cron.job;
 ```
@@ -217,15 +244,19 @@ SELECT * FROM cron.job;
 ## 🎯 Health Check Endpoints
 
 ### Application Health
+
 ```bash
 GET /health
 ```
+
 Returns: System status, database connectivity, cache status
 
 ### Metrics Endpoint
+
 ```bash
 GET /metrics?format=json
 ```
+
 Returns: Performance metrics, latency percentiles, error rates
 
 ## 📝 Best Practices
@@ -233,18 +264,21 @@ Returns: Performance metrics, latency percentiles, error rates
 ### For Developers
 
 1. **Use Structured Logging**
+
    ```typescript
-   observability.info('Action', { context });
+   observability.info("Action", { context });
    ```
 
 2. **Record Important Metrics**
+
    ```typescript
    observability.recordMetric({ name, value, unit });
    ```
 
 3. **Handle Errors Gracefully**
+
    ```typescript
-   observability.error('Error message', error, { context });
+   observability.error("Error message", error, { context });
    ```
 
 4. **Monitor Operation Duration**
@@ -252,9 +286,9 @@ Returns: Performance metrics, latency percentiles, error rates
    const start = performance.now();
    // ... operation ...
    observability.recordMetric({
-     name: 'operation_duration',
+     name: "operation_duration",
      value: performance.now() - start,
-     unit: 'ms'
+     unit: "ms",
    });
    ```
 
@@ -284,4 +318,4 @@ Returns: Performance metrics, latency percentiles, error rates
 
 ---
 
-*Last Updated: 2025-10-18*
+_Last Updated: 2025-10-18_

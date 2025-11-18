@@ -3,14 +3,16 @@
 ## 🎹 Built-in Shortcuts
 
 ### Global Navigation
-| Shortcut | Action | Context |
-|----------|--------|---------|
-| `Esc` | Close dialog/modal | Any open modal or dialog |
-| `Enter` | Submit form | Forms (not in textarea) |
-| `Tab` | Navigate forward | Any interactive element |
-| `Shift + Tab` | Navigate backward | Any interactive element |
+
+| Shortcut      | Action             | Context                  |
+| ------------- | ------------------ | ------------------------ |
+| `Esc`         | Close dialog/modal | Any open modal or dialog |
+| `Enter`       | Submit form        | Forms (not in textarea)  |
+| `Tab`         | Navigate forward   | Any interactive element  |
+| `Shift + Tab` | Navigate backward  | Any interactive element  |
 
 ### Dialog Management
+
 - **Escape Key**: Automatically closes:
   - New Confession Dialog
   - Deep Insight Dialog
@@ -20,6 +22,7 @@
   - Modals with close buttons
 
 ### Form Submission
+
 - **Enter Key**: Submits forms when:
   - In text input fields
   - In select dropdowns
@@ -33,7 +36,7 @@
 ### Basic Usage
 
 ```tsx
-import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
+import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
 
 function MyComponent() {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,7 +44,7 @@ function MyComponent() {
   useKeyboardNavigation({
     onEscape: () => setIsOpen(false),
     onEnter: () => handleSubmit(),
-    enabled: isOpen
+    enabled: isOpen,
   });
 
   return <Dialog open={isOpen}>...</Dialog>;
@@ -53,38 +56,38 @@ function MyComponent() {
 For complex shortcuts with modifiers:
 
 ```tsx
-import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 function MyComponent() {
   useKeyboardShortcuts([
     // Ctrl/Cmd + S to save
     {
-      key: 's',
+      key: "s",
       ctrl: true,
-      callback: handleSave
+      callback: handleSave,
     },
-    
+
     // Ctrl/Cmd + K to open search
     {
-      key: 'k',
+      key: "k",
       ctrl: true,
-      callback: openSearch
+      callback: openSearch,
     },
-    
+
     // Ctrl/Cmd + Shift + P for command palette
     {
-      key: 'p',
+      key: "p",
       ctrl: true,
       shift: true,
-      callback: openCommandPalette
+      callback: openCommandPalette,
     },
-    
+
     // Alt + N for new confession
     {
-      key: 'n',
+      key: "n",
       alt: true,
-      callback: createNewConfession
-    }
+      callback: createNewConfession,
+    },
   ]);
 
   return <YourComponent />;
@@ -96,6 +99,7 @@ function MyComponent() {
 ## 📋 Recommended Shortcuts
 
 ### Content Creation
+
 ```tsx
 // Ctrl/Cmd + N - New confession
 {
@@ -120,6 +124,7 @@ function MyComponent() {
 ```
 
 ### Navigation
+
 ```tsx
 // Ctrl/Cmd + H - Go home
 {
@@ -151,6 +156,7 @@ function MyComponent() {
 ```
 
 ### Search & Filter
+
 ```tsx
 // Ctrl/Cmd + K - Quick search
 {
@@ -168,6 +174,7 @@ function MyComponent() {
 ```
 
 ### UI Controls
+
 ```tsx
 // Ctrl/Cmd + B - Toggle sidebar
 {
@@ -196,43 +203,39 @@ function MyComponent() {
 ## 🎮 Implementation Examples
 
 ### Dialog with Escape
+
 ```tsx
 function ConfessionDialog({ open, onClose }) {
   useKeyboardNavigation({
     onEscape: onClose,
-    enabled: open
+    enabled: open,
   });
 
-  return (
-    <Dialog open={open}>
-      {/* Dialog content */}
-    </Dialog>
-  );
+  return <Dialog open={open}>{/* Dialog content */}</Dialog>;
 }
 ```
 
 ### Form with Enter Submit
+
 ```tsx
 function ConfessionForm({ onSubmit }) {
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState("");
 
   useKeyboardNavigation({
     onEnter: () => onSubmit(content),
-    enabled: content.length >= 10
+    enabled: content.length >= 10,
   });
 
   return (
     <form>
-      <Input 
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-      />
+      <Input value={content} onChange={(e) => setContent(e.target.value)} />
     </form>
   );
 }
 ```
 
 ### Command Palette
+
 ```tsx
 function CommandPalette() {
   const [open, setOpen] = useState(false);
@@ -240,22 +243,20 @@ function CommandPalette() {
 
   useKeyboardShortcuts([
     {
-      key: 'k',
+      key: "k",
       ctrl: true,
-      callback: () => setOpen(true)
-    }
+      callback: () => setOpen(true),
+    },
   ]);
 
   useKeyboardNavigation({
     onEscape: () => setOpen(false),
-    enabled: open
+    enabled: open,
   });
 
   return (
     <Dialog open={open}>
-      <DialogContent>
-        {/* Command palette UI */}
-      </DialogContent>
+      <DialogContent>{/* Command palette UI */}</DialogContent>
     </Dialog>
   );
 }
@@ -266,6 +267,7 @@ function CommandPalette() {
 ## ♿ Accessibility Best Practices
 
 ### 1. Always Show Visual Feedback
+
 ```tsx
 // ✅ Good - Shows focus outline
 <button className="focus-ring">
@@ -279,21 +281,21 @@ function CommandPalette() {
 ```
 
 ### 2. Provide Keyboard Hints
+
 ```tsx
 <Button>
   Save
-  <span className="text-xs text-muted-foreground ml-2">
-    ⌘S
-  </span>
+  <span className="text-xs text-muted-foreground ml-2">⌘S</span>
 </Button>
 ```
 
 ### 3. Don't Trap Focus
+
 ```tsx
 // ✅ Good - Allow escape
 useKeyboardNavigation({
   onEscape: closeModal,
-  enabled: isOpen
+  enabled: isOpen,
 });
 
 // ❌ Bad - No way out
@@ -301,6 +303,7 @@ useKeyboardNavigation({
 ```
 
 ### 4. Support Tab Navigation
+
 ```tsx
 // ✅ Good - Tabbable elements
 <button>Action 1</button>
@@ -321,14 +324,14 @@ Enable keyboard shortcut logging in development:
 // In your hook or component
 useKeyboardShortcuts([
   {
-    key: 'd',
+    key: "d",
     ctrl: true,
     shift: true,
     callback: () => {
-      console.log('Debug mode enabled');
+      console.log("Debug mode enabled");
       // Show keyboard shortcut overlay
-    }
-  }
+    },
+  },
 ]);
 ```
 
@@ -337,6 +340,7 @@ useKeyboardShortcuts([
 ## 📱 Mobile Considerations
 
 Keyboard shortcuts don't apply on mobile/touch devices. Instead:
+
 - Use gestures (swipe, long-press)
 - Provide touch-optimized buttons
 - Consider haptic feedback
@@ -345,15 +349,13 @@ Keyboard shortcuts don't apply on mobile/touch devices. Instead:
 ```tsx
 // Desktop: Keyboard shortcut
 if (!isMobile) {
-  useKeyboardShortcuts([
-    { key: 'r', ctrl: true, callback: refresh }
-  ]);
+  useKeyboardShortcuts([{ key: "r", ctrl: true, callback: refresh }]);
 }
 
 // Mobile: Pull-to-refresh
 if (isMobile) {
   usePullToRefresh({
-    onRefresh: refresh
+    onRefresh: refresh,
   });
 }
 ```
@@ -366,24 +368,24 @@ if (isMobile) {
 
 ```tsx
 const shortcuts = [
-  { keys: ['Esc'], description: 'Close dialog' },
-  { keys: ['Enter'], description: 'Submit form' },
-  { keys: ['Ctrl', 'K'], description: 'Search' },
-  { keys: ['Ctrl', 'N'], description: 'New confession' },
-  { keys: ['Ctrl', 'S'], description: 'Save draft' },
-  { keys: ['Ctrl', 'H'], description: 'Go home' },
-  { keys: ['Ctrl', 'P'], description: 'Profile' },
-  { keys: ['Ctrl', ','], description: 'Settings' },
+  { keys: ["Esc"], description: "Close dialog" },
+  { keys: ["Enter"], description: "Submit form" },
+  { keys: ["Ctrl", "K"], description: "Search" },
+  { keys: ["Ctrl", "N"], description: "New confession" },
+  { keys: ["Ctrl", "S"], description: "Save draft" },
+  { keys: ["Ctrl", "H"], description: "Go home" },
+  { keys: ["Ctrl", "P"], description: "Profile" },
+  { keys: ["Ctrl", ","], description: "Settings" },
 ];
 
 function ShortcutHelp() {
   return (
     <div className="space-y-2">
       {shortcuts.map((shortcut) => (
-        <div key={shortcut.keys.join('-')} className="flex justify-between">
+        <div key={shortcut.keys.join("-")} className="flex justify-between">
           <span>{shortcut.description}</span>
           <kbd className="px-2 py-1 bg-muted rounded">
-            {shortcut.keys.join(' + ')}
+            {shortcut.keys.join(" + ")}
           </kbd>
         </div>
       ))}
@@ -397,35 +399,38 @@ function ShortcutHelp() {
 ## 🚀 Performance Tips
 
 1. **Cleanup Listeners**: Hooks automatically cleanup, but verify:
+
 ```tsx
 useEffect(() => {
   const handler = (e: KeyboardEvent) => {
     // ...
   };
-  
-  window.addEventListener('keydown', handler);
-  return () => window.removeEventListener('keydown', handler);
+
+  window.addEventListener("keydown", handler);
+  return () => window.removeEventListener("keydown", handler);
 }, []);
 ```
 
 2. **Debounce Rapid Keys**: For search or filter:
+
 ```tsx
 const debouncedCallback = useDebouncedCallback(handleSearch, 300);
 
 useKeyboardShortcuts([
   {
-    key: 'k',
+    key: "k",
     ctrl: true,
-    callback: debouncedCallback
-  }
+    callback: debouncedCallback,
+  },
 ]);
 ```
 
 3. **Conditional Shortcuts**: Only enable when needed:
+
 ```tsx
 useKeyboardNavigation({
   onEnter: handleSubmit,
-  enabled: isFormValid && isDialogOpen
+  enabled: isFormValid && isDialogOpen,
 });
 ```
 

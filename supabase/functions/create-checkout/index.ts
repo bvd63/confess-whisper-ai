@@ -1,6 +1,8 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { buildPriceAllowlist, emitPriceGuardDecision } from "../_shared/stripe-price-allowlist.ts";
+import { emitStripeMonitorEvent } from "../_shared/stripe-monitoring.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,6 +13,13 @@ const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
 };
+
+const stripePriceAllowlist = buildPriceAllowlist((key) => Deno.env.get(key) ?? null);
+
+if (stripePriceAllowlist.size === 0) {
+  console.error("[CREATE-CHECKOUT] Missing Stripe price configuration");
+  throw new Error("create-checkout configuration error: no Stripe price IDs configured");
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -72,7 +81,21 @@ serve(async (req) => {
     // Get price ID from request body
     const { priceId } = await req.json();
     if (!priceId) throw new Error("Price ID is required");
-    logStep("Creating checkout session", { priceId });
+
+    const decision = emitPriceGuardDecision(priceId, stripePriceAllowlist, {
+      component: "create-checkout",
+      action: "checkout_session",
+    });
+
+    if (!decision.allowed) {
+      logStep("Rejected disallowed price id", { priceId });
+      return new Response(JSON.stringify({ error: "invalid_price_id" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+
+    logStep("Creating checkout session", { priceId: decision.normalizedPriceId ?? priceId });
 
     const origin = req.headers.get("origin") || "";
     const session = await stripe.checkout.sessions.create({
@@ -91,6 +114,15 @@ serve(async (req) => {
     });
 
     logStep("Checkout session created", { sessionId: session.id, url: session.url });
+    emitStripeMonitorEvent({
+      component: "create-checkout",
+      event: "checkout_session_created",
+      metadata: {
+        userId: user.id,
+        sessionId: session.id,
+        priceId: decision.normalizedPriceId,
+      },
+    });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

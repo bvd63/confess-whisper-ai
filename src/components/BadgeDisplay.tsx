@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ProfileTierBadge } from "./ProfileTierBadge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { format } from "date-fns";
 import { logError } from "@/lib/logger";
+import type { Database } from "@/integrations/supabase/types";
 
 interface UserBadge {
   id: string;
@@ -35,40 +36,21 @@ export const BadgeDisplay = ({
   const [badges, setBadges] = useState<UserBadge[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadBadges();
-
-    // Subscribe to real-time updates for this user's badges/flairs
-    const channel = supabase
-      .channel(`user-badges-${userId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'user_flairs',
-          filter: `user_id=eq.${userId}`
-        },
-        () => loadBadges()
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'user_badges',
-          filter: `user_id=eq.${userId}`
-        },
-        () => loadBadges()
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
+  type UserFlairRow = Database["public"]["Tables"]["user_flairs"]["Row"] & {
+    profile_flairs: {
+      icon: string;
+      name_key: string;
     };
-  }, [userId]);
+  };
 
-  const loadBadges = async () => {
+  type UserBadgeRow = Database["public"]["Tables"]["user_badges"]["Row"] & {
+    badges: {
+      icon: string;
+      name: string;
+    };
+  };
+
+  const loadBadges = useCallback(async () => {
     try {
       // Load equipped flairs (equipped flairs are automatically featured and public)
       const { data: flairs } = await supabase
@@ -111,7 +93,7 @@ export const BadgeDisplay = ({
         .limit(maxBadges);
 
       const allBadges: UserBadge[] = [
-        ...(flairs || []).map((f: any) => ({
+        ...(flairs || []).map((f: UserFlairRow) => ({
           id: f.id,
           type: "flair" as const,
           icon: f.profile_flairs.icon,
@@ -120,7 +102,7 @@ export const BadgeDisplay = ({
           expires_at: f.expires_at,
           is_featured: f.is_featured,
         })),
-        ...(userBadges || []).map((b: any) => ({
+        ...(userBadges || []).map((b: UserBadgeRow) => ({
           id: b.id,
           type: "badge" as const,
           icon: b.badges.icon,
@@ -144,7 +126,40 @@ export const BadgeDisplay = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [maxBadges, userId]);
+
+  useEffect(() => {
+    loadBadges();
+
+    // Subscribe to real-time updates for this user's badges/flairs
+    const channel = supabase
+      .channel(`user-badges-${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_flairs',
+          filter: `user_id=eq.${userId}`
+        },
+        () => loadBadges()
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_badges',
+          filter: `user_id=eq.${userId}`
+        },
+        () => loadBadges()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [loadBadges, userId]);
 
   if (loading) return null;
 

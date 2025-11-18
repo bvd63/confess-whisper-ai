@@ -1,21 +1,12 @@
-import { useEffect, useState } from 'react';
-import { CheckCircle2, Cloud, CloudOff, RefreshCw } from 'lucide-react';
+import { useMemo } from 'react';
+import { CheckCircle2, CloudOff, RefreshCw } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 
 export const SyncStatusIndicator = () => {
-  const { isOnline, queuedOperations } = useNetworkStatus();
-  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
-  const [isSyncing, setIsSyncing] = useState(false);
-
-  useEffect(() => {
-    if (isOnline && queuedOperations === 0) {
-      setLastSyncTime(new Date());
-      setIsSyncing(false);
-    } else if (queuedOperations > 0) {
-      setIsSyncing(true);
-    }
-  }, [isOnline, queuedOperations]);
+  const { isOnline, queuedOperations, lastSyncAt } = useNetworkStatus();
+  const lastSyncTime = useMemo(() => (lastSyncAt ? new Date(lastSyncAt) : null), [lastSyncAt]);
+  const isSyncing = isOnline && queuedOperations > 0;
 
   const getStatusIcon = () => {
     if (!isOnline) return <CloudOff className="w-3 h-3" />;
@@ -28,11 +19,11 @@ export const SyncStatusIndicator = () => {
     if (isSyncing) return 'Syncing...';
     if (lastSyncTime) {
       const diff = Date.now() - lastSyncTime.getTime();
-      if (diff < 5000) return 'Synced';
+      if (diff < 5000) return 'Just synced';
       if (diff < 60000) return 'Up to date';
-      return 'Synced';
+      return `Synced ${Math.floor(diff / 60000)}m ago`;
     }
-    return 'Synced';
+    return 'Awaiting sync';
   };
 
   const getVariant = () => {

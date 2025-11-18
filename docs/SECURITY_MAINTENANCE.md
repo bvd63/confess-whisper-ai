@@ -11,9 +11,10 @@ This document outlines the security maintenance procedures for ConfessAI to ensu
 ### Weekly Tasks
 
 #### 1. Monitor Failed Authentication Attempts
+
 ```sql
 -- Check for suspicious auth activity
-SELECT 
+SELECT
   COUNT(*) as failed_attempts,
   event_message,
   DATE_TRUNC('hour', timestamp) as hour
@@ -26,15 +27,16 @@ ORDER BY hour DESC;
 ```
 
 #### 2. Review Rate Limit Violations
+
 ```sql
 -- Check rate limit table for patterns
-SELECT 
+SELECT
   key,
   count,
   reset_at
 FROM rate_limits
 WHERE count >= (
-  CASE 
+  CASE
     WHEN key LIKE '%confession%' THEN 10
     WHEN key LIKE '%comment%' THEN 30
     WHEN key LIKE '%message%' THEN 50
@@ -46,9 +48,10 @@ LIMIT 20;
 ```
 
 #### 3. Check Moderation Queue
+
 ```sql
 -- Ensure moderation queue isn't backing up
-SELECT 
+SELECT
   status,
   COUNT(*) as count,
   AVG(EXTRACT(EPOCH FROM (NOW() - created_at))/3600) as avg_hours_waiting
@@ -61,34 +64,40 @@ GROUP BY status;
 ### Monthly Tasks
 
 #### 1. RLS Policy Audit
+
 Run the Supabase linter and review all findings:
+
 ```bash
 # In your terminal
 supabase db lint
 ```
 
 Check for new tables without RLS:
+
 ```sql
-SELECT 
+SELECT
   schemaname,
   tablename
 FROM pg_tables
 WHERE schemaname = 'public'
   AND tablename NOT IN (
-    SELECT tablename 
-    FROM pg_policies 
+    SELECT tablename
+    FROM pg_policies
     WHERE schemaname = 'public'
   )
   AND tablename NOT LIKE 'pg_%';
 ```
 
 #### 2. Review Edge Function Authorization
+
 Verify all edge functions have appropriate JWT verification:
+
 - Open `supabase/config.toml`
 - Check `verify_jwt` settings for each function
 - Ensure sensitive functions require authentication
 
 #### 3. Dependency Security Updates
+
 ```bash
 # Check for vulnerable dependencies
 npm audit
@@ -100,9 +109,10 @@ npm update
 ```
 
 #### 4. Database Performance Check
+
 ```sql
 -- Check for slow queries
-SELECT 
+SELECT
   query,
   calls,
   mean_exec_time,
@@ -118,6 +128,7 @@ LIMIT 20;
 ### Quarterly Tasks
 
 #### 1. Comprehensive Security Review
+
 - Review all RLS policies for correctness
 - Audit user permissions and roles
 - Check for data exposure in views/functions
@@ -125,7 +136,9 @@ LIMIT 20;
 - Test authentication flows
 
 #### 2. Penetration Testing
+
 Consider professional security testing for:
+
 - Authentication bypass attempts
 - Authorization vulnerabilities
 - SQL injection vectors
@@ -133,6 +146,7 @@ Consider professional security testing for:
 - CSRF protections
 
 #### 3. Backup Testing
+
 ```sql
 -- Test database backup restoration
 -- Document in incident response plan
@@ -141,6 +155,7 @@ Consider professional security testing for:
 ```
 
 #### 4. Security Documentation Review
+
 - Update security policies
 - Review incident response procedures
 - Update team security training
@@ -153,6 +168,7 @@ Consider professional security testing for:
 ### Security Incident Checklist
 
 #### Immediate Response (First Hour)
+
 1. **Identify the incident**
    - What data was accessed?
    - Which systems are affected?
@@ -169,13 +185,15 @@ Consider professional security testing for:
    - Systems affected
 
 #### Investigation Phase (Hours 1-24)
+
 1. **Analyze the attack**
+
    ```sql
    -- Check for unauthorized access
    SELECT * FROM auth_logs
    WHERE timestamp > '[incident_start_time]'
    ORDER BY timestamp DESC;
-   
+
    -- Review database changes
    SELECT * FROM moderation_logs
    WHERE created_at > '[incident_start_time]';
@@ -192,6 +210,7 @@ Consider professional security testing for:
    - Document attack signatures
 
 #### Remediation Phase (Days 1-7)
+
 1. **Fix the vulnerability**
    - Deploy security patches
    - Update RLS policies
@@ -208,6 +227,7 @@ Consider professional security testing for:
    - Security recommendations
 
 #### Post-Incident Review (Week 2+)
+
 1. **Root cause analysis**
    - How did it happen?
    - Why weren't controls effective?
@@ -277,33 +297,33 @@ Consider professional security testing for:
 ```sql
 -- Monthly security metrics query
 WITH metrics AS (
-  SELECT 
+  SELECT
     'Failed Login Attempts' as metric,
     COUNT(*) as value
   FROM auth_logs
   WHERE metadata.status = 401
     AND timestamp > NOW() - INTERVAL '30 days'
-  
+
   UNION ALL
-  
-  SELECT 
+
+  SELECT
     'Rate Limit Violations',
     COUNT(*)
   FROM rate_limits
   WHERE count >= 50
     AND created_at > NOW() - INTERVAL '30 days'
-  
+
   UNION ALL
-  
-  SELECT 
+
+  SELECT
     'Reports Filed',
     COUNT(*)
   FROM confession_reports
   WHERE created_at > NOW() - INTERVAL '30 days'
-  
+
   UNION ALL
-  
-  SELECT 
+
+  SELECT
     'Content Moderated',
     COUNT(*)
   FROM moderation_logs
@@ -315,6 +335,7 @@ SELECT * FROM metrics;
 ### Alerting Thresholds
 
 Set up alerts for:
+
 - **Failed login rate** > 100 per hour
 - **Rate limit hits** > 1000 per hour
 - **Moderation queue** > 100 pending items
@@ -357,6 +378,7 @@ Set up alerts for:
 ### Security-Sensitive Changes
 
 Before deploying changes that affect:
+
 - Authentication/Authorization
 - RLS policies
 - Edge function permissions
@@ -364,6 +386,7 @@ Before deploying changes that affect:
 - Data models
 
 **Required Reviews:**
+
 1. Security impact assessment
 2. RLS policy verification
 3. Test with multiple user roles
@@ -388,6 +411,7 @@ Before deploying changes that affect:
 ### Team Training Topics
 
 **For Developers:**
+
 - Secure coding practices
 - SQL injection prevention
 - XSS and CSRF protection
@@ -395,12 +419,14 @@ Before deploying changes that affect:
 - Secure API design
 
 **For Moderators:**
+
 - Content policy enforcement
 - User privacy protection
 - Incident reporting
 - Suspicious activity identification
 
 **For Admins:**
+
 - Access control management
 - Incident response procedures
 - Compliance requirements
@@ -447,8 +473,8 @@ Before deploying changes that affect:
 -- Run monthly via cron job
 
 -- Delete soft-deleted confessions older than 30 days
-DELETE FROM confessions 
-WHERE deleted_at IS NOT NULL 
+DELETE FROM confessions
+WHERE deleted_at IS NOT NULL
   AND deleted_at < NOW() - INTERVAL '30 days';
 
 -- Archive old analytics events (older than 1 year)
@@ -463,9 +489,9 @@ SELECT cleanup_expired_rate_limits();
 
 ## 🔄 Version History
 
-| Version | Date | Changes | Author |
-|---------|------|---------|--------|
-| 1.0 | 2025-10-18 | Initial security maintenance guide | Security Review Team |
+| Version | Date       | Changes                            | Author               |
+| ------- | ---------- | ---------------------------------- | -------------------- |
+| 1.0     | 2025-10-18 | Initial security maintenance guide | Security Review Team |
 
 ---
 

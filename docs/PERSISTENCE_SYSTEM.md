@@ -1,65 +1,83 @@
 # Instagram-Level Persistence System
 
 ## Overview
+
 Complete offline-first persistence system with Instagram-level reliability, featuring multi-layer caching, conflict resolution, and background synchronization.
 
 ## Architecture
 
 ### 1. Storage Layer
+
 **File**: `src/lib/persistenceManager.ts`
+
 - IndexedDB-based persistence
 - Stores: cache, state, drafts, conversations, preferences
 - TTL support for cache expiration
 - Specialized methods for drafts, scroll positions, UI state
 
 ### 2. Offline Queue
+
 **File**: `src/lib/offlineQueue.ts`
+
 - Queues failed operations when offline
 - Exponential backoff retry logic (1s → 2s → 4s → 8s)
 - Auto-processes on network restoration
 - Persists queue to IndexedDB
 
 ### 3. Conflict Resolution
+
 **File**: `src/lib/conflictResolver.ts`
+
 - Message conflicts: Server wins for sent, local wins for pending
 - Conversation conflicts: Merge with newest message data
 - Draft conflicts: Newest timestamp wins
 - Preference conflicts: Local always wins
 
 ### 4. Background Sync
-**Files**: 
+
+**Files**:
+
 - `src/lib/syncScheduler.ts` - Client-side scheduler
 - `supabase/functions/sync-user-data/index.ts` - Server-side validation
 
 **Quick Sync (30s)**:
+
 - Process offline queue
 - Refresh unread counts
 - Dispatch quick-sync events
 
 **Deep Sync (5min)**:
+
 - Server-side data validation
 - Recalculate unread counts
 - Check data consistency
 
 **Cleanup (1hr)**:
+
 - Clear expired cache
 - Remove stale drafts
 
 ### 5. Data Validation
+
 **File**: `src/lib/dataValidator.ts`
+
 - Checks conversation consistency
 - Validates message integrity
 - Cache health monitoring
 - Auto-repair data issues
 
 ### 6. Session Management
+
 **File**: `src/lib/sessionManager.ts`
+
 - Saves user's last route and conversation
 - Restores session on app load
 - Tracks active conversation
 
 ### 7. Monitoring
+
 **File**: `src/lib/persistenceMonitor.ts`
+
 - Tracks persistence operation performance
 - Logs slow operations (>100ms)
 - Monitors cache hit rates
@@ -67,18 +85,24 @@ Complete offline-first persistence system with Instagram-level reliability, feat
 ## React Hooks
 
 ### useBackgroundSync
+
 **File**: `src/hooks/useBackgroundSync.ts`
+
 - Syncs on app focus
 - Syncs on network restoration
 - Processes offline queue
 
 ### useSessionRestoration
+
 **File**: `src/hooks/useSessionRestoration.ts`
+
 - Restores last route on app load
 - Navigates to last active conversation
 
 ### useUnreadCount
+
 **File**: `src/hooks/useUnreadCount.ts`
+
 - Tracks unread messages per conversation
 - Persists counts to IndexedDB
 - Real-time Supabase subscriptions
@@ -86,13 +110,17 @@ Complete offline-first persistence system with Instagram-level reliability, feat
 ## UI Components
 
 ### NetworkStatusIndicator
+
 **File**: `src/components/NetworkStatusIndicator.tsx`
+
 - Shows offline banner
 - Displays queued operations count
 - Positioned at top of viewport
 
 ### SyncStatusIndicator
+
 **File**: `src/components/SyncStatusIndicator.tsx`
+
 - Badge in app header
 - Shows: Offline, Syncing, Synced
 - Updates in real-time
@@ -100,6 +128,7 @@ Complete offline-first persistence system with Instagram-level reliability, feat
 ## Integration Points
 
 ### App.tsx
+
 ```typescript
 // Hooks
 useBackgroundSync()      // Background sync on focus
@@ -117,6 +146,7 @@ SIGNED_OUT:
 ```
 
 ### useConversation.ts
+
 ```typescript
 // Offline message handling
 sendMessage():
@@ -127,6 +157,7 @@ sendMessage():
 ```
 
 ### useInbox.ts
+
 ```typescript
 // Conversation caching
 loadConversations():
@@ -139,6 +170,7 @@ loadConversations():
 ## Data Flow
 
 ### Message Send (Online)
+
 ```
 User types → sendMessage()
   ↓
@@ -150,6 +182,7 @@ Success: Replace temp with real message
 ```
 
 ### Message Send (Offline)
+
 ```
 User types → sendMessage()
   ↓
@@ -167,6 +200,7 @@ Process queue → Retry send
 ```
 
 ### Background Sync Cycle
+
 ```
 Every 30s:
   ↓
@@ -220,16 +254,19 @@ Remove stale data
 ## Error Handling
 
 ### Network Errors
+
 - Queue operation for retry
 - Show offline indicator
 - Auto-retry with exponential backoff
 
 ### Data Conflicts
+
 - Detect version mismatches
 - Apply conflict resolution strategy
 - Log resolution for debugging
 
 ### Cache Misses
+
 - Fetch from Supabase
 - Update cache
 - Continue operation
@@ -237,6 +274,7 @@ Remove stale data
 ## Monitoring & Debugging
 
 ### Console Logs
+
 ```
 📦 Persistence operation logged
 🔄 Sync scheduler started
@@ -246,11 +284,13 @@ Remove stale data
 ```
 
 ### Performance Tracking
+
 - Tracks all persistence operations
 - Logs operations >100ms
 - Monitors cache effectiveness
 
 ### Health Checks
+
 - Daily cache validation
 - Data consistency checks
 - Orphaned data detection
@@ -273,23 +313,27 @@ Remove stale data
 ## Maintenance
 
 ### Clear User Data
+
 ```typescript
-await persistenceManager.clearAllUserData()
+await persistenceManager.clearAllUserData();
 ```
 
 ### Force Sync
+
 ```typescript
-await syncScheduler.forceSync(userId)
+await syncScheduler.forceSync(userId);
 ```
 
 ### Check Sync Status
+
 ```typescript
-const isSyncing = syncScheduler.isSyncRunning()
+const isSyncing = syncScheduler.isSyncRunning();
 ```
 
 ### Validate Data
+
 ```typescript
-const result = await dataValidator.checkDataConsistency(userId)
+const result = await dataValidator.checkDataConsistency(userId);
 ```
 
 ## Future Enhancements

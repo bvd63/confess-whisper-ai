@@ -5,6 +5,7 @@
 Complete Stripe-based subscription system with 3 tiers (Free, Premium, VIP), supporting monthly and yearly billing cycles, with secure price management and comprehensive testing capabilities.
 
 ## 📋 Table of Contents
+
 1. [Architecture](#architecture)
 2. [Configuration](#configuration)
 3. [Edge Functions](#edge-functions)
@@ -19,16 +20,19 @@ Complete Stripe-based subscription system with 3 tiers (Free, Premium, VIP), sup
 ## Architecture
 
 ### High-Level Flow
+
 ```
 User → Frontend Component → Edge Function → Stripe API → Webhook → Database Update
 ```
 
 ### Three-Tier System
+
 - **Free**: 3 confessions/day, basic features, ads
 - **Premium**: 10 confessions/day, no ads, advanced analytics ($4.99/mo or $39.99/yr)
 - **VIP**: Unlimited confessions, all premium features, priority support ($9.99/mo or $79.99/yr)
 
 ### Security Model
+
 - Price IDs stored as Supabase secrets (not in code)
 - JWT authentication for all subscription operations
 - Webhook signature verification
@@ -58,16 +62,18 @@ STRIPE_PRICE_VIP_YEARLY=price_...
 ### Frontend Configuration
 
 **src/lib/stripe-config.ts** - Placeholder for type safety only:
+
 ```typescript
 export const STRIPE_PRICE_IDS = {
-  premium_monthly: "",  // Managed in backend
-  premium_yearly: "",   // Managed in backend
-  vip_monthly: "",      // Managed in backend
-  vip_yearly: "",       // Managed in backend
-}
+  premium_monthly: "", // Managed in backend
+  premium_yearly: "", // Managed in backend
+  vip_monthly: "", // Managed in backend
+  vip_yearly: "", // Managed in backend
+};
 ```
 
 **src/lib/subscription-plans.ts** - Display prices and benefits:
+
 ```typescript
 export const SUBSCRIPTION_PLANS = [
   {
@@ -87,6 +93,7 @@ export const SUBSCRIPTION_PLANS = [
 ## Edge Functions
 
 ### 1. **check-subscription** ✅
+
 **Purpose**: Get current subscription status and sync with Stripe
 
 **Auth**: Required (JWT)
@@ -94,6 +101,7 @@ export const SUBSCRIPTION_PLANS = [
 **Request**: None
 
 **Response**:
+
 ```json
 {
   "subscribed": true,
@@ -107,11 +115,13 @@ export const SUBSCRIPTION_PLANS = [
 ---
 
 ### 2. **billing-buy** ✅
+
 **Purpose**: Create Stripe Checkout session for new subscription
 
 **Auth**: Required (JWT)
 
 **Request**:
+
 ```json
 {
   "tier": "premium",
@@ -120,6 +130,7 @@ export const SUBSCRIPTION_PLANS = [
 ```
 
 **Response**:
+
 ```json
 {
   "url": "https://checkout.stripe.com/..."
@@ -131,11 +142,13 @@ export const SUBSCRIPTION_PLANS = [
 ---
 
 ### 3. **billing-confirm** ✅
+
 **Purpose**: Confirm successful checkout and activate subscription
 
 **Auth**: Required (JWT)
 
 **Request**:
+
 ```json
 {
   "session_id": "cs_test_..."
@@ -143,6 +156,7 @@ export const SUBSCRIPTION_PLANS = [
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -151,7 +165,8 @@ export const SUBSCRIPTION_PLANS = [
 }
 ```
 
-**Actions**: 
+**Actions**:
+
 - Verifies Stripe session
 - Updates profile tier
 - Creates subscription_entitlements record
@@ -160,11 +175,13 @@ export const SUBSCRIPTION_PLANS = [
 ---
 
 ### 4. **billing-preview** ✅
+
 **Purpose**: Preview costs before upgrade/downgrade
 
 **Auth**: Required (JWT)
 
 **Request**:
+
 ```json
 {
   "targetPriceId": "vip_monthly"
@@ -172,6 +189,7 @@ export const SUBSCRIPTION_PLANS = [
 ```
 
 **Response**:
+
 ```json
 {
   "preview": {
@@ -188,11 +206,13 @@ export const SUBSCRIPTION_PLANS = [
 ---
 
 ### 5. **manage-subscription-v2** ✅
+
 **Purpose**: Unified subscription management (upgrade/downgrade/cancel/reactivate)
 
 **Auth**: Required (JWT)
 
 **Request**:
+
 ```json
 {
   "action": "upgrade",
@@ -201,6 +221,7 @@ export const SUBSCRIPTION_PLANS = [
 ```
 
 **Actions**:
+
 - `upgrade`: Immediate proration and tier change
 - `downgrade`: Scheduled at period end
 - `cancel`: Cancel at period end
@@ -208,6 +229,7 @@ export const SUBSCRIPTION_PLANS = [
 - `reactivate`: Remove pending cancellation
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -218,6 +240,7 @@ export const SUBSCRIPTION_PLANS = [
 ---
 
 ### 6. **billing-cancel** ✅
+
 **Purpose**: Cancel subscription at period end
 
 **Auth**: Required (JWT)
@@ -225,6 +248,7 @@ export const SUBSCRIPTION_PLANS = [
 **Request**: None
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -237,6 +261,7 @@ export const SUBSCRIPTION_PLANS = [
 ---
 
 ### 7. **billing-reactivate** ✅
+
 **Purpose**: Reactivate canceled subscription
 
 **Auth**: Required (JWT)
@@ -244,6 +269,7 @@ export const SUBSCRIPTION_PLANS = [
 **Request**: None
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -256,6 +282,7 @@ export const SUBSCRIPTION_PLANS = [
 ---
 
 ### 8. **billing-resume** ✅
+
 **Purpose**: Resume paused subscription
 
 **Auth**: Required (JWT)
@@ -263,6 +290,7 @@ export const SUBSCRIPTION_PLANS = [
 **Request**: None
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -273,6 +301,7 @@ export const SUBSCRIPTION_PLANS = [
 ---
 
 ### 9. **fix-subscription-sync** ✅
+
 **Purpose**: Manual sync with Stripe (troubleshooting)
 
 **Auth**: Required (JWT)
@@ -280,6 +309,7 @@ export const SUBSCRIPTION_PLANS = [
 **Request**: None
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -289,6 +319,7 @@ export const SUBSCRIPTION_PLANS = [
 ```
 
 **Use Cases**:
+
 - Webhook missed/failed
 - Database out of sync
 - User reports incorrect tier
@@ -296,11 +327,13 @@ export const SUBSCRIPTION_PLANS = [
 ---
 
 ### 10. **stripe-webhook** ✅
+
 **Purpose**: Process Stripe webhook events
 
 **Auth**: None (Stripe signature verification)
 
 **Events Handled**:
+
 - `checkout.session.completed` - New subscription
 - `customer.subscription.created` - Subscription started
 - `customer.subscription.updated` - Tier/status change
@@ -309,6 +342,7 @@ export const SUBSCRIPTION_PLANS = [
 - `invoice.payment_failed` - Payment failed
 
 **Actions**:
+
 - Updates profiles table
 - Creates/updates subscription_entitlements
 - Awards coins on first payment
@@ -320,11 +354,13 @@ export const SUBSCRIPTION_PLANS = [
 ## Frontend Components
 
 ### 1. **SubscriptionProvider** (Context)
+
 **Location**: `src/state/SubscriptionProvider.tsx`
 
 **Purpose**: Global subscription state management
 
 **Provides**:
+
 ```typescript
 {
   subscriptionTier: 'free' | 'premium' | 'vip',
@@ -334,6 +370,7 @@ export const SUBSCRIPTION_PLANS = [
 ```
 
 **Usage**:
+
 ```tsx
 const { subscriptionTier } = useSubscription();
 ```
@@ -341,11 +378,13 @@ const { subscriptionTier } = useSubscription();
 ---
 
 ### 2. **FeatureGate** (Access Control)
+
 **Location**: `src/components/auth/FeatureGate.tsx`
 
 **Purpose**: Conditionally render features based on subscription tier
 
 **Props**:
+
 ```typescript
 {
   minTier: 'premium' | 'vip',
@@ -357,6 +396,7 @@ const { subscriptionTier } = useSubscription();
 ```
 
 **Example**:
+
 ```tsx
 <FeatureGate minTier="premium" teaserPriceHint="$4.99/mo">
   <AdvancedAnalytics />
@@ -364,17 +404,20 @@ const { subscriptionTier } = useSubscription();
 ```
 
 **Behavior**:
+
 - If user has required tier: Renders children
 - If user doesn't: Shows UpgradeTeaser with CTA
 
 ---
 
 ### 3. **UpgradeTeaser** (Paywall UI)
+
 **Location**: `src/components/paywall/UpgradeTeaser.tsx`
 
 **Purpose**: Beautiful upgrade prompt with feature benefits
 
 **Features**:
+
 - Glassmorphism design
 - Animated gradient background
 - Feature bullet points
@@ -384,11 +427,13 @@ const { subscriptionTier } = useSubscription();
 ---
 
 ### 4. **SubscriptionPlansGrid** (Pricing Table)
+
 **Location**: `src/components/SubscriptionPlansGrid.tsx`
 
 **Purpose**: Display pricing plans with monthly/yearly toggle
 
 **Features**:
+
 - Monthly/Yearly toggle
 - Savings badge for yearly
 - Current plan indicator
@@ -396,6 +441,7 @@ const { subscriptionTier } = useSubscription();
 - Premium/VIP comparison
 
 **Usage**:
+
 ```tsx
 <SubscriptionPlansGrid
   currentPlan="free"
@@ -408,11 +454,13 @@ const { subscriptionTier } = useSubscription();
 ---
 
 ### 5. **ManageSubscriptionDialog** (Management UI)
+
 **Location**: `src/components/ManageSubscriptionDialog.tsx`
 
 **Purpose**: Full subscription management interface
 
 **Features**:
+
 - Current subscription details
 - Upgrade/downgrade options
 - Cancel/reactivate
@@ -422,11 +470,13 @@ const { subscriptionTier } = useSubscription();
 ---
 
 ### 6. **useSubscriptionActions** (Hook)
+
 **Location**: `src/hooks/useSubscriptionActions.ts`
 
 **Purpose**: Typed API calls for subscription operations
 
 **Functions**:
+
 ```typescript
 {
   upgradeSubscription: (priceId: string) => Promise<Result>,
@@ -445,6 +495,7 @@ const { subscriptionTier } = useSubscription();
 ### Tables
 
 #### **profiles**
+
 ```sql
 subscription_tier TEXT DEFAULT 'free',
 subscription_status TEXT,
@@ -454,6 +505,7 @@ stripe_subscription_id TEXT
 ```
 
 #### **subscription_entitlements**
+
 ```sql
 id UUID PRIMARY KEY,
 user_id UUID REFERENCES profiles,
@@ -468,6 +520,7 @@ updated_at TIMESTAMPTZ DEFAULT NOW()
 ```
 
 #### **subscription_change_requests**
+
 ```sql
 id UUID PRIMARY KEY,
 user_id UUID REFERENCES profiles,
@@ -479,6 +532,7 @@ created_at TIMESTAMPTZ DEFAULT NOW()
 ```
 
 #### **subscription_audit**
+
 ```sql
 id UUID PRIMARY KEY,
 user_id UUID REFERENCES profiles,
@@ -491,6 +545,7 @@ created_at TIMESTAMPTZ DEFAULT NOW()
 ```
 
 #### **stripe_processed_events**
+
 ```sql
 id UUID PRIMARY KEY,
 stripe_event_id TEXT UNIQUE NOT NULL,
@@ -502,6 +557,7 @@ status TEXT DEFAULT 'processed'
 ### Views
 
 #### **v_user_entitlements**
+
 ```sql
 -- Security Invoker view showing current user's active subscription
 SELECT * FROM subscription_entitlements
@@ -512,6 +568,7 @@ AND status = 'active';
 ### RLS Policies
 
 All tables have RLS enabled with policies:
+
 - Users can read their own records
 - Service role can manage all records
 - Webhook processing uses service role
@@ -521,16 +578,19 @@ All tables have RLS enabled with policies:
 ## Feature Gates
 
 ### Premium Features
+
 1. **FlairsShop** - Custom profile badges
 2. **Export Data** - GDPR data export
 3. **TrendingHashtags** - Popular tags (logged-in)
 4. **WordCloudViz** - Visual word frequency
 
 ### VIP Features
+
 1. **AdvancedAnalytics** - Detailed statistics
 2. **Leaderboard** - Top users ranking (logged-in)
 
 ### Implementation Pattern
+
 ```tsx
 // In any component
 <FeatureGate minTier="premium" teaserPriceHint="$4.99/mo" compact>
@@ -543,9 +603,11 @@ All tables have RLS enabled with policies:
 ## Testing
 
 ### Test Page
+
 **URL**: `/test-subscriptions`
 
 **Features**:
+
 - Test all edge functions
 - View results inline
 - Clear visual status
@@ -553,6 +615,7 @@ All tables have RLS enabled with policies:
 - Safe test mode (won't charge real money)
 
 ### Test Flow
+
 ```
 1. Check Subscription → Verify current tier
 2. Create Checkout → Get Stripe URL
@@ -566,6 +629,7 @@ All tables have RLS enabled with policies:
 ```
 
 ### Test Cards (Stripe)
+
 - **Success**: 4242 4242 4242 4242
 - **3D Secure**: 4000 0025 0000 3155
 - **Declined**: 4000 0000 0000 0002
@@ -580,12 +644,14 @@ All tables have RLS enabled with policies:
 ### Pre-Deployment Checklist
 
 #### 1. Stripe Setup
+
 - [ ] Create production price IDs in Stripe Dashboard
 - [ ] Update Supabase secrets with production price IDs
 - [ ] Update STRIPE_SECRET_KEY to production key
 - [ ] Test checkout with real card (then refund)
 
 #### 2. Webhook Configuration
+
 - [ ] Add webhook endpoint: `https://your-domain.supabase.co/functions/v1/stripe-webhook`
 - [ ] Select all subscription events
 - [ ] Copy webhook signing secret
@@ -593,12 +659,14 @@ All tables have RLS enabled with policies:
 - [ ] Test webhook with Stripe CLI
 
 #### 3. Database
+
 - [ ] Run all migrations
 - [ ] Verify RLS policies
 - [ ] Test with restricted user
 - [ ] Check foreign key constraints
 
 #### 4. Testing
+
 - [ ] Complete purchase flow
 - [ ] Test upgrade
 - [ ] Test downgrade
@@ -609,6 +677,7 @@ All tables have RLS enabled with policies:
 - [ ] Verify coin bonuses
 
 #### 5. Monitoring
+
 - [ ] Set up Stripe webhook monitoring
 - [ ] Enable subscription analytics
 - [ ] Configure alert for failed payments
@@ -617,11 +686,13 @@ All tables have RLS enabled with policies:
 ### Production URLs
 
 **Webhook Endpoint**:
+
 ```
 https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/stripe-webhook
 ```
 
 **Test Page**:
+
 ```
 https://your-domain.com/test-subscriptions
 ```
@@ -633,38 +704,44 @@ https://your-domain.com/test-subscriptions
 ### Common Issues
 
 **"Already subscribed" Error**
+
 - User trying to create new checkout with active subscription
 - Solution: Use upgrade/downgrade instead
 
 **Subscription Not Syncing**
+
 - Webhook might have failed
 - Solution: Use `/test-subscriptions` → "Fix Sync"
 
 **Wrong Tier Displayed**
+
 - Cache or missed webhook
 - Solution: Run `check-subscription` or `fix-subscription-sync`
 
 ### Monitoring Queries
 
 **Active subscriptions by tier**:
+
 ```sql
-SELECT subscription_tier, COUNT(*) 
-FROM profiles 
+SELECT subscription_tier, COUNT(*)
+FROM profiles
 WHERE subscription_status = 'active'
 GROUP BY subscription_tier;
 ```
 
 **Recent audit events**:
+
 ```sql
-SELECT * FROM subscription_audit 
-ORDER BY created_at DESC 
+SELECT * FROM subscription_audit
+ORDER BY created_at DESC
 LIMIT 100;
 ```
 
 **Failed webhooks**:
+
 ```sql
-SELECT * FROM stripe_processed_events 
-WHERE status = 'failed' 
+SELECT * FROM stripe_processed_events
+WHERE status = 'failed'
 ORDER BY processed_at DESC;
 ```
 

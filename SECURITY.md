@@ -7,6 +7,7 @@ ConfessAI takes security seriously. This document outlines our security practice
 ## Implemented Security Features
 
 ### 1. XSS Protection ✅
+
 - **DOMPurify Integration**: All user-generated content is sanitized using DOMPurify
 - **Context-Specific Sanitization**:
   - Confessions: Limited HTML formatting (p, br, strong, em)
@@ -15,13 +16,16 @@ ConfessAI takes security seriously. This document outlines our security practice
   - Nicknames: Alphanumeric + underscores only
 
 ### 2. CSRF Protection ✅
+
 - **Token-Based Protection**: All state-changing operations require CSRF tokens
 - **Timing-Safe Comparison**: Prevents timing attacks on token validation
 - **Session-Based Storage**: Tokens stored in sessionStorage
 - **Automatic Rotation**: Tokens regenerated on authentication changes
 
 ### 3. Security Headers ✅
+
 Comprehensive security headers applied to all responses:
+
 - **Content-Security-Policy (CSP)**: Restricts resource loading
 - **X-Frame-Options**: Prevents clickjacking (SAMEORIGIN)
 - **X-XSS-Protection**: Browser XSS filter enabled
@@ -31,8 +35,9 @@ Comprehensive security headers applied to all responses:
 - **Strict-Transport-Security (HSTS)**: Enforces HTTPS
 
 ### 4. Input Validation ✅
+
 - **Zod Schema Validation**: All API inputs validated with Zod
-- **Content Filtering**: 
+- **Content Filtering**:
   - PII detection (emails, phones, SSN, credit cards)
   - SQL injection pattern detection
   - Profanity filtering (EN/ES/DE)
@@ -40,24 +45,28 @@ Comprehensive security headers applied to all responses:
 - **Length Limits**: All inputs have maximum length constraints
 
 ### 5. Authentication & Authorization ✅
+
 - **Supabase Auth**: Secure JWT-based authentication
 - **Row Level Security (RLS)**: Database-level access control
 - **Session Management**: Automatic token refresh
 - **Secure Password Storage**: Handled by Supabase Auth
 
 ### 6. Stripe Payment Security ✅
+
 - **Webhook Signature Verification**: All webhooks verified with Stripe signature
 - **Idempotency**: Duplicate webhook events prevented
 - **Environment Variables**: API keys stored securely
 - **PCI Compliance**: Payment processing handled by Stripe (no card data stored)
 
 ### 7. Database Security ✅
+
 - **Connection Pooling**: Prevents connection exhaustion
 - **Parameterized Queries**: Prevents SQL injection
-- **RLS Policies**: Row-level security on all tables
+- **RLS Policies**: Row-level security on all tables (see `docs/RLS_COVERAGE.md` for the audited checklist + automated test)
 - **Encrypted Connections**: TLS/SSL for all database connections
 
 ### 8. API Security ✅
+
 - **CORS Configuration**: Restricted origin policies
 - **Rate Limiting**: API endpoint throttling
 - **Error Handling**: No sensitive data in error messages
@@ -65,20 +74,27 @@ Comprehensive security headers applied to all responses:
 
 ## Environment Variables
 
-### Client-Safe (VITE_ prefix)
+### Client-Safe (VITE\_ prefix)
+
 ```bash
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
-VITE_STRIPE_PRICE_VIP_MONTHLY=price_...
-VITE_STRIPE_PRICE_VIP_YEARLY=price_...
+VITE_STRIPE_PRICE_VIP_MONTH_ID=price_...
+VITE_STRIPE_PRICE_VIP_YEAR_ID=price_...
 ```
 
 ### Server-Only (Supabase Secrets)
+
 ```bash
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
+PRICE_VIP_MONTHLY=price_...
+PRICE_VIP_YEARLY=price_...
+PRICE_PREMIUM_MONTHLY=price_optional
+PRICE_PREMIUM_YEARLY=price_optional
+STRIPE_WEBHOOK_TOLERANCE_SECONDS=300
 OPENAI_API_KEY=sk-...
 TURNSTILE_SECRET=...
 MAPBOX_TOKEN=...
@@ -110,8 +126,8 @@ MAPBOX_TOKEN=...
 If you discover a security vulnerability, please:
 
 1. **DO NOT** open a public GitHub issue
-2. **Email**: security@confessai.app (if configured)
-3. **Include**: 
+2. **Email**: [security@confessai.app](mailto:security@confessai.app) (if configured)
+3. **Include**:
    - Description of vulnerability
    - Steps to reproduce
    - Potential impact
@@ -161,11 +177,13 @@ npm run test:e2e
 ## Incident Response
 
 ### Detection
+
 - Monitor error logs for suspicious patterns
 - Track failed authentication attempts
 - Alert on unusual API usage
 
 ### Response
+
 1. **Identify**: Determine scope and impact
 2. **Contain**: Isolate affected systems
 3. **Eradicate**: Remove vulnerability
@@ -173,6 +191,7 @@ npm run test:e2e
 5. **Learn**: Update security measures
 
 ### Communication
+
 - Notify affected users within 72 hours
 - Provide clear guidance on protective actions
 - Publish security advisory (non-critical issues)
@@ -180,12 +199,14 @@ npm run test:e2e
 ## Compliance
 
 ### GDPR Compliance
+
 - User data stored in EU regions (configurable)
 - Right to access, rectify, delete personal data
 - Data processing transparency
 - Consent management
 
 ### CCPA Compliance
+
 - California consumer rights supported
 - Data collection disclosure
 - Opt-out mechanisms
@@ -193,6 +214,7 @@ npm run test:e2e
 ## Security Roadmap
 
 ### Completed ✅
+
 - XSS Protection (DOMPurify)
 - CSRF Protection (Token-based)
 - Security Headers (CSP, HSTS, etc.)
@@ -202,6 +224,7 @@ npm run test:e2e
 - Rate Limiting
 
 ### Planned 🔄
+
 - Two-Factor Authentication (2FA)
 - Biometric Authentication (mobile)
 - Advanced Rate Limiting (Redis-based)
@@ -212,21 +235,23 @@ npm run test:e2e
 ## Dependencies
 
 ### Security-Critical Dependencies
+
 - `dompurify`: XSS sanitization
 - `@supabase/supabase-js`: Authentication & database
 - `stripe`: Payment processing
 - `zod`: Input validation
 
 ### Update Policy
+
 - Critical security patches: Within 24 hours
 - High severity updates: Within 1 week
 - Regular updates: Monthly review
 
 ## Contact
 
-- **Security Issues**: security@confessai.app
-- **General Support**: support@confessai.app
-- **Documentation**: https://docs.confessai.app
+- **Security Issues**: [security@confessai.app](mailto:security@confessai.app)
+- **General Support**: [support@confessai.app](mailto:support@confessai.app)
+- **Documentation**: [docs.confessai.app](https://docs.confessai.app)
 
 ## Acknowledgments
 

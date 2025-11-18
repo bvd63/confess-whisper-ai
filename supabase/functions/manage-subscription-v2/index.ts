@@ -1,6 +1,14 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import {
+  buildPriceAllowlist,
+  buildPriceTierMap,
+  emitPriceGuardDecision,
+  isAllowedPriceId,
+  resolveTierFromPriceMap,
+} from "../_shared/stripe-price-allowlist.ts";
+import { emitStripeMonitorEvent } from "../_shared/stripe-monitoring.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,13 +25,31 @@ function log(level: string, message: string, context?: any) {
   console.log(JSON.stringify(logEntry));
 }
 
-// Stripe price IDs - Loaded from environment secrets
+const readPrice = (primary: string, legacy: string) => Deno.env.get(primary) ?? Deno.env.get(legacy) ?? "";
+
+// Stripe price IDs - prefer new PRICE_* secrets but fall back to STRIPE_PRICE_* for legacy installs
 const PRICE_IDS = {
-  premium_monthly: Deno.env.get("STRIPE_PRICE_PREMIUM_MONTHLY") || "",
-  premium_yearly: Deno.env.get("STRIPE_PRICE_PREMIUM_YEARLY") || "",
-  vip_monthly: Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || "",
-  vip_yearly: Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || "",
+  premium_monthly: readPrice("PRICE_PREMIUM_MONTHLY", "STRIPE_PRICE_PREMIUM_MONTHLY"),
+  premium_yearly: readPrice("PRICE_PREMIUM_YEARLY", "STRIPE_PRICE_PREMIUM_YEARLY"),
+  vip_monthly: readPrice("PRICE_VIP_MONTHLY", "STRIPE_PRICE_VIP_MONTHLY"),
+  vip_yearly: readPrice("PRICE_VIP_YEARLY", "STRIPE_PRICE_VIP_YEARLY"),
 };
+
+const envGetter = (key: string) => Deno.env.get(key) ?? null;
+const stripePriceAllowlist = buildPriceAllowlist(envGetter);
+const stripePriceTierMap = buildPriceTierMap(envGetter);
+
+const allConfiguredPrices = Object.entries(PRICE_IDS);
+const missingPrices = allConfiguredPrices.filter(([_, value]) => !isAllowedPriceId(value, stripePriceAllowlist));
+
+if (stripePriceAllowlist.size === 0 || stripePriceTierMap.size === 0 || missingPrices.length > 0) {
+  console.error(JSON.stringify({
+    level: "error",
+    message: "manage-subscription-v2 missing Stripe price configuration",
+    missingPriceKeys: missingPrices.map(([key]) => key),
+  }));
+  throw new Error("manage-subscription-v2 configuration error: Stripe price IDs not set");
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -151,9 +177,20 @@ serve(async (req) => {
         targetPrice = currentInterval === 'year' ? PRICE_IDS.premium_yearly : PRICE_IDS.premium_monthly;
       }
 
-      if (!targetPrice) {
-        log('error', '[MANAGE-SUBSCRIPTION-V2] Target price not found', { targetTier, currentInterval, PRICE_IDS });
+      const decision = emitPriceGuardDecision(targetPrice, stripePriceAllowlist, {
+        component: "manage-subscription",
+        action: `${action}_${targetTier}`,
+      });
+
+      if (!decision.allowed) {
+        log('error', '[MANAGE-SUBSCRIPTION-V2] Target price not allowed', { targetTier, currentInterval, targetPrice });
         throw new Error(`Price ID not configured for ${targetTier} ${currentInterval}`);
+      }
+
+      const resolvedTier = resolveTierFromPriceMap(targetPrice, stripePriceTierMap);
+      if (!resolvedTier) {
+        log('error', '[MANAGE-SUBSCRIPTION-V2] Unable to resolve tier for price', { targetPrice });
+        throw new Error('Unknown target price tier');
       }
 
       log('info', '[MANAGE-SUBSCRIPTION-V2] Changing plan', { targetPrice, currentInterval });
@@ -171,11 +208,21 @@ serve(async (req) => {
       await supabaseClient
         .from('profiles')
         .update({
-          subscription_tier: targetTier,
+          subscription_tier: resolvedTier,
         })
         .eq('user_id', user.id);
 
-      log('info', '[MANAGE-SUBSCRIPTION-V2] Plan changed successfully', { newTier: targetTier });
+      log('info', '[MANAGE-SUBSCRIPTION-V2] Plan changed successfully', { requestedTier: targetTier, resolvedTier });
+      emitStripeMonitorEvent({
+        component: 'manage-subscription',
+        event: 'subscription_sync',
+        metadata: {
+          userId: user.id,
+          requestedTier: targetTier,
+          resolvedTier,
+          stripeSubscriptionId: subscription.id,
+        },
+      });
 
       return new Response(JSON.stringify({
         message: action === 'upgrade' ? "Upgraded successfully" : "Downgraded successfully",

@@ -44,7 +44,8 @@ export const usePrefetch = () => {
           queryClient.prefetchQuery({
             queryKey: ['profile', userId],
             queryFn: async () => {
-              const { supabase } = await import('@/integrations/supabase/client');
+              const { getSupabaseClient } = await import('@/integrations/supabase/safeClient');
+              const supabase = await getSupabaseClient();
               const { data } = await supabase
                 .from('profiles')
                 .select('*')
@@ -65,7 +66,8 @@ export const usePrefetch = () => {
         queryClient.prefetchQuery({
           queryKey: ['profile', userId],
           queryFn: async () => {
-            const { supabase } = await import('@/integrations/supabase/client');
+            const { getSupabaseClient } = await import('@/integrations/supabase/safeClient');
+            const supabase = await getSupabaseClient();
             const { data } = await supabase
               .from('profiles')
               .select('*')
@@ -100,7 +102,8 @@ export const usePrefetch = () => {
           queryClient.prefetchQuery({
             queryKey: ['community', communityId],
             queryFn: async () => {
-              const { supabase } = await import('@/integrations/supabase/client');
+              const { getSupabaseClient } = await import('@/integrations/supabase/safeClient');
+              const supabase = await getSupabaseClient();
               const { data } = await supabase
                 .from('communities')
                 .select('*')
@@ -120,7 +123,8 @@ export const usePrefetch = () => {
         queryClient.prefetchQuery({
           queryKey: ['community', communityId],
           queryFn: async () => {
-            const { supabase } = await import('@/integrations/supabase/client');
+            const { getSupabaseClient } = await import('@/integrations/supabase/safeClient');
+            const supabase = await getSupabaseClient();
             const { data } = await supabase
               .from('communities')
               .select('*')
@@ -191,7 +195,8 @@ export const usePrefetch = () => {
               queryClient.prefetchQuery({
                 queryKey: ['confessions', 'explore'],
                 queryFn: async () => {
-                  const { supabase } = await import('@/integrations/supabase/client');
+                  const { getSupabaseClient } = await import('@/integrations/supabase/safeClient');
+                  const supabase = await getSupabaseClient();
                   const { data } = await supabase
                     .from('confessions')
                     .select('*')
@@ -206,7 +211,8 @@ export const usePrefetch = () => {
               queryClient.prefetchQuery({
                 queryKey: ['conversations'],
                 queryFn: async () => {
-                  const { supabase } = await import('@/integrations/supabase/client');
+                  const { getSupabaseClient } = await import('@/integrations/supabase/safeClient');
+                  const supabase = await getSupabaseClient();
                   const { data } = await supabase
                     .from('conversations')
                     .select('*')
@@ -230,7 +236,8 @@ export const usePrefetch = () => {
             queryClient.prefetchQuery({
               queryKey: ['confessions', 'explore'],
               queryFn: async () => {
-                const { supabase } = await import('@/integrations/supabase/client');
+                const { getSupabaseClient } = await import('@/integrations/supabase/safeClient');
+                const supabase = await getSupabaseClient();
                 const { data } = await supabase
                   .from('confessions')
                   .select('*')
@@ -245,7 +252,8 @@ export const usePrefetch = () => {
             queryClient.prefetchQuery({
               queryKey: ['conversations'],
               queryFn: async () => {
-                const { supabase } = await import('@/integrations/supabase/client');
+                const { getSupabaseClient } = await import('@/integrations/supabase/safeClient');
+                const supabase = await getSupabaseClient();
                 const { data } = await supabase
                   .from('conversations')
                   .select('*')

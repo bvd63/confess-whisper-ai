@@ -5,6 +5,7 @@ Date: 2025-10-26 (Final Update)
 ## Summary
 
 ### Unit Tests (19 tests)
+
 - ✅ Manage Subscriptions checkout/portal redirects:
   - `tests/unit/EnhancedSubscriptionManager.checkout.test.tsx` (2/2)
 - ✅ Referral rewards logic:
@@ -17,6 +18,7 @@ Date: 2025-10-26 (Final Update)
   - `tests/e2e/stripe-checkout.spec.ts` (4/4)
 
 ### Integration Tests (44 tests) 🆕
+
 - ✅ **Subscription flows** (`tests/integration/subscription-flows.test.tsx`):
   - Upgrade flow: free → VIP (monthly/yearly) (4/4)
   - Downgrade flow: VIP → free (scheduled) (3/3)
@@ -75,17 +77,20 @@ See `docs/LAUNCH_SEQUENCE.md` for step-by-step production launch (35 minutes)
 ## Completed Improvements ✅
 
 ### Phase 1: Core Infrastructure
+
 - ✅ Removed Mapbox dependencies (bundle -500KB)
 - ✅ Improved subscriptions UI (hidden Price ID warnings, restored Free plan)
 - ✅ Health check endpoint ready for monitoring
 
 ### Phase 2: Unit Tests (19 tests)
+
 - ✅ Referral rewards logic (duplicate prevention, coin awards)
 - ✅ Coin award tests (confession publish, draft/rejected exclusions)
 - ✅ Badge/flair expiry tests (5-day countdown, deactivation)
 - ✅ E2E Stripe checkout tests (plan display, interval switching, success/cancel)
 
 ### Phase 3: Integration Tests (44 tests) 🆕
+
 - ✅ **Subscription state transitions:**
   - Upgrade: free → VIP (monthly/yearly)
   - Downgrade: VIP → free (scheduled)
@@ -116,7 +121,7 @@ See `docs/LAUNCH_SEQUENCE.md` for step-by-step production launch (35 minutes)
 
 ## Remaining Tasks for 10/10
 
-- [ ] Configure Stripe Price IDs (`VITE_STRIPE_PRICE_VIP_MONTHLY`, `VITE_STRIPE_PRICE_VIP_YEARLY`)
+- [ ] Configure Stripe Price IDs (`VITE_STRIPE_PRICE_VIP_MONTH_ID`, `VITE_STRIPE_PRICE_VIP_YEAR_ID`, `PRICE_VIP_MONTHLY`, `PRICE_VIP_YEARLY`)
 - [ ] Set up production monitoring alerts (health check polling)
 - [ ] Add performance metrics dashboard
 - [ ] Target 95%+ test coverage (additional edge case tests)

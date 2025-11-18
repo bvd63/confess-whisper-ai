@@ -1,6 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import {
+  buildPriceAllowlist,
+  buildPriceTierMap,
+  isAllowedPriceId,
+  resolveTierFromPriceMap,
+} from "../_shared/stripe-price-allowlist.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,6 +17,28 @@ const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[MANAGE-SUBSCRIPTION] ${step}${detailsStr}`);
 };
+
+const readPrice = (primary: string, legacy: string) => Deno.env.get(primary) ?? Deno.env.get(legacy) ?? "";
+
+const PRICE_IDS = {
+  premium: readPrice("PRICE_PREMIUM_MONTHLY", "STRIPE_PRICE_PREMIUM_MONTHLY"),
+  vip: readPrice("PRICE_VIP_MONTHLY", "STRIPE_PRICE_VIP_MONTHLY"),
+};
+
+const envGetter = (key: string) => Deno.env.get(key) ?? null;
+const stripePriceAllowlist = buildPriceAllowlist(envGetter);
+const stripePriceTierMap = buildPriceTierMap(envGetter);
+
+const missingPrices = Object.entries(PRICE_IDS).filter(([_, value]) => !isAllowedPriceId(value, stripePriceAllowlist));
+
+if (stripePriceAllowlist.size === 0 || stripePriceTierMap.size === 0 || missingPrices.length > 0) {
+  console.error(JSON.stringify({
+    level: "error",
+    message: "manage-subscription missing Stripe price configuration",
+    missingPriceKeys: missingPrices.map(([key]) => key),
+  }));
+  throw new Error("manage-subscription configuration error: Stripe price IDs not set");
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -97,12 +125,15 @@ serve(async (req) => {
         throw new Error("Invalid tier for upgrade/downgrade");
       }
 
-      const priceIds = {
-        premium: "price_1SJ0vvR7kygIyYg9oT1ju6lQ",
-        vip: "price_1SJ0vwR7kygIyYg9OeCiqV00"
-      };
+      const newPriceId = PRICE_IDS[newTier as keyof typeof PRICE_IDS];
+      if (!isAllowedPriceId(newPriceId, stripePriceAllowlist)) {
+        throw new Error(`Price ID not configured for ${newTier}`);
+      }
 
-      const newPriceId = priceIds[newTier as keyof typeof priceIds];
+      const resolvedTier = resolveTierFromPriceMap(newPriceId, stripePriceTierMap);
+      if (!resolvedTier) {
+        throw new Error("Unable to resolve tier for price");
+      }
 
       // Update subscription
       await stripe.subscriptions.update(subscription.id, {
@@ -115,14 +146,14 @@ serve(async (req) => {
 
       await supabaseClient
         .from('profiles')
-        .update({ subscription_tier: newTier })
+        .update({ subscription_tier: resolvedTier })
         .eq('user_id', user.id);
 
-      logStep("Subscription updated", { newTier });
+      logStep("Subscription updated", { newTier: resolvedTier });
 
       return new Response(JSON.stringify({ 
         success: true, 
-        message: `Subscription ${action}d to ${newTier}` 
+        message: `Subscription ${action}d to ${resolvedTier}` 
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,

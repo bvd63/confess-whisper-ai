@@ -18,6 +18,12 @@ const MAX_FAILED_ATTEMPTS = 5;
 const CAPTCHA_LOCKOUT_DURATION = 30; // minutes
 const SIGNUP_RATE_LIMIT_WINDOW = 60; // minutes
 const MAX_SIGNUP_ATTEMPTS = 5;
+const CAPTCHA_GRACE_PERIOD_MS = 24 * 60 * 60 * 1000; // 24 hours
+const MAX_REFRESH_ROTATIONS_BEFORE_CHALLENGE = 20;
+const DEVICE_MISMATCH_THRESHOLD = 2;
+const CAPTCHA_REASON_DEVICE = 'device_mismatch';
+const CAPTCHA_REASON_ROTATION = 'rotation_churn';
+const CAPTCHA_REASON_POLICY = 'policy_enforced';
 
 // Strong password policy
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{}.,?:;|<>]).{10,}$/;
@@ -104,6 +110,12 @@ interface AuthRequest {
   sessionMetadata?: SessionMetadata;
 }
 
+interface RefreshSessionRequest {
+  refreshToken?: string;
+  captchaToken?: string;
+  sessionMetadata?: SessionMetadata;
+}
+
 async function verifyCaptcha(
   token: string,
   remoteIp?: string
@@ -166,6 +178,76 @@ function validatePasswordStrength(password: string): { valid: boolean; error?: s
   return { valid: true };
 }
 
+function hasRecentCaptcha(timestamp?: string | null): boolean {
+  if (!timestamp) return false;
+  const verifiedAt = new Date(timestamp).getTime();
+  if (Number.isNaN(verifiedAt)) return false;
+  return Date.now() - verifiedAt < CAPTCHA_GRACE_PERIOD_MS;
+}
+
+function metadataMismatch(a?: string | null, b?: string | null): boolean {
+  const normalize = (value?: string | null) => {
+    if (!value || value === 'unknown') return null;
+    return value;
+  };
+  const first = normalize(a);
+  const second = normalize(b);
+  return Boolean(first && second && first !== second);
+}
+
+async function markCaptchaRequirement(
+  client: ReturnType<typeof createClient>,
+  {
+    email,
+    deviceId,
+    ipAddress,
+    reason,
+    lockMinutes = CAPTCHA_LOCKOUT_DURATION,
+  }: {
+    email?: string | null;
+    deviceId?: string | null;
+    ipAddress?: string | null;
+    reason?: string;
+    lockMinutes?: number;
+  },
+): Promise<void> {
+  if (!email) return;
+
+  try {
+    await client.rpc('mark_captcha_requirement', {
+      _email: email,
+      _device_id: deviceId ?? null,
+      _ip_address: ipAddress ?? null,
+      _reason: reason ?? CAPTCHA_REASON_POLICY,
+      _lock_minutes: lockMinutes,
+    });
+  } catch (error) {
+    console.warn('[enhanced-auth] Failed to mark CAPTCHA requirement', error);
+  }
+}
+
+async function clearCaptchaRequirement(
+  client: ReturnType<typeof createClient>,
+  {
+    email,
+    deviceId,
+  }: {
+    email?: string | null;
+    deviceId?: string | null;
+  },
+): Promise<void> {
+  if (!email) return;
+
+  try {
+    await client.rpc('clear_captcha_requirement', {
+      _email: email,
+      _device_id: deviceId ?? null,
+    });
+  } catch (error) {
+    console.warn('[enhanced-auth] Failed to clear CAPTCHA requirement', error);
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -174,7 +256,15 @@ serve(async (req) => {
   try {
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+        ?? Deno.env.get('SUPABASE_ANON_KEY')
+        ?? '',
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      },
     );
 
     const url = new URL(req.url);
@@ -280,13 +370,13 @@ serve(async (req) => {
         );
 
         if (combinedFailureCount >= MAX_FAILED_ATTEMPTS) {
-          await supabaseClient
-            .from('captcha_requirements')
-            .upsert({
-              email: normalizedEmail,
-              required_until: new Date(Date.now() + CAPTCHA_LOCKOUT_DURATION * 60 * 1000).toISOString(),
-              reason: 'rate_limit_vector',
-            }, { onConflict: 'email' });
+          await markCaptchaRequirement(supabaseClient, {
+            email: normalizedEmail,
+            deviceId: metadataDeviceId,
+            ipAddress: metadataIp,
+            reason: 'rate_limit_vector',
+            lockMinutes: CAPTCHA_LOCKOUT_DURATION,
+          });
 
           return new Response(
             JSON.stringify({
@@ -299,6 +389,8 @@ serve(async (req) => {
 
         const { data: captchaRequired } = await supabaseClient
           .rpc('is_captcha_required', { _email: normalizedEmail });
+
+        let captchaValidated = false;
 
         if (captchaRequired) {
           if (!captchaToken || typeof captchaToken !== 'string') {
@@ -321,6 +413,12 @@ serve(async (req) => {
               { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
             );
           }
+
+          captchaValidated = true;
+          await clearCaptchaRequirement(supabaseClient, {
+            email: normalizedEmail,
+            deviceId: metadataDeviceId,
+          });
         }
 
         const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
@@ -375,13 +473,13 @@ serve(async (req) => {
           ].some((count) => count >= MAX_FAILED_ATTEMPTS);
 
           if (exceededThreshold) {
-            await supabaseClient
-              .from('captcha_requirements')
-              .upsert({
-                email: normalizedEmail,
-                required_until: new Date(Date.now() + CAPTCHA_LOCKOUT_DURATION * 60 * 1000).toISOString(),
-                reason: 'multiple_failed_attempts',
-              }, { onConflict: 'email' });
+            await markCaptchaRequirement(supabaseClient, {
+              email: normalizedEmail,
+              deviceId: metadataDeviceId,
+              ipAddress: metadataIp,
+              reason: 'multiple_failed_attempts',
+              lockMinutes: CAPTCHA_LOCKOUT_DURATION,
+            });
 
             return new Response(
               JSON.stringify({
@@ -471,6 +569,7 @@ serve(async (req) => {
           .insert({
             user_id: authData.user.id,
             token_hash: tokenHash,
+            email: normalizedEmail,
             device_id: metadataDeviceId,
             user_agent: metadataUserAgent,
             ip_address: metadataIp,
@@ -478,6 +577,9 @@ serve(async (req) => {
             expires_at: sessionExpiresAt.toISOString(),
             last_refreshed_at: now.toISOString(),
             stay_connected: stayConnectedPreference,
+            rotation_count: 0,
+            anomaly_reason: null,
+            captcha_verified_at: captchaValidated ? now.toISOString() : null,
           });
 
         await supabaseClient
@@ -502,7 +604,7 @@ serve(async (req) => {
       }
 
       case 'refresh-session': {
-        const { refreshToken, sessionMetadata }: { refreshToken?: string; sessionMetadata?: SessionMetadata } = await req.json();
+        const { refreshToken, captchaToken, sessionMetadata }: RefreshSessionRequest = await req.json();
 
         if (!refreshToken || typeof refreshToken !== 'string') {
           return new Response(
@@ -514,7 +616,7 @@ serve(async (req) => {
         const tokenHash = await hashToken(refreshToken);
         const { data: sessionRecord } = await supabaseClient
           .from('auth_sessions')
-          .select('id, user_id, device_id, user_agent, ip_address, expires_at, revoked_at, last_refreshed_at, stay_connected')
+          .select('id, user_id, email, device_id, user_agent, ip_address, expires_at, revoked_at, last_refreshed_at, stay_connected, rotation_count, captcha_verified_at, anomaly_reason, created_at')
           .eq('token_hash', tokenHash)
           .limit(1)
           .single();
@@ -526,10 +628,13 @@ serve(async (req) => {
           );
         }
 
+        const metadataIp = sessionMetadata?.ipAddress || clientIp;
+        const metadataUserAgent = sessionMetadata?.userAgent || userAgent;
+
         const refreshRateLimit = await enforceRateLimit(supabaseClient, {
           action: 'auth_refresh',
           userId: sessionRecord.user_id,
-          ip: sessionMetadata?.ipAddress || clientIp,
+          ip: metadataIp,
         });
 
         if (!refreshRateLimit.allowed) {
@@ -542,8 +647,8 @@ serve(async (req) => {
                 remaining: refreshRateLimit.remaining ?? 0,
                 identifierType: refreshRateLimit.identifierType ?? 'ip',
               },
-              _ip_address: sessionMetadata?.ipAddress || clientIp,
-              _user_agent: sessionMetadata?.userAgent || userAgent,
+              _ip_address: metadataIp,
+              _user_agent: metadataUserAgent,
             })
             .catch((err) => console.warn('[enhanced-auth] Failed to log refresh rate limit event', err));
 
@@ -578,8 +683,8 @@ serve(async (req) => {
               _user_id: sessionRecord.user_id,
               _event_type: 'refresh_token_expired',
               _event_data: { sessionId: sessionRecord.id },
-              _ip_address: sessionMetadata?.ipAddress || clientIp,
-              _user_agent: sessionMetadata?.userAgent || userAgent,
+              _ip_address: metadataIp,
+              _user_agent: metadataUserAgent,
             });
 
           return new Response(
@@ -610,10 +715,130 @@ serve(async (req) => {
           }
         }
 
+        const mismatchSignals = [
+          metadataMismatch(sessionMetadata?.deviceId, sessionRecord.device_id),
+          metadataMismatch(sessionMetadata?.userAgent, sessionRecord.user_agent),
+          metadataMismatch(sessionMetadata?.ipAddress, sessionRecord.ip_address),
+        ].filter(Boolean).length;
+
+        const rotationPressure = (sessionRecord.rotation_count ?? 0) >= MAX_REFRESH_ROTATIONS_BEFORE_CHALLENGE;
+        const captchaFresh = hasRecentCaptcha(sessionRecord.captcha_verified_at);
+        let anomalyReason = sessionRecord.anomaly_reason ?? null;
+        let captchaRequired = false;
+
+        if (!captchaFresh && mismatchSignals >= DEVICE_MISMATCH_THRESHOLD) {
+          captchaRequired = true;
+          anomalyReason = CAPTCHA_REASON_DEVICE;
+        }
+
+        if (!captchaFresh && rotationPressure) {
+          captchaRequired = true;
+          anomalyReason = anomalyReason ?? CAPTCHA_REASON_ROTATION;
+        }
+
+        if (!captchaFresh && sessionRecord.email) {
+          try {
+            const { data: challengeRequired } = await supabaseClient
+              .rpc('is_captcha_required', { _email: sessionRecord.email });
+            if (challengeRequired) {
+              captchaRequired = true;
+              if (!anomalyReason) {
+                anomalyReason = CAPTCHA_REASON_POLICY;
+              }
+            }
+          } catch (error) {
+            console.warn('[enhanced-auth] Failed to check CAPTCHA requirement', error);
+          }
+        }
+
+        let captchaValidated = false;
+        if (captchaRequired) {
+          if (!captchaToken || typeof captchaToken !== 'string') {
+            await markCaptchaRequirement(supabaseClient, {
+              email: sessionRecord.email,
+              deviceId: sessionMetadata?.deviceId ?? sessionRecord.device_id,
+              ipAddress: metadataIp,
+              reason: anomalyReason ?? CAPTCHA_REASON_POLICY,
+              lockMinutes: CAPTCHA_LOCKOUT_DURATION,
+            });
+
+            await supabaseClient
+              .rpc('log_security_event', {
+                _user_id: sessionRecord.user_id,
+                _event_type: 'refresh_captcha_required',
+                _event_data: {
+                  sessionId: sessionRecord.id,
+                  reason: anomalyReason,
+                  mismatchSignals,
+                  rotationCount: sessionRecord.rotation_count ?? 0,
+                },
+                _ip_address: metadataIp,
+                _user_agent: metadataUserAgent,
+              })
+              .catch((err) => console.warn('[enhanced-auth] Failed to log captcha requirement', err));
+
+            return new Response(
+              JSON.stringify({
+                error: 'CAPTCHA_REQUIRED',
+                messageKey: 'auth.captcha_failed',
+                requiresCaptcha: true,
+              }),
+              { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+
+          const captchaResult = await verifyCaptcha(captchaToken, metadataIp);
+          if (!captchaResult.success) {
+            await supabaseClient
+              .rpc('log_security_event', {
+                _user_id: sessionRecord.user_id,
+                _event_type: 'refresh_captcha_failed',
+                _event_data: { sessionId: sessionRecord.id, reason: anomalyReason },
+                _ip_address: metadataIp,
+                _user_agent: metadataUserAgent,
+              })
+              .catch((err) => console.warn('[enhanced-auth] Failed to log captcha failure', err));
+
+            return new Response(
+              JSON.stringify({
+                error: 'CAPTCHA_FAILED',
+                messageKey: captchaResult.error,
+                requiresCaptcha: true,
+              }),
+              { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+
+          captchaValidated = true;
+          anomalyReason = null;
+
+          await clearCaptchaRequirement(supabaseClient, {
+            email: sessionRecord.email,
+            deviceId: sessionMetadata?.deviceId ?? sessionRecord.device_id,
+          });
+
+          await supabaseClient
+            .rpc('log_security_event', {
+              _user_id: sessionRecord.user_id,
+              _event_type: 'refresh_captcha_passed',
+              _event_data: { sessionId: sessionRecord.id },
+              _ip_address: metadataIp,
+              _user_agent: metadataUserAgent,
+            })
+            .catch((err) => console.warn('[enhanced-auth] Failed to log captcha pass', err));
+        }
+
         const stayConnected = sessionMetadata?.stayConnected ?? sessionRecord.stay_connected ?? false;
         const newRefreshToken = generateRefreshToken();
         const newTokenHash = await hashToken(newRefreshToken);
         const newExpiryDate = new Date(now.getTime() + (stayConnected ? REFRESH_TTL_LONG : REFRESH_TTL_SHORT));
+        const updatedDeviceId = sessionMetadata?.deviceId ?? sessionRecord.device_id ?? 'unknown';
+        const updatedUserAgent = sessionMetadata?.userAgent ?? sessionRecord.user_agent ?? userAgent;
+        const updatedIp = sessionMetadata?.ipAddress ?? sessionRecord.ip_address ?? clientIp;
+        const updatedRotationCount = captchaValidated ? 0 : (sessionRecord.rotation_count ?? 0) + 1;
+        const updatedCaptchaVerifiedAt = captchaValidated
+          ? now.toISOString()
+          : sessionRecord.captcha_verified_at;
 
         await supabaseClient
           .from('auth_sessions')
@@ -622,9 +847,12 @@ serve(async (req) => {
             expires_at: newExpiryDate.toISOString(),
             last_refreshed_at: now.toISOString(),
             stay_connected: stayConnected,
-            device_id: sessionMetadata?.deviceId || sessionRecord.device_id,
-            user_agent: sessionMetadata?.userAgent || sessionRecord.user_agent,
-            ip_address: sessionMetadata?.ipAddress || sessionRecord.ip_address,
+            device_id: updatedDeviceId,
+            user_agent: updatedUserAgent,
+            ip_address: updatedIp,
+            rotation_count: updatedRotationCount,
+            anomaly_reason: anomalyReason,
+            captcha_verified_at: updatedCaptchaVerifiedAt,
           })
           .eq('id', sessionRecord.id);
 
@@ -632,10 +860,15 @@ serve(async (req) => {
           .rpc('log_security_event', {
             _user_id: sessionRecord.user_id,
             _event_type: 'refresh_token_rotated',
-            _event_data: { sessionId: sessionRecord.id },
-            _ip_address: sessionMetadata?.ipAddress || clientIp,
-            _user_agent: sessionMetadata?.userAgent || userAgent,
-          });
+            _event_data: {
+              sessionId: sessionRecord.id,
+              rotationCount: updatedRotationCount,
+              requiresCaptcha: captchaValidated,
+            },
+            _ip_address: updatedIp,
+            _user_agent: updatedUserAgent,
+          })
+          .catch((err) => console.warn('[enhanced-auth] Failed to log refresh rotation', err));
 
         return new Response(
           JSON.stringify({
@@ -643,6 +876,7 @@ serve(async (req) => {
             expiresAt: newExpiryDate.toISOString(),
             stayConnected,
             sessionId: sessionRecord.id,
+            requiresCaptcha: false,
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );

@@ -16,6 +16,7 @@ import { InstallPrompt } from '@/components/InstallPrompt';
 import { NetworkStatusIndicator } from '@/components/NetworkStatusIndicator';
 import { NotificationService } from '@/services/notificationService';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
+import { OfflineActionToast } from '@/components/OfflineActionToast';
 import { UpdatePrompt } from '@/components/UpdatePrompt';
 import { VersionIndicator } from '@/components/VersionIndicator';
 import { CheckoutStatusHandler } from '@/components/CheckoutStatusHandler';
@@ -28,7 +29,7 @@ import { useDeviceTracking } from '@/hooks/useDeviceTracking';
 import { useInactivityLogout } from '@/hooks/useInactivityLogout';
 import { useSubscriptionConflictCheck } from '@/hooks/useSubscriptionConflictCheck';
 import { useOneSignalInit } from '@/hooks/useOneSignalInit';
-import { useEffect, useState, lazy, Suspense } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { getSupabase } from "./lib/supabaseClient";
 import { persistenceManager } from '@/lib/persistenceManager';
 import { dataValidator } from '@/lib/dataValidator';
@@ -40,42 +41,44 @@ import { useTrialStatus } from "./hooks/useTrialStatus";
 import { useNavigate } from "react-router-dom";
 import { PageLoading } from "./components/LoadingStates";
 import { logError, logWarn } from '@/lib/logger';
+import { lazyWithRetry, prefetchCriticalRoutes } from '@/lib/bundleOptimization';
+import ChunkErrorBoundary from '@/components/routing/ChunkErrorBoundary';
 
 // Lazy load all routes for code splitting
-const Index = lazy(() => import("./pages/Index"));
-const Profile = lazy(() => import("./pages/Profile"));
-const UserProfile = lazy(() => import("./pages/UserProfile"));
-const Admin = lazy(() => import("./pages/Admin"));
-const SystemMonitor = lazy(() => import("./pages/SystemMonitor"));
-const Bookmarks = lazy(() => import("./pages/Bookmarks"));
-const Following = lazy(() => import("./pages/Following"));
-const SearchUsers = lazy(() => import("./pages/SearchUsers"));
-const Messages = lazy(() => import("./pages/Messages"));
-const Explore = lazy(() => import("./pages/Explore"));
-const Compose = lazy(() => import("./pages/Compose"));
-const CommunityDetail = lazy(() => import("./pages/CommunityDetail"));
-const NearbyConfessions = lazy(() => import("./pages/NearbyConfessions"));
-const Auth = lazy(() => import("./pages/Auth"));
-const AuthTest = lazy(() => import("./pages/AuthTest"));
-const SupabaseTest = lazy(() => import("./pages/SupabaseTest"));
-const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
-const ResetPassword = lazy(() => import("./pages/ResetPassword"));
-const EmailVerification = lazy(() => import("./pages/EmailVerification"));
-const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
-const PaymentCanceled = lazy(() => import("./pages/PaymentCanceled"));
-const CoinPurchaseSuccess = lazy(() => import("./pages/coins/Success"));
-const CoinPurchaseCancel = lazy(() => import("./pages/coins/Cancel"));
-const TestPayments = lazy(() => import("./pages/TestPayments"));
-const TestSubscriptions = lazy(() => import("./pages/TestSubscriptions"));
-const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
-const TermsOfService = lazy(() => import("./pages/TermsOfService"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const Performance = lazy(() => import("./pages/admin/Performance"));
-const SettingsActivity = lazy(() => import("./pages/SettingsActivity"));
-const SubscriptionTest = lazy(() => import("./pages/SubscriptionTest"));
-const Rewards = lazy(() => import("./pages/Rewards"));
-const NotificationHistory = lazy(() => import("./pages/NotificationHistory"));
-const NotificationAnalytics = lazy(() => import("./pages/NotificationAnalytics"));
+const Index = lazyWithRetry(() => import("./pages/Index"));
+const Profile = lazyWithRetry(() => import("./pages/Profile"));
+const UserProfile = lazyWithRetry(() => import("./pages/UserProfile"));
+const Admin = lazyWithRetry(() => import("./pages/Admin"));
+const SystemMonitor = lazyWithRetry(() => import("./pages/SystemMonitor"));
+const Bookmarks = lazyWithRetry(() => import("./pages/Bookmarks"));
+const Following = lazyWithRetry(() => import("./pages/Following"));
+const SearchUsers = lazyWithRetry(() => import("./pages/SearchUsers"));
+const Messages = lazyWithRetry(() => import("./pages/Messages"));
+const Explore = lazyWithRetry(() => import("./pages/Explore"));
+const Compose = lazyWithRetry(() => import("./pages/Compose"));
+const CommunityDetail = lazyWithRetry(() => import("./pages/CommunityDetail"));
+const NearbyConfessions = lazyWithRetry(() => import("./pages/NearbyConfessions"));
+const Auth = lazyWithRetry(() => import("./pages/Auth"));
+const AuthTest = lazyWithRetry(() => import("./pages/AuthTest"));
+const SupabaseTest = lazyWithRetry(() => import("./pages/SupabaseTest"));
+const ForgotPassword = lazyWithRetry(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazyWithRetry(() => import("./pages/ResetPassword"));
+const EmailVerification = lazyWithRetry(() => import("./pages/EmailVerification"));
+const PaymentSuccess = lazyWithRetry(() => import("./pages/PaymentSuccess"));
+const PaymentCanceled = lazyWithRetry(() => import("./pages/PaymentCanceled"));
+const CoinPurchaseSuccess = lazyWithRetry(() => import("./pages/coins/Success"));
+const CoinPurchaseCancel = lazyWithRetry(() => import("./pages/coins/Cancel"));
+const TestPayments = lazyWithRetry(() => import("./pages/TestPayments"));
+const TestSubscriptions = lazyWithRetry(() => import("./pages/TestSubscriptions"));
+const PrivacyPolicy = lazyWithRetry(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazyWithRetry(() => import("./pages/TermsOfService"));
+const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
+const Performance = lazyWithRetry(() => import("./pages/admin/Performance"));
+const SettingsActivity = lazyWithRetry(() => import("./pages/SettingsActivity"));
+const SubscriptionTest = lazyWithRetry(() => import("./pages/SubscriptionTest"));
+const Rewards = lazyWithRetry(() => import("./pages/Rewards"));
+const NotificationHistory = lazyWithRetry(() => import("./pages/NotificationHistory"));
+const NotificationAnalytics = lazyWithRetry(() => import("./pages/NotificationAnalytics"));
 
 const AppContent = () => {
   const { user } = useAuth();
@@ -195,6 +198,28 @@ const AppContent = () => {
       clearTimeout(dataRepairTimeout);
     };
   }, []);
+
+  // Prefetch critical routes once UI settles to improve cold navigation
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const idleHandle = window.requestIdleCallback?.(() => {
+      prefetchCriticalRoutes();
+    }, { timeout: 4000 });
+
+    // Fallback when requestIdleCallback is missing
+    if (!window.requestIdleCallback) {
+      const timeout = setTimeout(() => {
+        prefetchCriticalRoutes();
+      }, 3000);
+      return () => clearTimeout(timeout);
+    }
+
+    return () => {
+      if (idleHandle && window.cancelIdleCallback) {
+        window.cancelIdleCallback(idleHandle);
+      }
+    };
+  }, []);
   
   return (
     <div className="relative pb-16">
@@ -238,8 +263,9 @@ const AppContent = () => {
       <NetworkStatusIndicator />
       <CheckoutStatusHandler />
       <TabNavigationProvider>
-        <Suspense fallback={<PageLoading className="min-h-screen" />}>
-          <Routes>
+        <ChunkErrorBoundary>
+          <Suspense fallback={<PageLoading className="min-h-screen" />}>
+            <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/home" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
@@ -276,8 +302,9 @@ const AppContent = () => {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
+            </Routes>
+          </Suspense>
+        </ChunkErrorBoundary>
         <InstagramBottomNav />
       </TabNavigationProvider>
     </div>
@@ -300,6 +327,7 @@ function App() {
         <ConfirmProvider>
           <AnalyticsProvider>
             <OfflineIndicator />
+            <OfflineActionToast />
             <AppContent />
             <SystemNotifications />
             <PerformanceIndicator />

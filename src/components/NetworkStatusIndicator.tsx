@@ -5,12 +5,17 @@ import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export const NetworkStatusIndicator = () => {
-  const { isOnline, queuedOperations } = useNetworkStatus();
+  const { isOnline, queuedOperations, pendingByScope } = useNetworkStatus();
   const { t } = useLanguage();
 
   if (isOnline && queuedOperations === 0) {
     return null;
   }
+
+  const scopeBreakdown = Object.entries(pendingByScope)
+    .filter(([, count]) => count > 0)
+    .map(([scope, count]) => `${scope}: ${count}`)
+    .join(' • ');
 
   return (
     <div className="fixed top-16 left-0 right-0 z-50 px-4 pointer-events-none">
@@ -35,6 +40,9 @@ export const NetworkStatusIndicator = () => {
                 </Badge>
               </AlertDescription>
             </div>
+            {scopeBreakdown && (
+              <p className="text-xs text-muted-foreground mt-1">{scopeBreakdown}</p>
+            )}
           </Alert>
         )}
       </div>

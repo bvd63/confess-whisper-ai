@@ -89,39 +89,12 @@ export const useConversation = (conversationId: string | null, userId: string | 
     setMessages(prev => [...prev, tempMessage]);
 
     try {
-      const { data, error } = await supabase
-        .from('messages')
-        .insert(messageData)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Replace temp message with real one - map to proper type
-      const typedMessage: Message = {
-        id: data.id,
-        content: data.content,
-        sender_id: data.sender_id,
-        created_at: data.created_at,
-        read_at: data.read_at,
-        edited_at: data.edited_at,
-        sent_at: data.sent_at,
-        delivered_at: data.delivered_at,
-        seen_at: data.seen_at,
-        reactions: Array.isArray(data.reactions) ? data.reactions as Array<{ userId: string; emoji: string; createdAt: string }> : [],
-        client_message_id: data.client_message_id,
-      };
-      setMessages(prev => prev.map(m => m.id === tempId ? typedMessage : m));
-    } catch (error) {
-      logError('Error sending message', error as Error);
-      
-      // Remove temp message
-      setMessages(prev => prev.filter(m => m.id !== tempId));
-      
-      // Add to offline queue for retry
-      if (!navigator.onLine) {
-        toast.info('Message queued - will send when online');
-        await offlineQueue.addOperation('message', async () => {
+      const result = await offlineQueue.enqueueMutation({
+        type: 'message',
+        scope: 'messages',
+        conflictKey: clientMessageId,
+        data: messageData,
+        mutationFn: async () => {
           const { data, error } = await supabase
             .from('messages')
             .insert(messageData)
@@ -129,11 +102,33 @@ export const useConversation = (conversationId: string | null, userId: string | 
             .single();
           if (error) throw error;
           return data;
-        }, messageData);
-      } else {
-        toast.error('Failed to send message');
-        throw error;
+        },
+      });
+
+      if (result.status === 'sent' && result.result) {
+        const data = result.result;
+        const typedMessage: Message = {
+          id: data.id,
+          content: data.content,
+          sender_id: data.sender_id,
+          created_at: data.created_at,
+          read_at: data.read_at,
+          edited_at: data.edited_at,
+          sent_at: data.sent_at,
+          delivered_at: data.delivered_at,
+          seen_at: data.seen_at,
+          reactions: Array.isArray(data.reactions) ? data.reactions as Array<{ userId: string; emoji: string; createdAt: string }> : [],
+          client_message_id: data.client_message_id,
+        };
+        setMessages(prev => prev.map(m => m.id === tempId ? typedMessage : m));
+      } else if (result.status === 'queued') {
+        toast.info('Message queued - will send when online');
       }
+    } catch (error) {
+      logError('Error sending message', error as Error);
+      setMessages(prev => prev.filter(m => m.id !== tempId));
+      toast.error('Failed to send message');
+      throw error;
     }
   }, [conversationId, userId]);
 
@@ -192,7 +187,19 @@ export const useConversation = (conversationId: string | null, userId: string | 
             reactions: Array.isArray(newMsg.reactions) ? newMsg.reactions : [],
             client_message_id: newMsg.client_message_id,
           };
-          setMessages(prev => [...prev, typedMessage]);
+          setMessages(prev => {
+            const next = [...prev];
+            const existingIndex = next.findIndex((msg) =>
+              msg.id === typedMessage.id ||
+              (!!msg.client_message_id && !!typedMessage.client_message_id && msg.client_message_id === typedMessage.client_message_id)
+            );
+            if (existingIndex >= 0) {
+              next[existingIndex] = typedMessage;
+              return next;
+            }
+            next.push(typedMessage);
+            return next;
+          });
           
           // Auto-mark as read if not sent by current user
           if (typedMessage.sender_id !== userId) {

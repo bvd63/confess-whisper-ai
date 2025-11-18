@@ -1,13 +1,15 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
 import { TrendingUp, Calendar, Heart, MessageSquare } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { logError } from "@/lib/logger";
+import { useRecharts } from "@/hooks/useRecharts";
 interface AdvancedAnalyticsProps {
   userId: string;
 }
+const LINE_SCOPES = ['cartesianCore', 'line'] as const;
+
 const AdvancedAnalytics = ({
   userId
 }: AdvancedAnalyticsProps) => {
@@ -15,14 +17,15 @@ const AdvancedAnalytics = ({
     t,
     language
   } = useLanguage();
+  const confessionsLabel = t.analytics_confessions;
+  const averagePerLabel = t.analytics_average_per;
+  const commentsLabel = t.comments_title;
+  const recharts = useRecharts(LINE_SCOPES);
   const [categoryData, setCategoryData] = useState<any[]>([]);
   const [timelineData, setTimelineData] = useState<any[]>([]);
   const [engagementData, setEngagementData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    loadAnalytics();
-  }, [userId]);
-  const loadAnalytics = async () => {
+  const loadAnalytics = useCallback(async () => {
     try {
       // Get confessions
       const {
@@ -56,7 +59,7 @@ const AdvancedAnalytics = ({
           date: date.toLocaleDateString(locale, {
             weekday: 'short'
           }),
-          [t.analytics_confessions]: count
+          [confessionsLabel]: count
         });
       }
       setTimelineData(last7Days);
@@ -73,7 +76,7 @@ const AdvancedAnalytics = ({
         icon: Heart,
         color: '#ef4444'
       }, {
-        name: t.comments_title,
+        name: commentsLabel,
         value: totalComments,
         avg: avgComments,
         icon: MessageSquare,
@@ -84,9 +87,14 @@ const AdvancedAnalytics = ({
     } finally {
       setLoading(false);
     }
-  };
-  const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', '#8b5cf6', '#f59e0b', '#10b981', '#ec4899'];
-  if (loading) return null;
+  }, [commentsLabel, confessionsLabel, language, userId]);
+
+  useEffect(() => {
+    loadAnalytics();
+  }, [loadAnalytics]);
+  if (loading || !recharts) return null;
+
+  const { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } = recharts;
   return <div className="space-y-3 sm:space-y-4">
       {/* Engagement Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
@@ -126,7 +134,7 @@ const AdvancedAnalytics = ({
             border: '1px solid hsl(var(--border))',
             borderRadius: '8px'
           }} />
-            <Line type="monotone" dataKey={t.analytics_confessions} stroke="hsl(var(--primary))" strokeWidth={2} dot={{
+            <Line type="monotone" dataKey={confessionsLabel} stroke="hsl(var(--primary))" strokeWidth={2} dot={{
             fill: 'hsl(var(--primary))'
           }} />
           </LineChart>

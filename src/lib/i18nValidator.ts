@@ -7,7 +7,7 @@
  * 3. No language mixing occurs
  */
 
-import { translations, SUPPORTED_LANGUAGES, type Language } from '@/i18n/translations';
+import { SUPPORTED_LANGUAGES, loadTranslations, type Language } from '@/i18n/translations';
 import { env } from '@/lib/env';
 import { logInfo, logWarn, logError } from '@/lib/logger';
 
@@ -20,7 +20,7 @@ interface ValidationResult {
 /**
  * Validates that all translation keys exist in all supported languages
  */
-export function validateTranslationCompleteness(): ValidationResult {
+export async function validateTranslationCompleteness(): Promise<ValidationResult> {
   const result: ValidationResult = {
     isValid: true,
     errors: [],
@@ -28,31 +28,40 @@ export function validateTranslationCompleteness(): ValidationResult {
   };
 
   // Get all keys from English (reference language)
-  const englishKeys = Object.keys(translations.en);
+  const englishTranslations = await loadTranslations('en');
+  const englishKeys = Object.keys(englishTranslations);
   
   // Check each supported language
-  SUPPORTED_LANGUAGES.forEach(lang => {
-    if (lang === 'en') return; // Skip English as it's the reference
-    
-    const langKeys = Object.keys(translations[lang]);
-    
-    // Find missing keys
-    const missingKeys = englishKeys.filter(key => !langKeys.includes(key));
-    if (missingKeys.length > 0) {
+  for (const lang of SUPPORTED_LANGUAGES) {
+    if (lang === 'en') continue; // Skip English as it's the reference
+
+    try {
+      const langTranslations = await loadTranslations(lang);
+      const langKeys = Object.keys(langTranslations);
+
+      const missingKeys = englishKeys.filter(key => !langKeys.includes(key));
+      if (missingKeys.length > 0) {
+        result.isValid = false;
+        result.errors.push(
+          `Language "${lang}" is missing ${missingKeys.length} keys: ${missingKeys
+            .slice(0, 5)
+            .join(', ')}${missingKeys.length > 5 ? '...' : ''}`
+        );
+      }
+
+      const extraKeys = langKeys.filter(key => !englishKeys.includes(key));
+      if (extraKeys.length > 0) {
+        result.warnings.push(
+          `Language "${lang}" has ${extraKeys.length} extra keys not in English: ${extraKeys
+            .slice(0, 5)
+            .join(', ')}${extraKeys.length > 5 ? '...' : ''}`
+        );
+      }
+    } catch (error) {
       result.isValid = false;
-      result.errors.push(
-        `Language "${lang}" is missing ${missingKeys.length} keys: ${missingKeys.slice(0, 5).join(', ')}${missingKeys.length > 5 ? '...' : ''}`
-      );
+      result.errors.push(`Failed to load translations for "${lang}": ${(error as Error).message}`);
     }
-    
-    // Find extra keys (not in English)
-    const extraKeys = langKeys.filter(key => !englishKeys.includes(key));
-    if (extraKeys.length > 0) {
-      result.warnings.push(
-        `Language "${lang}" has ${extraKeys.length} extra keys not in English: ${extraKeys.slice(0, 5).join(', ')}${extraKeys.length > 5 ? '...' : ''}`
-      );
-    }
-  });
+  }
 
   return result;
 }
@@ -90,8 +99,8 @@ export function logValidationResults(result: ValidationResult): void {
 /**
  * Runs all validation checks
  */
-export function validateTranslationSystem(): ValidationResult {
-  const completenessResult = validateTranslationCompleteness();
+export async function validateTranslationSystem(): Promise<ValidationResult> {
+  const completenessResult = await validateTranslationCompleteness();
   
   if (env.isDev) {
     logValidationResults(completenessResult);

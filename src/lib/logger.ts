@@ -1,7 +1,7 @@
 /**
  * Centralized Logging Utility with Sentry Integration
  * 
- * Replaces console.log with structured logging that:
+ * Replaces direct console usage with structured logging that:
  * - Shows in console during development
  * - Sends to Sentry in production for tracking
  * - Supports different log levels (debug, info, warn, error)
@@ -25,9 +25,10 @@ function log(level: LogLevel, message: string, context?: LogContext): void {
 
   // Always log to console in development
   if (env.isDev) {
-    const logFn = level === 'error' ? console.error : 
-                  level === 'warn' ? console.warn : 
-                  console.log;
+    const logFn = level === 'error' ? console.error :
+            level === 'warn' ? console.warn :
+            level === 'info' ? console.info :
+            console.debug;
     
     if (context) {
       logFn(`${prefix} ${message}`, context);
@@ -117,8 +118,8 @@ export function logCache(operation: string, key: string, hit: boolean = true, co
 }
 
 /**
- * Legacy console.log replacement
- * Use this to gradually migrate old console.log statements
+ * Legacy console logging replacement
+ * Use this to gradually migrate old console statements
  */
 export const logger = {
   debug: logDebug,

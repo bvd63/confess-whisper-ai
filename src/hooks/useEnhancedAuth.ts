@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { logError } from '@/lib/logger';
+import { useCaptchaChallenge } from '@/contexts/CaptchaChallengeContext';
 
 interface SessionMetadata {
   deviceId?: string;
@@ -27,6 +28,7 @@ export const useEnhancedAuth = () => {
   const [sessions, setSessions] = useState<EnhancedAuthSession[]>([]);
   const { toast } = useToast();
   const { t } = useLanguage();
+  const requestCaptchaChallenge = useCaptchaChallenge();
 
   const checkCaptchaRequired = async (email: string): Promise<boolean> => {
     try {
@@ -242,25 +244,54 @@ export const useEnhancedAuth = () => {
         stayConnected: localStorage.getItem('stay_signed_in') === 'true',
       };
 
-      const { data, error } = await supabase.functions.invoke('enhanced-auth?action=refresh-session', {
-        body: {
+      const executeRotation = async (attempt = 0, captchaToken?: string): Promise<any> => {
+        const body: Record<string, unknown> = {
           refreshToken,
           sessionMetadata: metadata,
-        },
-      });
+        };
 
-      if (error) throw error;
+        if (captchaToken) {
+          body.captchaToken = captchaToken;
+        }
 
-      if (!data?.refreshToken) {
-        throw new Error('invalid_response');
+        const { data, error } = await supabase.functions.invoke('enhanced-auth?action=refresh-session', {
+          body,
+        });
+
+        const requiresCaptcha = data?.requiresCaptcha || data?.error === 'CAPTCHA_REQUIRED';
+
+        if (requiresCaptcha) {
+          if (attempt >= 2) {
+            throw new Error('captcha_attempts_exhausted');
+          }
+
+          try {
+            const challengeToken = await requestCaptchaChallenge({ reason: 'session_rotation' });
+            return executeRotation(attempt + 1, challengeToken);
+          } catch (challengeError) {
+            throw Object.assign(new Error('captcha_challenge_dismissed'), { cause: challengeError });
+          }
+        }
+
+        if (error || data?.error) {
+          throw error ?? Object.assign(new Error(data?.error ?? 'rotation_failed'), { status: data?.status });
+        }
+
+        if (!data?.refreshToken) {
+          throw new Error('invalid_response');
+        }
+
+        return data;
+      };
+
+      const rotationResponse = await executeRotation();
+
+      localStorage.setItem('refresh_token', rotationResponse.refreshToken);
+      if (rotationResponse.expiresAt) {
+        localStorage.setItem('refresh_expires_at', rotationResponse.expiresAt);
       }
-
-      localStorage.setItem('refresh_token', data.refreshToken);
-      if (data.expiresAt) {
-        localStorage.setItem('refresh_expires_at', data.expiresAt);
-      }
-      if (typeof data.stayConnected === 'boolean') {
-        localStorage.setItem('stay_signed_in', String(data.stayConnected));
+      if (typeof rotationResponse.stayConnected === 'boolean') {
+        localStorage.setItem('stay_signed_in', String(rotationResponse.stayConnected));
       }
 
       toast({
@@ -283,11 +314,19 @@ export const useEnhancedAuth = () => {
         await supabase.auth.signOut();
       }
 
-      toast({
-        title: t.common_error,
-        description: t.settings_sessions_rotate_error,
-        variant: 'destructive',
-      });
+      if ((error as Error)?.message === 'captcha_challenge_dismissed') {
+        toast({
+          title: t.common_error,
+          description: t.auth_captcha_failed,
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: t.common_error,
+          description: t.settings_sessions_rotate_error,
+          variant: 'destructive',
+        });
+      }
       return { error };
     } finally {
       setLoading(false);

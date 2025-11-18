@@ -17,6 +17,7 @@
 ## System Overview
 
 ### Architecture
+
 ```
 User → Lovable CDN → React SPA
                     ↓
@@ -32,6 +33,7 @@ User → Lovable CDN → React SPA
 ```
 
 ### Key Components
+
 - **Frontend:** React SPA hosted on Lovable CDN
 - **API:** Supabase Edge Functions (Deno runtime)
 - **Database:** PostgreSQL 15+ (managed by Supabase)
@@ -39,38 +41,42 @@ User → Lovable CDN → React SPA
 - **Storage:** Supabase Storage (S3-compatible)
 
 ### Service Dependencies
-| Service | Purpose | SLA | Fallback |
-|---------|---------|-----|----------|
-| Supabase | Database, Auth, Storage | 99.9% | None - critical |
-| Stripe | Payments | 99.99% | Queue for retry |
-| Lovable AI | AI responses | 99% | Graceful degradation |
+
+| Service    | Purpose                 | SLA    | Fallback             |
+| ---------- | ----------------------- | ------ | -------------------- |
+| Supabase   | Database, Auth, Storage | 99.9%  | None - critical      |
+| Stripe     | Payments                | 99.99% | Queue for retry      |
+| Lovable AI | AI responses            | 99%    | Graceful degradation |
 
 ## Health Checks
 
 ### Database Health
+
 ```sql
 -- Check active connections
-SELECT count(*) as active_connections 
-FROM pg_stat_activity 
+SELECT count(*) as active_connections
+FROM pg_stat_activity
 WHERE state = 'active';
 
 -- Check for long-running queries (>30s)
-SELECT pid, now() - pg_stat_activity.query_start AS duration, query 
-FROM pg_stat_activity 
-WHERE state = 'active' 
+SELECT pid, now() - pg_stat_activity.query_start AS duration, query
+FROM pg_stat_activity
+WHERE state = 'active'
 AND now() - pg_stat_activity.query_start > interval '30 seconds';
 
 -- Check table sizes
-SELECT schemaname, tablename, 
+SELECT schemaname, tablename,
        pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) AS size
-FROM pg_tables 
+FROM pg_tables
 WHERE schemaname = 'public'
-ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC 
+ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC
 LIMIT 10;
 ```
 
 ### Edge Function Health
+
 Check Edge Function logs:
+
 ```bash
 # In Lovable Cloud dashboard
 # Navigate to: Backend → Functions → Logs
@@ -78,6 +84,7 @@ Check Edge Function logs:
 ```
 
 ### Authentication Health
+
 ```sql
 -- Check recent auth failures
 SELECT COUNT(*) as failed_logins_last_hour
@@ -92,11 +99,13 @@ AND payload->>'status' = 'failed';
 ### 1. High Error Rate (5xx Responses)
 
 **Symptoms:**
+
 - Users reporting "Something went wrong" errors
 - 5xx error rate > 1%
 - Edge function failures in logs
 
 **Diagnosis:**
+
 ```bash
 # Check Edge Function errors
 # Lovable Cloud: Backend → Functions → Logs
@@ -108,9 +117,10 @@ AND payload->>'status' = 'failed';
 ```
 
 **Resolution:**
+
 1. Check if database is responsive (run health check)
 2. Check Edge Function logs for specific errors
-3. If database overload: 
+3. If database overload:
    - Identify slow queries
    - Add emergency indexes if needed
    - Scale up database if necessary
@@ -126,11 +136,13 @@ AND payload->>'status' = 'failed';
 ### 2. Authentication Failures
 
 **Symptoms:**
+
 - Users can't log in
 - "Invalid JWT" errors
 - 403 responses on protected routes
 
 **Diagnosis:**
+
 ```sql
 -- Check auth error logs
 SELECT * FROM auth.audit_log_entries
@@ -141,10 +153,12 @@ LIMIT 20;
 ```
 
 **Resolution:**
+
 1. Check Supabase Auth service status
 2. Verify JWT secret hasn't changed
 3. Check if user tokens need refresh
 4. Clear user sessions if needed:
+
 ```sql
 -- Force logout all users (EMERGENCY ONLY)
 DELETE FROM auth.sessions WHERE last_sign_in_at < NOW() - INTERVAL '1 hour';
@@ -157,26 +171,30 @@ DELETE FROM auth.sessions WHERE last_sign_in_at < NOW() - INTERVAL '1 hour';
 ### 3. Database Connection Pool Exhausted
 
 **Symptoms:**
+
 - "Too many connections" errors
 - Slow response times across all endpoints
 - Connection timeout errors
 
 **Diagnosis:**
+
 ```sql
 -- Check connection usage
-SELECT count(*), state 
-FROM pg_stat_activity 
+SELECT count(*), state
+FROM pg_stat_activity
 GROUP BY state;
 
 -- Find connection hogs
-SELECT usename, count(*) 
-FROM pg_stat_activity 
-GROUP BY usename 
+SELECT usename, count(*)
+FROM pg_stat_activity
+GROUP BY usename
 ORDER BY count(*) DESC;
 ```
 
 **Resolution:**
+
 1. Kill idle connections:
+
 ```sql
 -- Kill idle connections older than 5 minutes
 SELECT pg_terminate_backend(pid)
@@ -197,11 +215,13 @@ AND usename != 'supabase_admin';
 ### 4. Slow Page Load Times
 
 **Symptoms:**
+
 - User complaints about slow app
 - Time to Interactive > 5 seconds
 - Slow query logs
 
 **Diagnosis:**
+
 ```sql
 -- Check for slow queries
 SELECT query, calls, mean_exec_time, max_exec_time
@@ -212,11 +232,14 @@ LIMIT 10;
 ```
 
 **Resolution:**
+
 1. Identify slow queries (above)
 2. Check query execution plans:
+
 ```sql
 EXPLAIN ANALYZE <slow_query_here>;
 ```
+
 3. Add missing indexes
 4. Optimize query (reduce columns, add WHERE clauses)
 5. Implement caching for hot queries
@@ -228,17 +251,20 @@ EXPLAIN ANALYZE <slow_query_here>;
 ### 5. AI Service Degradation
 
 **Symptoms:**
+
 - AI responses failing
 - "AI is temporarily unavailable" messages
 - Edge function timeouts on AI endpoints
 
 **Diagnosis:**
+
 ```bash
 # Check Edge Function logs for ai-confession-response and ai-moderation
 # Look for: timeout errors, API key issues, rate limit errors
 ```
 
 **Resolution:**
+
 1. Check Lovable AI service status
 2. Verify API quotas not exceeded
 3. Implement graceful degradation:
@@ -254,11 +280,13 @@ EXPLAIN ANALYZE <slow_query_here>;
 ### 6. Payment Processing Failures
 
 **Symptoms:**
+
 - Users can't upgrade to premium
 - Stripe webhook failures
 - Payment success but subscription not activated
 
 **Diagnosis:**
+
 ```sql
 -- Check recent payment attempts
 SELECT * FROM payment_history
@@ -273,9 +301,11 @@ AND subscription_ends_at < NOW();
 ```
 
 **Resolution:**
+
 1. Check Stripe dashboard for failures
 2. Verify webhook signatures
 3. Manually activate subscriptions if needed:
+
 ```sql
 UPDATE profiles
 SET is_premium = true,
@@ -283,6 +313,7 @@ SET is_premium = true,
     subscription_tier = 'premium'
 WHERE user_id = '<user_id>';
 ```
+
 4. Re-sync Stripe data if needed
 
 **Escalation:** High priority - affects revenue
@@ -292,15 +323,17 @@ WHERE user_id = '<user_id>';
 ### 7. Community Features Broken
 
 **Symptoms:**
+
 - Can't create/join communities
 - "Infinite recursion" errors in logs
 - Community pages not loading
 
 **Diagnosis:**
+
 ```sql
 -- Check for RLS policy issues
-SELECT * FROM pg_stat_user_tables 
-WHERE schemaname = 'public' 
+SELECT * FROM pg_stat_user_tables
+WHERE schemaname = 'public'
 AND relname IN ('communities', 'community_members');
 
 -- Test community queries
@@ -309,12 +342,15 @@ SELECT * FROM community_members LIMIT 1;
 ```
 
 **Resolution:**
+
 1. ✅ Already fixed: RLS infinite recursion
 2. Check if security definer function exists:
+
 ```sql
-SELECT * FROM pg_proc 
+SELECT * FROM pg_proc
 WHERE proname = 'is_community_admin';
 ```
+
 3. If missing, run migration to recreate it
 4. Clear any query cache
 
@@ -325,18 +361,21 @@ WHERE proname = 'is_community_admin';
 ### Key Metrics to Monitor
 
 #### Application Metrics
+
 - **Error Rate:** < 0.1% (5xx responses)
 - **Response Time:** p95 < 200ms, p99 < 500ms
 - **Request Rate:** Track for anomalies
 - **Active Users:** Real-time concurrent users
 
 #### Database Metrics
+
 - **Connection Pool:** < 80% utilization
 - **Query Performance:** p95 < 100ms
 - **Disk Usage:** < 80% capacity
 - **Replication Lag:** < 1 second
 
 #### Edge Function Metrics
+
 - **Invocations:** Track trends
 - **Execution Time:** p95 < 3s
 - **Error Rate:** < 1%
@@ -344,23 +383,25 @@ WHERE proname = 'is_community_admin';
 
 ### Alert Thresholds
 
-| Metric | Warning | Critical | Action |
-|--------|---------|----------|--------|
-| Error Rate | > 0.5% | > 1% | Investigate immediately |
-| p95 Latency | > 500ms | > 1s | Check slow queries |
-| DB Connections | > 80% | > 95% | Scale or fix leaks |
-| Disk Usage | > 80% | > 90% | Clean up or scale |
-| Failed Logins | > 100/min | > 500/min | Check for attacks |
+| Metric         | Warning   | Critical  | Action                  |
+| -------------- | --------- | --------- | ----------------------- |
+| Error Rate     | > 0.5%    | > 1%      | Investigate immediately |
+| p95 Latency    | > 500ms   | > 1s      | Check slow queries      |
+| DB Connections | > 80%     | > 95%     | Scale or fix leaks      |
+| Disk Usage     | > 80%     | > 90%     | Clean up or scale       |
+| Failed Logins  | > 100/min | > 500/min | Check for attacks       |
 
 ### Dashboards
 
 **Primary Dashboard (Supabase):**
+
 - Database performance
 - API request rate and errors
 - Edge function invocations
 - Storage usage
 
 **Custom Metrics:**
+
 ```sql
 -- Daily active users
 SELECT COUNT(DISTINCT user_id) as dau
@@ -375,8 +416,8 @@ GROUP BY hour
 ORDER BY hour DESC;
 
 -- Premium conversion rate
-SELECT 
-  (COUNT(*) FILTER (WHERE is_premium = true))::float / 
+SELECT
+  (COUNT(*) FILTER (WHERE is_premium = true))::float /
   COUNT(*)::float * 100 as premium_pct
 FROM profiles;
 ```
@@ -384,6 +425,7 @@ FROM profiles;
 ## Deployment Procedures
 
 ### Pre-Deployment Checklist
+
 - [ ] All tests passing (unit, integration, e2e)
 - [ ] Database migrations reviewed and tested
 - [ ] i18n completeness verified (EN/ES/DE)
@@ -394,6 +436,7 @@ FROM profiles;
 ### Deployment Steps
 
 #### 1. Database Migrations
+
 ```bash
 # Migrations run automatically via Lovable Cloud
 # Verify migration success in Supabase dashboard
@@ -401,6 +444,7 @@ FROM profiles;
 ```
 
 #### 2. Code Deployment
+
 ```bash
 # Lovable automatically deploys on code changes
 # Monitor deployment progress in Lovable dashboard
@@ -408,6 +452,7 @@ FROM profiles;
 ```
 
 #### 3. Post-Deployment Verification
+
 ```bash
 # 1. Check health endpoints (when implemented)
 curl https://confess-whisper-ai.lovable.app/healthz
@@ -431,11 +476,10 @@ curl https://confess-whisper-ai.lovable.app/healthz
 ### Feature Flag Strategy
 
 **High-Risk Changes:**
+
 ```typescript
 // Use feature flags for risky features
-const isNewFeatureEnabled = 
-  user.is_premium || 
-  user.id in BETA_USER_IDS;
+const isNewFeatureEnabled = user.is_premium || user.id in BETA_USER_IDS;
 
 if (isNewFeatureEnabled) {
   // New feature code
@@ -447,6 +491,7 @@ if (isNewFeatureEnabled) {
 ## Rollback Procedures
 
 ### When to Rollback
+
 - Error rate > 5% for > 5 minutes
 - Critical functionality broken
 - Database corruption detected
@@ -455,6 +500,7 @@ if (isNewFeatureEnabled) {
 ### Rollback Steps
 
 #### 1. Code Rollback
+
 ```bash
 # In Lovable dashboard:
 # 1. Navigate to project history
@@ -468,6 +514,7 @@ if (isNewFeatureEnabled) {
 ```
 
 #### 2. Database Migration Rollback
+
 ```sql
 -- If migration has down script, run it
 -- Otherwise, manually revert changes
@@ -477,11 +524,13 @@ DROP POLICY IF EXISTS "new_policy" ON table_name;
 ```
 
 #### 3. Communication
+
 - Update status page
 - Notify affected users
 - Post-mortem document required
 
 ### Post-Rollback Actions
+
 1. Root cause analysis
 2. Add tests to prevent recurrence
 3. Fix issue in dev/staging
@@ -490,49 +539,58 @@ DROP POLICY IF EXISTS "new_policy" ON table_name;
 ## Emergency Contacts
 
 ### Primary On-Call
+
 - **Email:** TBD
 - **Phone:** TBD
 - **Slack:** TBD
 
 ### Escalation Path
+
 1. **L1:** On-call engineer (response: 15 min)
 2. **L2:** Tech lead (response: 30 min)
 3. **L3:** CTO (response: 1 hour)
 
 ### External Services Support
+
 - **Supabase:** support@supabase.io (Enterprise support)
 - **Stripe:** https://support.stripe.com
 - **Lovable Cloud:** support@lovable.dev
 
 ### Status Pages
+
 - Supabase: https://status.supabase.com
 - Stripe: https://status.stripe.com
 
 ## Incident Response Process
 
 ### 1. Detection (0-5 minutes)
+
 - Alert triggers or user report received
 - On-call engineer notified
 - Acknowledge alert
 
 ### 2. Assessment (5-10 minutes)
+
 - Determine severity (SEV1-SEV4)
 - Check system health
 - Identify affected users/features
 - Start incident channel
 
 ### 3. Mitigation (10-30 minutes)
+
 - Follow relevant runbook section
 - Implement temporary fixes
 - Escalate if needed
 - Update stakeholders
 
 ### 4. Resolution
+
 - Apply permanent fix
 - Verify system stability
 - Close incident
 
 ### 5. Post-Mortem (24-48 hours)
+
 - Document what happened
 - Root cause analysis
 - Action items to prevent recurrence
@@ -541,6 +599,7 @@ DROP POLICY IF EXISTS "new_policy" ON table_name;
 ## Severity Definitions
 
 **SEV1 (Critical):**
+
 - App completely down
 - Data loss
 - Security breach
@@ -549,6 +608,7 @@ DROP POLICY IF EXISTS "new_policy" ON table_name;
 - **Communication:** All hands
 
 **SEV2 (High):**
+
 - Major feature broken
 - Significant performance degradation
 - Auth issues affecting >10% users
@@ -556,6 +616,7 @@ DROP POLICY IF EXISTS "new_policy" ON table_name;
 - **Communication:** Engineering + stakeholders
 
 **SEV3 (Medium):**
+
 - Minor feature broken
 - Performance degradation
 - Non-critical errors
@@ -563,6 +624,7 @@ DROP POLICY IF EXISTS "new_policy" ON table_name;
 - **Communication:** Engineering only
 
 **SEV4 (Low):**
+
 - Cosmetic issues
 - Known workarounds
 - Technical debt
@@ -572,12 +634,14 @@ DROP POLICY IF EXISTS "new_policy" ON table_name;
 ## Maintenance Windows
 
 ### Regular Maintenance
+
 - **Frequency:** Monthly
 - **Duration:** 30 minutes
 - **Time:** Sunday 2-3 AM UTC
 - **Notification:** 72 hours advance
 
 ### Emergency Maintenance
+
 - Minimal notice required
 - Status page updated
 - Post-mortem required
@@ -585,6 +649,7 @@ DROP POLICY IF EXISTS "new_policy" ON table_name;
 ## Useful Commands
 
 ### Database
+
 ```sql
 -- Kill all connections to database (EMERGENCY)
 SELECT pg_terminate_backend(pg_stat_activity.pid)
@@ -593,7 +658,7 @@ WHERE datname = current_database()
 AND pid <> pg_backend_pid();
 
 -- Reset sequences after bulk import
-SELECT setval(pg_get_serial_sequence('table_name', 'id'), 
+SELECT setval(pg_get_serial_sequence('table_name', 'id'),
   (SELECT MAX(id) FROM table_name));
 
 -- Check index usage
@@ -604,6 +669,7 @@ ORDER BY schemaname, tablename;
 ```
 
 ### Edge Functions
+
 ```bash
 # Test edge function locally (when needed)
 # supabase functions serve function-name
@@ -614,10 +680,10 @@ ORDER BY schemaname, tablename;
 
 ## Change Log
 
-| Date | Change | Author |
-|------|--------|--------|
-| 2025-10-18 | Initial runbook created | AI System |
-| | RLS recursion fix documented | AI System |
+| Date       | Change                       | Author    |
+| ---------- | ---------------------------- | --------- |
+| 2025-10-18 | Initial runbook created      | AI System |
+|            | RLS recursion fix documented | AI System |
 
 ---
 

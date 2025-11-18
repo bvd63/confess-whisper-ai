@@ -7,37 +7,49 @@
 Professional loading indicators that replace generic spinners.
 
 #### PageLoading
-Full-page skeleton for initial loads:
-```tsx
-import { PageLoading } from '@/components/LoadingStates';
 
-<PageLoading className="min-h-screen" />
+Full-page skeleton for initial loads:
+
+```tsx
+import { PageLoading } from "@/components/LoadingStates";
+
+<PageLoading className="min-h-screen" />;
 ```
 
 #### ButtonLoading
+
 Inline spinner for buttons:
+
 ```tsx
-import { ButtonLoading } from '@/components/LoadingStates';
+import { ButtonLoading } from "@/components/LoadingStates";
 
 <Button disabled={isLoading}>
-  {isLoading ? <ButtonLoading size="sm" /> : 'Submit'}
-</Button>
+  {isLoading ? <ButtonLoading size="sm" /> : "Submit"}
+</Button>;
 ```
 
 #### ContentLoading
-Skeleton text lines:
-```tsx
-import { ContentLoading } from '@/components/LoadingStates';
 
-{loading ? <ContentLoading lines={3} /> : <p>{content}</p>}
+Skeleton text lines:
+
+```tsx
+import { ContentLoading } from "@/components/LoadingStates";
+
+{
+  loading ? <ContentLoading lines={3} /> : <p>{content}</p>;
+}
 ```
 
 #### CardLoading
-Card skeleton for lists:
-```tsx
-import { CardLoading } from '@/components/LoadingStates';
 
-{loading ? <CardLoading count={5} /> : <ConfessionList />}
+Card skeleton for lists:
+
+```tsx
+import { CardLoading } from "@/components/LoadingStates";
+
+{
+  loading ? <CardLoading count={5} /> : <ConfessionList />;
+}
 ```
 
 ---
@@ -45,20 +57,22 @@ import { CardLoading } from '@/components/LoadingStates';
 ### EmptyState
 
 Beautiful empty states with icons:
+
 ```tsx
-import EmptyState from '@/components/EmptyState';
-import { MessageCircle } from 'lucide-react';
+import EmptyState from "@/components/EmptyState";
+import { MessageCircle } from "lucide-react";
 
 <EmptyState
   icon={MessageCircle}
   title={t.empty_confessions_title}
   description={t.empty_confessions_description}
   actionLabel="Create First Confession"
-  onAction={() => navigate('/compose')}
-/>
+  onAction={() => navigate("/compose")}
+/>;
 ```
 
 **Props:**
+
 - `icon`: Lucide icon component
 - `title`: Main heading
 - `description`: Supporting text
@@ -71,18 +85,20 @@ import { MessageCircle } from 'lucide-react';
 ### ErrorMessage
 
 User-friendly error display:
+
 ```tsx
-import ErrorMessage from '@/components/ErrorMessage';
+import ErrorMessage from "@/components/ErrorMessage";
 
 <ErrorMessage
   title="Connection Failed"
   message={t.error_network}
   onRetry={refetch}
-  onGoHome={() => navigate('/')}
-/>
+  onGoHome={() => navigate("/")}
+/>;
 ```
 
 **Props:**
+
 - `title?`: Error heading (defaults to generic)
 - `message`: Error description
 - `onRetry?`: Retry button handler (optional)
@@ -94,19 +110,17 @@ import ErrorMessage from '@/components/ErrorMessage';
 ### EnhancedButton
 
 Button with haptic feedback and animations:
-```tsx
-import { EnhancedButton } from '@/components/EnhancedButton';
 
-<EnhancedButton
-  lift
-  haptic
-  onClick={handleSubmit}
->
+```tsx
+import { EnhancedButton } from "@/components/EnhancedButton";
+
+<EnhancedButton lift haptic onClick={handleSubmit}>
   Submit Confession
-</EnhancedButton>
+</EnhancedButton>;
 ```
 
 **Props:**
+
 - `glow?`: Add glow effect on hover
 - `shine?`: Add shimmer animation
 - `lift?`: Lift on hover
@@ -119,19 +133,17 @@ import { EnhancedButton } from '@/components/EnhancedButton';
 ### AnimatedCard
 
 Cards with hover effects:
-```tsx
-import { AnimatedCard } from '@/components/AnimatedCard';
 
-<AnimatedCard 
-  hover="lift"
-  gradient
-  delay={100}
->
+```tsx
+import { AnimatedCard } from "@/components/AnimatedCard";
+
+<AnimatedCard hover="lift" gradient delay={100}>
   <CardContent />
-</AnimatedCard>
+</AnimatedCard>;
 ```
 
 **Props:**
+
 - `hover?`: 'lift' | 'glow' | 'scale' | 'none'
 - `glass?`: Glass morphism effect
 - `gradient?`: Gradient background
@@ -142,8 +154,9 @@ import { AnimatedCard } from '@/components/AnimatedCard';
 ### OptimizedImage
 
 High-performance image component:
+
 ```tsx
-import { OptimizedImage } from '@/components/OptimizedImage';
+import { OptimizedImage } from "@/components/OptimizedImage";
 
 <OptimizedImage
   src={imageUrl}
@@ -152,10 +165,11 @@ import { OptimizedImage } from '@/components/OptimizedImage';
   priority
   width={800}
   height={450}
-/>
+/>;
 ```
 
 **Props:**
+
 - `src`: Image URL
 - `alt`: Alt text for accessibility
 - `aspectRatio?`: 'square' | 'video' | 'portrait' | 'auto'
@@ -170,27 +184,29 @@ import { OptimizedImage } from '@/components/OptimizedImage';
 ### Toast Messages
 
 Standardized notifications:
+
 ```tsx
-import { showToast } from '@/lib/toast-messages';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { showToast } from "@/lib/toast-messages";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const { language } = useLanguage();
 
 // Success
-showToast.success('confessionCreated', language);
+showToast.success("confessionCreated", language);
 
 // Error
-showToast.error('networkError', language);
+showToast.error("networkError", language);
 
 // Info
-showToast.info('updateAvailable', language);
+showToast.info("updateAvailable", language);
 
 // Loading (returns ID for dismissal)
-const loadingId = showToast.loading('uploading', language);
+const loadingId = showToast.loading("uploading", language);
 // Later: toast.dismiss(loadingId);
 ```
 
 **Available Messages:**
+
 - **Success**: confessionCreated, confessionDeleted, vipActivated, profileUpdated
 - **Error**: networkError, unauthorized, rateLimited, serverError, invalidInput
 - **Info**: streakLost, maintenance, updateAvailable, offlineMode
@@ -203,15 +219,16 @@ const loadingId = showToast.loading('uploading', language);
 ### useKeyboardNavigation
 
 Handle keyboard shortcuts:
+
 ```tsx
-import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
+import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
 
 const [isOpen, setIsOpen] = useState(false);
 
 useKeyboardNavigation({
   onEscape: () => setIsOpen(false),
   onEnter: () => handleSubmit(),
-  enabled: isOpen
+  enabled: isOpen,
 });
 ```
 
@@ -220,17 +237,18 @@ useKeyboardNavigation({
 ### useDebounce
 
 Debounce values or callbacks:
+
 ```tsx
-import { useDebounce, useDebouncedCallback } from '@/hooks/useDebounce';
+import { useDebounce, useDebouncedCallback } from "@/hooks/useDebounce";
 
 // Debounce value
-const [search, setSearch] = useState('');
+const [search, setSearch] = useState("");
 const debouncedSearch = useDebounce(search, 300);
 
 // Debounce callback
 const debouncedSearch = useDebouncedCallback(
   (value: string) => performSearch(value),
-  300
+  300,
 );
 ```
 
@@ -239,21 +257,23 @@ const debouncedSearch = useDebouncedCallback(
 ### useHaptic
 
 Haptic feedback (existing):
+
 ```tsx
-import { useHaptic } from '@/hooks/useHaptic';
+import { useHaptic } from "@/hooks/useHaptic";
 
 const { vibrate, vibratePattern } = useHaptic();
 
 // Simple vibration
-vibrate('light'); // or 'medium', 'heavy'
+vibrate("light"); // or 'medium', 'heavy'
 
 // Pattern
 vibratePattern([10, 50, 10]); // vibrate-pause-vibrate
 ```
 
 **Or use utility functions:**
+
 ```tsx
-import { hapticClick, hapticSuccess, hapticError } from '@/lib/haptics';
+import { hapticClick, hapticSuccess, hapticError } from "@/lib/haptics";
 
 hapticClick(); // Light click
 hapticSuccess(); // Success pattern
@@ -265,20 +285,19 @@ hapticError(); // Error pattern
 ### usePullToRefresh
 
 Pull-to-refresh (existing):
+
 ```tsx
-import { usePullToRefresh } from '@/hooks/usePullToRefresh';
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 
 const { containerRef, isRefreshing } = usePullToRefresh({
   onRefresh: async () => {
     await refetchData();
   },
   threshold: 80,
-  disabled: false
+  disabled: false,
 });
 
-<div ref={containerRef}>
-  {/* Your scrollable content */}
-</div>
+<div ref={containerRef}>{/* Your scrollable content */}</div>;
 ```
 
 ---
@@ -288,6 +307,7 @@ const { containerRef, isRefreshing } = usePullToRefresh({
 ### ARIA Labels
 
 Use translation keys for ARIA labels:
+
 ```tsx
 import { getAriaLabel } from '@/lib/aria-labels';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -298,13 +318,14 @@ const { language } = useLanguage();
   <X />
 </button>
 
-<input 
+<input
   aria-label={getAriaLabel('searchInput', language)}
   placeholder={t.search}
 />
 ```
 
 **Available Labels:**
+
 - Actions: close, open, menu, search, like, share, report
 - Navigation: home, profile, settings, back, next
 - Inputs: searchInput, messageInput, confessionInput
@@ -316,6 +337,7 @@ const { language } = useLanguage();
 ## 🎬 Animations & CSS Classes
 
 ### Hover Effects
+
 ```tsx
 // Lift effect
 <div className="hover-lift">...</div>
@@ -328,6 +350,7 @@ const { language } = useLanguage();
 ```
 
 ### Animations
+
 ```tsx
 // Fade in
 <div className="animate-fade-in">...</div>
@@ -343,6 +366,7 @@ const { language } = useLanguage();
 ```
 
 ### Safe Areas (Mobile)
+
 ```tsx
 // iOS safe area support
 <div className="safe-area-inset-top">...</div>
@@ -356,30 +380,36 @@ const { language } = useLanguage();
 ## 📱 System Components
 
 ### OfflineIndicator
+
 Auto-displays when offline (already integrated in App.tsx):
+
 ```tsx
-import { OfflineIndicator } from '@/components/OfflineIndicator';
+import { OfflineIndicator } from "@/components/OfflineIndicator";
 
 // In root app
-<OfflineIndicator />
+<OfflineIndicator />;
 ```
 
 ### UpdatePrompt
+
 Auto-displays when new version available (already integrated):
+
 ```tsx
-import { UpdatePrompt } from '@/components/UpdatePrompt';
+import { UpdatePrompt } from "@/components/UpdatePrompt";
 
 // In root app
-<UpdatePrompt />
+<UpdatePrompt />;
 ```
 
 ### CookieConsent
+
 Auto-displays on first visit (already integrated):
+
 ```tsx
-import { CookieConsent } from '@/components/CookieConsent';
+import { CookieConsent } from "@/components/CookieConsent";
 
 // In root app
-<CookieConsent />
+<CookieConsent />;
 ```
 
 ---
@@ -387,21 +417,22 @@ import { CookieConsent } from '@/components/CookieConsent';
 ## 🚀 Performance
 
 ### Lazy Components
+
 ```tsx
-import { lazy, Suspense } from 'react';
-import { PageLoading } from '@/components/LoadingStates';
+import { lazy, Suspense } from "react";
+import { PageLoading } from "@/components/LoadingStates";
 
 // From lazy-components.ts
-import { 
+import {
   AdvancedAnalytics,
   ModerationPanel,
-  DeepInsightDialog 
-} from '@/lib/lazy-components';
+  DeepInsightDialog,
+} from "@/lib/lazy-components";
 
 // Usage
 <Suspense fallback={<PageLoading />}>
   <AdvancedAnalytics />
-</Suspense>
+</Suspense>;
 ```
 
 ---
@@ -409,18 +440,27 @@ import {
 ## 💡 Best Practices
 
 ### Loading States
+
 ✅ **DO**: Use specific loading states
+
 ```tsx
-{loading ? <ContentLoading lines={3} /> : <Content />}
+{
+  loading ? <ContentLoading lines={3} /> : <Content />;
+}
 ```
 
 ❌ **DON'T**: Use generic spinners
+
 ```tsx
-{loading ? <Loader2 className="animate-spin" /> : <Content />}
+{
+  loading ? <Loader2 className="animate-spin" /> : <Content />;
+}
 ```
 
 ### Empty States
+
 ✅ **DO**: Provide context and actions
+
 ```tsx
 <EmptyState
   icon={MessageCircle}
@@ -432,27 +472,33 @@ import {
 ```
 
 ❌ **DON'T**: Show plain text
+
 ```tsx
 <p>No messages</p>
 ```
 
 ### Error Handling
+
 ✅ **DO**: Provide recovery options
+
 ```tsx
 <ErrorMessage
   message={error.message}
   onRetry={refetch}
-  onGoHome={() => navigate('/')}
+  onGoHome={() => navigate("/")}
 />
 ```
 
 ❌ **DON'T**: Just display error text
+
 ```tsx
 <p className="text-red-500">{error.message}</p>
 ```
 
 ### Buttons
+
 ✅ **DO**: Use EnhancedButton for primary actions
+
 ```tsx
 <EnhancedButton lift haptic onClick={submit}>
   Submit
@@ -460,6 +506,7 @@ import {
 ```
 
 ✅ **ALSO GOOD**: Use standard Button for secondary actions
+
 ```tsx
 <Button variant="outline" onClick={cancel}>
   Cancel
@@ -467,17 +514,15 @@ import {
 ```
 
 ### Images
+
 ✅ **DO**: Use OptimizedImage
+
 ```tsx
-<OptimizedImage
-  src={url}
-  alt="Description"
-  aspectRatio="video"
-  width={800}
-/>
+<OptimizedImage src={url} alt="Description" aspectRatio="video" width={800} />
 ```
 
 ❌ **DON'T**: Use raw img tags
+
 ```tsx
 <img src={url} alt="Description" />
 ```
@@ -487,25 +532,27 @@ import {
 ## 🔑 Keyboard Shortcuts
 
 Implemented via `useKeyboardNavigation`:
+
 - **Escape**: Close dialogs/modals
 - **Enter**: Submit forms (except in textareas)
 - **Tab**: Navigate between elements
 
 To add custom shortcuts:
+
 ```tsx
-import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 useKeyboardShortcuts([
   {
-    key: 's',
+    key: "s",
     ctrl: true,
-    callback: handleSave
+    callback: handleSave,
   },
   {
-    key: 'k',
+    key: "k",
     ctrl: true,
-    callback: openSearch
-  }
+    callback: openSearch,
+  },
 ]);
 ```
 
@@ -514,12 +561,13 @@ useKeyboardShortcuts([
 ## 📊 Analytics Integration
 
 Toast events are automatically tracked. Custom tracking:
-```tsx
-import { useAnalyticsTracking } from '@/hooks/useAnalyticsTracking';
 
-useAnalyticsTracking('page_view', {
-  page: 'profile',
-  user_id: user?.id
+```tsx
+import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
+
+useAnalyticsTracking("page_view", {
+  page: "profile",
+  user_id: user?.id,
 });
 ```
 
@@ -529,21 +577,21 @@ useAnalyticsTracking('page_view', {
 
 **When to use what:**
 
-| Need | Component | Location |
-|------|-----------|----------|
-| Full page loading | `<PageLoading />` | LoadingStates.tsx |
-| Button loading | `<ButtonLoading />` | LoadingStates.tsx |
-| Content skeleton | `<ContentLoading />` | LoadingStates.tsx |
-| Empty list | `<EmptyState />` | EmptyState.tsx |
-| Error display | `<ErrorMessage />` | ErrorMessage.tsx |
-| Success toast | `showToast.success()` | toast-messages.ts |
-| Image display | `<OptimizedImage />` | OptimizedImage.tsx |
-| Primary button | `<EnhancedButton />` | EnhancedButton.tsx |
-| Hover card | `<AnimatedCard />` | AnimatedCard.tsx |
-| Keyboard nav | `useKeyboardNavigation()` | hooks/useKeyboardNavigation.ts |
-| Debounce search | `useDebounce()` | hooks/useDebounce.ts |
-| Haptic feedback | `hapticClick()` | lib/haptics.ts |
+| Need              | Component                 | Location                       |
+| ----------------- | ------------------------- | ------------------------------ |
+| Full page loading | `<PageLoading />`         | LoadingStates.tsx              |
+| Button loading    | `<ButtonLoading />`       | LoadingStates.tsx              |
+| Content skeleton  | `<ContentLoading />`      | LoadingStates.tsx              |
+| Empty list        | `<EmptyState />`          | EmptyState.tsx                 |
+| Error display     | `<ErrorMessage />`        | ErrorMessage.tsx               |
+| Success toast     | `showToast.success()`     | toast-messages.ts              |
+| Image display     | `<OptimizedImage />`      | OptimizedImage.tsx             |
+| Primary button    | `<EnhancedButton />`      | EnhancedButton.tsx             |
+| Hover card        | `<AnimatedCard />`        | AnimatedCard.tsx               |
+| Keyboard nav      | `useKeyboardNavigation()` | hooks/useKeyboardNavigation.ts |
+| Debounce search   | `useDebounce()`           | hooks/useDebounce.ts           |
+| Haptic feedback   | `hapticClick()`           | lib/haptics.ts                 |
 
 ---
 
-**Happy coding! 🚀**
+### Happy coding! 🚀

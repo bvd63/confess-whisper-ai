@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import { render, type RenderOptions } from '@testing-library/react';
 import { type ReactElement, type ReactNode } from 'react';
 import { BrowserRouter } from 'react-router-dom';
@@ -37,7 +36,7 @@ type ChainableMock = {
 };
 
 // Complete Supabase mock for subscription tests
-vi.mock('@/integrations/supabase/client', () => {
+const createSupabaseTestUtilsMock = () => {
   const mockFunctionsInvoke = vi.fn(async (name: string) => {
     if (name === 'ai-moderation') {
       return { data: { is_safe: true }, error: null };
@@ -190,9 +189,8 @@ vi.mock('@/integrations/supabase/client', () => {
   };
   
   return {
-    supabase: {
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
+    auth: {
+      getUser: vi.fn().mockResolvedValue({
           data: { user: { id: 'test-user', email: 'test@example.com' } },
           error: null
         }),
@@ -224,10 +222,10 @@ vi.mock('@/integrations/supabase/client', () => {
         delete: vi.fn(() => createChainableMock()),
         upsert: vi.fn(() => createChainableMock()),
       })),
-      functions: {
-        invoke: mockFunctionsInvoke
-      },
-      storage: {
+    functions: {
+      invoke: mockFunctionsInvoke
+    },
+    storage: {
         from: vi.fn(() => ({
           upload: vi.fn().mockResolvedValue({ data: {}, error: null }),
           download: vi.fn().mockResolvedValue({ data: new Blob(), error: null }),
@@ -235,16 +233,25 @@ vi.mock('@/integrations/supabase/client', () => {
           list: vi.fn().mockResolvedValue({ data: [], error: null }),
         }))
       },
-      channel: vi.fn(() => ({
-        on: vi.fn(function(this: unknown) { return this; }),
-        subscribe: vi.fn(() => ({
-          unsubscribe: vi.fn()
-        }))
-      })),
-      removeChannel: vi.fn()
-    }
+    channel: vi.fn(() => ({
+      on: vi.fn(function(this: unknown) { return this; }),
+      subscribe: vi.fn(() => ({
+        unsubscribe: vi.fn()
+      }))
+    })),
+    removeChannel: vi.fn()
   };
-});
+};
+
+const supabaseTestUtilsMock = createSupabaseTestUtilsMock();
+
+vi.mock('@/integrations/supabase/client', () => ({
+  supabase: supabaseTestUtilsMock,
+}));
+
+vi.mock('@/integrations/supabase/safeClient', () => ({
+  getSupabaseClient: vi.fn(async () => supabaseTestUtilsMock),
+}));
 
 const createTestQueryClient = () =>
   new QueryClient({

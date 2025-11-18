@@ -5,6 +5,7 @@
 ## Pre-Release (Development Complete)
 
 ### Code Quality
+
 - [ ] All TypeScript errors resolved (`npm run typecheck`)
 - [ ] ESLint warnings reviewed and addressed
 - [ ] No `console.log` or debug code in production paths
@@ -13,6 +14,7 @@
 - [ ] Proper error handling in all async operations
 
 ### Testing
+
 - [ ] Unit tests passing (`npm test`)
 - [ ] Integration tests passing
 - [ ] E2E tests passing for critical flows:
@@ -29,6 +31,7 @@
   - [ ] Tablet (iPad, Android tablet)
 
 ### Internationalization (i18n) - CRITICAL
+
 - [ ] **All new UI text uses translation keys** (no hardcoded strings)
 - [ ] **Translation completeness check:**
   ```bash
@@ -37,7 +40,7 @@
   ```
 - [ ] **Test each language renders without mixing:**
   - [ ] English (EN) - Full app walkthrough
-  - [ ] Spanish (ES) - Full app walkthrough  
+  - [ ] Spanish (ES) - Full app walkthrough
   - [ ] German (DE) - Full app walkthrough
 - [ ] **Verify in each language:**
   - [ ] Login/signup screens
@@ -59,6 +62,7 @@
 - [ ] SSR/CSR hydration preserves selected locale (if applicable)
 
 ### Database
+
 - [ ] All migrations tested in staging
 - [ ] Migrations have rollback scripts
 - [ ] No breaking schema changes (or migration plan exists)
@@ -67,6 +71,7 @@
 - [ ] No N+1 query patterns introduced
 
 ### Security
+
 - [ ] Security scan completed (no High/Critical issues)
 - [ ] Dependency audit clean (`npm audit`)
 - [ ] No secrets in code or logs
@@ -76,6 +81,7 @@
 - [ ] CORS configuration reviewed
 
 ### Performance
+
 - [ ] No slow queries (all < 100ms p95)
 - [ ] Bundle size checked (< 500KB gzipped)
 - [ ] Images optimized (WebP/AVIF)
@@ -84,6 +90,7 @@
 - [ ] Caching strategy implemented for new features
 
 ### Documentation
+
 - [ ] API changes documented
 - [ ] User-facing changes documented
 - [ ] Breaking changes clearly marked
@@ -93,6 +100,7 @@
 ## Pre-Deployment (Staging)
 
 ### Staging Environment
+
 - [ ] Deployed to staging successfully
 - [ ] All staging smoke tests pass
 - [ ] Edge cases tested:
@@ -105,6 +113,7 @@
 - [ ] Accessibility testing (WCAG 2.1 AA)
 
 ### Load Testing (If Major Release)
+
 - [ ] Load test executed (target: 10k concurrent users)
 - [ ] Results reviewed:
   - [ ] p95 latency < 200ms ✓
@@ -115,6 +124,7 @@
 - [ ] Edge functions auto-scale properly
 
 ### Stakeholder Review
+
 - [ ] Product owner approval
 - [ ] Design review (if UI changes)
 - [ ] Business stakeholders notified
@@ -123,6 +133,7 @@
 ## Deployment
 
 ### Preparation
+
 - [ ] Deployment window scheduled
 - [ ] On-call engineer assigned
 - [ ] Rollback plan documented
@@ -132,6 +143,7 @@
   - [ ] Status page update prepared
 
 ### Deploy Steps
+
 1. [ ] **Database migrations** (if any)
    - [ ] Migration plan reviewed
    - [ ] Backup taken
@@ -165,6 +177,7 @@
    - [ ] Edge function execution normal
 
 ### Communication
+
 - [ ] Internal team notified: "Deployment complete"
 - [ ] Status page updated (if user-facing)
 - [ ] Customer support notified
@@ -173,6 +186,7 @@
 ## Post-Deployment
 
 ### Verification (First Hour)
+
 - [ ] Monitor key metrics:
   - [ ] Error rate
   - [ ] Response time (p50, p95, p99)
@@ -184,6 +198,7 @@
 - [ ] Verify analytics tracking
 
 ### Follow-up (First 24 Hours)
+
 - [ ] Daily active users normal
 - [ ] Conversion metrics stable
 - [ ] No regression reports
@@ -191,11 +206,13 @@
 - [ ] No security alerts
 
 ### Rollback (If Needed)
+
 - [ ] Error rate > 5% for > 5 minutes → ROLLBACK
 - [ ] Critical functionality broken → ROLLBACK
 - [ ] Security issue discovered → ROLLBACK
 
 **Rollback Steps:**
+
 1. [ ] Notify stakeholders immediately
 2. [ ] Execute rollback (restore previous version)
 3. [ ] Verify rollback successful
@@ -208,12 +225,14 @@
 ## Post-Release
 
 ### Documentation
+
 - [ ] Release notes finalized
 - [ ] Changelog updated
 - [ ] API documentation updated (if changed)
 - [ ] User guide updated (if needed)
 
 ### Team Sync
+
 - [ ] Deployment retrospective
 - [ ] Learnings documented
 - [ ] Process improvements identified
@@ -221,9 +240,10 @@
 
 ## Checklist for Hotfix Releases
 
-*Use abbreviated checklist for urgent fixes*
+_Use abbreviated checklist for urgent fixes_
 
 ### Critical Items Only
+
 - [ ] Bug fix verified in dev
 - [ ] Tests added for bug
 - [ ] Code review (expedited)
@@ -235,24 +255,28 @@
 ## Release Types
 
 ### Major Release (v1.0, v2.0)
+
 - Full checklist required
 - Load testing mandatory
 - Extended monitoring (48 hours)
 - Communication to all stakeholders
 
-### Minor Release (v1.1, v1.2)  
+### Minor Release (v1.1, v1.2)
+
 - Full checklist required
 - Abbreviated load testing
 - Standard monitoring (24 hours)
 - Communication to technical stakeholders
 
 ### Patch Release (v1.1.1, v1.1.2)
+
 - Core checklist items
 - Smoke testing focus
 - Standard monitoring
 - Internal communication
 
 ### Hotfix
+
 - Abbreviated checklist (see above)
 - Immediate deployment
 - Intensive monitoring
@@ -260,9 +284,10 @@
 
 ## Emergency Deployment Exception
 
-*Only use in true emergencies (security, data loss, critical outage)*
+_Only use in true emergencies (security, data loss, critical outage)_
 
 **Minimum Requirements:**
+
 - [ ] Issue severity justified (SEV1)
 - [ ] Fix verified in staging
 - [ ] On-call engineer available
@@ -270,6 +295,7 @@
 - [ ] Executive approval obtained
 
 **Process:**
+
 1. Fix → Test → Deploy → Monitor intensively
 2. Post-mortem within 12 hours
 3. Retroactive documentation
@@ -277,6 +303,7 @@
 ## Automation
 
 ### Automated Checks (CI/CD Pipeline)
+
 - ✅ TypeScript compilation
 - ✅ Linting
 - ✅ Unit tests
@@ -286,6 +313,7 @@
 - ⏳ Security scan (TO ADD)
 
 ### Manual Checks (Required)
+
 - ✅ E2E tests (all languages)
 - ✅ Cross-browser testing
 - ✅ Mobile testing
@@ -295,18 +323,21 @@
 ## Tools & Resources
 
 ### Testing
+
 - **E2E:** Manual testing in preview
 - **Load Testing:** k6 or Artillery (to be set up)
 - **Security:** npm audit, Snyk (to be set up)
 - **Accessibility:** axe DevTools, WAVE
 
 ### Monitoring
+
 - **Logs:** Supabase Dashboard → Functions → Logs
 - **Database:** Supabase Dashboard → Database → Performance
 - **Errors:** Console logs (Sentry to be added)
 - **Metrics:** Custom analytics (Prometheus to be added)
 
 ### Communication
+
 - **Internal:** Team chat
 - **Users:** In-app banner, email (if critical)
 - **Status Page:** (To be set up)

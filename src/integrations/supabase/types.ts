@@ -85,39 +85,54 @@ export type Database = {
       }
       auth_sessions: {
         Row: {
+          email: string | null
+          anomaly_reason: string | null
+          captcha_verified_at: string | null
           created_at: string | null
           device_id: string | null
           expires_at: string
           id: string
           ip_address: string | null
           last_refreshed_at: string | null
+          refresh_nonce: string
           revoked_at: string | null
+          rotation_count: number
           stay_connected: boolean | null
           token_hash: string
           user_agent: string | null
           user_id: string
         }
         Insert: {
+          email?: string | null
+          anomaly_reason?: string | null
+          captcha_verified_at?: string | null
           created_at?: string | null
           device_id?: string | null
           expires_at: string
           id?: string
           ip_address?: string | null
           last_refreshed_at?: string | null
+          refresh_nonce?: string
           revoked_at?: string | null
+          rotation_count?: number
           stay_connected?: boolean | null
           token_hash: string
           user_agent?: string | null
           user_id: string
         }
         Update: {
+          email?: string | null
+          anomaly_reason?: string | null
+          captcha_verified_at?: string | null
           created_at?: string | null
           device_id?: string | null
           expires_at?: string
           id?: string
           ip_address?: string | null
           last_refreshed_at?: string | null
+          refresh_nonce?: string
           revoked_at?: string | null
+          rotation_count?: number
           stay_connected?: boolean | null
           token_hash?: string
           user_agent?: string | null
@@ -2477,6 +2492,10 @@ export type Database = {
       cleanup_expired_rate_limits: { Args: never; Returns: undefined }
       cleanup_expired_sessions: { Args: never; Returns: undefined }
       cleanup_old_failed_attempts: { Args: never; Returns: undefined }
+      clear_captcha_requirement: {
+        Args: { _email: string; _device_id?: string | null }
+        Returns: undefined
+      }
       deactivate_expired_flairs: { Args: never; Returns: undefined }
       deactivate_expired_perks: { Args: never; Returns: undefined }
       deduct_coins: {
@@ -2577,6 +2596,16 @@ export type Database = {
           _ip_address?: string
           _user_agent?: string
           _user_id: string
+        }
+        Returns: undefined
+      }
+      mark_captcha_requirement: {
+        Args: {
+          _email: string
+          _device_id?: string | null
+          _ip_address?: string | null
+          _reason?: string | null
+          _lock_minutes?: number | null
         }
         Returns: undefined
       }

@@ -1,20 +1,29 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { persistenceMonitor } from '@/lib/persistenceMonitor';
-import { persistenceManager } from '@/lib/persistenceManager';
 import { syncScheduler } from '@/lib/syncScheduler';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
-import { Activity, Database, Wifi, Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useOfflineQueue } from '@/hooks/useOfflineQueue';
+import { offlineQueue } from '@/lib/offlineQueue';
+import { observability } from '@/lib/observability';
+import { Activity, Database, Wifi, Clock, AlertCircle, CheckCircle2, Trash2, RefreshCw } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+
+const getTimestamp = () => (typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now());
 
 export const PersistenceMonitorDashboard = () => {
-  const { t } = useLanguage();
-  const { isOnline, queuedOperations } = useNetworkStatus();
+  const { isOnline, queuedOperations, pendingByScope, lastSyncAt } = useNetworkStatus();
+  const offlineQueueState = useOfflineQueue();
   const [stats, setStats] = useState<any>(null);
   const [cacheSize, setCacheSize] = useState<number>(0);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isClearingQueue, setIsClearingQueue] = useState(false);
+  const [isProcessingQueue, setIsProcessingQueue] = useState(false);
+  const lastSyncLabel = useMemo(() => (lastSyncAt ? new Date(lastSyncAt).toLocaleTimeString() : null), [lastSyncAt]);
 
   useEffect(() => {
     const updateMetrics = async () => {
@@ -46,6 +55,82 @@ export const PersistenceMonitorDashboard = () => {
   const syncStatus = getSyncStatus();
   const StatusIcon = syncStatus.icon;
 
+  const handleManualQueueAction = useCallback(
+    async (action: 'process' | 'clear') => {
+      const snapshotBefore = offlineQueue.getSnapshot();
+      const tags = {
+        action,
+        source: 'persistence_dashboard',
+        online: isOnline ? 'true' : 'false',
+      };
+
+      observability.info('Offline queue manual action started', {
+        action: `offline_queue_${action}`,
+        metadata: {
+          source: 'persistence_dashboard',
+          pendingBefore: snapshotBefore.totalPending,
+          scopeBreakdown: snapshotBefore.pendingByScope,
+          queuedOperations,
+        },
+      });
+
+      const startedAt = getTimestamp();
+
+      try {
+        if (action === 'process') {
+          await offlineQueue.processQueue();
+        } else {
+          await offlineQueue.clearQueue();
+        }
+
+        const finishedAt = getTimestamp();
+        const snapshotAfter = offlineQueue.getSnapshot();
+
+        observability.recordMetric({
+          name: 'offlineQueue_manual_action_duration',
+          value: finishedAt - startedAt,
+          unit: 'ms',
+          tags,
+        });
+
+        observability.recordMetric({
+          name: 'offlineQueue_manual_action_pending',
+          value: snapshotAfter.totalPending,
+          unit: 'count',
+          tags,
+        });
+
+        observability.info('Offline queue manual action completed', {
+          action: `offline_queue_${action}`,
+          metadata: {
+            source: 'persistence_dashboard',
+            pendingBefore: snapshotBefore.totalPending,
+            pendingAfter: snapshotAfter.totalPending,
+            scopeBreakdown: snapshotAfter.pendingByScope,
+          },
+        });
+      } catch (error) {
+        observability.recordMetric({
+          name: 'offlineQueue_manual_action_failure',
+          value: 1,
+          unit: 'count',
+          tags,
+        });
+
+        observability.error('Offline queue manual action failed', error as Error, {
+          action: `offline_queue_${action}`,
+          metadata: {
+            source: 'persistence_dashboard',
+            pendingBefore: snapshotBefore.totalPending,
+            queuedOperations,
+          },
+        });
+        throw error;
+      }
+    },
+    [isOnline, queuedOperations]
+  );
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div>
@@ -69,6 +154,9 @@ export const PersistenceMonitorDashboard = () => {
                 </span>
               )}
             </div>
+            {lastSyncLabel && (
+              <p className="text-xs text-muted-foreground mt-2">Last sync at {lastSyncLabel}</p>
+            )}
           </CardContent>
         </Card>
 
@@ -188,10 +276,163 @@ export const PersistenceMonitorDashboard = () => {
                 <span className="text-muted-foreground">Queued Operations</span>
                 <span className="font-medium">{queuedOperations}</span>
               </div>
+              {queuedOperations > 0 && (
+                <div className="text-xs text-muted-foreground">
+                  {Object.entries(pendingByScope)
+                    .filter(([, count]) => count > 0)
+                    .map(([scope, count]) => `${scope}: ${count}`)
+                    .join(' • ')}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Offline Queue Controls */}
+      <Card>
+        <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <CardTitle>Offline Queue</CardTitle>
+            <CardDescription>Inspect, flush, or clear pending operations</CardDescription>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              variant="secondary"
+              className="gap-2"
+              disabled={queuedOperations === 0 || isProcessingQueue}
+              onClick={async () => {
+                setIsProcessingQueue(true);
+                try {
+                  await handleManualQueueAction('process');
+                } finally {
+                  setIsProcessingQueue(false);
+                }
+              }}
+            >
+              <RefreshCw className="h-4 w-4" />
+              Process Queue
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2"
+              disabled={queuedOperations === 0 || isClearingQueue}
+              onClick={async () => {
+                setIsClearingQueue(true);
+                try {
+                  await handleManualQueueAction('clear');
+                } finally {
+                  setIsClearingQueue(false);
+                }
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+              Clear Queue
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <ScrollArea className="h-64 rounded-lg border">
+            {offlineQueueState.pendingOperations.length === 0 ? (
+              <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                Queue empty — actions will appear here when offline.
+              </div>
+            ) : (
+              <div className="divide-y">
+                {offlineQueueState.pendingOperations.map((op) => (
+                  <div key={op.id} className="grid gap-2 p-4 md:grid-cols-[1fr_auto] md:items-center">
+                    <div className="space-y-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge variant="outline">{op.scope}</Badge>
+                        <span className="text-xs uppercase tracking-wide text-muted-foreground">{op.type}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {formatDistanceToNow(new Date(op.createdAt), { addSuffix: true })}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Retries: {op.retryCount} · Conflict: {op.conflictKey || 'none'} · Hash: {op.payloadHash.slice(0, 8)}
+                      </p>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={async () => {
+                          const snapshotBefore = offlineQueue.getSnapshot();
+                          const startedAt = getTimestamp();
+                          const tags = {
+                            action: 'cancel',
+                            source: 'persistence_dashboard',
+                            scope: op.scope,
+                          };
+
+                          observability.info('Offline queue manual action started', {
+                            action: 'offline_queue_cancel',
+                            metadata: {
+                              source: 'persistence_dashboard',
+                              operationId: op.id,
+                              scope: op.scope,
+                              pendingBefore: snapshotBefore.totalPending,
+                            },
+                          });
+
+                          try {
+                            await offlineQueue.cancelOperation(op.id);
+                            const finishedAt = getTimestamp();
+                            const snapshotAfter = offlineQueue.getSnapshot();
+
+                            observability.recordMetric({
+                              name: 'offlineQueue_manual_action_duration',
+                              value: finishedAt - startedAt,
+                              unit: 'ms',
+                              tags,
+                            });
+
+                            observability.recordMetric({
+                              name: 'offlineQueue_manual_action_pending',
+                              value: snapshotAfter.totalPending,
+                              unit: 'count',
+                              tags,
+                            });
+
+                            observability.info('Offline queue manual action completed', {
+                              action: 'offline_queue_cancel',
+                              metadata: {
+                                source: 'persistence_dashboard',
+                                operationId: op.id,
+                                pendingBefore: snapshotBefore.totalPending,
+                                pendingAfter: snapshotAfter.totalPending,
+                              },
+                            });
+                          } catch (error) {
+                            observability.recordMetric({
+                              name: 'offlineQueue_manual_action_failure',
+                              value: 1,
+                              unit: 'count',
+                              tags,
+                            });
+                            observability.error('Offline queue manual action failed', error as Error, {
+                              action: 'offline_queue_cancel',
+                              metadata: {
+                                source: 'persistence_dashboard',
+                                operationId: op.id,
+                              },
+                            });
+                          }
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </ScrollArea>
+        </CardContent>
+      </Card>
 
       {/* System Info */}
       <Card>

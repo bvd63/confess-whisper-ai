@@ -62,4 +62,71 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    sourcemap: mode === 'analyze',
+    chunkSizeWarningLimit: mode === 'analyze' ? 1600 : 1000,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          const normalizedId = id.replace(/\\/g, '/');
+          if (normalizedId.includes('node_modules')) {
+            if (normalizedId.includes('@supabase')) {
+              return 'supabase';
+            }
+            if (normalizedId.includes('@tanstack/react-query')) {
+              return 'react-query';
+            }
+            if (normalizedId.includes('recharts') || normalizedId.includes('/d3-')) {
+              return 'charts-core';
+            }
+            if (normalizedId.includes('lucide-react') || normalizedId.includes('sonner')) {
+              return 'ui-kit';
+            }
+          }
+
+          if (normalizedId.includes('/src/lib/rechartsCartesianCore')) {
+            return 'charts-cartesian-core';
+          }
+
+          if (normalizedId.includes('/src/lib/rechartsLine')) {
+            return 'charts-line';
+          }
+
+          if (normalizedId.includes('/src/lib/rechartsBar')) {
+            return 'charts-bar';
+          }
+
+          if (normalizedId.includes('/src/lib/rechartsPie')) {
+            return 'charts-pie';
+          }
+
+          if (normalizedId.includes('/src/components/admin/') || normalizedId.includes('/src/pages/admin/')) {
+            return 'admin-tools';
+          }
+
+          if (normalizedId.includes('/src/components/AdvancedAnalytics') || normalizedId.includes('/src/components/UserAnalytics')) {
+            return 'analytics-suite';
+          }
+
+          if (normalizedId.includes('/src/i18n/lang/')) {
+            const match = normalizedId.match(/lang\/([a-z-]+)/);
+            if (match) {
+              return `translations-${match[1]}`;
+            }
+            return 'translations';
+          }
+
+          if (
+            normalizedId.includes('/src/lib/observability') ||
+            normalizedId.includes('/src/lib/persistenceMonitor') ||
+            normalizedId.includes('/src/lib/sentry')
+          ) {
+            return 'observability';
+          }
+
+          return undefined;
+        },
+      },
+    },
+  },
 }));

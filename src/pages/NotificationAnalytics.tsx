@@ -6,13 +6,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
 import { useNotificationAnalytics } from '@/hooks/useNotificationAnalytics';
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { useRecharts } from '@/hooks/useRecharts';
+import { ChartConfig, ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import AppLayout from '@/components/AppLayout';
+
+const CARTESIAN_SCOPES = ['cartesianCore', 'line', 'bar'] as const;
 
 const NotificationAnalytics = () => {
   const navigate = useNavigate();
   const [dateRange, setDateRange] = useState<'7d' | '30d' | '90d'>('7d');
+  const recharts = useRecharts(CARTESIAN_SCOPES);
 
   const getDateRange = () => {
     const end = new Date();
@@ -33,6 +36,131 @@ const NotificationAnalytics = () => {
     return { start, end };
   };
 
+  const renderNoData = (message: string) => (
+    <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+      {message}
+    </div>
+  );
+
+  const renderChartSkeleton = () => <Skeleton className="h-[300px] w-full" />;
+
+  const renderTimeSeriesChart = () => {
+    if (loading) return renderChartSkeleton();
+    if (!recharts) return renderChartSkeleton();
+    if (timeSeriesData.length === 0) return renderNoData('No data available for this time period');
+
+    const { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Legend, Line, Tooltip } = recharts;
+
+    return (
+      <ChartContainer config={chartConfig} className="h-[300px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={timeSeriesData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey="date"
+              tickFormatter={(value) =>
+                new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+              }
+            />
+            <YAxis />
+            <Tooltip content={<ChartTooltipContent />} />
+            <Legend />
+            <Line type="monotone" dataKey="sent" stroke="var(--color-sent)" strokeWidth={2} />
+            <Line type="monotone" dataKey="clicked" stroke="var(--color-clicked)" strokeWidth={2} />
+            <Line type="monotone" dataKey="read" stroke="var(--color-read)" strokeWidth={2} />
+          </LineChart>
+        </ResponsiveContainer>
+      </ChartContainer>
+    );
+  };
+
+  const renderTypeBreakdownChart = () => {
+    if (loading) return renderChartSkeleton();
+    if (!recharts) return renderChartSkeleton();
+    if (typeBreakdown.length === 0) return renderNoData('No data available');
+
+    const { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Legend, Bar, Tooltip } = recharts;
+
+    return (
+      <ChartContainer config={chartConfig} className="h-[300px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={typeBreakdown}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="type" />
+            <YAxis />
+            <Tooltip content={<ChartTooltipContent />} />
+            <Legend />
+            <Bar dataKey="count" fill="var(--color-sent)" name="Sent" />
+            <Bar dataKey="clicked" fill="var(--color-clicked)" name="Clicked" />
+          </BarChart>
+        </ResponsiveContainer>
+      </ChartContainer>
+    );
+  };
+
+  const renderPeakTimesChart = () => {
+    if (loading) return renderChartSkeleton();
+    if (!recharts) return renderChartSkeleton();
+    if (peakTimes.length === 0) return renderNoData('No data available');
+
+    const { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Bar, Tooltip } = recharts;
+
+    return (
+      <ChartContainer config={chartConfig} className="h-[300px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={peakTimes}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="hour" tickFormatter={(hour) => `${hour}:00`} />
+            <YAxis />
+            <Tooltip content={<ChartTooltipContent />} />
+            <Bar dataKey="count" fill="var(--color-sent)" name="Notifications" />
+          </BarChart>
+        </ResponsiveContainer>
+      </ChartContainer>
+    );
+  };
+
+  const renderEngagementChart = () => {
+    if (loading) return renderChartSkeleton();
+    if (!recharts) return renderChartSkeleton();
+    if (timeSeriesData.length === 0) return renderNoData('No data available');
+
+    const { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Line, Legend, Tooltip } = recharts;
+
+    return (
+      <ChartContainer config={chartConfig} className="h-[300px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={timeSeriesData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey="date"
+              tickFormatter={(value) =>
+                new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+              }
+            />
+            <YAxis />
+            <Tooltip content={<ChartTooltipContent />} />
+            <Legend />
+            <Line
+              type="monotone"
+              dataKey="read"
+              stroke="var(--color-read)"
+              strokeWidth={2}
+              dot={{ r: 2 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="clicked"
+              stroke="var(--color-clicked)"
+              strokeWidth={2}
+              dot={{ r: 2 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </ChartContainer>
+    );
+  };
+
   const { start, end } = getDateRange();
   const { metrics, timeSeriesData, typeBreakdown, peakTimes, loading, error, refetch } = 
     useNotificationAnalytics(start, end);
@@ -51,14 +179,6 @@ const NotificationAnalytics = () => {
       color: "hsl(var(--chart-3))",
     },
   } satisfies ChartConfig;
-
-  const COLORS = [
-    'hsl(var(--chart-1))',
-    'hsl(var(--chart-2))',
-    'hsl(var(--chart-3))',
-    'hsl(var(--chart-4))',
-    'hsl(var(--chart-5))',
-  ];
 
   const exportData = () => {
     const csv = [
@@ -208,33 +328,7 @@ const NotificationAnalytics = () => {
             <CardTitle>Notifications Over Time</CardTitle>
             <CardDescription>Daily notification activity</CardDescription>
           </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-[300px] w-full" />
-            ) : timeSeriesData.length === 0 ? (
-              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                No data available for this time period
-              </div>
-            ) : (
-              <ChartContainer config={chartConfig} className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={timeSeriesData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="date" 
-                      tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    />
-                    <YAxis />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Legend />
-                    <Line type="monotone" dataKey="sent" stroke="var(--color-sent)" strokeWidth={2} />
-                    <Line type="monotone" dataKey="clicked" stroke="var(--color-clicked)" strokeWidth={2} />
-                    <Line type="monotone" dataKey="read" stroke="var(--color-read)" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            )}
-          </CardContent>
+          <CardContent>{renderTimeSeriesChart()}</CardContent>
         </Card>
 
         {/* Type Breakdown and Peak Times */}
@@ -245,29 +339,7 @@ const NotificationAnalytics = () => {
               <CardTitle>Notifications by Type</CardTitle>
               <CardDescription>Breakdown of notification categories</CardDescription>
             </CardHeader>
-            <CardContent>
-              {loading ? (
-                <Skeleton className="h-[300px] w-full" />
-              ) : typeBreakdown.length === 0 ? (
-                <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                  No data available
-                </div>
-              ) : (
-                <ChartContainer config={chartConfig} className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={typeBreakdown}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="type" />
-                      <YAxis />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Legend />
-                      <Bar dataKey="count" fill="var(--color-sent)" name="Sent" />
-                      <Bar dataKey="clicked" fill="var(--color-clicked)" name="Clicked" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              )}
-            </CardContent>
+            <CardContent>{renderTypeBreakdownChart()}</CardContent>
           </Card>
 
           {/* Peak Times Heatmap */}
@@ -276,30 +348,7 @@ const NotificationAnalytics = () => {
               <CardTitle>Peak Notification Times</CardTitle>
               <CardDescription>Hourly distribution of notifications</CardDescription>
             </CardHeader>
-            <CardContent>
-              {loading ? (
-                <Skeleton className="h-[300px] w-full" />
-              ) : peakTimes.length === 0 ? (
-                <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                  No data available
-                </div>
-              ) : (
-                <ChartContainer config={chartConfig} className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={peakTimes}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis 
-                        dataKey="hour" 
-                        tickFormatter={(hour) => `${hour}:00`}
-                      />
-                      <YAxis />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Bar dataKey="count" fill="var(--color-sent)" name="Notifications" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              )}
-            </CardContent>
+            <CardContent>{renderPeakTimesChart()}</CardContent>
           </Card>
         </div>
 
@@ -309,32 +358,7 @@ const NotificationAnalytics = () => {
             <CardTitle>Engagement Trends</CardTitle>
             <CardDescription>Read and click rates over time</CardDescription>
           </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-[300px] w-full" />
-            ) : timeSeriesData.length === 0 ? (
-              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                No data available
-              </div>
-            ) : (
-              <ChartContainer config={chartConfig} className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={timeSeriesData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="date" 
-                      tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    />
-                    <YAxis />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Legend />
-                    <Area type="monotone" dataKey="read" stackId="1" stroke="var(--color-read)" fill="var(--color-read)" fillOpacity={0.6} />
-                    <Area type="monotone" dataKey="clicked" stackId="1" stroke="var(--color-clicked)" fill="var(--color-clicked)" fillOpacity={0.6} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            )}
-          </CardContent>
+          <CardContent>{renderEngagementChart()}</CardContent>
         </Card>
       </div>
     </AppLayout>

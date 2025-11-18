@@ -19,6 +19,7 @@
     "test:watch": "vitest",
     "check:env": "tsx scripts/check-env.ts",
     "analyze": "vite build --mode analyze",
+    "guard:admin-chunk": "node ./scripts/guard-admin-chunk.mjs",
     "coverage": "vitest --coverage",
     "audit": "npm audit --omit=dev"
   },

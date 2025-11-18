@@ -26,11 +26,11 @@ Complete guide to the internationalization (i18n) system supporting English (EN)
 ### In Components
 
 ```tsx
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage } from "@/contexts/LanguageContext";
 
 function MyComponent() {
   const { t, language } = useLanguage();
-  
+
   return (
     <div>
       <h1>{t.welcome_title}</h1>
@@ -43,17 +43,17 @@ function MyComponent() {
 ### With Form Validation
 
 ```tsx
-import { useI18nValidation } from '@/lib/i18nValidation';
-import { z } from 'zod';
+import { useI18nValidation } from "@/lib/i18nValidation";
+import { z } from "zod";
 
 function MyForm() {
   const { getErrorMessage } = useI18nValidation();
-  
+
   const schema = z.object({
     email: z.string().email(),
     content: z.string().min(10).max(500),
   });
-  
+
   // Errors automatically translated
 }
 ```
@@ -100,12 +100,13 @@ export const translations = {
 
 ```tsx
 const { t } = useLanguage();
-<p>{t.my_new_key}</p>
+<p>{t.my_new_key}</p>;
 ```
 
 ## 🧪 Testing
 
 All UI flows should be tested in all three languages to ensure:
+
 - No hardcoded strings
 - Proper text length handling
 - Correct pluralization
@@ -125,4 +126,4 @@ All UI flows should be tested in all three languages to ensure:
 
 ---
 
-*Last Updated: 2025-10-18*
+_Last Updated: 2025-10-18_

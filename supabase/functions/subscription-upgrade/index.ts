@@ -1,6 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import {
+  buildPriceAllowlist,
+  buildPriceTierMap,
+  isAllowedPriceId,
+  resolveTierFromPriceMap,
+} from "../_shared/stripe-price-allowlist.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,12 +23,17 @@ const log = (level: string, message: string, data?: any) => {
   }));
 };
 
-const PRICE_ID_TO_TIER: Record<string, "premium" | "vip"> = {
-  [Deno.env.get("STRIPE_PRICE_PREMIUM_MONTHLY") || ""]: "premium",
-  [Deno.env.get("STRIPE_PRICE_PREMIUM_YEARLY") || ""]: "premium",
-  [Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || ""]: "vip",
-  [Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || ""]: "vip",
-};
+const envGetter = (key: string) => Deno.env.get(key) ?? null;
+const stripePriceAllowlist = buildPriceAllowlist(envGetter);
+const priceTierMap = buildPriceTierMap(envGetter);
+
+if (stripePriceAllowlist.size === 0 || priceTierMap.size === 0) {
+  console.error(JSON.stringify({
+    level: "error",
+    message: "subscription-upgrade missing Stripe price configuration",
+  }));
+  throw new Error("subscription-upgrade configuration error: Stripe price IDs not set");
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -49,6 +60,14 @@ serve(async (req) => {
     const { targetPriceId } = await req.json();
     if (!targetPriceId) {
       throw new Error("targetPriceId is required");
+    }
+
+    if (!isAllowedPriceId(targetPriceId, stripePriceAllowlist)) {
+      log("error", "Disallowed price id", { userId: user.id, targetPriceId });
+      return new Response(
+        JSON.stringify({ error: "invalid_price_id" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 },
+      );
     }
 
     log("info", "Upgrade request", { userId: user.id, targetPriceId });
@@ -93,7 +112,14 @@ serve(async (req) => {
     const refreshedSubscription = await stripe.subscriptions.retrieve(profile.stripe_subscription_id);
     const periodEnd = refreshedSubscription.current_period_end || updatedSubscription.current_period_end || null;
 
-    const newTier = PRICE_ID_TO_TIER[targetPriceId] || "premium";
+    const newTier = resolveTierFromPriceMap(targetPriceId, priceTierMap);
+    if (!newTier) {
+      log("error", "Unable to resolve tier for price", { targetPriceId });
+      return new Response(
+        JSON.stringify({ error: "unknown_price_id" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 },
+      );
+    }
 
     // Update profiles table
     await supabaseAdmin

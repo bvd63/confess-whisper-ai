@@ -3,12 +3,13 @@
  */
 import { env } from '@/lib/env';
 import { logDebug } from '@/lib/logger';
+import { loadRecharts } from '@/lib/lazyRecharts';
 
 /**
  * Dynamically import large libraries only when needed
  * Example: import charts library only when user opens analytics
  */
-export const lazyLoadChart = () => import('recharts');
+export const lazyLoadChart = () => loadRecharts();
 
 /**
  * Code splitting helper for route-based lazy loading
@@ -67,6 +68,18 @@ export const dynamicImportWithRetry = async <T>(
     }
     throw error;
   }
+};
+
+export const lazyWithRetry = <T extends React.ComponentType<any>>(
+  importFn: () => Promise<{ default: T }>,
+  options?: {
+    retries?: number;
+    delay?: number;
+  }
+): React.LazyExoticComponent<T> => {
+  const retries = options?.retries ?? 2;
+  const delay = options?.delay ?? 1000;
+  return React.lazy(() => dynamicImportWithRetry(importFn, retries, delay));
 };
 
 /**

@@ -3,6 +3,7 @@
 ## Quick Test Checklist
 
 ### 1. Registration Flow (5 min)
+
 - [ ] **Weak Password Rejection**
   - Try: `password123` → Should fail
   - Try: `Password123` → Should fail (no special char)
@@ -26,6 +27,7 @@
   - Try logging in before verification → Should fail
 
 ### 2. Login Flow (5 min)
+
 - [ ] **Valid Credentials**
   - Login with correct email/password → Should succeed
 
@@ -44,6 +46,7 @@
   - Verify security event logged in database
 
 ### 3. Password Reset Flow (5 min)
+
 - [ ] **Request Reset**
   - Go to `/forgot-password`
   - Enter email + solve CAPTCHA
@@ -62,6 +65,7 @@
   - Verify by having multiple tabs open before reset
 
 ### 4. Session Management (5 min)
+
 - [ ] **Auto-Logout on Inactivity** (if "Stay Logged In" unchecked)
   - Login without "Stay logged in"
   - Wait 30 minutes without activity
@@ -77,7 +81,13 @@
   - Oldest session should be automatically revoked
   - Check `auth_sessions` table: max 5 active per user
 
+- [ ] **Manual Rotation Triggers CAPTCHA When Required**
+  - In `/auth-test`, mark the account/device as requiring CAPTCHA (or simulate a device mismatch)
+  - Click "Rotate current session" in settings or the testing dashboard
+  - CaptchaChallenge modal should appear; solving it retries the rotation and updates the stored refresh token
+
 ### 5. Security Features (10 min)
+
 - [ ] **Rate Limiting**
   - Attempt 6+ logins with wrong password in 15 minutes
   - Should get rate limit error after 5-10 attempts
@@ -99,7 +109,12 @@
     - Session revocation events
     - Password change events
 
+- [ ] **Refresh CAPTCHA Enforcement**
+  - Force a CAPTCHA requirement via `captcha_requirements` or by reusing an old refresh token
+  - Attempt to rotate the session; CaptchaChallenge modal should appear and solving it should return a new refresh token
+
 ### 6. Email Verification (3 min)
+
 - [ ] **Verification Required**
   - Create new account
   - Try logging in immediately → Should fail
@@ -112,6 +127,7 @@
   - User should request new verification email
 
 ### 7. Multi-Language Support (3 min)
+
 - [ ] **English**
   - Change language to English
   - All auth pages show English text
@@ -130,12 +146,12 @@
 
 ```sql
 -- Check active sessions for a user
-SELECT * FROM auth_sessions 
-WHERE user_id = '<user_id>' 
+SELECT * FROM auth_sessions
+WHERE user_id = '<user_id>'
 AND revoked_at IS NULL;
 
 -- View failed login attempts
-SELECT * FROM failed_login_attempts 
+SELECT * FROM failed_login_attempts
 WHERE email = '<email>'
 ORDER BY attempted_at DESC
 LIMIT 10;
@@ -177,18 +193,21 @@ async function testRateLimit() {
   const promises = [];
   for (let i = 0; i < 10; i++) {
     promises.push(
-      fetch('/api/auth/login', {
-        method: 'POST',
+      fetch("/api/auth/login", {
+        method: "POST",
         body: JSON.stringify({
-          email: 'test@example.com',
-          password: 'wrongpassword'
-        })
-      })
+          email: "test@example.com",
+          password: "wrongpassword",
+        }),
+      }),
     );
   }
-  
+
   const results = await Promise.all(promises);
-  console.log('Rate limit test:', results.map(r => r.status));
+  console.log(
+    "Rate limit test:",
+    results.map((r) => r.status),
+  );
   // Should see 429 (Too Many Requests) after 5-10 attempts
 }
 ```
@@ -196,32 +215,42 @@ async function testRateLimit() {
 ## Common Issues & Solutions
 
 ### Issue: CAPTCHA not showing
-**Solution:** 
+
+**Solution:**
+
 - Check TURNSTILE_SITE_KEY in environment
 - Verify Cloudflare Turnstile is configured
 - Check browser console for errors
 
 ### Issue: Email not sending
+
 **Solution:**
+
 - Check Supabase email settings
 - Verify email confirmation is enabled
 - Check spam folder
 - Test with different email provider
 
 ### Issue: Auto-logout not working
+
 **Solution:**
+
 - Verify `stay_logged_in` localStorage value
 - Check useInactivityLogout hook is called in App.tsx
 - Ensure timeout is set correctly (30 min default)
 
 ### Issue: Sessions not being revoked
+
 **Solution:**
+
 - Check enhanced-auth function logs
 - Verify token_hash is being stored correctly
 - Test revoke-session endpoint directly
 
 ### Issue: Device tracking not showing notifications
+
 **Solution:**
+
 - Check useDeviceTracking hook integration
 - Verify security_events table has data
 - Check device_id in localStorage
@@ -244,6 +273,7 @@ Before going live:
 ## Security Monitoring
 
 ### Metrics to Track
+
 1. **Failed login rate** - Spike indicates attack
 2. **CAPTCHA requirement rate** - Shows bot activity
 3. **Session count per user** - Unusual = potential compromise
@@ -251,6 +281,7 @@ Before going live:
 5. **Password reset requests** - Unusual volume = attack
 
 ### Alert Thresholds
+
 - Failed logins > 100/hour from single IP → Block IP
 - CAPTCHA requirements > 50/hour → Investigate
 - Password resets > 10/hour → Possible enumeration attack
@@ -259,6 +290,7 @@ Before going live:
 ## Support
 
 For issues or questions:
+
 - Check `docs/AUTH_SECURITY_COMPLETE.md` for implementation details
 - Review edge function logs in Supabase dashboard
 - Test queries in database to verify data integrity

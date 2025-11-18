@@ -66,9 +66,11 @@ export async function loginAs(page: Page, userFixtureKey: string) {
     };
     
     localStorage.setItem('sb-kktrmgkhkbuwvbkbjwfz-auth-token', JSON.stringify(session));
-    
-    // Also set onboarding completion to prevent dialogs from auto-opening
+
+    // Mark onboarding/banners as completed to avoid modal interference in tests
     localStorage.setItem(`onboarding_${uid}`, 'true');
+    localStorage.setItem('hasSeenOnboarding', 'true');
+    localStorage.setItem('onesignal-banner-dismissed', 'true');
     
     // Override getItem to always return our session for any auth key variant
     const originalGetItem = Storage.prototype.getItem;

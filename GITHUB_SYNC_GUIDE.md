@@ -18,6 +18,7 @@ ConfessAI is ready for GitHub integration with bidirectional sync. All scalabili
 ### Step 2: Verify Sync
 
 After connection, all changes will automatically sync:
+
 - **Lovable → GitHub**: Changes push automatically
 - **GitHub → Lovable**: Changes pull automatically
 
@@ -73,6 +74,7 @@ confessai/
 You can develop using both GitHub and Lovable:
 
 ### Option 1: Local Development
+
 ```bash
 # Clone repository
 git clone https://github.com/your-org/confessai.git
@@ -93,6 +95,7 @@ git push origin main
 Changes will automatically sync to Lovable.
 
 ### Option 2: Branch Development
+
 ```bash
 # Create feature branch
 git checkout -b feature/new-feature
@@ -118,6 +121,7 @@ After merge, changes sync to Lovable automatically.
 The GitHub repository contains standard React code that can be deployed anywhere:
 
 **Recommended Platforms:**
+
 - **Vercel**: Zero-config deployment
 - **Netlify**: Easy GitHub integration
 - **AWS Amplify**: Full AWS integration
@@ -126,6 +130,7 @@ The GitHub repository contains standard React code that can be deployed anywhere
 ### Deployment Steps
 
 #### Vercel:
+
 ```bash
 # Install Vercel CLI
 npm i -g vercel
@@ -138,6 +143,7 @@ vercel --prod
 ```
 
 #### Netlify:
+
 ```bash
 # Install Netlify CLI
 npm i -g netlify-cli
@@ -156,6 +162,7 @@ netlify deploy --prod
 When self-hosting, configure these environment variables:
 
 ### Required:
+
 ```env
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
@@ -163,6 +170,7 @@ VITE_SUPABASE_PROJECT_ID=your_project_id
 ```
 
 ### Optional (for features):
+
 ```env
 STRIPE_SECRET_KEY=your_stripe_key
 LOVABLE_API_KEY=your_lovable_ai_key
@@ -175,6 +183,7 @@ LOVABLE_API_KEY=your_lovable_ai_key
 The repository includes a complete CI/CD pipeline (`.github/workflows/ci.yml`):
 
 ### Pipeline Stages:
+
 1. **Lint**: Code quality checks
 2. **Test**: Run all tests
 3. **Build**: Production build
@@ -196,11 +205,13 @@ VITE_SUPABASE_PUBLISHABLE_KEY
 ## Branch Strategy
 
 ### Recommended:
+
 - `main`: Production-ready code
 - `develop`: Integration branch
 - `feature/*`: Feature branches
 
 ### Workflow:
+
 ```bash
 # Create feature
 git checkout -b feature/my-feature
@@ -222,11 +233,13 @@ git push origin feature/my-feature
 ## Version Management
 
 ### Using Lovable History:
+
 - Lovable provides built-in version history
 - Non-technical users can restore previous states
 - No Git expertise required
 
 ### Using Git:
+
 ```bash
 # View history
 git log
@@ -244,6 +257,7 @@ git push origin v1.1.0
 ## GitHub Branch Switching
 
 Enable in Lovable:
+
 1. Go to **Account Settings** → **Labs**
 2. Enable **GitHub Branch Switching**
 3. Switch branches directly in Lovable editor
@@ -266,6 +280,7 @@ Enable in Lovable:
 ## Migration from Lovable to Self-Hosted
 
 ### Steps:
+
 1. Connect GitHub (done)
 2. Clone repository locally
 3. Configure environment variables
@@ -275,6 +290,7 @@ Enable in Lovable:
 7. Migrate traffic gradually
 
 ### Data Migration:
+
 - **Database**: Already on Supabase (portable)
 - **Storage**: Already on Supabase (portable)
 - **Edge Functions**: Already on Supabase (portable)
@@ -286,18 +302,21 @@ No data migration needed - just point your hosting to Supabase!
 ## Troubleshooting
 
 ### Sync Issues:
+
 - Check GitHub connection in Lovable
 - Verify repository permissions
 - Check for merge conflicts
 - Review GitHub Actions logs
 
 ### Deployment Issues:
+
 - Verify environment variables
 - Check build logs
 - Verify Supabase connection
 - Review edge function deployment
 
 ### Branch Issues:
+
 - Ensure branch switching enabled
 - Check branch permissions
 - Verify Git configuration
@@ -307,6 +326,7 @@ No data migration needed - just point your hosting to Supabase!
 ## Best Practices
 
 ### ✅ DO:
+
 - Commit frequently
 - Write descriptive commit messages
 - Use feature branches
@@ -317,6 +337,7 @@ No data migration needed - just point your hosting to Supabase!
 - Monitor CI/CD pipeline
 
 ### ❌ DON'T:
+
 - Commit sensitive data
 - Push directly to main
 - Skip code review
@@ -329,11 +350,13 @@ No data migration needed - just point your hosting to Supabase!
 ## Support & Resources
 
 ### Lovable:
+
 - **Docs**: https://docs.lovable.dev/
 - **GitHub Integration**: https://docs.lovable.dev/features/github
 - **Discord**: https://discord.com/channels/lovable
 
 ### GitHub:
+
 - **Actions Docs**: https://docs.github.com/actions
 - **Security**: https://docs.github.com/security
 
@@ -344,6 +367,7 @@ No data migration needed - just point your hosting to Supabase!
 All scalability optimizations are included:
 
 ✅ **Performance Optimizations**
+
 - Multi-layer caching
 - Request deduplication
 - Circuit breakers
@@ -351,24 +375,28 @@ All scalability optimizations are included:
 - Query optimization
 
 ✅ **Multilingual Support**
+
 - English, Spanish, German
 - 100% translation coverage
 - Language detection
 - Preference persistence
 
 ✅ **Monitoring & Observability**
+
 - Structured logging
 - Performance metrics
 - Error tracking
 - Health checks
 
 ✅ **Testing Infrastructure**
+
 - Unit tests
 - Integration tests
 - CI/CD pipeline
 - Coverage reports
 
 ✅ **Documentation**
+
 - API specification
 - Integration guides
 - Deployment checklists
@@ -397,6 +425,6 @@ All optimizations, translations, and monitoring are included in the GitHub repos
 
 ---
 
-*Last Updated: 2025-01-15*  
-*Version: 1.1.0*  
-*Status: Ready for GitHub*
+_Last Updated: 2025-01-15_  
+_Version: 1.1.0_  
+_Status: Ready for GitHub_

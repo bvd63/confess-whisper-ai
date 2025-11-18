@@ -5,7 +5,11 @@
 
 import { logInfo, logError } from '@/lib/logger';
 import { persistenceManager } from './persistenceManager';
-import { supabase } from '@/integrations/supabase/client';
+
+const loadSupabaseClient = async () => {
+  const { getSupabaseClient } = await import('@/integrations/supabase/safeClient');
+  return getSupabaseClient();
+};
 
 interface ValidationResult {
   isValid: boolean;
@@ -22,6 +26,7 @@ class DataValidator {
     const warnings: string[] = [];
 
     try {
+      const supabase = await loadSupabaseClient();
       // Check if conversation exists on server
       const { data: conversation, error: convError } = await supabase
         .from('conversations')
@@ -75,6 +80,7 @@ class DataValidator {
     const warnings: string[] = [];
 
     try {
+      const supabase = await loadSupabaseClient();
       const { data: message, error } = await supabase
         .from('messages')
         .select('*')

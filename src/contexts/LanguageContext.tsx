@@ -1,29 +1,23 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { type Language, translations } from '@/i18n/translations';
+import {
+  ensureLanguage,
+  getCachedTranslations,
+  loadTranslations,
+  type Language,
+} from '@/i18n/translations';
+import type { Translations } from '@/i18n/types';
 import { persistenceManager } from '@/lib/persistenceManager';
 import { logDebug, logError } from '@/lib/logger';
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: typeof translations['en'];
+  t: Translations;
 }
 
 export type { Language };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
-
-// Supported languages whitelist
-const SUPPORTED_LANGUAGES: Language[] = ['en', 'es', 'de'];
-
-/**
- * Ensures the language code is supported, coercing to 'en' if not
- */
-export function ensureLanguage(code: string | null | undefined): Language {
-  if (!code) return 'en';
-  const normalized = code.toLowerCase().slice(0, 2) as Language;
-  return SUPPORTED_LANGUAGES.includes(normalized) ? normalized : 'en';
-}
 
 /**
  * Detects browser language with fallback to English
@@ -36,7 +30,9 @@ function detectBrowserLanguage(): Language {
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguageState] = useState<Language>('en');
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLanguageLoaded, setIsLanguageLoaded] = useState(false);
+  const [isTranslationsReady, setIsTranslationsReady] = useState(false);
+  const [currentTranslations, setCurrentTranslations] = useState<Translations>(getCachedTranslations('en'));
 
   // Load language from persistent storage on mount
   useEffect(() => {
@@ -58,7 +54,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
         const detected = detectBrowserLanguage();
         setLanguageState(detected);
       }
-      setIsLoaded(true);
+      setIsLanguageLoaded(true);
       // Set i18n ready flag for E2E tests
       if (typeof window !== 'undefined') {
         (window as any).__i18nReady = true;
@@ -74,8 +70,6 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     
     try {
       await persistenceManager.saveLanguage(validLang);
-      // Force full reload to ensure complete language switch with no mixed strings
-      window.location.reload();
     } catch (error) {
       logError('[LanguageContext] Error saving language', error instanceof Error ? error : undefined);
     }
@@ -86,14 +80,36 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     logDebug('[LanguageContext] HTML lang attribute set', { language });
   }, [language]);
 
+  useEffect(() => {
+    let isActive = true;
+    setIsTranslationsReady(false);
+
+    loadTranslations(language)
+      .then((loaded) => {
+        if (!isActive) return;
+        setCurrentTranslations(loaded);
+        setIsTranslationsReady(true);
+      })
+      .catch((error) => {
+        if (!isActive) return;
+        logError('[LanguageContext] Failed to load translations', error instanceof Error ? error : undefined);
+        setCurrentTranslations(getCachedTranslations('en'));
+        setIsTranslationsReady(true);
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [language]);
+
   const value = {
     language,
     setLanguage,
-    t: translations[language],
+    t: currentTranslations,
   };
 
   // Don't render children until language is loaded
-  if (!isLoaded) {
+  if (!isLanguageLoaded || !isTranslationsReady) {
     return null;
   }
 

@@ -2,6 +2,8 @@ import type {} from "../deno-shims.d.ts";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { emitPriceGuardDecision } from "../_shared/stripe-price-allowlist.ts";
+import { emitStripeMonitorEvent } from "../_shared/stripe-monitoring.ts";
 import {
   resolveTier,
   deriveCadence,
@@ -11,6 +13,9 @@ import {
   VIP_BONUS_AMOUNT,
   VIP_BONUS_DESCRIPTION,
   VIP_BONUS_TYPE,
+  parseStripeSignatureTimestamp,
+  isSignatureTimestampFresh,
+  isNegativeInvoice,
   type SubscriptionTier,
 } from "./utils.ts";
 
@@ -31,6 +36,7 @@ if (missingEnv.length > 0) {
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, { apiVersion: "2024-06-20" });
 const stripeWebhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET")!;
+const signatureToleranceSeconds = Number(Deno.env.get("STRIPE_WEBHOOK_TOLERANCE_SECONDS") ?? "300") || 300;
 
 const jsonResponse = (body: unknown, status = 200) =>
   new Response(typeof body === "string" ? body : JSON.stringify(body), {
@@ -54,6 +60,10 @@ const priceConfig = {
   premiumMonthly: Deno.env.get("STRIPE_PRICE_PREMIUM_MONTHLY") ?? null,
   premiumYearly: Deno.env.get("STRIPE_PRICE_PREMIUM_YEARLY") ?? null,
 };
+
+const priceAllowlist = new Set(
+  Object.values(priceConfig).filter((value): value is string => Boolean(value)),
+);
 
 const extractUserId = async (supabase: SupabaseClient, customerId: string): Promise<string | null> => {
   const { data: subscriptionMatch, error: subscriptionError } = await supabase
@@ -91,7 +101,23 @@ const upsertSubscription = async (
     const price = subscription.items?.data?.[0]?.price;
     const priceId = price?.id as string | undefined;
     const cadence = deriveCadence(price?.recurring?.interval ?? null);
-    const tier = resolveTier(priceId, priceConfig);
+    const priceDecision = emitPriceGuardDecision(priceId ?? null, priceAllowlist, {
+      component: "stripe-webhook",
+      action: eventType,
+      correlationId: subscription.id,
+    });
+
+    if (!priceDecision.allowed) {
+      logError({
+        msg: "Price not allowlisted",
+        priceId,
+        eventType,
+        subscriptionId: subscription.id,
+      });
+      return { userId, tier: "free" }; // refuse to persist unknown prices
+    }
+
+    const tier = resolveTier(priceDecision.normalizedPriceId ?? undefined, priceConfig);
 
     const customerId = String(subscription.customer);
     const userId = await extractUserId(supabase, customerId);
@@ -189,7 +215,29 @@ serve(async (req: Request) => {
   const signature = req.headers.get("stripe-signature");
   if (!signature) {
     logError({ msg: "Missing stripe-signature header" });
+    emitStripeMonitorEvent({
+      component: "stripe-webhook",
+      event: "webhook_signature_missing",
+      severity: "error",
+      metadata: { url: req.url },
+    });
     return jsonResponse({ error: "missing_signature" }, 400);
+  }
+
+  const signatureTimestamp = parseStripeSignatureTimestamp(signature);
+  if (!isSignatureTimestampFresh(signatureTimestamp, signatureToleranceSeconds)) {
+    logError({
+      msg: "Stale or invalid signature timestamp",
+      signatureTimestamp,
+      tolerance: signatureToleranceSeconds,
+    });
+    emitStripeMonitorEvent({
+      component: "stripe-webhook",
+      event: "webhook_signature_stale",
+      severity: "warn",
+      metadata: { signatureTimestamp, tolerance: signatureToleranceSeconds },
+    });
+    return jsonResponse({ error: "stale_signature" }, 400);
   }
 
   const rawBody = await req.arrayBuffer();
@@ -204,6 +252,12 @@ serve(async (req: Request) => {
   } catch (err) {
     const message = err instanceof Error ? err.message : "unknown";
     logError({ msg: "Signature verification failed", error: message });
+    emitStripeMonitorEvent({
+      component: "stripe-webhook",
+      event: "webhook_signature_invalid",
+      severity: "error",
+      metadata: { message },
+    });
     return jsonResponse({ error: "signature_verification_failed" }, 400);
   }
 
@@ -214,11 +268,31 @@ serve(async (req: Request) => {
 
   if (idempotencyError) {
     const duplicate = isDuplicateEventError(idempotencyError);
-    log({ msg: "Duplicate event", eventId: event.id, eventType: event.type, duplicate });
-    return jsonResponse({ received: true, duplicate: true });
+    if (duplicate) {
+      log({ msg: "Duplicate event", eventId: event.id, eventType: event.type, duplicate: true });
+      emitStripeMonitorEvent({
+        component: "stripe-webhook",
+        event: "webhook_duplicate_event",
+        metadata: { eventId: event.id, eventType: event.type },
+      });
+      return jsonResponse({ received: true, duplicate: true });
+    }
+
+    logError({
+      msg: "Failed to record event idempotency",
+      eventId: event.id,
+      eventType: event.type,
+      error: idempotencyError.message,
+    });
+    return jsonResponse({ error: "idempotency_write_failed" }, 500);
   }
 
   log({ msg: "Event received", eventId: event.id, eventType: event.type });
+  emitStripeMonitorEvent({
+    component: "stripe-webhook",
+    event: "webhook_received",
+    metadata: { eventId: event.id, eventType: event.type },
+  });
 
   try {
     switch (event.type) {
@@ -254,6 +328,26 @@ serve(async (req: Request) => {
 
       case "invoice.payment_succeeded": {
         const invoice = event.data.object as Stripe.Invoice;
+        if (isNegativeInvoice(invoice)) {
+          logError({
+            msg: "Negative invoice detected",
+            invoiceId: invoice.id,
+            total: invoice.total,
+            amountPaid: invoice.amount_paid,
+          });
+          emitStripeMonitorEvent({
+            component: "stripe-webhook",
+            event: "webhook_processing_error",
+            severity: "warn",
+            metadata: {
+              reason: "negative_invoice",
+              invoiceId: invoice.id,
+              total: invoice.total,
+            },
+          });
+          break;
+        }
+
         if (invoice.subscription) {
           try {
             const subscription = await stripe.subscriptions.retrieve(invoice.subscription);
@@ -273,6 +367,12 @@ serve(async (req: Request) => {
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown";
     logError({ msg: "Processing error", eventType: event.type, error: message });
+    emitStripeMonitorEvent({
+      component: "stripe-webhook",
+      event: "webhook_processing_error",
+      severity: "error",
+      metadata: { eventId: event.id, eventType: event.type, error: message },
+    });
     return jsonResponse({ error: "processing_error" }, 500);
   }
 });

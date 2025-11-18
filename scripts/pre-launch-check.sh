@@ -23,33 +23,67 @@ WARNINGS=0
 # Helper functions
 check_pass() {
     echo -e "${GREEN}✓${NC} $1"
-    ((PASSED++))
+    ((++PASSED))
 }
 
 check_fail() {
     echo -e "${RED}✗${NC} $1"
-    ((FAILED++))
+    ((++FAILED))
 }
 
 check_warn() {
     echo -e "${YELLOW}⚠${NC} $1"
-    ((WARNINGS++))
+    ((++WARNINGS))
+}
+
+# Look for secrets either in exported env vars or typical dotenv files
+ENV_FILES=(".env" ".env.local" ".env.production" "supabase/.env")
+
+has_env_var() {
+    local key="$1"
+    for file in "${ENV_FILES[@]}"; do
+        if [[ -f "$file" ]] && grep -q "$key" "$file" 2>/dev/null; then
+            return 0
+        fi
+    done
+    if [[ -n "${!key:-}" ]]; then
+        return 0
+    fi
+    return 1
 }
 
 echo "📋 Phase 1: Environment Variables"
 echo "-----------------------------------"
 
 # Check for Stripe Price IDs
-if grep -q "VITE_STRIPE_PRICE_VIP_MONTHLY" .env 2>/dev/null; then
-    check_pass "VITE_STRIPE_PRICE_VIP_MONTHLY configured"
+if has_env_var "VITE_STRIPE_PRICE_VIP_MONTH_ID"; then
+    check_pass "VITE_STRIPE_PRICE_VIP_MONTH_ID configured"
 else
-    check_fail "VITE_STRIPE_PRICE_VIP_MONTHLY missing"
+    check_fail "VITE_STRIPE_PRICE_VIP_MONTH_ID missing"
 fi
 
-if grep -q "VITE_STRIPE_PRICE_VIP_YEARLY" .env 2>/dev/null; then
-    check_pass "VITE_STRIPE_PRICE_VIP_YEARLY configured"
+if has_env_var "VITE_STRIPE_PRICE_VIP_YEAR_ID"; then
+    check_pass "VITE_STRIPE_PRICE_VIP_YEAR_ID configured"
 else
-    check_fail "VITE_STRIPE_PRICE_VIP_YEARLY missing"
+    check_fail "VITE_STRIPE_PRICE_VIP_YEAR_ID missing"
+fi
+
+if has_env_var "PRICE_VIP_MONTHLY"; then
+    check_pass "PRICE_VIP_MONTHLY configured"
+else
+    check_fail "PRICE_VIP_MONTHLY missing"
+fi
+
+if has_env_var "PRICE_VIP_YEARLY"; then
+    check_pass "PRICE_VIP_YEARLY configured"
+else
+    check_fail "PRICE_VIP_YEARLY missing"
+fi
+
+if has_env_var "STRIPE_WEBHOOK_TOLERANCE_SECONDS"; then
+    check_pass "STRIPE_WEBHOOK_TOLERANCE_SECONDS configured"
+else
+    check_warn "STRIPE_WEBHOOK_TOLERANCE_SECONDS missing (defaults to 300)"
 fi
 
 echo ""
@@ -115,10 +149,23 @@ else
 fi
 
 # Check for console.logs
-if grep -r "console.log" src/ 2>/dev/null | grep -v "node_modules" | grep -v ".test." | wc -l | grep -q "^0$"; then
+set +e
+CONSOLE_LOG_MATCHES=$(grep -r "console\.log" src/ 2>/dev/null \
+    | grep -v "node_modules" \
+    | grep -v ".test." || true)
+set -e
+
+if [[ -z "$CONSOLE_LOG_MATCHES" ]]; then
+    CONSOLE_LOG_COUNT=0
+else
+    CONSOLE_LOG_COUNT=$(printf "%s\n" "$CONSOLE_LOG_MATCHES" | wc -l | tr -d '[:space:]')
+fi
+
+if [[ "$CONSOLE_LOG_COUNT" == "0" ]]; then
     check_pass "No console.log statements"
 else
-    check_warn "console.log statements found in code"
+    check_warn "console.log statements found in code ($CONSOLE_LOG_COUNT occurrences)"
+    echo "$CONSOLE_LOG_MATCHES"
 fi
 
 echo ""

@@ -14,6 +14,7 @@ Utility scripts for ConfessAI production deployment and maintenance.
 **When to run:** Before every production deployment
 
 **Usage:**
+
 ```bash
 # Make executable (first time only)
 chmod +x scripts/pre-launch-check.sh
@@ -23,7 +24,8 @@ chmod +x scripts/pre-launch-check.sh
 ```
 
 **What it checks:**
-- ✅ Environment variables (Stripe Price IDs)
+
+- ✅ Environment variables (Stripe frontend + backend allowlist IDs)
 - ✅ Test suite passing
 - ✅ Build verification
 - ✅ Security (no exposed secrets)
@@ -32,6 +34,7 @@ chmod +x scripts/pre-launch-check.sh
 - ✅ Frontend assets (PWA, favicon, etc.)
 
 **Exit codes:**
+
 - `0` - All checks passed or warnings only
 - `1` - Critical checks failed (do not deploy)
 
@@ -42,11 +45,13 @@ chmod +x scripts/pre-launch-check.sh
 ### Before First Deployment
 
 1. **Configure Stripe:**
+
    ```bash
    # Follow guide in docs/STRIPE_PRICE_ID_SETUP.md
    ```
 
 2. **Run verification:**
+
    ```bash
    chmod +x scripts/pre-launch-check.sh
    ./scripts/pre-launch-check.sh
@@ -57,6 +62,7 @@ chmod +x scripts/pre-launch-check.sh
    - Warnings (yellow ⚠) are optional but recommended
 
 4. **Deploy:**
+
    ```bash
    # In Lovable, click "Publish" button
    ```
@@ -66,21 +72,29 @@ chmod +x scripts/pre-launch-check.sh
 ## 📊 Understanding Output
 
 ### Passed (✓)
+
+```text
+✓ VITE_STRIPE_PRICE_VIP_MONTH_ID configured
+✓ PRICE_VIP_MONTHLY configured
 ```
-✓ VITE_STRIPE_PRICE_VIP_MONTHLY configured
-```
+
 Everything is correct, no action needed.
 
 ### Warning (⚠)
-```
+
+```text
 ⚠ console.log statements found in code
 ```
+
 Non-critical issue, consider fixing but not required.
 
 ### Failed (✗)
+
+```text
+✗ VITE_STRIPE_PRICE_VIP_MONTH_ID missing
+✗ PRICE_VIP_MONTHLY missing
 ```
-✗ VITE_STRIPE_PRICE_VIP_MONTHLY missing
-```
+
 **Critical issue - must fix before deploying!**
 
 ---
@@ -137,11 +151,13 @@ fi
 ## 🐛 Troubleshooting
 
 ### "Permission denied" error
+
 ```bash
 chmod +x scripts/pre-launch-check.sh
 ```
 
 ### Script not found
+
 ```bash
 # Make sure you're in project root
 cd /path/to/confessai
@@ -149,6 +165,7 @@ cd /path/to/confessai
 ```
 
 ### Checks failing unexpectedly
+
 ```bash
 # Run in verbose mode
 bash -x scripts/pre-launch-check.sh
@@ -170,7 +187,7 @@ bash -x scripts/pre-launch-check.sh
 Before running pre-launch checks:
 
 - [ ] Stripe products created (VIP Monthly + Yearly)
-- [ ] Price IDs copied from Stripe Dashboard
+- [ ] Price IDs copied from Stripe Dashboard (frontend + backend allowlist)
 - [ ] Environment variables configured in Lovable
 - [ ] App rebuilt after env changes
 - [ ] Tests passing locally (`npm run test:unit`)
@@ -180,7 +197,8 @@ Before running pre-launch checks:
 ## 🎯 Expected Results
 
 ### Perfect Score
-```
+
+```text
 ✓ Passed: 20
 ⚠ Warnings: 0
 ✗ Failed: 0
@@ -189,7 +207,8 @@ Before running pre-launch checks:
 ```
 
 ### Good Score (with warnings)
-```
+
+```text
 ✓ Passed: 18
 ⚠ Warnings: 2
 ✗ Failed: 0
@@ -198,7 +217,8 @@ Before running pre-launch checks:
 ```
 
 ### Failing (needs fixes)
-```
+
+```text
 ✓ Passed: 15
 ⚠ Warnings: 3
 ✗ Failed: 2

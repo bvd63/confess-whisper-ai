@@ -13,18 +13,21 @@ ConfessAI ha sido completamente optimizado para escalar a 1 millón de usuarios 
 ## Características de Rendimiento
 
 ### Optimización de Consultas
+
 - Caché multicapa con TTL de 5 minutos
 - Deduplicación de solicitudes
 - Circuit breakers para servicios externos
 - Reintentos automáticos con retroceso exponencial
 
 ### Seguridad
+
 - Validación de entrada con Zod
 - Límite de velocidad por usuario
 - Protección contra inyección SQL y XSS
 - Políticas RLS (Row Level Security)
 
 ### Observabilidad
+
 - Logs estructurados en formato JSON
 - Métricas de rendimiento en tiempo real
 - Monitoreo de estado de salud
@@ -33,16 +36,20 @@ ConfessAI ha sido completamente optimizado para escalar a 1 millón de usuarios 
 ## Endpoints del Sistema
 
 ### Health Check
+
 ```
 GET /health
 ```
+
 Verifica el estado del sistema, base de datos y almacenamiento.
 
 ### Métricas
+
 ```
 GET /metrics?format=json
 GET /metrics?format=prometheus
 ```
+
 Obtiene métricas de rendimiento del sistema.
 
 ## Límites de Velocidad
@@ -55,13 +62,16 @@ Obtiene métricas de rendimiento del sistema.
 ## Monitoreo
 
 ### Indicadores Clave
+
 - **Latencia promedio:** <200ms (objetivo)
 - **Tasa de aciertos de caché:** >85% (objetivo)
 - **Tasa de errores:** <0.1% (objetivo)
 - **Tiempo de actividad:** >99.9% (objetivo)
 
 ### Alertas
+
 El sistema monitorea automáticamente:
+
 - Estados de circuit breaker
 - Consultas lentas
 - Errores de red
@@ -79,6 +89,7 @@ El sistema monitorea automáticamente:
 ## Soporte
 
 Para más información, consulta:
+
 - [Auditoría completa](./audit.md)
 - [Documentación API](./api/openapi.json)
 - [Lista de verificación Go-Live](./go-live-checklist.md)

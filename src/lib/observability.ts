@@ -51,11 +51,19 @@ class ObservabilityService {
       metadata: context?.metadata,
     };
 
+    const consoleMethod = level === 'error'
+      ? console.error
+      : level === 'warn'
+        ? console.warn
+        : level === 'info'
+          ? console.info
+          : console.debug;
+
     // Structured logging in JSON format
     if (env.isDev) {
-      console.log(JSON.stringify(logEntry, null, 2));
+      consoleMethod(JSON.stringify(logEntry, null, 2));
     } else {
-      console.log(JSON.stringify(logEntry));
+      consoleMethod(JSON.stringify(logEntry));
     }
 
     // Send to analytics in production
@@ -187,7 +195,8 @@ class ObservabilityService {
     try {
       // Send to Supabase analytics in production
       if (typeof window !== 'undefined') {
-        const { supabase } = await import('@/integrations/supabase/client');
+        const { getSupabaseClient } = await import('@/integrations/supabase/safeClient');
+        const supabase = await getSupabaseClient();
         await supabase.from('analytics_events').insert({
           event_type: 'error',
           event_data: logEntry,

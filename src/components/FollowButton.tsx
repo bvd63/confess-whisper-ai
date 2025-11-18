@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, memo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { UserPlus, UserMinus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,11 +18,7 @@ const FollowButton = ({ targetUserId, currentUserId }: FollowButtonProps) => {
   const { toast } = useToast();
   const { t } = useLanguage();
 
-  useEffect(() => {
-    checkFollowStatus();
-  }, [targetUserId, currentUserId]);
-
-  const checkFollowStatus = async () => {
+  const checkFollowStatus = useCallback(async () => {
     if (!currentUserId) return;
 
     const { data } = await supabase
@@ -33,7 +29,11 @@ const FollowButton = ({ targetUserId, currentUserId }: FollowButtonProps) => {
       .maybeSingle();
 
     setIsFollowing(!!data);
-  };
+  }, [currentUserId, targetUserId]);
+
+  useEffect(() => {
+    checkFollowStatus();
+  }, [checkFollowStatus]);
 
   const toggleFollow = async () => {
     if (!currentUserId) {

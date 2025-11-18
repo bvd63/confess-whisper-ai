@@ -82,7 +82,7 @@ describe('Edge Cases - Comprehensive Tests', () => {
       const mockFrom = vi.fn().mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockResolvedValue({
-            data: { subscription_tier: 'free' }, // Not updated yet
+            data: [{ subscription_tier: 'free' }], // Not updated yet
             error: null,
           }),
         }),
@@ -248,18 +248,17 @@ describe('Edge Cases - Comprehensive Tests', () => {
     });
 
     it('should revoke trial benefits immediately on VIP purchase', async () => {
-      const mockFrom = vi.fn().mockReturnValue({
-        update: vi.fn().mockReturnValue({
-          eq: vi.fn().mockResolvedValue({
-            data: {
-              subscription_tier: 'vip',
-              trial_active: false,
-              trial_premium_ends_at: null,
-            },
-            error: null,
-          }),
-        }),
+      const mockSelect = vi.fn().mockResolvedValue({
+        data: [{
+          subscription_tier: 'vip',
+          trial_active: false,
+          trial_premium_ends_at: null,
+        }],
+        error: null,
       });
+      const mockEq = vi.fn().mockReturnValue({ select: mockSelect });
+      const mockUpdate = vi.fn().mockReturnValue({ eq: mockEq });
+      const mockFrom = vi.fn().mockReturnValue({ update: mockUpdate });
       (supabase.from as any) = mockFrom;
 
       const result = await supabase

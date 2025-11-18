@@ -1,6 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import {
+  buildPriceAllowlist,
+  buildPriceTierMap,
+  isAllowedPriceId,
+  resolveTierFromPriceMap,
+} from "../_shared/stripe-price-allowlist.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,12 +17,16 @@ const log = (level: string, message: string, data?: any) => {
   console.log(JSON.stringify({ level, message, data, timestamp: new Date().toISOString() }));
 };
 
-const PRICE_ID_TO_TIER: Record<string, "vip"> = {
-  [Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || ""]: "vip",
-  [Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || ""]: "vip",
-};
+const envGetter = (key: string) => Deno.env.get(key) ?? null;
+const stripePriceAllowlist = buildPriceAllowlist(envGetter);
+const stripePriceTierMap = buildPriceTierMap(envGetter);
 
-const TIER_HIERARCHY = { free: 0, vip: 1 };
+const TIER_HIERARCHY = { free: 0, premium: 1, vip: 2 } as const;
+
+if (stripePriceAllowlist.size === 0 || stripePriceTierMap.size === 0) {
+  console.error(JSON.stringify({ level: "error", message: "billing-downgrade missing Stripe price configuration" }));
+  throw new Error("billing-downgrade configuration error: Stripe price IDs not set");
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -45,6 +55,10 @@ serve(async (req) => {
       throw new Error("targetPriceId is required");
     }
 
+    if (!isAllowedPriceId(targetPriceId, stripePriceAllowlist)) {
+      throw new Error("targetPriceId is not recognized");
+    }
+
     log("info", "Downgrade request", { userId: user.id, targetPriceId });
 
     const supabaseAdmin = createClient(
@@ -59,7 +73,7 @@ serve(async (req) => {
       .eq("user_id", user.id)
       .single();
 
-    const targetTier = PRICE_ID_TO_TIER[targetPriceId] || "free";
+    const targetTier = resolveTierFromPriceMap(targetPriceId, stripePriceTierMap) || "free";
     const currentTier = profile?.subscription_tier || "free";
 
     // Validate downgrade (target tier must be lower than current)

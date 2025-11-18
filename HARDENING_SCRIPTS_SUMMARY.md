@@ -3,13 +3,16 @@
 ## ✅ Completed Tasks
 
 ### 1. Package Scripts Added
+
 Added the following scripts to `package.json`:
+
 - `check:env`: Environment variable validation using `tsx scripts/check-env.ts`
 - `analyze`: Build analysis mode with vite-plugin-inspect (`vite build --mode analyze`)
 - `coverage`: Test coverage report (`vitest --coverage`)
 - `audit`: Security audit excluding dev dependencies (`npm audit --omit=dev`)
 
 ### 2. Dependencies Installed
+
 - ✅ `dotenv@^17.2.3` (for env file loading in check-env script)
 - ✅ `canvas-confetti@^1.9.4` (missing dependency for build)
 - ✅ All other required dependencies already present:
@@ -22,6 +25,7 @@ Added the following scripts to `package.json`:
 ### 3. Files Created/Modified
 
 #### Created:
+
 - **`scripts/check-env.ts`** (54 lines)
   - Environment variable checker aligned with `src/lib/env.ts`
   - Validates required variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_STRIPE_PRICE_VIP_MONTH_ID`, `VITE_STRIPE_PRICE_VIP_YEAR_ID`, `VITE_ONESIGNAL_APP_ID`
@@ -29,6 +33,7 @@ Added the following scripts to `package.json`:
   - Exits with clear error messages for missing/empty variables
 
 #### Modified:
+
 - **`package.json`**
   - Added 4 new scripts: `check:env`, `analyze`, `coverage`, `audit`
   - Dependencies automatically updated by pnpm
@@ -48,35 +53,43 @@ Added the following scripts to `package.json`:
 ### 4. Post-Check Results
 
 #### ✅ `npm run check:env`
+
 ```bash
 ❌ Env issues detected:
 • Missing: VITE_SUPABASE_ANON_KEY, VITE_STRIPE_PRICE_VIP_MONTH_ID, VITE_STRIPE_PRICE_VIP_YEAR_ID, VITE_ONESIGNAL_APP_ID
 ```
+
 **Status**: Script works correctly, detects missing variables as expected
 
 #### ⚠️ `npm run analyze`
+
 ```bash
 error during build:
 [vite-plugin-pwa:build] Could not load /workspaces/confess-whisper-ai/src/components/ManageSubscriptionDialog
 ```
+
 **Status**: Pre-existing build issue (missing file), not related to hardening scripts. The vite-plugin-inspect integration is correct.
 
 #### ⏳ `npm run coverage`
+
 **Status**: Script configured correctly in vitest.config.ts. Coverage folder structure created at `/workspaces/confess-whisper-ai/coverage/`
 
 #### ✅ `npm run audit`
+
 ```bash
 found 0 vulnerabilities
 ```
+
 **Status**: Security audit passes with no vulnerabilities
 
 ### 5. Git Commit
+
 ```bash
 commit 1dcdfdc
 Author: bvd63 <blagavlad63@gmail.com>
 
     chore(hardening): add env checker, analyze build, coverage & audit scripts; integrate vite-plugin-inspect
-    
+
     10 files changed, 427 insertions(+), 588 deletions(-)
 ```
 
@@ -105,7 +118,9 @@ npm run audit
 3. **Coverage Peer Dependency Warning**: `@vitest/coverage-v8@3.2.4` expects `vitest@3.2.4` but project uses `vitest@4.0.8`. This is a known upstream issue and doesn't affect functionality.
 
 ## 📁 Coverage Output Location
+
 Coverage reports will be generated in:
+
 - **HTML**: `/workspaces/confess-whisper-ai/coverage/index.html`
 - **JSON**: `/workspaces/confess-whisper-ai/coverage/coverage-final.json`
 - **Text**: Console output

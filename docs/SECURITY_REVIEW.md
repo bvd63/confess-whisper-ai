@@ -1,6 +1,7 @@
 # Security Review Summary - ConfessAI
 
 ## 📅 Review Date
+
 October 18, 2025
 
 ## 🔒 Security Posture: **SIGNIFICANTLY IMPROVED**
@@ -12,10 +13,12 @@ October 18, 2025
 ### 🚨 Critical Issues (Fixed)
 
 #### 1. **Private Messages Exposed to Public**
+
 - **Severity:** CRITICAL
 - **Status:** ✅ FIXED
 - **Issue:** The `messages` table had a SELECT policy allowing anyone to read all messages
 - **Fix:** Updated RLS policy to restrict access to conversation participants only
+
 ```sql
 DROP POLICY "Users can view all messages" ON messages;
 CREATE POLICY "Users can view messages in their conversations"
@@ -29,12 +32,14 @@ ON messages FOR SELECT USING (
 ```
 
 #### 2. **Conversation Metadata Publicly Enumerable**
+
 - **Severity:** HIGH
 - **Status:** ✅ FIXED
 - **Issue:** The `conversations` table allowed public viewing of all conversation IDs and timestamps
 - **Fix:** Restricted SELECT to conversation participants only
 
 #### 3. **User Badges Policy Conflict**
+
 - **Severity:** HIGH
 - **Status:** ✅ FIXED
 - **Issue:** Contradictory RLS policies - one restrictive, one fully public
@@ -47,6 +52,7 @@ ON messages FOR SELECT USING (
 ### Server-Side Authorization
 
 #### Enhanced Moderation Function
+
 - **Status:** ✅ IMPLEMENTED
 - **Changes:**
   - Added JWT verification requirement
@@ -57,13 +63,19 @@ ON messages FOR SELECT USING (
 ```typescript
 // Before: No authentication check (verify_jwt = false)
 // After: Full authentication + role validation
-const { data: { user } } = await supabaseClient.auth.getUser();
-const isAdmin = await supabaseClient.rpc('has_role', { _user_id: user.id, _role: 'admin' });
+const {
+  data: { user },
+} = await supabaseClient.auth.getUser();
+const isAdmin = await supabaseClient.rpc("has_role", {
+  _user_id: user.id,
+  _role: "admin",
+});
 ```
 
 ### Rate Limiting Infrastructure
 
 #### Persistent Rate Limiting
+
 - **Status:** ✅ IMPLEMENTED
 - **Changes:**
   - Migrated from in-memory Map to database-backed storage
@@ -72,6 +84,7 @@ const isAdmin = await supabaseClient.rpc('has_role', { _user_id: user.id, _role:
   - Handles edge function cold starts and multiple instances
 
 **Why This Matters:**
+
 - Previous in-memory solution reset on cold starts (~5-15 min)
 - Multiple edge function instances didn't share state
 - Users could bypass limits by hitting different instances
@@ -83,6 +96,7 @@ const isAdmin = await supabaseClient.rpc('has_role', { _user_id: user.id, _role:
 ### Views Security (SECURITY INVOKER)
 
 #### Regular Views Fixed
+
 - **Status:** ✅ FIXED
 - `trending_confessions` - Now respects RLS policies
 - `user_post_counts` - Now respects RLS policies
@@ -99,6 +113,7 @@ ALTER VIEW user_post_counts SET (security_invoker = on);
 ## 📝 Documented Acceptable Risks
 
 ### 1. **hot_confessions Materialized View**
+
 - **Level:** INFO (Low Risk)
 - **Status:** DOCUMENTED
 - **Reason:** PostgreSQL materialized views don't support `security_invoker` option
@@ -107,6 +122,7 @@ ALTER VIEW user_post_counts SET (security_invoker = on);
 - **Risk Assessment:** Minimal - no sensitive data exposed
 
 ### 2. **pg_net Extension in Public Schema**
+
 - **Level:** WARN (Low Risk)
 - **Status:** DOCUMENTED
 - **Reason:** `pg_net` extension doesn't support schema relocation
@@ -153,18 +169,20 @@ ALTER VIEW user_post_counts SET (security_invoker = on);
 ## ⚠️ Important Notes for Future Development
 
 ### Chart Component XSS Prevention
+
 - **File:** `src/components/ui/chart.tsx`
 - **Status:** DOCUMENTED
 - **Requirement:** `ChartConfig` must NEVER accept unsanitized user input
 - **Validation Required If:** Adding user-provided color theming
 
 Example safe validation:
+
 ```typescript
 function sanitizeColor(input: string): string {
-  if (/^#[0-9A-Fa-f]{6}$/.test(input)) return input
-  if (/^hsl\(\d+,\s*\d+%,\s*\d+%\)$/.test(input)) return input
-  if (/^rgb\(\d+,\s*\d+,\s*\d+\)$/.test(input)) return input
-  return 'hsl(var(--foreground))' // Safe fallback
+  if (/^#[0-9A-Fa-f]{6}$/.test(input)) return input;
+  if (/^hsl\(\d+,\s*\d+%,\s*\d+%\)$/.test(input)) return input;
+  if (/^rgb\(\d+,\s*\d+,\s*\d+\)$/.test(input)) return input;
+  return "hsl(var(--foreground))"; // Safe fallback
 }
 ```
 
@@ -172,15 +190,15 @@ function sanitizeColor(input: string): string {
 
 ## 📊 Security Metrics
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Critical Issues | 1 | 0 | ✅ 100% |
-| High Priority Issues | 2 | 0 | ✅ 100% |
-| Medium Priority Issues | 3 | 0 | ✅ 100% |
-| RLS Tables | 90% | 100% | ✅ +10% |
-| Views with SECURITY INVOKER | 0% | 100% | ✅ +100% |
-| Edge Functions with Auth | 60% | 100% | ✅ +40% |
-| Rate Limiting Reliability | Low | High | ✅ Major |
+| Metric                      | Before | After | Improvement |
+| --------------------------- | ------ | ----- | ----------- |
+| Critical Issues             | 1      | 0     | ✅ 100%     |
+| High Priority Issues        | 2      | 0     | ✅ 100%     |
+| Medium Priority Issues      | 3      | 0     | ✅ 100%     |
+| RLS Tables                  | 90%    | 100%  | ✅ +10%     |
+| Views with SECURITY INVOKER | 0%     | 100%  | ✅ +100%    |
+| Edge Functions with Auth    | 60%    | 100%  | ✅ +40%     |
+| Rate Limiting Reliability   | Low    | High  | ✅ Major    |
 
 ---
 
@@ -189,17 +207,20 @@ function sanitizeColor(input: string): string {
 ### Before Launch Checklist
 
 ✅ **Critical Database Security**
+
 - [x] All messages restricted to participants
 - [x] Conversations not publicly enumerable
 - [x] RLS policies reviewed and tested
 - [x] Views use SECURITY INVOKER
 
 ✅ **Authentication & Authorization**
+
 - [x] JWT verification on sensitive endpoints
 - [x] Server-side role validation
 - [x] Admin functions protected
 
 ✅ **Rate Limiting**
+
 - [x] Persistent storage implemented
 - [x] Cross-instance state sharing
 - [x] Cleanup function configured
@@ -248,6 +269,7 @@ function sanitizeColor(input: string): string {
 ## 📞 Contact
 
 For security concerns or to report vulnerabilities:
+
 - Follow responsible disclosure practices
 - Document findings thoroughly
 - Include reproduction steps

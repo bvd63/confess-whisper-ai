@@ -5,31 +5,29 @@
 ### For Developers
 
 **Login Flow:**
+
 ```typescript
-import { useEnhancedAuth } from '@/hooks/useEnhancedAuth';
+import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
 
 const { enhancedLogin } = useEnhancedAuth();
 
 const handleLogin = async () => {
-  const { data, error } = await enhancedLogin(
-    email,
-    password,
-    captchaToken,
-    {
-      stayConnected: true, // 30 days vs 2 days
-      deviceId: localStorage.getItem('device_id'),
-    }
-  );
+  const { data, error } = await enhancedLogin(email, password, captchaToken, {
+    stayConnected: true, // 30 days vs 2 days
+    deviceId: localStorage.getItem("device_id"),
+  });
 };
 ```
 
 **Check if CAPTCHA Required:**
+
 ```typescript
 const { checkCaptchaRequired } = useEnhancedAuth();
 const required = await checkCaptchaRequired(email);
 ```
 
 **Session Management:**
+
 ```typescript
 const { listSessions, revokeSession, revokeAllSessions } = useEnhancedAuth();
 
@@ -44,19 +42,21 @@ await revokeAllSessions();
 ```
 
 **Auto-Logout Setup:**
+
 ```typescript
-import { useInactivityLogout } from '@/hooks/useInactivityLogout';
+import { useInactivityLogout } from "@/hooks/useInactivityLogout";
 
 // In App.tsx
-useInactivityLogout({ 
+useInactivityLogout({
   enabled: !stayLoggedIn,
   inactivityTimeout: 30 * 60 * 1000, // 30 minutes
 });
 ```
 
 **Device Tracking:**
+
 ```typescript
-import { useDeviceTracking } from '@/hooks/useDeviceTracking';
+import { useDeviceTracking } from "@/hooks/useDeviceTracking";
 
 // In App.tsx - automatically tracks new device logins
 useDeviceTracking();
@@ -65,70 +65,74 @@ useDeviceTracking();
 ## 📋 Password Requirements
 
 **Client-side validation:**
+
 ```typescript
-import { usePasswordValidation } from '@/hooks/usePasswordValidation';
+import { usePasswordValidation } from "@/hooks/usePasswordValidation";
 
 const validation = usePasswordValidation(password);
 // validation.allRulesPassed
 // validation.hasMinLength (10 chars)
 // validation.hasUpperCase
-// validation.hasLowerCase  
+// validation.hasLowerCase
 // validation.hasNumber
 // validation.hasSpecialChar
 ```
 
 **Server-side enforcement:**
+
 - Minimum 10 characters
 - At least 1 uppercase letter
 - At least 1 lowercase letter
 - At least 1 digit
-- At least 1 special character (!@#$%^&*(),.?":{}|<>)
+- At least 1 special character (!@#$%^&\*(),.?":{}|<>)
 
 ## 🔑 Translation Keys
 
 ### Auth Pages
+
 ```typescript
 // Login
-t.auth_welcome_back
-t.auth_email
-t.auth_password
-t.auth_login_button
-t.auth_stay_signed_in
-t.auth_forgot_password
-t.auth_invalid_credentials
+t.auth_welcome_back;
+t.auth_email;
+t.auth_password;
+t.auth_login_button;
+t.auth_stay_signed_in;
+t.auth_forgot_password;
+t.auth_invalid_credentials;
 
 // Signup
-t.auth_create_account
-t.auth_signup_button
-t.auth_password_confirm
-t.auth_terms_accept
-t.auth_check_email_verify
+t.auth_create_account;
+t.auth_signup_button;
+t.auth_password_confirm;
+t.auth_terms_accept;
+t.auth_check_email_verify;
 
 // Forgot Password
-t.auth_forgot_password_title
-t.auth_forgot_password_desc
-t.auth_forgot_password_button
-t.auth_forgot_password_success
+t.auth_forgot_password_title;
+t.auth_forgot_password_desc;
+t.auth_forgot_password_button;
+t.auth_forgot_password_success;
 
 // Reset Password
-t.auth_reset_password_title
-t.auth_reset_password_new
-t.auth_reset_password_confirm
-t.auth_reset_password_button
-t.auth_reset_password_success
+t.auth_reset_password_title;
+t.auth_reset_password_new;
+t.auth_reset_password_confirm;
+t.auth_reset_password_button;
+t.auth_reset_password_success;
 
 // Errors
-t.auth_error
-t.auth_error_generic
-t.auth_captcha_failed
-t.auth_password_too_short
-t.auth_password_too_weak
-t.auth_password_match_fail
+t.auth_error;
+t.auth_error_generic;
+t.auth_captcha_failed;
+t.auth_password_too_short;
+t.auth_password_too_weak;
+t.auth_password_match_fail;
 ```
 
 ## 🛡️ Security Tables
 
 ### auth_sessions
+
 ```sql
 CREATE TABLE auth_sessions (
   id UUID PRIMARY KEY,
@@ -146,6 +150,7 @@ CREATE TABLE auth_sessions (
 ```
 
 ### failed_login_attempts
+
 ```sql
 CREATE TABLE failed_login_attempts (
   id UUID PRIMARY KEY,
@@ -158,6 +163,7 @@ CREATE TABLE failed_login_attempts (
 ```
 
 ### captcha_requirements
+
 ```sql
 CREATE TABLE captcha_requirements (
   id UUID PRIMARY KEY,
@@ -168,6 +174,7 @@ CREATE TABLE captcha_requirements (
 ```
 
 ### security_events
+
 ```sql
 CREATE TABLE security_events (
   id UUID PRIMARY KEY,
@@ -238,27 +245,29 @@ INACTIVITY_TIMEOUT = 30 minutes
 ## 🧪 Testing Helpers
 
 ### Test Database Queries
+
 ```sql
 -- Active sessions for user
-SELECT * FROM auth_sessions 
+SELECT * FROM auth_sessions
 WHERE user_id = '<user_id>' AND revoked_at IS NULL;
 
 -- Recent failed attempts
-SELECT * FROM failed_login_attempts 
-WHERE email = '<email>' 
+SELECT * FROM failed_login_attempts
+WHERE email = '<email>'
 ORDER BY attempted_at DESC LIMIT 10;
 
 -- CAPTCHA status
-SELECT * FROM captcha_requirements 
+SELECT * FROM captcha_requirements
 WHERE email = '<email>' AND required_until > NOW();
 
 -- Security events
-SELECT * FROM security_events 
-WHERE user_id = '<user_id>' 
+SELECT * FROM security_events
+WHERE user_id = '<user_id>'
 ORDER BY created_at DESC LIMIT 20;
 ```
 
 ### Test Edge Function
+
 ```bash
 # Check CAPTCHA required
 curl -X POST 'https://your-project.supabase.co/functions/v1/enhanced-auth?action=check-captcha-required' \
@@ -273,6 +282,7 @@ curl -X GET 'https://your-project.supabase.co/functions/v1/enhanced-auth?action=
 ## 🚨 Security Events
 
 ### Event Types Logged
+
 - `login_success` - Successful login
 - `login_failure` - Failed login attempt
 - `new_device_login` - Login from new device
@@ -283,8 +293,9 @@ curl -X GET 'https://your-project.supabase.co/functions/v1/enhanced-auth?action=
 - `captcha_required` - CAPTCHA enforcement triggered
 
 ### Query Security Events
+
 ```sql
-SELECT 
+SELECT
   event_type,
   COUNT(*) as count,
   DATE(created_at) as date
@@ -325,26 +336,30 @@ ORDER BY date DESC, count DESC;
 ### Common Issues
 
 **CAPTCHA not working:**
+
 ```javascript
 // Check environment variable
 console.log(import.meta.env.VITE_TURNSTILE_SITE_KEY);
 ```
 
 **Sessions not persisting:**
+
 ```javascript
 // Check localStorage
-console.log(localStorage.getItem('stay_logged_in'));
-console.log(localStorage.getItem('device_id'));
+console.log(localStorage.getItem("stay_logged_in"));
+console.log(localStorage.getItem("device_id"));
 ```
 
 **Auto-logout not triggering:**
+
 ```javascript
 // Verify inactivity timeout is enabled
-const stayLoggedIn = localStorage.getItem('stay_logged_in') === 'true';
-console.log('Auto-logout enabled:', !stayLoggedIn);
+const stayLoggedIn = localStorage.getItem("stay_logged_in") === "true";
+console.log("Auto-logout enabled:", !stayLoggedIn);
 ```
 
 ### Edge Function Logs
+
 ```bash
 # View enhanced-auth logs
 supabase functions logs enhanced-auth --follow
@@ -356,6 +371,7 @@ supabase functions logs cleanup-auth-data --follow
 ## 📞 Support
 
 For security issues or questions:
+
 1. Check documentation in `docs/` folder
 2. Review edge function implementation
 3. Test with provided queries and scripts

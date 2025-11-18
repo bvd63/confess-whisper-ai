@@ -52,17 +52,24 @@ export const SearchUsersCard = () => {
 
   const followMutation = useMutation({
     mutationFn: async ({ userId, isFollowing }: { userId: string; isFollowing: boolean }) => {
+      const { data } = await supabase.auth.getUser();
+      const currentUserId = data.user?.id;
+
+      if (!currentUserId) {
+        throw new Error(t.auth_error_generic);
+      }
+
       if (isFollowing) {
         const { error } = await supabase
           .from('user_follows')
           .delete()
-          .eq('follower_id', (await supabase.auth.getUser()).data.user?.id!)
+          .eq('follower_id', currentUserId)
           .eq('following_id', userId);
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from('user_follows')
-          .insert([{ follower_id: (await supabase.auth.getUser()).data.user?.id!, following_id: userId }]);
+          .insert([{ follower_id: currentUserId, following_id: userId }]);
         if (error) throw error;
       }
     },
@@ -80,8 +87,15 @@ export const SearchUsersCard = () => {
 
   const handleMessage = async (userId: string) => {
     try {
+      const { data: userData } = await supabase.auth.getUser();
+      const currentUserId = userData.user?.id;
+
+      if (!currentUserId) {
+        throw new Error(t.auth_error_generic);
+      }
+
       const { data, error } = await supabase.rpc('get_or_create_conversation', {
-        _user1: (await supabase.auth.getUser()).data.user?.id,
+        _user1: currentUserId,
         _user2: userId,
       });
 

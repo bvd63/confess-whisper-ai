@@ -1,5 +1,11 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import {
+  buildPriceAllowlist,
+  buildPriceTierMap,
+  isAllowedPriceId,
+  resolveTierFromPriceMap,
+} from "../_shared/stripe-price-allowlist.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -16,12 +22,17 @@ const log = (level: string, message: string, data?: any) => {
   }));
 };
 
-const PRICE_ID_TO_TIER: Record<string, "premium" | "vip"> = {
-  [Deno.env.get("STRIPE_PRICE_PREMIUM_MONTHLY") || ""]: "premium",
-  [Deno.env.get("STRIPE_PRICE_PREMIUM_YEARLY") || ""]: "premium",
-  [Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || ""]: "vip",
-  [Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || ""]: "vip",
-};
+const envGetter = (key: string) => Deno.env.get(key) ?? null;
+const stripePriceAllowlist = buildPriceAllowlist(envGetter);
+const priceTierMap = buildPriceTierMap(envGetter);
+
+if (stripePriceAllowlist.size === 0 || priceTierMap.size === 0) {
+  console.error(JSON.stringify({
+    level: "error",
+    message: "subscription-downgrade missing Stripe price configuration",
+  }));
+  throw new Error("subscription-downgrade configuration error: Stripe price IDs not set");
+}
 
 const tierHierarchy: Record<string, number> = {
   free: 0,
@@ -56,6 +67,14 @@ serve(async (req) => {
       throw new Error("targetPriceId is required");
     }
 
+    if (!isAllowedPriceId(targetPriceId, stripePriceAllowlist)) {
+      log("error", "Disallowed price id", { userId: user.id, targetPriceId });
+      return new Response(
+        JSON.stringify({ error: "invalid_price_id" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 },
+      );
+    }
+
     log("info", "Downgrade request", { userId: user.id, targetPriceId });
 
     const supabaseAdmin = createClient(
@@ -70,7 +89,14 @@ serve(async (req) => {
       .eq("user_id", user.id)
       .single();
 
-    const targetTier = PRICE_ID_TO_TIER[targetPriceId] || "premium";
+    const targetTier = resolveTierFromPriceMap(targetPriceId, priceTierMap);
+    if (!targetTier) {
+      log("error", "Unable to resolve tier for price", { targetPriceId });
+      return new Response(
+        JSON.stringify({ error: "unknown_price_id" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 },
+      );
+    }
     const currentTier = profile?.subscription_tier || "free";
 
     log("info", "Comparing tiers", { currentTier, targetTier });

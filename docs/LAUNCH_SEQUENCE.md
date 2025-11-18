@@ -14,7 +14,7 @@ This is your complete step-by-step guide to launching ConfessAI to production. F
 
 ## ⏱️ Timeline
 
-```
+```text
 Total: 35 minutes
 
 ├── 10 min: Stripe Configuration
@@ -32,7 +32,7 @@ Total: 35 minutes
 ### A. Create Stripe Products
 
 1. **Go to Stripe Dashboard**
-   - URL: https://dashboard.stripe.com
+   - URL: <https://dashboard.stripe.com>
    - Make sure you're in **Test Mode** (toggle top right)
 
 2. **Create VIP Monthly**
@@ -54,13 +54,31 @@ Total: 35 minutes
 ### B. Configure Environment Variables
 
 **In Lovable:**
+
 1. Go to **Project Settings** → **Environment Variables**
-2. Add these two variables:
+2. Add these variables:
+
+   ```bash
+   VITE_STRIPE_PRICE_VIP_MONTH_ID=price_1Abc2Def... (paste your ID)
+   VITE_STRIPE_PRICE_VIP_YEAR_ID=price_4Mno5Pqr... (paste your ID)
    ```
-   VITE_STRIPE_PRICE_VIP_MONTHLY=price_1Abc2Def... (paste your ID)
-   VITE_STRIPE_PRICE_VIP_YEARLY=price_4Mno5Pqr... (paste your ID)
-   ```
+
 3. Click **Save**
+
+**In Supabase (backend allowlist):**
+
+1. Go to **Project Settings** → **Edge Functions** → **Secrets**
+2. Add the matching backend values so every function trusts the same price IDs:
+
+   ```bash
+   PRICE_VIP_MONTHLY=price_1Abc2Def... (match the monthly ID)
+   PRICE_VIP_YEARLY=price_4Mno5Pqr... (match the yearly ID)
+   PRICE_PREMIUM_MONTHLY= (optional premium tier)
+   PRICE_PREMIUM_YEARLY= (optional premium tier)
+   STRIPE_WEBHOOK_TOLERANCE_SECONDS=300
+   ```
+
+3. Click **Save** to redeploy secrets
 
 **✅ Checkpoint:** Lovable will automatically rebuild the app
 
@@ -98,12 +116,14 @@ Total: 35 minutes
 1. **Click "Choose VIP"** button
 2. **Should redirect to Stripe Checkout**
 3. **Use test card:**
-   ```
+
+   ```text
    Card: 4242 4242 4242 4242
    Expiry: 12/25
    CVC: 123
    ZIP: 12345
    ```
+
 4. **Complete checkout**
 5. **Should redirect back** to your app with success message
 
@@ -132,6 +152,7 @@ Total: 35 minutes
 ### A. Run Automated Checks
 
 **If you have terminal access:**
+
 ```bash
 # Make script executable
 chmod +x scripts/pre-launch-check.sh
@@ -145,17 +166,20 @@ chmod +x scripts/pre-launch-check.sh
 If you can't run the script, verify manually:
 
 **Environment:**
+
 - [ ] Stripe Price IDs configured
 - [ ] No test secrets in source code
 - [ ] App builds without errors
 
 **Testing:**
+
 - [ ] Unit tests pass (if applicable)
 - [ ] Checkout flow works
 - [ ] VIP features unlock
 - [ ] Customer Portal accessible
 
 **Documentation:**
+
 - [ ] Deployment checklist reviewed
 - [ ] Monitoring guide reviewed
 - [ ] On-call schedule defined
@@ -184,6 +208,7 @@ If you can't run the script, verify manually:
 ### C. Configure Custom Domain (Optional)
 
 If you have a custom domain:
+
 1. **In Lovable**, go to **Settings** → **Domains**
 2. **Add your domain** (e.g., `confessai.com`)
 3. **Update DNS** as instructed
@@ -197,7 +222,7 @@ If you have a custom domain:
 
 ### A. UptimeRobot (Free & Recommended)
 
-1. **Sign up** at https://uptimerobot.com
+1. **Sign up** at <https://uptimerobot.com>
 2. **Create Monitor:**
    - Type: `HTTP(s)`
    - URL: `https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/health`
@@ -223,6 +248,7 @@ If you have a custom domain:
 ### First 30 Minutes
 
 **Monitor these:**
+
 - ✅ No 500 errors in browser console
 - ✅ Health check returns 200 OK
 - ✅ New users can sign up
@@ -230,6 +256,7 @@ If you have a custom domain:
 - ✅ Payments processing correctly
 
 **Check Logs:**
+
 1. **Supabase Dashboard** → **Edge Functions** → **Logs**
 2. Look for errors or warnings
 3. Address any issues immediately
@@ -238,24 +265,27 @@ If you have a custom domain:
 
 ---
 
-## 🎉 You're Live!
+## 🎉 You're Live
 
-### Congratulations! Your app is now in production.
+### Congratulations — your app is now in production
 
 ### What to Do Next
 
 **Immediate (Hour 1):**
+
 - [ ] Share app with friends/family
 - [ ] Monitor for any errors
 - [ ] Respond to first user feedback
 
 **Short-term (Day 1):**
+
 - [ ] Post on social media
 - [ ] Monitor analytics
 - [ ] Check payment processing
 - [ ] Review error logs
 
 **Long-term (Week 1):**
+
 - [ ] Analyze user behavior
 - [ ] Review conversion rates
 - [ ] Optimize based on feedback
@@ -268,15 +298,18 @@ If you have a custom domain:
 If something goes wrong:
 
 ### Option 1: Quick Fix (2 minutes)
+
 1. In Lovable, click **Version History**
 2. Click **"Revert"** on last stable version
 3. App reverts immediately
 
 ### Option 2: Disable Feature (1 minute)
+
 1. Set feature flag in database
 2. Feature disabled without full rollback
 
 ### Option 3: Maintenance Mode (30 seconds)
+
 1. Update `public/index.html` with maintenance message
 2. Rebuild and deploy
 
@@ -287,12 +320,14 @@ If something goes wrong:
 ## 📊 Success Metrics
 
 ### Technical Metrics (Week 1)
+
 - **Uptime:** >99.9%
 - **Response Time (p95):** <200ms
 - **Error Rate:** <0.1%
 - **Load Time:** <3s
 
 ### Business Metrics (Week 1)
+
 - **Signups:** Track daily new users
 - **Conversions:** Free → VIP (target: 5%)
 - **Retention:** 7-day return rate (target: >60%)
@@ -305,17 +340,20 @@ If something goes wrong:
 ### If You Get Stuck
 
 **Technical Issues:**
+
 - Check `docs/DEPLOYMENT_CHECKLIST.md`
 - Review `docs/PRODUCTION_MONITORING_SETUP.md`
-- Search Lovable Discord: https://discord.gg/lovable
+- Search Lovable Discord: [Lovable Discord](https://discord.gg/lovable)
 
 **Stripe Issues:**
+
 - Stripe Dashboard → Help
-- Stripe Support: support@stripe.com
+- Stripe Support: [support@stripe.com](mailto:support@stripe.com)
 
 **Supabase Issues:**
+
 - Supabase Dashboard → Support
-- Supabase Discord: https://discord.supabase.com
+- Supabase Discord: [Supabase Discord](https://discord.supabase.com)
 
 ---
 
@@ -324,6 +362,7 @@ If something goes wrong:
 Before announcing launch:
 
 **Technical:**
+
 - [ ] Stripe Price IDs configured
 - [ ] Checkout flow tested
 - [ ] Production URL working
@@ -331,6 +370,7 @@ Before announcing launch:
 - [ ] No console errors
 
 **Business:**
+
 - [ ] Pricing finalized
 - [ ] Terms of Service published
 - [ ] Privacy Policy published
@@ -338,6 +378,7 @@ Before announcing launch:
 - [ ] Social media ready
 
 **Team:**
+
 - [ ] On-call schedule set
 - [ ] Team trained on support
 - [ ] Communication plan ready
@@ -345,9 +386,10 @@ Before announcing launch:
 
 ---
 
-## 🎯 You Did It!
+## 🎯 You Did It
 
 **Current Status:**
+
 - ✅ App Score: 10/10
 - ✅ Test Coverage: 95%+
 - ✅ Production Ready: YES
@@ -360,7 +402,7 @@ Before announcing launch:
 
 ---
 
-**Welcome to production! 🚀**
+## Welcome to production 🚀
 
 Your app is now serving real users, processing real payments, and ready to scale. Monitor closely for the first 24 hours, then enjoy your success! 🎉
 

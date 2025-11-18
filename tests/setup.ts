@@ -81,8 +81,7 @@ vi.mock('dompurify', () => {
   };
 });
 
-// Global Supabase client mock for integration tests
-vi.mock('@/integrations/supabase/client', () => {
+const createSupabaseMock = () => {
   const mkResolved = (extra: any = {}) => Promise.resolve({ data: null, error: null, ...extra });
 
   const invoke = vi.fn(async (_fn: string, _opts?: any) => ({ data: null, error: null }));
@@ -96,37 +95,46 @@ vi.mock('@/integrations/supabase/client', () => {
   });
 
   return {
-    supabase: {
-      functions: { invoke },
-      auth: {
-        getUser: vi.fn(async () => ({ data: { user: { id: 'test-user', email: 'test@example.com', user_metadata: {} } }, error: null })),
-        getSession: vi.fn(async () => ({ data: { session: { user: { id: 'test-user' } } }, error: null })),
-        onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
-      },
-      from: vi.fn((table: string) => {
-        // Minimal handling tailored to tests
-        if (table === 'profiles') {
-          return {
-            select: vi.fn((_cols?: any, _opts?: any) => makeProfilesSelect()),
-          } as any;
-        }
+    functions: { invoke },
+    auth: {
+      getUser: vi.fn(async () => ({ data: { user: { id: 'test-user', email: 'test@example.com', user_metadata: {} } }, error: null })),
+      getSession: vi.fn(async () => ({ data: { session: { user: { id: 'test-user' } } }, error: null })),
+      onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
+    },
+    from: vi.fn((table: string) => {
+      // Minimal handling tailored to tests
+      if (table === 'profiles') {
         return {
-          select: vi.fn(() => ({
-            eq: vi.fn(() => ({ maybeSingle: vi.fn(() => mkResolved()), single: vi.fn(() => mkResolved()) })),
-            maybeSingle: vi.fn(() => mkResolved()),
-            single: vi.fn(() => mkResolved()),
-          })),
-          insert: vi.fn(() => ({ select: vi.fn(() => ({ single: vi.fn(() => mkResolved()) })) })),
-          update: vi.fn(() => ({ eq: vi.fn(() => ({ select: vi.fn(() => ({ single: vi.fn(() => mkResolved()) })) })) })),
-          delete: vi.fn(() => ({ eq: vi.fn(() => mkResolved()) })),
-          gte: vi.fn(async () => ({ count: 0, data: null, error: null })),
+          select: vi.fn((_cols?: any, _opts?: any) => makeProfilesSelect()),
         } as any;
-      }),
-      channel: vi.fn(() => ({ on: vi.fn(function (this: any) { return this; }), subscribe: vi.fn(() => ({ unsubscribe: vi.fn() })) })),
-      removeChannel: vi.fn(),
-    }
+      }
+      return {
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({ maybeSingle: vi.fn(() => mkResolved()), single: vi.fn(() => mkResolved()) })),
+          maybeSingle: vi.fn(() => mkResolved()),
+          single: vi.fn(() => mkResolved()),
+        })),
+        insert: vi.fn(() => ({ select: vi.fn(() => ({ single: vi.fn(() => mkResolved()) })) })),
+        update: vi.fn(() => ({ eq: vi.fn(() => ({ select: vi.fn(() => ({ single: vi.fn(() => mkResolved()) })) })) })),
+        delete: vi.fn(() => ({ eq: vi.fn(() => mkResolved()) })),
+        gte: vi.fn(async () => ({ count: 0, data: null, error: null })),
+      } as any;
+    }),
+    channel: vi.fn(() => ({ on: vi.fn(function (this: any) { return this; }), subscribe: vi.fn(() => ({ unsubscribe: vi.fn() })) })),
+    removeChannel: vi.fn(),
   };
-});
+};
+
+const supabaseMock = createSupabaseMock();
+
+// Global Supabase client mock for integration tests
+vi.mock('@/integrations/supabase/client', () => ({
+  supabase: supabaseMock,
+}));
+
+vi.mock('@/integrations/supabase/safeClient', () => ({
+  getSupabaseClient: vi.fn(async () => supabaseMock),
+}));
 
 // Mock supabase client singleton used by hooks
 vi.mock('@/lib/supabaseClient', () => {

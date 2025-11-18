@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,11 +25,7 @@ const BlockedUsers = ({ userId }: BlockedUsersProps) => {
   const { t, language } = useLanguage();
   const confirm = useConfirm();
 
-  useEffect(() => {
-    loadBlockedUsers();
-  }, [userId]);
-
-  const loadBlockedUsers = async () => {
+  const loadBlockedUsers = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('user_blocks')
@@ -44,7 +40,11 @@ const BlockedUsers = ({ userId }: BlockedUsersProps) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    loadBlockedUsers();
+  }, [loadBlockedUsers]);
 
   const unblockUser = async (blockId: string) => {
     const confirmed = await confirm({

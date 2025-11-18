@@ -3,6 +3,7 @@
 ## ✅ Completed Tasks
 
 ### 1. Centralized Environment Validation (`src/lib/env.ts`)
+
 - **Zod schema validation** for all client environment variables
 - **Fail-fast pattern**: Application won't start with invalid/missing env vars
 - **Type-safe access**: `env.client.*` replaces all `import.meta.env.*`
@@ -16,11 +17,14 @@
   - `VITE_SENTRY_DSN` (optional URL)
 
 ### 2. Security Headers
+
 Created **dual configuration** for flexibility:
+
 - **`vercel.json`**: Vercel hosting
 - **`_headers`**: Netlify hosting
 
 **Headers implemented**:
+
 - `Strict-Transport-Security`: 1-year HSTS with preload
 - `X-Frame-Options`: DENY (clickjacking protection)
 - `X-Content-Type-Options`: nosniff
@@ -35,18 +39,25 @@ Created **dual configuration** for flexibility:
 ### 3. Utility Libraries
 
 #### `src/lib/maskUsernameIfAnonymous.ts`
+
 ```typescript
-export function maskUsernameIfAnonymous(isAnonymous: boolean, author?: Author | null)
+export function maskUsernameIfAnonymous(
+  isAnonymous: boolean,
+  author?: Author | null,
+);
 ```
+
 - Returns `{ displayName, avatarUrl, isMasked }`
 - Masks usernames for anonymous confessions
 - Fallback to "Unknown" for missing data
 
 #### `src/lib/idempotency.ts`
+
 ```typescript
-export function newIdempotencyKey(): string
-export async function postWithIdempotency(url: string, body: unknown)
+export function newIdempotencyKey(): string;
+export async function postWithIdempotency(url: string, body: unknown);
 ```
+
 - UUID-based idempotency keys
 - Prevents duplicate Stripe checkout sessions
 - Generic POST helper with idempotency headers
@@ -54,11 +65,13 @@ export async function postWithIdempotency(url: string, body: unknown)
 ### 4. Stripe Integration Updates
 
 **Files updated**:
+
 - `src/lib/stripe-config.ts`: Uses `env.client.stripePriceVipMonthId/YearId`
 - `src/components/SubscriptionPlansGrid.tsx`: Added idempotency key to checkout
 - `src/pages/TestSubscriptions.tsx`: Uses validated env
 
 **Changes**:
+
 - ✅ All Stripe price IDs now from centralized `env.client`
 - ✅ Idempotency-Key header added to `create-checkout` calls
 - ✅ Success URL: `/home`
@@ -67,6 +80,7 @@ export async function postWithIdempotency(url: string, body: unknown)
 ### 5. OneSignal Integration (`src/lib/onesignal.ts`)
 
 **Functions exported**:
+
 ```typescript
 initOneSignal(): Promise<void>
 requestNotificationPermission(): Promise<boolean>
@@ -75,6 +89,7 @@ setOneSignalUserId(userId: string): Promise<void>
 ```
 
 **Features**:
+
 - ✅ Browser-only guards (SSR-safe)
 - ✅ Lazy-loaded SDK (`react-onesignal` imported dynamically)
 - ✅ Single initialization (prevents duplicates)
@@ -86,6 +101,7 @@ setOneSignalUserId(userId: string): Promise<void>
 ### 6. Sentry Integration (`src/lib/sentry.ts`)
 
 **Functions exported**:
+
 ```typescript
 initSentry(): void
 setSentryUser(context: SentryUserContext): void
@@ -95,6 +111,7 @@ captureSentryMessage(message: string, level?: SeverityLevel): void
 ```
 
 **Features**:
+
 - ✅ Browser-only initialization
 - ✅ Only enabled in production
 - ✅ User context tags: `user_id`, `plan`, `locale`, `route`
@@ -108,6 +125,7 @@ captureSentryMessage(message: string, level?: SeverityLevel): void
 ### 7. Code Updates (import.meta.env → env.client)
 
 **Files updated** (24 total):
+
 - `src/integrations/supabase/client.ts`
 - `src/lib/supabaseClient.ts`
 - `src/lib/supabaseClientWithPooling.ts`
@@ -125,6 +143,7 @@ captureSentryMessage(message: string, level?: SeverityLevel): void
 - `src/lib/analyticsOptimization.ts`
 
 **Pattern**:
+
 ```typescript
 // Before
 const url = import.meta.env.VITE_SUPABASE_URL;
@@ -139,6 +158,7 @@ if (env.isDev) { ... }
 ## 📦 Required Dependencies
 
 Add to `package.json`:
+
 ```json
 {
   "dependencies": {
@@ -149,6 +169,7 @@ Add to `package.json`:
 ```
 
 Install:
+
 ```bash
 pnpm add @sentry/react react-onesignal
 ```
@@ -156,6 +177,7 @@ pnpm add @sentry/react react-onesignal
 ## 🔒 Environment Variables
 
 Update `.env` (see `.env.example`):
+
 ```bash
 # Required
 VITE_SUPABASE_URL=https://your-project.supabase.co
@@ -171,29 +193,31 @@ MODE=development  # or production
 
 ## ✅ Acceptance Criteria
 
-| Criterion | Status | Notes |
-|-----------|--------|-------|
-| No direct `import.meta.env` usage in client | ✅ | All replaced with `env.client.*` |
-| Zod env passes | ✅ | Fails fast on invalid env |
-| Stripe checkout stable (idempotency) | ✅ | UUID-based idempotency keys |
-| Stripe redirects to `/home` | ✅ | success_url configured |
-| Webhook verified + dedup | ⚠️ | Backend implementation needed |
-| Security headers active | ✅ | vercel.json + _headers created |
-| No CSP errors | ⚠️ | Test in browser after deployment |
-| Stripe/OneSignal working | ⚠️ | Requires packages install |
-| Sentry reporting with tags | ✅ | user_id, plan, locale, route |
-| Build & audit pass | ⏳ | Run `pnpm typecheck && pnpm lint && pnpm build` |
-| Unused deps removed | ⏳ | Manual audit needed |
-| Lazy-load + route split active | ✅ | Already implemented |
+| Criterion                                   | Status | Notes                                           |
+| ------------------------------------------- | ------ | ----------------------------------------------- |
+| No direct `import.meta.env` usage in client | ✅     | All replaced with `env.client.*`                |
+| Zod env passes                              | ✅     | Fails fast on invalid env                       |
+| Stripe checkout stable (idempotency)        | ✅     | UUID-based idempotency keys                     |
+| Stripe redirects to `/home`                 | ✅     | success_url configured                          |
+| Webhook verified + dedup                    | ⚠️     | Backend implementation needed                   |
+| Security headers active                     | ✅     | vercel.json + \_headers created                 |
+| No CSP errors                               | ⚠️     | Test in browser after deployment                |
+| Stripe/OneSignal working                    | ⚠️     | Requires packages install                       |
+| Sentry reporting with tags                  | ✅     | user_id, plan, locale, route                    |
+| Build & audit pass                          | ⏳     | Run `pnpm typecheck && pnpm lint && pnpm build` |
+| Unused deps removed                         | ⏳     | Manual audit needed                             |
+| Lazy-load + route split active              | ✅     | Already implemented                             |
 
 ## 🚀 Next Steps
 
 1. **Install dependencies**:
+
    ```bash
    pnpm add @sentry/react react-onesignal
    ```
 
 2. **Run validation suite**:
+
    ```bash
    pnpm typecheck
    pnpm lint

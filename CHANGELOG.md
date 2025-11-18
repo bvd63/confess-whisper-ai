@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [2.0.0] - 2025-01-26
 
 ### 🔒 Security Improvements (CRITICAL)
+
 - **XSS Protection**: Comprehensive DOMPurify-based sanitization for all user-generated content
   - Confession content: Limited HTML formatting (p, br, strong, em)
   - Comment content: Plain text only (HTML encoded)
@@ -27,6 +28,7 @@ All notable changes to this project will be documented in this file.
   - Secure signature verification
 
 ### ⚡ Performance & Scalability
+
 - **Database Connection Pooling**: High-traffic optimization
   - Enhanced Supabase client with pooling configuration
   - Health check functionality (`checkDatabaseHealth`)
@@ -38,6 +40,7 @@ All notable changes to this project will be documented in this file.
   - Pre-defined cache keys for common queries
 
 ### 🧪 Testing & Reliability
+
 - **Security Test Coverage**: 30+ new security tests
   - XSS protection tests (10+ scenarios)
   - CSRF token generation, validation, and headers
@@ -48,6 +51,7 @@ All notable changes to this project will be documented in this file.
   - Coverage: 95%+ across critical paths
 
 ### 📚 Documentation
+
 - **SECURITY.md**: Complete 238-line security policy
   - Implemented features checklist (8 major areas)
   - Environment variable security guidelines
@@ -57,6 +61,7 @@ All notable changes to this project will be documented in this file.
 - **CHANGELOG.md**: Detailed version history
 
 ### 📂 Files Created
+
 - `src/lib/security/sanitizer.ts` - XSS sanitization utilities (140 lines)
 - `src/lib/security/csrf.ts` - CSRF protection utilities (106 lines)
 - `src/lib/security/headers.ts` - Security headers configuration (135 lines)
@@ -70,6 +75,7 @@ All notable changes to this project will be documented in this file.
 - `scripts/send_stripe_webhook.ts` - Webhook testing utility
 
 ### 🔧 Files Modified
+
 - `supabase/functions/stripe-webhook/index.ts` - Added VIP bonus coins logic
 - `src/components/CommentsSection.tsx` - Applied XSS sanitization
 - `src/components/ConfessionCard.tsx` - Applied XSS sanitization
@@ -78,15 +84,18 @@ All notable changes to this project will be documented in this file.
 - `package.json` - Added DOMPurify dependencies
 
 ### 🚨 Breaking Changes
+
 None - All changes are backward compatible
 
 ### 🔄 Migration Notes
+
 - All existing confession and comment content automatically sanitized on display
 - No database migration required
 - Environment variables remain unchanged
 - Existing tests continue to pass
 
 ### 📈 Impact Summary
+
 - **Security Score**: Improved from 6/10 to 9.5/10
 - **Production Readiness**: Now ready for 5,000+ concurrent users
 - **Test Coverage**: Maintained at 95%+
@@ -98,24 +107,29 @@ None - All changes are backward compatible
 ## [1.x.x] - Prior Versions
 
 ### Added
+
 - Subscriptions: Stripe Checkout and Customer Portal actions
 - i18n: EN/ES/DE strings for subscription quick-actions
 - Tests: Enhanced subscription manager checkout tests
 
 ### Changed
+
 - i18n dictionary/types extended with subscription keys
 
 ### Fixed
+
 - Checkout redirects to proper success/cancel URLs
 - Customer portal billing management flow
 
 ### Security
+
 - Webhook idempotency check reviewed
 - Subscription upsert logic validated
 
 ---
 
 **Legend**:
+
 - 🔒 Security
 - ⚡ Performance
 - 🧪 Testing

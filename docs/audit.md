@@ -20,7 +20,7 @@ ConfessAI has been fully optimized for production scale with comprehensive impro
 
 ### System Components
 
-```
+```text
 ┌─────────────────┐
 │   React Client  │
 │  (Vite + TSX)   │
@@ -56,6 +56,7 @@ ConfessAI has been fully optimized for production scale with comprehensive impro
 ### 2.1 Query Optimization
 
 **Implemented:**
+
 - ✅ Custom `useOptimizedQuery` hook with deduplication
 - ✅ Multi-layer caching (5min TTL default)
 - ✅ Request deduplication to prevent duplicate calls
@@ -63,7 +64,8 @@ ConfessAI has been fully optimized for production scale with comprehensive impro
 - ✅ Automatic retry with exponential backoff
 
 **Performance Impact:**
-```
+
+```text
 Before: Average query time ~800ms
 After:  Average query time ~120ms (85% improvement)
 Cache hit rate: 87%
@@ -72,18 +74,20 @@ Cache hit rate: 87%
 ### 2.2 Database Optimization
 
 **Existing Indexes:**
+
 - Primary keys on all tables (UUID)
 - Foreign key indexes
 - User-specific query indexes
 
 **Recommendations for Production:**
+
 ```sql
 -- Add these indexes before 1M users:
 CREATE INDEX CONCURRENTLY idx_confessions_created_at ON confessions(created_at DESC);
-CREATE INDEX CONCURRENTLY idx_confessions_user_trending ON confessions(user_id, created_at) 
+CREATE INDEX CONCURRENTLY idx_confessions_user_trending ON confessions(user_id, created_at)
   WHERE moderation_status = 'approved';
 CREATE INDEX CONCURRENTLY idx_comments_confession ON comments(confession_id, created_at);
-CREATE INDEX CONCURRENTLY idx_notifications_user_unread ON notifications(user_id, created_at) 
+CREATE INDEX CONCURRENTLY idx_notifications_user_unread ON notifications(user_id, created_at)
   WHERE is_read = false;
 CREATE INDEX CONCURRENTLY idx_messages_conversation ON messages(conversation_id, created_at);
 ```
@@ -91,11 +95,13 @@ CREATE INDEX CONCURRENTLY idx_messages_conversation ON messages(conversation_id,
 ### 2.3 Caching Strategy
 
 **Three-Layer Cache:**
+
 1. **Browser Cache** (localStorage): 30min TTL for static data
 2. **React Query Cache** (memory): 5min TTL for dynamic data
 3. **Edge Cache** (function-level): 1min TTL for hot paths
 
 **Cache Invalidation:**
+
 - Automatic on mutations
 - Manual purge on delete operations
 - TTL-based expiration with cleanup
@@ -107,6 +113,7 @@ CREATE INDEX CONCURRENTLY idx_messages_conversation ON messages(conversation_id,
 ### 3.1 Input Validation
 
 **Implemented:**
+
 - ✅ Zod schemas for all user inputs
 - ✅ Client-side + server-side validation
 - ✅ SQL injection prevention (parameterized queries)
@@ -114,6 +121,7 @@ CREATE INDEX CONCURRENTLY idx_messages_conversation ON messages(conversation_id,
 - ✅ CSRF protection (SameSite cookies)
 
 **Validation Examples:**
+
 ```typescript
 // Confession validation
 confessionCreateSchema: {
@@ -133,6 +141,7 @@ signUpSchema: {
 ### 3.2 Rate Limiting
 
 **Configuration:**
+
 - Confession creation: 10/min per user
 - Comments: 20/min per user
 - Messages: 30/min per user
@@ -140,6 +149,7 @@ signUpSchema: {
 - Default: 50/min per user
 
 **Implementation:**
+
 - Server-side tracking in edge functions
 - Client-side cooldown indicators
 - Automatic blocking with retry-after headers
@@ -148,6 +158,7 @@ signUpSchema: {
 ### 3.3 Authentication & Authorization
 
 **Security Measures:**
+
 - ✅ Row Level Security (RLS) on all tables
 - ✅ JWT-based authentication
 - ✅ Secure password hashing (bcrypt)
@@ -162,11 +173,13 @@ signUpSchema: {
 ### 4.1 Circuit Breakers
 
 **Implemented for:**
+
 - Supabase API calls
 - AI service requests
 - Storage operations
 
 **Configuration:**
+
 ```typescript
 circuitBreakers = {
   supabase: {
@@ -185,6 +198,7 @@ circuitBreakers = {
 ### 4.2 Retry Logic
 
 **Strategy:**
+
 - Exponential backoff: 1s → 2s → 4s
 - Max retries: 3
 - Retryable errors: Network, timeout, 5xx, 429
@@ -193,6 +207,7 @@ circuitBreakers = {
 ### 4.3 Error Handling
 
 **Approach:**
+
 - Graceful degradation
 - User-friendly error messages
 - Detailed error logging (not exposed to users)
@@ -205,6 +220,7 @@ circuitBreakers = {
 ### 5.1 Structured Logging
 
 **Format:**
+
 ```json
 {
   "timestamp": "2025-10-18T12:00:00.000Z",
@@ -223,6 +239,7 @@ circuitBreakers = {
 ### 5.2 Performance Metrics
 
 **Tracked Metrics:**
+
 - Query execution time (p50, p95, p99)
 - Cache hit/miss rates
 - Error rates by type
@@ -231,7 +248,8 @@ circuitBreakers = {
 - API latency
 
 **Access:**
-```
+
+```text
 GET /metrics?format=json
 GET /metrics?format=prometheus
 GET /health
@@ -242,6 +260,7 @@ GET /health
 **Endpoint:** `/health`
 
 **Checks:**
+
 - Database connectivity & latency
 - Storage service availability
 - Function health
@@ -249,6 +268,7 @@ GET /health
 - Uptime
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -273,16 +293,19 @@ GET /health
 ### 6.2 Test Types
 
 **Unit Tests:**
+
 - Validation schemas
 - Utility functions
 - Hooks (caching, retry, circuit breaker)
 
 **Integration Tests:**
+
 - API endpoints
 - Database operations
 - Authentication flows
 
 **E2E Tests (Recommended):**
+
 - User registration & login
 - Creating confessions
 - Commenting & liking
@@ -294,18 +317,19 @@ GET /health
 **Tool:** k6 (recommended)
 
 **Target:**
+
 ```javascript
 export let options = {
   stages: [
-    { duration: '2m', target: 100 },   // Ramp up
-    { duration: '5m', target: 1000 },  // Normal load
-    { duration: '2m', target: 10000 }, // Peak load
-    { duration: '5m', target: 10000 }, // Sustained peak
-    { duration: '2m', target: 0 },     // Ramp down
+    { duration: "2m", target: 100 }, // Ramp up
+    { duration: "5m", target: 1000 }, // Normal load
+    { duration: "2m", target: 10000 }, // Peak load
+    { duration: "5m", target: 10000 }, // Sustained peak
+    { duration: "2m", target: 0 }, // Ramp down
   ],
   thresholds: {
-    http_req_duration: ['p(95)<200'],
-    http_req_failed: ['rate<0.01'],
+    http_req_duration: ["p(95)<200"],
+    http_req_failed: ["rate<0.01"],
   },
 };
 ```
@@ -316,7 +340,7 @@ export let options = {
 
 ### 7.1 Pipeline Stages
 
-```
+```text
 ┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐
 │   Lint   │────►│   Test   │────►│  Build   │────►│  Deploy  │
 └──────────┘     └──────────┘     └──────────┘     └──────────┘
@@ -343,6 +367,7 @@ export let options = {
 ### 7.2 Deployment Strategy
 
 **Canary Deployment:**
+
 1. Deploy to 5% of traffic
 2. Monitor for 5 minutes
 3. Check error rates & latency
@@ -350,6 +375,7 @@ export let options = {
 5. If unhealthy: automatic rollback
 
 **Rollback Triggers:**
+
 - Error rate >1%
 - p95 latency >500ms
 - Health check failures
@@ -360,6 +386,7 @@ export let options = {
 ## 8. Production Readiness Checklist
 
 ### Infrastructure
+
 - ✅ Multi-region deployment capability
 - ✅ Auto-scaling configured
 - ✅ CDN for static assets
@@ -368,6 +395,7 @@ export let options = {
 - ⚠️ Message queue for async jobs (recommended)
 
 ### Security
+
 - ✅ HTTPS enforced
 - ✅ CORS configured
 - ✅ Rate limiting active
@@ -378,6 +406,7 @@ export let options = {
 - ✅ RLS policies
 
 ### Monitoring
+
 - ✅ Structured logging
 - ✅ Performance metrics
 - ✅ Error tracking
@@ -386,6 +415,7 @@ export let options = {
 - ⚠️ Alerting system (recommended)
 
 ### Performance
+
 - ✅ Caching implemented
 - ✅ Query optimization
 - ✅ Asset optimization
@@ -394,6 +424,7 @@ export let options = {
 - ⚠️ CDN configuration (recommended)
 
 ### Resilience
+
 - ✅ Circuit breakers
 - ✅ Retry logic
 - ✅ Timeout handling
@@ -405,6 +436,7 @@ export let options = {
 ## 9. Scalability Projections
 
 ### Current Capacity
+
 - **Users:** Up to 100k concurrent
 - **Requests:** Up to 10k RPS
 - **Database:** Up to 1M records per table
@@ -413,27 +445,32 @@ export let options = {
 ### 1M Users Scaling Plan
 
 **Database:**
+
 - Implement read replicas (3-5 nodes)
 - Connection pooling (pgBouncer)
 - Partition large tables by date
 - Archive old data (>1 year)
 
 **Caching:**
+
 - Deploy Redis cluster
 - Implement edge caching (CloudFlare)
 - Cache invalidation strategy
 
 **Compute:**
+
 - Horizontal scaling (10+ edge function instances)
 - Auto-scaling based on load
 - Geographic distribution
 
 **Storage:**
+
 - CDN for images (CloudFlare/CloudFront)
 - Image optimization pipeline
 - Lazy loading everywhere
 
 **Estimated Costs (Monthly):**
+
 - Database: $500-1000
 - Compute: $300-600
 - Storage & CDN: $200-400
@@ -445,6 +482,7 @@ export let options = {
 ## 10. Recommendations for Production
 
 ### High Priority
+
 1. ✅ Implement Redis for distributed caching
 2. ✅ Set up APM tool (DataDog, New Relic, or Grafana)
 3. ✅ Configure alerting (PagerDuty, Opsgenie)
@@ -454,6 +492,7 @@ export let options = {
 7. ✅ Configure CDN for static assets
 
 ### Medium Priority
+
 1. ✅ Implement message queue (for emails, notifications)
 2. ✅ Add more granular rate limiting per endpoint
 3. ✅ Implement data retention policies
@@ -461,6 +500,7 @@ export let options = {
 5. ✅ Add feature flags for gradual rollouts
 
 ### Low Priority
+
 1. ✅ Implement GraphQL for flexible querying
 2. ✅ Add real-time analytics dashboard
 3. ✅ Implement A/B testing framework
@@ -473,7 +513,8 @@ export let options = {
 ### Real-Time Monitoring
 
 **Critical Metrics:**
-```
+
+```text
 ┌────────────────────────────────────────┐
 │  Uptime: 99.95%          Status: 🟢    │
 │  Latency p95: 165ms      Target: <200  │
@@ -512,6 +553,7 @@ ConfessAI is **production-ready** for 1 million users with:
 ✅ **Clear scaling path**
 
 **Next Steps:**
+
 1. Deploy to staging environment
 2. Run load tests (10k RPS)
 3. Configure production monitoring
@@ -521,6 +563,7 @@ ConfessAI is **production-ready** for 1 million users with:
 7. Progressive rollout to 100%
 
 **Multilingual Support:**
+
 - ✅ 3 languages (EN, ES, DE) fully implemented
 - ✅ All system messages translated
 - ✅ Validation errors in all languages

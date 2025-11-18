@@ -141,7 +141,6 @@ const Index = () => {
     // Stagger secondary content loading for better perceived performance
     const timer = setTimeout(() => setShowSecondaryContent(true), 300);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleNewConfession = () => {

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { observability } from '@/lib/observability';
+import { useCaptchaChallenge } from '@/contexts/CaptchaChallengeContext';
 
 /**
  * Automatic JWT token refresh hook
@@ -8,9 +9,15 @@ import { observability } from '@/lib/observability';
  */
 export const useAuthRefresh = () => {
   const refreshTimeoutRef = useRef<NodeJS.Timeout>();
+  const requestCaptchaChallenge = useCaptchaChallenge();
 
   useEffect(() => {
-    const rotateManagedRefreshToken = async () => {
+    interface RotateOptions {
+      captchaToken?: string;
+      attempt?: number;
+    }
+
+    const rotateManagedRefreshToken = async (options: RotateOptions = {}) => {
       const storedToken = localStorage.getItem('refresh_token');
       if (!storedToken) {
         return;
@@ -20,16 +27,41 @@ export const useAuthRefresh = () => {
         const deviceId = localStorage.getItem('device_id') || undefined;
         const stayConnected = localStorage.getItem('stay_signed_in') === 'true';
 
+        const requestBody: Record<string, unknown> = {
+          refreshToken: storedToken,
+          sessionMetadata: {
+            deviceId,
+            userAgent: navigator.userAgent,
+            stayConnected,
+          },
+        };
+
+        if (options.captchaToken) {
+          requestBody.captchaToken = options.captchaToken;
+        }
+
         const { data, error } = await supabase.functions.invoke('enhanced-auth?action=refresh-session', {
           body: {
-            refreshToken: storedToken,
-            sessionMetadata: {
-              deviceId,
-              userAgent: navigator.userAgent,
-              stayConnected,
-            },
+            ...requestBody,
           },
         });
+
+        const requiresCaptcha = data?.requiresCaptcha || data?.error === 'CAPTCHA_REQUIRED';
+
+        if (requiresCaptcha) {
+          if ((options.attempt ?? 0) >= 2) {
+            observability.warn('Refresh captcha attempts exhausted');
+            return;
+          }
+
+          try {
+            const captchaResponse = await requestCaptchaChallenge({ reason: 'auth_refresh' });
+            await rotateManagedRefreshToken({ captchaToken: captchaResponse, attempt: (options.attempt ?? 0) + 1 });
+          } catch (challengeError) {
+            observability.warn('Refresh captcha challenge dismissed', challengeError instanceof Error ? challengeError : undefined);
+          }
+          return;
+        }
 
         if (error || data?.error) {
           observability.warn('Managed refresh rotation failed', {

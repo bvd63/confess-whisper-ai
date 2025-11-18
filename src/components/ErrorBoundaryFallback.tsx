@@ -1,7 +1,7 @@
 import { Component, ReactNode } from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { translations } from '@/i18n/translations';
+import { ensureLanguage, getCachedTranslations, loadTranslations } from '@/i18n/translations';
 import { logError } from '@/lib/logger';
 
 interface Props {
@@ -39,8 +39,10 @@ class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback;
       }
 
-      const language = (localStorage.getItem('language') as 'en' | 'es' | 'de') || 'en';
-      const t = translations[language];
+      const storedLanguage = localStorage.getItem('language');
+      const language = ensureLanguage(storedLanguage);
+      const t = getCachedTranslations(language);
+      void loadTranslations(language).catch(() => undefined);
 
       return (
         <div className="min-h-screen flex items-center justify-center bg-background p-4">

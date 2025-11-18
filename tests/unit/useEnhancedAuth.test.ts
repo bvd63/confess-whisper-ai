@@ -7,12 +7,18 @@ import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
 import { supabase } from "@/integrations/supabase/client";
 import * as ToastHook from "@/hooks/use-toast";
 import * as LanguageContext from "@/contexts/LanguageContext";
+import { useCaptchaChallenge } from "@/contexts/CaptchaChallengeContext";
 import { translations } from "@/i18n/translations";
 
 const ROTATE_SUCCESS = translations.en.settings_sessions_rotate_success;
 const ROTATE_ERROR = translations.en.settings_sessions_rotate_error;
 const TOAST_TITLE_SUCCESS = translations.en.common_success;
 const TOAST_TITLE_ERROR = translations.en.common_error;
+const CAPTCHA_FAILED = translations.en.auth_captcha_failed;
+
+vi.mock("@/contexts/CaptchaChallengeContext", () => ({
+  useCaptchaChallenge: vi.fn(),
+}));
 
 describe("useEnhancedAuth", () => {
   const toastMock = vi.fn();
@@ -20,6 +26,8 @@ describe("useEnhancedAuth", () => {
   let languageSpy: ReturnType<typeof vi.spyOn>;
   let functionsInvokeMock: Mock;
   let signOutMock: Mock;
+  const captchaChallengeMock = vi.fn();
+  const useCaptchaChallengeMock = useCaptchaChallenge as unknown as Mock;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -43,6 +51,10 @@ describe("useEnhancedAuth", () => {
 
     signOutMock = supabase.auth.signOut as unknown as Mock;
     signOutMock.mockReset();
+
+    captchaChallengeMock.mockReset();
+    captchaChallengeMock.mockResolvedValue("captcha-token");
+    useCaptchaChallengeMock.mockReturnValue(captchaChallengeMock);
   });
 
   afterEach(() => {
@@ -114,6 +126,83 @@ describe("useEnhancedAuth", () => {
       expect.any(Object)
     );
     expect(result.current.loading).toBe(false);
+  });
+
+  it("retries rotation with captcha token when backend requires challenge", async () => {
+    const expiresAt = new Date(Date.now() + 3600 * 1000).toISOString();
+
+    const rotationResponses = [
+      {
+        data: { requiresCaptcha: true, error: "CAPTCHA_REQUIRED" },
+        error: null,
+      },
+      {
+        data: {
+          refreshToken: "rotated-token",
+          expiresAt,
+          stayConnected: false,
+        },
+        error: null,
+      },
+    ];
+
+    functionsInvokeMock.mockImplementation(async (name: string) => {
+      if (name === "enhanced-auth?action=refresh-session") {
+        return rotationResponses.shift()!;
+      }
+      if (name === "enhanced-auth?action=list-sessions") {
+        return { data: { sessions: [] }, error: null };
+      }
+      return { data: null, error: null };
+    });
+
+    localStorage.setItem("refresh_token", "initial-token");
+
+    const { result } = renderHook(() => useEnhancedAuth());
+
+    await act(async () => {
+      const response = await result.current.rotateCurrentSession();
+      expect(response).toEqual({ success: true, error: null });
+    });
+
+    expect(captchaChallengeMock).toHaveBeenCalledWith({ reason: "session_rotation" });
+    expect(functionsInvokeMock.mock.calls).toEqual(
+      expect.arrayContaining([
+        [
+          "enhanced-auth?action=refresh-session",
+          expect.objectContaining({
+            body: expect.objectContaining({ captchaToken: "captcha-token" }),
+          }),
+        ],
+      ])
+    );
+    expect(localStorage.getItem("refresh_token")).toBe("rotated-token");
+  });
+
+  it("shows captcha error toast when user dismisses challenge", async () => {
+    captchaChallengeMock.mockRejectedValue(new Error("captcha_cancelled"));
+
+    functionsInvokeMock.mockResolvedValue({
+      data: { requiresCaptcha: true },
+      error: null,
+    });
+
+    localStorage.setItem("refresh_token", "initial-token");
+
+    const { result } = renderHook(() => useEnhancedAuth());
+
+    await act(async () => {
+      const response = await result.current.rotateCurrentSession();
+      expect(response.error).toBeTruthy();
+    });
+
+    expect(toastMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: TOAST_TITLE_ERROR,
+        description: CAPTCHA_FAILED,
+        variant: "destructive",
+      })
+    );
   });
 
   it("surfaces an error when no refresh token is available", async () => {

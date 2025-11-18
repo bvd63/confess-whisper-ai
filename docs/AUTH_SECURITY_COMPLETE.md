@@ -29,6 +29,7 @@
   - Shown on password reset
   - Shown on login after 3 failed attempts
   - Server-side validation via enhanced-auth function
+  - Suspicious refresh attempts and manual session rotations trigger the in-app CaptchaChallenge dialog before issuing new tokens
 
 - ✅ **Rate Limiting**
   - Client-side using useRateLimit hook
@@ -42,6 +43,7 @@
   - Maximum 5 sessions per user
   - Device tracking with fingerprinting
   - Session revocation on password reset
+  - Manual rotate-current-session CTA in settings prompts Turnstile when backend flags anomalies
 
 - ✅ **Auto-Logout on Inactivity**
   - 30-minute timeout if "Stay logged in" not checked
@@ -70,6 +72,7 @@
   - Cloudflare Turnstile integration
   - Remote IP validation
   - Fail-safe for missing configuration
+  - Shared verification path for login, password reset, and refresh-session actions
 
 - ✅ **Failed Attempt Tracking**
   - Database table: `failed_login_attempts`
@@ -82,6 +85,8 @@
   - Session expiration tracking
   - Device metadata storage
   - Automatic old session revocation (max 5 per user)
+  - Managed refresh tokens rotate on every request and persist rotation_count, refresh_nonce, anomaly_reason, captcha_verified_at
+  - Edge responses return `requiresCaptcha` so the frontend can challenge users before issuing a new refresh token
 
 - ✅ **Security Event Logging**
   - Login success/failure
@@ -98,6 +103,7 @@
 ### Multilingual Support (EN/ES/DE)
 
 All new strings translated:
+
 - `auth_forgot_password` - "Forgot password?" / "¿Olvidaste tu contraseña?" / "Passwort vergessen?"
 - `auth_forgot_password_title` - "Reset your password" / "Restablece tu contraseña" / "Passwort zurücksetzen"
 - `auth_forgot_password_desc` - Instructions in all languages
@@ -129,36 +135,43 @@ Supabase automatically sends localized emails based on user's browser language:
 ## 🛡️ Security Best Practices Implemented
 
 ### No User Enumeration
+
 - Login: Always show "Invalid credentials" (never "user not found" vs "wrong password")
 - Signup: Show success even if email exists
 - Password reset: Always show "If account exists, you'll receive instructions"
 
 ### Password Security
+
 - Minimum 10 characters (industry standard for 2025)
 - Complexity requirements enforced
 - Client AND server-side validation
 - Visual feedback with strength meter
 
 ### Session Security
+
 - httpOnly cookies (via Supabase)
 - Secure flag enabled
 - SameSite=Lax
 - Token refresh on activity
 - Automatic cleanup of old sessions
+- CaptchaChallenge modal required when backend reports `requiresCaptcha` during refresh to prevent silent reuse
 
 ### Rate Limiting
+
 - Failed attempts tracked by email AND IP
 - Progressive delays on repeated failures
 - CAPTCHA requirement escalation
 - Temporary lockouts (not permanent bans)
 
 ### Device Tracking
+
 - Unique fingerprint per device
 - Secure logging of new device access
 - User notification system
 - No PII in device ID
 
 ### Inactivity Protection
+
 - 30-minute timeout (configurable)
 - Activity detection on multiple events
 - Graceful logout with notification
@@ -167,6 +180,7 @@ Supabase automatically sends localized emails based on user's browser language:
 ## 🔧 Configuration
 
 ### Supabase Auth Settings (via Lovable Cloud)
+
 ```
 Email confirmation: ENABLED ✅
 Auto-confirm email: DISABLED ✅
@@ -176,12 +190,14 @@ JWT expiry: 3600 seconds (1 hour) ✅
 ```
 
 ### Environment Variables Required
+
 ```
 VITE_TURNSTILE_SITE_KEY=<your-cloudflare-site-key>
 TURNSTILE_SECRET=<your-cloudflare-secret> (in Supabase secrets)
 ```
 
 ### Edge Function Configuration
+
 ```toml
 [functions.enhanced-auth]
 verify_jwt = false  # Handles both authenticated and unauthenticated actions
@@ -191,7 +207,9 @@ verify_jwt = false  # Cron job for cleanup
 ```
 
 ### Cron Jobs (Recommended)
+
 Set up these cron jobs via Supabase dashboard or pg_cron:
+
 ```sql
 -- Run daily at 2 AM to clean up expired auth data
 SELECT cron.schedule(
@@ -209,6 +227,7 @@ SELECT cron.schedule(
 ## 🧪 Testing Checklist
 
 ### Registration Flow
+
 - [ ] Strong password validation works
 - [ ] Weak passwords are rejected
 - [ ] Password strength meter updates correctly
@@ -220,6 +239,7 @@ SELECT cron.schedule(
 - [ ] Translation works in all 3 languages
 
 ### Login Flow
+
 - [ ] Valid credentials work
 - [ ] Invalid credentials show generic error
 - [ ] "Stay logged in" checkbox works
@@ -229,6 +249,7 @@ SELECT cron.schedule(
 - [ ] Session created successfully
 
 ### Password Reset Flow
+
 - [ ] Forgot password form requires email + CAPTCHA
 - [ ] Generic success message shown
 - [ ] Reset email received
@@ -240,6 +261,7 @@ SELECT cron.schedule(
 - [ ] Success redirects to login
 
 ### Email Verification
+
 - [ ] Verification link in email works
 - [ ] Success page shows correct message
 - [ ] Redirects to home after verification
@@ -247,6 +269,7 @@ SELECT cron.schedule(
 - [ ] Cannot login before verifying
 
 ### Security Features
+
 - [ ] Inactivity logout works (30 min)
 - [ ] "Stay logged in" bypasses auto-logout
 - [ ] New device login notification shows
@@ -255,8 +278,10 @@ SELECT cron.schedule(
 - [ ] CAPTCHA requirement works
 - [ ] Session limit (5 max) enforced
 - [ ] Security events logged
+- [ ] Refresh token rotation forces CaptchaChallenge dialog when backend returns `requiresCaptcha`
 
 ### Multilingual
+
 - [ ] All new strings translated
 - [ ] Language selector works
 - [ ] Password rules show in correct language
@@ -266,6 +291,7 @@ SELECT cron.schedule(
 ## 🚀 Production Readiness
 
 ### Before Launch
+
 1. ✅ Enable email verification in Supabase
 2. ✅ Configure Cloudflare Turnstile production keys
 3. ✅ Test all flows in EN/ES/DE
@@ -276,12 +302,14 @@ SELECT cron.schedule(
 8. ✅ Verify auto-logout timing
 
 ### Monitoring
+
 - Monitor `failed_login_attempts` table for attack patterns
 - Track `security_events` for unusual activity
 - Review `captcha_requirements` for abuse
 - Monitor `auth_sessions` for session issues
 
 ### Maintenance
+
 - Regularly review security logs
 - Update CAPTCHA keys if compromised
 - Adjust rate limits based on usage
@@ -295,8 +323,9 @@ SELECT cron.schedule(
 ## 📊 Database Tables Used
 
 ### Security Tables
+
 - `auth_sessions` - Session management with device tracking
-  - Columns: id, user_id, token_hash, device_id, user_agent, ip_address, created_at, expires_at, last_refreshed_at, revoked_at, stay_connected
+  - Columns: id, user_id, token_hash, device_id, user_agent, ip_address, created_at, expires_at, last_refreshed_at, revoked_at, stay_connected, rotation_count, refresh_nonce, anomaly_reason, captcha_verified_at, email
   - Indexes: user_id, token_hash, device_id
   - RLS: Users can view their own, service role full access
 
@@ -306,8 +335,8 @@ SELECT cron.schedule(
   - RLS: Service role only
 
 - `captcha_requirements` - Dynamic CAPTCHA enforcement
-  - Columns: id, email, required_until, reason
-  - Index: email + required_until
+  - Columns: id, email, required_until, reason, device_id, ip_address
+  - Index: email + required_until + device_id
   - RLS: Service role only
 
 - `security_events` - Audit log
@@ -316,20 +345,22 @@ SELECT cron.schedule(
   - RLS: Users can view their own, service role full access
 
 ### Functions Used
+
 - `is_captcha_required(_email)` - Check if CAPTCHA needed
 - `get_failed_login_count(_email, _minutes)` - Count failures
 - `log_security_event(...)` - Log security events
 - `revoke_all_user_sessions(_user_id)` - Revoke all sessions
 
 ### Edge Functions
+
 - `enhanced-auth` - Main authentication handler with actions:
   - check-captcha-required
   - enhanced-login
   - validate-signup
+  - refresh-session
   - revoke-session
   - revoke-all-sessions
   - list-sessions
-  
 - `cleanup-auth-data` - Daily cron job for maintenance:
   - Removes expired sessions
   - Deletes old failed attempts (30+ days)
@@ -353,18 +384,18 @@ SELECT cron.schedule(
 
 ## 🔒 Security Scorecard
 
-| Feature | Status | Grade |
-|---------|--------|-------|
-| Password Strength | ✅ Enforced | A+ |
-| Email Verification | ✅ Required | A+ |
-| CAPTCHA Protection | ✅ Adaptive | A+ |
-| Rate Limiting | ✅ Multi-layer | A |
-| Session Management | ✅ Secure | A+ |
-| Device Tracking | ✅ Active | A |
-| Inactivity Logout | ✅ Configurable | A |
-| Error Handling | ✅ Generic | A+ |
-| Multilingual | ✅ Complete | A+ |
-| Production Config | ✅ Applied | A+ |
+| Feature            | Status          | Grade |
+| ------------------ | --------------- | ----- |
+| Password Strength  | ✅ Enforced     | A+    |
+| Email Verification | ✅ Required     | A+    |
+| CAPTCHA Protection | ✅ Adaptive     | A+    |
+| Rate Limiting      | ✅ Multi-layer  | A     |
+| Session Management | ✅ Secure       | A+    |
+| Device Tracking    | ✅ Active       | A     |
+| Inactivity Logout  | ✅ Configurable | A     |
+| Error Handling     | ✅ Generic      | A+    |
+| Multilingual       | ✅ Complete     | A+    |
+| Production Config  | ✅ Applied      | A+    |
 
 **Overall Security Grade: A+** 🏆
 

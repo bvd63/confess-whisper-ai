@@ -15,6 +15,7 @@ SUPABASE_SERVICE_ROLE_KEY  # For admin operations
 ### 2. Database Setup
 
 The following tables are automatically created:
+
 - ✅ `auth_sessions` - Active user sessions
 - ✅ `failed_login_attempts` - Track failed logins
 - ✅ `captcha_requirements` - CAPTCHA enforcement
@@ -23,6 +24,7 @@ The following tables are automatically created:
 ### 3. Cron Job Configuration
 
 **Automatic Cleanup Schedule:**
+
 - **Frequency:** Daily at 3:00 AM UTC
 - **Function:** `cleanup-auth-data`
 - **What it cleans:**
@@ -32,6 +34,7 @@ The following tables are automatically created:
   - Security events older than 90 days
 
 **Manual Trigger (for testing):**
+
 ```sql
 SELECT trigger_auth_cleanup();
 ```
@@ -39,6 +42,7 @@ SELECT trigger_auth_cleanup();
 ### 4. Security Thresholds
 
 Current configuration:
+
 ```typescript
 MAX_SESSIONS_PER_USER = 5           // Auto-revokes oldest
 MAX_FAILED_ATTEMPTS = 5             // Before rate limiting
@@ -51,6 +55,7 @@ INACTIVITY_TIMEOUT = 30 minutes     // Auto-logout threshold
 ### 5. Email Configuration
 
 Configure Supabase email settings:
+
 1. Open Lovable Cloud backend
 2. Navigate to Authentication > Email Templates
 3. Customize templates for:
@@ -63,6 +68,7 @@ Configure Supabase email settings:
 ### 6. Rate Limiting
 
 Edge function rate limits are enforced:
+
 - **Login attempts:** 5 per 15 minutes per IP
 - **Signup attempts:** 5 per 60 minutes per IP
 - **Password reset:** 3 per hour per email
@@ -70,12 +76,14 @@ Edge function rate limits are enforced:
 ### 7. Monitoring Setup
 
 **Access Testing Dashboard:**
+
 - URL: `/auth-test` (requires authentication)
 - Available from:
   - Admin Dashboard: Click "Auth Testing" button
   - Profile Page: Security tab → "Open Dashboard"
 
 **Key Metrics to Monitor:**
+
 1. **Failed Login Rate**
    - Spike indicates potential attack
    - Check `failed_login_attempts` table
@@ -96,7 +104,7 @@ Edge function rate limits are enforced:
 
 ```sql
 -- Failed login rate (last 24 hours)
-SELECT 
+SELECT
   DATE_TRUNC('hour', attempted_at) as hour,
   COUNT(*) as failed_attempts
 FROM failed_login_attempts
@@ -105,7 +113,7 @@ GROUP BY hour
 ORDER BY hour DESC;
 
 -- Active sessions per user
-SELECT 
+SELECT
   user_id,
   COUNT(*) as session_count,
   MAX(created_at) as last_login
@@ -116,7 +124,7 @@ HAVING COUNT(*) > 3
 ORDER BY session_count DESC;
 
 -- CAPTCHA enforcement trends
-SELECT 
+SELECT
   DATE(required_until) as date,
   COUNT(*) as captcha_requirements
 FROM captcha_requirements
@@ -128,6 +136,7 @@ ORDER BY date DESC;
 ### 8. Alert Thresholds (Recommended)
 
 Set up alerts for:
+
 - ❗ Failed logins > 100/hour from single IP → Block IP
 - ❗ CAPTCHA requirements > 50/hour → Investigate bot activity
 - ❗ Password resets > 10/hour → Possible enumeration attack
@@ -137,6 +146,7 @@ Set up alerts for:
 ### 9. Testing Checklist
 
 Before going live, test:
+
 - [ ] Registration with password validation
 - [ ] Login with CAPTCHA (after 3 failed attempts)
 - [ ] "Stay logged in" functionality
@@ -151,6 +161,7 @@ Before going live, test:
 ### 10. Documentation
 
 Key documentation files:
+
 - `AUTH_SECURITY_COMPLETE.md` - Full implementation details
 - `AUTH_TESTING_GUIDE.md` - Testing procedures
 - `AUTH_QUICK_REFERENCE.md` - Developer reference
@@ -159,6 +170,7 @@ Key documentation files:
 ## Production Launch
 
 ### Pre-launch:
+
 1. ✅ Review all security thresholds
 2. ✅ Test all authentication flows
 3. ✅ Verify cron job is scheduled
@@ -169,6 +181,7 @@ Key documentation files:
 8. ✅ Test rate limiting
 
 ### Post-launch:
+
 1. Monitor failed login rates
 2. Check cron job execution logs
 3. Review security events daily
@@ -179,33 +192,37 @@ Key documentation files:
 ## Troubleshooting
 
 ### Cron Job Not Running
+
 ```sql
 -- Check if scheduled
-SELECT * FROM cron.job 
+SELECT * FROM cron.job
 WHERE jobname = 'cleanup-auth-data-daily';
 
 -- View recent executions
-SELECT * FROM cron.job_run_details 
+SELECT * FROM cron.job_run_details
 WHERE jobid = (
-  SELECT jobid FROM cron.job 
+  SELECT jobid FROM cron.job
   WHERE jobname = 'cleanup-auth-data-daily'
 )
 ORDER BY start_time DESC LIMIT 10;
 ```
 
 ### High Failed Login Rate
+
 1. Check for distributed attack (multiple IPs)
 2. Verify CAPTCHA is working
 3. Consider temporary IP blocking
 4. Review rate limiting thresholds
 
 ### Sessions Not Being Cleaned
+
 1. Verify cron job is running
 2. Check function logs for errors
 3. Manually trigger: `SELECT trigger_auth_cleanup()`
 4. Review RLS policies on auth tables
 
 ### Users Can't Login
+
 1. Check if CAPTCHA is misconfigured
 2. Verify email confirmation setting
 3. Review failed login attempts for their email
@@ -248,6 +265,7 @@ ORDER BY start_time DESC LIMIT 10;
 ## Emergency Contacts
 
 For critical security issues:
+
 1. Check edge function logs in Lovable Cloud
 2. Review security events in database
 3. Use testing dashboard at `/auth-test`

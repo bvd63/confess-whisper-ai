@@ -4,31 +4,34 @@
  */
 
 import { toast as toastFn } from '@/hooks/use-toast';
-import { translations, type Language } from '@/i18n/translations';
+import { ensureLanguage, getCachedTranslations, loadTranslations, type Language } from '@/i18n/translations';
+import type { Translations } from '@/i18n/types';
 
 // Helper to get nested translation
 function getNestedTranslation(key: string, language: Language): string {
+  const lang = ensureLanguage(language);
   const keys = key.split('.');
-  let value: any = translations[language];
-  
-  for (const k of keys) {
-    if (value && typeof value === 'object' && k in value) {
-      value = value[k];
-    } else {
-      // Fallback to English if key not found
-      value = translations.en;
-      for (const fallbackKey of keys) {
-        if (value && typeof value === 'object' && fallbackKey in value) {
-          value = value[fallbackKey];
-        } else {
-          return key; // Return key if not found even in English
-        }
+  void loadTranslations(lang).catch(() => undefined);
+
+  const resolveValue = (source: Translations | any): string | null => {
+    let value: any = source;
+    for (const part of keys) {
+      if (value && typeof value === 'object' && part in value) {
+        value = value[part];
+      } else {
+        return null;
       }
-      break;
     }
+    return typeof value === 'string' ? value : null;
+  };
+
+  const primary = resolveValue(getCachedTranslations(lang));
+  if (primary) {
+    return primary;
   }
-  
-  return typeof value === 'string' ? value : key;
+
+  const fallback = resolveValue(getCachedTranslations('en'));
+  return fallback ?? key;
 }
 
 export const notify = {

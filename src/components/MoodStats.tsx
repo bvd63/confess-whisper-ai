@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Smile, Frown, Meh, Angry, Sparkles } from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useRecharts } from "@/hooks/useRecharts";
 
 interface MoodStatsProps {
   userId: string;
@@ -33,8 +33,11 @@ const moodIcons: Record<string, any> = {
   neutral: Meh,
 };
 
+const CARTESIAN_AND_PIE_SCOPES = ["cartesianCore", "line", "pie"] as const;
+
 const MoodStats = ({ userId }: MoodStatsProps) => {
   const { t, language } = useLanguage();
+  const recharts = useRecharts(CARTESIAN_AND_PIE_SCOPES);
   const [moodData, setMoodData] = useState<MoodData[]>([]);
   const [timelineData, setTimelineData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -97,8 +100,10 @@ const MoodStats = ({ userId }: MoodStatsProps) => {
     setLoading(false);
   };
 
-  if (loading) return null;
+  if (loading || !recharts) return null;
   if (moodData.length === 0) return null;
+
+  const { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, LineChart, CartesianGrid, XAxis, YAxis, Line } = recharts;
 
   return (
     <div className="space-y-2.5 sm:space-y-3">

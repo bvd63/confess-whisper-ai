@@ -5,6 +5,7 @@ This document explains how to configure environment variables for the ConfessAI 
 ## Overview
 
 The application uses **Zod validation** for type-safe environment variables. All configuration is managed through:
+
 - `.env` - Local development variables (auto-generated, do not edit manually)
 - `.env.example` - Template showing all available variables
 - `src/lib/env.ts` - Zod validation schema and type exports
@@ -26,34 +27,42 @@ VITE_SUPABASE_PROJECT_ID=your-project-id
 These variables enable **additional features** but are not required for basic functionality:
 
 ### Stripe VIP Subscriptions
+
 ```env
 VITE_STRIPE_PRICE_VIP_MONTH_ID=price_...
 VITE_STRIPE_PRICE_VIP_YEAR_ID=price_...
 ```
+
 - **Required for**: VIP subscription checkout and premium features
 - **Fallback behavior**: Subscription features will be hidden/disabled
 - **Setup guide**: See `STRIPE_SETUP_GUIDE.md`
 
 ### OneSignal Push Notifications
+
 ```env
 VITE_ONESIGNAL_APP_ID=your-onesignal-app-id
 ```
+
 - **Required for**: Push notifications to users
 - **Fallback behavior**: Notifications will not be sent
 - **Setup**: Configure in Lovable Cloud secrets
 
 ### Sentry Error Tracking
+
 ```env
 VITE_SENTRY_DSN=https://...@sentry.io/...
 ```
+
 - **Required for**: Production error monitoring
 - **Fallback behavior**: Errors logged to console only
 - **Setup**: Create Sentry project and add DSN
 
 ### Cloudflare Turnstile
+
 ```env
 VITE_TURNSTILE_SITE_KEY=1x00000000000000000000AA
 ```
+
 - **Required for**: CAPTCHA on forms
 - **Fallback behavior**: Forms work without CAPTCHA
 - **Setup**: Register at Cloudflare Turnstile
@@ -64,14 +73,14 @@ The application validates environment variables on startup using `src/lib/env.ts
 
 ```typescript
 // Required variables - will throw error if missing
-VITE_SUPABASE_URL: z.string().url()
-VITE_SUPABASE_PUBLISHABLE_KEY: z.string().min(20)
+VITE_SUPABASE_URL: z.string().url();
+VITE_SUPABASE_PUBLISHABLE_KEY: z.string().min(20);
 
 // Optional variables - app starts with warnings if missing
-VITE_STRIPE_PRICE_VIP_MONTH_ID: z.string().optional()
-VITE_STRIPE_PRICE_VIP_YEAR_ID: z.string().optional()
-VITE_ONESIGNAL_APP_ID: z.string().optional()
-VITE_SENTRY_DSN: z.string().url().optional()
+VITE_STRIPE_PRICE_VIP_MONTH_ID: z.string().optional();
+VITE_STRIPE_PRICE_VIP_YEAR_ID: z.string().optional();
+VITE_ONESIGNAL_APP_ID: z.string().optional();
+VITE_SENTRY_DSN: z.string().url().optional();
 ```
 
 ### Running Validation Manually
@@ -81,6 +90,7 @@ npm run check:env
 ```
 
 This script validates all environment variables and outputs:
+
 - ✅ Valid configuration
 - ❌ Missing required variables
 - ⚠️ Missing optional variables
@@ -114,7 +124,8 @@ All backend secrets are managed through **Lovable Cloud** (Supabase):
 
 **Cause**: Supabase credentials not configured
 
-**Fix**: 
+**Fix**:
+
 1. Check `.env` file contains valid Supabase credentials
 2. Ensure credentials match your Lovable Cloud project
 3. Restart dev server: `npm run dev`
@@ -124,6 +135,7 @@ All backend secrets are managed through **Lovable Cloud** (Supabase):
 **Cause**: Optional variables not configured
 
 **Fix**:
+
 1. Check which feature is failing (Stripe/OneSignal/Sentry)
 2. Add the corresponding environment variable to `.env`
 3. Restart dev server
@@ -133,6 +145,7 @@ All backend secrets are managed through **Lovable Cloud** (Supabase):
 **Cause**: GitHub Actions doesn't have access to secrets
 
 **Fix**:
+
 1. Add secrets to GitHub repository settings
 2. Update `.github/workflows/ci.yml` to inject secrets
 3. Or use Lovable Cloud deployment (recommended)
@@ -147,12 +160,12 @@ All backend secrets are managed through **Lovable Cloud** (Supabase):
 
 ## Development vs Production
 
-| Variable | Development | Production |
-|----------|-------------|------------|
-| `MODE` | `development` | `production` |
+| Variable    | Development               | Production                |
+| ----------- | ------------------------- | ------------------------- |
+| `MODE`      | `development`             | `production`              |
 | Stripe Keys | Test mode (`sk_test_...`) | Live mode (`sk_live_...`) |
-| Sentry | Optional | Recommended |
-| OneSignal | Optional | Recommended |
+| Sentry      | Optional                  | Recommended               |
+| OneSignal   | Optional                  | Recommended               |
 
 ## Reference
 

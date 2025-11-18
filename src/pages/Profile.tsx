@@ -15,15 +15,10 @@ import { useMessageNotifications } from "@/hooks/useMessageNotifications";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useSubscriptionCheck } from "@/hooks/useSubscriptionCheck";
 import UserConfessionsList from "@/components/UserConfessionsList";
-import UserAnalytics from "@/components/UserAnalytics";
 import BadgesDisplay from "@/components/BadgesDisplay";
 import StreakCounter from "@/components/StreakCounter";
-import WordCloudViz from "@/components/WordCloudViz";
-import FollowStats from "@/components/FollowStats";
 import AchievementToast from "@/components/AchievementToast";
 import { ReferralRewardNotification } from "@/components/ReferralRewardNotification";
-import AdvancedAnalytics from "@/components/AdvancedAnalytics";
-import ModerationPanel from "@/components/ModerationPanel";
 import CoinsDisplay from "@/components/CoinsDisplay";
 
 import { useUserRole } from "@/hooks/useUserRole";
@@ -35,8 +30,18 @@ import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import { useTrialExpiryCheck } from "@/hooks/useTrialExpiryCheck";
 import { SyncSubscriptionButton } from "@/components/SyncSubscriptionButton";
 import { VIPBadge } from "@/components/VIPBadge";
+import { lazyWithRetry } from "@/lib/bundleOptimization";
 
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
+const FollowStats = lazyWithRetry(() => import("@/components/FollowStats"));
+const UserAnalytics = lazyWithRetry(() => import("@/components/UserAnalytics"));
+const AdvancedAnalytics = lazyWithRetry(() => import("@/components/AdvancedAnalytics"));
+const WordCloudViz = lazyWithRetry(() => import("@/components/WordCloudViz"));
+const ModerationPanel = lazyWithRetry(() => import("@/components/ModerationPanel"));
+
+const SectionSkeleton = () => (
+  <div className="min-h-[200px] rounded-2xl border border-border/50 bg-muted/40 animate-pulse" />
+);
 const Profile = () => {
   const navigate = useNavigate();
   const {
@@ -242,15 +247,23 @@ const Profile = () => {
           </TabsList>
 
           <TabsContent value="statistics" className="space-y-6">
-            <FollowStats userId={user.id} />
-            <UserAnalytics
-              onUpgradeClick={() => {}}
-              onManageSubscription={() => setManageSubDialogOpen(true)}
-            />
+            <Suspense fallback={<SectionSkeleton />}>
+              <FollowStats userId={user.id} />
+            </Suspense>
+            <Suspense fallback={<SectionSkeleton />}>
+              <UserAnalytics
+                onUpgradeClick={() => {}}
+                onManageSubscription={() => setManageSubDialogOpen(true)}
+              />
+            </Suspense>
             
-            <AdvancedAnalytics userId={user.id} />
+            <Suspense fallback={<SectionSkeleton />}>
+              <AdvancedAnalytics userId={user.id} />
+            </Suspense>
             
-            <WordCloudViz userId={user.id} />
+            <Suspense fallback={<SectionSkeleton />}>
+              <WordCloudViz userId={user.id} />
+            </Suspense>
             
             {/* Link to Rewards Hub */}
             <div className="flex justify-center pt-4">
@@ -273,7 +286,9 @@ const Profile = () => {
 
 
           {isModerator && <TabsContent value="moderation" className="space-y-6">
-              <ModerationPanel userId={user.id} />
+              <Suspense fallback={<SectionSkeleton />}>
+                <ModerationPanel userId={user.id} />
+              </Suspense>
             </TabsContent>}
         </Tabs>
       </div>

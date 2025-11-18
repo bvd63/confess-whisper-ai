@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -31,32 +31,7 @@ const BadgesDisplay = ({
   const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadFlairs();
-    
-    // Setup realtime subscription
-    const channel = supabase
-      .channel(`user-flairs-${userId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'user_flairs',
-          filter: `user_id=eq.${userId}`
-        },
-        () => {
-          loadFlairs();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [userId]);
-
-  const loadFlairs = async () => {
+  const loadFlairs = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('user_flairs')
@@ -88,7 +63,32 @@ const BadgesDisplay = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    loadFlairs();
+    
+    // Setup realtime subscription
+    const channel = supabase
+      .channel(`user-flairs-${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_flairs',
+          filter: `user_id=eq.${userId}`
+        },
+        () => {
+          loadFlairs();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [loadFlairs, userId]);
 
   if (loading) return null;
   if (flairs.length === 0) return null;

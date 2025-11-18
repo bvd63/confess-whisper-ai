@@ -7,6 +7,7 @@ This guide covers end-to-end testing for ConfessAI using Playwright.
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 ```bash
 npm ci
 npx playwright install --with-deps chromium
@@ -33,6 +34,7 @@ npx playwright test --ui
 ### Environment Variables
 
 Create `.env.test` (optional):
+
 ```env
 BASE_URL=http://localhost:8080
 PLAYWRIGHT_HEADLESS=true
@@ -43,7 +45,7 @@ PLAYWRIGHT_HEADLESS=true
 - **Timeout**: 60s per test
 - **Retries**: 1 local, 2 in CI
 - **Workers**: 2 local, 1 in CI
-- **Base URL**: http://localhost:8080
+- **Base URL**: <http://localhost:8080>
 - **Web Server**: Auto-starts `npm run dev`
 
 ## 🧪 Test Structure
@@ -81,34 +83,39 @@ PLAYWRIGHT_HEADLESS=true
 ## 🎭 Mocking Strategy
 
 ### Supabase Auth
+
 ```typescript
 // Mock in tests/helpers/auth.ts
-await loginAs(page, 'premium_monthly_active');
+await loginAs(page, "premium_monthly_active");
 ```
 
 ### Stripe Checkout
+
 ```typescript
 // Intercept POST requests
-await page.route('**/checkout**', route => {
-  route.fulfill({ status: 302, headers: { Location: '/?success=true' } });
+await page.route("**/checkout**", (route) => {
+  route.fulfill({ status: 302, headers: { Location: "/?success=true" } });
 });
 ```
 
 ### OneSignal
+
 ```typescript
 // Mock in page.addInitScript
 window.OneSignal = {
   init: () => Promise.resolve(),
   Notifications: {
-    requestPermission: () => Promise.resolve('granted')
-  }
+    requestPermission: () => Promise.resolve("granted"),
+  },
 };
 ```
 
 ## 🛡️ Guards & Validations
 
 ### Pre-test Guard
+
 Automatically runs before `npm run test:e2e`:
+
 ```bash
 node ./scripts/guard-no-skip-only.mjs
 ```
@@ -116,6 +123,7 @@ node ./scripts/guard-no-skip-only.mjs
 Fails if any `.skip()` or `.only()` found in test files.
 
 ### Forbidden Patterns
+
 - ❌ `test.skip()`
 - ❌ `describe.skip()`
 - ❌ `test.only()`
@@ -124,16 +132,19 @@ Fails if any `.skip()` or `.only()` found in test files.
 ## 🐛 Troubleshooting
 
 ### Tests Timeout
+
 - Check `webServer` is starting properly
 - Increase `timeout` in playwright.config.ts
 - Use `waitForLoadState('domcontentloaded')` instead of `'networkidle'`
 
 ### Flaky Tests
+
 - Use explicit waits: `await expect(locator).toBeVisible({ timeout: 10000 })`
 - Avoid `page.waitForTimeout()` - use deterministic waits
 - Check for race conditions in beforeEach/afterEach
 
 ### Server Not Starting
+
 ```bash
 # Kill existing process
 lsof -ti:8080 | xargs kill -9
@@ -145,6 +156,7 @@ npm run dev
 ## 📊 CI/CD Integration
 
 ### GitHub Actions Example
+
 ```yaml
 - name: Install Playwright
   run: npx playwright install --with-deps chromium

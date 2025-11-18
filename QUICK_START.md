@@ -7,6 +7,7 @@ Get ConfessAI running locally in **5 minutes**.
 ## 🚀 For Developers
 
 ### Prerequisites
+
 - Node.js 18+ installed
 - npm or bun package manager
 - Lovable account (optional, for deployment)
@@ -56,7 +57,7 @@ npm run test
 cp .env.example .env.local
 ```
 
-2. Fill in required values in `.env.local`:
+1. Fill in required values in `.env.local`:
 
 ```bash
 # Supabase (required)
@@ -77,9 +78,9 @@ VITE_CONFESSION_TURNSTILE_REQUIRED="true"
 VITE_WEB_SHARE_ENABLED="true"
 ```
 
-3. Platform secrets (never commit): configure via deployment provider
+1. Platform secrets (never commit): configure via deployment provider
 
-```
+```env
 TURNSTILE_SECRET=...
 STRIPE_WEBHOOK_SECRET=...
 SUPABASE_SERVICE_ROLE_KEY=...
@@ -95,6 +96,7 @@ See `docs/STRIPE_PRICE_ID_SETUP.md` for detailed guide.
 **Not needed for development!** ✅
 
 The app uses Lovable Cloud (Supabase), which is already configured and includes:
+
 - ✅ PostgreSQL database
 - ✅ Authentication
 - ✅ Storage
@@ -106,19 +108,20 @@ Just use the app - no local database setup required!
 
 ## 📚 Key Documentation
 
-| Document | Purpose | Time |
-|----------|---------|------|
-| `docs/LAUNCH_SEQUENCE.md` | Step-by-step production launch | 35 min |
-| `docs/STRIPE_PRICE_ID_SETUP.md` | Configure Stripe integration | 10 min |
-| `docs/DEPLOYMENT_CHECKLIST.md` | Pre-launch verification | 15 min |
-| `docs/PRODUCTION_MONITORING_SETUP.md` | Set up monitoring | 20 min |
-| `docs/FINAL_REPORT.md` | Complete project overview | 5 min read |
+| Document                              | Purpose                        | Time       |
+| ------------------------------------- | ------------------------------ | ---------- |
+| `docs/LAUNCH_SEQUENCE.md`             | Step-by-step production launch | 35 min     |
+| `docs/STRIPE_PRICE_ID_SETUP.md`       | Configure Stripe integration   | 10 min     |
+| `docs/DEPLOYMENT_CHECKLIST.md`        | Pre-launch verification        | 15 min     |
+| `docs/PRODUCTION_MONITORING_SETUP.md` | Set up monitoring              | 20 min     |
+| `docs/FINAL_REPORT.md`                | Complete project overview      | 5 min read |
 
 ---
 
 ## 🎯 Common Tasks
 
 ### Add a New Feature
+
 ```bash
 # 1. Create feature branch
 git checkout -b feature/new-feature
@@ -138,6 +141,7 @@ git push
 ```
 
 ### Debug Edge Functions
+
 ```bash
 # View logs in Supabase Dashboard
 # → Edge Functions → Select function → Logs
@@ -147,6 +151,7 @@ supabase functions serve --env-file .env.local
 ```
 
 ### Run Pre-Launch Checks
+
 ```bash
 chmod +x scripts/pre-launch-check.sh
 ./scripts/pre-launch-check.sh
@@ -157,6 +162,7 @@ chmod +x scripts/pre-launch-check.sh
 ## 🐛 Troubleshooting
 
 ### "Module not found" errors
+
 ```bash
 # Clear cache and reinstall
 rm -rf node_modules package-lock.json
@@ -164,12 +170,14 @@ npm install
 ```
 
 ### Stripe checkout not working
+
 1. Check Price IDs are set in environment
 2. Verify Stripe is in Test Mode
 3. Check browser console for errors
 4. Review Supabase Edge Function logs
 
 ### Tests failing
+
 ```bash
 # Clear test cache
 npm run test -- --clearCache
@@ -179,14 +187,15 @@ npm run test tests/unit/referral-rewards.test.tsx
 ```
 
 ### Database connection issues
+
 - **Not applicable!** Using Lovable Cloud (no local DB)
-- If Supabase is down, check: https://status.supabase.com
+- If Supabase is down, check: [https://status.supabase.com](https://status.supabase.com)
 
 ---
 
 ## 📦 Project Structure
 
-```
+```text
 confessai/
 ├── src/                    # Frontend source code
 │   ├── components/         # React components
@@ -221,19 +230,23 @@ confessai/
 ## 🎓 Learning Resources
 
 ### React + TypeScript
+
 - [React Docs](https://react.dev)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 
 ### Lovable Cloud (Supabase)
+
 - [Supabase Docs](https://supabase.com/docs)
 - [Edge Functions Guide](https://supabase.com/docs/guides/functions)
 - [Lovable Discord](https://discord.gg/lovable)
 
 ### Stripe
+
 - [Stripe Checkout Docs](https://stripe.com/docs/payments/checkout)
 - [Stripe Testing](https://stripe.com/docs/testing)
 
 ### Testing
+
 - [Vitest Docs](https://vitest.dev)
 - [React Testing Library](https://testing-library.com/react)
 - [Playwright Docs](https://playwright.dev)
@@ -243,6 +256,7 @@ confessai/
 ## 🚀 Deployment
 
 ### Via Lovable (Recommended)
+
 ```bash
 # 1. Push to Git (if connected)
 git push
@@ -255,6 +269,7 @@ git push
 ```
 
 ### Manual Deployment
+
 ```bash
 # 1. Build for production
 npm run build
@@ -275,12 +290,14 @@ npm run preview
 ## ✅ Quick Checklist
 
 Before starting development:
+
 - [ ] Node.js 18+ installed
 - [ ] Dependencies installed (`npm install`)
 - [ ] Dev server running (`npm run dev`)
-- [ ] Can access http://localhost:5173
+- [ ] Can access <http://localhost:5173>
 
 Before production deployment:
+
 - [ ] Stripe Price IDs configured
 - [ ] All tests passing (`npm run test`)
 - [ ] Pre-launch checks pass (`./scripts/pre-launch-check.sh`)
@@ -302,6 +319,7 @@ Before production deployment:
 ## 🎯 Next Steps
 
 ### New Developer Onboarding
+
 1. **Read** `docs/FINAL_REPORT.md` (5 min)
 2. **Run** local dev server (3 min)
 3. **Explore** the codebase (30 min)
@@ -309,6 +327,7 @@ Before production deployment:
 5. **Pick** a small bug to fix (1 hour)
 
 ### Preparing for Production
+
 1. **Follow** `docs/LAUNCH_SEQUENCE.md` (35 min)
 2. **Configure** Stripe Price IDs (10 min)
 3. **Run** pre-launch checks (5 min)

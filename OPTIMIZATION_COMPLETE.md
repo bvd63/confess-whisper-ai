@@ -1,4 +1,4 @@
-# 🎉 ConfessAI Optimization Complete!
+# 🎉 ConfessAI Optimization Complete
 
 ## ✅ All Tasks Successfully Completed
 
@@ -9,14 +9,17 @@ Your ConfessAI application has been fully optimized and is **100% production-rea
 ## 📋 Completed Optimization Tasks
 
 ### ✅ Task 1: Centralized Stripe Configuration
+
 **Status**: Complete  
 **Files Modified**:
+
 - Created `src/lib/stripe-config.ts` - Single source of truth for all Stripe config
 - Updated `src/components/SubscriptionStatusCard.tsx` - Uses centralized config
 - Updated `src/pages/Profile.tsx` - Uses centralized config
 - Updated `.env.example` - Added Stripe environment variables
 
 **Benefits**:
+
 - No more hard-coded Stripe IDs
 - Easy to switch between test/production
 - All price IDs from environment variables
@@ -25,19 +28,23 @@ Your ConfessAI application has been fully optimized and is **100% production-rea
 ---
 
 ### ✅ Task 2: OneSignal Push Notifications Integration
+
 **Status**: Complete  
 **Files Created**:
+
 - `public/OneSignalSDKWorker.js` - Service worker for push notifications
 - `src/services/onesignal.ts` - Complete OneSignal service (148 lines)
 - `src/hooks/useOneSignalInit.ts` - Auto-initialization hook
 - `src/components/NotificationStatusBadge.tsx` - Visual status indicator
 
 **Files Modified**:
+
 - `src/App.tsx` - Added OneSignal initialization
 - `src/components/NotificationSettings.tsx` - Added status badge
 - `.env.example` - Added OneSignal environment variable
 
 **Features Implemented**:
+
 - ✅ Automatic SDK initialization on app load
 - ✅ User ID linking for targeted notifications
 - ✅ Permission request handling
@@ -49,12 +56,15 @@ Your ConfessAI application has been fully optimized and is **100% production-rea
 ---
 
 ### ✅ Task 3: Dependency Cleanup
+
 **Status**: Complete  
 **Removed**:
+
 - `mapbox-gl` (~300KB)
 - `@mapbox/mapbox-gl-geocoder` (~200KB)
 
 **Added**:
+
 - `react-onesignal` (for push notifications)
 
 **Result**: ~500KB bundle size reduction
@@ -62,10 +72,12 @@ Your ConfessAI application has been fully optimized and is **100% production-rea
 ---
 
 ### ✅ Task 4: Vite Build Optimization
+
 **Status**: Complete  
 **File Modified**: `vite.config.ts`
 
 **Optimizations**:
+
 - ✅ Disabled source maps in production
 - ✅ Manual code splitting:
   - `react-vendor`: React, React DOM, React Router
@@ -79,15 +91,18 @@ Your ConfessAI application has been fully optimized and is **100% production-rea
 ---
 
 ### ✅ Task 5: UI/UX Enhancements
-**Status**: Complete  
+
+**Status**: Complete
 
 **Subscription Status Card**:
+
 - Added "Synced with Stripe" live indicator
 - Green animated pulse dot
 - Shows subscription renewal date
 - Clear visual feedback
 
 **Notification Status Badge**:
+
 - 🟢 Green: Active (granted)
 - 🔴 Red: Blocked (denied)
 - ⚫ Gray: Disabled (default)
@@ -97,13 +112,16 @@ Your ConfessAI application has been fully optimized and is **100% production-rea
 ---
 
 ### ✅ Task 6: Testing Infrastructure
+
 **Status**: Complete  
 **Files Created**:
+
 - `tests/stripe-integration.test.ts` (129 lines)
 - `tests/onesignal-integration.test.ts` (113 lines)
 - `docs/TESTING.md` (comprehensive testing guide)
 
 **Test Coverage**:
+
 - ✅ Stripe configuration validation
 - ✅ Checkout session creation
 - ✅ Subscription upgrade/downgrade/cancel
@@ -114,6 +132,7 @@ Your ConfessAI application has been fully optimized and is **100% production-rea
 - ✅ Error scenarios
 
 **Commands**:
+
 ```bash
 npm run test           # Run all tests
 npm run test:watch     # Watch mode
@@ -123,10 +142,12 @@ npm run test:coverage  # With coverage
 ---
 
 ### ✅ Task 7: Production Code Optimization
-**Status**: Complete  
+
+**Status**: Complete
 
 **Console Logs Cleanup**:
 All debug logs wrapped in `import.meta.env.DEV` checks:
+
 - `src/services/onesignal.ts` - 5 logs wrapped
 - `src/hooks/useOneSignalInit.ts` - 1 log wrapped
 - `src/contexts/LanguageContext.tsx` - 3 logs wrapped
@@ -142,14 +163,17 @@ All debug logs wrapped in `import.meta.env.DEV` checks:
 ---
 
 ### ✅ Task 8: Translation System Verification
-**Status**: Complete  
+
+**Status**: Complete
 
 **Supported Languages**:
+
 - 🇬🇧 English (EN) - 100% complete
 - 🇪🇸 Spanish (ES) - 100% complete
 - 🇩🇪 German (DE) - 100% complete
 
 **Infrastructure**:
+
 - ✅ `LanguageContext` with browser detection
 - ✅ `persistenceManager` integration
 - ✅ `getStringTranslation` utility
@@ -158,6 +182,7 @@ All debug logs wrapped in `import.meta.env.DEV` checks:
 - ✅ All components translated
 
 **Coverage**:
+
 - UI Components: 100%
 - Error Messages: 100%
 - Notification Settings: 100%
@@ -205,16 +230,19 @@ All debug logs wrapped in `import.meta.env.DEV` checks:
 ## 📊 Performance Improvements
 
 ### Bundle Size
+
 - **Before**: ~X MB
 - **After**: ~(X-0.5) MB
 - **Reduction**: ~500KB (mapbox removal)
 
 ### Load Time
+
 - **Improvement**: 30-40% faster initial load
 - **Code Splitting**: 3 optimized vendor chunks
 - **Caching**: Efficient with split chunks
 
 ### Code Quality
+
 - **TypeScript Errors**: 0
 - **Console Spam**: 0 (in production)
 - **Test Coverage**: Comprehensive
@@ -228,10 +256,15 @@ All debug logs wrapped in `import.meta.env.DEV` checks:
 
 ```env
 # Stripe
-VITE_STRIPE_PRICE_VIP_MONTHLY=price_xxx
-VITE_STRIPE_PRICE_VIP_YEARLY=price_xxx
+VITE_STRIPE_PRICE_VIP_MONTH_ID=price_xxx
+VITE_STRIPE_PRICE_VIP_YEAR_ID=price_xxx
+PRICE_VIP_MONTHLY=price_xxx
+PRICE_VIP_YEARLY=price_xxx
+PRICE_PREMIUM_MONTHLY=price_optional
+PRICE_PREMIUM_YEARLY=price_optional
 STRIPE_SECRET_KEY=sk_xxx
 STRIPE_WEBHOOK_SECRET=whsec_xxx
+STRIPE_WEBHOOK_TOLERANCE_SECONDS=300
 VITE_STRIPE_VIP_CHECKOUT_URL=https://buy.stripe.com/xxx
 
 # OneSignal
@@ -254,6 +287,7 @@ VITE_APP_ENV=production
    - Add environment variables
 
 3. **Test Build**
+
    ```bash
    npm run test        # Verify all tests pass
    npm run build       # Create production build
@@ -291,24 +325,28 @@ VITE_APP_ENV=production
 ## 🎯 Success Criteria Met
 
 ### Code Quality ✅
+
 - Zero TypeScript errors
 - No console spam in production
 - Comprehensive test coverage
 - Clean, maintainable code
 
 ### Functionality ✅
+
 - Stripe payments integrated
 - Push notifications ready
 - Multi-language support
 - PWA fully functional
 
 ### Performance ✅
+
 - Bundle optimized
 - Code splitting active
 - Efficient caching
 - Fast load times
 
 ### Documentation ✅
+
 - Complete implementation guide
 - Testing documentation
 - Deployment checklist
@@ -316,7 +354,7 @@ VITE_APP_ENV=production
 
 ---
 
-## 🎉 Congratulations!
+## 🎉 Congratulations
 
 Your ConfessAI application is **production-ready** with:
 
@@ -334,12 +372,14 @@ Your ConfessAI application is **production-ready** with:
 ## 📞 Support & Resources
 
 **Documentation**:
+
 - `README_PRODUCTION.md` - Quick deployment guide
 - `docs/OPTIMIZATION_SUMMARY.md` - Complete optimization details
 - `docs/TESTING.md` - Testing guide
 - `docs/FINAL_CHECKLIST.md` - Pre-deployment checklist
 
 **External Resources**:
+
 - [Lovable Docs](https://docs.lovable.dev)
 - [Stripe Documentation](https://stripe.com/docs)
 - [OneSignal Docs](https://documentation.onesignal.com)
@@ -350,6 +390,6 @@ Your ConfessAI application is **production-ready** with:
 **Last Updated**: 2025-01-15  
 **Status**: ✅ **PRODUCTION READY**
 
-## 🚀 Ready to Deploy!
+## 🚀 Ready to Deploy
 
 Click the **"Publish"** button to deploy your optimized app! 🎊

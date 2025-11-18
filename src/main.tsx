@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { CaptchaChallengeProvider } from "@/contexts/CaptchaChallengeContext";
 import { SubscriptionProvider } from "@/state/SubscriptionProvider";
 import ErrorBoundary from "@/components/ErrorBoundaryFallback";
 import { reportWebVitals } from "@/hooks/usePerformanceMonitor";
@@ -13,10 +14,11 @@ import { initOneSignal } from "@/lib/onesignal";
 import { initPerformanceMonitoring } from "@/lib/performance";
 import AppWrapper from "./components/AppWrapper.tsx";
 import { env } from "@/lib/env";
+import { OfflineQueueProvider } from "@/contexts/OfflineQueueContext";
 import "./index.css";
 
 // Initialize Sentry error tracking
-initSentry();
+void initSentry();
 
 // Initialize performance monitoring (dev mode only)
 initPerformanceMonitoring();
@@ -42,7 +44,9 @@ if (env.isProd) {
 
 // Validate translation system completeness in development
 if (env.isDev) {
-  validateTranslationSystem();
+  void validateTranslationSystem().catch((error) => {
+    console.error('Translation validation failed', error);
+  });
 }
 
 // Prefetch critical routes for faster navigation
@@ -67,9 +71,13 @@ createRoot(document.getElementById("root")!).render(
       <QueryClientProvider client={queryClient}>
         <ThemeProvider attribute="class" defaultTheme="dark">
           <LanguageProvider>
-            <SubscriptionProvider>
-              <AppWrapper />
-            </SubscriptionProvider>
+            <CaptchaChallengeProvider>
+              <SubscriptionProvider>
+                <OfflineQueueProvider>
+                  <AppWrapper />
+                </OfflineQueueProvider>
+              </SubscriptionProvider>
+            </CaptchaChallengeProvider>
           </LanguageProvider>
         </ThemeProvider>
       </QueryClientProvider>
