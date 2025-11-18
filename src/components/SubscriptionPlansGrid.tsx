@@ -154,8 +154,8 @@ export const SubscriptionPlansGrid = ({
     }
   };
 
-  // Show all plans (Free + VIP)
-  const filteredPlans = plans;
+  // Show only VIP plans (hide Free)
+  const filteredPlans = plans.filter(plan => plan.id !== 'free');
 
   return (
     <div className="space-y-8">
