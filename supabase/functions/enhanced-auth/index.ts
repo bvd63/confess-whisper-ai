@@ -413,21 +413,23 @@ serve(async (req) => {
                 reason: 'multiple_failed_attempts',
               }, { onConflict: 'email' });
 
+            // Return logical error but with 200 status so the frontend can handle it
             return new Response(
               JSON.stringify({
                 error: 'ACCOUNT_LOCKED',
                 messageKey: 'auth.account_locked',
               }),
-              { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+              { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
             );
           }
 
+          // Invalid credentials: handled as business error with 200 status to avoid runtime overlay
           return new Response(
             JSON.stringify({
               error: 'INVALID_CREDENTIALS',
               messageKey: 'auth.invalid_credentials',
             }),
-            { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
 
