@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { logError } from '@/lib/logger';
 
 export const useCheckoutStatus = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -13,15 +14,43 @@ export const useCheckoutStatus = () => {
     const sessionId = searchParams.get('session_id');
     const coinPurchase = searchParams.get('coin_purchase');
 
-    // Handle subscription checkout success
+    // Handle subscription checkout success - verify immediately
     if (status === 'success' && sessionId) {
-      // Refresh subscription status
-      supabase.functions.invoke('check-subscription').then(() => {
-        toast({
-          title: "✅ VIP Activated",
-          description: "Welcome to VIP! Your subscription is now active.",
-        });
-      });
+      // Verify subscription and update profile immediately
+      const verifySubscription = async () => {
+        try {
+          const { data, error } = await supabase.functions.invoke('verify-subscription-payment', {
+            body: { sessionId }
+          });
+
+          if (error) throw error;
+
+          if (data?.success) {
+            // Also refresh subscription status
+            await supabase.functions.invoke('check-subscription');
+            
+            toast({
+              title: "✅ VIP Activated",
+              description: "Welcome to VIP! Your subscription is now active.",
+            });
+          } else {
+            toast({
+              title: "Subscription Processing",
+              description: "Your subscription is being processed. It will be activated shortly.",
+            });
+          }
+        } catch (error) {
+          logError('Error verifying subscription', error as Error);
+          // Fallback to regular check
+          await supabase.functions.invoke('check-subscription');
+          toast({
+            title: "✅ VIP Activated",
+            description: "Welcome to VIP! Your subscription is now active.",
+          });
+        }
+      };
+
+      verifySubscription();
 
       // Clean up URL params
       searchParams.delete('status');
@@ -44,12 +73,38 @@ export const useCheckoutStatus = () => {
       setSearchParams(searchParams, { replace: true });
     }
 
-    // Handle coin purchase success
+    // Handle coin purchase success - verify payment immediately
     if (coinPurchase === 'success' && sessionId) {
-      toast({
-        title: "✅ Coins Added",
-        description: "Your coins have been added to your balance!",
-      });
+      // Verify payment and award coins immediately
+      const verifyCoinPayment = async () => {
+        try {
+          const { data, error } = await supabase.functions.invoke('verify-coin-payment', {
+            body: { sessionId }
+          });
+
+          if (error) throw error;
+
+          if (data?.success) {
+            toast({
+              title: "✅ Coins Added",
+              description: `${data.coins} coins have been added to your balance!`,
+            });
+          } else {
+            toast({
+              title: "Payment Processing",
+              description: "Your payment is being processed. Coins will be added shortly.",
+            });
+          }
+        } catch (error) {
+          logError('Error verifying coin payment', error as Error);
+          toast({
+            title: "Payment Received",
+            description: "Your payment was received. Coins will be added shortly.",
+          });
+        }
+      };
+
+      verifyCoinPayment();
 
       // Clean up URL params
       searchParams.delete('coin_purchase');
