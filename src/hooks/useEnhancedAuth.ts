@@ -66,14 +66,20 @@ export const useEnhancedAuth = () => {
         },
       });
 
+      // Handle authentication errors (401 is expected for invalid credentials)
       if (error || data?.error) {
-        const errorMessage = data?.messageKey ? t[data.messageKey.replace(/\./g, '_') as keyof typeof t] as string : t.auth_invalid_credentials;
+        const errorMessage = data?.messageKey 
+          ? t[data.messageKey.replace(/\./g, '_') as keyof typeof t] as string 
+          : t.auth_invalid_credentials;
+        
         toast({
           title: t.common_error,
           description: errorMessage,
           variant: 'destructive',
         });
-        return { error: error || data?.error };
+        
+        // Return error object without throwing to prevent error boundary activation
+        return { data: null, error: { message: errorMessage, code: data?.error || 'INVALID_CREDENTIALS' } };
       }
 
       // Ensure browser auth session is set so the app recognizes the login
@@ -101,13 +107,23 @@ export const useEnhancedAuth = () => {
 
       return { data, error: null };
     } catch (error) {
+      // Log but don't throw - prevent error boundary activation
       logError('Enhanced login error', error as Error);
+      
       toast({
         title: t.common_error,
         description: t.common_something_went_wrong,
         variant: 'destructive',
       });
-      return { error };
+      
+      // Return error object safely
+      return { 
+        data: null, 
+        error: { 
+          message: error instanceof Error ? error.message : t.common_something_went_wrong,
+          code: 'UNKNOWN_ERROR' 
+        } 
+      };
     } finally {
       setLoading(false);
     }
