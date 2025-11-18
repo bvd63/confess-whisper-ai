@@ -47,7 +47,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
       // Read from profiles table directly since it has the subscription tier
       const { data: profile } = await supabase
         .from("profiles")
-        .select("subscription_tier, is_premium, subscription_ends_at, stripe_subscription_id, subscription_cancel_at_period_end, trial_active, trial_premium_ends_at")
+        .select("subscription_tier, subscription_cadence, is_premium, subscription_ends_at, stripe_subscription_id, subscription_cancel_at_period_end, trial_active, trial_premium_ends_at, subscription_status")
         .eq("user_id", user.id)
         .maybeSingle();
 
@@ -60,8 +60,8 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
         setEnt({
           user_id: user.id,
           tier: tier,
-          cadence: "monthly", // Default, can be enhanced later
-          status: profile?.stripe_subscription_id ? "active" : "canceled",
+          cadence: (profile?.subscription_cadence as "monthly" | "yearly") || "monthly",
+          status: profile?.subscription_status || (profile?.stripe_subscription_id ? "active" : "canceled"),
           cancel_at_period_end: profile?.subscription_cancel_at_period_end || false,
           current_period_end: profile?.subscription_ends_at || null,
           is_pro: isVip,
@@ -84,7 +84,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
           async () => {
             const { data: updatedProfile } = await supabase
               .from("profiles")
-              .select("subscription_tier, is_premium, subscription_ends_at, stripe_subscription_id, subscription_cancel_at_period_end, trial_active, trial_premium_ends_at")
+              .select("subscription_tier, subscription_cadence, is_premium, subscription_ends_at, stripe_subscription_id, subscription_cancel_at_period_end, trial_active, trial_premium_ends_at, subscription_status")
               .eq("user_id", user.id)
               .maybeSingle();
             
@@ -97,8 +97,8 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
               setEnt({
                 user_id: user.id,
                 tier: tier,
-                cadence: "monthly",
-                status: updatedProfile.stripe_subscription_id ? "active" : "canceled",
+                cadence: (updatedProfile.subscription_cadence as "monthly" | "yearly") || "monthly",
+                status: updatedProfile.subscription_status || (updatedProfile.stripe_subscription_id ? "active" : "canceled"),
                 cancel_at_period_end: updatedProfile.subscription_cancel_at_period_end || false,
                 current_period_end: updatedProfile.subscription_ends_at || null,
                 is_pro: isVip,
