@@ -95,18 +95,7 @@ const Communities = () => {
     }
 
     try {
-      // Generate slug from name: lowercase, spaces to hyphens, remove invalid chars
-      const slug = newCommunity.name
-        .toLowerCase()
-        .trim()
-        .replace(/\s+/g, '-')
-        .replace(/[^a-z0-9-]/g, '')
-        .replace(/^-+|-+$/g, '');
-
-      await createCommunity({
-        ...newCommunity,
-        slug,
-      });
+      await createCommunity(newCommunity);
       setIsCreateOpen(false);
       setNewCommunity({
         name: "",
