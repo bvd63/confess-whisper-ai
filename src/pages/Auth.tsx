@@ -145,7 +145,9 @@ const Auth = () => {
           if (newAttempts >= 3) {
             setShowLoginCaptcha(true);
           }
-          throw error;
+          // Error already handled by useEnhancedAuth hook with toast
+          setIsLoading(false);
+          return;
         }
 
         // Reset failed attempts on successful login
@@ -237,17 +239,14 @@ const Auth = () => {
         // Don't auto-navigate - user needs to verify email first
       }
     } catch (error: any) {
-      // Detect invalid credentials error and show specific message
-      const errorMessage = error.message || '';
-      const isInvalidCredentials = errorMessage.toLowerCase().includes('invalid') && 
-                                   (errorMessage.toLowerCase().includes('credentials') || 
-                                    errorMessage.toLowerCase().includes('login'));
-      
-      toast({
-        title: t.auth_error,
-        description: isInvalidCredentials ? t.auth_invalid_credentials : (error.message || t.auth_error_generic),
-        variant: "destructive",
-      });
+      // Only show toast for signup errors (login errors already handled by useEnhancedAuth)
+      if (!isLogin) {
+        toast({
+          title: t.auth_error,
+          description: error.message || t.auth_error_generic,
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
