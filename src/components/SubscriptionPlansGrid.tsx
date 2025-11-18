@@ -161,28 +161,28 @@ export const SubscriptionPlansGrid = ({
     <div className="space-y-8">
       {/* Interval Tabs */}
       {onIntervalChange && (
-        <div className="flex justify-center mb-8">
-          <div className="inline-flex rounded-xl bg-gradient-to-br from-[#13141f] to-[#1a1b2e] p-1.5 gap-1.5 border border-purple-500/20 shadow-lg shadow-purple-500/10">
+        <div className="flex justify-center">
+          <div className="inline-flex rounded-lg bg-[#13141f] p-1 gap-1">
             <button
               onClick={() => onIntervalChange('monthly')}
-              className={`px-10 py-3 rounded-lg transition-all duration-300 font-semibold text-base ${
+              className={`px-8 py-2.5 rounded-lg transition-all font-medium ${
                 interval === 'monthly'
-                  ? 'bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-lg shadow-purple-500/30 scale-105'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  ? 'bg-[#1a1b2e] text-white'
+                  : 'text-gray-400 hover:text-white'
               }`}
             >
               Monthly
             </button>
             <button
               onClick={() => onIntervalChange('yearly')}
-              className={`px-10 py-3 rounded-lg transition-all duration-300 font-semibold text-base relative ${
+              className={`px-8 py-2.5 rounded-lg transition-all font-medium relative ${
                 interval === 'yearly'
-                  ? 'bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-lg shadow-purple-500/30 scale-105'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  ? 'bg-[#1a1b2e] text-white'
+                  : 'text-gray-400 hover:text-white'
               }`}
             >
               Yearly
-              <span className="absolute -top-2 -right-2 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white text-xs px-2.5 py-1 rounded-full font-bold shadow-lg shadow-purple-500/30 animate-pulse">
+              <span className="absolute -top-2 -right-2 bg-purple-600 text-white text-xs px-2 py-0.5 rounded-full font-semibold">
                 -34%
               </span>
             </button>
@@ -192,62 +192,62 @@ export const SubscriptionPlansGrid = ({
 
       {/* Plans Grid - Centered for single VIP plan */}
       <div className="flex justify-center">
-        <div className="w-full max-w-md animate-fade-in">
+        <div className="w-full max-w-md">
           {filteredPlans.map((plan: any) => (
             <Card
               key={`${plan.id}-${plan.interval}`}
-              className={`p-8 relative bg-gradient-to-br from-[#13141f] to-[#1a1b2e] border transition-all duration-300 hover:scale-[1.02] ${
+              className={`p-8 relative bg-[#13141f] border transition-all duration-300 hover:scale-[1.02] ${
                 plan.id === 'vip'
-                  ? 'border-purple-500/30 hover:border-purple-500/50 hover:shadow-[0_0_40px_rgba(168,85,247,0.2)]'
+                  ? 'border-purple-500/30 hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]'
                   : 'border-[#1a1b2e] hover:border-purple-500/30 hover:shadow-[0_0_20px_rgba(168,85,247,0.1)]'
               }`}
             >
             {/* Active Badge for VIP if current plan */}
             {isCurrentPlan(plan) && (
-              <Badge className="absolute -top-3 left-4 bg-gradient-to-r from-purple-600 to-purple-500 text-white px-4 py-1.5 font-medium shadow-lg shadow-purple-500/30 animate-fade-in">
+              <Badge className="absolute -top-3 left-4 bg-purple-600/90 text-white px-3 py-1 font-medium">
                 Active
               </Badge>
             )}
 
             {/* Savings Badge with glow */}
             {interval === 'yearly' && (
-              <div className="absolute -top-3 -right-3 animate-scale-in">
-                <div className="absolute inset-0 bg-purple-600/40 blur-2xl rounded-full"></div>
-                <Badge className="relative bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white px-4 py-1.5 font-semibold shadow-lg shadow-purple-500/30">
-                  -34%
+              <div className="absolute -top-3 -right-3">
+                <div className="absolute inset-0 bg-purple-600/30 blur-xl rounded-full"></div>
+                <Badge className="relative bg-purple-600 text-white px-3 py-1 font-semibold">
+                  Save ~34%
                 </Badge>
               </div>
             )}
 
 
             {/* Plan Header */}
-            <div className="mb-10 text-center">
-              <div className="flex items-center justify-center gap-3 mb-6">
-                <span className="text-4xl animate-scale-in">{plan.id === 'vip' ? '👑' : '✨'}</span>
-                <h3 className="text-3xl font-bold text-white animate-fade-in">{plan.name}</h3>
+            <div className="mb-8">
+              <div className="flex items-center gap-3 mb-6">
+                <span className="text-3xl">{plan.id === 'vip' ? '👑' : '✨'}</span>
+                <h3 className="text-2xl font-bold text-white">{plan.name}</h3>
               </div>
-              <div className="mb-3">
-                <span className="text-6xl font-bold bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
+              <div className="mb-2">
+                <span className="text-5xl font-bold text-white">
                   ${interval === 'yearly' ? (plan.price / 12).toFixed(2) : plan.price}
                 </span>
-                <span className="text-gray-400 text-xl ml-2">/per month</span>
+                <span className="text-gray-400 text-lg ml-2">/per month</span>
               </div>
-              <p className="text-sm text-gray-400 font-medium">
+              <p className="text-sm text-gray-400">
                 {interval === 'yearly' 
-                  ? `Billed annually ($${plan.price.toFixed(2)}/year)`
+                  ? `Billed annually ($${plan.price.toFixed(2)}/per year)`
                   : 'Billed monthly'
                 }
               </p>
             </div>
 
             {/* Benefits List */}
-            <div className="space-y-4 mb-10">
+            <div className="space-y-4 mb-8">
               {plan.benefits.map((benefit: string, index: number) => (
-                <div key={index} className="flex items-start gap-3 group/benefit animate-fade-in" style={{ animationDelay: `${index * 50}ms` }}>
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500/30 to-fuchsia-500/30 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/benefit:from-purple-500/40 group-hover/benefit:to-fuchsia-500/40 transition-all duration-300 group-hover/benefit:scale-110">
-                    <Check className="w-4 h-4 text-purple-300 group-hover/benefit:text-purple-200 transition-colors" />
+                <div key={index} className="flex items-start gap-3 group/benefit">
+                  <div className="w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/benefit:bg-purple-500/30 transition-colors">
+                    <Check className="w-3.5 h-3.5 text-purple-400" />
                   </div>
-                  <span className="text-base text-white/90 leading-relaxed group-hover/benefit:text-white transition-colors">{getStringTranslation(t, benefit) || benefit}</span>
+                  <span className="text-sm text-white/90 leading-relaxed">{getStringTranslation(t, benefit) || benefit}</span>
                 </div>
               ))}
             </div>
@@ -282,7 +282,7 @@ export const SubscriptionPlansGrid = ({
                 (isLoading || !canChangePlan || (plan.id !== 'free' && !plan.priceId)) && !isCurrentPlan(plan) || 
                 portalLoading
               }
-              className="w-full py-6 rounded-lg font-semibold transition-all duration-300 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/30 disabled:opacity-50 disabled:hover:from-purple-600 disabled:hover:to-fuchsia-600 disabled:hover:shadow-none disabled:scale-100"
+              className="w-full py-6 rounded-lg font-semibold transition-all duration-300 bg-transparent border-2 border-white hover:bg-white text-white hover:text-black hover:scale-[1.02] disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-white disabled:scale-100"
             >
               {isCurrentPlan(plan) 
                 ? (portalLoading ? 'Opening Portal...' : 'Manage Subscription') 
