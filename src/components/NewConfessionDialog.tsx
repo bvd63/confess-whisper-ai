@@ -18,7 +18,8 @@ import DraftManager from "@/components/DraftManager";
 import { CrisisDialog } from "@/components/CrisisDialog";
 import { Switch } from "@/components/ui/switch";
 import { useModerationStatus } from "@/hooks/useModerationStatus";
-import { useCommunities } from "@/hooks/useCommunities";
+// Communities feature disabled
+// import { useCommunities } from "@/hooks/useCommunities";
 import { PolishConfessionButton } from "@/components/PolishConfessionButton";
 import { useConfessionLimits } from "@/hooks/useConfessionLimits";
 // import { UpgradeModal } from "@/components/UpgradeModal";
@@ -59,12 +60,14 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
   const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
   const [showCrisisDialog, setShowCrisisDialog] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [communityId, setCommunityId] = useState<string | null>(initialCommunityId || null);
+  // Communities feature disabled - always set to null
+  const [communityId, setCommunityId] = useState<string | null>(null);
   const { user } = useCurrentUser();
   const { toast } = useToast();
   const { language, t } = useLanguage();
   const { checkForCrisis } = useModerationStatus();
-  const { communities } = useCommunities();
+  // Communities feature disabled
+  // const { communities } = useCommunities();
   const { canPost, currentCount, dailyLimit, remaining, tier, checkLimits, incrementCount, isLoading: limitsLoading } = useConfessionLimits();
   const { isKeyboardVisible, keyboardHeight } = useMobileKeyboard();
   const { subscriptionTier } = usePremiumStatus(user?.id || null);
@@ -476,7 +479,8 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
             disabled={isSubmitting}
           />
 
-          <div className="space-y-2">
+          {/* Communities feature disabled */}
+          {/* <div className="space-y-2">
             <Label className="text-sm font-medium">{t.location_community_optional}</Label>
             <Select value={communityId || "none"} onValueChange={(v) => setCommunityId(v === "none" ? null : v)} disabled={isSubmitting}>
               <SelectTrigger className="border-primary/20 focus:border-primary/40 bg-background/50">
@@ -484,14 +488,9 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">{t.location_no_community}</SelectItem>
-                {Array.isArray(communities) && communities.map((community) => (
-                  <SelectItem key={community.id} value={community.id}>
-                    {community.icon} {community.name}
-                  </SelectItem>
-                ))}
               </SelectContent>
             </Select>
-          </div>
+          </div> */}
 
           <div className="pt-2">
             <MoodTracker 

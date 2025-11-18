@@ -157,11 +157,12 @@ describe('Translation System', () => {
       'auth_signup',
       'system_network_error',
       'validation_required_field',
-      'communities_title',
-      'communities_join',
-      'communities_leave',
-      'communities_pending',
-      'communities_request_join',
+      // Communities feature disabled
+      // 'communities_title',
+      // 'communities_join',
+      // 'communities_leave',
+      // 'communities_pending',
+      // 'communities_request_join',
     ];
 
     criticalKeys.forEach(key => {

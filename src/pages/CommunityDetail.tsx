@@ -134,8 +134,8 @@ const CommunityDetail = () => {
       <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
         <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 text-center pb-24">
           <p className="text-sm sm:text-base text-muted-foreground">{t.communities_not_found}</p>
-          <Button onClick={() => navigate('/communities')} className="mt-4">
-            {t.communities_back}
+          <Button onClick={() => navigate('/')} className="mt-4">
+            {t.common_back}
           </Button>
         </div>
       </AppLayout>
@@ -152,11 +152,11 @@ const CommunityDetail = () => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate('/communities')}
+          onClick={() => navigate('/')}
           className="mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          {t.communities_back}
+          {t.common_back}
         </Button>
 
         <AnimatedCard glass hover="lift" className="p-4 sm:p-5 md:p-6 mb-4 sm:mb-5 md:mb-6">

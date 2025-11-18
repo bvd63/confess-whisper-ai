@@ -47,7 +47,8 @@ describe('AdvancedFilters', () => {
     fireEvent.click(screen.getByText('Filters'));
 
     expect(screen.getByText('Date Range')).toBeInTheDocument();
-    expect(screen.getByText('Community')).toBeInTheDocument();
+    // Communities feature disabled - this section won't render
+    // expect(screen.getByText('Community')).toBeInTheDocument();
     expect(screen.getByText('Sort By')).toBeInTheDocument();
   });
 
@@ -76,7 +77,8 @@ describe('AdvancedFilters', () => {
     expect(document.body).toContainElement(document.querySelector('[data-radix-popper-content-wrapper]'));
   });
 
-  it('displays community options', async () => {
+  // Communities feature disabled - test removed
+  it.skip('displays community options', async () => {
     render(<AdvancedFilters onFilterChange={mockOnFilterChange} communities={[{id:'1', name:'Community 1'},{id:'2', name:'Community 2'}]} />);
     fireEvent.click(screen.getByText('Filters'));
 
