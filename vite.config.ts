@@ -17,6 +17,11 @@ export default defineConfig(({ mode }) => ({
     ...(mode === 'analyze' ? [Inspect()] : []),
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: 'auto',
+      devOptions: {
+        enabled: true,
+        type: 'module'
+      },
       includeAssets: ['favicon.ico'],
       manifest: {
         name: 'ConfessAI - Anonymous Confessions',
@@ -40,6 +45,9 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         runtimeCaching: [
           {
