@@ -36,10 +36,9 @@ export const CommunitiesSectionExpanded = () => {
     name: "",
     description: "",
     category: "general",
-    slug: "",
     is_private: false
   });
-  const handleCreateCommunity = () => {
+  const handleCreateCommunity = async () => {
     if (!user) {
       navigate('/auth');
       toast({
@@ -49,7 +48,7 @@ export const CommunitiesSectionExpanded = () => {
       });
       return;
     }
-    if (!newCommunity.name || !newCommunity.slug) {
+    if (!newCommunity.name.trim()) {
       toast({
         title: t.error_generic,
         description: t.validation_required_field,
@@ -57,15 +56,18 @@ export const CommunitiesSectionExpanded = () => {
       });
       return;
     }
-    createCommunity(newCommunity);
-    setIsCreateOpen(false);
-    setNewCommunity({
-      name: "",
-      description: "",
-      category: "general",
-      slug: "",
-      is_private: false
-    });
+    try {
+      await createCommunity(newCommunity);
+      setIsCreateOpen(false);
+      setNewCommunity({
+        name: "",
+        description: "",
+        category: "general",
+        is_private: false
+      });
+    } catch (error) {
+      // Error handled by mutation
+    }
   };
   const filteredCommunities = communities?.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.description?.toLowerCase().includes(searchQuery.toLowerCase()));
 

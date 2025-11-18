@@ -28,18 +28,30 @@ export const useCommunities = (category?: string) => {
   const createCommunity = useMutation({
     mutationFn: async (community: {
       name: string;
-      description: string;
-      category: string;
-      slug: string;
-      is_private?: boolean;
+      description?: string;
+      category?: string;
+      is_private: boolean;
     }) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // Auto-generate slug from name
+      const slug = community.name
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, '') // Remove invalid characters
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+        .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+
       const { data, error } = await supabase
         .from('communities')
         .insert({
-          ...community,
+          name: community.name,
+          description: community.description || '',
+          category: community.category || 'general',
+          slug,
+          is_private: community.is_private,
           created_by: user.id,
         })
         .select()
@@ -47,7 +59,7 @@ export const useCommunities = (category?: string) => {
 
       if (error) throw error;
 
-      // Auto-join as admin
+      // Auto-join creator as admin
       await supabase
         .from('community_members')
         .insert({
