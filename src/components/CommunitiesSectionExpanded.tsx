@@ -128,13 +128,6 @@ export const CommunitiesSectionExpanded = () => {
                 })} placeholder={t.communities_name} />
                 </div>
                 <div>
-                  <Label>{t.communities_slug_label}</Label>
-                  <Input value={newCommunity.slug} onChange={e => setNewCommunity({
-                  ...newCommunity,
-                  slug: e.target.value.toLowerCase().replace(/\s+/g, '-')
-                })} placeholder={t.communities_slug_placeholder} />
-                </div>
-                <div>
                   <Label>{t.communities_description}</Label>
                   <Textarea value={newCommunity.description} onChange={e => setNewCommunity({
                   ...newCommunity,
@@ -208,13 +201,6 @@ export const CommunitiesSectionExpanded = () => {
                   ...newCommunity,
                   name: e.target.value
                 })} placeholder={t.communities_name} />
-                </div>
-                <div>
-                  <Label>{t.communities_slug_label}</Label>
-                  <Input value={newCommunity.slug} onChange={e => setNewCommunity({
-                  ...newCommunity,
-                  slug: e.target.value.toLowerCase().replace(/\s+/g, '-')
-                })} placeholder={t.communities_slug_placeholder} />
                 </div>
                 <div>
                   <Label>{t.communities_description}</Label>
