@@ -15,6 +15,13 @@ export const VersionIndicator = () => {
 
   useEffect(() => {
     loadVersion();
+    
+    // Check for updates every 30 seconds
+    const interval = setInterval(() => {
+      checkForUpdate();
+    }, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const loadVersion = async () => {
@@ -46,6 +53,8 @@ export const VersionIndicator = () => {
         cache: 'no-cache',
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
         },
       });
       
@@ -53,11 +62,29 @@ export const VersionIndicator = () => {
         const data = await response.json();
         const storedVersion = localStorage.getItem('app-version');
         
-        if (storedVersion !== data.version) {
+        if (storedVersion && storedVersion !== data.version) {
           setUpdateAvailable(true);
-          window.location.reload();
+          localStorage.setItem('app-version', data.version);
+          
+          // Force reload after 3 seconds
+          setTimeout(() => {
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.getRegistrations().then(registrations => {
+                registrations.forEach(registration => registration.unregister());
+              }).then(() => {
+                caches.keys().then(keys => {
+                  Promise.all(keys.map(key => caches.delete(key))).then(() => {
+                    window.location.reload();
+                  });
+                });
+              });
+            } else {
+              window.location.reload();
+            }
+          }, 3000);
         } else {
           setUpdateAvailable(false);
+          localStorage.setItem('app-version', data.version);
         }
       }
     } catch (error) {

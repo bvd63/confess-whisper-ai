@@ -19,8 +19,7 @@ export default defineConfig(({ mode }) => ({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       devOptions: {
-        enabled: true,
-        type: 'module'
+        enabled: false
       },
       includeAssets: ['favicon.ico'],
       manifest: {
@@ -49,15 +48,17 @@ export default defineConfig(({ mode }) => ({
         clientsClaim: true,
         cleanupOutdatedCaches: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        navigateFallbackDenylist: [/^\/version\.json/],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fxwvlbopvnjjjrzshqvw\.supabase\.co\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'supabase-cache',
+              networkTimeoutSeconds: 3,
               expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 // 24 hours
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 30 // 30 minutes
               }
             }
           }

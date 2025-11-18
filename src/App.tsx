@@ -304,6 +304,7 @@ function App() {
             <PerformanceIndicator />
             <InstallPrompt />
             <UpdatePrompt />
+            <VersionIndicator />
           </AnalyticsProvider>
         </ConfirmProvider>
       </BrowserRouter>
