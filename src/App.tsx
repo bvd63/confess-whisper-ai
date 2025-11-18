@@ -202,10 +202,6 @@ const AppContent = () => {
     <div className="relative pb-16">
       <div data-testid="app-ready" style={{ display: 'none' }} />
       
-      {/* Version indicator in bottom left corner */}
-      <div className="fixed bottom-20 left-4 z-40">
-        <VersionIndicator />
-      </div>
       
       {/* Trial banner */}
       {trialStatus.isActive && trialStatus.daysRemaining !== null && trialStatus.daysRemaining <= 3 && (
