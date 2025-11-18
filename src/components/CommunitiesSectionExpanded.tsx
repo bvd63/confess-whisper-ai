@@ -151,6 +151,21 @@ export const CommunitiesSectionExpanded = () => {
                     </SelectContent>
                   </Select>
                 </div>
+                <div>
+                  <Label>{t.communities_visibility}</Label>
+                  <Select value={newCommunity.is_private ? "private" : "public"} onValueChange={v => setNewCommunity({
+                  ...newCommunity,
+                  is_private: v === "private"
+                })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="public">{t.communities_public}</SelectItem>
+                      <SelectItem value="private">{t.communities_private}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <Button onClick={handleCreateCommunity} disabled={isCreating} className="w-full">
                   {isCreating ? t.communities_creating : t.communities_create}
                 </Button>
@@ -223,6 +238,21 @@ export const CommunitiesSectionExpanded = () => {
                       <SelectItem value="mental-health">{t.communities_filter_mental_health}</SelectItem>
                       <SelectItem value="relationships">{t.communities_filter_relationships}</SelectItem>
                       <SelectItem value="work">{t.communities_filter_work}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>{t.communities_visibility}</Label>
+                  <Select value={newCommunity.is_private ? "private" : "public"} onValueChange={v => setNewCommunity({
+                  ...newCommunity,
+                  is_private: v === "private"
+                })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="public">{t.communities_public}</SelectItem>
+                      <SelectItem value="private">{t.communities_private}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
