@@ -3,7 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useOptimizedQuery } from "./useOptimizedQuery";
 import { logDebug } from "@/lib/logger";
 
-export const usePremiumStatus = (userId: string | null | undefined) => {
+/**
+ * Hook to check VIP subscription status for a user.
+ * Returns both isVip (new) and isPremium (deprecated but kept for backwards compatibility)
+ * @deprecated Use isVip instead of isPremium in new code
+ */
+export const useVipStatus = (userId: string | null | undefined) => {
   const { data, isLoading, refetch } = useOptimizedQuery<any>({
     queryKey: ['vip-status', userId],
     queryFn: async () => {
@@ -61,7 +66,7 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
           filter: `user_id=eq.${userId}`,
         },
         () => {
-          logDebug('[usePremiumStatus] Profile updated, refetching');
+          logDebug('[useVipStatus] Profile updated, refetching');
           refetch();
         }
       )
@@ -72,12 +77,12 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
     };
   }, [userId, refetch]);
 
-  const premiumStatus = useMemo(() => {
+  const vipStatus = useMemo(() => {
     if (!data) {
       return {
-        isPremium: false,
-        subscriptionTier: 'free',
-        isVIP: false,
+        isVip: false,
+        isPremium: false, // Deprecated
+        subscriptionTier: 'free' as const,
         isOnTrial: false,
         trialEndDate: null,
         trialEligible: true, // Default to eligible if no data
@@ -101,9 +106,9 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
     // If on valid trial, treat as VIP
     if (trialValid) {
       return {
-        isPremium: true, // Keep for backwards compatibility with existing code
-        subscriptionTier: 'vip',
-        isVIP: true,
+        isVip: true,
+        isPremium: true, // Deprecated - kept for backwards compatibility
+        subscriptionTier: 'vip' as const,
         isOnTrial: true,
         trialEndDate,
         trialEligible: false,
@@ -112,26 +117,29 @@ export const usePremiumStatus = (userId: string | null | undefined) => {
       };
     }
 
+    const isVipUser = subscriptionActive && tier === 'vip';
     const isPremiumUser = (hasActiveVip || tier !== 'free') && subscriptionActive;
-    const currentTier = subscriptionActive ? tier : 'free';
-    const isVIPUser = subscriptionActive && tier === 'vip';
+    const currentTier = subscriptionActive ? (tier as 'free' | 'vip') : 'free' as const;
 
     return {
-      isPremium: isPremiumUser, // Keep for backwards compatibility  
+      isVip: isVipUser,
+      isPremium: isPremiumUser, // Deprecated - kept for backwards compatibility
       subscriptionTier: currentTier,
-      isVIP: isVIPUser,
       isOnTrial: false,
       trialEndDate: null,
       trialEligible,
       subscriptionEndsAt: endsAt,
       subscriptionStatus: data.subscription_status || 'none',
-      uiMode: (isPremiumUser || isVIPUser) ? 'vip' as const : 'free' as const,
+      uiMode: (isVipUser || isPremiumUser) ? 'vip' as const : 'free' as const,
     };
   }, [data]);
 
   return {
-    ...premiumStatus,
+    ...vipStatus,
     isLoading,
     refetch,
   };
 };
+
+// Backwards compatibility alias
+export const usePremiumStatus = useVipStatus;
