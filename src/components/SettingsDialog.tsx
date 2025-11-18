@@ -62,7 +62,6 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
       return [
         t.plans_vip_benefit_confessions,
         t.plans_vip_benefit_unlimited_ai,
-        t.plans_vip_benefit_no_ads,
         t.plans_vip_benefit_custom_themes,
         t.plans_vip_benefit_private_confessions,
         t.plans_vip_benefit_advanced_stats,
@@ -75,7 +74,6 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
     return [
       t.plans_free_benefit_confessions,
       t.plans_free_benefit_basic,
-      t.plans_free_benefit_ads,
     ];
   };
 

@@ -53,7 +53,6 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       'Private confessions feature',
       'Exclusive VIP badges & flairs',
       'Advanced analytics dashboard',
-      'Ad-free experience',
       'Early access to new features',
       'Priority customer support',
     ],
