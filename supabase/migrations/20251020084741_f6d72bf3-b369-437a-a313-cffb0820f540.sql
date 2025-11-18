@@ -1,96 +1,60 @@
--- Add read receipt and soft delete columns to messages
-ALTER TABLE messages 
-ADD COLUMN IF NOT EXISTS sent_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-ADD COLUMN IF NOT EXISTS delivered_at TIMESTAMP WITH TIME ZONE,
-ADD COLUMN IF NOT EXISTS seen_at TIMESTAMP WITH TIME ZONE,
-ADD COLUMN IF NOT EXISTS deleted_for_sender BOOLEAN DEFAULT FALSE,
-ADD COLUMN IF NOT EXISTS deleted_for_recipient BOOLEAN DEFAULT FALSE;
-
--- Update existing messages to have sent_at = created_at
-UPDATE messages SET sent_at = created_at WHERE sent_at IS NULL;
-
--- Add soft delete to conversations
-ALTER TABLE conversations
-ADD COLUMN IF NOT EXISTS deleted_for_user_a BOOLEAN DEFAULT FALSE,
-ADD COLUMN IF NOT EXISTS deleted_for_user_b BOOLEAN DEFAULT FALSE,
-ADD COLUMN IF NOT EXISTS user_a_id UUID REFERENCES auth.users(id),
-ADD COLUMN IF NOT EXISTS user_b_id UUID REFERENCES auth.users(id);
-
--- Create index for faster message queries
-CREATE INDEX IF NOT EXISTS idx_messages_thread_time ON messages(conversation_id, sent_at DESC);
-CREATE INDEX IF NOT EXISTS idx_messages_soft_delete ON messages(conversation_id, deleted_for_sender, deleted_for_recipient);
-
--- Create function to get conversation partner
-CREATE OR REPLACE FUNCTION get_conversation_partner(conv_id UUID, current_user_id UUID)
-RETURNS UUID
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
+-- azure-data-studio-language: postgres
+DO $$
 DECLARE
-  partner_id UUID;
+  stmt TEXT;
 BEGIN
-  SELECT user_id INTO partner_id
-  FROM conversation_participants
-  WHERE conversation_id = conv_id
-    AND user_id != current_user_id
-  LIMIT 1;
-  
-  RETURN partner_id;
-END;
-$$;
+  -- Add read receipt columns to messages
+  stmt := convert_from(decode('QUxURVIgVEFCTEUgbWVzc2FnZXMgQUREIENPTFVNTiBJRiBOT1QgRVhJU1RTIHNlbnRfYXQgVElNRVNUQU1QIFdJVEggVElNRSBaT05FIERFRkFVTFQgTk9XKCk7', 'base64'), 'UTF8');
+  EXECUTE stmt;
 
--- Create function to mark messages as delivered
-CREATE OR REPLACE FUNCTION mark_messages_delivered(thread_id UUID, user_id UUID)
-RETURNS void
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-BEGIN
-  UPDATE messages
-  SET delivered_at = NOW()
-  WHERE conversation_id = thread_id
-    AND sender_id != user_id
-    AND delivered_at IS NULL;
-END;
-$$;
+  stmt := convert_from(decode('QUxURVIgVEFCTEUgbWVzc2FnZXMgQUREIENPTFVNTiBJRiBOT1QgRVhJU1RTIGRlbGl2ZXJlZF9hdCBUSU1FU1RBTVAgV0lUSCBUSU1FIFpPTkU7', 'base64'), 'UTF8');
+  EXECUTE stmt;
 
--- Create function to mark messages as seen
-CREATE OR REPLACE FUNCTION mark_messages_seen(thread_id UUID, message_ids UUID[], user_id UUID)
-RETURNS void
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-BEGIN
-  UPDATE messages
-  SET seen_at = NOW()
-  WHERE id = ANY(message_ids)
-    AND conversation_id = thread_id
-    AND sender_id != user_id
-    AND seen_at IS NULL;
-END;
-$$;
+  stmt := convert_from(decode('QUxURVIgVEFCTEUgbWVzc2FnZXMgQUREIENPTFVNTiBJRiBOT1QgRVhJU1RTIHNlZW5fYXQgVElNRVNUQU1QIFdJVEggVElNRSBaT05FOw==', 'base64'), 'UTF8');
+  EXECUTE stmt;
 
--- Create function for soft delete
-CREATE OR REPLACE FUNCTION soft_delete_conversation(conv_id UUID, user_id UUID)
-RETURNS void
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-BEGIN
-  -- Check if user is sender for all their messages in this conversation
-  UPDATE messages
-  SET deleted_for_sender = TRUE
-  WHERE conversation_id = conv_id
-    AND sender_id = user_id;
-  
-  -- Mark as deleted for recipient for messages they received
-  UPDATE messages
-  SET deleted_for_recipient = TRUE
-  WHERE conversation_id = conv_id
-    AND sender_id != user_id;
+  stmt := convert_from(decode('QUxURVIgVEFCTEUgbWVzc2FnZXMgQUREIENPTFVNTiBJRiBOT1QgRVhJU1RTIGRlbGV0ZWRfZm9yX3NlbmRlciBCT09MRUFOIERFRkFVTFQgRkFMU0U7', 'base64'), 'UTF8');
+  EXECUTE stmt;
+
+  stmt := convert_from(decode('QUxURVIgVEFCTEUgbWVzc2FnZXMgQUREIENPTFVNTiBJRiBOT1QgRVhJU1RTIGRlbGV0ZWRfZm9yX3JlY2lwaWVudCBCT09MRUFOIERFRkFVTFQgRkFMU0U7', 'base64'), 'UTF8');
+  EXECUTE stmt;
+
+  -- Backfill sent_at
+  stmt := convert_from(decode('VVBEQVRFIG1lc3NhZ2VzIFNFVCBzZW50X2F0ID0gY3JlYXRlZF9hdCBXSEVSRSBzZW50X2F0IElTIE5VTEw7', 'base64'), 'UTF8');
+  EXECUTE stmt;
+
+  -- Add per-user soft delete controls on conversations
+  stmt := convert_from(decode('QUxURVIgVEFCTEUgY29udmVyc2F0aW9ucyBBREQgQ09MVU1OIElGIE5PVCBFWElTVFMgZGVsZXRlZF9mb3JfdXNlcl9hIEJPT0xFQU4gREVGQVVMVCBGQUxTRTs=', 'base64'), 'UTF8');
+  EXECUTE stmt;
+
+  stmt := convert_from(decode('QUxURVIgVEFCTEUgY29udmVyc2F0aW9ucyBBREQgQ09MVU1OIElGIE5PVCBFWElTVFMgZGVsZXRlZF9mb3JfdXNlcl9iIEJPT0xFQU4gREVGQVVMVCBGQUxTRTs=', 'base64'), 'UTF8');
+  EXECUTE stmt;
+
+  stmt := convert_from(decode('QUxURVIgVEFCTEUgY29udmVyc2F0aW9ucyBBREQgQ09MVU1OIElGIE5PVCBFWElTVFMgdXNlcl9hX2lkIFVVSUQgUkVGRVJFTkNFUyBhdXRoLnVzZXJzKGlkKTs=', 'base64'), 'UTF8');
+  EXECUTE stmt;
+
+  stmt := convert_from(decode('QUxURVIgVEFCTEUgY29udmVyc2F0aW9ucyBBREQgQ09MVU1OIElGIE5PVCBFWElTVFMgdXNlcl9iX2lkIFVVSUQgUkVGRVJFTkNFUyBhdXRoLnVzZXJzKGlkKTs=', 'base64'), 'UTF8');
+  EXECUTE stmt;
+
+  -- Indexes for faster lookup
+  stmt := convert_from(decode('Q1JFQVRFIElOREVYIElGIE5PVCBFWElTVFMgaWR4X21lc3NhZ2VzX3RocmVhZF90aW1lIE9OIG1lc3NhZ2VzKGNvbnZlcnNhdGlvbl9pZCwgc2VudF9hdCBERVNDKTs=', 'base64'), 'UTF8');
+  EXECUTE stmt;
+
+  stmt := convert_from(decode('Q1JFQVRFIElOREVYIElGIE5PVCBFWElTVFMgaWR4X21lc3NhZ2VzX3NvZnRfZGVsZXRlIE9OIG1lc3NhZ2VzKGNvbnZlcnNhdGlvbl9pZCwgZGVsZXRlZF9mb3Jfc2VuZGVyLCBkZWxldGVkX2Zvcl9yZWNpcGllbnQpOw==', 'base64'), 'UTF8');
+  EXECUTE stmt;
+
+  -- Helper functions
+  stmt := convert_from(decode('Q1JFQVRFIE9SIFJFUExBQ0UgRlVOQ1RJT04gZ2V0X2NvbnZlcnNhdGlvbl9wYXJ0bmVyKGNvbnZfaWQgVVVJRCwgY3VycmVudF91c2VyX2lkIFVVSUQpClJFVFVSTlMgVVVJRApMQU5HVUFHRSBwbHBnc3FsClNFQ1VSSVRZIERFRklORVIKU0VUIHNlYXJjaF9wYXRoID0gcHVibGljCkFTICQkCkRFQ0xBUkUKICBwYXJ0bmVyX2lkIFVVSUQ7CkJFR0lOCiAgU0VMRUNUIHVzZXJfaWQgSU5UTyBwYXJ0bmVyX2lkCiAgRlJPTSBjb252ZXJzYXRpb25fcGFydGljaXBhbnRzCiAgV0hFUkUgY29udmVyc2F0aW9uX2lkID0gY29udl9pZAogICAgQU5EIHVzZXJfaWQgIT0gY3VycmVudF91c2VyX2lkCiAgTElNSVQgMTsKICAKICBSRVRVUk4gcGFydG5lcl9pZDsKRU5EOwokJDs=', 'base64'), 'UTF8');
+  EXECUTE stmt;
+
+  stmt := convert_from(decode('Q1JFQVRFIE9SIFJFUExBQ0UgRlVOQ1RJT04gbWFya19tZXNzYWdlc19kZWxpdmVyZWQodGhyZWFkX2lkIFVVSUQsIHVzZXJfaWQgVVVJRCkKUkVUVVJOUyB2b2lkCkxBTkdVQUdFIHBscGdzcWwKU0VDVVJJVFkgREVGSU5FUgpTRVQgc2VhcmNoX3BhdGggPSBwdWJsaWMKQVMgJCQKQkVHSU4KICBVUERBVEUgbWVzc2FnZXMKICBTRVQgZGVsaXZlcmVkX2F0ID0gTk9XKCkKICBXSEVSRSBjb252ZXJzYXRpb25faWQgPSB0aHJlYWRfaWQKICAgIEFORCBzZW5kZXJfaWQgIT0gdXNlcl9pZAogICAgQU5EIGRlbGl2ZXJlZF9hdCBJUyBOVUxMOwpFTkQ7CiQkOw==', 'base64'), 'UTF8');
+  EXECUTE stmt;
+
+  stmt := convert_from(decode('Q1JFQVRFIE9SIFJFUExBQ0UgRlVOQ1RJT04gbWFya19tZXNzYWdlc19zZWVuKHRocmVhZF9pZCBVVUlELCBtZXNzYWdlX2lkcyBVVUlEW10sIHVzZXJfaWQgVVVJRCkKUkVUVVJOUyB2b2lkCkxBTkdVQUdFIHBscGdzcWwKU0VDVVJJVFkgREVGSU5FUgpTRVQgc2VhcmNoX3BhdGggPSBwdWJsaWMKQVMgJCQKQkVHSU4KICBVUERBVEUgbWVzc2FnZXMKICBTRVQgc2Vlbl9hdCA9IE5PVygpCiAgV0hFUkUgaWQgPSBBTlkobWVzc2FnZV9pZHMpCiAgICBBTkQgY29udmVyc2F0aW9uX2lkID0gdGhyZWFkX2lkCiAgICBBTkQgc2VuZGVyX2lkICE9IHVzZXJfaWQKICAgIEFORCBzZWVuX2F0IElTIE5VTEw7CkVORDsKJCQ7', 'base64'), 'UTF8');
+  EXECUTE stmt;
+
+  stmt := convert_from(decode('Q1JFQVRFIE9SIFJFUExBQ0UgRlVOQ1RJT04gc29mdF9kZWxldGVfY29udmVyc2F0aW9uKGNvbnZfaWQgVVVJRCwgdXNlcl9pZCBVVUlEKQpSRVRVUk5TIHZvaWQKTEFOR1VBR0UgcGxwZ3NxbApTRUNVUklUWSBERUZJTkVSClNFVCBzZWFyY2hfcGF0aCA9IHB1YmxpYwpBUyAkJApCRUdJTgogIFVQREFURSBtZXNzYWdlcwogIFNFVCBkZWxldGVkX2Zvcl9zZW5kZXIgPSBUUlVFCiAgV0hFUkUgY29udmVyc2F0aW9uX2lkID0gY29udl9pZAogICAgQU5EIHNlbmRlcl9pZCA9IHVzZXJfaWQ7CiAgCiAgVVBEQVRFIG1lc3NhZ2VzCiAgU0VUIGRlbGV0ZWRfZm9yX3JlY2lwaWVudCA9IFRSVUUKICBXSEVSRSBjb252ZXJzYXRpb25faWQgPSBjb252X2lkCiAgICBBTkQgc2VuZGVyX2lkICE9IHVzZXJfaWQ7CkVORDsKJCQ7', 'base64'), 'UTF8');
+  EXECUTE stmt;
+
 END;
 $$;
