@@ -65,14 +65,15 @@ serve(async (req) => {
         Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
       )
 
-      // Check for duplicate by session_id (unique per transaction)
-      const { data: existingTransaction } = await supabaseAdmin
-        .from('coin_transactions')
-        .select('id')
-        .ilike('description', `%${session.id}%`)
-        .maybeSingle()
+      // Check for duplicate by session_id
+      const { data: checkResult } = await supabaseAdmin.rpc('award_coins', {
+        p_user_id: userId,
+        p_amount: 0, // Just checking
+        p_session_id: session.id,
+        p_description: 'Check only'
+      });
 
-      if (existingTransaction) {
+      if (checkResult && !checkResult.success && checkResult.error === 'duplicate_transaction') {
         console.log('[STRIPE-WEBHOOK-COINS] Coins already awarded for session:', session.id)
         return new Response(
           JSON.stringify({ received: true, already_awarded: true }),
@@ -83,18 +84,20 @@ serve(async (req) => {
         )
       }
 
-      // Use the award_coins database function with session_id as reference
-      const { error: awardError } = await supabaseAdmin.rpc('award_coins', {
+      // Use the award_coins database function
+      const { data: awardResult, error: awardError } = await supabaseAdmin.rpc('award_coins', {
         p_user_id: userId,
         p_amount: coins,
         p_session_id: session.id,
-        p_description: `Purchased ${coins} coins via Stripe`
-      })
+        p_description: `Purchased ${coins} coins`
+      });
 
       if (awardError) {
         console.error('[STRIPE-WEBHOOK-COINS] Error awarding coins:', awardError)
         throw awardError
       }
+
+      console.log('[STRIPE-WEBHOOK-COINS] Award result:', awardResult)
 
       console.log('[STRIPE-WEBHOOK-COINS] Successfully awarded', coins, 'coins to user', userId)
     }
