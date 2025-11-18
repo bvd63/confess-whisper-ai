@@ -84,6 +84,27 @@ serve(async (req) => {
         cadence = 'yearly';
       }
 
+      // Check if subscription was already updated (idempotency)
+      const { data: currentProfile } = await supabaseClient
+        .from('profiles')
+        .select('stripe_subscription_id, subscription_tier')
+        .eq('user_id', user.id)
+        .single();
+
+      if (currentProfile?.stripe_subscription_id === subscriptionId && currentProfile?.subscription_tier === tier) {
+        logStep("Subscription already updated", { subscriptionId, tier });
+        return new Response(
+          JSON.stringify({ 
+            success: true,
+            tier,
+            cadence,
+            subscriptionEnd: currentPeriodEnd,
+            alreadyUpdated: true
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+        );
+      }
+
       logStep("Updating profile", { tier, cadence, subscriptionId });
 
       // Update user profile with subscription info

@@ -49,7 +49,7 @@ const Profile = () => {
   const {
     isPremium,
     subscriptionTier,
-    isVIP,
+    isVip,
     isOnTrial,
     trialEndDate,
     trialEligible,

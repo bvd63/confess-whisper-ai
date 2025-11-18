@@ -26,14 +26,14 @@ export const InstagramBottomNav = () => {
   const { prefetchPage } = usePrefetch();
   const navRef = useRef<HTMLDivElement>(null);
 
-  const isVIP = subscriptionTier === 'vip';
+  const isVip = subscriptionTier === 'vip';
 
   const navItems = [
     { tabId: "home" as const, icon: Home, label: t.nav_home, isActive: activeTab === "home", shortcut: "1" },
     { tabId: "explore" as const, icon: Search, label: t.nav_explore, isActive: activeTab === "explore", shortcut: "2" },
     { tabId: "compose" as const, icon: PlusSquare, label: "Compose", isActive: location.pathname === "/compose", shortcut: "N" },
     { tabId: "messages" as const, icon: MessageCircle, label: t.nav_messages, badge: totalUnread, isActive: activeTab === "messages", shortcut: "3" },
-    { tabId: "profile" as const, icon: User, label: t.nav_profile, isActive: activeTab === "profile", showVIPBadge: isVIP, shortcut: "4" },
+    { tabId: "profile" as const, icon: User, label: t.nav_profile, isActive: activeTab === "profile", showVIPBadge: isVip, shortcut: "4" },
   ];
 
   const handleTabClick = useCallback((tabId: "home" | "explore" | "messages" | "profile" | "compose") => {

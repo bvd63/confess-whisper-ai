@@ -66,16 +66,21 @@ serve(async (req) => {
 
       logStep("Payment successful, checking if coins already awarded", { userId, coins });
 
-      // Check if coins were already awarded
-      const { data: checkResult } = await supabaseClient.rpc('award_coins', {
-        p_user_id: userId,
-        p_amount: 0,
-        p_session_id: sessionId,
-        p_description: 'Check only'
-      });
+      // Check if coins were already awarded by looking for existing transaction
+      const { data: existingTransaction, error: checkError } = await supabaseClient
+        .from('coin_transactions')
+        .select('id, amount')
+        .eq('user_id', userId)
+        .like('description', `%Session: ${sessionId}%`)
+        .limit(1)
+        .maybeSingle();
 
-      if (checkResult && !checkResult.success && checkResult.error === 'duplicate_transaction') {
-        logStep("Coins already awarded");
+      if (checkError) {
+        logStep("Error checking for duplicate", { error: checkError });
+      }
+
+      if (existingTransaction) {
+        logStep("Coins already awarded", { transactionId: existingTransaction.id });
         return new Response(
           JSON.stringify({ 
             success: true, 

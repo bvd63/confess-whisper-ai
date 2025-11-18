@@ -29,7 +29,7 @@ export const TrialBanner = ({ daysRemaining, onUpgrade }: TrialBannerProps) => {
                 {" "}left in your VIP trial
               </p>
               <p className="text-xs text-muted-foreground">
-                Upgrade now to keep your premium features
+                Upgrade now to keep your VIP features
               </p>
             </div>
           </div>

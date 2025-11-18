@@ -65,15 +65,16 @@ serve(async (req) => {
         Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
       )
 
-      // Check for duplicate by session_id
-      const { data: checkResult } = await supabaseAdmin.rpc('award_coins', {
-        p_user_id: userId,
-        p_amount: 0, // Just checking
-        p_session_id: session.id,
-        p_description: 'Check only'
-      });
+      // Check for duplicate by looking for existing transaction
+      const { data: existingTransaction, error: checkError } = await supabaseAdmin
+        .from('coin_transactions')
+        .select('id, amount')
+        .eq('user_id', userId)
+        .like('description', `%Session: ${session.id}%`)
+        .limit(1)
+        .maybeSingle();
 
-      if (checkResult && !checkResult.success && checkResult.error === 'duplicate_transaction') {
+      if (existingTransaction) {
         console.log('[STRIPE-WEBHOOK-COINS] Coins already awarded for session:', session.id)
         return new Response(
           JSON.stringify({ received: true, already_awarded: true }),
