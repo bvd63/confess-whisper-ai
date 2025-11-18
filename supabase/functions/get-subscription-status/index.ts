@@ -74,17 +74,13 @@ serve(async (req) => {
     // Determine final tier
     let tier = profile.subscription_tier || 'free';
     if (onTrial) {
-      tier = 'premium'; // During trial, treat as premium
+      tier = 'vip'; // During trial, treat as VIP
     } else if (stripeSubscription) {
       const priceId = stripeSubscription.items.data[0]?.price.id;
-      const premiumMonthly = "price_1SJ0vvR7kygIyYg9oT1ju6lQ";
-      const premiumYearly = "price_1SJ0vvR7kygIyYg9yORadPGD";
-      const vipMonthly = "price_1SJ0vwR7kygIyYg9OeCiqV00";
-      const vipYearly = "price_1SJ0vvR7kygIyYg9BJuciYGd";
+      const vipMonthly = Deno.env.get("STRIPE_PRICE_VIP_MONTHLY");
+      const vipYearly = Deno.env.get("STRIPE_PRICE_VIP_YEARLY");
       
-      if (priceId === premiumMonthly || priceId === premiumYearly) {
-        tier = 'premium';
-      } else if (priceId === vipMonthly || priceId === vipYearly) {
+      if (priceId === vipMonthly || priceId === vipYearly) {
         tier = 'vip';
       }
     }

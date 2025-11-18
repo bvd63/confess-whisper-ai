@@ -108,20 +108,20 @@ const Index = () => {
           
           if (response.data?.awarded) {
             toast({
-              title: t.success || 'Success',
-              description: `VIP Activated! You received ${response.data.awarded} coins! 🎉`,
+              title: t.plans_vip_activated || '👑 You\'re now VIP!',
+              description: `${t.plans_vip_welcome || 'Welcome to VIP! Enjoy exclusive features.'} You received ${response.data.awarded} coins! 🎉`,
             });
           } else {
             toast({
-              title: t.success || 'Success',
-              description: 'VIP Activated! Welcome to premium features.',
+              title: t.plans_vip_activated || '👑 You\'re now VIP!',
+              description: t.plans_vip_welcome || 'Welcome to VIP! Enjoy exclusive features.',
             });
           }
         } catch (error) {
           // Even if coin award fails, show success for VIP activation
           toast({
-            title: t.success || 'Success',
-            description: 'VIP Activated! Welcome to premium features.',
+            title: t.plans_vip_activated || '👑 You\'re now VIP!',
+            description: t.plans_vip_welcome || 'Welcome to VIP! Enjoy exclusive features.',
           });
         }
       })();
