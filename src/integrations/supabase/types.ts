@@ -1449,6 +1449,7 @@ export type Database = {
           referred_by: string | null
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
+          subscription_cadence: string | null
           subscription_cancel_at_period_end: boolean | null
           subscription_ends_at: string | null
           subscription_status: string | null
@@ -1496,6 +1497,7 @@ export type Database = {
           referred_by?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
+          subscription_cadence?: string | null
           subscription_cancel_at_period_end?: boolean | null
           subscription_ends_at?: string | null
           subscription_status?: string | null
@@ -1543,6 +1545,7 @@ export type Database = {
           referred_by?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
+          subscription_cadence?: string | null
           subscription_cancel_at_period_end?: boolean | null
           subscription_ends_at?: string | null
           subscription_status?: string | null
