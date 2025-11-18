@@ -57,6 +57,20 @@ self.addEventListener('fetch', (event) => {
   // Skip Supabase API calls (always fresh)
   if (url.hostname.includes('supabase')) return;
   
+  // NEVER cache version.json - always fetch from network
+  if (url.pathname === '/version.json') {
+    event.respondWith(
+      fetch(request, {
+        cache: 'no-cache',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      })
+    );
+    return;
+  }
+  
   // Skip external origins
   if (url.origin !== location.origin) return;
   
