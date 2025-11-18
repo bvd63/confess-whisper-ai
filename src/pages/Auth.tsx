@@ -145,6 +145,11 @@ const Auth = () => {
           if (newAttempts >= 3) {
             setShowLoginCaptcha(true);
           }
+
+          // Set inline error message on password field using translated message
+          const message = (error as any)?.message || t.auth_invalid_credentials;
+          setErrors((prev) => ({ ...prev, password: message }));
+
           // Error already handled by useEnhancedAuth hook with toast
           setIsLoading(false);
           return;
