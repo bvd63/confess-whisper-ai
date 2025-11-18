@@ -12,7 +12,7 @@ import { logInfo, logDebug } from "@/lib/logger";
 export const UpdatePrompt = () => {
   const [showPrompt, setShowPrompt] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [autoReloadCountdown, setAutoReloadCountdown] = useState(30);
+  const [autoReloadCountdown, setAutoReloadCountdown] = useState(5);
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -76,9 +76,9 @@ export const UpdatePrompt = () => {
       });
     }
 
-    // Check on mount, on page visibility change, and every 5 minutes
+    // Check on mount, on page visibility change, and every 10 seconds for real-time updates
     checkForUpdates();
-    const interval = setInterval(checkForUpdates, 5 * 60 * 1000);
+    const interval = setInterval(checkForUpdates, 10 * 1000);
 
     // Check when user returns to tab
     const handleVisibilityChange = () => {
@@ -103,7 +103,7 @@ export const UpdatePrompt = () => {
     setTimeout(() => setShowPrompt(false), 300);
   };
 
-  // Auto-reload countdown after 30 seconds
+  // Auto-reload countdown after 5 seconds
   useEffect(() => {
     if (!showPrompt) return;
 
