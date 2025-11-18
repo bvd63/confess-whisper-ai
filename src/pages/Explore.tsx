@@ -16,7 +16,8 @@ import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 import { useToast } from "@/hooks/use-toast";
-import { useCommunities } from "@/hooks/useCommunities";
+// Communities feature disabled
+// import { useCommunities } from "@/hooks/useCommunities";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import { TrendingHashtags } from "@/components/TrendingHashtags";
 import { useNavigate } from "react-router-dom";
@@ -24,7 +25,8 @@ import { AdvancedFilters, FilterState } from "@/components/AdvancedFilters";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Loader2 } from "lucide-react";
 import VirtualizedConfessions from "@/components/VirtualizedConfessions";
-import { CommunitiesSectionExpanded } from "@/components/CommunitiesSectionExpanded";
+// Communities feature disabled
+// import { CommunitiesSectionExpanded } from "@/components/CommunitiesSectionExpanded";
 
 const Explore = () => {
   const { t } = useLanguage();
@@ -36,7 +38,8 @@ const Explore = () => {
   const { isPremium } = usePremiumStatus(user?.id);
   const { toast } = useToast();
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
-  const { communities } = useCommunities();
+  // Communities feature disabled
+  // const { communities } = useCommunities();
 
   // Pull to refresh
   const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
@@ -169,20 +172,17 @@ const Explore = () => {
 
         <SearchUsersCard />
 
-        {/* Communities Section */}
-        <div className="mb-4 sm:mb-5">
-          <CommunitiesSectionExpanded />
-        </div>
-
+        {/* Communities feature disabled */}
+        
         {/* Trending Hashtags */}
         <div className="mb-4 sm:mb-5">
           <TrendingHashtags />
         </div>
 
-        {/* Advanced Filters */}
+        {/* Advanced Filters - Communities disabled */}
         <AdvancedFilters
           onFilterChange={setFilters}
-          communities={communities || []}
+          communities={[]}
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>

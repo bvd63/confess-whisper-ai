@@ -53,7 +53,9 @@ const SearchUsers = lazy(() => import("./pages/SearchUsers"));
 const Messages = lazy(() => import("./pages/Messages"));
 const Explore = lazy(() => import("./pages/Explore"));
 const Compose = lazy(() => import("./pages/Compose"));
-const CommunityDetail = lazy(() => import("./pages/CommunityDetail"));
+// Communities feature disabled
+// const Communities = lazy(() => import("./pages/Communities"));
+// const CommunityDetail = lazy(() => import("./pages/CommunityDetail"));
 const NearbyConfessions = lazy(() => import("./pages/NearbyConfessions"));
 const Auth = lazy(() => import("./pages/Auth"));
 const AuthTest = lazy(() => import("./pages/AuthTest"));
@@ -250,7 +252,9 @@ const AppContent = () => {
           <Route path="/verify-email" element={<EmailVerification />} />
           <Route path="/explore" element={<Explore />} />
           <Route path="/compose" element={<Compose />} />
-          <Route path="/community/:id" element={<CommunityDetail />} />
+          {/* Communities feature disabled - redirect to home */}
+          <Route path="/communities" element={<Index />} />
+          <Route path="/community/:id" element={<Index />} />
           <Route path="/nearby" element={<NearbyConfessions />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/u/:handle" element={<UserProfile />} />

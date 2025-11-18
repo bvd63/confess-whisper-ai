@@ -182,9 +182,10 @@ export const CommunitiesSectionExpanded = () => {
             <Users className="w-3.5 h-3.5" />
             {t.home_communities_title}
           </CardTitle>
-          <Button variant="ghost" size="sm" onClick={() => navigate('/communities')} className="h-7 text-xs px-2">
+          {/* Communities feature disabled */}
+          {/* <Button variant="ghost" size="sm" onClick={() => navigate('/communities')} className="h-7 text-xs px-2">
             {t.common_view_all}
-          </Button>
+          </Button> */}
         </div>
       </CardHeader>
       <CardContent className="space-y-2.5 pt-0 px-3 pb-3">
