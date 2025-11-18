@@ -8,8 +8,6 @@ const corsHeaders = {
 };
 
 const PRICE_ID_TO_TIER: Record<string, string> = {
-  [Deno.env.get("STRIPE_PRICE_PREMIUM_MONTHLY") || ""]: 'premium',
-  [Deno.env.get("STRIPE_PRICE_PREMIUM_YEARLY") || ""]: 'premium',
   [Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || ""]: 'vip',
   [Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || ""]: 'vip',
 };

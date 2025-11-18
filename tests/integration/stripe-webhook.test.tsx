@@ -79,7 +79,7 @@ describe("stripe-webhook utils", () => {
     it("returns true only for VIP tier without existing bonus", () => {
       expect(shouldAwardBonus("vip", false)).toBe(true);
       expect(shouldAwardBonus("vip", true)).toBe(false);
-      expect(shouldAwardBonus("premium", false)).toBe(false);
+      expect(shouldAwardBonus("free", false)).toBe(false);
     });
 
     it("exposes constants for the bonus payload", () => {

@@ -19,8 +19,6 @@ function log(level: string, message: string, context?: any) {
 
 // Stripe price IDs - Loaded from environment secrets
 const PRICE_IDS = {
-  premium_monthly: Deno.env.get("STRIPE_PRICE_PREMIUM_MONTHLY") || "",
-  premium_yearly: Deno.env.get("STRIPE_PRICE_PREMIUM_YEARLY") || "",
   vip_monthly: Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || "",
   vip_yearly: Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || "",
 };
@@ -148,7 +146,7 @@ serve(async (req) => {
       if (targetTier === 'vip') {
         targetPrice = currentInterval === 'year' ? PRICE_IDS.vip_yearly : PRICE_IDS.vip_monthly;
       } else {
-        targetPrice = currentInterval === 'year' ? PRICE_IDS.premium_yearly : PRICE_IDS.premium_monthly;
+        throw new Error(`Only VIP tier is supported. Received: ${targetTier}`);
       }
 
       if (!targetPrice) {

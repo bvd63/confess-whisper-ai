@@ -1,10 +1,8 @@
-export type SubscriptionTier = "vip" | "premium" | "free";
+export type SubscriptionTier = "vip" | "free";
 
 export interface PriceEnvConfig {
   vipMonthly?: string | null;
   vipYearly?: string | null;
-  premiumMonthly?: string | null;
-  premiumYearly?: string | null;
 }
 
 export interface SubscriptionRecordInput {
@@ -41,11 +39,6 @@ export const resolveTier = (priceId: string | undefined, env: PriceEnvConfig): S
   const vipPrices = [env.vipMonthly, env.vipYearly].map(normalizeEnvValue);
   if (vipPrices.includes(normalizedPrice)) {
     return "vip";
-  }
-
-  const premiumPrices = [env.premiumMonthly, env.premiumYearly].map(normalizeEnvValue);
-  if (premiumPrices.includes(normalizedPrice)) {
-    return "premium";
   }
 
   return "free";

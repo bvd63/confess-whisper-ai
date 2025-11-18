@@ -102,12 +102,21 @@ serve(async (req) => {
       ? new Date(endEpoch * 1000).toISOString()
       : null;
 
+    // Determine cadence from price ID
+    let cadence = 'monthly';
+    const monthlyPriceId = Deno.env.get('STRIPE_PRICE_VIP_MONTHLY');
+    const yearlyPriceId = Deno.env.get('STRIPE_PRICE_VIP_YEARLY');
+    if (priceId === yearlyPriceId) {
+      cadence = 'yearly';
+    }
+    
     // Persist on profile
     const { error: updateError } = await supabaseAdmin
       .from("profiles")
       .update({
         is_premium: tier === "vip",
         subscription_tier: tier,
+        subscription_cadence: cadence,
         subscription_status: "active",
         subscription_ends_at: endsAtISO,
         stripe_customer_id: (session.customer as string) || null,

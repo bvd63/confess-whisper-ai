@@ -3,11 +3,13 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { logError } from '@/lib/logger';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export const useCheckoutStatus = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const status = searchParams.get('status');
@@ -30,13 +32,13 @@ export const useCheckoutStatus = () => {
             await supabase.functions.invoke('check-subscription');
             
             toast({
-              title: "✅ VIP Activated",
-              description: "Welcome to VIP! Your subscription is now active.",
+              title: t.plans_vip_activated || "✅ VIP Activated",
+              description: t.plans_vip_welcome || "Welcome to VIP! Your subscription is now active.",
             });
           } else {
             toast({
-              title: "Subscription Processing",
-              description: "Your subscription is being processed. It will be activated shortly.",
+              title: t.subscription_processing || "Processing...",
+              description: t.subscription_processing || "Your subscription is being processed. It will be activated shortly.",
             });
           }
         } catch (error) {
@@ -44,8 +46,8 @@ export const useCheckoutStatus = () => {
           // Fallback to regular check
           await supabase.functions.invoke('check-subscription');
           toast({
-            title: "✅ VIP Activated",
-            description: "Welcome to VIP! Your subscription is now active.",
+            title: t.plans_vip_activated || "✅ VIP Activated",
+            description: t.plans_vip_welcome || "Welcome to VIP! Your subscription is now active.",
           });
         }
       };
@@ -63,8 +65,8 @@ export const useCheckoutStatus = () => {
       }
     } else if (status === 'cancel') {
       toast({
-        title: "Checkout Cancelled",
-        description: "You can try again whenever you're ready.",
+        title: t.payment_canceled_title || "Checkout Cancelled",
+        description: t.payment_canceled_desc || "You can try again whenever you're ready.",
         variant: "default",
       });
 
@@ -86,20 +88,20 @@ export const useCheckoutStatus = () => {
 
           if (data?.success) {
             toast({
-              title: "✅ Coins Added",
-              description: `${data.coins} coins have been added to your balance!`,
+              title: t.coins_purchase_success_title || "✅ Coins Added",
+              description: t.coins_purchase_success_message || `${data.coins} coins have been added to your balance!`,
             });
           } else {
             toast({
-              title: "Payment Processing",
-              description: "Your payment is being processed. Coins will be added shortly.",
+              title: t.subscription_processing || "Payment Processing",
+              description: t.subscription_processing || "Your payment is being processed. Coins will be added shortly.",
             });
           }
         } catch (error) {
           logError('Error verifying coin payment', error as Error);
           toast({
-            title: "Payment Received",
-            description: "Your payment was received. Coins will be added shortly.",
+            title: t.subscription_processing || "Payment Received",
+            description: t.subscription_processing || "Your payment was received. Coins will be added shortly.",
           });
         }
       };
@@ -117,8 +119,8 @@ export const useCheckoutStatus = () => {
       }
     } else if (coinPurchase === 'cancel') {
       toast({
-        title: "Purchase Cancelled",
-        description: "You can try again whenever you're ready.",
+        title: t.coins_purchase_cancelled_title || "Purchase Cancelled",
+        description: t.coins_purchase_cancelled_message || "You can try again whenever you're ready.",
         variant: "default",
       });
 
@@ -126,5 +128,5 @@ export const useCheckoutStatus = () => {
       searchParams.delete('coin_purchase');
       setSearchParams(searchParams, { replace: true });
     }
-  }, [searchParams, setSearchParams, navigate, toast]);
+  }, [searchParams, setSearchParams, navigate, toast, t]);
 };

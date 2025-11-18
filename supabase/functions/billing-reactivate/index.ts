@@ -13,8 +13,8 @@ const logStep = (step: string, details?: any) => {
 };
 
 const STRIPE_PRICE_IDS = {
-  premium: "price_1SJ0vvR7kygIyYg9oT1ju6lQ",
-  vip: "price_1SJ0vwR7kygIyYg9OeCiqV00",
+  vip_monthly: Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || "",
+  vip_yearly: Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || "",
 };
 
 serve(async (req) => {
@@ -105,11 +105,9 @@ serve(async (req) => {
     // Determine tier from price using centralized config
     const priceId = updatedSubscription.items.data[0].price.id;
     
-    let tier = 'premium'; // default
-    if (priceId === STRIPE_PRICE_IDS.vip) {
+    let tier = 'vip'; // default for paid subscriptions
+    if (priceId === STRIPE_PRICE_IDS.vip_monthly || priceId === STRIPE_PRICE_IDS.vip_yearly) {
       tier = 'vip';
-    } else if (priceId === STRIPE_PRICE_IDS.premium) {
-      tier = 'premium';
     }
 
     // Update local database

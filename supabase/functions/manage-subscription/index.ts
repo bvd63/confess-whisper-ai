@@ -93,13 +93,12 @@ serve(async (req) => {
     }
 
     if (action === 'upgrade' || action === 'downgrade') {
-      if (!newTier || !['premium', 'vip'].includes(newTier)) {
-        throw new Error("Invalid tier for upgrade/downgrade");
+      if (!newTier || newTier !== 'vip') {
+        throw new Error("Invalid tier for upgrade/downgrade. Only 'vip' tier is supported");
       }
 
       const priceIds = {
-        premium: "price_1SJ0vvR7kygIyYg9oT1ju6lQ",
-        vip: "price_1SJ0vwR7kygIyYg9OeCiqV00"
+        vip: Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || "price_1SJ0vwR7kygIyYg9OeCiqV00"
       };
 
       const newPriceId = priceIds[newTier as keyof typeof priceIds];

@@ -50,8 +50,6 @@ type StripeSubscription = Stripe.Subscription;
 const priceConfig = {
   vipMonthly: Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") ?? null,
   vipYearly: Deno.env.get("STRIPE_PRICE_VIP_YEARLY") ?? null,
-  premiumMonthly: Deno.env.get("STRIPE_PRICE_PREMIUM_MONTHLY") ?? null,
-  premiumYearly: Deno.env.get("STRIPE_PRICE_PREMIUM_YEARLY") ?? null,
 };
 
 const extractUserId = async (supabase: SupabaseClient, customerId: string): Promise<string | null> => {
