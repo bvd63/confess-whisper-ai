@@ -73,9 +73,13 @@ export const useABTest = ({ testId, variants, weights }: ABTestConfig): ABTestRe
 };
 
 // Helper to track events (integrate with your analytics)
-const trackEvent = (event: string, data: Record<string, any>) => {
+type TrackEventPayload = Record<string, string | number | boolean | null | undefined>;
+type GtagFunction = (...args: unknown[]) => void;
+
+const trackEvent = (event: string, data: TrackEventPayload) => {
   if (typeof window !== 'undefined' && 'gtag' in window) {
-    (window as any).gtag('event', event, data);
+    const gtag = (window as Window & { gtag?: GtagFunction }).gtag;
+    gtag?.('event', event, data);
   }
   logDebug('AB Test Event', { event, ...data });
 };

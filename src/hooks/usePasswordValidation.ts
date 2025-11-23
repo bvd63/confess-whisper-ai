@@ -14,7 +14,12 @@ export interface PasswordValidation {
   strengthScore: number;
 }
 
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{}.,?:;|<>]).{10,}$/;
+const SPECIAL_CHARACTERS = "!@#$%^&*()_+-=[]{}.,?:;|<>";
+const SPECIAL_CHAR_CLASS = SPECIAL_CHARACTERS.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const SPECIAL_CHAR_REGEX = new RegExp(`[${SPECIAL_CHAR_CLASS}]`);
+const PASSWORD_REGEX = new RegExp(
+  `^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[${SPECIAL_CHAR_CLASS}]).{10,}$`
+);
 
 export const usePasswordValidation = (password: string): PasswordValidation => {
   const rules: PasswordRule[] = useMemo(() => [
@@ -40,7 +45,7 @@ export const usePasswordValidation = (password: string): PasswordValidation => {
     },
     {
       id: 'special',
-      test: (pwd: string) => /[!@#$%^&*()_+\-=\[\]{}.,?:;|<>]/.test(pwd),
+      test: (pwd: string) => SPECIAL_CHAR_REGEX.test(pwd),
       translationKey: 'auth_password_rules_special',
     },
   ], []);

@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react';
 import { logWarn } from '@/lib/logger';
 
+type ExtendedNavigator = Navigator & {
+  connection?: (NetworkInformation & { saveData?: boolean }) | null;
+  mozConnection?: (NetworkInformation & { saveData?: boolean }) | null;
+  webkitConnection?: (NetworkInformation & { saveData?: boolean }) | null;
+  deviceMemory?: number;
+  getBattery?: () => Promise<BatteryManager>;
+};
+
 interface DeviceCapabilities {
   networkSpeed: 'slow-2g' | '2g' | '3g' | '4g' | 'unknown';
   deviceMemory: number; // GB
@@ -33,9 +41,8 @@ export const useAdaptiveLoading = (): AdaptiveConfig => {
   useEffect(() => {
     const updateCapabilities = async () => {
       // Network information
-      const connection = (navigator as any).connection || 
-                        (navigator as any).mozConnection || 
-                        (navigator as any).webkitConnection;
+      const nav = navigator as ExtendedNavigator;
+      const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
 
       let networkSpeed: DeviceCapabilities['networkSpeed'] = 'unknown';
       let effectiveConnectionType = 'unknown';
@@ -63,15 +70,15 @@ export const useAdaptiveLoading = (): AdaptiveConfig => {
       }
 
       // Device memory
-      const deviceMemory = (navigator as any).deviceMemory || 4;
+      const deviceMemory = nav.deviceMemory ?? 4;
 
       // Battery status
       let batteryLevel: number | null = null;
       let isLowPowerMode = false;
 
-      if ('getBattery' in navigator) {
+      if (typeof nav.getBattery === 'function') {
         try {
-          const battery = await (navigator as any).getBattery();
+          const battery = await nav.getBattery();
           batteryLevel = battery.level;
           isLowPowerMode = battery.level < 0.2 || battery.charging === false;
         } catch (error) {
@@ -92,7 +99,7 @@ export const useAdaptiveLoading = (): AdaptiveConfig => {
     updateCapabilities();
 
     // Update on network change
-    const connection = (navigator as any).connection;
+    const connection = (navigator as ExtendedNavigator).connection;
     if (connection) {
       connection.addEventListener('change', updateCapabilities);
       return () => connection.removeEventListener('change', updateCapabilities);

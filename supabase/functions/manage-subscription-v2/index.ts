@@ -1,116 +1,79 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
+import { getServerEnv } from "../_shared/env.ts";
+import { createServiceClient, requireAuth } from "../_shared/supabase.ts";
+import { handleOptions, jsonResponse } from "../_shared/http.ts";
+import { logError, logInfo } from "../_shared/logger.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
-
-function log(level: string, message: string, context?: any) {
-  const logEntry = {
-    timestamp: new Date().toISOString(),
-    level,
-    message,
-    ...context,
-  };
-  console.log(JSON.stringify(logEntry));
-}
-
-// Stripe price IDs - Loaded from environment secrets
-const PRICE_IDS = {
-  vip_monthly: Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || "",
-  vip_yearly: Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || "",
-};
+const PayloadSchema = z.object({
+  action: z.enum(['upgrade', 'downgrade', 'cancel', 'reactivate', 'cancel_now']),
+  targetTier: z.literal('vip').optional(),
+  when: z.enum(['now', 'period_end']).optional(),
+});
 
 serve(async (req) => {
+  const origin = req.headers.get("origin");
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return handleOptions(origin);
   }
 
   try {
-    log('info', '[MANAGE-SUBSCRIPTION-V2] Function started');
-
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
-
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { auth: { persistSession: false } }
-    );
-
+    const env = getServerEnv();
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header provided");
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
-    if (userError) throw new Error(`Authentication error: ${userError.message}`);
-    const user = userData.user;
-    if (!user?.email) throw new Error("User not authenticated");
-    
-    log('info', '[MANAGE-SUBSCRIPTION-V2] User authenticated', { userId: user.id });
+    const authResult = await requireAuth(authHeader);
+    if (!authResult.user || !authResult.user.email) {
+      return jsonResponse({ error: "UNAUTHORIZED" }, 401, origin);
+    }
 
     const body = await req.json();
-    const { action, targetTier, when } = body;
-    
-    log('info', '[MANAGE-SUBSCRIPTION-V2] Request body parsed', { action, targetTier, when, fullBody: body });
+    const parsed = PayloadSchema.safeParse(body);
+    if (!parsed.success) {
+      return jsonResponse({ error: "INVALID_PAYLOAD" }, 400, origin);
+    }
 
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+    const { action, targetTier, when } = parsed.data;
 
-    // Handle trial cancellation
+    const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: "2024-06-20" });
+    const supabaseClient = createServiceClient();
+
     if (action === 'cancel_now') {
-      log('info', '[MANAGE-SUBSCRIPTION-V2] Canceling trial immediately');
-      
+      logInfo('manage-subscription-v2 cancel trial', { userId: authResult.user.id });
+
       await supabaseClient
         .from('profiles')
         .update({
           trial_active: false,
           subscription_tier: 'free',
         })
-        .eq('user_id', user.id);
+        .eq('user_id', authResult.user.id);
 
-      return new Response(JSON.stringify({
-        message: "Trial canceled successfully",
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
+      return jsonResponse({ message: "Trial canceled successfully" }, 200, origin);
     }
 
-    // For all other actions, need to check if user is on trial first
     const { data: profile } = await supabaseClient
       .from('profiles')
       .select('trial_active, trial_premium_ends_at')
-      .eq('user_id', user.id)
+      .eq('user_id', authResult.user.id)
       .single();
 
     // Check if on active trial
     if (profile?.trial_active && profile?.trial_premium_ends_at) {
       const trialEndsAt = new Date(profile.trial_premium_ends_at);
       if (trialEndsAt > new Date()) {
-        return new Response(JSON.stringify({
+        return jsonResponse({
           error: "Cannot modify trial subscription. Please wait until trial ends or cancel it first.",
-        }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 400,
-        });
+        }, 400, origin);
       }
     }
 
-    // For all other actions, need Stripe customer
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    const customers = await stripe.customers.list({ email: authResult.user.email, limit: 1 });
     if (customers.data.length === 0) {
-      return new Response(JSON.stringify({
-        error: "No Stripe customer found. Please subscribe first.",
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      });
+      return jsonResponse({ error: "No Stripe customer found. Please subscribe first." }, 400, origin);
     }
 
     const customerId = customers.data[0].id;
-    log('info', '[MANAGE-SUBSCRIPTION-V2] Customer found', { customerId });
+    logInfo('manage-subscription-v2 customer located', { userId: authResult.user.id });
 
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
@@ -119,42 +82,27 @@ serve(async (req) => {
     });
 
     if (subscriptions.data.length === 0) {
-      return new Response(JSON.stringify({
-        error: "No active subscription found. Please subscribe first.",
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      });
+      return jsonResponse({ error: "No active subscription found. Please subscribe first." }, 400, origin);
     }
 
     const subscription = subscriptions.data[0];
     const currentItem = subscription.items.data[0];
     
-    log('info', '[MANAGE-SUBSCRIPTION-V2] Current subscription', { 
-      subscriptionId: subscription.id,
-      currentPrice: currentItem.price.id 
-    });
+    logInfo('manage-subscription-v2 subscription loaded', { subscriptionId: subscription.id });
 
     // Handle actions
     if (action === 'upgrade' || action === 'downgrade') {
-      log('info', '[MANAGE-SUBSCRIPTION-V2] Entering upgrade/downgrade block', { action, targetTier });
-      
-      // Determine target price
-      const currentInterval = currentItem.price.recurring?.interval || 'month';
-      let targetPrice: string;
-      
-      if (targetTier === 'vip') {
-        targetPrice = currentInterval === 'year' ? PRICE_IDS.vip_yearly : PRICE_IDS.vip_monthly;
-      } else {
-        throw new Error(`Only VIP tier is supported. Received: ${targetTier}`);
+      if (targetTier !== 'vip') {
+        return jsonResponse({ error: "Unsupported tier" }, 400, origin);
       }
+      const currentInterval = currentItem.price.recurring?.interval || 'month';
+      const targetPrice = currentInterval === 'year'
+        ? env.STRIPE_PRICE_VIP_YEARLY
+        : env.STRIPE_PRICE_VIP_MONTHLY;
 
       if (!targetPrice) {
-        log('error', '[MANAGE-SUBSCRIPTION-V2] Target price not found', { targetTier, currentInterval, PRICE_IDS });
-        throw new Error(`Price ID not configured for ${targetTier} ${currentInterval}`);
+        return jsonResponse({ error: "PRICE_NOT_CONFIGURED" }, 500, origin);
       }
-
-      log('info', '[MANAGE-SUBSCRIPTION-V2] Changing plan', { targetPrice, currentInterval });
 
       await stripe.subscriptions.update(subscription.id, {
         items: [
@@ -169,24 +117,16 @@ serve(async (req) => {
       await supabaseClient
         .from('profiles')
         .update({
-          subscription_tier: targetTier,
+          subscription_tier: targetTier ?? 'vip',
         })
-        .eq('user_id', user.id);
+        .eq('user_id', authResult.user.id);
 
-      log('info', '[MANAGE-SUBSCRIPTION-V2] Plan changed successfully', { newTier: targetTier });
-
-      return new Response(JSON.stringify({
+      return jsonResponse({
         message: action === 'upgrade' ? "Upgraded successfully" : "Downgraded successfully",
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
+      }, 200, origin);
     }
 
     if (action === 'cancel') {
-      log('info', '[MANAGE-SUBSCRIPTION-V2] Entering cancel block');
-      log('info', '[MANAGE-SUBSCRIPTION-V2] Canceling at period end');
-      
       await stripe.subscriptions.update(subscription.id, {
         cancel_at_period_end: true,
       });
@@ -196,20 +136,12 @@ serve(async (req) => {
         .update({
           subscription_cancel_at_period_end: true,
         })
-        .eq('user_id', user.id);
+        .eq('user_id', authResult.user.id);
 
-      return new Response(JSON.stringify({
-        message: "Subscription will cancel at period end",
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
+      return jsonResponse({ message: "Subscription will cancel at period end" }, 200, origin);
     }
 
     if (action === 'reactivate') {
-      log('info', '[MANAGE-SUBSCRIPTION-V2] Entering reactivate block');
-      log('info', '[MANAGE-SUBSCRIPTION-V2] Reactivating subscription');
-      
       await stripe.subscriptions.update(subscription.id, {
         cancel_at_period_end: false,
       });
@@ -219,24 +151,14 @@ serve(async (req) => {
         .update({
           subscription_cancel_at_period_end: false,
         })
-        .eq('user_id', user.id);
+        .eq('user_id', authResult.user.id);
 
-      return new Response(JSON.stringify({
-        message: "Subscription reactivated successfully",
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
+      return jsonResponse({ message: "Subscription reactivated successfully" }, 200, origin);
     }
 
-    log('error', '[MANAGE-SUBSCRIPTION-V2] No action matched', { action, receivedActions: { upgrade: action === 'upgrade', downgrade: action === 'downgrade', cancel: action === 'cancel', reactivate: action === 'reactivate' } });
-    throw new Error("Invalid action");
+    return jsonResponse({ error: "Invalid action" }, 400, origin);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    log('error', '[MANAGE-SUBSCRIPTION-V2] Error occurred', { error: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
+    logError('manage-subscription-v2 failed', { error: error instanceof Error ? error.message : String(error) });
+    return jsonResponse({ error: "INTERNAL_ERROR" }, 500, origin);
   }
 });

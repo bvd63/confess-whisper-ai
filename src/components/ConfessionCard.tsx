@@ -38,7 +38,7 @@ import { VIPBadge } from "./VIPBadge";
 import { sanitizeConfession } from "@/lib/security/sanitizer";
 import { logError } from "@/lib/logger";
 
-interface ConfessionCardProps {
+export interface ConfessionCardProps {
   confession: {
     id: string;
     content: string;

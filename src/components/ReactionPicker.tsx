@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, memo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -25,6 +25,29 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
     { type: 'thinking', emoji: '🤔', label: t.reaction_thinking, color: 'text-purple-500' },
   ];
 
+  const loadReactions = useCallback(async () => {
+    // Load all reactions for this confession
+    const { data: allReactions } = await supabase
+      .from('confession_reactions')
+      .select('reaction_type, user_id')
+      .eq('confession_id', confessionId);
+
+    if (allReactions && Array.isArray(allReactions)) {
+      const counts: Record<string, number> = {};
+      const userSet = new Set<string>();
+
+      allReactions.forEach(r => {
+        counts[r.reaction_type] = (counts[r.reaction_type] || 0) + 1;
+        if (userId && r.user_id === userId) {
+          userSet.add(r.reaction_type);
+        }
+      });
+
+      setReactionCounts(counts);
+      setUserReactions(userSet);
+    }
+  }, [confessionId, userId]);
+
   useEffect(() => {
     loadReactions();
 
@@ -48,30 +71,7 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [confessionId, userId]);
-
-  const loadReactions = async () => {
-    // Load all reactions for this confession
-    const { data: allReactions } = await supabase
-      .from('confession_reactions')
-      .select('reaction_type, user_id')
-      .eq('confession_id', confessionId);
-
-    if (allReactions && Array.isArray(allReactions)) {
-      const counts: Record<string, number> = {};
-      const userSet = new Set<string>();
-
-      allReactions.forEach(r => {
-        counts[r.reaction_type] = (counts[r.reaction_type] || 0) + 1;
-        if (userId && r.user_id === userId) {
-          userSet.add(r.reaction_type);
-        }
-      });
-
-      setReactionCounts(counts);
-      setUserReactions(userSet);
-    }
-  };
+  }, [confessionId, loadReactions]);
 
   const toggleReaction = async (reactionType: string) => {
     if (!userId) {

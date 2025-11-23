@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -22,13 +22,7 @@ const UserConfessionsList = () => {
   const [confessions, setConfessions] = useState<Confession[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (user) {
-      fetchUserConfessions();
-    }
-  }, [user]);
-
-  const fetchUserConfessions = async () => {
+  const fetchUserConfessions = useCallback(async () => {
     if (!user) return;
     
     try {
@@ -45,7 +39,13 @@ const UserConfessionsList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserConfessions();
+    }
+  }, [fetchUserConfessions, user]);
 
   const handleLikeChange = () => {
     reloadLikes();

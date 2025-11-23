@@ -177,6 +177,45 @@ export const useStreakManager = () => {
     return points;
   };
 
+  // Check and award badges
+  const checkBadgeUnlocks = useCallback(async (streak: number, points: number) => {
+    if (!user) return;
+
+    try {
+      // Get badges for streak milestones
+      const { data: badges } = await supabase
+        .from('badges')
+        .select('id, requirement_type, requirement_value')
+        .eq('requirement_type', 'streak_days')
+        .lte('requirement_value', streak);
+
+      if (badges) {
+        for (const badge of badges) {
+          // Try to award badge (will fail silently if already exists due to unique constraint)
+          await supabase
+            .from('user_badges')
+            .insert({
+              user_id: user.id,
+              badge_id: badge.id
+            })
+            .select()
+            .single()
+            .then(({ data, error }) => {
+              // Only show toast if badge was newly awarded (no error)
+              if (data && !error) {
+                toast.success('🎉 New badge unlocked!', {
+                  duration: 5000
+                });
+              }
+            });
+          // Ignore errors (badge already exists)
+        }
+      }
+    } catch (error) {
+      logError('Error checking badge unlocks', error as Error);
+    }
+  }, [user]);
+
   // Update streak after confession
   const updateStreak = useCallback(async () => {
     if (!user) return;
@@ -229,46 +268,7 @@ export const useStreakManager = () => {
     } catch (error) {
       logError('Error updating streak', error as Error);
     }
-  }, [user, checkStreak, loadStreakData, t]);
-
-  // Check and award badges
-  const checkBadgeUnlocks = async (streak: number, points: number) => {
-    if (!user) return;
-
-    try {
-      // Get badges for streak milestones
-      const { data: badges } = await supabase
-        .from('badges')
-        .select('id, requirement_type, requirement_value')
-        .eq('requirement_type', 'streak_days')
-        .lte('requirement_value', streak);
-
-      if (badges) {
-        for (const badge of badges) {
-          // Try to award badge (will fail silently if already exists due to unique constraint)
-          await supabase
-            .from('user_badges')
-            .insert({
-              user_id: user.id,
-              badge_id: badge.id
-            })
-            .select()
-            .single()
-            .then(({ data, error }) => {
-              // Only show toast if badge was newly awarded (no error)
-              if (data && !error) {
-                toast.success('🎉 New badge unlocked!', {
-                  duration: 5000
-                });
-              }
-            });
-          // Ignore errors (badge already exists)
-        }
-      }
-    } catch (error) {
-      logError('Error checking badge unlocks', error as Error);
-    }
-  };
+  }, [checkBadgeUnlocks, checkStreak, loadStreakData, user]);
 
   return {
     streakData,

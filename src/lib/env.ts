@@ -21,27 +21,34 @@ const RawEnv = z.object({
   MODE: z.enum(["development", "production", "test"]).default("development"),
 });
 
-const _raw = (typeof window !== "undefined" ? import.meta.env : ({} as any)) as Record<string, any>;
+const runtimeEnv = (
+  typeof window !== "undefined"
+    ? import.meta.env
+    : (process.env as Record<string, string | undefined>)
+) as Record<string, string | undefined>;
 
 const parsed = RawEnv.safeParse({
-  VITE_SUPABASE_URL: _raw.VITE_SUPABASE_URL,
-  VITE_SUPABASE_PUBLISHABLE_KEY: _raw.VITE_SUPABASE_PUBLISHABLE_KEY,
-  VITE_STRIPE_PRICE_VIP_MONTHLY: _raw.VITE_STRIPE_PRICE_VIP_MONTHLY,
-  VITE_STRIPE_PRICE_VIP_YEARLY: _raw.VITE_STRIPE_PRICE_VIP_YEARLY,
-  VITE_ONESIGNAL_APP_ID: _raw.VITE_ONESIGNAL_APP_ID,
-  VITE_SENTRY_DSN: _raw.VITE_SENTRY_DSN,
-  VITE_FEATURE_PASSWORDLESS: _raw.VITE_FEATURE_PASSWORDLESS,
-  VITE_FEATURE_OFFLINE_QUEUE: _raw.VITE_FEATURE_OFFLINE_QUEUE,
-  VITE_FEATURE_BACKGROUND_QUEUE: _raw.VITE_FEATURE_BACKGROUND_QUEUE,
-  VITE_FEATURE_PWA_PROMPT: _raw.VITE_FEATURE_PWA_PROMPT,
-  VITE_FEATURE_PROFILE_MINI_ANALYTICS: _raw.VITE_FEATURE_PROFILE_MINI_ANALYTICS,
-  VITE_WEB_SHARE_ENABLED: _raw.VITE_WEB_SHARE_ENABLED,
-  VITE_CONFESSION_TURNSTILE_REQUIRED: _raw.VITE_CONFESSION_TURNSTILE_REQUIRED,
-  MODE: _raw.MODE,
+  VITE_SUPABASE_URL: runtimeEnv.VITE_SUPABASE_URL,
+  VITE_SUPABASE_PUBLISHABLE_KEY: runtimeEnv.VITE_SUPABASE_PUBLISHABLE_KEY,
+  VITE_STRIPE_PRICE_VIP_MONTHLY: runtimeEnv.VITE_STRIPE_PRICE_VIP_MONTHLY,
+  VITE_STRIPE_PRICE_VIP_YEARLY: runtimeEnv.VITE_STRIPE_PRICE_VIP_YEARLY,
+  VITE_ONESIGNAL_APP_ID: runtimeEnv.VITE_ONESIGNAL_APP_ID,
+  VITE_SENTRY_DSN: runtimeEnv.VITE_SENTRY_DSN,
+  VITE_FEATURE_PASSWORDLESS: runtimeEnv.VITE_FEATURE_PASSWORDLESS,
+  VITE_FEATURE_OFFLINE_QUEUE: runtimeEnv.VITE_FEATURE_OFFLINE_QUEUE,
+  VITE_FEATURE_BACKGROUND_QUEUE: runtimeEnv.VITE_FEATURE_BACKGROUND_QUEUE,
+  VITE_FEATURE_PWA_PROMPT: runtimeEnv.VITE_FEATURE_PWA_PROMPT,
+  VITE_FEATURE_PROFILE_MINI_ANALYTICS: runtimeEnv.VITE_FEATURE_PROFILE_MINI_ANALYTICS,
+  VITE_WEB_SHARE_ENABLED: runtimeEnv.VITE_WEB_SHARE_ENABLED,
+  VITE_CONFESSION_TURNSTILE_REQUIRED: runtimeEnv.VITE_CONFESSION_TURNSTILE_REQUIRED,
+  MODE: runtimeEnv.MODE ?? process.env.NODE_ENV ?? "development",
 });
 
 if (!parsed.success) {
-  logError("[ENV] Invalid client ENV", new Error(JSON.stringify(parsed.error.flatten().fieldErrors)));
+  logError(
+    "[ENV] Invalid client ENV",
+    new Error(JSON.stringify(parsed.error.flatten().fieldErrors))
+  );
   // Only throw if Supabase credentials are missing (required for app to function)
   const errors = parsed.error.flatten().fieldErrors;
   if (errors.VITE_SUPABASE_URL || errors.VITE_SUPABASE_PUBLISHABLE_KEY) {
@@ -52,22 +59,34 @@ if (!parsed.success) {
 
 export const env = {
   client: {
-    supabaseUrl: parsed.data?.VITE_SUPABASE_URL || _raw.VITE_SUPABASE_URL,
-    supabaseAnonKey: parsed.data?.VITE_SUPABASE_PUBLISHABLE_KEY || _raw.VITE_SUPABASE_PUBLISHABLE_KEY,
-    stripePriceVipMonthly: parsed.data?.VITE_STRIPE_PRICE_VIP_MONTHLY || _raw.VITE_STRIPE_PRICE_VIP_MONTHLY,
-    stripePriceVipYearly: parsed.data?.VITE_STRIPE_PRICE_VIP_YEARLY || _raw.VITE_STRIPE_PRICE_VIP_YEARLY,
-    oneSignalAppId: parsed.data?.VITE_ONESIGNAL_APP_ID || _raw.VITE_ONESIGNAL_APP_ID,
-    sentryDsn: parsed.data?.VITE_SENTRY_DSN || _raw.VITE_SENTRY_DSN,
+    supabaseUrl: parsed.data?.VITE_SUPABASE_URL || runtimeEnv.VITE_SUPABASE_URL,
+    supabaseAnonKey:
+      parsed.data?.VITE_SUPABASE_PUBLISHABLE_KEY || runtimeEnv.VITE_SUPABASE_PUBLISHABLE_KEY,
+    stripePriceVipMonthly:
+      parsed.data?.VITE_STRIPE_PRICE_VIP_MONTHLY || runtimeEnv.VITE_STRIPE_PRICE_VIP_MONTHLY,
+    stripePriceVipYearly:
+      parsed.data?.VITE_STRIPE_PRICE_VIP_YEARLY || runtimeEnv.VITE_STRIPE_PRICE_VIP_YEARLY,
+    oneSignalAppId: parsed.data?.VITE_ONESIGNAL_APP_ID || runtimeEnv.VITE_ONESIGNAL_APP_ID,
+    sentryDsn: parsed.data?.VITE_SENTRY_DSN || runtimeEnv.VITE_SENTRY_DSN,
   },
   features: {
-    passwordless: (parsed.data?.VITE_FEATURE_PASSWORDLESS || _raw.VITE_FEATURE_PASSWORDLESS) === "true",
-    offlineQueue: (parsed.data?.VITE_FEATURE_OFFLINE_QUEUE || _raw.VITE_FEATURE_OFFLINE_QUEUE) === "true",
-    backgroundQueue: (parsed.data?.VITE_FEATURE_BACKGROUND_QUEUE || _raw.VITE_FEATURE_BACKGROUND_QUEUE) === "true",
-    pwaPrompt: (parsed.data?.VITE_FEATURE_PWA_PROMPT || _raw.VITE_FEATURE_PWA_PROMPT) !== "false",
-    profileMiniAnalytics: (parsed.data?.VITE_FEATURE_PROFILE_MINI_ANALYTICS || _raw.VITE_FEATURE_PROFILE_MINI_ANALYTICS) !== "false",
-    webShareEnabled: (parsed.data?.VITE_WEB_SHARE_ENABLED || _raw.VITE_WEB_SHARE_ENABLED) !== "false",
-    confessionTurnstileRequired: (parsed.data?.VITE_CONFESSION_TURNSTILE_REQUIRED || _raw.VITE_CONFESSION_TURNSTILE_REQUIRED) === "true",
+    passwordless:
+      (parsed.data?.VITE_FEATURE_PASSWORDLESS || runtimeEnv.VITE_FEATURE_PASSWORDLESS) === "true",
+    offlineQueue:
+      (parsed.data?.VITE_FEATURE_OFFLINE_QUEUE || runtimeEnv.VITE_FEATURE_OFFLINE_QUEUE) === "true",
+    backgroundQueue:
+      (parsed.data?.VITE_FEATURE_BACKGROUND_QUEUE || runtimeEnv.VITE_FEATURE_BACKGROUND_QUEUE) === "true",
+    pwaPrompt:
+      (parsed.data?.VITE_FEATURE_PWA_PROMPT || runtimeEnv.VITE_FEATURE_PWA_PROMPT) !== "false",
+    profileMiniAnalytics:
+      (parsed.data?.VITE_FEATURE_PROFILE_MINI_ANALYTICS ||
+        runtimeEnv.VITE_FEATURE_PROFILE_MINI_ANALYTICS) !== "false",
+    webShareEnabled:
+      (parsed.data?.VITE_WEB_SHARE_ENABLED || runtimeEnv.VITE_WEB_SHARE_ENABLED) !== "false",
+    confessionTurnstileRequired:
+      (parsed.data?.VITE_CONFESSION_TURNSTILE_REQUIRED ||
+        runtimeEnv.VITE_CONFESSION_TURNSTILE_REQUIRED) === "true",
   },
-  isProd: (parsed.data?.MODE || _raw.MODE) === "production",
-  isDev: (parsed.data?.MODE || _raw.MODE) === "development",
+  isProd: (parsed.data?.MODE || runtimeEnv.MODE || process.env.NODE_ENV) === "production",
+  isDev: (parsed.data?.MODE || runtimeEnv.MODE || process.env.NODE_ENV) === "development",
 } as const;

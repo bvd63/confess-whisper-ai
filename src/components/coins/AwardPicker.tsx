@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { logError } from '@/lib/logger';
+import type { Database } from '@/integrations/supabase/types';
 
 interface AwardPickerProps {
   open: boolean;
@@ -54,6 +55,8 @@ const AWARDS = [
   },
 ];
 
+const GIVE_AWARD_FN = 'give_award' as unknown as keyof Database['public']['Functions'];
+
 export const AwardPicker = ({ open, onOpenChange, confessionId }: AwardPickerProps) => {
   const { t } = useLanguage();
   const [selectedAward, setSelectedAward] = useState<typeof AWARDS[0] | null>(null);
@@ -87,7 +90,7 @@ export const AwardPicker = ({ open, onOpenChange, confessionId }: AwardPickerPro
 
     setLoading(true);
     try {
-      const { error } = await (supabase.rpc as any)('give_award', {
+      const { error } = await supabase.rpc(GIVE_AWARD_FN, {
         confession_id: confessionId,
         award_type: selectedAward.type,
       });

@@ -20,44 +20,49 @@ interface NotificationItemProps {
   onDelete: (id: string) => void;
 }
 
+const notificationTranslations = {
+  en: {
+    someone: 'Someone',
+    likedConfession: 'liked your confession',
+    commentedConfession: 'commented on your confession',
+    startedFollowing: 'started following you',
+    badgeEarned: 'You earned a new badge!',
+    deepInsightReady: 'Your deep insight is ready',
+    streakMilestone: 'New streak milestone!',
+    defaultNotification: 'New notification',
+  },
+  es: {
+    someone: 'Alguien',
+    likedConfession: 'le gustó tu confesión',
+    commentedConfession: 'comentó tu confesión',
+    startedFollowing: 'comenzó a seguirte',
+    badgeEarned: '¡Ganaste una nueva insignia!',
+    deepInsightReady: 'Tu perspectiva profunda está lista',
+    streakMilestone: '¡Nuevo hito de racha!',
+    defaultNotification: 'Nueva notificación',
+  },
+  de: {
+    someone: 'Jemand',
+    likedConfession: 'hat dein Geständnis gemocht',
+    commentedConfession: 'hat dein Geständnis kommentiert',
+    startedFollowing: 'folgt dir jetzt',
+    badgeEarned: 'Du hast ein neues Abzeichen verdient!',
+    deepInsightReady: 'Deine tiefe Einsicht ist bereit',
+    streakMilestone: 'Neuer Streak-Meilenstein!',
+    defaultNotification: 'Neue Benachrichtigung',
+  },
+};
+
+type NotificationTranslationKey = keyof typeof notificationTranslations.en;
+
 export const NotificationItem = ({ notification, onMarkAsRead, onDelete }: NotificationItemProps) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
-  
-  const translations: any = {
-    en: {
-      someone: 'Someone',
-      'liked your confession': 'liked your confession',
-      'commented on your confession': 'commented on your confession',
-      'started following you': 'started following you',
-      'You earned a new badge!': 'You earned a new badge!',
-      'Your deep insight is ready': 'Your deep insight is ready',
-      'New streak milestone!': 'New streak milestone!',
-      'New notification': 'New notification'
-    },
-    es: {
-      someone: 'Alguien',
-      'liked your confession': 'le gustó tu confesión',
-      'commented on your confession': 'comentó tu confesión',
-      'started following you': 'comenzó a seguirte',
-      'You earned a new badge!': '¡Ganaste una nueva insignia!',
-      'Your deep insight is ready': 'Tu perspectiva profunda está lista',
-      'New streak milestone!': '¡Nuevo hito de racha!',
-      'New notification': 'Nueva notificación'
-    },
-    de: {
-      someone: 'Jemand',
-      'liked your confession': 'hat dein Geständnis gemocht',
-      'commented on your confession': 'hat dein Geständnis kommentiert',
-      'started following you': 'folgt dir jetzt',
-      'You earned a new badge!': 'Du hast ein neues Abzeichen verdient!',
-      'Your deep insight is ready': 'Deine tiefe Einsicht ist bereit',
-      'New streak milestone!': 'Neuer Streak-Meilenstein!',
-      'New notification': 'Neue Benachrichtigung'
-    }
+
+  const t = (key: NotificationTranslationKey) => {
+    const translation = notificationTranslations[language][key];
+    return translation ?? notificationTranslations.en[key];
   };
-  
-  const t = (key: string) => translations[language][key] || key;
 
   const getIcon = () => {
     switch (notification.type) {
@@ -88,7 +93,7 @@ export const NotificationItem = ({ notification, onMarkAsRead, onDelete }: Notif
               <UserDisplayName userId={notification.triggered_by} clickable={false} className="inline" showBadges={true} />
             )}
             {' '}
-            {t('liked your confession')}
+            {t('likedConfession')}
           </>
         );
       case 'comment':
@@ -98,7 +103,7 @@ export const NotificationItem = ({ notification, onMarkAsRead, onDelete }: Notif
               <UserDisplayName userId={notification.triggered_by} clickable={false} className="inline" showBadges={true} />
             )}
             {' '}
-            {t('commented on your confession')}
+            {t('commentedConfession')}
           </>
         );
       case 'follow':
@@ -108,17 +113,17 @@ export const NotificationItem = ({ notification, onMarkAsRead, onDelete }: Notif
               <UserDisplayName userId={notification.triggered_by} clickable={false} className="inline" showBadges={true} />
             )}
             {' '}
-            {t('started following you')}
+            {t('startedFollowing')}
           </>
         );
       case 'badge_earned':
-        return t('You earned a new badge!');
+        return t('badgeEarned');
       case 'deep_insight':
-        return t('Your deep insight is ready');
+        return t('deepInsightReady');
       case 'streak_milestone':
-        return t('New streak milestone!');
+        return t('streakMilestone');
       default:
-        return t('New notification');
+        return t('defaultNotification');
     }
   };
 

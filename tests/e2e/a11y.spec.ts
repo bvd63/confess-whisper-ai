@@ -9,41 +9,29 @@ test.describe('Manage Subscription Accessibility', () => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await loginAs(page, 'premium_monthly_active');
     await mockSubscriptionRoutes(page, { currentPlan: 'vip', interval: 'monthly', status: 'active' });
-    
+
     await page.goto('/');
-    await page.waitForLoadState('load'); // Changed from 'networkidle' to 'load'
-    
-    // Wait for app ready
-    await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
-    await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
-    
-    // Wait for any dialog overlays to disappear
-    await page.locator('[data-state="open"][aria-hidden="true"]').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
-    
-    // Close any open dialogs
-    const openDialog = page.locator('[data-state="open"][role="dialog"]');
-    if (await openDialog.isVisible()) {
-      await page.keyboard.press('Escape');
-      await expect(openDialog).not.toBeVisible();
-    }
-    
-    // Extra wait for dialog close animation
-    await page.waitForTimeout(500);
+    await page.waitForLoadState('load');
+
+    await waitForAppReady(page);
+    await closeOpenDialogs(page);
+
+    // Final guard in case any overlay lingers due to slow animations
+    await page
+      .locator('[data-state="open"][aria-hidden="true"]')
+      .first()
+      .waitFor({ state: 'hidden', timeout: 3000 })
+      .catch(() => {});
   });
 
   test.afterEach(async ({ page }) => {
-    // Force close all dialogs by pressing ESC multiple times and waiting for overlays to disappear
-    for (let i = 0; i < 5; i++) {
-      await page.keyboard.press('Escape');
-      await page.waitForTimeout(300);
-    }
-    
-    // Wait for any overlays to fully disappear
+    await closeOpenDialogs(page);
+
     const overlay = page.locator('[data-state="open"][aria-hidden="true"]');
     await overlay.waitFor({ state: 'hidden', timeout: 3000 }).catch(() => {});
-    
-    // Extra wait for animations
-    await page.waitForTimeout(1000);
+
+    // Give Radix animations a moment to finish before next test
+    await page.waitForTimeout(500);
   });
 
   test('modal has no critical accessibility violations', async ({ page }) => {

@@ -400,6 +400,11 @@ body {
   }
 }
 
+/* Ensure hidden dialog overlays do not block pointer events (Radix presence bug) */
+[data-state='open'][aria-hidden='true'] {
+  pointer-events: none !important;
+}
+
 /* === Mobile & Tablet Optimization Layer === */
 
 /* Safe area for iPhone notch & edge devices */

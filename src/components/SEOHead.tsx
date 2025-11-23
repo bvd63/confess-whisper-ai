@@ -88,7 +88,7 @@ const SEOHead = ({
       document.head.appendChild(script);
     }
     script.textContent = JSON.stringify(structuredData);
-  }, [finalTitle, finalDescription, finalKeywords, ogImage, canonical, t]);
+  }, [canonical, description, finalDescription, finalKeywords, finalTitle, ogImage, t, title]);
 
   return null;
 };

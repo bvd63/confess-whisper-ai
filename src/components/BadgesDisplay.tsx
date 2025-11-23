@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -31,6 +31,40 @@ const BadgesDisplay = ({
   const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
 
+  const loadFlairs = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_flairs')
+        .select(`
+          id,
+          flair_id,
+          acquired_at,
+          expires_at,
+          is_equipped,
+          profile_flairs!inner(
+            icon,
+            name_key
+          )
+        `)
+        .eq('user_id', userId)
+        .eq('is_equipped', true);
+
+      if (error) throw error;
+
+      // Filter out expired flairs
+      const activeFlairs = (data ?? []).filter((f: UserFlair) => {
+        if (!f.expires_at) return true;
+        return new Date(f.expires_at) > new Date();
+      });
+
+      setFlairs(activeFlairs);
+    } catch (error) {
+      logError('Error loading flairs', error instanceof Error ? error : undefined);
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+
   useEffect(() => {
     loadFlairs();
     
@@ -54,41 +88,7 @@ const BadgesDisplay = ({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId]);
-
-  const loadFlairs = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('user_flairs')
-        .select(`
-          id,
-          flair_id,
-          acquired_at,
-          expires_at,
-          is_equipped,
-          profile_flairs!inner(
-            icon,
-            name_key
-          )
-        `)
-        .eq('user_id', userId)
-        .eq('is_equipped', true);
-
-      if (error) throw error;
-
-      // Filter out expired flairs
-      const activeFlairs = (data || []).filter((f: any) => {
-        if (!f.expires_at) return true;
-        return new Date(f.expires_at) > new Date();
-      });
-
-      setFlairs(activeFlairs);
-    } catch (error) {
-      logError('Error loading flairs', error instanceof Error ? error : undefined);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [loadFlairs, userId]);
 
   if (loading) return null;
   if (flairs.length === 0) return null;

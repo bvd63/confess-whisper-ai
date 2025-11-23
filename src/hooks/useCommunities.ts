@@ -3,6 +3,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 
+type CommunityRole = "admin" | "moderator" | "member" | null;
+
+type CommunityStatus = "active" | "pending" | "banned" | string;
+
+interface CommunityProfile {
+  nickname?: string | null;
+}
+
+export interface CommunityMember {
+  id: string;
+  community_id: string;
+  user_id: string;
+  role: CommunityRole;
+  status: CommunityStatus;
+  profiles?: CommunityProfile | null;
+}
+
 export const useCommunities = (category?: string) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -99,7 +116,7 @@ export const useCommunityMembers = (communityId: string) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: members, isLoading } = useQuery({
+  const { data: members, isLoading } = useQuery<CommunityMember[]>({
     queryKey: ['community-members', communityId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -109,7 +126,7 @@ export const useCommunityMembers = (communityId: string) => {
         .eq('status', 'active');
 
       if (error) throw error;
-      return data;
+      return (data as CommunityMember[]) || [];
     },
     enabled: !!communityId,
   });
@@ -142,7 +159,7 @@ export const useCommunityMembers = (communityId: string) => {
     };
   }, [communityId, queryClient]);
 
-  const { data: membership } = useQuery({
+  const { data: membership } = useQuery<CommunityMember | null>({
     queryKey: ['community-membership', communityId],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -156,12 +173,12 @@ export const useCommunityMembers = (communityId: string) => {
         .maybeSingle();
 
       if (error) throw error;
-      return data;
+      return (data as CommunityMember) || null;
     },
     enabled: !!communityId,
   });
 
-  const { data: pendingRequests } = useQuery({
+  const { data: pendingRequests } = useQuery<CommunityMember[]>({
     queryKey: ['community-pending', communityId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -171,7 +188,7 @@ export const useCommunityMembers = (communityId: string) => {
         .eq('status', 'pending');
 
       if (error) throw error;
-      return data;
+      return (data as CommunityMember[]) || [];
     },
     enabled: !!communityId && (membership?.role === 'admin' || membership?.role === 'moderator'),
   });

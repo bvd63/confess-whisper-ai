@@ -11,6 +11,7 @@ import { NotificationPreferences } from '@/components/NotificationPreferences';
 import { useNavigate } from 'react-router-dom';
 import { History } from 'lucide-react';
 import { logError } from '@/lib/logger';
+import type { User } from '@supabase/supabase-js';
 
 interface NotificationSettingsData {
   dailyReminder: boolean;
@@ -21,7 +22,7 @@ interface NotificationSettingsData {
 export const NotificationSettings = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [settings, setSettings] = useState<NotificationSettingsData>({
     dailyReminder: true,
     dailyReminderTime: '09:00',
@@ -76,8 +77,8 @@ export const NotificationSettings = () => {
   }, [user?.id]);
 
   // Debounce helper
-  function debounce<F extends (...args: any[]) => void>(fn: F, wait = 450) {
-    let timeout: any;
+  function debounce<F extends (...args: unknown[]) => void>(fn: F, wait = 450) {
+    let timeout: ReturnType<typeof setTimeout> | undefined;
     return (...args: Parameters<F>) => {
       clearTimeout(timeout);
       timeout = setTimeout(() => fn(...args), wait);
@@ -101,7 +102,10 @@ export const NotificationSettings = () => {
     [t]
   );
 
-  const updateSetting = async (key: keyof NotificationSettingsData, value: any) => {
+  const updateSetting = async <K extends keyof NotificationSettingsData>(
+    key: K,
+    value: NotificationSettingsData[K]
+  ) => {
     const prev = settings;
     const next = { ...settings, [key]: value };
     setSettings(next);

@@ -1,143 +1,151 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.0';
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
+import { handleOptions, jsonResponse } from "../_shared/http.ts";
+import { logError, logInfo, logWarn } from "../_shared/logger.ts";
+import { getRequestContext } from "../_shared/security.ts";
+import { requireAuth } from "../_shared/supabase.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const NotificationPayloadSchema = z.object({
+  action: z.enum(["mark_read", "mark_all_read", "delete", "delete_all"]),
+  notificationId: z.string().uuid().optional(),
+});
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+  const { origin, ipAddress, userAgent } = getRequestContext(req);
+  if (req.method === "OPTIONS") {
+    return handleOptions(origin);
   }
 
   try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
-        },
-      }
-    );
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    const authHeader = req.headers.get("Authorization");
+    const authResult = await requireAuth(authHeader);
+    if (!authResult.user || !authResult.client) {
+      return jsonResponse({ error: "UNAUTHORIZED" }, 401, origin);
     }
 
-    const { action, notificationId } = await req.json();
-
-    if (!action) {
-      return new Response(
-        JSON.stringify({ error: 'Missing action' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    let rawBody: unknown;
+    try {
+      rawBody = await req.json();
+    } catch (parseError) {
+      logWarn("manage-notifications: invalid JSON", { userId: authResult.user.id, parseError });
+      return jsonResponse({ error: "INVALID_JSON" }, 400, origin);
     }
 
-    if (action === 'mark_read') {
-      if (!notificationId) {
-        return new Response(
-          JSON.stringify({ error: 'Missing notificationId' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+    const parsed = NotificationPayloadSchema.safeParse(rawBody);
+    if (!parsed.success) {
+      logWarn("manage-notifications: invalid payload", {
+        userId: authResult.user.id,
+        issues: parsed.error.flatten().fieldErrors,
+      });
+      return jsonResponse({ error: "INVALID_PAYLOAD" }, 400, origin);
+    }
+
+    const payload = parsed.data;
+    const supabase = authResult.client;
+    const userId = authResult.user.id;
+
+    if (payload.action === "mark_read") {
+      if (!payload.notificationId) {
+        return jsonResponse({ error: "NOTIFICATION_REQUIRED" }, 400, origin);
       }
 
       const { error } = await supabase
-        .from('notifications')
+        .from("notifications")
         .update({ is_read: true })
-        .eq('id', notificationId)
-        .eq('user_id', user.id);
+        .eq("id", payload.notificationId)
+        .eq("user_id", userId);
 
-      if (error) throw error;
-
-      console.log(`[NOTIFICATIONS] Marked notification ${notificationId} as read for user ${user.id}`);
-    } 
-    else if (action === 'mark_all_read') {
+      if (error) {
+        logError("manage-notifications: failed to mark read", { error: error.message, userId });
+        return jsonResponse({ error: "PERSISTENCE_ERROR" }, 500, origin);
+      }
+    } else if (payload.action === "mark_all_read") {
       const { error } = await supabase
-        .from('notifications')
+        .from("notifications")
         .update({ is_read: true })
-        .eq('user_id', user.id)
-        .eq('is_read', false);
+        .eq("user_id", userId)
+        .eq("is_read", false);
 
-      if (error) throw error;
-
-      console.log(`[NOTIFICATIONS] Marked all notifications as read for user ${user.id}`);
-    } 
-    else if (action === 'delete') {
-      if (!notificationId) {
-        return new Response(
-          JSON.stringify({ error: 'Missing notificationId' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+      if (error) {
+        logError("manage-notifications: failed to mark all read", { error: error.message, userId });
+        return jsonResponse({ error: "PERSISTENCE_ERROR" }, 500, origin);
+      }
+    } else if (payload.action === "delete") {
+      if (!payload.notificationId) {
+        return jsonResponse({ error: "NOTIFICATION_REQUIRED" }, 400, origin);
       }
 
-      // Soft delete: add user to deleted_for array
-      const { data: notification } = await supabase
-        .from('notifications')
-        .select('deleted_for')
-        .eq('id', notificationId)
-        .single();
+      const { data: notification, error: fetchError } = await supabase
+        .from("notifications")
+        .select("deleted_for")
+        .eq("id", payload.notificationId)
+        .eq("user_id", userId)
+        .maybeSingle();
 
-      if (notification) {
-        const deletedFor = notification.deleted_for || [];
-        if (!deletedFor.includes(user.id)) {
-          deletedFor.push(user.id);
-        }
-
-        const { error } = await supabase
-          .from('notifications')
-          .update({ deleted_for: deletedFor })
-          .eq('id', notificationId)
-          .eq('user_id', user.id);
-
-        if (error) throw error;
+      if (fetchError) {
+        logError("manage-notifications: fetch failed", { error: fetchError.message, userId });
+        return jsonResponse({ error: "PERSISTENCE_ERROR" }, 500, origin);
       }
 
-      console.log(`[NOTIFICATIONS] Deleted notification ${notificationId} for user ${user.id}`);
-    } 
-    else if (action === 'delete_all') {
-      // Get all user's notifications and add user to their deleted_for
-      const { data: notifications } = await supabase
-        .from('notifications')
-        .select('id, deleted_for')
-        .eq('user_id', user.id);
+      const deletedFor = notification?.deleted_for ?? [];
+      if (!deletedFor.includes(userId)) {
+        deletedFor.push(userId);
+      }
 
-      if (notifications) {
-        for (const notif of notifications) {
-          const deletedFor = notif.deleted_for || [];
-          if (!deletedFor.includes(user.id)) {
-            deletedFor.push(user.id);
-            await supabase
-              .from('notifications')
-              .update({ deleted_for: deletedFor })
-              .eq('id', notif.id);
+      const { error: deleteError } = await supabase
+        .from("notifications")
+        .update({ deleted_for: deletedFor })
+        .eq("id", payload.notificationId)
+        .eq("user_id", userId);
+
+      if (deleteError) {
+        logError("manage-notifications: delete failed", { error: deleteError.message, userId });
+        return jsonResponse({ error: "PERSISTENCE_ERROR" }, 500, origin);
+      }
+    } else if (payload.action === "delete_all") {
+      const { data: notifications, error: fetchError } = await supabase
+        .from("notifications")
+        .select("id, deleted_for")
+        .eq("user_id", userId);
+
+      if (fetchError) {
+        logError("manage-notifications: delete_all fetch failed", { error: fetchError.message, userId });
+        return jsonResponse({ error: "PERSISTENCE_ERROR" }, 500, origin);
+      }
+
+      if (notifications?.length) {
+        for (const notification of notifications) {
+          const deletedFor = notification.deleted_for ?? [];
+          if (deletedFor.includes(userId)) {
+            continue;
+          }
+          deletedFor.push(userId);
+          const { error } = await supabase
+            .from("notifications")
+            .update({ deleted_for: deletedFor })
+            .eq("id", notification.id);
+
+          if (error) {
+            logError("manage-notifications: delete_all update failed", { error: error.message, userId });
+            return jsonResponse({ error: "PERSISTENCE_ERROR" }, 500, origin);
           }
         }
       }
-
-      console.log(`[NOTIFICATIONS] Deleted all notifications for user ${user.id}`);
-    }
-    else {
-      return new Response(
-        JSON.stringify({ error: 'Invalid action' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
     }
 
-    return new Response(
-      JSON.stringify({ success: true }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    logInfo("manage-notifications: action completed", {
+      action: payload.action,
+      notificationId: payload.notificationId,
+      userId,
+      ipAddress,
+      userAgent,
+    });
+
+    return jsonResponse({ success: true }, 200, origin);
   } catch (error) {
-    console.error('[NOTIFICATIONS] Error:', error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    logError("manage-notifications: unexpected error", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return jsonResponse({ error: "INTERNAL_ERROR" }, 500, req.headers.get("origin"));
   }
 });

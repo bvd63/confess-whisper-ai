@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Smile, Frown, Meh, Angry, Sparkles } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -15,6 +16,22 @@ interface MoodData {
   avg_intensity: number;
 }
 
+interface MoodTimelinePoint {
+  date: string;
+  intensity: number;
+}
+
+interface MoodSummaryRecord {
+  mood: string;
+  intensity: number;
+}
+
+interface MoodEntry extends MoodSummaryRecord {
+  mood: string;
+  intensity: number;
+  created_at: string;
+}
+
 const moodColors: Record<string, string> = {
   happy: '#10b981',
   sad: '#3b82f6',
@@ -24,7 +41,7 @@ const moodColors: Record<string, string> = {
   hopeful: '#a855f7',
 };
 
-const moodIcons: Record<string, any> = {
+const moodIcons: Record<string, LucideIcon> = {
   happy: Smile,
   sad: Frown,
   anxious: Meh,
@@ -36,17 +53,13 @@ const moodIcons: Record<string, any> = {
 const MoodStats = ({ userId }: MoodStatsProps) => {
   const { t, language } = useLanguage();
   const [moodData, setMoodData] = useState<MoodData[]>([]);
-  const [timelineData, setTimelineData] = useState<any[]>([]);
+  const [timelineData, setTimelineData] = useState<MoodTimelinePoint[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadMoodStats();
-  }, [userId]);
-
-  const loadMoodStats = async () => {
+  const loadMoodStats = useCallback(async () => {
     // Load mood distribution
     const { data: moods } = await supabase
-      .from('mood_entries')
+      .from<MoodSummaryRecord>('mood_entries')
       .select('mood, intensity')
       .eq('user_id', userId);
 
@@ -54,7 +67,7 @@ const MoodStats = ({ userId }: MoodStatsProps) => {
       // Aggregate by mood
       const moodMap = new Map<string, { count: number; totalIntensity: number }>();
       
-      moods.forEach(m => {
+      moods.forEach((m) => {
         const current = moodMap.get(m.mood) || { count: 0, totalIntensity: 0 };
         current.count += 1;
         current.totalIntensity += m.intensity;
@@ -75,7 +88,7 @@ const MoodStats = ({ userId }: MoodStatsProps) => {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     const { data: timeline } = await supabase
-      .from('mood_entries')
+      .from<MoodEntry>('mood_entries')
       .select('created_at, intensity, mood')
       .eq('user_id', userId)
       .gte('created_at', thirtyDaysAgo.toISOString())
@@ -83,7 +96,7 @@ const MoodStats = ({ userId }: MoodStatsProps) => {
 
     if (timeline) {
       const locale = language === 'es' ? 'es-ES' : language === 'de' ? 'de-DE' : 'en-US';
-      const dailyMood = timeline.map(entry => ({
+      const dailyMood: MoodTimelinePoint[] = timeline.map((entry) => ({
         date: new Date(entry.created_at).toLocaleDateString(locale, { 
           month: 'short', 
           day: 'numeric' 
@@ -95,7 +108,11 @@ const MoodStats = ({ userId }: MoodStatsProps) => {
     }
 
     setLoading(false);
-  };
+  }, [language, userId]);
+
+  useEffect(() => {
+    loadMoodStats();
+  }, [loadMoodStats]);
 
   if (loading) return null;
   if (moodData.length === 0) return null;

@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 interface AdvancedFiltersProps {
   onFilterChange: (filters: FilterState) => void;
   communities?: Array<{ id: string; name: string }>;
+  showCommunityFilter?: boolean;
 }
 
 export interface FilterState {
@@ -21,7 +22,11 @@ export interface FilterState {
   sortBy: 'newest' | 'oldest' | 'most_liked' | 'most_commented';
 }
 
-export const AdvancedFilters = ({ onFilterChange, communities = [] }: AdvancedFiltersProps) => {
+export const AdvancedFilters = ({
+  onFilterChange,
+  communities = [],
+  showCommunityFilter = false,
+}: AdvancedFiltersProps) => {
   const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
@@ -102,15 +107,15 @@ export const AdvancedFilters = ({ onFilterChange, communities = [] }: AdvancedFi
           </div>
         </div>
 
-        {/* Community Filter */}
-        {communities.length > 0 && (
+        {/* Community Filter - guarded until feature returns */}
+        {showCommunityFilter && communities.length > 0 && (
           <div>
             <label className="text-[10px] sm:text-xs text-muted-foreground mb-0.5 sm:mb-1 block">{t.filters_community}</label>
             <Select
               value={filters.communityId ?? 'all'}
               onValueChange={(value) => updateFilters({ communityId: value === 'all' ? undefined : value })}
             >
-              <SelectTrigger className="h-9">
+              <SelectTrigger className="h-9" aria-label={t.filters_community}>
                 <SelectValue placeholder={t.communities_filter_all} />
               </SelectTrigger>
               <SelectContent>
@@ -132,7 +137,7 @@ export const AdvancedFilters = ({ onFilterChange, communities = [] }: AdvancedFi
             value={filters.sortBy}
             onValueChange={(value) => updateFilters({ sortBy: value as FilterState['sortBy'] })}
           >
-            <SelectTrigger className="h-9">
+            <SelectTrigger className="h-9" aria-label={t.filters_sort}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

@@ -38,17 +38,18 @@ describe('AdvancedFilters', () => {
   beforeAll(() => {
     // Provide scrollIntoView stub for Radix Select in jsdom
     (Element.prototype as any).scrollIntoView = vi.fn();
+    (Element.prototype as any).hasPointerCapture = () => false;
+    (Element.prototype as any).setPointerCapture = vi.fn();
+    (Element.prototype as any).releasePointerCapture = vi.fn();
   });
 
-  it('renders all filter sections', () => {
-    render(<AdvancedFilters onFilterChange={mockOnFilterChange} communities={[{id:'1', name:'Community 1'}]} />);
+  it('renders core filter sections (without communities)', () => {
+    render(<AdvancedFilters onFilterChange={mockOnFilterChange} />);
 
     // Expand the filters panel first (collapsed by default)
     fireEvent.click(screen.getByText('Filters'));
 
     expect(screen.getByText('Date Range')).toBeInTheDocument();
-    // Communities feature disabled - this section won't render
-    // expect(screen.getByText('Community')).toBeInTheDocument();
     expect(screen.getByText('Sort By')).toBeInTheDocument();
   });
 
@@ -77,16 +78,49 @@ describe('AdvancedFilters', () => {
     expect(document.body).toContainElement(document.querySelector('[data-radix-popper-content-wrapper]'));
   });
 
-  // Communities feature disabled - test removed
-  it.skip('displays community options', async () => {
-    render(<AdvancedFilters onFilterChange={mockOnFilterChange} communities={[{id:'1', name:'Community 1'},{id:'2', name:'Community 2'}]} />);
+  it('hides community options when feature is disabled', () => {
+    render(<AdvancedFilters onFilterChange={mockOnFilterChange} />);
     fireEvent.click(screen.getByText('Filters'));
 
-    // Click placeholder to open
-    fireEvent.click(screen.getByText('All Communities'));
+    expect(screen.queryByText('Community')).not.toBeInTheDocument();
+    expect(screen.queryByText('Community 1')).not.toBeInTheDocument();
+    expect(screen.queryByText('Community 2')).not.toBeInTheDocument();
+  });
 
-    const all = await screen.findAllByText('All Communities');
-    expect(all.length).toBeGreaterThan(0);
+  it('keeps community options hidden when data exists but feature disabled', () => {
+    render(
+      <AdvancedFilters
+        onFilterChange={mockOnFilterChange}
+        communities={[
+          { id: '1', name: 'Community 1' },
+          { id: '2', name: 'Community 2' },
+        ]}
+      />
+    );
+    fireEvent.click(screen.getByText('Filters'));
+
+    expect(screen.queryByText('Community')).not.toBeInTheDocument();
+    expect(screen.queryByText('Community 1')).not.toBeInTheDocument();
+  });
+
+  it('shows community options when feature enabled', async () => {
+    render(
+      <AdvancedFilters
+        onFilterChange={mockOnFilterChange}
+        showCommunityFilter
+        communities={[
+          { id: '1', name: 'Community 1' },
+          { id: '2', name: 'Community 2' },
+        ]}
+      />
+    );
+    fireEvent.click(screen.getByText('Filters'));
+
+    expect(screen.getByText('Community')).toBeInTheDocument();
+    const trigger = screen.getByRole('combobox', { name: /community/i });
+    fireEvent.mouseDown(trigger);
+    fireEvent.click(trigger);
+
     expect(await screen.findByText('Community 1')).toBeInTheDocument();
     expect(await screen.findByText('Community 2')).toBeInTheDocument();
   });

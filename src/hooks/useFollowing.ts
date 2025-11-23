@@ -46,8 +46,8 @@ export const useFollowing = ({ userId }: UseFollowingOptions) => {
     useDedupe: true,
   });
 
-  const following = followingData || [];
-  const followers = followersData || [];
+  const following = useMemo(() => followingData || [], [followingData]);
+  const followers = useMemo(() => followersData || [], [followersData]);
 
   // Subscribe to realtime updates for follows
   useEffect(() => {

@@ -1,135 +1,153 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.75.0";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
+import { handleOptions, jsonResponse } from "../_shared/http.ts";
+import { logError, logInfo, logWarn } from "../_shared/logger.ts";
+import { getRequestContext } from "../_shared/security.ts";
+import { createServiceClient, requireAuth } from "../_shared/supabase.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const ReferralSchema = z.object({
+  referralCode: z.string().trim().min(1, "referralCode").max(64, "referralCode"),
+});
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+  const context = getRequestContext(req);
+
+  if (req.method === "OPTIONS") {
+    return handleOptions(context.origin);
+  }
+
+  if (req.method !== "POST") {
+    return jsonResponse({ error: "METHOD_NOT_ALLOWED" }, 405, context.origin, {
+      "Allow": "POST,OPTIONS",
+    });
   }
 
   try {
-    const { referralCode } = await req.json();
-    
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-      { auth: { persistSession: false } }
-    );
+    const authHeader = req.headers.get("Authorization");
+    const authResult = await requireAuth(authHeader);
+    if (!authResult.user) {
+      logWarn("process-referral: unauthorized", { reason: authResult.error });
+      return jsonResponse({ error: "UNAUTHORIZED" }, 401, context.origin);
+    }
 
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) throw new Error('No authorization header');
+    let rawBody: unknown;
+    try {
+      rawBody = await req.json();
+    } catch (parseError) {
+      logWarn("process-referral: invalid JSON", {
+        userId: authResult.user.id,
+        error: parseError instanceof Error ? parseError.message : String(parseError),
+      });
+      return jsonResponse({ error: "INVALID_JSON" }, 400, context.origin);
+    }
 
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
-    
-    if (userError || !user) throw new Error('User not authenticated');
+    const parsed = ReferralSchema.safeParse(rawBody);
+    if (!parsed.success) {
+      logWarn("process-referral: invalid payload", {
+        userId: authResult.user.id,
+        issues: parsed.error.flatten().fieldErrors,
+      });
+      return jsonResponse({ error: "INVALID_PAYLOAD" }, 400, context.origin);
+    }
 
-    console.log('Processing referral for user:', user.id, 'with code:', referralCode);
+    const referralCode = parsed.data.referralCode.trim();
+    const serviceClient = createServiceClient();
 
-    // Find the referrer by referral code
-    const { data: referrerProfile, error: referrerError } = await supabaseClient
-      .from('profiles')
-      .select('user_id, total_referrals')
-      .eq('referral_code', referralCode)
+    const { data: referrerProfile, error: referrerError } = await serviceClient
+      .from("profiles")
+      .select("user_id, total_referrals")
+      .eq("referral_code", referralCode)
       .single();
 
     if (referrerError || !referrerProfile) {
-      console.log('Referral code not found:', referralCode);
-      return new Response(
-        JSON.stringify({ success: false, message: 'Invalid referral code' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      );
+      logWarn("process-referral: referral code not found", {
+        userId: authResult.user.id,
+        referralCode,
+        error: referrerError?.message,
+      });
+      return jsonResponse({ success: false, message: "Invalid referral code" }, 400, context.origin);
     }
 
-    // Don't allow self-referral
-    if (referrerProfile.user_id === user.id) {
-      console.log('Self-referral attempt blocked');
-      return new Response(
-        JSON.stringify({ success: false, message: 'Cannot use your own referral code' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      );
+    if (referrerProfile.user_id === authResult.user.id) {
+      logWarn("process-referral: self referral blocked", { userId: authResult.user.id });
+      return jsonResponse({ success: false, message: "Cannot use your own referral code" }, 400, context.origin);
     }
 
-    // Check if user already has a referrer
-    const { data: existingProfile } = await supabaseClient
-      .from('profiles')
-      .select('referred_by')
-      .eq('user_id', user.id)
+    const { data: existingProfile, error: profileError } = await serviceClient
+      .from("profiles")
+      .select("referred_by")
+      .eq("user_id", authResult.user.id)
       .single();
 
-    if (existingProfile?.referred_by) {
-      return new Response(
-        JSON.stringify({ success: false, message: 'You have already used a referral code' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      );
+    if (profileError) {
+      logError("process-referral: profile lookup failed", {
+        userId: authResult.user.id,
+        error: profileError.message,
+      });
+      return jsonResponse({ error: "PROFILE_LOOKUP_FAILED" }, 500, context.origin);
     }
 
-    // Update the new user's profile with referrer
-    const { error: updateError } = await supabaseClient
-      .from('profiles')
+    if (existingProfile?.referred_by) {
+      logWarn("process-referral: referral already used", { userId: authResult.user.id });
+      return jsonResponse({ success: false, message: "You have already used a referral code" }, 400, context.origin);
+    }
+
+    const { error: updateError } = await serviceClient
+      .from("profiles")
       .update({ referred_by: referrerProfile.user_id })
-      .eq('user_id', user.id);
+      .eq("user_id", authResult.user.id);
 
     if (updateError) {
-      console.error('Error updating referred user:', updateError);
-      throw updateError;
+      logError("process-referral: failed to update profile", {
+        userId: authResult.user.id,
+        error: updateError.message,
+      });
+      return jsonResponse({ error: "PROFILE_UPDATE_FAILED" }, 500, context.origin);
     }
 
-    // Create referral record (rewards will be given when user posts first confession)
-    const { error: referralError } = await supabaseClient
-      .from('referrals')
-      .insert({
-        referrer_user_id: referrerProfile.user_id,
-        referred_user_id: user.id,
-        referral_code: referralCode,
-        status: 'completed',
-        completed_at: new Date().toISOString(),
-      });
+    const { error: referralError } = await serviceClient.from("referrals").insert({
+      referrer_user_id: referrerProfile.user_id,
+      referred_user_id: authResult.user.id,
+      referral_code: referralCode,
+      status: "completed",
+      completed_at: new Date().toISOString(),
+    });
 
     if (referralError) {
-      console.error('Error creating referral:', referralError);
-      throw referralError;
+      logError("process-referral: referral insert failed", {
+        userId: authResult.user.id,
+        error: referralError.message,
+      });
+      return jsonResponse({ error: "REFERRAL_INSERT_FAILED" }, 500, context.origin);
     }
 
-    // Update referrer's total referrals count
-    const { error: countError } = await supabaseClient
-      .from('profiles')
-      .update({ 
-        total_referrals: (referrerProfile.total_referrals || 0) + 1 
-      })
-      .eq('user_id', referrerProfile.user_id);
+    const nextTotal = (referrerProfile.total_referrals ?? 0) + 1;
+    const { error: countError } = await serviceClient
+      .from("profiles")
+      .update({ total_referrals: nextTotal })
+      .eq("user_id", referrerProfile.user_id);
 
     if (countError) {
-      console.error('Error updating referral count:', countError);
+      logError("process-referral: referral count update failed", {
+        referrerId: referrerProfile.user_id,
+        error: countError.message,
+      });
     }
 
-    console.log('Referral processed successfully - rewards will be given on first confession');
+    logInfo("process-referral: success", {
+      userId: authResult.user.id,
+      referrerId: referrerProfile.user_id,
+      ipAddress: context.ipAddress,
+    });
 
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: 'Referral processed successfully. Post your first confession to earn coins!' 
-      }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200 
-      }
-    );
-
+    return jsonResponse({
+      success: true,
+      message: "Referral processed successfully. Post your first confession to earn coins!",
+    }, 200, context.origin);
   } catch (error) {
-    console.error('Error in process-referral:', error);
-    return new Response(
-      JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'Internal server error' 
-      }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500 
-      }
-    );
+    logError("process-referral: unexpected failure", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return jsonResponse({ error: "INTERNAL_ERROR" }, 500, context.origin);
   }
 });

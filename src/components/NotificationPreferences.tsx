@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Switch } from "@/components/ui/switch";
@@ -27,25 +27,21 @@ export const NotificationPreferences = () => {
   const [loading, setLoading] = useState(true);
   const [testingSending, setTestingSending] = useState(false);
 
-  useEffect(() => {
-    if (user?.id) {
-      loadPreferences();
-    }
-  }, [user?.id]);
+  const loadPreferences = useCallback(async () => {
+    if (!user?.id) return;
 
-  const loadPreferences = async () => {
     try {
       const { data, error } = await supabase
         .from("notification_settings")
         .select("notify_likes, notify_comments, notify_follows, notify_messages")
-        .eq("user_id", user!.id)
+        .eq("user_id", user.id)
         .single();
 
       if (error) {
         // If no settings exist, create default ones
         if (error.code === "PGRST116") {
           await supabase.from("notification_settings").insert({
-            user_id: user!.id,
+            user_id: user.id,
             notify_likes: true,
             notify_comments: true,
             notify_follows: true,
@@ -63,7 +59,13 @@ export const NotificationPreferences = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (user?.id) {
+      loadPreferences();
+    }
+  }, [loadPreferences, user?.id]);
 
   const updatePreference = async (key: keyof NotificationPreference, value: boolean) => {
     if (!user?.id) return;

@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, User, Clock } from 'lucide-react';
 import { useProfileHandle } from '@/hooks/useProfileHandle';
@@ -23,6 +24,8 @@ interface ProfileEditorProps {
   };
   onUpdate: () => void;
 }
+
+type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
 export const ProfileEditor = ({
   userId,
   currentProfile,
@@ -47,7 +50,7 @@ export const ProfileEditor = ({
   const daysRemaining = useMemo(() => {
     if (!currentProfile.nickname_updated_at) return 0;
     const lastUpdate = new Date(currentProfile.nickname_updated_at);
-    const diffDays = Math.floor((Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24));
+    const diffDays = Math.floor((now - lastUpdate.getTime()) / (1000 * 60 * 60 * 24));
     return Math.max(COOLDOWN_DAYS - diffDays, 0);
   }, [currentProfile.nickname_updated_at, now]);
   const handleNicknameUpdate = async () => {
@@ -90,7 +93,7 @@ export const ProfileEditor = ({
         }
       }
 
-      const updateData: any = {
+      const updateData: ProfileUpdate = {
         handle: handleToUse
       };
 
@@ -130,7 +133,7 @@ export const ProfileEditor = ({
   const handleBioPrivacyUpdate = async () => {
     setIsUpdating(true);
     try {
-      const updateData: any = {
+      const updateData: ProfileUpdate = {
         bio: bio.trim() || null,
         privacy_mode: privacyMode
       };

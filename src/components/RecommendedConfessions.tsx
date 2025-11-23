@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,11 +25,7 @@ const RecommendedConfessions = ({ userId, currentCategory }: RecommendedConfessi
   const navigate = useNavigate();
   const { t } = useLanguage();
 
-  useEffect(() => {
-    loadRecommendations();
-  }, [userId, currentCategory]);
-
-  const loadRecommendations = async () => {
+  const loadRecommendations = useCallback(async () => {
     // Get user's interaction history
     const { data: userLikes } = await supabase
       .from('user_likes')
@@ -80,7 +76,11 @@ const RecommendedConfessions = ({ userId, currentCategory }: RecommendedConfessi
       setRecommendations(data);
     }
     setLoading(false);
-  };
+  }, [currentCategory, userId]);
+
+  useEffect(() => {
+    loadRecommendations();
+  }, [loadRecommendations]);
 
   if (loading || recommendations.length === 0) return null;
 

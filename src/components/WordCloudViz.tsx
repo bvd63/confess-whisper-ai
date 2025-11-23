@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -18,10 +18,7 @@ const WordCloudViz = ({
   } = useLanguage();
   const [words, setWords] = useState<WordFrequency[]>([]);
   const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    loadWordFrequencies();
-  }, [userId]);
-  const loadWordFrequencies = async () => {
+  const loadWordFrequencies = useCallback(async () => {
     // Load all user confessions
     const {
       data: confessions
@@ -58,7 +55,11 @@ const WordCloudViz = ({
       setWords(wordArray);
     }
     setLoading(false);
-  };
+  }, [language, userId]);
+
+  useEffect(() => {
+    loadWordFrequencies();
+  }, [loadWordFrequencies]);
   if (loading) return null;
   if (words.length === 0) return null;
   const maxFreq = Math.max(...words.map(w => w.value));

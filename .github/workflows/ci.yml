@@ -66,6 +66,11 @@ jobs:
       - name: Build (production)
         run: npm run build
 
+      - name: Admin Bundle Guard
+        run: npm run guard:admin-chunk
+        env:
+          ADMIN_CHUNK_LIMIT_KB: 500
+
       - name: Bundle Size Report
         run: npm run analyze || true
 

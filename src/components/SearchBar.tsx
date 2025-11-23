@@ -226,7 +226,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
                 <Label>{t.search_sort_label}</Label>
                 <Select
                   value={filters.sortBy}
-                  onValueChange={(value: any) =>
+                  onValueChange={(value: SearchFilters['sortBy']) =>
                     setFilters((prev) => ({ ...prev, sortBy: value }))
                   }
                 >
@@ -248,7 +248,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
                 <Label>{t.search_period_label}</Label>
                 <Select
                   value={filters.timeRange || 'all'}
-                  onValueChange={(value: any) =>
+                  onValueChange={(value: NonNullable<SearchFilters['timeRange']>) =>
                     setFilters((prev) => ({
                       ...prev,
                       timeRange: value === 'all' ? undefined : value,

@@ -15,12 +15,13 @@ export const usePrefetch = () => {
   const prefetchTimeouts = useRef<Map<string, number>>(new Map());
 
   useEffect(() => {
+    const timeouts = prefetchTimeouts.current;
     return () => {
       // Cleanup all pending prefetches
-      prefetchTimeouts.current.forEach((timeout) => {
+      timeouts.forEach((timeout) => {
         clearTimeout(timeout);
       });
-      prefetchTimeouts.current.clear();
+      timeouts.clear();
     };
   }, []);
 
@@ -139,10 +140,10 @@ export const usePrefetch = () => {
   /**
    * Prefetch next page in pagination
    */
-  const prefetchNextPage = (
+  const prefetchNextPage = <TData,>(
     queryKey: string[],
     nextCursor: string | null,
-    queryFn: (cursor: string) => Promise<any>,
+    queryFn: (cursor: string) => Promise<TData>,
     options: PrefetchOptions = {}
   ) => {
     const { enabled = true, staleTime = 2 * 60 * 1000 } = options;

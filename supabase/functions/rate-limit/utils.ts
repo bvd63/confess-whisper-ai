@@ -3,6 +3,8 @@ export interface RateLimitConfig {
   windowMs: number;
 }
 
+const DEFAULT_RATE_LIMIT_CONFIG: RateLimitConfig = { maxAttempts: 50, windowMs: 60_000 };
+
 export const RATE_LIMIT_CONFIGS: Record<string, RateLimitConfig> = {
   confession_create: { maxAttempts: 10, windowMs: 60_000 },
   comment_create: { maxAttempts: 20, windowMs: 60_000 },
@@ -13,7 +15,7 @@ export const RATE_LIMIT_CONFIGS: Record<string, RateLimitConfig> = {
   auth_signup: { maxAttempts: 5, windowMs: 5 * 60_000 },
   auth_refresh: { maxAttempts: 30, windowMs: 60_000 },
   auth_password_reset: { maxAttempts: 5, windowMs: 5 * 60_000 },
-  default: { maxAttempts: 50, windowMs: 60_000 },
+  default: DEFAULT_RATE_LIMIT_CONFIG,
 };
 
 const ACTION_REGEX = /[^a-z0-9_:-]/g;
@@ -77,7 +79,7 @@ export const normalizeRateLimitRequest = (
     return { ok: false, error: "MISSING_IDENTIFIER" };
   }
 
-  const config = RATE_LIMIT_CONFIGS[action] ?? RATE_LIMIT_CONFIGS.default;
+  const config = RATE_LIMIT_CONFIGS[action] ?? DEFAULT_RATE_LIMIT_CONFIG;
 
   return {
     ok: true,

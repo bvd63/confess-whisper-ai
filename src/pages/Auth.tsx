@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { EnhancedButton } from "@/components/EnhancedButton";
 import { AnimatedCard } from "@/components/AnimatedCard";
@@ -44,16 +44,16 @@ const Auth = () => {
   const passwordValidation = usePasswordValidation(password);
   const emailSchema = z.string().email(t.auth_invalid_email);
 
-  useEffect(() => {
-    checkUser();
-  }, []);
-
-  const checkUser = async () => {
+  const checkUser = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       navigate('/');
     }
-  };
+  }, [navigate]);
+
+  useEffect(() => {
+    checkUser();
+  }, [checkUser]);
 
   const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
   const passwordsDontMatch = confirmPassword.length > 0 && !passwordsMatch;
@@ -147,7 +147,11 @@ const Auth = () => {
           }
 
           // Set inline error message on password field using translated message
-          const message = (error as any)?.message || t.auth_invalid_credentials;
+          const message =
+            typeof error === 'object' && error !== null && 'message' in error &&
+            typeof (error as { message?: unknown }).message === 'string'
+              ? (error as { message: string }).message
+              : t.auth_invalid_credentials;
           setErrors((prev) => ({ ...prev, password: message }));
 
           // Error already handled by useEnhancedAuth hook with toast
@@ -243,12 +247,13 @@ const Auth = () => {
         
         // Don't auto-navigate - user needs to verify email first
       }
-    } catch (error: any) {
+    } catch (error) {
       // Only show toast for signup errors (login errors already handled by useEnhancedAuth)
       if (!isLogin) {
+        const description = error instanceof Error ? error.message : t.auth_error_generic;
         toast({
           title: t.auth_error,
-          description: error.message || t.auth_error_generic,
+          description,
           variant: "destructive",
         });
       }

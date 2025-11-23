@@ -14,35 +14,35 @@ const LazyImage = ({ src, alt, className, placeholder = 'data:image/svg+xml,%3Cs
   const imgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
-    let observer: IntersectionObserver;
-    
-    if (imgRef.current) {
-      observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              const img = new Image();
-              img.src = src;
-              img.onload = () => {
-                setImageSrc(src);
-                setIsLoaded(true);
-              };
-              observer.unobserve(entry.target);
-            }
-          });
-        },
-        {
-          rootMargin: '50px', // Start loading 50px before entering viewport
-        }
-      );
-
-      observer.observe(imgRef.current);
+    const element = imgRef.current;
+    if (!element) {
+      return;
     }
 
-    return () => {
-      if (observer && imgRef.current) {
-        observer.unobserve(imgRef.current);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const img = new Image();
+            img.src = src;
+            img.onload = () => {
+              setImageSrc(src);
+              setIsLoaded(true);
+            };
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        rootMargin: '50px', // Start loading 50px before entering viewport
       }
+    );
+
+    observer.observe(element);
+
+    return () => {
+      observer.unobserve(element);
+      observer.disconnect();
     };
   }, [src]);
 

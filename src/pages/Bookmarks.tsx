@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense, lazy } from "react";
+import { useState, useEffect, Suspense, lazy, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { GradientText } from "@/components/GradientText";
 
@@ -50,18 +50,7 @@ const Bookmarks = () => {
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    // Wait for user loading to complete
-    if (userLoading) return;
-    
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
-    loadBookmarkedConfessions();
-  }, [user, userLoading]);
-
-  const loadBookmarkedConfessions = async () => {
+  const loadBookmarkedConfessions = useCallback(async () => {
     if (!user) return;
     
     setIsLoading(true);
@@ -107,7 +96,18 @@ const Bookmarks = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [t, toast, user]);
+
+  useEffect(() => {
+    // Wait for user loading to complete
+    if (userLoading) return;
+    
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+    loadBookmarkedConfessions();
+  }, [loadBookmarkedConfessions, navigate, user, userLoading]);
 
   const handleReport = async (id: string) => {
     try {

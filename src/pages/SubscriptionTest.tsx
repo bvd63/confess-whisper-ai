@@ -7,8 +7,17 @@ import { Loader2 } from "lucide-react";
 
 export default function SubscriptionTest() {
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<any>(null);
+  const [status, setStatus] = useState<Record<string, unknown> | null>(null);
   const { toast } = useToast();
+
+  const showError = (error: unknown) => {
+    const description = error instanceof Error ? error.message : 'An unexpected error occurred.';
+    toast({
+      title: 'Error',
+      description,
+      variant: 'destructive',
+    });
+  };
 
   const checkSubscription = async () => {
     setLoading(true);
@@ -20,12 +29,8 @@ export default function SubscriptionTest() {
         title: "Subscription Status",
         description: JSON.stringify(data, null, 2),
       });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+    } catch (error) {
+      showError(error);
     } finally {
       setLoading(false);
     }
@@ -48,12 +53,8 @@ export default function SubscriptionTest() {
       if (data?.url) {
         window.open(data.url, '_blank');
       }
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+    } catch (error) {
+      showError(error);
     } finally {
       setLoading(false);
     }
@@ -67,12 +68,8 @@ export default function SubscriptionTest() {
       if (data?.url) {
         window.open(data.url, '_blank');
       }
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+    } catch (error) {
+      showError(error);
     } finally {
       setLoading(false);
     }

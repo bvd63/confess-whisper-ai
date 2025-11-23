@@ -62,7 +62,7 @@ export default function CoinPurchaseSuccess() {
     };
 
     verifyPurchase();
-  }, [sessionId]);
+  }, [queryClient, sessionId]);
 
   useEffect(() => {
     if (!verifying) {

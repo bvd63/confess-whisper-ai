@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
@@ -8,6 +8,32 @@ import { logError } from "@/lib/logger";
 interface AdvancedAnalyticsProps {
   userId: string;
 }
+
+interface ConfessionRecord {
+  category: string;
+  created_at: string;
+  likes_count?: number | null;
+  comments_count?: number | null;
+}
+
+interface CategoryChartDatum {
+  name: string;
+  value: number;
+}
+
+interface TimelineDatum {
+  date: string;
+  confessions: number;
+}
+
+interface EngagementStat {
+  name: string;
+  value: number;
+  avg: string;
+  icon: typeof Heart;
+  color: string;
+}
+
 const AdvancedAnalytics = ({
   userId
 }: AdvancedAnalyticsProps) => {
@@ -15,19 +41,22 @@ const AdvancedAnalytics = ({
     t,
     language
   } = useLanguage();
-  const [categoryData, setCategoryData] = useState<any[]>([]);
-  const [timelineData, setTimelineData] = useState<any[]>([]);
-  const [engagementData, setEngagementData] = useState<any[]>([]);
+  const confessionsLabel = t.analytics_confessions;
+  const commentsLabel = t.comments_title;
+  const [categoryData, setCategoryData] = useState<CategoryChartDatum[]>([]);
+  const [timelineData, setTimelineData] = useState<TimelineDatum[]>([]);
+  const [engagementData, setEngagementData] = useState<EngagementStat[]>([]);
   const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    loadAnalytics();
-  }, [userId]);
-  const loadAnalytics = async () => {
+  const loadAnalytics = useCallback(async () => {
     try {
       // Get confessions
       const {
         data: confessions
-      } = await supabase.from('confessions').select('*').eq('user_id', userId);
+      } = await supabase
+        .from('confessions')
+        .select('*')
+        .eq('user_id', userId)
+        .returns<ConfessionRecord[]>();
       if (!confessions) return;
 
       // Category distribution
@@ -42,7 +71,7 @@ const AdvancedAnalytics = ({
       setCategoryData(categoryChartData);
 
       // Timeline (last 7 days)
-      const last7Days = [];
+      const last7Days: TimelineDatum[] = [];
       for (let i = 6; i >= 0; i--) {
         const date = new Date();
         date.setDate(date.getDate() - i);
@@ -56,7 +85,7 @@ const AdvancedAnalytics = ({
           date: date.toLocaleDateString(locale, {
             weekday: 'short'
           }),
-          [t.analytics_confessions]: count
+          confessions: count
         });
       }
       setTimelineData(last7Days);
@@ -64,8 +93,8 @@ const AdvancedAnalytics = ({
       // Engagement metrics
       const totalLikes = confessions.reduce((sum, c) => sum + (c.likes_count || 0), 0);
       const totalComments = confessions.reduce((sum, c) => sum + (c.comments_count || 0), 0);
-      const avgLikes = confessions.length > 0 ? (totalLikes / confessions.length).toFixed(1) : 0;
-      const avgComments = confessions.length > 0 ? (totalComments / confessions.length).toFixed(1) : 0;
+      const avgLikes = confessions.length > 0 ? (totalLikes / confessions.length).toFixed(1) : '0';
+      const avgComments = confessions.length > 0 ? (totalComments / confessions.length).toFixed(1) : '0';
       setEngagementData([{
         name: 'Likes',
         value: totalLikes,
@@ -73,7 +102,7 @@ const AdvancedAnalytics = ({
         icon: Heart,
         color: '#ef4444'
       }, {
-        name: t.comments_title,
+        name: commentsLabel,
         value: totalComments,
         avg: avgComments,
         icon: MessageSquare,
@@ -84,7 +113,11 @@ const AdvancedAnalytics = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, language, commentsLabel]);
+
+  useEffect(() => {
+    loadAnalytics();
+  }, [loadAnalytics]);
   const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', '#8b5cf6', '#f59e0b', '#10b981', '#ec4899'];
   if (loading) return null;
   return <div className="space-y-3 sm:space-y-4">
@@ -126,9 +159,16 @@ const AdvancedAnalytics = ({
             border: '1px solid hsl(var(--border))',
             borderRadius: '8px'
           }} />
-            <Line type="monotone" dataKey={t.analytics_confessions} stroke="hsl(var(--primary))" strokeWidth={2} dot={{
+            <Line
+              type="monotone"
+              dataKey="confessions"
+              name={confessionsLabel}
+              stroke="hsl(var(--primary))"
+              strokeWidth={2}
+              dot={{
             fill: 'hsl(var(--primary))'
-          }} />
+          }}
+            />
           </LineChart>
         </ResponsiveContainer>
       </Card>

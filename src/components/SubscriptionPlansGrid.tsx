@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Check, Crown, Zap, Star } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
-import { getPlansForInterval } from "@/lib/subscription-plans";
+import { getPlansForInterval, PlanWithInterval } from "@/lib/subscription-plans";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getStringTranslation } from "@/lib/translationUtils";
@@ -71,7 +71,7 @@ export const SubscriptionPlansGrid = ({
     }
   };
 
-  const getButtonText = (plan: any) => {
+  const getButtonText = (plan: PlanWithInterval) => {
     // Always show "Choose [Plan]" regardless of current subscription
     if (plan.id === 'free') {
       return t.subscription_downgrade_to_free;
@@ -79,7 +79,7 @@ export const SubscriptionPlansGrid = ({
     return t.subscription_choose_plan.replace('{plan}', plan.name);
   };
 
-  const isCurrentPlan = (plan: any) => plan.id === currentPlan && plan.interval === currentInterval;
+  const isCurrentPlan = (plan: PlanWithInterval) => plan.id === currentPlan && plan.interval === currentInterval;
 
   const handleCheckout = async (priceId: string) => {
     logDebug('🔍 Stripe Checkout Debug', {
@@ -137,7 +137,9 @@ export const SubscriptionPlansGrid = ({
             window.top.location.href = data.url;
             return;
           }
-        } catch {}
+        } catch (error) {
+          logError('Unable to redirect using window.top', error as Error);
+        }
         const win = window.open(data.url, '_blank');
         if (win) return;
         window.location.href = data.url;
@@ -155,7 +157,7 @@ export const SubscriptionPlansGrid = ({
   };
 
   // Show only VIP plans (hide Free)
-  const filteredPlans = plans.filter(plan => plan.id !== 'free');
+  const filteredPlans = plans.filter((plan) => plan.id !== 'free');
 
   return (
     <div className="space-y-8">
@@ -193,7 +195,7 @@ export const SubscriptionPlansGrid = ({
       {/* Plans Grid - Centered for single VIP plan */}
       <div className="flex justify-center">
         <div className="w-full max-w-md">
-          {filteredPlans.map((plan: any) => (
+          {filteredPlans.map((plan: PlanWithInterval) => (
             <Card
               key={`${plan.id}-${plan.interval}`}
               className={`p-8 relative bg-[#13141f] border transition-all duration-300 hover:scale-[1.02] ${

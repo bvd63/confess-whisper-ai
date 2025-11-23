@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { logError } from '@/lib/logger';
+import type { Database } from '@/integrations/supabase/types';
 
 interface ProfileCustomizationProps {
   open: boolean;
@@ -95,9 +96,11 @@ export const ProfileCustomization = ({ open, onOpenChange, userId }: ProfileCust
       if (txError) throw txError;
 
       // Update profile
+      const themeUpdate = { theme: theme.id } as Database['public']['Tables']['profiles']['Update'];
+
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ theme: theme.id } as any)
+        .update(themeUpdate)
         .eq('user_id', userId);
 
       if (updateError) throw updateError;
@@ -135,9 +138,11 @@ export const ProfileCustomization = ({ open, onOpenChange, userId }: ProfileCust
       if (txError) throw txError;
 
       // Update profile
+      const badgeUpdate = { custom_badge: badge.id } as Database['public']['Tables']['profiles']['Update'];
+
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ custom_badge: badge.id } as any)
+        .update(badgeUpdate)
         .eq('user_id', userId);
 
       if (updateError) throw updateError;

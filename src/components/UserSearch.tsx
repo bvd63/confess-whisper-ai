@@ -10,6 +10,7 @@ import { UserDisplayName } from "@/components/UserDisplayName";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/ui/button";
 import { logDebug, logError } from "@/lib/logger";
+type TranslationStrings = ReturnType<typeof useLanguage>['t'];
 
 interface UserSearchResult {
   user_id: string;
@@ -17,11 +18,21 @@ interface UserSearchResult {
   subscription_tier?: string;
 }
 
-const UserSearchResultItem = ({ user, currentUserId, navigate, t }: { 
-  user: UserSearchResult; 
-  currentUserId: string; 
-  navigate: any; 
-  t: any 
+type NavigationFn = ReturnType<typeof useNavigate>;
+
+interface SearchUsersResponse {
+  users?: Array<{
+    id: string;
+    nickname: string | null;
+    subscriptionTier?: string;
+  }>;
+}
+
+const UserSearchResultItem = ({ user, currentUserId, navigate, t }: {
+  user: UserSearchResult;
+  currentUserId: string;
+  navigate: NavigationFn;
+  t: TranslationStrings;
 }) => {
   return (
     <Card className="p-4">
@@ -82,7 +93,7 @@ export const UserSearch = ({ currentUserId }: UserSearchProps) => {
     setLoading(true);
     try {
       logDebug("Searching for users", { query });
-      const { data, error } = await supabase.functions.invoke('search-users', {
+      const { data, error } = await supabase.functions.invoke<SearchUsersResponse>('search-users', {
         body: { nickname: query }
       });
 
@@ -91,8 +102,8 @@ export const UserSearch = ({ currentUserId }: UserSearchProps) => {
         throw error;
       }
 
-      const users = (data as any)?.users || [];
-      const mapped = users.map((u: any) => ({
+      const users = data?.users ?? [];
+      const mapped: UserSearchResult[] = users.map((u) => ({
         user_id: u.id,
         nickname: u.nickname,
         subscription_tier: u.subscriptionTier,

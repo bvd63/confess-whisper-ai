@@ -240,6 +240,9 @@ importers:
       autoprefixer:
         specifier: ^10.4.21
         version: 10.4.21(postcss@8.5.6)
+      deno-bin:
+        specifier: ^2.2.7
+        version: 2.2.7
       dotenv:
         specifier: ^17.2.3
         version: 17.2.3
@@ -2323,6 +2326,10 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
+  adm-zip@0.5.16:
+    resolution: {integrity: sha512-TGw5yVi4saajsSEgz25grObGHEUaDrniwvA2qwSC060KfqGPdglhvPMA2lPIoxs3PQIItj2iag35fONcQqgUaQ==}
+    engines: {node: '>=12.0'}
+
   agent-base@7.1.4:
     resolution: {integrity: sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ==}
     engines: {node: '>= 14'}
@@ -2685,6 +2692,10 @@ packages:
   define-properties@1.2.1:
     resolution: {integrity: sha512-8QmQKqEASLd5nx0U1B1okLElbUuuttJ/AnYmRXbbbGDWh6uS208EjD4Xqq/I9wK7u0v6O08XhTWnt5XtEbR6Dg==}
     engines: {node: '>= 0.4'}
+
+  deno-bin@2.2.7:
+    resolution: {integrity: sha512-ANCqji3OqD0Voji5OtUElCFRhcp1Wt6d2LUMR+jlOXkIN/MqL8BgzHFMi3a5e8YnB7IEpxsR/O3Yd+wkQXcc9g==}
+    hasBin: true
 
   dequal@2.0.3:
     resolution: {integrity: sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==}
@@ -6719,6 +6730,8 @@ snapshots:
 
   acorn@8.15.0: {}
 
+  adm-zip@0.5.16: {}
+
   agent-base@7.1.4: {}
 
   ajv@6.12.6:
@@ -7082,6 +7095,10 @@ snapshots:
       define-data-property: 1.1.4
       has-property-descriptors: 1.0.2
       object-keys: 1.1.1
+
+  deno-bin@2.2.7:
+    dependencies:
+      adm-zip: 0.5.16
 
   dequal@2.0.3: {}
 

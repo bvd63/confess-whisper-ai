@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import AppLayout from "@/components/AppLayout";
-import ConfessionCard from "@/components/ConfessionCard";
+import ConfessionCard, { type ConfessionCardProps } from "@/components/ConfessionCard";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { GradientText } from "@/components/GradientText";
 import { SearchUsersCard } from "@/components/SearchUsersCard";
@@ -25,8 +25,54 @@ import { AdvancedFilters, FilterState } from "@/components/AdvancedFilters";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Loader2 } from "lucide-react";
 import VirtualizedConfessions from "@/components/VirtualizedConfessions";
+import type { Database } from "@/integrations/supabase/types";
 // Communities feature disabled
 // import { CommunitiesSectionExpanded } from "@/components/CommunitiesSectionExpanded";
+
+type ConfessionRow = Database['public']['Tables']['confessions']['Row'];
+type HotConfession = Database['public']['Functions']['get_hot_confessions']['Returns'][number];
+type RenderableConfession = ConfessionCardProps['confession'];
+
+const confessionSelect = [
+  'id',
+  'content',
+  'category',
+  'user_id',
+  'ai_response',
+  'ai_deep_insight',
+  'likes_count',
+  'comments_count',
+  'created_at',
+  'image_url',
+  'image_blurred',
+  'author_nickname_snapshot',
+  'author_visibility_snapshot',
+  'emotional_tone',
+  'is_anonymous',
+  'author_display_name_snapshot',
+].join(', ');
+
+const toRenderableConfession = (confession: Partial<ConfessionRow> | HotConfession): RenderableConfession => ({
+  id: confession.id ?? '',
+  content: confession.content ?? '',
+  category: confession.category ?? 'general',
+  user_id: 'user_id' in confession ? confession.user_id ?? null : null,
+  ai_response: 'ai_response' in confession ? confession.ai_response ?? null : null,
+  ai_deep_insight: 'ai_deep_insight' in confession ? confession.ai_deep_insight ?? null : null,
+  likes_count: 'likes_count' in confession ? confession.likes_count ?? 0 : 0,
+  comments_count: 'comments_count' in confession ? confession.comments_count ?? 0 : 0,
+  created_at: confession.created_at ?? new Date().toISOString(),
+  image_url: 'image_url' in confession ? confession.image_url ?? null : null,
+  image_blurred: 'image_blurred' in confession ? confession.image_blurred ?? false : false,
+  author_nickname_snapshot:
+    'author_nickname_snapshot' in confession ? confession.author_nickname_snapshot ?? null : null,
+  author_visibility_snapshot:
+    'author_visibility_snapshot' in confession ? confession.author_visibility_snapshot ?? null : null,
+  emotional_tone: 'emotional_tone' in confession ? confession.emotional_tone ?? null : null,
+  is_anonymous: 'is_anonymous' in confession ? confession.is_anonymous ?? true : true,
+  author_display_name_snapshot:
+    'author_display_name_snapshot' in confession ? confession.author_display_name_snapshot ?? null : null,
+});
 
 const Explore = () => {
   const { t } = useLanguage();
@@ -50,48 +96,51 @@ const Explore = () => {
   });
 
   // Fetch hot/trending confessions
-  const { data: hotConfessions, isLoading: loadingHot } = useQuery({
+  const { data: hotConfessions, isLoading: loadingHot } = useQuery<RenderableConfession[]>({
     queryKey: ["hot-confessions"],
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_hot_confessions", {
         limit_count: 20,
       });
       if (error) throw error;
-      return data;
+      return (data || []).map(toRenderableConfession);
     },
   });
 
   // Fetch recent confessions
-  const { data: recentConfessions, isLoading: loadingRecent } = useQuery({
+  const { data: recentConfessions, isLoading: loadingRecent } = useQuery<RenderableConfession[]>({
     queryKey: ["recent-confessions"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("confessions")
-        .select("*")
+        .select(confessionSelect)
         .eq("moderation_status", "approved")
         .order("created_at", { ascending: false })
         .limit(20);
       if (error) throw error;
-      return data;
+      return (data || []).map(toRenderableConfession);
     },
   });
 
   // Fetch popular confessions (by likes)
-  const { data: popularConfessions, isLoading: loadingPopular } = useQuery({
+  const { data: popularConfessions, isLoading: loadingPopular } = useQuery<RenderableConfession[]>({
     queryKey: ["popular-confessions"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("confessions")
-        .select("*")
+        .select(confessionSelect)
         .eq("moderation_status", "approved")
         .order("likes_count", { ascending: false })
         .limit(20);
       if (error) throw error;
-      return data;
+      return (data || []).map(toRenderableConfession);
     },
   });
 
-  const renderConfessions = (confessions: any[] | undefined, loading: boolean) => {
+  const renderConfessions = (
+    confessions: RenderableConfession[] | undefined,
+    loading: boolean
+  ) => {
     if (loading) {
       return (
         <div className="space-y-4">

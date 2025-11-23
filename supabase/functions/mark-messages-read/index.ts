@@ -1,71 +1,107 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
+import { handleOptions, jsonResponse } from "../_shared/http.ts";
+import { logError, logInfo, logWarn } from "../_shared/logger.ts";
+import { getRequestContext } from "../_shared/security.ts";
+import { createServiceClient, requireAuth } from "../_shared/supabase.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const MarkMessagesSchema = z.object({
+  threadId: z.string().min(8, "threadId"),
+  messageIds: z.array(z.string().min(8, "messageId")).min(1, "messageIds"),
+});
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+  const { origin, ipAddress, userAgent } = getRequestContext(req);
+
+  if (req.method === "OPTIONS") {
+    return handleOptions(origin);
   }
 
   try {
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+    const authHeader = req.headers.get("Authorization");
+    const authResult = await requireAuth(authHeader);
 
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
-        },
-      }
-    );
-
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    if (!user) throw new Error('Unauthorized');
-
-    const { threadId, messageIds } = await req.json();
-
-    if (!threadId || !messageIds || !Array.isArray(messageIds)) {
-      throw new Error('threadId and messageIds array are required');
+    if (!authResult.user || !authResult.client) {
+      logWarn("mark-messages-read: unauthorized", { reason: authResult.error });
+      return jsonResponse({ error: "UNAUTHORIZED" }, 401, origin);
     }
 
-    // Verify user is participant in the conversation
-    const { data: participant } = await supabaseClient
-      .from('conversation_participants')
-      .select('id')
-      .eq('conversation_id', threadId)
-      .eq('user_id', user.id)
-      .single();
+    let rawBody: unknown;
+    try {
+      rawBody = await req.json();
+    } catch (parseError) {
+      logWarn("mark-messages-read: invalid JSON", {
+        userId: authResult.user.id,
+        parseError: parseError instanceof Error ? parseError.message : String(parseError),
+      });
+      return jsonResponse({ error: "INVALID_JSON" }, 400, origin);
+    }
 
-    if (!participant) throw new Error('Not a participant in this conversation');
+    const parsed = MarkMessagesSchema.safeParse(rawBody);
+    if (!parsed.success) {
+      logWarn("mark-messages-read: invalid payload", {
+        userId: authResult.user.id,
+        issues: parsed.error.flatten().fieldErrors,
+      });
+      return jsonResponse({ error: "INVALID_PAYLOAD" }, 400, origin);
+    }
 
-    // Mark messages as seen using the database function
-    const { error } = await supabaseAdmin.rpc('mark_messages_seen', {
+    const { threadId, messageIds } = parsed.data;
+    const supabase = authResult.client;
+
+    const { data: participant, error: participantError } = await supabase
+      .from("conversation_participants")
+      .select("id")
+      .eq("conversation_id", threadId)
+      .eq("user_id", authResult.user.id)
+      .maybeSingle();
+
+    if (participantError) {
+      logError("mark-messages-read: participant lookup failed", {
+        userId: authResult.user.id,
+        threadId,
+        error: participantError.message,
+      });
+      return jsonResponse({ error: "PARTICIPANT_LOOKUP_FAILED" }, 500, origin);
+    }
+
+    if (!participant) {
+      logWarn("mark-messages-read: forbidden", {
+        userId: authResult.user.id,
+        threadId,
+      });
+      return jsonResponse({ error: "FORBIDDEN" }, 403, origin);
+    }
+
+    const serviceClient = createServiceClient();
+    const { error: rpcError } = await serviceClient.rpc("mark_messages_seen", {
       thread_id: threadId,
       message_ids: messageIds,
-      user_id: user.id,
+      user_id: authResult.user.id,
     });
 
-    if (error) throw error;
+    if (rpcError) {
+      logError("mark-messages-read: RPC failed", {
+        userId: authResult.user.id,
+        threadId,
+        error: rpcError.message,
+      });
+      return jsonResponse({ error: "PERSISTENCE_ERROR" }, 500, origin);
+    }
 
-    return new Response(JSON.stringify({ success: true }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200,
+    logInfo("mark-messages-read: messages flagged read", {
+      userId: authResult.user.id,
+      threadId,
+      count: messageIds.length,
+      ipAddress,
+      userAgent,
     });
 
+    return jsonResponse({ success: true, count: messageIds.length }, 200, origin);
   } catch (error) {
-    console.error('Error in mark-messages-read:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: errorMessage }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 500,
+    logError("mark-messages-read: unexpected failure", {
+      error: error instanceof Error ? error.message : String(error),
     });
+    return jsonResponse({ error: "INTERNAL_ERROR" }, 500, origin);
   }
 });

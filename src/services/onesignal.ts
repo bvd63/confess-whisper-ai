@@ -187,7 +187,8 @@ export const getOneSignalPlayerId = async (): Promise<string | null> => {
  */
 export const savePlayerIdToProfile = async (userId: string, playerId: string): Promise<void> => {
   try {
-    const { supabase } = await import('@/integrations/supabase/client');
+    const { getSupabaseClient } = await import('@/integrations/supabase/safeClient');
+    const supabase = await getSupabaseClient();
     
     const { error } = await supabase
       .from('profiles')

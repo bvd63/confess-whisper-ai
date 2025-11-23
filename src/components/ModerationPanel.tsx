@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext";
 import { logError } from "@/lib/logger";
 
-interface Confession {
+interface ConfessionRecord {
   id: string;
   content: string;
   category: string;
@@ -28,6 +28,15 @@ interface Confession {
   likes_count: number;
   comments_count: number;
 }
+
+interface ConfessionReport {
+  confession_id: string;
+  reason: string | null;
+  details: string | null;
+  reporter_id: string | null;
+}
+
+type Confession = ConfessionRecord & { reports?: ConfessionReport[] };
 
 interface ModerationPanelProps {
   userId: string;
@@ -42,12 +51,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
   const { toast } = useToast();
   const { t, language } = useLanguage();
 
-  useEffect(() => {
-    checkUserRole();
-    loadConfessions();
-  }, [userId]);
-
-  const checkUserRole = async () => {
+  const checkUserRole = useCallback(async () => {
     try {
       const { data } = await supabase
         .from('user_roles')
@@ -60,13 +64,13 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
     } catch (error) {
       logError('Error checking user role', error as Error);
     }
-  };
+  }, [userId]);
 
-  const loadConfessions = async () => {
+  const loadConfessions = useCallback(async () => {
     try {
       // Get confessions that need moderation (pending status OR reported)
       const { data, error } = await supabase
-        .from('confessions')
+        .from<ConfessionRecord>('confessions')
         .select('*')
         .or('moderation_status.eq.pending,is_reported.eq.true')
         .order('created_at', { ascending: false })
@@ -79,27 +83,33 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
       
       if (reportedIds.length > 0) {
         const { data: reports } = await supabase
-          .from('confession_reports')
+          .from<ConfessionReport>('confession_reports')
           .select('confession_id, reason, details, reporter_id')
           .in('confession_id', reportedIds)
           .eq('status', 'pending');
 
         // Add report info to confessions
-        const confessionsWithReports = data?.map(c => {
-          const confessionReports = reports?.filter(r => r.confession_id === c.id) || [];
+        const confessionsWithReports: Confession[] = data?.map((c) => {
+          const confessionReports = reports?.filter((r) => r.confession_id === c.id) || [];
           return { ...c, reports: confessionReports };
-        });
+        }) || [];
 
-        setConfessions(confessionsWithReports || []);
+        setConfessions(confessionsWithReports);
       } else {
-        setConfessions(data || []);
+        const baseConfessions: Confession[] = (data || []).map((confession) => ({ ...confession }));
+        setConfessions(baseConfessions);
       }
     } catch (error) {
       logError('Error loading confessions', error as Error);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    checkUserRole();
+    loadConfessions();
+  }, [checkUserRole, loadConfessions]);
 
   const moderateConfession = async (
     confessionId: string,
@@ -263,7 +273,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
                 {t.moderation_no_reported}
               </p>
             ) : (
-              reportedConfessions.map((confession: any) => (
+              reportedConfessions.map((confession) => (
                 <Card key={confession.id} className="p-4 border-destructive/50">
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-4">
@@ -280,7 +290,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
                         {confession.reports && confession.reports.length > 0 && (
                           <div className="mt-3 space-y-2">
                             <p className="text-xs font-semibold text-muted-foreground">{t.moderation_reports_title}</p>
-                            {confession.reports.slice(0, 3).map((report: any, idx: number) => (
+                            {confession.reports.slice(0, 3).map((report, idx) => (
                               <div key={idx} className="text-xs bg-destructive/10 p-2 rounded">
                                 <p className="font-medium">{report.reason}</p>
                                 {report.details && (

@@ -1,105 +1,122 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
+import { getServerEnv } from "../_shared/env.ts";
+import { handleOptions, jsonResponse } from "../_shared/http.ts";
+import { logError, logInfo } from "../_shared/logger.ts";
+import { getRequestContext } from "../_shared/security.ts";
+import { createServiceClient, requireAuth } from "../_shared/supabase.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const VALID_TONES = ["calm", "anxious", "happy", "sad", "angry", "hopeful", "grateful", "regretful", "confused", "overwhelmed"] as const;
+
+const AnalyzeToneSchema = z.object({
+  content: z.string().min(1).max(4000),
+  confessionId: z.string().uuid().optional(),
+});
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+  const { origin, userAgent, ipAddress } = getRequestContext(req);
+
+  if (req.method === "OPTIONS") {
+    return handleOptions(origin);
   }
 
   try {
-    const { content, confessionId } = await req.json();
-    
-    if (!content) {
-      return new Response(
-        JSON.stringify({ error: 'Content is required' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      );
+    const authHeader = req.headers.get("Authorization");
+    const authResult = await requireAuth(authHeader);
+    if (!authResult.user) {
+      return jsonResponse({ error: "UNAUTHORIZED" }, 401, origin);
     }
 
-    // Get Lovable AI API key
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      console.error('LOVABLE_API_KEY not configured');
-      return new Response(
-        JSON.stringify({ error: 'AI service not configured' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-      );
+    let rawBody: unknown;
+    try {
+      rawBody = await req.json();
+    } catch {
+      return jsonResponse({ error: "INVALID_JSON" }, 400, origin);
     }
 
-    // Call Lovable AI for tone analysis using Gemini
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          {
-            role: 'system',
-            content: `Analyze the emotional tone of the confession. Return ONLY ONE of these emotions: 
-calm, anxious, happy, sad, angry, hopeful, grateful, regretful, confused, overwhelmed.
-Just the word, nothing else.`
-          },
-          {
-            role: 'user',
-            content: content
-          }
-        ],
-        temperature: 0.3,
-        max_tokens: 10
-      })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('AI Gateway error:', response.status, errorText);
-      return new Response(
-        JSON.stringify({ error: 'Failed to analyze tone' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-      );
+    const parsed = AnalyzeToneSchema.safeParse(rawBody);
+    if (!parsed.success) {
+      return jsonResponse({ error: "INVALID_PAYLOAD" }, 400, origin);
     }
 
-    const data = await response.json();
-    const tone = data.choices?.[0]?.message?.content?.trim().toLowerCase() || 'confused';
+    const payload = parsed.data;
+    const env = getServerEnv();
+    if (!env.LOVABLE_API_KEY) {
+      return jsonResponse({ error: "AI_NOT_CONFIGURED" }, 500, origin);
+    }
 
-    // Validate tone is one of the allowed values
-    const validTones = ['calm', 'anxious', 'happy', 'sad', 'angry', 'hopeful', 'grateful', 'regretful', 'confused', 'overwhelmed'];
-    const finalTone = validTones.includes(tone) ? tone : 'confused';
+    if (payload.confessionId) {
+      const { data: confession, error: confessionError } = await authResult.client
+        .from("confessions")
+        .select("id, user_id")
+        .eq("id", payload.confessionId)
+        .maybeSingle();
 
-    // Save tone to database if confessionId provided
-    if (confessionId) {
-      const supabase = createClient(
-        Deno.env.get('SUPABASE_URL')!,
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-      );
+      if (confessionError || !confession) {
+        return jsonResponse({ error: "CONFESSION_NOT_FOUND" }, 404, origin);
+      }
 
-      const { error: updateError } = await supabase
-        .from('confessions')
-        .update({ emotional_tone: finalTone })
-        .eq('id', confessionId);
-
-      if (updateError) {
-        console.error('Error updating confession tone:', updateError);
+      if (confession.user_id !== authResult.user.id) {
+        return jsonResponse({ error: "FORBIDDEN" }, 403, origin);
       }
     }
 
-    return new Response(
-      JSON.stringify({ tone: finalTone }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        temperature: 0.3,
+        max_tokens: 10,
+        messages: [
+          {
+            role: "system",
+            content: "Analyze the emotional tone of the confession. Return ONLY ONE of these emotions: calm, anxious, happy, sad, angry, hopeful, grateful, regretful, confused, overwhelmed. Just the word, nothing else.",
+          },
+          { role: "user", content: payload.content },
+        ],
+      }),
+    });
+
+    if (!aiResponse.ok) {
+      const errorText = await aiResponse.text();
+      logError("analyze-tone: AI error", { status: aiResponse.status, errorText });
+      return jsonResponse({ error: "AI_FAILED" }, 502, origin);
+    }
+
+    const aiData = await aiResponse.json();
+    const toneRaw = aiData.choices?.[0]?.message?.content?.trim().toLowerCase() ?? "confused";
+    const tone = VALID_TONES.includes(toneRaw as typeof VALID_TONES[number]) ? toneRaw : "confused";
+
+    if (payload.confessionId) {
+      const serviceClient = createServiceClient();
+      const { error: updateError } = await serviceClient
+        .from("confessions")
+        .update({ emotional_tone: tone })
+        .eq("id", payload.confessionId)
+        .eq("user_id", authResult.user.id);
+
+      if (updateError) {
+        logError("analyze-tone: failed to persist tone", { error: updateError.message, confessionId: payload.confessionId });
+      }
+    }
+
+    logInfo("analyze-tone: tone generated", {
+      tone,
+      confessionId: payload.confessionId,
+      userId: authResult.user.id,
+      ipAddress,
+      userAgent,
+    });
+
+    return jsonResponse({ tone }, 200, origin);
   } catch (error) {
-    console.error('Error in analyze-tone function:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-    );
+    logError("analyze-tone: unexpected error", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return jsonResponse({ error: "INTERNAL_ERROR" }, 500, origin);
   }
 });

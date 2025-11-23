@@ -1,13 +1,9 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
-import {
-  normalizeReportPayload,
-} from "./utils.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { handleOptions, jsonResponse } from "../_shared/http.ts";
+import { getServerEnv } from "../_shared/env.ts";
+import { logError, logWarn } from "../_shared/logger.ts";
+import { createServiceClient, requireAuth } from "../_shared/supabase.ts";
+import { normalizeReportPayload } from "./utils.ts";
 
 interface RateLimitResponse {
   allowed?: boolean;
@@ -17,17 +13,8 @@ interface RateLimitResponse {
   identifierType?: "user" | "ip";
 }
 
-const jsonResponse = (body: Record<string, unknown>, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      ...corsHeaders,
-      "Content-Type": "application/json",
-    },
-  });
-
 const logSecurityEvent = async (
-  client: any,
+  client: ReturnType<typeof createServiceClient>,
   {
     userId,
     eventType,
@@ -45,72 +32,58 @@ const logSecurityEvent = async (
   if (!client) return;
 
   try {
-    await client.rpc("log_security_event", {
+    const { error } = await client.rpc("log_security_event", {
       _user_id: userId ?? null,
       _event_type: eventType,
       _event_data: eventData ?? null,
       _ip_address: ipAddress ?? null,
       _user_agent: userAgent ?? null,
     });
+    if (error) {
+      logWarn("Failed to log security event", { error: error.message, eventType });
+    }
   } catch (error) {
-    console.warn("[report-confession] Failed to log security event", error);
+    logWarn("Failed to log security event", { error: error instanceof Error ? error.message : String(error), eventType });
   }
 };
 
-serve(async (req: Request) => {
+serve(async (req) => {
+  const origin = req.headers.get("origin");
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return handleOptions(origin);
   }
 
   if (req.method !== "POST") {
-    return jsonResponse({ error: "METHOD_NOT_ALLOWED", messageKey: "common.method_not_allowed" }, 405);
+    return jsonResponse({ error: "METHOD_NOT_ALLOWED", messageKey: "common.method_not_allowed" }, 405, origin);
   }
-
-  const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-  const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
-  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-
-  if (!supabaseUrl || !anonKey || !serviceKey) {
-    console.error("[report-confession] Missing Supabase configuration");
-    return jsonResponse({ error: "CONFIGURATION_ERROR", message: "Server is misconfigured" }, 500);
-  }
-
-  const authHeader = req.headers.get("Authorization");
-  if (!authHeader) {
-    return jsonResponse({ error: "UNAUTHORIZED", messageKey: "common.unauthorized" }, 401);
-  }
-
-  const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
-    || req.headers.get("x-real-ip")
-    || "unknown";
-  const userAgent = req.headers.get("user-agent") ?? "unknown";
 
   try {
-    const supabaseClient = createClient(supabaseUrl, anonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const serviceClient = createClient(supabaseUrl, serviceKey);
-
-    const {
-      data: { user },
-      error: userError,
-    } = await supabaseClient.auth.getUser();
-
-    if (userError || !user) {
-      return jsonResponse({ error: "UNAUTHORIZED", messageKey: "common.unauthorized" }, 401);
+    const env = getServerEnv();
+    const authHeader = req.headers.get("Authorization");
+    const authResult = await requireAuth(authHeader);
+    if (!authResult.user) {
+      return jsonResponse({ error: "UNAUTHORIZED", messageKey: "common.unauthorized" }, 401, origin);
     }
+
+    const serviceClient = createServiceClient();
+    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+      || req.headers.get("x-real-ip")
+      || "unknown";
+    const userAgent = req.headers.get("user-agent") ?? "unknown";
 
     let rawBody: unknown;
     try {
       rawBody = await req.json();
-    } catch (parseError) {
-      console.warn("[report-confession] Failed to parse request body", parseError);
-      return jsonResponse({ error: "INVALID_JSON", messageKey: "common.invalid_request" }, 400);
+    } catch (error) {
+      logWarn("Failed to parse report-confession payload", {
+        error: error instanceof Error ? error.message : String(error),
+      });
+      return jsonResponse({ error: "INVALID_JSON", messageKey: "common.invalid_request" }, 400, origin);
     }
 
     const normalizedPayload = normalizeReportPayload(rawBody);
     if (!normalizedPayload.ok) {
-      return jsonResponse({ error: normalizedPayload.error, messageKey: "common.invalid_request" }, 400);
+      return jsonResponse({ error: normalizedPayload.error, messageKey: "common.invalid_request" }, 400, origin);
     }
 
     const { confessionId, reason: normalizedReason, details: sanitizedDetails, language: sanitizedLanguage } =
@@ -119,14 +92,24 @@ serve(async (req: Request) => {
     const rateLimitResult = await serviceClient.functions.invoke<RateLimitResponse>("rate-limit", {
       body: {
         action: "report_confession",
-        userId: user.id,
+        userId: authResult.user.id,
         ip: clientIp,
+      },
+      headers: {
+        "x-edge-token": env.EDGE_INTERNAL_TOKEN,
       },
     });
 
+    if (rateLimitResult.error) {
+      logWarn("Rate limit invocation failed", {
+        error: rateLimitResult.error.message ?? String(rateLimitResult.error),
+        action: "report_confession",
+      });
+    }
+
     if (!rateLimitResult.error && rateLimitResult.data && rateLimitResult.data.allowed === false) {
       await logSecurityEvent(serviceClient, {
-        userId: user.id,
+        userId: authResult.user.id,
         eventType: "confession_report_rate_limited",
         eventData: {
           confessionId,
@@ -141,45 +124,45 @@ serve(async (req: Request) => {
         error: "RATE_LIMIT",
         messageKey: "common.rate_limit",
         retryAfter: rateLimitResult.data.retryAfter ?? null,
-      }, 429);
+      }, 429, origin);
     }
 
     const { data: existingReport, error: existingError } = await serviceClient
       .from("confession_reports")
       .select("id")
       .eq("confession_id", confessionId)
-      .eq("reporter_id", user.id)
+      .eq("reporter_id", authResult.user.id)
       .maybeSingle();
 
     if (existingError) {
-      console.error("[report-confession] Failed to check existing report", existingError);
-      return jsonResponse({ error: "DATABASE_ERROR", messageKey: "common.something_went_wrong" }, 500);
+      logError("Failed to check existing report", { error: existingError.message });
+      return jsonResponse({ error: "DATABASE_ERROR", messageKey: "common.something_went_wrong" }, 500, origin);
     }
 
     if (existingReport) {
       await logSecurityEvent(serviceClient, {
-        userId: user.id,
+        userId: authResult.user.id,
         eventType: "confession_report_duplicate",
         eventData: { confessionId },
         ipAddress: clientIp,
         userAgent,
       });
 
-      return jsonResponse({ error: "ALREADY_REPORTED" }, 409);
+      return jsonResponse({ error: "ALREADY_REPORTED" }, 409, origin);
     }
 
     const { error: insertError } = await serviceClient
       .from("confession_reports")
       .insert({
         confession_id: confessionId,
-        reporter_id: user.id,
+        reporter_id: authResult.user.id,
         reason: normalizedReason,
         details: sanitizedDetails,
       });
 
     if (insertError) {
-      console.error("[report-confession] Failed to create report", insertError);
-      return jsonResponse({ error: "DATABASE_ERROR", messageKey: "common.something_went_wrong" }, 500);
+      logError("Failed to create confession report", { error: insertError.message });
+      return jsonResponse({ error: "DATABASE_ERROR", messageKey: "common.something_went_wrong" }, 500, origin);
     }
 
     const { error: updateError } = await serviceClient
@@ -188,11 +171,11 @@ serve(async (req: Request) => {
       .eq("id", confessionId);
 
     if (updateError) {
-      console.error("[report-confession] Failed to flag confession", updateError);
+      logWarn("Failed to flag confession after report", { error: updateError.message, confessionId });
     }
 
     await logSecurityEvent(serviceClient, {
-      userId: user.id,
+      userId: authResult.user.id,
       eventType: "confession_reported",
       eventData: {
         confessionId,
@@ -206,9 +189,11 @@ serve(async (req: Request) => {
     return jsonResponse({
       success: true,
       messageKey: "report.success",
-    });
+    }, 200, origin);
   } catch (error) {
-    console.error("[report-confession] Unexpected error", error);
-    return jsonResponse({ error: "INTERNAL_ERROR", messageKey: "common.something_went_wrong" }, 500);
+    logError("Unexpected error in report-confession", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return jsonResponse({ error: "INTERNAL_ERROR", messageKey: "common.something_went_wrong" }, 500, origin);
   }
 });

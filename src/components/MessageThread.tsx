@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,21 @@ export const MessageThread = ({
   const { t } = useLanguage();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const loadMessages = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      setMessages(data || []);
+    } catch (error) {
+      logError('Error loading messages', error as Error);
+    }
+  }, [conversationId]);
+
   useEffect(() => {
     loadMessages();
     
@@ -60,30 +75,15 @@ export const MessageThread = ({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId]);
+  }, [conversationId, loadMessages]);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const loadMessages = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true });
-
-      if (error) throw error;
-      setMessages(data || []);
-    } catch (error) {
-      logError('Error loading messages', error as Error);
-    }
-  };
+  }, []);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();

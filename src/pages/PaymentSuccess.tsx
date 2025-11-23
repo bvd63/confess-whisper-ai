@@ -33,7 +33,7 @@ const PaymentSuccess = () => {
         return Math.random() * (max - min) + min;
       };
 
-      const interval: any = setInterval(() => {
+      const interval = window.setInterval(() => {
         const timeLeft = animationEnd - Date.now();
 
         if (timeLeft <= 0) {

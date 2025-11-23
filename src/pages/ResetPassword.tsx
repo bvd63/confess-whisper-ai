@@ -79,8 +79,8 @@ export default function ResetPassword() {
       setTimeout(() => {
         navigate('/auth');
       }, 2000);
-    } catch (err: any) {
-      setError(err.message || t.auth_error_generic);
+    } catch (err) {
+      setError(err instanceof Error && err.message ? err.message : t.auth_error_generic);
     } finally {
       setIsLoading(false);
     }

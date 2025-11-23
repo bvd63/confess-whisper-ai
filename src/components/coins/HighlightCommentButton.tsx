@@ -63,12 +63,14 @@ export function HighlightCommentButton({
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + 24);
 
+      const updatePayload: Record<string, unknown> = {
+        is_highlighted: true,
+        highlight_expires_at: expiresAt.toISOString(),
+      };
+
       const { error: updateError } = await supabase
         .from('comments')
-        .update({
-          is_highlighted: true,
-          highlight_expires_at: expiresAt.toISOString(),
-        } as any)
+        .update(updatePayload)
         .eq('id', commentId);
 
       if (updateError) throw updateError;

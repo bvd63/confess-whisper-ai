@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Users, UserCheck, UserX, Shield, ShieldCheck, Ban } from "lucide-react";
-import { useCommunityMembers } from "@/hooks/useCommunities";
+import { useCommunityMembers, type CommunityMember } from "@/hooks/useCommunities";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
@@ -34,7 +34,13 @@ export const CommunityManagement = ({
     kickMember 
   } = useCommunityMembers(communityId);
 
-  const activeMembers = members?.filter(m => m.status === 'active') || [];
+  const activeMembers = (members || []).filter((m) => m.status === 'active');
+
+  const getProfileNickname = (member: Pick<CommunityMember, 'profiles'>) =>
+    member.profiles?.nickname || t.communities_anonymous;
+
+  const getProfileInitial = (member: Pick<CommunityMember, 'profiles'>) =>
+    member.profiles?.nickname?.[0]?.toUpperCase() || 'U';
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -79,12 +85,12 @@ export const CommunityManagement = ({
                     <div className="flex items-center gap-3">
                         <Avatar>
                           <AvatarFallback>
-                            {(member as any).profiles?.nickname?.[0]?.toUpperCase() || 'U'}
+                            {getProfileInitial(member)}
                           </AvatarFallback>
                         </Avatar>
                       <div>
                         <p className="font-medium">
-                          {(member as any).profiles?.nickname || t.communities_anonymous}
+                          {getProfileNickname(member)}
                         </p>
                         <Badge className={getRoleColor(member.role || 'member')} variant="outline">
                           {member.role === 'admin' && <Shield className="w-3 h-3 mr-1" />}
@@ -153,12 +159,12 @@ export const CommunityManagement = ({
                       <div className="flex items-center gap-3">
                         <Avatar>
                           <AvatarFallback>
-                            {(request as any).profiles?.nickname?.[0]?.toUpperCase() || 'U'}
+                            {getProfileInitial(request)}
                           </AvatarFallback>
                         </Avatar>
                         <div>
                           <p className="font-medium">
-                            {(request as any).profiles?.nickname || t.communities_anonymous}
+                            {getProfileNickname(request)}
                           </p>
                           <Badge variant="secondary">{t.communities_pending}</Badge>
                         </div>

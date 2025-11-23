@@ -93,9 +93,10 @@ export default function ForgotPassword() {
 
       setSuccess(true);
       setCaptchaToken("");
-    } catch (err: any) {
-      logError("Password reset request failed", err as Error);
-      setError(err.message || t.auth_error_generic);
+    } catch (err) {
+      const errorInstance = err instanceof Error ? err : new Error('Password reset error');
+      logError("Password reset request failed", errorInstance);
+      setError(err instanceof Error && err.message ? err.message : t.auth_error_generic);
     } finally {
       setIsLoading(false);
     }

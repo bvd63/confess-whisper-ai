@@ -52,17 +52,24 @@ export const SearchUsersCard = () => {
 
   const followMutation = useMutation({
     mutationFn: async ({ userId, isFollowing }: { userId: string; isFollowing: boolean }) => {
+      const { data, error: authError } = await supabase.auth.getUser();
+      if (authError) throw authError;
+      const currentUserId = data.user?.id;
+      if (!currentUserId) {
+        throw new Error('Unable to determine current user');
+      }
+
       if (isFollowing) {
         const { error } = await supabase
           .from('user_follows')
           .delete()
-          .eq('follower_id', (await supabase.auth.getUser()).data.user?.id!)
+          .eq('follower_id', currentUserId)
           .eq('following_id', userId);
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from('user_follows')
-          .insert([{ follower_id: (await supabase.auth.getUser()).data.user?.id!, following_id: userId }]);
+          .insert([{ follower_id: currentUserId, following_id: userId }]);
         if (error) throw error;
       }
     },

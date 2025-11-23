@@ -6,11 +6,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Gift, Loader2 } from 'lucide-react';
-import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import { logError } from '@/lib/logger';
+import type { Database } from '@/integrations/supabase/types';
 
 interface GiftCoinsDialogProps {
   open: boolean;
@@ -19,13 +19,14 @@ interface GiftCoinsDialogProps {
   recipientName?: string;
 }
 
+const GIFT_COINS_FN = 'gift_coins' as unknown as keyof Database['public']['Functions'];
+
 export const GiftCoinsDialog = ({ 
   open, 
   onOpenChange, 
   recipientId,
   recipientName 
 }: GiftCoinsDialogProps) => {
-  const { t } = useLanguage();
   const [amount, setAmount] = useState('');
   const [message, setMessage] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
@@ -73,7 +74,7 @@ export const GiftCoinsDialog = ({
 
     setLoading(true);
     try {
-      const { data, error } = await (supabase.rpc as any)('gift_coins', {
+      const { error } = await supabase.rpc(GIFT_COINS_FN, {
         receiver_id: recipientId,
         amount: giftAmount,
         is_anonymous: isAnonymous,

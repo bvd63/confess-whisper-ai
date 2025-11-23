@@ -11,6 +11,7 @@ interface AchievementToastProps {
 const AchievementToast = ({ userId }: AchievementToastProps) => {
   const { toast } = useToast();
   const { t } = useLanguage();
+  const newBadgeTitle = t.achievement_new_badge;
 
   useEffect(() => {
     // Subscribe to new badges being awarded
@@ -34,7 +35,7 @@ const AchievementToast = ({ userId }: AchievementToastProps) => {
 
           if (badge) {
             toast({
-              title: t.achievement_new_badge,
+              title: newBadgeTitle,
               description: `${badge.name}: ${badge.description}`,
               duration: 5000,
             });
@@ -46,7 +47,7 @@ const AchievementToast = ({ userId }: AchievementToastProps) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId, toast]);
+  }, [userId, toast, newBadgeTitle]);
 
   return null; // This component doesn't render anything
 };

@@ -69,16 +69,16 @@ export const ConfirmDialog = ({
   // Helper to safely get nested translation keys
   const getNestedTranslation = (key: string): string => {
     const keys = key.split('.');
-    let value: any = t;
-    
+    let value: unknown = t;
+
     for (const k of keys) {
-      if (value && typeof value === 'object' && k in value) {
-        value = value[k];
+      if (value && typeof value === 'object' && !Array.isArray(value) && k in value) {
+        value = (value as Record<string, unknown>)[k];
       } else {
         return key; // Return key if not found
       }
     }
-    
+
     return typeof value === 'string' ? value : key;
   };
 

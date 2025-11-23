@@ -1,305 +1,267 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[SUBSCRIPTION-MANAGE] ${step}${detailsStr}`);
-};
+import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
+import { getServerEnv } from "../_shared/env.ts";
+import { handleOptions, jsonResponse } from "../_shared/http.ts";
+import { logError, logInfo, logWarn } from "../_shared/logger.ts";
+import { getRequestContext } from "../_shared/security.ts";
+import { createServiceClient, requireAuth } from "../_shared/supabase.ts";
 
 const STRIPE_PRICE_IDS = {
   premium_monthly: "price_1SJ0vvR7kygIyYg9oT1ju6lQ",
   premium_yearly: "price_1SJ0vvR7kygIyYg9yORadPGD",
   vip_monthly: "price_1SJ0vwR7kygIyYg9OeCiqV00",
   vip_yearly: "price_1SJ0vvR7kygIyYg9BJuciYGd",
+} as const;
+
+type ManageAction = "status" | "change" | "cancel" | "reactivate";
+
+const ManageSubscriptionSchema = z.object({
+  action: z.enum(["change", "cancel", "reactivate", "status"]),
+  priceId: z.string().trim().min(4).max(128).optional(),
+  prorationBehavior: z.string().trim().min(3).max(64).optional(),
+  effective: z.enum(["now", "period_end"]).optional(),
+});
+
+const respondError = (message: string, origin: string | null, status = 400) =>
+  jsonResponse({ error: message }, status, origin);
+
+const determineTier = (priceId: string) => {
+  if (priceId === STRIPE_PRICE_IDS.vip_monthly || priceId === STRIPE_PRICE_IDS.vip_yearly) {
+    return "vip";
+  }
+  if (priceId === STRIPE_PRICE_IDS.premium_monthly || priceId === STRIPE_PRICE_IDS.premium_yearly) {
+    return "premium";
+  }
+  return "premium";
+};
+
+const ensureCustomer = async (stripe: Stripe, email: string) => {
+  const customers = await stripe.customers.list({ email, limit: 1 });
+  if (customers.data.length > 0) {
+    return customers.data[0].id;
+  }
+  const customer = await stripe.customers.create({ email });
+  return customer.id;
+};
+
+const fetchLatestSubscription = async (stripe: Stripe, customerId: string) => {
+  const subscriptions = await stripe.subscriptions.list({ customer: customerId, limit: 1 });
+  return subscriptions.data.length > 0 ? subscriptions.data[0] : null;
 };
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+  const context = getRequestContext(req);
+
+  if (req.method === "OPTIONS") {
+    return handleOptions(context.origin);
+  }
+
+  if (req.method !== "POST") {
+    return jsonResponse({ error: "METHOD_NOT_ALLOWED" }, 405, context.origin, { "Allow": "POST,OPTIONS" });
   }
 
   try {
-    logStep("Function started");
-
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
-
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { auth: { persistSession: false } }
-    );
-
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header");
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
-    if (userError) throw userError;
-    const user = userData.user;
-    if (!user?.email) throw new Error("User not authenticated");
-
-    logStep("User authenticated", { userId: user.id, email: user.email });
-
-    const { action, priceId, prorationBehavior, effective } = await req.json();
-    logStep("Request details", { action, priceId, prorationBehavior, effective });
-
-    if (!action || !['change', 'cancel', 'reactivate', 'status'].includes(action)) {
-      throw new Error("Invalid action. Must be: change, cancel, reactivate, or status");
+    const authResult = await requireAuth(authHeader);
+    if (!authResult.user || !authResult.user.email) {
+      logWarn("subscription-manage: unauthorized", { reason: authResult.error });
+      return respondError("UNAUTHORIZED", context.origin, 401);
     }
 
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-
-    // Get or create customer
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    let customerId: string;
-    
-    if (customers.data.length === 0) {
-      const customer = await stripe.customers.create({ email: user.email });
-      customerId = customer.id;
-      logStep("Created new customer", { customerId });
-    } else {
-      customerId = customers.data[0].id;
-      logStep("Found existing customer", { customerId });
+    let rawBody: unknown;
+    try {
+      rawBody = await req.json();
+    } catch (parseError) {
+      logWarn("subscription-manage: invalid JSON", {
+        userId: authResult.user.id,
+        error: parseError instanceof Error ? parseError.message : String(parseError),
+      });
+      return respondError("INVALID_JSON", context.origin, 400);
     }
 
-    // Get subscription
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      limit: 1,
-    });
+    const parsed = ManageSubscriptionSchema.safeParse(rawBody);
+    if (!parsed.success) {
+      logWarn("subscription-manage: invalid payload", {
+        userId: authResult.user.id,
+        issues: parsed.error.flatten().fieldErrors,
+      });
+      return respondError("INVALID_PAYLOAD", context.origin, 400);
+    }
 
-    const subscription = subscriptions.data.length > 0 ? subscriptions.data[0] : null;
-    logStep("Subscription status", { 
-      hasSubscription: !!subscription,
-      status: subscription?.status,
-      cancelAtPeriodEnd: subscription?.cancel_at_period_end
-    });
+    const payload = parsed.data;
+    const env = getServerEnv();
+    const stripe = new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: "2025-08-27.basil" });
+    const supabaseAdmin = createServiceClient();
 
-    // Handle different actions
-    switch (action) {
-      case 'status': {
-        if (!subscription || !['active', 'trialing'].includes(subscription.status)) {
-          return new Response(
-            JSON.stringify({
-              currentPlan: 'free',
-              status: 'none',
-              interval: null,
-              cancelAtPeriodEnd: false,
-              canReactivate: subscription?.status === 'canceled' && subscription.cancel_at_period_end
-            }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-          );
+    const customerId = await ensureCustomer(stripe, authResult.user.email);
+    const subscription = await fetchLatestSubscription(stripe, customerId);
+
+    const baseLogContext = {
+      userId: authResult.user.id,
+      action: payload.action,
+      ipAddress: context.ipAddress,
+    };
+
+    switch (payload.action as ManageAction) {
+      case "status": {
+        if (!subscription || !["active", "trialing"].includes(subscription.status)) {
+          return jsonResponse({
+            currentPlan: "free",
+            status: "none",
+            interval: null,
+            cancelAtPeriodEnd: false,
+            canReactivate: subscription?.status === "canceled" && Boolean(subscription.cancel_at_period_end),
+          }, 200, context.origin);
         }
 
-        const currentPriceId = subscription.items.data[0].price.id;
-        const currentPrice = subscription.items.data[0].price;
-        let currentPlan = 'premium';
-        const interval = currentPrice.recurring?.interval === 'year' ? 'yearly' : 'monthly';
-        
-        // Determine tier
-        if (currentPriceId === STRIPE_PRICE_IDS.vip_monthly || currentPriceId === STRIPE_PRICE_IDS.vip_yearly) {
-          currentPlan = 'vip';
+        const price = subscription.items.data[0]?.price;
+        if (!price) {
+          logError("subscription-manage: subscription missing price", baseLogContext);
+          return respondError("SUBSCRIPTION_INVALID", context.origin, 500);
         }
 
-        return new Response(
-          JSON.stringify({
-            currentPlan,
-            interval,
-            status: subscription.status,
-            cancelAtPeriodEnd: subscription.cancel_at_period_end,
-            currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString(),
-            canReactivate: subscription.cancel_at_period_end,
-            priceId: currentPriceId
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-        );
+        const currentPlan = determineTier(price.id);
+        const interval = price.recurring?.interval === "year" ? "yearly" : "monthly";
+
+        return jsonResponse({
+          currentPlan,
+          interval,
+          status: subscription.status,
+          cancelAtPeriodEnd: subscription.cancel_at_period_end,
+          currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString(),
+          canReactivate: subscription.cancel_at_period_end,
+          priceId: price.id,
+        }, 200, context.origin);
       }
 
-      case 'change': {
-        if (!priceId) throw new Error("priceId required for change action");
-        
-        if (!subscription || !['active', 'trialing'].includes(subscription.status)) {
-          throw new Error("No active subscription to change");
+      case "change": {
+        if (!payload.priceId) {
+          return respondError("priceId required for change action", context.origin, 400);
         }
 
-        const subscriptionItemId = subscription.items.data[0].id;
-        const currentPriceId = subscription.items.data[0].price.id;
-        
-        if (currentPriceId === priceId) {
-          throw new Error("Already subscribed to this plan");
+        if (!subscription || !["active", "trialing"].includes(subscription.status)) {
+          return respondError("No active subscription to change", context.origin, 400);
         }
 
-        logStep("Changing subscription", { 
-          from: currentPriceId, 
-          to: priceId,
-          prorationBehavior: prorationBehavior || 'create_prorations'
-        });
+        const subscriptionItem = subscription.items.data[0];
+        if (!subscriptionItem) {
+          logError("subscription-manage: missing subscription item", baseLogContext);
+          return respondError("SUBSCRIPTION_INVALID", context.origin, 500);
+        }
 
-        const updateParams: any = {
-          items: [{
-            id: subscriptionItemId,
-            price: priceId,
-          }],
-          proration_behavior: prorationBehavior || 'create_prorations',
+        if (subscriptionItem.price.id === payload.priceId) {
+          return respondError("Already subscribed to this plan", context.origin, 400);
+        }
+
+        const updateParams: Stripe.SubscriptionUpdateParams = {
+          items: [{ id: subscriptionItem.id, price: payload.priceId }],
+          proration_behavior: payload.prorationBehavior ?? "create_prorations",
         };
 
-        // If downgrade and effective is period_end, schedule the change
-        if (effective === 'period_end') {
-          updateParams.proration_behavior = 'none';
-          updateParams.billing_cycle_anchor = 'unchanged';
+        if (payload.effective === "period_end") {
+          updateParams.proration_behavior = "none";
+          updateParams.billing_cycle_anchor = "unchanged";
         }
 
         const updatedSubscription = await stripe.subscriptions.update(subscription.id, updateParams);
-        
-        logStep("Subscription changed", { subscriptionId: updatedSubscription.id });
+        const newPrice = updatedSubscription.items.data[0]?.price;
+        const newTier = determineTier(payload.priceId);
+        const newInterval = newPrice?.recurring?.interval === "year" ? "yearly" : "monthly";
 
-        // Determine new tier
-        let newTier = 'premium';
-        const newInterval = updatedSubscription.items.data[0].price.recurring?.interval === 'year' ? 'yearly' : 'monthly';
-        
-        if (priceId === STRIPE_PRICE_IDS.vip_monthly || priceId === STRIPE_PRICE_IDS.vip_yearly) {
-          newTier = 'vip';
+        await supabaseAdmin
+          .from("profiles")
+          .update({ current_plan: newTier, last_sync_at: new Date().toISOString() })
+          .eq("user_id", authResult.user.id);
+
+        logInfo("subscription-manage: plan changed", { ...baseLogContext, newTier, priceId: payload.priceId });
+
+        return jsonResponse({
+          success: true,
+          subscription: {
+            id: updatedSubscription.id,
+            currentPlan: newTier,
+            interval: newInterval,
+            status: updatedSubscription.status,
+            currentPeriodEnd: new Date(updatedSubscription.current_period_end * 1000).toISOString(),
+          },
+        }, 200, context.origin);
+      }
+
+      case "cancel": {
+        if (!subscription || !["active", "trialing"].includes(subscription.status)) {
+          return respondError("No active subscription to cancel", context.origin, 400);
         }
 
-        // Update profile
-        await supabaseClient
-          .from('profiles')
-          .update({
-            current_plan: newTier,
-            last_sync_at: new Date().toISOString(),
-          })
-          .eq('user_id', user.id);
+        const when = payload.effective ?? "period_end";
+        logInfo("subscription-manage: cancel request", { ...baseLogContext, when });
 
-        return new Response(
-          JSON.stringify({
+        if (when === "now") {
+          const canceled = await stripe.subscriptions.cancel(subscription.id);
+          await supabaseAdmin
+            .from("profiles")
+            .update({ current_plan: "free", last_sync_at: new Date().toISOString() })
+            .eq("user_id", authResult.user.id);
+
+          return jsonResponse({
             success: true,
-            subscription: {
-              id: updatedSubscription.id,
-              currentPlan: newTier,
-              interval: newInterval,
-              status: updatedSubscription.status,
-              currentPeriodEnd: new Date(updatedSubscription.current_period_end * 1000).toISOString(),
-            }
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-        );
-      }
-
-      case 'cancel': {
-        if (!subscription || !['active', 'trialing'].includes(subscription.status)) {
-          throw new Error("No active subscription to cancel");
+            canceledImmediately: true,
+            subscription: { id: canceled.id, status: canceled.status },
+          }, 200, context.origin);
         }
 
-        const when = effective || 'period_end';
-        logStep("Canceling subscription", { when });
-
-        if (when === 'now') {
-          const canceledSubscription = await stripe.subscriptions.cancel(subscription.id);
-          
-          await supabaseClient
-            .from('profiles')
-            .update({
-              current_plan: 'free',
-              last_sync_at: new Date().toISOString(),
-            })
-            .eq('user_id', user.id);
-
-          return new Response(
-            JSON.stringify({
-              success: true,
-              canceledImmediately: true,
-              subscription: {
-                id: canceledSubscription.id,
-                status: canceledSubscription.status,
-              }
-            }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-          );
-        } else {
-          const updatedSubscription = await stripe.subscriptions.update(subscription.id, {
-            cancel_at_period_end: true,
-          });
-
-          return new Response(
-            JSON.stringify({
-              success: true,
-              canceledImmediately: false,
-              endsAt: new Date(updatedSubscription.current_period_end * 1000).toISOString(),
-              subscription: {
-                id: updatedSubscription.id,
-                status: updatedSubscription.status,
-                cancelAtPeriodEnd: true,
-              }
-            }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-          );
-        }
+        const updated = await stripe.subscriptions.update(subscription.id, { cancel_at_period_end: true });
+        return jsonResponse({
+          success: true,
+          canceledImmediately: false,
+          endsAt: new Date(updated.current_period_end * 1000).toISOString(),
+          subscription: {
+            id: updated.id,
+            status: updated.status,
+            cancelAtPeriodEnd: true,
+          },
+        }, 200, context.origin);
       }
 
-      case 'reactivate': {
+      case "reactivate": {
         if (!subscription) {
-          throw new Error("No subscription found to reactivate");
+          return respondError("No subscription found to reactivate", context.origin, 400);
         }
 
-        if (subscription.status === 'active' && !subscription.cancel_at_period_end) {
-          throw new Error("Subscription is already active");
+        if (subscription.status === "active" && !subscription.cancel_at_period_end) {
+          return respondError("Subscription is already active", context.origin, 400);
         }
 
-        logStep("Reactivating subscription");
-
-        if (subscription.cancel_at_period_end) {
-          // Remove cancellation
-          const updatedSubscription = await stripe.subscriptions.update(subscription.id, {
-            cancel_at_period_end: false,
-          });
-
-          const priceId = updatedSubscription.items.data[0].price.id;
-          let tier = 'premium';
-          if (priceId === STRIPE_PRICE_IDS.vip_monthly || priceId === STRIPE_PRICE_IDS.vip_yearly) {
-            tier = 'vip';
-          }
-
-          await supabaseClient
-            .from('profiles')
-            .update({
-              current_plan: tier,
-              last_sync_at: new Date().toISOString(),
-            })
-            .eq('user_id', user.id);
-
-          return new Response(
-            JSON.stringify({
-              success: true,
-              subscription: {
-                id: updatedSubscription.id,
-                currentPlan: tier,
-                status: updatedSubscription.status,
-                currentPeriodEnd: new Date(updatedSubscription.current_period_end * 1000).toISOString(),
-              }
-            }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-          );
-        } else {
-          throw new Error("Cannot reactivate this subscription. Please create a new subscription.");
+        if (!subscription.cancel_at_period_end) {
+          return respondError("Cannot reactivate this subscription. Please create a new subscription.", context.origin, 400);
         }
+
+        const updated = await stripe.subscriptions.update(subscription.id, { cancel_at_period_end: false });
+        const priceId = updated.items.data[0]?.price.id ?? "";
+        const tier = determineTier(priceId);
+
+        await supabaseAdmin
+          .from("profiles")
+          .update({ current_plan: tier, last_sync_at: new Date().toISOString() })
+          .eq("user_id", authResult.user.id);
+
+        return jsonResponse({
+          success: true,
+          subscription: {
+            id: updated.id,
+            currentPlan: tier,
+            status: updated.status,
+            currentPeriodEnd: new Date(updated.current_period_end * 1000).toISOString(),
+          },
+        }, 200, context.origin);
       }
-
-      default:
-        throw new Error("Invalid action");
     }
+
+    return respondError("Invalid action", context.origin, 400);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR", { message: errorMessage });
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-    );
+    logError("subscription-manage: unexpected failure", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return respondError("INTERNAL_ERROR", context.origin, 500);
   }
 });

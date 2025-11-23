@@ -1,10 +1,15 @@
-import { useState, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { SearchFilters } from "@/components/SearchBar";
-import { logError } from "@/lib/logger";
+import { useState, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
+import { SearchFilters } from '@/components/SearchBar';
+import { logError } from '@/lib/logger';
+
+type ConfessionRow = Database['public']['Tables']['confessions']['Row'];
+type TrendingConfessionRow = Database['public']['Views']['trending_confessions']['Row'];
+type ConfessionResult = ConfessionRow | TrendingConfessionRow;
 
 export const useConfessionSearch = () => {
-  const [confessions, setConfessions] = useState<any[]>([]);
+  const [confessions, setConfessions] = useState<ConfessionResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
@@ -18,9 +23,11 @@ export const useConfessionSearch = () => {
         .select('*')
         .eq('is_draft', false);
 
+      const trimmedQuery = query.trim();
+
       // Text search
-      if (query.trim()) {
-        queryBuilder = queryBuilder.ilike('content', `%${query}%`);
+      if (trimmedQuery) {
+        queryBuilder = queryBuilder.ilike('content', `%${trimmedQuery}%`);
       }
 
       // Category filter
@@ -56,25 +63,27 @@ export const useConfessionSearch = () => {
         case 'popular':
           queryBuilder = queryBuilder.order('likes_count', { ascending: false });
           break;
-        case 'trending':
+        case 'trending': {
           // For trending, we'll use a view that calculates trending score
           const { data: trendingData, error: trendingError } = await supabase
             .from('trending_confessions')
             .select('*')
-            .limit(50);
+            .limit(50)
+            .returns<TrendingConfessionRow[]>();
 
           if (!trendingError && trendingData) {
             // Apply same filters to trending results
             let filteredData = trendingData;
-            
-            if (query.trim()) {
-              filteredData = filteredData.filter(c => 
-                c.content.toLowerCase().includes(query.toLowerCase())
+
+            if (trimmedQuery) {
+              const normalizedQuery = trimmedQuery.toLowerCase();
+              filteredData = filteredData.filter(
+                (confession) => confession.content?.toLowerCase().includes(normalizedQuery) ?? false
               );
             }
-            
+
             if (filters.category) {
-              filteredData = filteredData.filter(c => c.category === filters.category);
+              filteredData = filteredData.filter((confession) => confession.category === filters.category);
             }
 
             setConfessions(filteredData);
@@ -82,11 +91,12 @@ export const useConfessionSearch = () => {
             return;
           }
           break;
+        }
       }
 
       queryBuilder = queryBuilder.limit(50);
 
-      const { data, error } = await queryBuilder;
+      const { data, error } = await queryBuilder.returns<ConfessionRow[]>();
 
       if (error) throw error;
 

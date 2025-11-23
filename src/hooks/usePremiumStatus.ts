@@ -1,7 +1,19 @@
-import { useMemo, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useOptimizedQuery } from "./useOptimizedQuery";
-import { logDebug } from "@/lib/logger";
+import { useMemo, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
+import { useOptimizedQuery } from './useOptimizedQuery';
+import { logDebug } from '@/lib/logger';
+
+type VipProfileRow = Pick<
+  Database['public']['Tables']['profiles']['Row'],
+  | 'is_premium'
+  | 'subscription_tier'
+  | 'subscription_ends_at'
+  | 'trial_active'
+  | 'trial_end_date'
+  | 'trial_premium_used'
+  | 'subscription_status'
+>;
 
 /**
  * Hook to check VIP subscription status for a user.
@@ -9,7 +21,7 @@ import { logDebug } from "@/lib/logger";
  * @deprecated Use isVip instead of isPremium in new code
  */
 export const useVipStatus = (userId: string | null | undefined) => {
-  const { data, isLoading, refetch } = useOptimizedQuery<any>({
+  const { data, isLoading, refetch } = useOptimizedQuery<VipProfileRow | null>({
     queryKey: ['vip-status', userId],
     queryFn: async () => {
       if (!userId) return null;
@@ -33,11 +45,14 @@ export const useVipStatus = (userId: string | null | undefined) => {
         
         if (entitlement) {
           return {
-            ...profile,
+            is_premium: entitlement.tier ? entitlement.tier !== 'free' : profile?.is_premium ?? null,
             subscription_tier: entitlement.tier,
             subscription_ends_at: entitlement.valid_until,
-            is_premium: entitlement.tier && entitlement.tier !== 'free',
-          };
+            trial_active: profile?.trial_active ?? null,
+            trial_end_date: profile?.trial_end_date ?? null,
+            trial_premium_used: profile?.trial_premium_used ?? null,
+            subscription_status: profile?.subscription_status ?? null,
+          } satisfies VipProfileRow;
         }
       }
 

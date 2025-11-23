@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { AlertCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -35,45 +34,6 @@ const RateLimitNotification = ({ onClose }: RateLimitNotificationProps) => {
       </div>
     </div>
   );
-};
-
-export const useRateLimitHandler = () => {
-  const [showNotification, setShowNotification] = useState(false);
-  const [lastRateLimitTime, setLastRateLimitTime] = useState<number>(0);
-
-  const handleRateLimit = () => {
-    const now = Date.now();
-    
-    // Only show notification once per minute
-    if (now - lastRateLimitTime > 60000) {
-      setShowNotification(true);
-      setLastRateLimitTime(now);
-      
-      // Auto-hide after 5 seconds
-      setTimeout(() => {
-        setShowNotification(false);
-      }, 5000);
-    }
-  };
-
-  useEffect(() => {
-    // Listen for rate limit events
-    const handleRateLimitEvent = (event: CustomEvent) => {
-      handleRateLimit();
-    };
-
-    window.addEventListener('ai-rate-limit', handleRateLimitEvent as EventListener);
-
-    return () => {
-      window.removeEventListener('ai-rate-limit', handleRateLimitEvent as EventListener);
-    };
-  }, [lastRateLimitTime]);
-
-  const RateLimitUI = showNotification ? (
-    <RateLimitNotification onClose={() => setShowNotification(false)} />
-  ) : null;
-
-  return { RateLimitUI, triggerRateLimit: handleRateLimit };
 };
 
 export default RateLimitNotification;

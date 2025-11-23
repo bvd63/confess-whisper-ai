@@ -65,7 +65,7 @@ export const ConfirmProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useConfirm = () => {
+const useConfirm = () => {
   const context = useContext(ConfirmContext);
   if (!context) {
     throw new Error('useConfirm must be used within ConfirmProvider');
@@ -75,3 +75,5 @@ export const useConfirm = () => {
 
 // Import the dialog component
 import { ConfirmDialog } from '@/components/GlobalConfirmDialog';
+
+export { useConfirm };

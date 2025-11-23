@@ -1,109 +1,129 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
+import { handleOptions, jsonResponse } from "../_shared/http.ts";
+import { logError, logInfo, logWarn } from "../_shared/logger.ts";
+import { getRequestContext } from "../_shared/security.ts";
+import { requireAuth } from "../_shared/supabase.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const MessageSeenSchema = z.object({
+  messageId: z.string().min(8, "messageId"),
+});
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+  const { origin, ipAddress, userAgent } = getRequestContext(req);
+
+  if (req.method === "OPTIONS") {
+    return handleOptions(origin);
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-    const authHeader = req.headers.get('Authorization')!;
-    
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
+    const authHeader = req.headers.get("Authorization");
+    const authResult = await requireAuth(authHeader);
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    if (!authResult.user || !authResult.client) {
+      logWarn("mark-message-seen: unauthorized", { reason: authResult.error });
+      return jsonResponse({ error: "UNAUTHORIZED" }, 401, origin);
     }
 
-    const { messageId } = await req.json();
-
-    if (!messageId) {
-      return new Response(JSON.stringify({ error: 'messageId required' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    let rawBody: unknown;
+    try {
+      rawBody = await req.json();
+    } catch (parseError) {
+      logWarn("mark-message-seen: invalid JSON", {
+        userId: authResult.user.id,
+        parseError: parseError instanceof Error ? parseError.message : String(parseError),
       });
+      return jsonResponse({ error: "INVALID_JSON" }, 400, origin);
     }
 
-    // Get the message and verify user is recipient
-    const { data: message, error: msgError } = await supabase
-      .from('messages')
-      .select('*, conversation_id, sender_id')
-      .eq('id', messageId)
+    const parsed = MessageSeenSchema.safeParse(rawBody);
+    if (!parsed.success) {
+      logWarn("mark-message-seen: invalid payload", {
+        userId: authResult.user.id,
+        issues: parsed.error.flatten().fieldErrors,
+      });
+      return jsonResponse({ error: "INVALID_PAYLOAD" }, 400, origin);
+    }
+
+    const { messageId } = parsed.data;
+    const supabase = authResult.client;
+
+    const { data: message, error: messageError } = await supabase
+      .from("messages")
+      .select("id, conversation_id, sender_id, delivered_at")
+      .eq("id", messageId)
       .single();
 
-    if (msgError || !message) {
-      return new Response(JSON.stringify({ error: 'Message not found' }), {
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    if (messageError || !message) {
+      logWarn("mark-message-seen: message not found", {
+        userId: authResult.user.id,
+        messageId,
+        error: messageError?.message,
       });
+      return jsonResponse({ error: "MESSAGE_NOT_FOUND" }, 404, origin);
     }
 
-    // Don't mark own messages as seen
-    if (message.sender_id === user.id) {
-      return new Response(JSON.stringify({ success: true, message: 'Own message' }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    if (message.sender_id === authResult.user.id) {
+      return jsonResponse({ success: true, message: "Own message" }, 200, origin);
     }
 
-    // Verify user is participant in conversation
-    const { data: participant } = await supabase
-      .from('conversation_participants')
-      .select('user_id')
-      .eq('conversation_id', message.conversation_id)
-      .eq('user_id', user.id)
-      .single();
+    const { data: participant, error: participantError } = await supabase
+      .from("conversation_participants")
+      .select("user_id")
+      .eq("conversation_id", message.conversation_id)
+      .eq("user_id", authResult.user.id)
+      .maybeSingle();
+
+    if (participantError) {
+      logError("mark-message-seen: participant lookup failed", {
+        userId: authResult.user.id,
+        messageId,
+        error: participantError.message,
+      });
+      return jsonResponse({ error: "PARTICIPANT_LOOKUP_FAILED" }, 500, origin);
+    }
 
     if (!participant) {
-      return new Response(JSON.stringify({ error: 'Not a conversation participant' }), {
-        status: 403,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      logWarn("mark-message-seen: forbidden", {
+        userId: authResult.user.id,
+        conversationId: message.conversation_id,
       });
+      return jsonResponse({ error: "FORBIDDEN" }, 403, origin);
     }
 
-    // Update message to seen (only if not already seen)
+    const timestamp = new Date().toISOString();
     const { data: updated, error: updateError } = await supabase
-      .from('messages')
-      .update({ 
-        seen_at: new Date().toISOString(),
-        delivered_at: message.delivered_at || new Date().toISOString() // Also mark as delivered if not yet
+      .from("messages")
+      .update({
+        seen_at: timestamp,
+        delivered_at: message.delivered_at ?? timestamp,
       })
-      .eq('id', messageId)
-      .is('seen_at', null)
-      .select()
+      .eq("id", messageId)
+      .is("seen_at", null)
+      .select("id, seen_at, delivered_at, conversation_id")
       .single();
 
     if (updateError) {
-      console.error('Error updating message:', updateError);
-      return new Response(JSON.stringify({ error: updateError.message }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      logError("mark-message-seen: update failed", {
+        userId: authResult.user.id,
+        messageId,
+        error: updateError.message,
       });
+      return jsonResponse({ error: "PERSISTENCE_ERROR" }, 500, origin);
     }
 
-    console.log('Message marked as seen:', messageId);
-
-    return new Response(JSON.stringify({ success: true, message: updated }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    logInfo("mark-message-seen: message flagged seen", {
+      messageId,
+      userId: authResult.user.id,
+      ipAddress,
+      userAgent,
     });
 
+    return jsonResponse({ success: true, message: updated }, 200, origin);
   } catch (error) {
-    console.error('Error in mark-message-seen:', error);
-    return new Response(JSON.stringify({ error: (error as Error).message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    logError("mark-message-seen: unexpected failure", {
+      error: error instanceof Error ? error.message : String(error),
     });
+    return jsonResponse({ error: "INTERNAL_ERROR" }, 500, origin);
   }
 });
