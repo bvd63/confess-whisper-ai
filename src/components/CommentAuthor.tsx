@@ -10,7 +10,7 @@ export const CommentAuthor = ({ userId, showBadge = true }: CommentAuthorProps) 
     <UserDisplayName 
       userId={userId}
       showBadges={showBadge}
-      clickable={true}
+      clickable={false}
       maxLength={24}
     />
   );
