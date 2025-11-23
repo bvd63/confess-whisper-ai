@@ -39,11 +39,12 @@ export const useAuthRefresh = () => {
             },
           });
 
+          // Clear invalid managed refresh token but don't sign out
+          // The Supabase native session may still be valid
           if (data?.error === 'REFRESH_TOKEN_EXPIRED' || data?.error === 'INVALID_REFRESH_TOKEN' || data?.error === 'UNAUTHORIZED') {
+            observability.info('Clearing invalid managed refresh token, continuing with native session');
             localStorage.removeItem('refresh_token');
             localStorage.removeItem('refresh_expires_at');
-            await supabase.auth.signOut();
-            window.location.href = '/auth';
           }
           return;
         }
