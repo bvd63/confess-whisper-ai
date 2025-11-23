@@ -172,7 +172,12 @@ serve(async (req: Request) => {
 
     const payload = normalizedBody.data;
 
-    const enforceCaptcha = (Deno.env.get("CONFESSION_TURNSTILE_REQUIRED") ?? "true") !== "false";
+    const turnstileSecret = Deno.env.get("TURNSTILE_SECRET");
+    const confessionTurnstileRequired = Deno.env.get("CONFESSION_TURNSTILE_REQUIRED");
+
+    // Enforce CAPTCHA only when explicitly enabled AND a Turnstile secret is configured.
+    // This prevents broken submissions in environments where CAPTCHA isn't set up.
+    const enforceCaptcha = Boolean(turnstileSecret) && confessionTurnstileRequired === "true";
 
     if (enforceCaptcha) {
       if (!payload.captchaToken) {
@@ -197,8 +202,8 @@ serve(async (req: Request) => {
         });
         return jsonResponse({ error: "CAPTCHA_FAILED", messageKey: captchaResult.error ?? "auth.captcha_failed" }, 403);
       }
-    } else if (payload.captchaToken) {
-      // If token provided but enforcement disabled, verify opportunistically
+    } else if (payload.captchaToken && turnstileSecret) {
+      // If token provided but enforcement disabled, verify opportunistically when Turnstile is configured
       await verifyCaptcha(payload.captchaToken, clientIp);
     }
 
