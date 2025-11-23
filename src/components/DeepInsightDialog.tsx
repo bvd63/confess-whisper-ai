@@ -139,27 +139,10 @@ const DeepInsightDialog = ({
                   {t.insight_reset}
                 </Button>
                 <Button
-                  onClick={generateDeepInsight}
-                  disabled={isGenerating}
-                  size="sm"
-                  className="flex-1"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 mr-2 animate-spin" />
-                      {t.submitting}
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-                      {t.insight_run}
-                    </>
-                  )}
-                </Button>
-                <Button
                   onClick={deleteInsight}
                   variant="destructive"
                   size="sm"
+                  className="flex-1"
                 >
                   {t.insight_delete}
                 </Button>
