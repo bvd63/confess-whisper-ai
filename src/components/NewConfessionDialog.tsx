@@ -28,7 +28,7 @@ import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { getAiReply, type AiLocale } from "@/services/aiService";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { env } from "@/lib/env";
-import { logError, logWarn } from "@/lib/logger";
+import { logError, logWarn, logInfo } from "@/lib/logger";
 import { normalizeCreateConfessionPayload } from "../../supabase/functions/create-confession/utils";
 
 const confessionSchema = z.object({
@@ -203,6 +203,12 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
     }
 
     const normalizedPayload = normalized.data;
+    logInfo('Confession payload normalized', {
+      contentLength: normalizedPayload.contentLength,
+      category: normalizedPayload.category,
+      isAnonymous: normalizedPayload.isAnonymous,
+      hasCaptchaToken: Boolean(normalizedPayload.captchaToken),
+    });
 
     setIsSubmitting(true);
 
@@ -270,6 +276,10 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
         });
         return;
       }
+
+      logInfo('Invoking create-confession function', {
+        hasSupabaseFunctions: Boolean((supabase as any).functions),
+      });
 
       const creationResponse = await supabase.functions.invoke('create-confession', {
         body: {
