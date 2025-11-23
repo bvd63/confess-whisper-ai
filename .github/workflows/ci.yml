@@ -9,8 +9,10 @@ on:
     secrets:
       VITE_SUPABASE_URL:
         required: false
+        description: Supabase project URL
       VITE_SUPABASE_PUBLISHABLE_KEY:
         required: false
+        description: Supabase public API key
 
 env:
   NODE_VERSION: '20'
