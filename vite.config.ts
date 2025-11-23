@@ -19,7 +19,9 @@ export default defineConfig(({ mode }) => ({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       devOptions: {
-        enabled: false
+        enabled: true,
+        type: 'module',
+        navigateFallback: 'index.html',
       },
       includeAssets: ['favicon.ico'],
       manifest: {
@@ -47,9 +49,10 @@ export default defineConfig(({ mode }) => ({
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globPatterns: mode === 'development' ? [] : ['**/*.{js,css,html,ico,png,svg,woff2}'],
         navigateFallbackDenylist: [/^\/version\.json/],
-        runtimeCaching: [
+        cacheId: `confessai-${Date.now()}`,
+        runtimeCaching: mode === 'development' ? [] : [
           {
             urlPattern: /^https:\/\/fxwvlbopvnjjjrzshqvw\.supabase\.co\/.*/i,
             handler: 'NetworkFirst',

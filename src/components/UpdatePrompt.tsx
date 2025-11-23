@@ -76,9 +76,9 @@ export const UpdatePrompt = () => {
       });
     }
 
-    // Check on mount, on page visibility change, and every 10 seconds for real-time updates
+    // Check on mount, on page visibility change, and every 3 seconds for instant real-time updates
     checkForUpdates();
-    const interval = setInterval(checkForUpdates, 10 * 1000);
+    const interval = setInterval(checkForUpdates, 3 * 1000);
 
     // Check when user returns to tab
     const handleVisibilityChange = () => {
@@ -103,7 +103,7 @@ export const UpdatePrompt = () => {
     setTimeout(() => setShowPrompt(false), 300);
   };
 
-  // Auto-reload countdown after 5 seconds
+  // Auto-reload countdown after 3 seconds for instant updates
   useEffect(() => {
     if (!showPrompt) return;
 
@@ -140,7 +140,7 @@ export const UpdatePrompt = () => {
               {t.update_available_description}
             </p>
             <p className="text-xs text-muted-foreground/60 mb-2">
-              Auto-refresh în {autoReloadCountdown}s
+              {t.auto_refresh_in.replace('{seconds}', autoReloadCountdown.toString())}
             </p>
             <div className="flex items-center gap-2">
               <Button

@@ -1,13 +1,10 @@
-// Dynamic cache name based on timestamp to force updates
+// AGGRESSIVE CACHE BUSTING - Always serve fresh content
 const VERSION = new Date().getTime();
-const CACHE_NAME = `confesiuni-cache-v${VERSION}`;
+const CACHE_NAME = `confessai-v${VERSION}`;
 const RUNTIME_CACHE = `runtime-v${VERSION}`;
-const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/offline.html',
-  '/manifest.json',
-];
+
+// Minimal caching - prioritize fresh content
+const STATIC_ASSETS = [];
 
 // Install service worker
 self.addEventListener('install', (event) => {
@@ -74,17 +71,16 @@ self.addEventListener('fetch', (event) => {
   // Skip external origins
   if (url.origin !== location.origin) return;
   
-  // Network first for HTML pages
+  // ALWAYS fetch fresh HTML - never cache documents
   if (request.destination === 'document') {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const responseClone = response.clone();
-          caches.open(RUNTIME_CACHE)
-            .then((cache) => cache.put(request, responseClone));
-          return response;
-        })
-        .catch(() => caches.match(request).then(cached => cached || caches.match('/offline.html')))
+      fetch(request, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      }).catch(() => caches.match('/offline.html') || new Response('Offline', { status: 503 }))
     );
     return;
   }

@@ -2017,6 +2017,7 @@ type Translations = {
   update_available_description: string;
   refresh_now: string;
   later: string;
+  auto_refresh_in: string;
   
   // Empty States
   empty_confessions_title: string;
@@ -3732,6 +3733,7 @@ export const translations: Record<Language, Translations> = {
     update_available_description: "A new version is available. Refresh to get the latest features.",
     refresh_now: "Refresh Now",
     later: "Later",
+    auto_refresh_in: "Auto-refresh in {seconds}s",
     
     // Empty States
     empty_confessions_title: "No confessions yet",
@@ -5630,6 +5632,7 @@ export const translations: Record<Language, Translations> = {
     update_available_description: "Una nueva versión está disponible. Actualiza para obtener las últimas funciones.",
     refresh_now: "Actualizar Ahora",
     later: "Más Tarde",
+    auto_refresh_in: "Actualización automática en {seconds}s",
     
     // Empty States
     empty_confessions_title: "Aún no hay confesiones",
@@ -7528,6 +7531,7 @@ export const translations: Record<Language, Translations> = {
     update_available_description: "Eine neue Version ist verfügbar. Aktualisiere, um die neuesten Funktionen zu erhalten.",
     refresh_now: "Jetzt Aktualisieren",
     later: "Später",
+    auto_refresh_in: "Automatische Aktualisierung in {seconds}s",
     
     // Empty States
     empty_confessions_title: "Noch keine Beichten",
