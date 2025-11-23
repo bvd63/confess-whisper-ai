@@ -6,6 +6,9 @@ export const ServerEnvSchema = z.object({
   SUPABASE_URL: z.string().url(),
   SUPABASE_ANON_KEY: z.string().min(10),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(10),
+  // Keep CI secrets in sync with client validators to avoid check-env drift
+  VITE_SUPABASE_URL: z.string().url(),
+  VITE_SUPABASE_PUBLISHABLE_KEY: z.string().min(10),
   STRIPE_SECRET_KEY: z.string().startsWith("sk_"),
   STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_"),
   STRIPE_PRICE_VIP_MONTHLY: z.string().min(5),

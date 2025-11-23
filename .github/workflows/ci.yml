@@ -21,6 +21,20 @@ jobs:
   build-test-analyze:
     name: Build, Test & Analyze
     runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+      STRIPE_PRICE_VIP_MONTHLY: ${{ secrets.STRIPE_PRICE_VIP_MONTHLY }}
+      STRIPE_PRICE_VIP_YEARLY: ${{ secrets.STRIPE_PRICE_VIP_YEARLY }}
+      ONESIGNAL_REST_API_KEY: ${{ secrets.ONESIGNAL_REST_API_KEY }}
+      VITE_ONESIGNAL_APP_ID: ${{ secrets.VITE_ONESIGNAL_APP_ID }}
+      LOVABLE_API_KEY: ${{ secrets.LOVABLE_API_KEY }}
+      EDGE_INTERNAL_TOKEN: ${{ secrets.EDGE_INTERNAL_TOKEN }}
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
     steps:
       - name: Checkout code
