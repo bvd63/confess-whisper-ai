@@ -66,7 +66,7 @@ export const env = {
     pwaPrompt: (parsed.data?.VITE_FEATURE_PWA_PROMPT || _raw.VITE_FEATURE_PWA_PROMPT) !== "false",
     profileMiniAnalytics: (parsed.data?.VITE_FEATURE_PROFILE_MINI_ANALYTICS || _raw.VITE_FEATURE_PROFILE_MINI_ANALYTICS) !== "false",
     webShareEnabled: (parsed.data?.VITE_WEB_SHARE_ENABLED || _raw.VITE_WEB_SHARE_ENABLED) !== "false",
-    confessionTurnstileRequired: (parsed.data?.VITE_CONFESSION_TURNSTILE_REQUIRED || _raw.VITE_CONFESSION_TURNSTILE_REQUIRED) !== "false",
+    confessionTurnstileRequired: (parsed.data?.VITE_CONFESSION_TURNSTILE_REQUIRED || _raw.VITE_CONFESSION_TURNSTILE_REQUIRED) === "true",
   },
   isProd: (parsed.data?.MODE || _raw.MODE) === "production",
   isDev: (parsed.data?.MODE || _raw.MODE) === "development",
