@@ -5,8 +5,11 @@
 		"jsx": "react-jsx",
 		"lib": ["ES2020", "DOM", "DOM.Iterable"],
 		"allowJs": true,
-		"noEmit": true,
+		"composite": true,
+		"declaration": true,
+		"emitDeclarationOnly": true,
 		"module": "ESNext",
+		"moduleResolution": "bundler",
 		"downlevelIteration": true
 	},
 	"include": [

@@ -1,5 +1,5 @@
 {
-  "files": [],
+  "files": ["./supabase/functions/types/deno-imports.d.ts"],
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" },
