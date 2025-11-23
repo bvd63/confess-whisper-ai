@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { loginAs } from '../helpers/auth';
 import { mockSubscriptionRoutes } from '../helpers/network';
 import { closeOpenDialogs, waitForAppReady } from '../helpers/pageHelpers';
+import { openManageSubscriptionModal } from '../helpers/manageSubscription';
 
 test.describe('Stripe Checkout Flow', () => {
   test.beforeEach(async ({ page }) => {
@@ -20,9 +21,7 @@ test.describe('Stripe Checkout Flow', () => {
 
   test('should display VIP subscription plans', async ({ page }) => {
     // Open subscription dialog
-    await page.click('[data-testid="manage-subscription-btn"]');
-    
-    const dialog = page.getByTestId('manage-subscription-modal');
+    const { dialog } = await openManageSubscriptionModal(page);
     
     // Check if VIP plan is visible
     await expect(dialog.locator('text=VIP').first()).toBeVisible();
@@ -30,9 +29,7 @@ test.describe('Stripe Checkout Flow', () => {
   });
 
   test('should switch between monthly and yearly intervals', async ({ page }) => {
-    await page.click('[data-testid="manage-subscription-btn"]');
-    
-    const dialog = page.getByTestId('manage-subscription-modal');
+    const { dialog } = await openManageSubscriptionModal(page);
     
     // Click yearly tab
     await dialog.locator('text=Yearly').first().click();
@@ -45,9 +42,7 @@ test.describe('Stripe Checkout Flow', () => {
   });
 
   test('should disable checkout button when price ID is missing', async ({ page }) => {
-    await page.click('[data-testid="manage-subscription-btn"]');
-    
-    const dialog = page.getByTestId('manage-subscription-modal');
+    const { dialog } = await openManageSubscriptionModal(page);
     const button = dialog.locator('button').filter({ hasText: /upgrade|choose/i }).first();
     
     // Button should exist (whether enabled or disabled)
@@ -73,12 +68,7 @@ test.describe('Stripe Checkout Flow', () => {
       await page.waitForTimeout(500);
     }
     
-    const manageButton = page.getByTestId('manage-subscription-btn');
-    await manageButton.waitFor({ state: 'visible', timeout: 10000 });
-    await manageButton.click();
-    
-    const dialog = page.getByTestId('manage-subscription-modal');
-    await expect(dialog).toBeVisible({ timeout: 10000 });
+    const { dialog } = await openManageSubscriptionModal(page);
     
     // Try to click a checkout button (might not exist or be disabled)
     const checkoutButton = dialog.locator('button').filter({ hasText: /choose|vip|upgrade/i }).first();

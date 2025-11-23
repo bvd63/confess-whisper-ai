@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { loginAs } from '../helpers/auth';
 import { mockSubscriptionRoutes } from '../helpers/network';
 import { closeOpenDialogs, waitForAppReady } from '../helpers/pageHelpers';
+import { openManageSubscriptionModal } from '../helpers/manageSubscription';
 
 test.describe('Subscription Downgrade Flow', () => {
   test('VIP user can access subscription management modal', async ({ page }) => {
@@ -16,12 +17,7 @@ test.describe('Subscription Downgrade Flow', () => {
     await waitForAppReady(page);
     await closeOpenDialogs(page);
     
-    const manageButton = page.getByTestId('manage-subscription-btn');
-    await manageButton.waitFor({ state: 'visible', timeout: 10000 });
-    await manageButton.click();
-    
-    const dialog = page.getByTestId('manage-subscription-modal');
-    await expect(dialog).toBeVisible({ timeout: 10000 });
+    const { dialog } = await openManageSubscriptionModal(page);
     
     // Verify modal shows subscription information
     await expect(dialog.getByText(/subscription/i).first()).toBeVisible();
@@ -38,11 +34,7 @@ test.describe('Subscription Downgrade Flow', () => {
     await waitForAppReady(page);
     await closeOpenDialogs(page);
     
-    const manageButton = page.getByTestId('manage-subscription-btn');
-    await manageButton.click();
-    
-    const dialog = page.getByTestId('manage-subscription-modal');
-    await expect(dialog).toBeVisible({ timeout: 10000 });
+    const { dialog } = await openManageSubscriptionModal(page);
     
     // Modal content should be present
     const dialogContent = await dialog.textContent();
@@ -60,19 +52,14 @@ test.describe('Subscription Downgrade Flow', () => {
     await waitForAppReady(page);
     await closeOpenDialogs(page);
     
-    const manageButton = page.getByTestId('manage-subscription-btn');
-    await manageButton.click();
-    
-    let dialog = page.getByTestId('manage-subscription-modal');
-    await expect(dialog).toBeVisible({ timeout: 10000 });
+    const { manageButton, dialog } = await openManageSubscriptionModal(page);
     
     // Close and reopen
     await page.keyboard.press('Escape');
     await expect(dialog).not.toBeVisible();
     
-    await manageButton.click();
-    dialog = page.getByTestId('manage-subscription-modal');
-    await expect(dialog).toBeVisible({ timeout: 10000 });
+    const reopened = await openManageSubscriptionModal(page);
+    await expect(reopened.dialog).toBeVisible({ timeout: 10000 });
   });
 
   test('prevents conflicting changes when downgrade pending', async ({ page }) => {
@@ -86,11 +73,7 @@ test.describe('Subscription Downgrade Flow', () => {
     await waitForAppReady(page);
     await closeOpenDialogs(page);
     
-    const manageButton = page.getByTestId('manage-subscription-btn');
-    await manageButton.click();
-    
-    const dialog = page.getByTestId('manage-subscription-modal');
-    await expect(dialog).toBeVisible({ timeout: 10000 });
+    const { dialog } = await openManageSubscriptionModal(page);
     
     // Verify subscription modal is accessible
     await expect(dialog.getByRole('tablist')).toBeVisible();
@@ -107,11 +90,7 @@ test.describe('Subscription Downgrade Flow', () => {
     await waitForAppReady(page);
     await closeOpenDialogs(page);
     
-    const manageButton = page.getByTestId('manage-subscription-btn');
-    await manageButton.click();
-    
-    const dialog = page.getByTestId('manage-subscription-modal');
-    await expect(dialog).toBeVisible({ timeout: 10000 });
+    const { dialog } = await openManageSubscriptionModal(page);
     
     // Modal should have tabs for navigation
     await expect(dialog.getByRole('tablist')).toBeVisible();
