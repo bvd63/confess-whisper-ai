@@ -167,10 +167,17 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
   const handleSubmit = async () => {
     // Check confession limits first
     if (!canPost) {
+      toast({
+        title: t.error_generic,
+        description: dailyLimit !== Infinity
+          ? t.limit_confessions_remaining.replace('{count}', '0')
+          : t.error_submit,
+        variant: "destructive",
+      });
       setShowUpgradeModal(true);
       return;
     }
-
+ 
     // Validate input
     const normalized = normalizeCreateConfessionPayload({
       content,
