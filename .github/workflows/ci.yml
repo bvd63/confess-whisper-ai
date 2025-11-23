@@ -91,7 +91,7 @@ jobs:
             dist
 
       - name: Lighthouse Performance (mobile)
-        run: npx lhci autorun --collect.settings.preset=mobile || true
+        run: npx lhci autorun --config=lighthouserc.json || true
 
   deploy-staging:
     name: Deploy to Staging

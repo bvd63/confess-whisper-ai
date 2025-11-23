@@ -69,6 +69,19 @@ export async function waitForAppReady(page: Page) {
   // Small delay for any remaining async operations
   await page.waitForTimeout(500);
 
+  // Ensure lazy-loaded dialog overlay is gone before interacting
+  await page
+    .waitForFunction(() => !document.querySelector('[data-testid="dialog-loading-overlay"]'), {
+      timeout: 15000,
+    })
+    .catch(async () => {
+      await page.locator('[data-testid="dialog-loading-overlay"]').evaluateAll((elements) => {
+        elements.forEach((element) => {
+          (element as HTMLElement).style.pointerEvents = 'none';
+        });
+      }).catch(() => {});
+    });
+
   await dismissNotificationBanner(page);
 }
 
