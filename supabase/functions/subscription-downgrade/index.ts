@@ -5,7 +5,7 @@ import { logError, logInfo, logWarn } from "../_shared/logger.ts";
 import { getRequestContext } from "../_shared/security.ts";
 import { createServiceClient, requireAuth } from "../_shared/supabase.ts";
 
-type SubscriptionTier = "free" | "premium" | "vip";
+type SubscriptionTier = "free" | "vip";
 
 const DowngradeRequestSchema = z.object({
   targetPriceId: z.string().trim().min(4, "targetPriceId").max(128, "targetPriceId"),
@@ -13,18 +13,20 @@ const DowngradeRequestSchema = z.object({
 
 const tierHierarchy: Record<SubscriptionTier, number> = {
   free: 0,
-  premium: 1,
-  vip: 2,
+  vip: 1,
 };
 
 const resolveTierForPrice = (priceId: string): SubscriptionTier => {
-  const map: Record<string, SubscriptionTier> = {
-    [Deno.env.get("STRIPE_PRICE_PREMIUM_MONTHLY") || ""]: "premium",
-    [Deno.env.get("STRIPE_PRICE_PREMIUM_YEARLY") || ""]: "premium",
-    [Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || ""]: "vip",
-    [Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || ""]: "vip",
-  };
-  return map[priceId] ?? "premium";
+  const vipIds = new Set([
+    Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || "",
+    Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || "",
+  ]);
+
+  if (!priceId) {
+    return "free";
+  }
+
+  return vipIds.has(priceId) ? "vip" : "free";
 };
 
 serve(async (req) => {

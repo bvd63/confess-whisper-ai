@@ -8,8 +8,6 @@ import { getRequestContext } from "../_shared/security.ts";
 import { createServiceClient, requireAuth } from "../_shared/supabase.ts";
 
 const STRIPE_PRICE_IDS = {
-  premium_monthly: "price_1SJ0vvR7kygIyYg9oT1ju6lQ",
-  premium_yearly: "price_1SJ0vvR7kygIyYg9yORadPGD",
   vip_monthly: "price_1SJ0vwR7kygIyYg9OeCiqV00",
   vip_yearly: "price_1SJ0vvR7kygIyYg9BJuciYGd",
 } as const;
@@ -30,10 +28,7 @@ const determineTier = (priceId: string) => {
   if (priceId === STRIPE_PRICE_IDS.vip_monthly || priceId === STRIPE_PRICE_IDS.vip_yearly) {
     return "vip";
   }
-  if (priceId === STRIPE_PRICE_IDS.premium_monthly || priceId === STRIPE_PRICE_IDS.premium_yearly) {
-    return "premium";
-  }
-  return "premium";
+  return "vip";
 };
 
 const ensureCustomer = async (stripe: Stripe, email: string) => {

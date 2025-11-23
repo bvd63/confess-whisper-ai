@@ -1,4 +1,5 @@
 import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
+import { createServerEnvSchema } from "./env-shared.ts";
 
 declare const Deno: {
   env: {
@@ -7,35 +8,7 @@ declare const Deno: {
   };
 };
 
-const booleanString = z
-  .enum(["true", "false"])
-  .transform((value: "true" | "false") => value === "true");
-
-export const ServerEnvSchema = z.object({
-  SUPABASE_URL: z.string().url(),
-  SUPABASE_ANON_KEY: z.string().min(10),
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(10),
-  STRIPE_SECRET_KEY: z.string().min(10),
-  STRIPE_WEBHOOK_SECRET: z.string().min(10).optional(),
-  STRIPE_PRICE_VIP_MONTHLY: z.string().min(5),
-  STRIPE_PRICE_VIP_YEARLY: z.string().min(5),
-  ONESIGNAL_REST_API_KEY: z.string().min(10),
-  VITE_ONESIGNAL_APP_ID: z.string().min(5),
-  TURNSTILE_SECRET: z.string().min(10).optional(),
-  LOVABLE_API_KEY: z.string().min(10).optional(),
-  EDGE_INTERNAL_TOKEN: z.string().min(32),
-  PASSWORD_RESET_REDIRECT_URL: z.string().url().optional(),
-  EDGE_ALLOWED_ORIGINS: z
-    .string()
-    .optional()
-    .transform((value: string | undefined) =>
-      value?.split(",").map((origin: string) => origin.trim()).filter(Boolean) ?? []
-    ),
-  CONFESSION_TURNSTILE_REQUIRED: z
-    .string()
-    .optional()
-    .transform((value: string | undefined) => (value ? booleanString.parse(value) : true)),
-});
+export const ServerEnvSchema = createServerEnvSchema(z);
 
 export type ServerEnv = z.infer<typeof ServerEnvSchema>;
 

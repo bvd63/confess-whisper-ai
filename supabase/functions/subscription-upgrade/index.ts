@@ -7,7 +7,7 @@ import { logError, logInfo, logWarn } from "../_shared/logger.ts";
 import { getRequestContext } from "../_shared/security.ts";
 import { createServiceClient, requireAuth } from "../_shared/supabase.ts";
 
-type SubscriptionTier = "free" | "premium" | "vip";
+type SubscriptionTier = "free" | "vip";
 
 const UpgradeRequestSchema = z.object({
   targetPriceId: z.string().trim().min(4, "targetPriceId").max(128, "targetPriceId"),
@@ -15,12 +15,10 @@ const UpgradeRequestSchema = z.object({
 
 const resolveTierForPrice = (priceId: string): SubscriptionTier => {
   const mapping: Record<string, SubscriptionTier> = {
-    [Deno.env.get("STRIPE_PRICE_PREMIUM_MONTHLY") ?? ""]: "premium",
-    [Deno.env.get("STRIPE_PRICE_PREMIUM_YEARLY") ?? ""]: "premium",
     [Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") ?? ""]: "vip",
     [Deno.env.get("STRIPE_PRICE_VIP_YEARLY") ?? ""]: "vip",
   };
-  return mapping[priceId] ?? "premium";
+  return mapping[priceId] ?? "vip";
 };
 
 serve(async (req) => {

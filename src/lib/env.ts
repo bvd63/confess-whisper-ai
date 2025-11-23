@@ -1,25 +1,24 @@
 // src/lib/env.ts
 import { z } from "zod";
-import { logError, logWarn } from '@/lib/logger';
+import {
+  createClientEnvSchema,
+  parseBooleanFlag,
+  parseFeatureFlag,
+} from "../../supabase/functions/_shared/env-shared.ts";
 
-const booleanString = z.enum(["true", "false"]).optional();
+const logEnvWarning = (message: string, payload?: unknown) => {
+  if (typeof console !== "undefined") {
+    console.warn(message, payload ?? "");
+  }
+};
 
-const RawEnv = z.object({
-  VITE_SUPABASE_URL: z.string().url(),
-  VITE_SUPABASE_PUBLISHABLE_KEY: z.string().min(20),
-  VITE_STRIPE_PRICE_VIP_MONTHLY: z.string().optional(),
-  VITE_STRIPE_PRICE_VIP_YEARLY: z.string().optional(),
-  VITE_ONESIGNAL_APP_ID: z.string().optional(),
-  VITE_SENTRY_DSN: z.string().url().optional(),
-  VITE_FEATURE_PASSWORDLESS: booleanString,
-  VITE_FEATURE_OFFLINE_QUEUE: booleanString,
-  VITE_FEATURE_BACKGROUND_QUEUE: booleanString,
-  VITE_FEATURE_PWA_PROMPT: booleanString,
-  VITE_FEATURE_PROFILE_MINI_ANALYTICS: booleanString,
-  VITE_WEB_SHARE_ENABLED: booleanString,
-  VITE_CONFESSION_TURNSTILE_REQUIRED: booleanString,
-  MODE: z.enum(["development", "production", "test"]).default("development"),
-});
+const logEnvError = (message: string, payload?: unknown) => {
+  if (typeof console !== "undefined") {
+    console.error(message, payload ?? "");
+  }
+};
+
+const RawEnv = createClientEnvSchema(z);
 
 const runtimeEnv = (
   typeof window !== "undefined"
@@ -45,48 +44,51 @@ const parsed = RawEnv.safeParse({
 });
 
 if (!parsed.success) {
-  logError(
+  logEnvError(
     "[ENV] Invalid client ENV",
-    new Error(JSON.stringify(parsed.error.flatten().fieldErrors))
+    parsed.error.flatten().fieldErrors,
   );
   // Only throw if Supabase credentials are missing (required for app to function)
   const errors = parsed.error.flatten().fieldErrors;
   if (errors.VITE_SUPABASE_URL || errors.VITE_SUPABASE_PUBLISHABLE_KEY) {
     throw new Error("Critical environment variables missing: Supabase credentials are required");
   }
-  logWarn("[ENV] Some optional features may be unavailable (Stripe, OneSignal)");
+  logEnvWarning("[ENV] Some optional features may be unavailable (Stripe, OneSignal)");
 }
+
+const resolvedEnv = parsed.success ? parsed.data : undefined;
+
+const read = (key: keyof typeof runtimeEnv, fallback?: string) =>
+  (resolvedEnv && (resolvedEnv as Record<string, string | undefined>)[key]) ??
+  runtimeEnv[key] ??
+  fallback;
+
+const mode = read("MODE", process.env.NODE_ENV ?? "development");
 
 export const env = {
   client: {
-    supabaseUrl: parsed.data?.VITE_SUPABASE_URL || runtimeEnv.VITE_SUPABASE_URL,
-    supabaseAnonKey:
-      parsed.data?.VITE_SUPABASE_PUBLISHABLE_KEY || runtimeEnv.VITE_SUPABASE_PUBLISHABLE_KEY,
-    stripePriceVipMonthly:
-      parsed.data?.VITE_STRIPE_PRICE_VIP_MONTHLY || runtimeEnv.VITE_STRIPE_PRICE_VIP_MONTHLY,
-    stripePriceVipYearly:
-      parsed.data?.VITE_STRIPE_PRICE_VIP_YEARLY || runtimeEnv.VITE_STRIPE_PRICE_VIP_YEARLY,
-    oneSignalAppId: parsed.data?.VITE_ONESIGNAL_APP_ID || runtimeEnv.VITE_ONESIGNAL_APP_ID,
-    sentryDsn: parsed.data?.VITE_SENTRY_DSN || runtimeEnv.VITE_SENTRY_DSN,
+    supabaseUrl: read("VITE_SUPABASE_URL"),
+    supabaseAnonKey: read("VITE_SUPABASE_PUBLISHABLE_KEY"),
+    stripePriceVipMonthly: read("VITE_STRIPE_PRICE_VIP_MONTHLY"),
+    stripePriceVipYearly: read("VITE_STRIPE_PRICE_VIP_YEARLY"),
+    oneSignalAppId: read("VITE_ONESIGNAL_APP_ID"),
+    sentryDsn: read("VITE_SENTRY_DSN"),
   },
   features: {
-    passwordless:
-      (parsed.data?.VITE_FEATURE_PASSWORDLESS || runtimeEnv.VITE_FEATURE_PASSWORDLESS) === "true",
-    offlineQueue:
-      (parsed.data?.VITE_FEATURE_OFFLINE_QUEUE || runtimeEnv.VITE_FEATURE_OFFLINE_QUEUE) === "true",
-    backgroundQueue:
-      (parsed.data?.VITE_FEATURE_BACKGROUND_QUEUE || runtimeEnv.VITE_FEATURE_BACKGROUND_QUEUE) === "true",
-    pwaPrompt:
-      (parsed.data?.VITE_FEATURE_PWA_PROMPT || runtimeEnv.VITE_FEATURE_PWA_PROMPT) !== "false",
-    profileMiniAnalytics:
-      (parsed.data?.VITE_FEATURE_PROFILE_MINI_ANALYTICS ||
-        runtimeEnv.VITE_FEATURE_PROFILE_MINI_ANALYTICS) !== "false",
-    webShareEnabled:
-      (parsed.data?.VITE_WEB_SHARE_ENABLED || runtimeEnv.VITE_WEB_SHARE_ENABLED) !== "false",
-    confessionTurnstileRequired:
-      (parsed.data?.VITE_CONFESSION_TURNSTILE_REQUIRED ||
-        runtimeEnv.VITE_CONFESSION_TURNSTILE_REQUIRED) === "true",
+    passwordless: parseBooleanFlag(read("VITE_FEATURE_PASSWORDLESS")),
+    offlineQueue: parseBooleanFlag(read("VITE_FEATURE_OFFLINE_QUEUE")),
+    backgroundQueue: parseBooleanFlag(read("VITE_FEATURE_BACKGROUND_QUEUE")),
+    pwaPrompt: parseFeatureFlag(read("VITE_FEATURE_PWA_PROMPT"), { defaultValue: true }),
+    profileMiniAnalytics: parseFeatureFlag(
+      read("VITE_FEATURE_PROFILE_MINI_ANALYTICS"),
+      { defaultValue: true },
+    ),
+    webShareEnabled: parseFeatureFlag(read("VITE_WEB_SHARE_ENABLED"), { defaultValue: true }),
+    confessionTurnstileRequired: parseBooleanFlag(
+      read("VITE_CONFESSION_TURNSTILE_REQUIRED"),
+      false,
+    ),
   },
-  isProd: (parsed.data?.MODE || runtimeEnv.MODE || process.env.NODE_ENV) === "production",
-  isDev: (parsed.data?.MODE || runtimeEnv.MODE || process.env.NODE_ENV) === "development",
+  isProd: mode === "production",
+  isDev: mode === "development",
 } as const;

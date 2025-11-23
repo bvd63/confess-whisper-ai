@@ -1,34 +1,35 @@
-type LogLevel = "debug" | "info" | "warn" | "error";
+import { createLogger } from "./logger-core.ts";
 
-const serialize = (payload: Record<string, unknown>) => JSON.stringify(payload);
+const environment = Deno.env.get("MODE") ?? Deno.env.get("NODE_ENV") ?? "production";
 
-const log = (level: LogLevel, message: string, context?: Record<string, unknown>) => {
-  const entry = {
-    timestamp: new Date().toISOString(),
-    level,
-    message,
-    ...context,
-  };
-  const line = serialize(entry);
-  if (level === "error") {
-    console.error(line);
-  } else if (level === "warn") {
-    console.warn(line);
-  } else {
-    console.log(line);
-  }
-};
+const edgeLogger = createLogger({
+  service: "edge",
+  component: "supabase-functions",
+  environment,
+});
 
 export const logDebug = (message: string, context?: Record<string, unknown>) =>
-  log("debug", message, context);
+  edgeLogger.debug(message, context);
 export const logInfo = (message: string, context?: Record<string, unknown>) =>
-  log("info", message, context);
+  edgeLogger.info(message, context);
 export const logWarn = (message: string, context?: Record<string, unknown>) =>
-  log("warn", message, context);
+  edgeLogger.warn(message, context);
 export const logError = (message: string, context?: Record<string, unknown>) =>
-  log("error", message, context);
+  edgeLogger.error(message, context);
+export const logMetric = (name: string, value: number, context?: Record<string, unknown>) =>
+  edgeLogger.metric(name, value, context);
+export const logEvent = (name: string, context?: Record<string, unknown>) =>
+  edgeLogger.event(name, context);
 
 export const withRequestContext = (
   base: Record<string, unknown>,
   extra?: Record<string, unknown>,
-) => ({ ...base, ...extra });
+) => edgeLogger.withContext(base, extra);
+
+export const createFunctionLogger = (functionName: string, requestId?: string) =>
+  edgeLogger.child({
+    functionName,
+    defaultContext: requestId ? { requestId } : undefined,
+  });
+
+export type EdgeLogger = ReturnType<typeof createFunctionLogger>;

@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.190.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import Stripe from 'https://esm.sh/stripe@18.5.0'
+import { createFunctionLogger } from '../_shared/logger.ts'
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
   apiVersion: '2025-08-27.basil',
@@ -12,16 +13,20 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  const requestId = (crypto.randomUUID && crypto.randomUUID()) || Math.random().toString(36).slice(2)
+  const logger = createFunctionLogger('stripe-webhook-coins', requestId)
+
   if (req.method === 'OPTIONS') {
+    logger.debug('CORS preflight received')
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    console.log('[STRIPE-WEBHOOK-COINS] Webhook received')
+    logger.info('Webhook received', { path: new URL(req.url).pathname })
     
     const signature = req.headers.get('stripe-signature')
     if (!signature) {
-      console.error('[STRIPE-WEBHOOK-COINS] Missing signature')
+      logger.warn('Missing Stripe signature header')
       throw new Error('No signature')
     }
 
@@ -29,35 +34,34 @@ serve(async (req) => {
     const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')
 
     if (!webhookSecret) {
-      console.error('[STRIPE-WEBHOOK-COINS] STRIPE_WEBHOOK_SECRET not configured')
+      logger.error('STRIPE_WEBHOOK_SECRET not configured')
       throw new Error('Webhook secret not configured')
     }
 
-    console.log('[STRIPE-WEBHOOK-COINS] Verifying webhook signature...')
+    logger.debug('Verifying webhook signature')
     const event = await stripe.webhooks.constructEventAsync(
       body,
       signature,
       webhookSecret
     )
 
-    console.log('[STRIPE-WEBHOOK-COINS] Event type:', event.type)
+    logger.info('Stripe event received', { eventType: event.type })
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session
 
-      console.log('[STRIPE-WEBHOOK-COINS] Session completed:', session.id)
-      console.log('[STRIPE-WEBHOOK-COINS] Metadata:', session.metadata)
+      logger.info('Checkout session completed', { sessionId: session.id, metadata: session.metadata })
 
       const userId = session.metadata?.user_id
       const packageId = session.metadata?.package_id
       const coins = parseInt(session.metadata?.coins || '0')
 
       if (!userId || !coins) {
-        console.error('[STRIPE-WEBHOOK-COINS] Missing metadata - userId:', userId, 'coins:', coins)
+        logger.error('Missing metadata for awarding coins', { userId, coins })
         throw new Error('Missing user_id or coins in metadata')
       }
 
-      console.log('[STRIPE-WEBHOOK-COINS] Awarding', coins, 'coins to user', userId)
+      logger.info('Awarding coins to user', { userId, coins, packageId })
 
       // Create admin client (bypasses RLS)
       const supabaseAdmin = createClient(
@@ -74,8 +78,13 @@ serve(async (req) => {
         .limit(1)
         .maybeSingle();
 
+      if (checkError) {
+        logger.error('Failed to look up existing coin transaction', { error: checkError.message, userId, sessionId: session.id })
+        throw checkError
+      }
+
       if (existingTransaction) {
-        console.log('[STRIPE-WEBHOOK-COINS] Coins already awarded for session:', session.id)
+        logger.warn('Coins already awarded for session', { sessionId: session.id, userId })
         return new Response(
           JSON.stringify({ received: true, already_awarded: true }),
           {
@@ -94,13 +103,12 @@ serve(async (req) => {
       });
 
       if (awardError) {
-        console.error('[STRIPE-WEBHOOK-COINS] Error awarding coins:', awardError)
+        logger.error('Error awarding coins', { error: awardError.message, userId, coins, sessionId: session.id })
         throw awardError
       }
 
-      console.log('[STRIPE-WEBHOOK-COINS] Award result:', awardResult)
-
-      console.log('[STRIPE-WEBHOOK-COINS] Successfully awarded', coins, 'coins to user', userId)
+      logger.metric('coins_awarded', coins, { userId, sessionId: session.id, packageId })
+      logger.info('Successfully awarded coins', { userId, coins, sessionId: session.id, awardResult })
     }
 
     return new Response(
@@ -112,7 +120,7 @@ serve(async (req) => {
     )
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    console.error('[STRIPE-WEBHOOK-COINS] Error:', errorMessage, error)
+    logger.error('stripe-webhook-coins failed', { error: errorMessage })
     return new Response(
       JSON.stringify({ error: errorMessage }),
       {

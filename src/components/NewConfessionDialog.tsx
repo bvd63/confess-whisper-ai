@@ -285,7 +285,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
       }
 
       logInfo('Invoking create-confession function', {
-        hasSupabaseFunctions: Boolean((supabase as any).functions),
+        hasSupabaseFunctions: Boolean(supabase.functions),
       });
 
       const creationResponse = await supabase.functions.invoke('create-confession', {
