@@ -141,7 +141,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
       <AnimatedCard 
         hover="lift"
         glass
-        className="p-3 sm:p-4 md:p-5 mb-3 sm:mb-4 touch-manipulation transition-smooth hover:shadow-lg animate-slide-up"
+        className="p-6 mb-6 touch-manipulation transition-smooth hover:shadow-elevated animate-slide-up rounded-3xl border-border/50"
       >
         <div className="mb-2 sm:mb-3">
           <ConfessionHeader 

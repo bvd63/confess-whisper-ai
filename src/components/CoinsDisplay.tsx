@@ -52,76 +52,104 @@ const CoinsDisplay = ({
   };
   if (loading) return null;
   if (variant === "compact") {
-    return <Button variant="outline" size="sm" onClick={handleShowHistory} className="gap-1 sm:gap-1.5 h-8 min-w-[44px] px-2 sm:px-2.5 touch-manipulation">
-        <Coins className="w-3.5 h-3.5 text-yellow-500 flex-shrink-0" />
-        <span className="font-semibold text-xs">{balance}</span>
-      </Button>;
+    return <Button 
+      variant="outline" 
+      size="sm" 
+      onClick={handleShowHistory} 
+      className="gap-2 h-10 min-w-[44px] px-4 touch-manipulation rounded-full border-border/50 hover:bg-accent/30 shadow-ios"
+    >
+      <Coins className="w-4 h-4 text-yellow-500 flex-shrink-0" />
+      <span className="font-semibold text-sm">{balance}</span>
+    </Button>;
   }
   return <>
-      <Card className="p-3 sm:p-4">
-        <div className="flex items-center gap-1.5 mb-2.5 sm:mb-3">
-          <Coins className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
-          <h3 className="text-sm sm:text-base font-semibold">{t.coins_title}</h3>
+      <Card className="p-6 rounded-3xl shadow-card border-border/50">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 bg-yellow-500/10 rounded-xl">
+            <Coins className="w-6 h-6 text-yellow-500" />
+          </div>
+          <h3 className="text-xl font-bold">{t.coins_title}</h3>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 sm:gap-3">
-          <div className="text-center p-2.5 sm:p-3 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
-            <Coins className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500 mx-auto mb-1.5" />
-            <p className="text-xl sm:text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+        <div className="grid grid-cols-2 gap-4 mb-5">
+          <div className="text-center p-5 bg-yellow-500/10 rounded-2xl border border-yellow-500/20 shadow-ios">
+            <Coins className="w-7 h-7 text-yellow-500 mx-auto mb-3" />
+            <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400 mb-1">
               {balance}
             </p>
-            <p className="text-[10px] sm:text-xs text-muted-foreground">{t.coins_current_balance}</p>
+            <p className="text-sm text-muted-foreground font-medium">{t.coins_current_balance}</p>
           </div>
 
-          <div className="text-center p-2.5 sm:p-3 bg-primary/10 rounded-lg border border-primary/20">
-            <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary mx-auto mb-1.5" />
-            <p className="text-xl sm:text-2xl font-bold text-primary">{lifetimeEarned}</p>
-            <p className="text-[10px] sm:text-xs text-muted-foreground">{t.coins_total_earned}</p>
+          <div className="text-center p-5 bg-primary/10 rounded-2xl border border-primary/20 shadow-ios">
+            <TrendingUp className="w-7 h-7 text-primary mx-auto mb-3" />
+            <p className="text-3xl font-bold text-primary mb-1">{lifetimeEarned}</p>
+            <p className="text-sm text-muted-foreground font-medium">{t.coins_total_earned}</p>
           </div>
         </div>
 
-        <Button onClick={handleShowHistory} variant="outline" className="w-full mt-2.5 sm:mt-3 h-8 sm:h-9 text-xs touch-manipulation">
+        <Button 
+          onClick={handleShowHistory} 
+          variant="outline" 
+          className="w-full h-12 rounded-xl text-base font-semibold shadow-ios hover:shadow-elevated touch-manipulation"
+        >
           {t.coins_history}
         </Button>
 
-        <div className="mt-2.5 sm:mt-3 p-2 sm:p-2.5 rounded-lg border border-secondary/20 bg-slate-950">
-          <p className="text-[10px] font-semibold mb-1 sm:mb-1.5 text-slate-100 sm:text-xs">
+        <div className="mt-5 p-4 rounded-2xl border border-border/50 bg-muted/30">
+          <p className="text-sm font-bold mb-3 text-foreground">
             {t.coins_how_to_earn}
           </p>
-          <ul className="text-[9px] sm:text-[10px] text-muted-foreground space-y-0.5">
-            <li>{t.coins_per_confession_detail}</li>
-            <li>🔥 Streak bonuses: +10/+20/+50 coins at 3/5/7 days</li>
-            <li>🎁 Referral rewards: +20 coins per completed referral</li>
+          <ul className="text-sm text-muted-foreground space-y-2 leading-relaxed">
+            <li className="flex items-start gap-2">
+              <span className="text-lg">💰</span>
+              <span>{t.coins_per_confession_detail}</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-lg">🔥</span>
+              <span>Streak bonuses: +10/+20/+50 coins at 3/5/7 days</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-lg">🎁</span>
+              <span>Referral rewards: +20 coins per completed referral</span>
+            </li>
           </ul>
         </div>
 
-        <div className="mt-2.5 sm:mt-3 p-2 sm:p-2.5 bg-primary/10 rounded-lg border border-primary/20">
-          <p className="text-[10px] sm:text-xs text-primary font-semibold mb-1 sm:mb-1.5">
+        <div className="mt-5 p-4 bg-primary/10 rounded-2xl border border-primary/20">
+          <p className="text-sm font-bold mb-3 text-primary">
             {t.coins_how_to_spend}
           </p>
-          <ul className="text-[9px] sm:text-[10px] text-muted-foreground space-y-0.5">
-            <li>📈 Boost Confession (15 coins) - Highlight for 1 hour</li>
-            <li>✨ Profile Flairs - Customize your profile appearance</li>
+          <ul className="text-sm text-muted-foreground space-y-2 leading-relaxed">
+            <li className="flex items-start gap-2">
+              <span className="text-lg">📈</span>
+              <span>Boost Confession (15 coins) - Highlight for 1 hour</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-lg">✨</span>
+              <span>Profile Flairs - Customize your profile appearance</span>
+            </li>
           </ul>
         </div>
       </Card>
 
       <Dialog open={showHistory} onOpenChange={setShowHistory}>
-        <DialogContent className="sm:max-w-[500px] max-h-[90vh]">
+        <DialogContent className="sm:max-w-[550px] max-h-[90vh] rounded-3xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
-              <Coins className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
+            <DialogTitle className="flex items-center gap-3 text-2xl">
+              <div className="p-2 bg-yellow-500/10 rounded-xl">
+                <Coins className="w-6 h-6 text-yellow-500" />
+              </div>
               {t.coins_history}
             </DialogTitle>
-            <DialogDescription className="text-xs sm:text-sm">
+            <DialogDescription className="text-base mt-2">
               {t.coins_all_transactions}
             </DialogDescription>
           </DialogHeader>
 
-          <ScrollArea className="h-[300px] sm:h-[400px] pr-3 sm:pr-4">
-            {transactions.length === 0 ? <p className="text-center text-muted-foreground py-6 sm:py-8 text-xs sm:text-sm">
+          <ScrollArea className="h-[450px] pr-4">
+            {transactions.length === 0 ? <p className="text-center text-muted-foreground py-12 text-base">
                 {t.coins_no_transactions}
-              </p> : <div className="space-y-1.5 sm:space-y-2">
+              </p> : <div className="space-y-3">
                 {transactions.map(transaction => {
               // Map transaction types/descriptions to translation keys
               const getTransactionDescription = () => {
@@ -148,18 +176,18 @@ const CoinsDisplay = ({
                 // Fallback to description or type
                 return transaction.description || transaction.type || t.coins_history;
               };
-              return <div key={transaction.id} className="flex items-center justify-between p-2.5 sm:p-3 bg-muted/50 rounded-lg">
-                      <div className="flex-1 min-w-0 pr-2">
-                        <p className="text-xs sm:text-sm font-medium truncate">
+              return <div key={transaction.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-2xl border border-border/50 shadow-ios">
+                      <div className="flex-1 min-w-0 pr-3">
+                        <p className="text-sm font-semibold truncate mb-1">
                           {getTransactionDescription()}
                         </p>
-                        <p className="text-[10px] sm:text-xs text-muted-foreground">
+                        <p className="text-sm text-muted-foreground">
                           {formatDistanceToNow(new Date(transaction.created_at), {
                       addSuffix: true
                     })}
                         </p>
                       </div>
-                      <span className={`text-base sm:text-lg font-bold flex-shrink-0 ${transaction.amount > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      <span className={`text-xl font-bold flex-shrink-0 ${transaction.amount > 0 ? 'text-green-500' : 'text-red-500'}`}>
                         {transaction.amount > 0 ? '+' : ''}
                         {transaction.amount}
                       </span>
