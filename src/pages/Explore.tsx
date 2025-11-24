@@ -163,11 +163,14 @@ const Explore = () => {
         ref={containerRef}
         className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24"
       >
-        <div className="mb-4 sm:mb-6 md:mb-8 animate-fade-in">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-1.5 sm:mb-2">
-            <GradientText variant="hero">{t.explore}</GradientText>
-          </h1>
-          <p className="text-sm sm:text-base text-muted-foreground">{t.recommended_for_you}</p>
+        <div className="mb-6 animate-fade-in">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shadow-glow">
+              <span className="text-2xl">🔍</span>
+            </div>
+            <h1 className="text-3xl font-bold gradient-text">{t.explore}</h1>
+          </div>
+          <p className="text-sm text-muted-foreground ml-15">{t.recommended_for_you}</p>
         </div>
 
         <SearchUsersCard />

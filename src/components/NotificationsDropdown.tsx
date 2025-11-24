@@ -256,11 +256,11 @@ const NotificationsDropdown = () => {
     <>
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-full hover:bg-accent/30 shadow-ios">
+        <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-full hover:bg-accent">
           <Bell className="w-5 h-5" />
           {unreadCount > 0 && (
             <Badge 
-              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-primary text-primary-foreground text-xs font-bold rounded-full shadow-ios"
+              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-primary text-primary-foreground text-xs font-bold rounded-full shadow-glow"
             >
               {unreadCount > 9 ? '9+' : unreadCount}
             </Badge>
@@ -269,17 +269,20 @@ const NotificationsDropdown = () => {
       </PopoverTrigger>
       <PopoverContent className="w-[420px] p-0 rounded-3xl shadow-elevated border-border/50" align="end">
         <div className="flex items-center justify-between px-6 py-4 border-b border-border/50 backdrop-blur-xl bg-background/95">
-          <h3 className="text-lg font-bold">{t.notifications_title}</h3>
+          <div className="flex items-center gap-2">
+            <span className="text-xl">🔔</span>
+            <h3 className="text-lg font-bold gradient-text">{t.notifications_title}</h3>
+          </div>
           <div className="flex gap-2">
             {unreadCount > 0 && (
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={markAllAsRead}
-                className="h-10 w-10 rounded-full hover:bg-accent/30 shadow-ios"
+                className="h-9 w-9 rounded-full hover:bg-accent"
                 title={t.notifications_mark_all_read}
               >
-                <Check className="w-5 h-5" />
+                <Check className="w-4 h-4" />
               </Button>
             )}
             {notifications.length > 0 && (
@@ -287,10 +290,10 @@ const NotificationsDropdown = () => {
                 variant="ghost"
                 size="icon"
                 onClick={() => setDeleteAllDialogOpen(true)}
-                className="h-10 w-10 rounded-full hover:bg-destructive/10 text-destructive shadow-ios"
+                className="h-9 w-9 rounded-full hover:bg-destructive/10 text-destructive"
                 title={t.notifications_delete_all}
               >
-                <Trash2 className="w-5 h-5" />
+                <Trash2 className="w-4 h-4" />
               </Button>
             )}
           </div>
