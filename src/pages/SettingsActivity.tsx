@@ -20,8 +20,8 @@ import { LogoutSection } from '@/components/settings/LogoutSection';
 import { DeleteAccountSection } from '@/components/settings/DeleteAccountSection';
 import ReferralSystem from '@/components/ReferralSystem';
 import BlockedUsers from '@/components/BlockedUsers';
-import { LanguageSelector } from '@/components/LanguageSelector';
-import ThemeToggle from '@/components/ThemeToggle';
+import { ModernLanguageSelector } from '@/components/ModernLanguageSelector';
+import ModernThemeToggle from '@/components/ModernThemeToggle';
 import { logError } from '@/lib/logger';
 
 interface MenuItemProps {
@@ -242,7 +242,7 @@ const SettingsActivity = () => {
                     <Globe className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm font-medium">Select Language</span>
                   </div>
-                  <LanguageSelector />
+                  <ModernLanguageSelector />
                 </div>
               </div>
 
@@ -253,7 +253,7 @@ const SettingsActivity = () => {
                     <Palette className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm font-medium">Appearance</span>
                   </div>
-                  <ThemeToggle />
+                  <ModernThemeToggle />
                 </div>
               </div>
             </div>
