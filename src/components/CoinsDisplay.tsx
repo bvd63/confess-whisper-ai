@@ -52,6 +52,7 @@ const CoinsDisplay = ({
   };
   if (loading) return null;
   if (variant === "compact") {
+    return (
       <Button 
         variant="outline" 
         size="sm" 
@@ -60,7 +61,8 @@ const CoinsDisplay = ({
       >
         <span className="text-xl">🪙</span>
         <span className="font-semibold text-sm">{balance}</span>
-      </Button>;
+      </Button>
+    );
   }
   return (
     <>
