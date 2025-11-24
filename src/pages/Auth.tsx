@@ -273,27 +273,27 @@ const Auth = () => {
       <AnimatedCard 
         hover="glow"
         glass
-        className="w-full max-w-md p-4 sm:p-6 md:p-8 border-primary/20"
+        className="w-full max-w-md p-5 sm:p-6 md:p-8 border-primary/20 mx-4 sm:mx-auto"
       >
         {/* Logo & Title */}
         <div className="text-center mb-6 sm:mb-8 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 mb-3 sm:mb-4">
-            <Heart className="w-6 h-6 sm:w-8 sm:h-8 text-primary animate-heart-beat" fill="currentColor" />
+          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 mb-5 sm:mb-6 shadow-[0_0_20px_rgba(147,51,234,0.4)]">
+            <Heart className="w-9 h-9 sm:w-11 sm:h-11 text-primary animate-heart-beat" fill="currentColor" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2">
+          <h1 className="text-3xl sm:text-4xl font-bold mb-3">
             <GradientText variant="hero">Confess</GradientText>
           </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground font-medium">
             {isLogin ? t.auth_welcome_back : t.auth_create_account}
           </p>
         </div>
 
         {/* Auth Form */}
-        <form onSubmit={handleAuth} className="space-y-4">
+        <form onSubmit={handleAuth} className="space-y-5 sm:space-y-4">
           {/* Email Field */}
           <div className="space-y-2">
             <div className="relative">
-              <Mail className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
+              <Mail className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground" />
               <Input
                 type="email"
                 placeholder={t.auth_email_placeholder}
@@ -302,7 +302,7 @@ const Auth = () => {
                   setEmail(e.target.value);
                   setErrors(prev => ({ ...prev, email: "" }));
                 }}
-                className="pl-10"
+                className="pl-10 h-12"
                 disabled={isLoading}
                 autoComplete="email"
               />
@@ -315,7 +315,7 @@ const Auth = () => {
           {/* Password Field */}
           <div className="space-y-2">
             <div className="relative">
-              <Lock className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
+              <Lock className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground" />
               <Input
                 type={showPassword ? "text" : "password"}
                 placeholder={t.auth_password_placeholder}
@@ -324,7 +324,7 @@ const Auth = () => {
                   setPassword(e.target.value);
                   setErrors(prev => ({ ...prev, password: "" }));
                 }}
-                className="pl-10 pr-10"
+                className="pl-10 pr-10 h-12"
                 disabled={isLoading}
                 autoComplete={isLogin ? "current-password" : "new-password"}
               />
@@ -362,7 +362,7 @@ const Auth = () => {
           {!isLogin && (
             <div className="space-y-2">
               <div className="relative">
-                <Lock className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
+                <Lock className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground" />
                 <Input
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder={t.auth_confirm_password_placeholder}
@@ -372,7 +372,7 @@ const Auth = () => {
                     setErrors(prev => ({ ...prev, confirmPassword: "" }));
                   }}
                   onPaste={(e) => e.preventDefault()}
-                  className="pl-10 pr-10"
+                  className="pl-10 pr-10 h-12"
                   disabled={isLoading}
                   autoComplete="new-password"
                 />
@@ -417,13 +417,14 @@ const Auth = () => {
           )}
 
           {/* Stay Signed In */}
-          <div className="flex items-center justify-between space-x-2">
-            <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-between space-x-2.5">
+            <div className="flex items-center space-x-2.5">
               <Checkbox
                 id="stay-signed-in"
                 checked={staySignedIn}
                 onCheckedChange={(checked) => setStaySignedIn(checked === true)}
                 disabled={isLoading}
+                className="w-4 h-4"
               />
               <Label
                 htmlFor="stay-signed-in"
