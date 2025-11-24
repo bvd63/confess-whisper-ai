@@ -166,7 +166,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
         <div className="flex items-center gap-1.5 sm:gap-2">
           <MessageSquare className="w-4 h-4 sm:w-4 sm:h-4" />
           <span className="text-xs sm:text-sm font-medium">
-            💬 {commentsCount} {t.comments_title}
+            {commentsCount} {t.comments_title}
           </span>
         </div>
         {isExpanded ? <ChevronUp className="w-4 h-4 sm:w-4 sm:h-4" /> : <ChevronDown className="w-4 h-4 sm:w-4 sm:h-4" />}
@@ -187,7 +187,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
               />
               <div className="flex items-center justify-between">
                 <span className="text-[10px] sm:text-xs text-muted-foreground">
-                  📝 {newComment.length}/500
+                  {newComment.length}/500
                 </span>
                 <Button
                   onClick={handleSubmit}
@@ -196,7 +196,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                   className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-xs sm:text-sm rounded-lg h-9 font-semibold"
                 >
                   <Send className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                  ✉️ {t.comments_submit}
+                  {t.comments_submit}
                 </Button>
               </div>
             </div>
@@ -206,7 +206,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
           <div className="space-y-2 sm:space-y-3">
             {comments.length === 0 ? (
               <p className="text-xs sm:text-sm text-muted-foreground text-center py-3 sm:py-4">
-                💭 {t.comments_none}
+                {t.comments_none}
               </p>
             ) : (
               comments.map((comment) => (
@@ -218,7 +218,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                     <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground">
                       <CommentAuthor userId={comment.user_id} showBadge={true} />
                       <span>•</span>
-                      <span>⏰ {timeAgo(comment.created_at)}</span>
+                      <span>{timeAgo(comment.created_at)}</span>
                     </div>
                     {(user?.id === comment.user_id || user?.id === confessionOwnerId) && (
                       <Button

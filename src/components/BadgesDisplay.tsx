@@ -115,7 +115,7 @@ const BadgesDisplay = ({
               <p className="font-semibold text-xs sm:text-sm text-foreground">⭐ {flairName}</p>
               {flair.expires_at && (
                 <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
-                  ⏰ Expires: {new Date(flair.expires_at).toLocaleDateString()}
+                  📅 Expires: {new Date(flair.expires_at).toLocaleDateString()}
                 </p>
               )}
             </div>

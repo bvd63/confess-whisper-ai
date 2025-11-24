@@ -51,7 +51,7 @@ const ShareDialog = ({ open, onOpenChange, confessionId }: ShareDialogProps) => 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md bg-card border-border">
         <DialogHeader>
-          <DialogTitle className="text-lg sm:text-xl text-foreground">🔗 {t.share_title}</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl text-foreground">{t.share_title}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-3 sm:space-y-4">
@@ -92,7 +92,7 @@ const ShareDialog = ({ open, onOpenChange, confessionId }: ShareDialogProps) => 
               size="sm"
             >
               <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
-              📧 Email
+              Email
             </Button>
           </div>
 
@@ -104,7 +104,7 @@ const ShareDialog = ({ open, onOpenChange, confessionId }: ShareDialogProps) => 
               size="sm"
             >
               <Link2 className="w-3 h-3 sm:w-4 sm:h-4" />
-              📋 {t.share_copy_link}
+              {t.share_copy_link}
             </Button>
           </div>
         </div>

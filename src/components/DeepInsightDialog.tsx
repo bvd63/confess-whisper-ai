@@ -104,14 +104,14 @@ const DeepInsightDialog = ({
             ✨ {t.deep_insight_title}
           </DialogTitle>
           <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
-            🧠 {t.deep_insight_description}
+            {t.deep_insight_description}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-3 sm:space-y-4 py-3 sm:py-4">
           {/* Original Confession */}
           <div className="p-3 sm:p-4 bg-muted/50 rounded-xl border border-border">
-            <p className="text-xs sm:text-sm text-muted-foreground mb-2">💬 {t.deep_insight_your_confession}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground mb-2">{t.deep_insight_your_confession}</p>
             <p className="text-sm sm:text-base text-foreground leading-relaxed">
               {confession.content}
             </p>
@@ -123,7 +123,7 @@ const DeepInsightDialog = ({
               <div className="p-3 sm:p-5 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border border-primary/20 animate-slide-up">
                 <div className="flex items-center gap-2 mb-2 sm:mb-3 text-primary">
                   <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
-                  <span className="text-sm sm:text-base font-semibold">✨ {t.deep_insight_title}</span>
+                  <span className="text-sm sm:text-base font-semibold">{t.deep_insight_title}</span>
                 </div>
                 <p className="text-sm sm:text-base text-foreground leading-relaxed whitespace-pre-line">
                   {insight}
@@ -136,7 +136,7 @@ const DeepInsightDialog = ({
                   size="sm"
                   className="flex-1 rounded-lg border-border hover:bg-accent"
                 >
-                  🔄 {t.insight_reset}
+                  {t.insight_reset}
                 </Button>
                 <Button
                   onClick={deleteInsight}
@@ -144,7 +144,7 @@ const DeepInsightDialog = ({
                   size="sm"
                   className="flex-1 rounded-lg"
                 >
-                  🗑️ {t.insight_delete}
+                  {t.insight_delete}
                 </Button>
               </div>
             </div>
@@ -157,7 +157,7 @@ const DeepInsightDialog = ({
                     <span className="text-xs sm:text-sm text-primary font-semibold">👑 {t.vip_feature}</span>
                   </div>
                   <p className="text-muted-foreground text-xs sm:text-sm px-4">
-                    🔒 {t.deep_insight_vip}
+                    {t.deep_insight_vip}
                   </p>
                   <Button
                     onClick={onUpgradeClick}
@@ -165,7 +165,7 @@ const DeepInsightDialog = ({
                     size="sm"
                   >
                     <Crown className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-                    ⬆️ {t.vip_upgrade}
+                    {t.vip_upgrade}
                   </Button>
                 </div>
               ) : (
@@ -178,12 +178,12 @@ const DeepInsightDialog = ({
                   {isGenerating ? (
                     <>
                       <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 mr-2 animate-spin" />
-                      ⏳ {t.submitting}
+                      {t.submitting}
                     </>
                   ) : (
                     <>
                       <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-2 animate-pulse" />
-                      ✨ {t.generate_insight}
+                      {t.generate_insight}
                     </>
                   )}
                 </Button>
