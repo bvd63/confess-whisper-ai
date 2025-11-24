@@ -14,7 +14,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { ModernBottomNav } from "@/components/ModernBottomNav";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 import { useToast } from "@/hooks/use-toast";
 // Communities feature disabled
 // import { useCommunities } from "@/hooks/useCommunities";
@@ -34,7 +33,6 @@ const Explore = () => {
   const [activeTab, setActiveTab] = useState("trending");
   const [filters, setFilters] = useState<FilterState>({ sortBy: 'newest' });
   const { user } = useCurrentUser();
-  useAnalyticsTracking(user?.id || null);
   const { isPremium } = usePremiumStatus(user?.id);
   const { toast } = useToast();
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);

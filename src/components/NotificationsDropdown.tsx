@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Bell, Heart, MessageSquare, Check, Trash2, History, BarChart3 } from "lucide-react";
-import { analytics } from '@/lib/analytics';
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -114,11 +113,6 @@ const NotificationsDropdown = () => {
 
   const markAsRead = async (notificationId: string) => {
     try {
-      // Track read event
-      analytics.track('notification_read', {
-        notificationId,
-      });
-      
       const { error } = await supabase.functions.invoke('manage-notifications', {
         body: { action: 'mark_read', notificationId },
       });
@@ -147,11 +141,6 @@ const NotificationsDropdown = () => {
 
   const deleteNotification = async (notificationId: string) => {
     try {
-      // Track delete event
-      analytics.track('notification_dismissed', {
-        notificationId,
-      });
-      
       const { error } = await supabase.functions.invoke('manage-notifications', {
         body: { action: 'delete', notificationId },
       });
@@ -186,12 +175,6 @@ const NotificationsDropdown = () => {
   };
 
   const handleNotificationClick = async (notification: Notification) => {
-    // Track click event
-    analytics.track('notification_clicked', {
-      notification_type: notification.type,
-      notificationId: notification.id,
-    });
-    
     await markAsRead(notification.id);
     
     // For message notifications, navigate to specific conversation via query param
@@ -311,17 +294,6 @@ const NotificationsDropdown = () => {
           >
             <History className="w-4 h-4 mr-3" />
             View All Notifications
-          </Button>
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-sm font-semibold h-11 rounded-xl hover:bg-accent/50"
-            onClick={() => {
-              navigate('/notifications/analytics');
-              setIsOpen(false);
-            }}
-          >
-            <BarChart3 className="w-4 h-4 mr-3" />
-            View Analytics
           </Button>
         </div>
 

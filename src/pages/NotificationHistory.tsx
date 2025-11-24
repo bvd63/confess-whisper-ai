@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell, Heart, MessageSquare, UserPlus, MessageCircle, ArrowLeft, Check, Trash2, Filter, Award, Lightbulb, Flame, ChevronDown, ChevronRight, BarChart3 } from "lucide-react";
-import { analytics } from '@/lib/analytics';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -215,11 +214,6 @@ const NotificationHistory = () => {
 
   const markAsRead = async (notificationId: string) => {
     try {
-      // Track read event
-      analytics.track('notification_read', {
-        notificationId,
-      });
-      
       const { error } = await supabase.functions.invoke('manage-notifications', {
         body: { action: 'mark_read', notificationId },
       });
@@ -249,11 +243,6 @@ const NotificationHistory = () => {
 
   const deleteNotification = async (notificationId: string) => {
     try {
-      // Track delete event
-      analytics.track('notification_dismissed', {
-        notificationId,
-      });
-      
       const { error } = await supabase.functions.invoke('manage-notifications', {
         body: { action: 'delete', notificationId },
       });
@@ -288,12 +277,6 @@ const NotificationHistory = () => {
   };
 
   const handleNotificationClick = async (notification: Notification) => {
-    // Track click event
-    analytics.track('notification_clicked', {
-      notification_type: notification.type,
-      notificationId: notification.id,
-    });
-    
     await markAsRead(notification.id);
     
     if (notification.type === 'message' && notification.triggered_by) {
@@ -408,13 +391,8 @@ const NotificationHistory = () => {
   };
 
   const handleGroupClick = async (group: GroupedNotification) => {
-    // Track group expansion for multi-notification groups
+    // For grouped items, toggle expansion
     if (group.count > 1) {
-      analytics.track('notification_group_expanded', {
-        notification_type: group.type,
-        count: group.count,
-      });
-      
       // For grouped items, just toggle expansion
       toggleGroup(group.id);
     } else {
@@ -447,15 +425,6 @@ const NotificationHistory = () => {
           </div>
           
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/notifications/analytics')}
-              className="gap-2"
-            >
-              <BarChart3 className="w-4 h-4" />
-              <span className="hidden sm:inline">Analytics</span>
-            </Button>
             {unreadCount > 0 && (
               <Button
                 variant="outline"
