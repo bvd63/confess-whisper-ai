@@ -117,7 +117,7 @@ export default function CoinPurchaseSuccess() {
         </div>
         
         <h1 className="text-3xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
-          {t.coins_purchase_success_title || '🎉 Purchase Successful!'}
+          {t.coins_purchase_success_title || 'Purchase Successful!'}
         </h1>
         
         {coinsAwarded && (

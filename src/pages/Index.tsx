@@ -109,7 +109,7 @@ const Index = () => {
           if (response.data?.awarded) {
             toast({
               title: t.plans_vip_activated || '👑 You\'re now VIP!',
-              description: `${t.plans_vip_welcome || 'Welcome to VIP! Enjoy exclusive features.'} You received ${response.data.awarded} coins! 🎉`,
+              description: `${t.plans_vip_welcome || 'Welcome to VIP! Enjoy exclusive features.'} You received ${response.data.awarded} coins!`,
             });
           } else {
             toast({
