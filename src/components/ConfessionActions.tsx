@@ -180,7 +180,7 @@ const ConfessionActions = ({
             variant="ghost"
             size="sm"
             onClick={onDelete}
-            className="h-12 sm:h-10 min-w-[48px] px-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all rounded-lg touch-manipulation"
+            className="h-12 sm:h-10 min-w-[48px] px-3 text-muted-foreground hover:text-destructive transition-colors touch-manipulation"
           >
             <Trash2 className="w-4 h-4 flex-shrink-0" />
           </Button>

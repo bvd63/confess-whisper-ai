@@ -117,13 +117,13 @@ export default function CoinPurchaseSuccess() {
         </div>
         
         <h1 className="text-3xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
-          {t.coins_purchase_success_title || 'Purchase Successful!'}
+          {t.coins_purchase_success_title || '🎉 Purchase Successful!'}
         </h1>
         
         {coinsAwarded && (
           <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 border border-yellow-200 dark:border-yellow-800">
             <p className="text-lg font-semibold text-yellow-900 dark:text-yellow-100">
-              +{coinsAwarded} coins added to your account!
+              +{coinsAwarded} coins added to your account! 🪙
             </p>
           </div>
         )}

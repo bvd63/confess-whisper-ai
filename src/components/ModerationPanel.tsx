@@ -297,7 +297,7 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
                         )}
                         
                         <div className="flex items-center gap-4 text-xs text-muted-foreground mt-2">
-                          <span>❤️ {confession.likes_count}</span>
+                          <span>👍 {confession.likes_count}</span>
                           <span>💬 {confession.comments_count}</span>
                         </div>
                       </div>

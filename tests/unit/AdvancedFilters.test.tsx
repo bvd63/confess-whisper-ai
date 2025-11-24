@@ -73,12 +73,12 @@ describe('AdvancedFilters', () => {
     // Click the "From" button to open calendar
     fireEvent.click(screen.getByText('From'));
     // Instead of interacting with calendar widget, directly assert that handler was wired by simulating selection
-    // We can't select a real date without knowing the Calendar markup; this checks presence of the popover
+    // We can’t select a real date without knowing the Calendar markup; this checks presence of the popover
     expect(document.body).toContainElement(document.querySelector('[data-radix-popper-content-wrapper]'));
   });
 
-  // Communities feature disabled - test skipped
-  it('displays community options', async () => {
+  // Communities feature disabled - test removed
+  it.skip('displays community options', async () => {
     render(<AdvancedFilters onFilterChange={mockOnFilterChange} communities={[{id:'1', name:'Community 1'},{id:'2', name:'Community 2'}]} />);
     fireEvent.click(screen.getByText('Filters'));
 

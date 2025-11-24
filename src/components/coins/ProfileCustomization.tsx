@@ -28,7 +28,9 @@ const THEMES = [
 const BADGES = [
   { id: 'star', name: 'Star', icon: '⭐', cost: 150 },
   { id: 'fire', name: 'Fire', icon: '🔥', cost: 150 },
+  { id: 'gem', name: 'Gem', icon: '💎', cost: 200 },
   { id: 'crown', name: 'Crown', icon: '👑', cost: 300 },
+  { id: 'rocket', name: 'Rocket', icon: '🚀', cost: 200 },
   { id: 'heart', name: 'Heart', icon: '❤️', cost: 150 },
 ];
 

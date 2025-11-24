@@ -72,7 +72,7 @@ export const DeleteAccountSection = ({ userId, userEmail }: DeleteAccountSection
   };
 
   return (
-    <div className="p-4 sm:p-5 bg-destructive/10 rounded-lg border border-destructive/20">
+    <div className="p-4 bg-destructive/10 rounded-lg border border-destructive/20">
       <h4 className="font-semibold text-destructive mb-2 flex items-center gap-2">
         <Trash2 className="w-4 h-4" />
         {t.delete_account || 'Delete Account'}

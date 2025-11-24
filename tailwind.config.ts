@@ -22,22 +22,8 @@ export default {
         "2xl": "1536px",
       },
       fontFamily: {
-        sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Segoe UI', 'Roboto', 'system-ui', 'sans-serif'],
-        display: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'serif'],
-      },
-      fontSize: {
-        'xs': ['0.75rem', { lineHeight: '1rem' }],
-        'sm': ['0.875rem', { lineHeight: '1.25rem' }],
-        'base': ['1rem', { lineHeight: '1.5rem' }],
-        'lg': ['1.125rem', { lineHeight: '1.75rem' }],
-        'xl': ['1.25rem', { lineHeight: '1.75rem' }],
-        '2xl': ['1.5rem', { lineHeight: '2rem' }],
-        '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
-        '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
-      },
-      spacing: {
-        '18': '4.5rem',
-        '22': '5.5rem',
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Playfair Display', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -86,16 +72,9 @@ export default {
         safe: "var(--safe-area-bottom)",
       },
       borderRadius: {
-        'xl': '1.25rem',
-        'lg': '1rem',
-        'md': '0.75rem',
-        'sm': '0.5rem',
-      },
-      boxShadow: {
-        'ios': '0 10px 25px -10px rgba(0, 0, 0, 0.15)',
-        'ios-lg': '0 15px 40px -15px rgba(0, 0, 0, 0.2)',
-        'card': '0 4px 12px -2px rgba(0, 0, 0, 0.08)',
-        'elevated': '0 8px 24px -4px rgba(0, 0, 0, 0.12)',
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
         "accordion-down": {

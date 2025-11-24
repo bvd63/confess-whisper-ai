@@ -373,7 +373,7 @@ export const FlairsShop = ({
         </div>
         
         <p className="text-xs font-semibold text-primary flex items-center justify-center gap-1">
-          <span className="text-lg">🪙</span>
+          <Coins className="w-3 h-3" />
           {flair.cost}
         </p>
 
@@ -412,22 +412,21 @@ export const FlairsShop = ({
       </Card>;
   };
   return <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] rounded-3xl">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between text-2xl">
-            <span className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shadow-glow">
-                <span className="text-3xl">✨</span>
-              </div>
-              <span className="gradient-text">{t.flairs_shop}</span>
+          <DialogTitle className="flex items-center justify-between text-lg sm:text-xl">
+            <span className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-purple-500" />
+              {t.flairs_shop}
             </span>
-            <span className="flex items-center gap-2.5 text-amber-600 dark:text-amber-400 bg-amber-500/10 px-4 py-2 rounded-full shadow-ios">
-              <span className="text-xl">🪙</span>
-              <span className="font-bold text-base">{coinsBalance}</span>
+            <span className="flex items-center gap-2 text-yellow-600">
+              <Coins className="w-5 h-5" />
+              {coinsBalance}
             </span>
           </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground mt-3">
-            {t.flair_shop_description}
+          <DialogDescription className="text-sm text-muted-foreground space-y-1">
+            <span>{t.flair_shop_description}</span>
+            
           </DialogDescription>
         </DialogHeader>
 

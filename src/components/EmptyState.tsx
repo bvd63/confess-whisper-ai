@@ -25,11 +25,11 @@ const EmptyState = ({
       className={cn(
         "p-6 sm:p-8 md:p-12 text-center animate-fade-in",
         "bg-gradient-to-br from-card via-card to-muted/20",
-        "border-border/50 rounded-3xl shadow-card",
+        "border-border/50",
         className
       )}
     >
-      <div className="inline-flex w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/20 to-purple-500/20 items-center justify-center mb-4 sm:mb-5 shadow-glow">
+      <div className="inline-flex p-4 sm:p-5 rounded-full bg-primary/10 mb-4 sm:mb-5 animate-bounce-subtle">
         <Icon className="w-10 h-10 sm:w-12 sm:h-12 text-primary" />
       </div>
       
@@ -45,7 +45,7 @@ const EmptyState = ({
         <Button 
           onClick={onAction}
           size="lg"
-          className="hover-lift rounded-2xl h-11 px-6"
+          className="hover-lift"
         >
           {actionLabel}
         </Button>

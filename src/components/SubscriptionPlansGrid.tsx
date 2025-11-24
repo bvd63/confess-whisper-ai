@@ -65,9 +65,9 @@ export const SubscriptionPlansGrid = ({
   const getPlanIcon = (planId: string) => {
     switch (planId) {
       case 'vip':
-        return <span className="text-3xl">👑</span>;
+        return <Crown className="w-6 h-6" />;
       default:
-        return <span className="text-3xl">⭐</span>;
+        return <Star className="w-6 h-6" />;
     }
   };
 
@@ -161,29 +161,29 @@ export const SubscriptionPlansGrid = ({
     <div className="space-y-8">
       {/* Interval Tabs */}
       {onIntervalChange && (
-        <div className="flex justify-center mb-8">
-          <div className="inline-flex rounded-2xl bg-muted/30 p-1.5 gap-1.5">
+        <div className="flex justify-center">
+          <div className="inline-flex rounded-lg bg-[#13141f] p-1 gap-1">
             <button
               onClick={() => onIntervalChange('monthly')}
-              className={`px-10 py-3 rounded-xl transition-all font-semibold text-sm ${
+              className={`px-8 py-2.5 rounded-lg transition-all font-medium ${
                 interval === 'monthly'
-                  ? 'bg-background text-foreground shadow-ios'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-[#1a1b2e] text-white'
+                  : 'text-gray-400 hover:text-white'
               }`}
             >
               Monthly
             </button>
             <button
               onClick={() => onIntervalChange('yearly')}
-              className={`px-10 py-3 rounded-xl transition-all font-semibold text-sm relative ${
+              className={`px-8 py-2.5 rounded-lg transition-all font-medium relative ${
                 interval === 'yearly'
-                  ? 'bg-background text-foreground shadow-ios'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-[#1a1b2e] text-white'
+                  : 'text-gray-400 hover:text-white'
               }`}
             >
               Yearly
-              <span className="absolute -top-2.5 -right-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs px-2.5 py-1 rounded-full font-bold shadow-ios">
-                Save 34%
+              <span className="absolute -top-2 -right-2 bg-purple-600 text-white text-xs px-2 py-0.5 rounded-full font-semibold">
+                -34%
               </span>
             </button>
           </div>
@@ -196,26 +196,25 @@ export const SubscriptionPlansGrid = ({
           {filteredPlans.map((plan: any) => (
             <Card
               key={`${plan.id}-${plan.interval}`}
-              className={`p-8 relative bg-card border transition-all duration-300 hover:scale-[1.02] rounded-3xl shadow-card hover:shadow-elevated ${
+              className={`p-8 relative bg-[#13141f] border transition-all duration-300 hover:scale-[1.02] ${
                 plan.id === 'vip'
-                  ? 'border-primary/30 hover:border-primary/50'
-                  : 'border-border hover:border-primary/30'
+                  ? 'border-purple-500/30 hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]'
+                  : 'border-[#1a1b2e] hover:border-purple-500/30 hover:shadow-[0_0_20px_rgba(168,85,247,0.1)]'
               }`}
             >
             {/* Active Badge for VIP if current plan */}
             {isCurrentPlan(plan) && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-1.5 font-bold rounded-full shadow-ios">
-                  ⭐ Your Plan
-                </Badge>
-              </div>
+              <Badge className="absolute -top-3 left-4 bg-purple-600/90 text-white px-3 py-1 font-medium">
+                Active
+              </Badge>
             )}
 
-            {/* Savings Badge */}
+            {/* Savings Badge with glow */}
             {interval === 'yearly' && (
               <div className="absolute -top-3 -right-3">
-                <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-1.5 font-bold rounded-full shadow-ios">
-                  💰 Save 34%
+                <div className="absolute inset-0 bg-purple-600/30 blur-xl rounded-full"></div>
+                <Badge className="relative bg-purple-600 text-white px-3 py-1 font-semibold">
+                  Save ~34%
                 </Badge>
               </div>
             )}
@@ -224,16 +223,16 @@ export const SubscriptionPlansGrid = ({
             {/* Plan Header */}
             <div className="mb-8">
               <div className="flex items-center gap-3 mb-6">
-                <span className="text-4xl">{plan.id === 'vip' ? '👑' : '✨'}</span>
-                <h3 className="text-2xl font-bold gradient-text">{plan.name}</h3>
+                <span className="text-3xl">{plan.id === 'vip' ? '👑' : '✨'}</span>
+                <h3 className="text-2xl font-bold text-white">{plan.name}</h3>
               </div>
               <div className="mb-2">
-                <span className="text-5xl font-bold text-foreground">
+                <span className="text-5xl font-bold text-white">
                   ${interval === 'yearly' ? (plan.price / 12).toFixed(2) : plan.price}
                 </span>
-                <span className="text-muted-foreground text-lg ml-2">/per month</span>
+                <span className="text-gray-400 text-lg ml-2">/per month</span>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-gray-400">
                 {interval === 'yearly' 
                   ? `Billed annually ($${plan.price.toFixed(2)}/per year)`
                   : 'Billed monthly'
@@ -245,10 +244,10 @@ export const SubscriptionPlansGrid = ({
             <div className="space-y-4 mb-8">
               {plan.benefits.map((benefit: string, index: number) => (
                 <div key={index} className="flex items-start gap-3 group/benefit">
-                  <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/benefit:bg-primary/30 transition-colors">
-                    <Check className="w-3.5 h-3.5 text-primary" />
+                  <div className="w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/benefit:bg-purple-500/30 transition-colors">
+                    <Check className="w-3.5 h-3.5 text-purple-400" />
                   </div>
-                  <span className="text-sm text-foreground/90 leading-relaxed">{getStringTranslation(t, benefit) || benefit}</span>
+                  <span className="text-sm text-white/90 leading-relaxed">{getStringTranslation(t, benefit) || benefit}</span>
                 </div>
               ))}
             </div>

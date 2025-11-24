@@ -102,21 +102,21 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-mesh flex items-center justify-center p-3 sm:p-4">
       <AnimatedCard
         hover="glow"
         glass
-        className="w-full max-w-md p-8 rounded-3xl shadow-elevated border-border/50"
+        className="w-full max-w-md p-4 sm:p-6 md:p-8 border-primary/20"
       >
         {/* Logo & Title */}
-        <div className="text-center mb-8 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 mb-6 shadow-glow">
-            <span className="text-5xl">💜</span>
+        <div className="text-center mb-6 sm:mb-8 animate-fade-in">
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 mb-3 sm:mb-4">
+            <Heart className="w-6 h-6 sm:w-8 sm:h-8 text-primary animate-heart-beat" fill="currentColor" />
           </div>
-          <h1 className="text-3xl font-bold mb-3 gradient-text">
-            {t.auth_forgot_password_title}
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">
+            <GradientText variant="hero">{t.auth_forgot_password_title}</GradientText>
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             {t.auth_forgot_password_desc}
           </p>
         </div>

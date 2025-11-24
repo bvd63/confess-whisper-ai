@@ -14,6 +14,8 @@ describe("stripe-webhook utils", () => {
   const priceEnv = {
     vipMonthly: "price_vip_month",
     vipYearly: "price_vip_year",
+    premiumMonthly: "price_premium_month",
+    premiumYearly: "price_premium_year",
   };
 
   describe("resolveTier", () => {
@@ -22,10 +24,13 @@ describe("stripe-webhook utils", () => {
       expect(resolveTier("price_vip_year", priceEnv)).toBe("vip");
     });
 
+    it("returns premium for configured premium prices", () => {
+      expect(resolveTier("price_premium_year", priceEnv)).toBe("premium");
+    });
+
     it("defaults to free when price is missing or not configured", () => {
       expect(resolveTier(undefined, priceEnv)).toBe("free");
       expect(resolveTier("unknown_price", priceEnv)).toBe("free");
-      expect(resolveTier("price_premium_year", priceEnv)).toBe("free");
     });
   });
 

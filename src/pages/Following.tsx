@@ -6,10 +6,11 @@ import { Users } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 import FollowingFeed from "@/components/FollowingFeed";
 import FollowStats from "@/components/FollowStats";
 import AppLayout from "@/components/AppLayout";
-import { ModernBottomNav } from "@/components/ModernBottomNav";
+import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Loader2 } from "lucide-react";
@@ -21,6 +22,7 @@ const Following = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { user, isLoading } = useCurrentUser();
+  useAnalyticsTracking(user?.id || null);
   const { isPremium } = usePremiumStatus(user?.id);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   
@@ -94,7 +96,7 @@ const Following = () => {
         </div>
       </div>
 
-      <ModernBottomNav />
+      <InstagramBottomNav />
 
       <Suspense fallback={null}>
         <NewConfessionDialog

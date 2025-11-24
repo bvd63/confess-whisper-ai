@@ -156,46 +156,46 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
   };
 
   return (
-    <div className="mt-4 border-t border-border/50 pt-4">
+    <div className="mt-3 sm:mt-4 border-t border-border/50 pt-3 sm:pt-4">
       <Button
         variant="ghost"
+        size="sm"
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full justify-between text-muted-foreground hover:text-foreground hover:bg-accent/50 px-4 h-12 rounded-xl shadow-ios"
+        className="w-full justify-between text-muted-foreground hover:text-foreground px-2 sm:px-4 min-h-[48px]"
       >
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center">
-            <MessageSquare className="w-4 h-4" />
-          </div>
-          <span className="text-sm font-semibold">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <MessageSquare className="w-4 h-4 sm:w-4 sm:h-4" />
+          <span className="text-xs sm:text-sm">
             {commentsCount} {t.comments_title}
           </span>
         </div>
-        {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+        {isExpanded ? <ChevronUp className="w-4 h-4 sm:w-4 sm:h-4" /> : <ChevronDown className="w-4 h-4 sm:w-4 sm:h-4" />}
       </Button>
 
       {isExpanded && (
-        <div className="mt-4 space-y-4 animate-fade-in">
+        <div className="mt-3 sm:mt-4 space-y-3 sm:space-y-4 animate-fade-in">
           {/* Add Comment Form */}
           {user && (
-            <div className="space-y-3 p-4 bg-muted/30 rounded-2xl border border-border/50 shadow-ios">
+            <div className="space-y-2">
               <Textarea
                 placeholder={t.comments_placeholder}
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                className="min-h-[80px] resize-none border-border/50 focus:border-primary rounded-xl bg-background shadow-inner text-sm"
+                className="min-h-[60px] sm:min-h-[80px] resize-none border-primary/20 focus:border-primary/40 bg-background/50 text-xs sm:text-sm"
                 disabled={isSubmitting}
                 maxLength={500}
               />
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-muted-foreground">
+                <span className="text-[10px] sm:text-xs text-muted-foreground">
                   {newComment.length}/500
                 </span>
                 <Button
                   onClick={handleSubmit}
                   disabled={isSubmitting || !newComment.trim()}
-                  className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 rounded-xl h-10 font-semibold shadow-elevated"
+                  size="sm"
+                  className="bg-gradient-to-r from-primary to-primary/80 text-xs sm:text-sm"
                 >
-                  <Send className="w-4 h-4 mr-2" />
+                  <Send className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                   {t.comments_submit}
                 </Button>
               </div>
@@ -203,24 +203,19 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
           )}
 
           {/* Comments List */}
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {comments.length === 0 ? (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-3">
-                  <MessageSquare className="w-8 h-8 text-muted-foreground" />
-                </div>
-                <p className="text-sm font-semibold text-muted-foreground">
-                  {t.comments_none}
-                </p>
-              </div>
+              <p className="text-xs sm:text-sm text-muted-foreground text-center py-3 sm:py-4">
+                {t.comments_none}
+              </p>
             ) : (
               comments.map((comment) => (
                 <div
                   key={comment.id}
-                  className="p-4 bg-muted/30 rounded-2xl border border-border/50 hover:border-primary/30 hover:shadow-ios transition-all"
+                  className="p-2 sm:p-3 bg-muted/30 rounded-lg border border-border/50"
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+                  <div className="flex items-start justify-between mb-1 sm:mb-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground">
                       <CommentAuthor userId={comment.user_id} showBadge={true} />
                       <span>•</span>
                       <span>{timeAgo(comment.created_at)}</span>
@@ -228,15 +223,15 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                     {(user?.id === comment.user_id || user?.id === confessionOwnerId) && (
                       <Button
                         variant="ghost"
-                        size="icon"
+                        size="sm"
                         onClick={() => handleDelete(comment.id)}
-                        className="h-10 w-10 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl"
+                        className="min-h-[44px] min-w-[44px] px-2 text-muted-foreground hover:text-destructive"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     )}
                   </div>
-                  <p className="text-sm text-foreground leading-relaxed">{sanitizeComment(comment.content)}</p>
+                  <p className="text-xs sm:text-sm text-foreground leading-relaxed">{sanitizeComment(comment.content)}</p>
                 </div>
               ))
             )}

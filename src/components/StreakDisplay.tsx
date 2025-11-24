@@ -1,4 +1,4 @@
-import { Flame, Trophy, Star, Crown } from 'lucide-react';
+import { Flame, Trophy, Star } from 'lucide-react';
 import { useStreakManager } from '@/hooks/useStreakManager';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -20,39 +20,35 @@ export const StreakDisplay = () => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-orange-500/10 to-red-500/10 dark:from-orange-500/20 dark:to-red-500/20 rounded-3xl p-6 border border-orange-500/20 shadow-card">
+    <div className="bg-gradient-to-r from-orange-500/10 to-red-500/10 rounded-xl p-4 border border-orange-500/20">
       <div className="flex items-center justify-between">
         {/* Current Streak */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <div className="relative">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500/20 to-red-500/20 flex items-center justify-center shadow-ios">
-              <Flame className="w-7 h-7 text-orange-500 dark:text-orange-400" />
-            </div>
+            <Flame className="w-8 h-8 text-orange-500" />
             {streakData.currentStreak > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-elevated">
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
                 {streakData.currentStreak}
               </span>
             )}
           </div>
           <div>
-            <p className="text-sm font-semibold text-muted-foreground">Current Streak</p>
-            <p className="text-3xl font-bold text-foreground">
-              {streakData.currentStreak} <span className="text-lg text-muted-foreground">{t.days || 'days'}</span>
+            <p className="text-sm font-medium">Current Streak</p>
+            <p className="text-2xl font-bold">
+              {streakData.currentStreak} {t.days || 'days'}
             </p>
           </div>
         </div>
 
         {/* Points & Level */}
         <div className="text-right">
-          <div className="flex items-center gap-2 justify-end mb-2">
-            <div className="w-8 h-8 rounded-full bg-yellow-500/20 flex items-center justify-center">
-              <Star className="w-4 h-4 text-yellow-500 dark:text-yellow-400 fill-current" />
-            </div>
-            <span className="text-base font-bold text-foreground">
-              {streakData.totalPoints}
+          <div className="flex items-center gap-2 justify-end mb-1">
+            <Star className="w-4 h-4 text-yellow-500" />
+            <span className="text-sm font-medium">
+              {streakData.totalPoints} points
             </span>
           </div>
-          <div className="text-xs font-semibold text-muted-foreground">
+          <div className="text-xs text-muted-foreground">
             Level {streakData.level}
           </div>
         </div>
@@ -60,14 +56,14 @@ export const StreakDisplay = () => {
 
       {/* Progress to next milestone */}
       {streakData.currentStreak < 30 && (
-        <div className="mt-5">
-          <div className="flex justify-between text-xs font-semibold text-muted-foreground mb-2">
+        <div className="mt-3">
+          <div className="flex justify-between text-xs text-muted-foreground mb-1">
             <span>Next milestone</span>
             <span>{getNextMilestone(streakData.currentStreak)} {t.days || 'days'}</span>
           </div>
-          <div className="h-3 bg-muted/50 rounded-full overflow-hidden shadow-inner">
+          <div className="h-2 bg-background/50 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-gradient-to-r from-orange-500 to-red-500 transition-all duration-500 shadow-ios rounded-full"
+              className="h-full bg-gradient-to-r from-orange-500 to-red-500 transition-all duration-500"
               style={{ width: `${getProgressPercentage(streakData.currentStreak)}%` }}
             />
           </div>
@@ -76,9 +72,9 @@ export const StreakDisplay = () => {
 
       {/* VIP Double Rewards Badge */}
       {streakData.isVIP && (
-        <div className="mt-4 flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-yellow-500/10 to-amber-500/10 rounded-xl border border-yellow-500/20">
-          <Crown className="w-4 h-4 text-yellow-600 fill-current" />
-          <span className="text-xs font-bold text-yellow-600">VIP 2x rewards active</span>
+        <div className="mt-3 flex items-center gap-2 text-xs text-purple-400">
+          <span>✨</span>
+          <span>VIP 2x rewards active</span>
         </div>
       )}
     </div>

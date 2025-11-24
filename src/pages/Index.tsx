@@ -9,6 +9,7 @@ import Leaderboard from "@/components/Leaderboard";
 import { QuoteOfTheDay } from "@/components/QuoteOfTheDay";
 import QuoteOfTheDaySkeleton from "@/components/QuoteOfTheDaySkeleton";
 import { useToast } from "@/hooks/use-toast";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import StreakCounter from "@/components/StreakCounter";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useMessageNotifications } from "@/hooks/useMessageNotifications";
@@ -38,6 +39,7 @@ const FAQ = lazy(() => import("@/components/FAQ"));
 
 const Index = () => {
   const navigate = useNavigate();
+  const { trackEvent } = useAnalytics();
   const { t, language } = useLanguage();
   const { user } = useCurrentUser();
   const { isPremium } = usePremiumStatus(user?.id);
@@ -62,15 +64,14 @@ const Index = () => {
     },
     threshold: 80,
   });
-
-  useEffect(() => {
-    (window as any).__manageSubDialogOpen = manageSubDialogOpen;
-  }, [manageSubDialogOpen]);
   
   // Monitor performance budget
   usePerformanceBudget();
 
   useEffect(() => {
+    // Track page view
+    trackEvent('page_view', { page: 'index' });
+    
     // Check notification permission
     if ('Notification' in window) {
       setNotificationPermission(Notification.permission);
@@ -108,7 +109,7 @@ const Index = () => {
           if (response.data?.awarded) {
             toast({
               title: t.plans_vip_activated || '👑 You\'re now VIP!',
-              description: `${t.plans_vip_welcome || 'Welcome to VIP! Enjoy exclusive features.'} You received ${response.data.awarded} coins!`,
+              description: `${t.plans_vip_welcome || 'Welcome to VIP! Enjoy exclusive features.'} You received ${response.data.awarded} coins! 🎉`,
             });
           } else {
             toast({
@@ -153,6 +154,8 @@ const Index = () => {
       return;
     }
     
+    trackEvent('confession_create_clicked');
+    
     // On mobile, route to /compose; on desktop, open dialog inline
     if (isMobile) {
       navigate('/compose');
@@ -168,7 +171,6 @@ const Index = () => {
       <AppLayout 
         onNewConfession={handleNewConfession}
         onManageSubscription={(defaultTab = 'subscriptions') => {
-          console.log('[E2E] Opening subscription dialog', defaultTab);
           setDialogDefaultTab(defaultTab);
           setManageSubDialogOpen(true);
         }}
@@ -218,15 +220,17 @@ const Index = () => {
         )}
 
         {/* Welcome Section */}
-        <div className="mb-8 text-center animate-fade-in">
-          <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 glass rounded-full border border-primary/20">
-            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-sm text-primary font-medium">{t.anonymous_secure}</span>
+        <div className="mb-6 sm:mb-8 text-center animate-fade-in">
+          <div className="inline-flex items-center gap-2 mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 glass rounded-full border border-primary/20">
+            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
+            <span className="text-xs sm:text-sm text-primary font-medium">{t.anonymous_secure}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-            {t.home_title}
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-3 px-4">
+            <GradientText variant="hero">
+              {t.home_title}
+            </GradientText>
           </h2>
-          <p className="text-base text-muted-foreground max-w-lg mx-auto">
+          <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-4">
             {t.welcome_description}
           </p>
         </div>
@@ -264,7 +268,7 @@ const Index = () => {
           open={isNewConfessionOpen}
           onOpenChange={setIsNewConfessionOpen}
           onConfessionCreated={() => {
-            // Confession created
+            trackEvent('confession_created');
           }}
         />
 

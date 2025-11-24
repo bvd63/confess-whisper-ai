@@ -11,10 +11,10 @@ describe("CommentAuthor", () => {
   it("renders author information correctly", async () => {
     renderWithProviders(<CommentAuthor userId="123" />);
 
-    // The component should render something (CommentAuthor passes clickable={false})
-    // so UserDisplayName will render as a non-clickable span
+    // The component should render something (even if Anonymous while loading)
     await waitFor(() => {
-      const authorElement = screen.getByText(/Anonymous/);
+      // UserDisplayName renders a clickable span with role="button"
+      const authorElement = screen.getByRole('button');
       expect(authorElement).toBeInTheDocument();
     });
   });

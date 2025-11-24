@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { SubscriptionProvider } from "@/state/SubscriptionProvider";
 import ErrorBoundary from "@/components/ErrorBoundaryFallback";
+import { reportWebVitals } from "@/hooks/usePerformanceMonitor";
 import { validateTranslationSystem } from "@/lib/i18nValidator";
 import { prefetchCriticalRoutes } from "@/lib/bundleOptimization";
 import { initSentry } from "@/lib/sentry";
@@ -33,6 +34,11 @@ if ('serviceWorker' in navigator && env.isProd) {
       logError('Service worker registration failed', error as Error);
     });
   });
+}
+
+// Start Web Vitals monitoring in production
+if (env.isProd) {
+  reportWebVitals();
 }
 
 // Validate translation system completeness in development

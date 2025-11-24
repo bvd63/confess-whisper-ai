@@ -141,7 +141,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
       <AnimatedCard 
         hover="lift"
         glass
-        className="p-6 mb-6 touch-manipulation transition-smooth hover:shadow-elevated animate-slide-up rounded-3xl border-border/50"
+        className="p-3 sm:p-4 md:p-5 mb-3 sm:mb-4 touch-manipulation transition-smooth hover:shadow-lg animate-slide-up"
       >
         <div className="mb-2 sm:mb-3">
           <ConfessionHeader 
@@ -215,20 +215,23 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
       {confession.ai_response && (
         <>
           <div className={cn(
-            "mt-4 rounded-xl transition-all",
+            "mt-4 rounded-lg transition-all",
             subscriptionTier === 'vip' 
-              ? "p-4 bg-gradient-to-r from-primary/10 to-primary/20 border border-primary/30 shadow-lg shadow-primary/10" 
-              : "p-3 bg-card border border-border"
+              ? "p-4 bg-gradient-to-r from-purple-500/10 to-purple-600/10 border border-purple-500/30 shadow-lg shadow-purple-500/10" 
+              : "p-3 bg-muted/50"
           )}>
             {subscriptionTier === 'vip' && (
               <div className="flex items-center gap-1.5 mb-3">
-                <Sparkles className="w-4 h-4 text-primary animate-pulse" />
-                <span className="text-xs font-bold text-primary uppercase tracking-wider">
-                  👑 VIP Priority AI Response
+                <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
+                <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">
+                  VIP Priority AI Response
                 </span>
               </div>
             )}
-            <p className="text-sm leading-relaxed text-foreground">
+            <p className={cn(
+              "text-sm leading-relaxed",
+              subscriptionTier === 'vip' && "text-purple-100"
+            )}>
               {confession.ai_response}
             </p>
           </div>
@@ -237,12 +240,12 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
           <EnhancedButton
             onClick={() => setIsDeepInsightOpen(true)}
             variant="outline"
-            className="w-full mt-3 border-primary/30 text-primary hover:bg-primary/10 h-10 rounded-lg font-semibold"
+            className="w-full mt-3 border-primary/30 text-primary"
             glow
             shine
           >
             <Sparkles className="w-4 h-4 mr-2 animate-pulse-glow" />
-            ✨ {confession.ai_deep_insight ? t.deep_insight_title : t.generate_insight}
+            {confession.ai_deep_insight ? t.deep_insight_title : t.generate_insight}
           </EnhancedButton>
         </>
       )}

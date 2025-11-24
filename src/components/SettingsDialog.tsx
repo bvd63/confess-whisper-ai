@@ -230,15 +230,13 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto rounded-3xl shadow-elevated border-border/50 glass-strong">
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto glass-strong">
           <DialogHeader>
-            <DialogTitle className="text-xl sm:text-2xl flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shadow-glow">
-                <span className="text-xl">⚙️</span>
-              </div>
-              <span className="gradient-text">{t.settings}</span>
+            <DialogTitle className="text-xl sm:text-2xl flex items-center gap-2">
+              <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-primary animate-pulse-glow" />
+              {t.settings}
             </DialogTitle>
-            <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
+            <DialogDescription className="text-xs sm:text-sm">
               {t.settings_manage}
             </DialogDescription>
           </DialogHeader>

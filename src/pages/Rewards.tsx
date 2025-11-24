@@ -99,94 +99,91 @@ const Rewards = () => {
     <AppLayout>
       <div className="max-w-2xl mx-auto">
         {/* Header */}
-        <div className="sticky top-0 z-10 backdrop-blur-2xl bg-background/95 border-b border-border/50 shadow-ios">
-          <div className="flex items-center gap-4 px-6 py-5">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-              className="hover:bg-accent rounded-xl h-10 w-10"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
+        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/50">
+          <div className="flex items-center justify-between px-4 py-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center shadow-glow">
-                <span className="text-2xl">🏆</span>
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold gradient-text">Rewards</h1>
-                <p className="text-xs text-muted-foreground">Track your progress</p>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate(-1)}
+                className="hover:bg-accent"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <div className="flex items-center gap-2">
+                <Trophy className="h-6 w-6 text-amber-500" />
+                <h1 className="text-2xl font-bold">Rewards Hub</h1>
               </div>
             </div>
           </div>
         </div>
 
         {/* Tabs */}
-        <Tabs defaultValue={initialTab} className="px-5 py-6">
-          <TabsList className="grid w-full grid-cols-4 h-12 bg-muted/30 rounded-2xl p-1 mb-8">
-            <TabsTrigger value="overview" className="rounded-xl text-sm data-[state=active]:bg-background data-[state=active]:shadow-ios">
-              <Star className="w-4 h-4 mr-1.5" />
-              <span className="hidden sm:inline">Overview</span>
+        <Tabs defaultValue={initialTab} className="px-4 py-4">
+          <TabsList className="grid w-full grid-cols-4 mb-6">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm">
+              <Star className="w-4 h-4 mr-1" />
+              Overview
             </TabsTrigger>
-            <TabsTrigger value="achievements" className="rounded-xl text-sm data-[state=active]:bg-background data-[state=active]:shadow-ios">
-              <Award className="w-4 h-4 mr-1.5" />
-              <span className="hidden sm:inline">Badges</span>
+            <TabsTrigger value="achievements" className="text-xs sm:text-sm">
+              <Award className="w-4 h-4 mr-1" />
+              Achievements
             </TabsTrigger>
-            <TabsTrigger value="daily" className="rounded-xl text-sm data-[state=active]:bg-background data-[state=active]:shadow-ios">
-              <Flame className="w-4 h-4 mr-1.5" />
-              <span className="hidden sm:inline">Daily</span>
+            <TabsTrigger value="daily" className="text-xs sm:text-sm">
+              <Flame className="w-4 h-4 mr-1" />
+              Daily
             </TabsTrigger>
-            <TabsTrigger value="referrals" className="rounded-xl text-sm data-[state=active]:bg-background data-[state=active]:shadow-ios">
-              <Gift className="w-4 h-4 mr-1.5" />
-              <span className="hidden sm:inline">Refer</span>
+            <TabsTrigger value="referrals" className="text-xs sm:text-sm">
+              <Gift className="w-4 h-4 mr-1" />
+              Referrals
             </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
+          <TabsContent value="overview" className="space-y-4">
             {/* Level & Progress Card */}
-            <Card className="p-6 bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/20 rounded-2xl shadow-card">
-              <div className="flex items-center justify-between mb-5">
+            <Card className="p-6 bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/20">
+              <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="text-3xl font-bold mb-1">Level {streakData?.level || 1}</h3>
+                  <h3 className="text-2xl font-bold">Level {streakData?.level || 1}</h3>
                   <p className="text-sm text-muted-foreground">
-                    {streakData?.totalPoints || 0} Points Earned
+                    {streakData?.totalPoints || 0} Total Points
                   </p>
                 </div>
-                <div className="p-4 bg-amber-500/20 rounded-2xl">
+                <div className="p-3 bg-amber-500/20 rounded-full">
                   <TrendingUp className="w-8 h-8 text-amber-500" />
                 </div>
               </div>
               
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Next Level Progress</span>
-                  <span className="font-bold text-amber-500">{levelProgress}/100</span>
+                  <span className="text-muted-foreground">Progress to Level {(streakData?.level || 1) + 1}</span>
+                  <span className="font-semibold">{levelProgress}/100</span>
                 </div>
-                <Progress value={levelProgress} className="h-3 rounded-full" />
+                <Progress value={levelProgress} className="h-2" />
               </div>
             </Card>
 
             {/* Streak Status */}
             {streakData && streakData.currentStreak > 0 && (
-              <Card className="p-5 bg-gradient-to-r from-orange-500/10 to-red-500/10 border-orange-500/20 rounded-2xl shadow-card">
+              <Card className="p-4 bg-gradient-to-r from-orange-500/10 to-red-500/10 border-orange-500/20">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-3 bg-orange-500/20 rounded-2xl">
-                      <Flame className="w-6 h-6 text-orange-500" />
+                    <div className="p-2 bg-orange-500/20 rounded-full">
+                      <Flame className="w-5 h-5 text-orange-500" />
                     </div>
                     <div>
-                      <p className="text-base font-bold">
-                        🔥 {streakData.currentStreak} Day Streak
+                      <p className="text-sm font-semibold">
+                        {streakData.currentStreak} Day Streak 🔥
                       </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         Best: {streakData.longestStreak} days
                       </p>
                     </div>
                   </div>
                   {streakData.isVIP && (
-                    <div className="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full">
-                      <span className="text-xs font-bold text-white">👑 2x Boost</span>
+                    <div className="px-3 py-1 bg-purple-500/20 border border-purple-500/30 rounded-full">
+                      <span className="text-xs font-semibold text-purple-400">2x Rewards</span>
                     </div>
                   )}
                 </div>
@@ -198,26 +195,22 @@ const Rewards = () => {
 
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-2 gap-4">
-              <Card className="p-5 rounded-2xl shadow-card hover:shadow-elevated transition-shadow">
-                <div className="flex items-center gap-2.5 mb-3">
-                  <div className="p-2 bg-amber-500/10 rounded-xl">
-                    <Award className="w-5 h-5 text-amber-500" />
-                  </div>
-                  <span className="text-xs text-muted-foreground font-medium">Badges</span>
+              <Card className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Award className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">Badges Earned</span>
                 </div>
-                <p className="text-3xl font-bold text-amber-500">
+                <p className="text-2xl font-bold text-amber-500">
                   {badgesCount}
                 </p>
               </Card>
 
-              <Card className="p-5 rounded-2xl shadow-card hover:shadow-elevated transition-shadow">
-                <div className="flex items-center gap-2.5 mb-3">
-                  <div className="p-2 bg-green-500/10 rounded-xl">
-                    <Gift className="w-5 h-5 text-green-500" />
-                  </div>
-                  <span className="text-xs text-muted-foreground font-medium">Referrals</span>
+              <Card className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Gift className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">Referrals</span>
                 </div>
-                <p className="text-3xl font-bold text-green-500">
+                <p className="text-2xl font-bold text-green-500">
                   {referralsCount}
                 </p>
               </Card>
@@ -279,14 +272,14 @@ const Rewards = () => {
                 </li>
                 <li className="flex items-center justify-between p-2 bg-background rounded-md">
                   <span className="flex items-center gap-2">
-                    <span className="text-lg">🔥</span>
+                    <span className="text-lg">🔥🔥</span>
                     <span>5 days streak</span>
                   </span>
                   <span className="font-semibold text-orange-500">+20 coins</span>
                 </li>
                 <li className="flex items-center justify-between p-2 bg-background rounded-md">
                   <span className="flex items-center gap-2">
-                    <span className="text-lg">🔥</span>
+                    <span className="text-lg">🔥🔥🔥</span>
                     <span>7 days streak</span>
                   </span>
                   <span className="font-semibold text-red-500">+50 coins</span>

@@ -20,8 +20,8 @@ import { LogoutSection } from '@/components/settings/LogoutSection';
 import { DeleteAccountSection } from '@/components/settings/DeleteAccountSection';
 import ReferralSystem from '@/components/ReferralSystem';
 import BlockedUsers from '@/components/BlockedUsers';
-import { ModernLanguageSelector } from '@/components/ModernLanguageSelector';
-import ModernThemeToggle from '@/components/ModernThemeToggle';
+import { LanguageSelector } from '@/components/LanguageSelector';
+import ThemeToggle from '@/components/ThemeToggle';
 import { logError } from '@/lib/logger';
 
 interface MenuItemProps {
@@ -155,28 +155,32 @@ const SettingsActivity = () => {
     <AppLayout>
       <div className="max-w-2xl mx-auto">
         {/* Header */}
-        <div className="sticky top-0 z-10 backdrop-blur-2xl bg-background/95 border-b border-border/50 shadow-ios">
-          <div className="flex items-center justify-between px-6 py-5">
+        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/50">
+          <div className="flex items-center justify-between px-4 py-4">
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => navigate(-1)}
-                className="hover:bg-accent rounded-xl"
+                className="hover:bg-accent"
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <div>
-                <h1 className="text-2xl font-bold gradient-text">{t.settings_activity_title}</h1>
-                <p className="text-xs text-muted-foreground">Manage your account</p>
-              </div>
+              <h1 className="text-2xl font-bold">{t.settings_activity_title}</h1>
             </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hover:bg-accent"
+            >
+              <User className="h-5 w-5" />
+            </Button>
           </div>
         </div>
 
         {/* Menu Sections */}
         {/* Rewards Hub - Separate Featured Card */}
-        <Card className="mx-4 mt-6 overflow-hidden bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border-amber-500/20 rounded-3xl shadow-card">
+        <Card className="mx-4 mt-4 overflow-hidden bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border-amber-500/20">
           <MenuItem
             icon={Flame}
             title="🏆 Rewards & Achievements"
@@ -186,7 +190,7 @@ const SettingsActivity = () => {
         </Card>
 
         {/* Regular Settings Card */}
-        <Card className="mx-4 my-4 overflow-hidden rounded-3xl shadow-card border-border/50">
+        <Card className="mx-4 my-4 overflow-hidden">
           {/* Account Settings */}
           <MenuItem
             icon={User}
@@ -195,30 +199,20 @@ const SettingsActivity = () => {
             onClick={() => toggleSection('account')}
           >
             {profileData && (
-              <div className="space-y-6">
-                <div className="space-y-4">
-                  <ProfileEditor 
-                    userId={user.id} 
-                    currentProfile={profileData} 
-                    onUpdate={reloadProfileData} 
-                  />
-                </div>
+              <div className="space-y-4">
+                <ProfileEditor 
+                  userId={user.id} 
+                  currentProfile={profileData} 
+                  onUpdate={reloadProfileData} 
+                />
+                <EmailDisplay email={user.email || ''} />
+                <PasswordChange 
+                  userId={user.id} 
+                  passwordChangedAt={passwordChangedAt} 
+                />
                 
-                <div className="pt-2">
-                  <EmailDisplay email={user.email || ''} />
-                </div>
-                
-                <div className="pt-2">
-                  <PasswordChange 
-                    userId={user.id} 
-                    passwordChangedAt={passwordChangedAt} 
-                  />
-                </div>
-                
-                <div className="pt-4 space-y-3">
-                  <LogoutSection />
-                  <DeleteAccountSection userId={user.id} userEmail={user.email || ''} />
-                </div>
+                <LogoutSection />
+                <DeleteAccountSection userId={user.id} userEmail={user.email || ''} />
               </div>
             )}
           </MenuItem>
@@ -248,7 +242,7 @@ const SettingsActivity = () => {
                     <Globe className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm font-medium">Select Language</span>
                   </div>
-                  <ModernLanguageSelector />
+                  <LanguageSelector />
                 </div>
               </div>
 
@@ -259,7 +253,7 @@ const SettingsActivity = () => {
                     <Palette className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm font-medium">Appearance</span>
                   </div>
-                  <ModernThemeToggle />
+                  <ThemeToggle />
                 </div>
               </div>
             </div>

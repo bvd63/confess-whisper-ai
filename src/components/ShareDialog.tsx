@@ -49,14 +49,9 @@ const ShareDialog = ({ open, onOpenChange, confessionId }: ShareDialogProps) => 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md rounded-3xl shadow-elevated border-border/50 bg-card">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-3 text-lg sm:text-xl">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shadow-glow">
-              <span className="text-xl">📤</span>
-            </div>
-            <span className="gradient-text">{t.share_title}</span>
-          </DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl">{t.share_title}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-3 sm:space-y-4">
@@ -64,36 +59,36 @@ const ShareDialog = ({ open, onOpenChange, confessionId }: ShareDialogProps) => 
             <Button
               variant="outline"
               onClick={() => handleShare('facebook')}
-              className="gap-1.5 sm:gap-2 text-xs sm:text-sm rounded-2xl border-border hover:bg-accent h-11 shadow-card"
+              className="gap-1.5 sm:gap-2 text-xs sm:text-sm"
               size="sm"
             >
-              <Facebook className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
+              <Facebook className="w-3 h-3 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">Facebook</span>
               <span className="sm:hidden">FB</span>
             </Button>
             <Button
               variant="outline"
               onClick={() => handleShare('twitter')}
-              className="gap-1.5 sm:gap-2 text-xs sm:text-sm rounded-2xl border-border hover:bg-accent h-11 shadow-card"
+              className="gap-1.5 sm:gap-2 text-xs sm:text-sm"
               size="sm"
             >
               <Twitter className="w-3 h-3 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">Twitter</span>
-              <span className="sm:hidden">𝕏</span>
+              <span className="sm:hidden">X</span>
             </Button>
             <Button
               variant="outline"
               onClick={() => handleShare('linkedin')}
-              className="gap-1.5 sm:gap-2 text-xs sm:text-sm rounded-2xl border-border hover:bg-accent h-11 shadow-card"
+              className="gap-1.5 sm:gap-2 text-xs sm:text-sm"
               size="sm"
             >
-              <Linkedin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-700" />
+              <Linkedin className="w-3 h-3 sm:w-4 sm:h-4" />
               LinkedIn
             </Button>
             <Button
               variant="outline"
               onClick={() => handleShare('email')}
-              className="gap-1.5 sm:gap-2 text-xs sm:text-sm rounded-2xl border-border hover:bg-accent h-11 shadow-card"
+              className="gap-1.5 sm:gap-2 text-xs sm:text-sm"
               size="sm"
             >
               <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -101,11 +96,11 @@ const ShareDialog = ({ open, onOpenChange, confessionId }: ShareDialogProps) => 
             </Button>
           </div>
 
-          <div className="pt-3 sm:pt-4 border-t border-border">
+          <div className="pt-3 sm:pt-4 border-t">
             <Button
               onClick={handleCopyLink}
               variant="secondary"
-              className="w-full gap-2 text-xs sm:text-sm rounded-2xl h-11 bg-secondary hover:bg-secondary/80 shadow-card"
+              className="w-full gap-2 text-xs sm:text-sm"
               size="sm"
             >
               <Link2 className="w-3 h-3 sm:w-4 sm:h-4" />

@@ -13,7 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
-import { ModernBottomNav } from "@/components/ModernBottomNav";
+import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
+import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import VirtualizedConfessions from "@/components/VirtualizedConfessions";
 import { logError } from "@/lib/logger";
@@ -39,6 +40,7 @@ const Bookmarks = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { user, isLoading: userLoading } = useCurrentUser();
+  useAnalyticsTracking(user?.id || null);
   const { isPremium } = usePremiumStatus(user?.id);
   const { likedConfessions, bookmarkedConfessions, reloadLikes, reloadBookmarks } = useConfessionInteractions({ userId: user?.id || null });
   const [confessions, setConfessions] = useState<Confession[]>([]);
@@ -184,7 +186,7 @@ const Bookmarks = () => {
         )}
       </main>
 
-      <ModernBottomNav />
+      <InstagramBottomNav />
 
       <Suspense fallback={null}>
         <NewConfessionDialog

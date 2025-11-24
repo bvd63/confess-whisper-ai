@@ -394,7 +394,7 @@ export const EnhancedMessageThread = ({
                       "absolute -top-10 opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity bg-background border border-border rounded-full px-2 py-1 flex gap-1 shadow-xl z-40",
                       isOwn ? "right-0" : "left-0"
                     )}>
-                      {['❤️', '🔥', '⭐'].map((emoji) => (
+                      {['❤️', '👍', '😂', '😮', '😢'].map((emoji) => (
                         <button
                           key={emoji}
                           onClick={(e) => {

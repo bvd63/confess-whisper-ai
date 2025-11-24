@@ -282,12 +282,10 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
 
   if (conversations.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-center">
-        <div className="w-20 h-20 rounded-3xl bg-muted/50 flex items-center justify-center mb-4">
-          <span className="text-4xl">💬</span>
-        </div>
-        <p className="text-muted-foreground mb-6 font-medium">{t.messages_no_conversations}</p>
-        <Button onClick={() => navigate('/search-users')} variant="outline" className="rounded-2xl h-11 px-6">
+      <div className="flex flex-col items-center justify-center p-8 text-center">
+        <MessageCircle className="w-12 h-12 text-muted-foreground mb-4" />
+        <p className="text-muted-foreground mb-4">{t.messages_no_conversations}</p>
+        <Button onClick={() => navigate('/search-users')} variant="outline">
           {t.messages_start_conversation}
         </Button>
       </div>
@@ -298,10 +296,10 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
     <>
       <div className="space-y-2">
         {conversations.map((conversation) => (
-          <div key={conversation.id} className="flex items-center gap-2 group">
+          <div key={conversation.id} className="flex items-center gap-2">
             <Button
               variant="ghost"
-              className="flex-1 justify-start text-left p-4 h-auto rounded-2xl hover:bg-accent/50 transition-colors"
+              className="flex-1 justify-start text-left p-4 h-auto"
               onClick={() => {
                 if (markAsRead) {
                   markAsRead(conversation.id);
@@ -310,8 +308,8 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
               }}
             >
               <div className="flex items-start gap-3 w-full">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center flex-shrink-0 shadow-card">
-                  <span className="text-xl">👤</span>
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <User className="w-5 h-5 text-primary" />
                 </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
@@ -338,7 +336,7 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
             <Button
               variant="ghost"
               size="icon"
-              className="h-10 w-10 rounded-2xl text-destructive hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="text-destructive hover:text-destructive hover:bg-destructive/10"
               onClick={(e) => {
                 e.stopPropagation();
                 setConversationToDelete(conversation.id);

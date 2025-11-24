@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Bell, Heart, MessageSquare, Check, Trash2, History, BarChart3 } from "lucide-react";
+import { analytics } from '@/lib/analytics';
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -113,6 +114,11 @@ const NotificationsDropdown = () => {
 
   const markAsRead = async (notificationId: string) => {
     try {
+      // Track read event
+      analytics.track('notification_read', {
+        notificationId,
+      });
+      
       const { error } = await supabase.functions.invoke('manage-notifications', {
         body: { action: 'mark_read', notificationId },
       });
@@ -141,6 +147,11 @@ const NotificationsDropdown = () => {
 
   const deleteNotification = async (notificationId: string) => {
     try {
+      // Track delete event
+      analytics.track('notification_dismissed', {
+        notificationId,
+      });
+      
       const { error } = await supabase.functions.invoke('manage-notifications', {
         body: { action: 'delete', notificationId },
       });
@@ -175,6 +186,12 @@ const NotificationsDropdown = () => {
   };
 
   const handleNotificationClick = async (notification: Notification) => {
+    // Track click event
+    analytics.track('notification_clicked', {
+      notification_type: notification.type,
+      notificationId: notification.id,
+    });
+    
     await markAsRead(notification.id);
     
     // For message notifications, navigate to specific conversation via query param
@@ -239,74 +256,81 @@ const NotificationsDropdown = () => {
     <>
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-full hover:bg-accent">
-          <Bell className="w-5 h-5" />
+        <Button variant="ghost" size="icon" className="relative h-8 w-8 sm:h-9 sm:w-9">
+          <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
           {unreadCount > 0 && (
             <Badge 
-              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-primary text-primary-foreground text-xs font-bold rounded-full shadow-glow"
+              className="absolute -top-1 -right-1 h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center p-0 bg-primary text-primary-foreground text-[9px] sm:text-xs"
             >
               {unreadCount > 9 ? '9+' : unreadCount}
             </Badge>
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[420px] p-0 rounded-3xl shadow-elevated border-border/50" align="end">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border/50 backdrop-blur-xl bg-background/95">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">🔔</span>
-            <h3 className="text-lg font-bold gradient-text">{t.notifications_title}</h3>
-          </div>
-          <div className="flex gap-2">
+      <PopoverContent className="w-[calc(100vw-2rem)] sm:w-80 p-0" align="end">
+        <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b border-border">
+          <h3 className="text-sm sm:text-base font-semibold">{t.notifications_title}</h3>
+          <div className="flex gap-0.5 sm:gap-1">
             {unreadCount > 0 && (
               <Button
                 variant="ghost"
-                size="icon"
+                size="sm"
                 onClick={markAllAsRead}
-                className="h-9 w-9 rounded-full hover:bg-accent"
-                title={t.notifications_mark_all_read}
+                className="h-7 sm:h-8 text-[10px] sm:text-xs px-1.5 sm:px-2"
               >
-                <Check className="w-4 h-4" />
+                <Check className="w-3 h-3 mr-0.5 sm:mr-1" />
+                <span className="hidden xs:inline">{t.notifications_mark_all_read}</span>
               </Button>
             )}
             {notifications.length > 0 && (
               <Button
                 variant="ghost"
-                size="icon"
+                size="sm"
                 onClick={() => setDeleteAllDialogOpen(true)}
-                className="h-9 w-9 rounded-full hover:bg-destructive/10 text-destructive"
-                title={t.notifications_delete_all}
+                className="h-7 sm:h-8 text-[10px] sm:text-xs px-1.5 sm:px-2 text-destructive hover:text-destructive"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-3 h-3" />
               </Button>
             )}
           </div>
         </div>
 
         {/* View All and Analytics Buttons */}
-        <div className="px-6 py-3 border-b border-border/50 bg-muted/20 space-y-2">
+        <div className="px-3 sm:px-4 py-2 border-b border-border bg-muted/30 space-y-1">
           <Button
             variant="ghost"
-            className="w-full justify-start text-sm font-semibold h-11 rounded-xl hover:bg-accent/50"
+            size="sm"
+            className="w-full justify-start text-xs"
             onClick={() => {
               navigate('/notifications');
               setIsOpen(false);
             }}
           >
-            <History className="w-4 h-4 mr-3" />
+            <History className="w-3 h-3 mr-2" />
             View All Notifications
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start text-xs"
+            onClick={() => {
+              navigate('/notifications/analytics');
+              setIsOpen(false);
+            }}
+          >
+            <BarChart3 className="w-3 h-3 mr-2" />
+            View Analytics
           </Button>
         </div>
 
-        <ScrollArea className="h-[400px]">
+        <ScrollArea className="h-[320px] sm:h-[400px]">
           {notifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-              <div className="w-20 h-20 rounded-3xl bg-muted/50 flex items-center justify-center mb-4">
-                <Bell className="w-10 h-10 opacity-50" />
-              </div>
-              <p className="text-sm font-semibold">{t.notifications_none}</p>
+            <div className="flex flex-col items-center justify-center py-10 sm:py-12 text-muted-foreground">
+              <Bell className="w-10 h-10 sm:w-12 sm:h-12 mb-2 opacity-50" />
+              <p className="text-xs sm:text-sm">{t.notifications_none}</p>
             </div>
           ) : (
-            <div className="divide-y divide-border/50">
+            <div className="divide-y divide-border">
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
@@ -316,32 +340,32 @@ const NotificationsDropdown = () => {
                 >
                   <button
                     onClick={() => handleNotificationClick(notification)}
-                    className="flex-1 px-6 py-4 text-left hover:bg-muted/30 transition-colors"
+                    className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 text-left hover:bg-muted/50 transition-colors"
                   >
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
+                    <div className="flex items-start gap-2 sm:gap-3">
+                      <div className="mt-0.5 sm:mt-1">
                         {getNotificationIcon(notification.type)}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-bold truncate">
+                        <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
+                          <span className="text-xs sm:text-sm font-medium truncate">
                             @{notification.triggered_by_nickname || t.anonymous_user}
                           </span>
-                          <span className="text-sm text-muted-foreground truncate">
+                          <span className="text-xs sm:text-sm text-muted-foreground truncate">
                             {getNotificationText(notification)}
                           </span>
                           {!notification.is_read && (
-                            <Badge variant="secondary" className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full flex-shrink-0 font-bold">
+                            <Badge variant="secondary" className="text-[9px] sm:text-xs bg-primary text-primary-foreground px-1 sm:px-1.5 py-0 flex-shrink-0">
                               {t.notification_new}
                             </Badge>
                           )}
                         </div>
                         {notification.comment_content && (
-                          <p className="text-xs text-muted-foreground truncate mb-1">
+                          <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
                             "{notification.comment_content}"
                           </p>
                         )}
-                        <p className="text-xs font-semibold text-muted-foreground">
+                        <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">
                           {timeAgo(notification.created_at)}
                         </p>
                       </div>
@@ -350,14 +374,14 @@ const NotificationsDropdown = () => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="mr-3 h-10 w-10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
+                    className="mr-1.5 sm:mr-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
                     onClick={(e) => {
                       e.stopPropagation();
                       setNotificationToDelete(notification.id);
                       setDeleteDialogOpen(true);
                     }}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </Button>
                 </div>
               ))}

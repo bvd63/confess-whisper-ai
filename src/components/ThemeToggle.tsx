@@ -42,7 +42,7 @@ const ThemeToggle = () => {
         <Button
           variant="ghost"
           size="icon"
-          className="text-muted-foreground hover:text-foreground hover:bg-accent transition-all rounded-lg"
+          className="text-muted-foreground hover:text-foreground transition-colors"
           aria-label={t.common_theme_aria}
         >
           {theme === "light" ? (
@@ -52,13 +52,13 @@ const ThemeToggle = () => {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="bg-card border-border">
-        <DropdownMenuItem onClick={() => changeTheme("light")} className="text-foreground hover:bg-accent rounded-lg cursor-pointer">
-          <Sun className="w-4 h-4 mr-2 text-amber-500" />
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => changeTheme("light")}>
+          <Sun className="w-4 h-4 mr-2" />
           Light
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => changeTheme("dark")} className="text-foreground hover:bg-accent rounded-lg cursor-pointer">
-          <Moon className="w-4 h-4 mr-2 text-indigo-400" />
+        <DropdownMenuItem onClick={() => changeTheme("dark")}>
+          <Moon className="w-4 h-4 mr-2" />
           Dark
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -19,7 +19,6 @@ export default defineConfig({
     headless: true, // Force headless mode for Codespaces/CI
     actionTimeout: 15000, // 15s for actions
     navigationTimeout: 30000, // 30s for page loads
-    storageState: 'tests/e2e/storage-state.json',
   },
   projects: [
     {

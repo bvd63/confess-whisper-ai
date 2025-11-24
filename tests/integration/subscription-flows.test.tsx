@@ -258,11 +258,9 @@ describe('Subscription Flows - Integration Tests', () => {
     it('should update profile tier after successful purchase', async () => {
       const mockFrom = vi.fn().mockReturnValue({
         update: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            select: vi.fn().mockResolvedValue({
-              data: [{ subscription_tier: 'vip' }],
-              error: null,
-            }),
+          eq: vi.fn().mockResolvedValue({
+            data: { subscription_tier: 'vip' },
+            error: null,
           }),
         }),
       });
@@ -282,15 +280,13 @@ describe('Subscription Flows - Integration Tests', () => {
     it('should clear trial data on VIP purchase', async () => {
       const mockFrom = vi.fn().mockReturnValue({
         update: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            select: vi.fn().mockResolvedValue({
-              data: [{ 
-                subscription_tier: 'vip',
-                trial_active: false,
-                trial_premium_ends_at: null
-              }],
-              error: null,
-            }),
+          eq: vi.fn().mockResolvedValue({
+            data: { 
+              subscription_tier: 'vip',
+              trial_active: false,
+              trial_premium_ends_at: null
+            },
+            error: null,
           }),
         }),
       });

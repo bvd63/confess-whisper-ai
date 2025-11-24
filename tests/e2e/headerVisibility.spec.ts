@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { loginAs } from '../helpers/auth';
 import { mockSubscriptionRoutes } from '../helpers/network';
-import { closeOpenDialogs, waitForAppReady, disableOverlayPointerEvents } from '../helpers/pageHelpers';
+import { closeOpenDialogs, waitForAppReady } from '../helpers/pageHelpers';
 
 test.describe('Manage Subscription Header Visibility', () => {
   test('authenticated user sees header button', async ({ page }) => {
@@ -22,7 +22,6 @@ test.describe('Manage Subscription Header Visibility', () => {
     // Wait for app ready
     await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
     await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
-    await disableOverlayPointerEvents(page);
     
     // Look for manage subscription button using test ID
     const manageButton = page.getByTestId('manage-subscription-btn');
@@ -60,7 +59,6 @@ test.describe('Manage Subscription Header Visibility', () => {
     // Close any modals
     await waitForAppReady(page);
     await closeOpenDialogs(page);
-    await disableOverlayPointerEvents(page);
     
     // Free user should see the subscription button (which opens modal with upgrade options)
     const upgradeButton = page.getByTestId('manage-subscription-btn');
