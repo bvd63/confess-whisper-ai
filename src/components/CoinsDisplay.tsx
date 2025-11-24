@@ -84,12 +84,12 @@ const CoinsDisplay = ({
           {t.coins_history}
         </Button>
 
-        <div className="mt-2.5 sm:mt-3 p-2 sm:p-2.5 rounded-lg border border-secondary/20 bg-slate-950">
-          <p className="text-[10px] font-semibold mb-1 sm:mb-1.5 text-slate-100 sm:text-xs">
-            {t.coins_how_to_earn}
+        <div className="mt-2.5 sm:mt-3 p-2 sm:p-2.5 rounded-lg border border-border bg-card">
+          <p className="text-[10px] font-semibold mb-1 sm:mb-1.5 text-foreground sm:text-xs">
+            💰 {t.coins_how_to_earn}
           </p>
           <ul className="text-[9px] sm:text-[10px] text-muted-foreground space-y-0.5">
-            <li>{t.coins_per_confession_detail}</li>
+            <li>💬 {t.coins_per_confession_detail}</li>
             <li>🔥 Streak bonuses: +10/+20/+50 coins at 3/5/7 days</li>
             <li>🎁 Referral rewards: +20 coins per completed referral</li>
           </ul>
@@ -97,11 +97,11 @@ const CoinsDisplay = ({
 
         <div className="mt-2.5 sm:mt-3 p-2 sm:p-2.5 bg-primary/10 rounded-lg border border-primary/20">
           <p className="text-[10px] sm:text-xs text-primary font-semibold mb-1 sm:mb-1.5">
-            {t.coins_how_to_spend}
+            🛒 {t.coins_how_to_spend}
           </p>
           <ul className="text-[9px] sm:text-[10px] text-muted-foreground space-y-0.5">
             <li>🚀 Boost Confession (15 coins) - Highlight for 1 hour</li>
-            <li>✨ Profile Flairs - Customize your profile appearance</li>
+            <li>⭐ Profile Flairs - Customize your profile appearance</li>
           </ul>
         </div>
       </Card>

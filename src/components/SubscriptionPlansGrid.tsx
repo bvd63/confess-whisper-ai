@@ -161,29 +161,29 @@ export const SubscriptionPlansGrid = ({
     <div className="space-y-8">
       {/* Interval Tabs */}
       {onIntervalChange && (
-        <div className="flex justify-center">
-          <div className="inline-flex rounded-lg bg-[#13141f] p-1 gap-1">
+        <div className="flex justify-center px-4">
+          <div className="inline-flex rounded-xl bg-card border border-border p-1 gap-1 w-full max-w-sm">
             <button
               onClick={() => onIntervalChange('monthly')}
-              className={`px-8 py-2.5 rounded-lg transition-all font-medium ${
+              className={`flex-1 px-6 py-3 rounded-lg transition-all font-semibold ${
                 interval === 'monthly'
-                  ? 'bg-[#1a1b2e] text-white'
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-primary text-primary-foreground shadow-lg'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              Monthly
+              📅 Monthly
             </button>
             <button
               onClick={() => onIntervalChange('yearly')}
-              className={`px-8 py-2.5 rounded-lg transition-all font-medium relative ${
+              className={`flex-1 px-6 py-3 rounded-lg transition-all font-semibold relative ${
                 interval === 'yearly'
-                  ? 'bg-[#1a1b2e] text-white'
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-primary text-primary-foreground shadow-lg'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              Yearly
-              <span className="absolute -top-2 -right-2 bg-purple-600 text-white text-xs px-2 py-0.5 rounded-full font-semibold">
-                -34%
+              🎯 Yearly
+              <span className="absolute -top-2 -right-2 bg-green-600 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-lg">
+                💰 -34%
               </span>
             </button>
           </div>
@@ -191,63 +191,63 @@ export const SubscriptionPlansGrid = ({
       )}
 
       {/* Plans Grid - Centered for single VIP plan */}
-      <div className="flex justify-center">
+      <div className="flex justify-center px-4">
         <div className="w-full max-w-md">
           {filteredPlans.map((plan: any) => (
             <Card
               key={`${plan.id}-${plan.interval}`}
-              className={`p-8 relative bg-[#13141f] border transition-all duration-300 hover:scale-[1.02] ${
+              className={`p-6 sm:p-8 relative bg-card border transition-all duration-300 hover:scale-[1.02] rounded-2xl ${
                 plan.id === 'vip'
-                  ? 'border-purple-500/30 hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]'
-                  : 'border-[#1a1b2e] hover:border-purple-500/30 hover:shadow-[0_0_20px_rgba(168,85,247,0.1)]'
+                  ? 'border-primary/30 hover:border-primary/50 shadow-xl hover:shadow-2xl'
+                  : 'border-border hover:border-primary/30 shadow-lg'
               }`}
             >
             {/* Active Badge for VIP if current plan */}
             {isCurrentPlan(plan) && (
-              <Badge className="absolute -top-3 left-4 bg-purple-600/90 text-white px-3 py-1 font-medium">
-                Active
+              <Badge className="absolute -top-3 left-4 bg-primary text-primary-foreground px-3 py-1 font-semibold shadow-lg">
+                ✅ Active
               </Badge>
             )}
 
             {/* Savings Badge with glow */}
             {interval === 'yearly' && (
               <div className="absolute -top-3 -right-3">
-                <div className="absolute inset-0 bg-purple-600/30 blur-xl rounded-full"></div>
-                <Badge className="relative bg-purple-600 text-white px-3 py-1 font-semibold">
-                  Save ~34%
+                <div className="absolute inset-0 bg-primary/30 blur-xl rounded-full animate-pulse-glow"></div>
+                <Badge className="relative bg-green-600 text-white px-3 py-1 font-bold shadow-lg">
+                  💰 Save ~34%
                 </Badge>
               </div>
             )}
 
 
             {/* Plan Header */}
-            <div className="mb-8">
-              <div className="flex items-center gap-3 mb-6">
-                <span className="text-3xl">{plan.id === 'vip' ? '👑' : '✨'}</span>
-                <h3 className="text-2xl font-bold text-white">{plan.name}</h3>
+            <div className="mb-6 sm:mb-8 text-center">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <span className="text-4xl sm:text-5xl animate-bounce-gentle">{plan.id === 'vip' ? '👑' : '⭐'}</span>
+                <h3 className="text-2xl sm:text-3xl font-bold text-foreground">{plan.name}</h3>
               </div>
               <div className="mb-2">
-                <span className="text-5xl font-bold text-white">
+                <span className="text-4xl sm:text-5xl font-bold text-foreground">
                   ${interval === 'yearly' ? (plan.price / 12).toFixed(2) : plan.price}
                 </span>
-                <span className="text-gray-400 text-lg ml-2">/per month</span>
+                <span className="text-muted-foreground text-base sm:text-lg ml-2">/month</span>
               </div>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-muted-foreground font-medium">
                 {interval === 'yearly' 
-                  ? `Billed annually ($${plan.price.toFixed(2)}/per year)`
-                  : 'Billed monthly'
+                  ? `💳 Billed annually ($${plan.price.toFixed(2)}/year)`
+                  : '💳 Billed monthly'
                 }
               </p>
             </div>
 
             {/* Benefits List */}
-            <div className="space-y-4 mb-8">
+            <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
               {plan.benefits.map((benefit: string, index: number) => (
                 <div key={index} className="flex items-start gap-3 group/benefit">
-                  <div className="w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/benefit:bg-purple-500/30 transition-colors">
-                    <Check className="w-3.5 h-3.5 text-purple-400" />
+                  <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/benefit:bg-primary/30 transition-all group-hover/benefit:scale-110">
+                    <Check className="w-3.5 h-3.5 text-primary" />
                   </div>
-                  <span className="text-sm text-white/90 leading-relaxed">{getStringTranslation(t, benefit) || benefit}</span>
+                  <span className="text-sm text-foreground/90 leading-relaxed">{getStringTranslation(t, benefit) || benefit}</span>
                 </div>
               ))}
             </div>
@@ -285,12 +285,12 @@ export const SubscriptionPlansGrid = ({
                 (isLoading || !canChangePlan || (plan.id !== 'free' && !plan.priceId)) && !(currentPlan === 'vip' && plan.id === 'vip') || 
                 portalLoading
               }
-              className="w-full py-6 rounded-lg font-semibold transition-all duration-300 bg-transparent border-2 border-white hover:bg-white text-white hover:text-black hover:scale-[1.02] disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-white disabled:scale-100"
+              className="w-full h-12 sm:h-14 rounded-xl font-bold text-base transition-all duration-300 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100"
             >
               {(currentPlan === 'vip' && plan.id === 'vip')
-                ? (portalLoading ? 'Opening Portal...' : 'Manage Subscription') 
+                ? (portalLoading ? '⏳ Opening Portal...' : '⚙️ Manage Subscription') 
                 : isCurrentPlan(plan) 
-                  ? (portalLoading ? 'Opening Portal...' : 'Manage Subscription') 
+                  ? (portalLoading ? '⏳ Opening Portal...' : '⚙️ Manage Subscription') 
                   : getButtonText(plan)}
             </Button>
           </Card>
