@@ -1,9 +1,9 @@
-// AGGRESSIVE CACHE BUSTING - Always serve fresh content
-const VERSION = new Date().getTime();
-const CACHE_NAME = `confessai-v${VERSION}`;
-const RUNTIME_CACHE = `runtime-v${VERSION}`;
+// ULTRA AGGRESSIVE CACHE BUSTING - FORCE REAL-TIME UPDATES
+const VERSION = `v${Date.now()}-${Math.random().toString(36).slice(2)}`;
+const CACHE_NAME = `confessai-${VERSION}`;
+const RUNTIME_CACHE = `runtime-${VERSION}`;
 
-// Minimal caching - prioritize fresh content
+// NO static caching - always fetch fresh
 const STATIC_ASSETS = [];
 
 // Install service worker
@@ -16,27 +16,25 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate service worker - aggressively clear old caches
+// Activate service worker - ULTRA aggressively clear ALL caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
+      // Delete ALL caches without exception - force fresh content
       return Promise.all(
         cacheNames.map((name) => {
-          // Delete ALL old caches to force fresh content
-          if (name !== CACHE_NAME && name !== RUNTIME_CACHE) {
-            console.log('🗑️ Deleting old cache:', name);
-            return caches.delete(name);
-          }
+          console.log('🗑️ FORCE deleting cache:', name);
+          return caches.delete(name);
         })
       );
     }).then(() => {
-      // Force immediate control of all clients
+      // Immediate control of all clients
       return self.clients.claim();
     }).then(() => {
-      // Notify all clients about the update
+      // Force reload all clients
       return self.clients.matchAll().then((clients) => {
         clients.forEach((client) => {
-          client.postMessage({ type: 'SW_UPDATED' });
+          client.postMessage({ type: 'FORCE_RELOAD' });
         });
       });
     })
