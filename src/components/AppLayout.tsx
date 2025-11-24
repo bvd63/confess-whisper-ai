@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import AppHeader from "./AppHeader";
+import ModernAppHeader from "./ModernAppHeader";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -10,7 +10,7 @@ interface AppLayoutProps {
 const AppLayout = ({ children, onNewConfession, onManageSubscription }: AppLayoutProps) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-      <AppHeader onNewConfession={onNewConfession} onManageSubscription={onManageSubscription} />
+      <ModernAppHeader onNewConfession={onNewConfession} onManageSubscription={onManageSubscription} />
       {children}
     </div>
   );

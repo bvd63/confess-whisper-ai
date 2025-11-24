@@ -220,17 +220,15 @@ const Index = () => {
         )}
 
         {/* Welcome Section */}
-        <div className="mb-6 sm:mb-8 text-center animate-fade-in">
-          <div className="inline-flex items-center gap-2 mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 glass rounded-full border border-primary/20">
-            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
-            <span className="text-xs sm:text-sm text-primary font-medium">{t.anonymous_secure}</span>
+        <div className="mb-8 text-center animate-fade-in">
+          <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 glass rounded-full border border-primary/20">
+            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <span className="text-sm text-primary font-medium">{t.anonymous_secure}</span>
           </div>
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-3 px-4">
-            <GradientText variant="hero">
-              {t.home_title}
-            </GradientText>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+            {t.home_title}
           </h2>
-          <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-4">
+          <p className="text-base text-muted-foreground max-w-lg mx-auto">
             {t.welcome_description}
           </p>
         </div>
