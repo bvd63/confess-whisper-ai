@@ -65,14 +65,14 @@ const ConfessionHeader = memo(({
   return (
     <div className="flex items-center gap-2 text-muted-foreground text-sm flex-wrap">
       <div className="flex items-center gap-1 flex-wrap">
-        <span className="text-foreground font-medium">👤 {displayName}</span>
+        <span className="text-foreground font-medium">{displayName}</span>
         {userId && !isAnonymous && (
           <>
             <VIPBadge tier={subscriptionTier as 'free' | 'vip'} size="sm" />
             <BadgesDisplay userId={userId} variant="compact" />
           </>
         )}
-        <span className="text-muted-foreground">• ⏰ {timeAgo}</span>
+        <span className="text-muted-foreground">• {timeAgo}</span>
       </div>
       <Badge variant="secondary" className="text-xs gap-1 bg-primary/10 text-primary border-primary/20 rounded-lg">
         <Tag className="w-3 h-3" />

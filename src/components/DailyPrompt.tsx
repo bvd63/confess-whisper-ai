@@ -59,7 +59,7 @@ const DailyPrompt = ({
         
         <div className="flex-1 w-full sm:w-auto">
           <h3 className="font-semibold text-sm sm:text-base mb-1.5 sm:mb-2 text-foreground">
-            ✨ {t.daily_prompt_title}
+            {t.daily_prompt_title}
           </h3>
           <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">{getPromptText()}</p>
           
@@ -70,7 +70,7 @@ const DailyPrompt = ({
             className="w-full sm:w-auto text-xs h-9 rounded-lg font-semibold" 
             lift
           >
-            💬 {t.daily_prompt_share}
+            {t.daily_prompt_share}
           </EnhancedButton>
         </div>
       </div>

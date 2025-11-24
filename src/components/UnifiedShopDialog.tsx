@@ -264,7 +264,7 @@ export const UnifiedShopDialog = ({
         <DialogHeader className="space-y-4 mt-4 text-center">
           <DialogTitle className="flex items-center justify-center gap-2 text-2xl sm:text-3xl font-bold text-foreground">
             <Crown className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
-            💎 Subscription & Coins
+            👑 Subscription & Coins
           </DialogTitle>
         </DialogHeader>
 
@@ -354,7 +354,7 @@ export const UnifiedShopDialog = ({
                       className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-base rounded-xl shadow-lg"
                     >
                       <ShoppingCart className="w-4 h-4 mr-2" />
-                      {coinLoading === pkg.id ? "⏳ " + t.processing : "Buy Now"}
+                      {coinLoading === pkg.id ? t.processing : "Buy Now"}
                     </Button>
                   </CardContent>
                 </Card>
@@ -363,9 +363,9 @@ export const UnifiedShopDialog = ({
 
             <div className="text-center space-y-2 mt-6 px-4">
               <p className="text-sm text-muted-foreground">
-                💳 {t.coins_secure_payment || 'Secure payment via Stripe'} •
-                🔒 {t.coins_instant_delivery || 'Instant coin delivery'} •
-                💯 {t.coins_satisfaction || '100% satisfaction guaranteed'}
+                {t.coins_secure_payment || 'Secure payment via Stripe'} •
+                {t.coins_instant_delivery || 'Instant coin delivery'} •
+                {t.coins_satisfaction || '100% satisfaction guaranteed'}
               </p>
             </div>
           </TabsContent>

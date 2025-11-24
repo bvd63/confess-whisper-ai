@@ -55,11 +55,11 @@ const ThemeToggle = () => {
       <DropdownMenuContent align="end" className="bg-card border-border">
         <DropdownMenuItem onClick={() => changeTheme("light")} className="text-foreground hover:bg-accent rounded-lg cursor-pointer">
           <Sun className="w-4 h-4 mr-2 text-amber-500" />
-          ☀️ Light
+          Light
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => changeTheme("dark")} className="text-foreground hover:bg-accent rounded-lg cursor-pointer">
           <Moon className="w-4 h-4 mr-2 text-indigo-400" />
-          🌙 Dark
+          Dark
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
