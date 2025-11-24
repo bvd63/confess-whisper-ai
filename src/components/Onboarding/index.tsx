@@ -16,7 +16,7 @@ interface OnboardingProps {
 
 const translations = {
   en: {
-    welcome_title: "Welcome to Confess! 🎉",
+    welcome_title: "Welcome to Confess!",
     welcome_desc: "Share your thoughts anonymously and connect with others in a safe space.",
     welcome_next: "Get Started",
     confession_title: "Share Your First Thought",
@@ -27,12 +27,12 @@ const translations = {
     reminders_enable: "Enable Reminders",
     reminders_skip: "Maybe Later",
     skip: "Skip",
-    reward_message: "🎉 You earned 10 coins!",
+    reward_message: "You earned 10 coins!",
     error_min_length: "Please write at least 10 characters",
     error_save: "Failed to save. Please try again."
   },
   es: {
-    welcome_title: "¡Bienvenido a Confess! 🎉",
+    welcome_title: "¡Bienvenido a Confess!",
     welcome_desc: "Comparte tus pensamientos anónimamente y conéctate con otros en un espacio seguro.",
     welcome_next: "Comenzar",
     confession_title: "Comparte Tu Primer Pensamiento",
@@ -43,12 +43,12 @@ const translations = {
     reminders_enable: "Activar Recordatorios",
     reminders_skip: "Tal Vez Después",
     skip: "Omitir",
-    reward_message: "🎉 ¡Ganaste 10 monedas!",
+    reward_message: "¡Ganaste 10 monedas!",
     error_min_length: "Por favor escribe al menos 10 caracteres",
     error_save: "Error al guardar. Inténtalo de nuevo."
   },
   de: {
-    welcome_title: "Willkommen bei Confess! 🎉",
+    welcome_title: "Willkommen bei Confess!",
     welcome_desc: "Teile deine Gedanken anonym und verbinde dich mit anderen in einem sicheren Raum.",
     welcome_next: "Loslegen",
     confession_title: "Teile Deinen Ersten Gedanken",
@@ -59,7 +59,7 @@ const translations = {
     reminders_enable: "Erinnerungen Aktivieren",
     reminders_skip: "Vielleicht Später",
     skip: "Überspringen",
-    reward_message: "🎉 Du hast 10 Münzen verdient!",
+    reward_message: "Du hast 10 Münzen verdient!",
     error_min_length: "Bitte schreibe mindestens 10 Zeichen",
     error_save: "Fehler beim Speichern. Bitte versuche es erneut."
   }
