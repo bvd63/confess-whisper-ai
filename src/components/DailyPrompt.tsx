@@ -51,18 +51,26 @@ const DailyPrompt = ({
     }
     return prompt.prompt_text_en || '';
   };
-  return <AnimatedCard hover="glow" gradient className="p-3 sm:p-4 border-primary/20 mb-3 sm:mb-4">
+  return <AnimatedCard hover="glow" gradient className="p-3 sm:p-4 border-primary/20 mb-3 sm:mb-4 bg-card">
       <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-3">
         <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-          <Sparkles className="w-4 h-4 text-primary" />
+          <Sparkles className="w-4 h-4 text-primary animate-pulse" />
         </div>
         
         <div className="flex-1 w-full sm:w-auto">
-          <h3 className="font-semibold text-sm sm:text-base mb-1.5 sm:mb-2">{t.daily_prompt_title}</h3>
+          <h3 className="font-semibold text-sm sm:text-base mb-1.5 sm:mb-2 text-foreground">
+            ✨ {t.daily_prompt_title}
+          </h3>
           <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">{getPromptText()}</p>
           
-          <EnhancedButton onClick={onOpenNewConfession} variant="default" size="sm" className="w-full sm:w-auto text-xs h-8" lift>
-            {t.daily_prompt_share}
+          <EnhancedButton 
+            onClick={onOpenNewConfession} 
+            variant="default" 
+            size="sm" 
+            className="w-full sm:w-auto text-xs h-9 rounded-lg font-semibold" 
+            lift
+          >
+            💬 {t.daily_prompt_share}
           </EnhancedButton>
         </div>
       </div>
