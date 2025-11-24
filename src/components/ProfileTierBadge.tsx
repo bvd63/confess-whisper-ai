@@ -26,9 +26,9 @@ export const ProfileTierBadge = ({
         };
       case "vip":
       return {
-        label: "👑 " + t.profile_tiers_vip,
+        label: t.profile_tiers_vip,
         icon: Crown,
-        className: "bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-white dark:text-white border-amber-400 shadow-lg shadow-amber-500/50 animate-pulse badge-hover badge-glow badge-vip-glow",
+        className: "bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-white dark:text-white border-0 shadow-ios shadow-amber-500/30",
       };
     }
   };
@@ -40,17 +40,14 @@ export const ProfileTierBadge = ({
   return (
     <Badge 
       className={cn(
-        "relative font-semibold cursor-default",
-        isCompact ? "text-xs px-2 py-0.5" : "text-sm px-3 py-1",
+        "relative font-semibold cursor-default rounded-full",
+        isCompact ? "text-xs px-3 py-1" : "text-sm px-4 py-1.5",
         config.className,
         className
       )}
     >
-      {Icon && <Icon className={cn("mr-1", isCompact ? "w-3 h-3" : "w-4 h-4")} />}
+      {Icon && <Icon className={cn("mr-1.5", isCompact ? "w-3 h-3" : "w-4 h-4")} />}
       {config.label}
-      {tier === "vip" && !isCompact && (
-        <Sparkles className="absolute -top-1 -right-1 w-3 h-3 text-yellow-300 animate-pulse" />
-      )}
     </Badge>
   );
 };
