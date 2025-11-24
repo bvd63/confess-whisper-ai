@@ -100,7 +100,7 @@ const CoinsDisplay = ({
             {t.coins_how_to_spend}
           </p>
           <ul className="text-[9px] sm:text-[10px] text-muted-foreground space-y-0.5">
-            <li>🚀 Boost Confession (15 coins) - Highlight for 1 hour</li>
+            <li>📈 Boost Confession (15 coins) - Highlight for 1 hour</li>
             <li>✨ Profile Flairs - Customize your profile appearance</li>
           </ul>
         </div>

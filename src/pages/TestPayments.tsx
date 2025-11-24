@@ -527,7 +527,7 @@ export default function TestPayments() {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-2">💳 Subscription Flow:</h3>
+            <h3 className="font-semibold mb-2">Subscription Flow:</h3>
             <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
               <li>Run "Test Create Subscription" to start subscription</li>
               <li>Complete payment with test card</li>
