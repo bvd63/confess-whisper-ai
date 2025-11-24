@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -34,7 +34,32 @@ const UserAnalytics = ({
     totalComments: 0
   });
   const targetUserId = userId || user?.id;
-  const fetchUserStats = useCallback(async () => {
+  useEffect(() => {
+    if (targetUserId) {
+      fetchUserStats();
+
+      // Set up real-time subscription for confessions updates
+      const channel = supabase.channel('user-stats-changes').on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'confessions',
+        filter: `user_id=eq.${targetUserId}`
+      }, () => {
+        fetchUserStats();
+      }).subscribe();
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [targetUserId]);
+  const handleManageSubscription = () => {
+    if (!isPremium) {
+      onUpgradeClick?.();
+      return;
+    }
+    onManageSubscription?.();
+  };
+  const fetchUserStats = async () => {
     if (!targetUserId) return;
     try {
       // Get total confessions
@@ -64,32 +89,6 @@ const UserAnalytics = ({
     } catch (error) {
       logError("Error fetching user stats", error as Error);
     }
-  }, [targetUserId]);
-
-  useEffect(() => {
-    if (targetUserId) {
-      fetchUserStats();
-
-      // Set up real-time subscription for confessions updates
-      const channel = supabase.channel('user-stats-changes').on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'confessions',
-        filter: `user_id=eq.${targetUserId}`
-      }, () => {
-        fetchUserStats();
-      }).subscribe();
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
-  }, [fetchUserStats, targetUserId]);
-  const handleManageSubscription = () => {
-    if (!isPremium) {
-      onUpgradeClick?.();
-      return;
-    }
-    onManageSubscription?.();
   };
   const statCards = [{
     title: t.profile_total_confessions,

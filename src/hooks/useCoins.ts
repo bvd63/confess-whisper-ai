@@ -1,9 +1,6 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import type { Database } from '@/integrations/supabase/types';
-import { logError } from '@/lib/logger';
-
-type UserCoinsRow = Database['public']['Tables']['user_coins']['Row'];
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { logError } from "@/lib/logger";
 
 interface CoinsData {
   balance: number;
@@ -62,11 +59,10 @@ export const useCoins = (userId: string | undefined) => {
           filter: `user_id=eq.${userId}`,
         },
         (payload) => {
-          const newRow = payload.new as Partial<UserCoinsRow> | null;
-          if (newRow && typeof newRow.balance === 'number') {
+          if (payload.new && 'balance' in payload.new) {
             setCoinsData({
-              balance: newRow.balance,
-              lifetimeEarned: newRow.lifetime_earned ?? 0,
+              balance: (payload.new as any).balance || 0,
+              lifetimeEarned: (payload.new as any).lifetime_earned || 0,
               loading: false,
             });
           }

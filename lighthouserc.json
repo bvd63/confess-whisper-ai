@@ -3,18 +3,8 @@
     "collect": {
       "url": ["http://localhost:8080/"],
       "numberOfRuns": 3,
-      "startServerCommand": "npm run preview -- --host 0.0.0.0 --port 8080",
-      "startServerReadyPattern": "Local:",
-      "startServerReadyTimeout": 20000,
       "settings": {
-        "formFactor": "mobile",
-        "screenEmulation": {
-          "mobile": true,
-          "width": 360,
-          "height": 640,
-          "deviceScaleFactor": 2,
-          "disabled": false
-        },
+        "preset": "mobile",
         "chromeFlags": "--no-sandbox"
       }
     },

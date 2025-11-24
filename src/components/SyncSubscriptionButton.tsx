@@ -32,13 +32,10 @@ export const SyncSubscriptionButton = ({ onSyncComplete }: { onSyncComplete?: ()
       } else {
         throw new Error(data?.error || 'Sync failed');
       }
-    } catch (error) {
+    } catch (error: any) {
       logError('Sync error', error);
-      const description = error instanceof Error
-        ? error.message
-        : 'Please try again or contact support';
       toast.error('Failed to sync subscription', {
-        description,
+        description: error.message || 'Please try again or contact support',
       });
     } finally {
       setLoading(false);

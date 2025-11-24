@@ -35,12 +35,6 @@ interface FlairsShopProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-interface ProfileTierInfo {
-  subscription_tier: string | null;
-  trial_active: boolean | null;
-  trial_premium_ends_at: string | null;
-}
 export const FlairsShop = ({
   userId,
   open,
@@ -70,19 +64,19 @@ export const FlairsShop = ({
 
     try {
       const profilePromise = supabase
-        .from<ProfileTierInfo>('profiles')
+        .from('profiles')
         .select('subscription_tier, trial_active, trial_premium_ends_at')
         .eq('user_id', userId)
         .maybeSingle();
 
       const flairsPromise = supabase
-        .from<Flair>('profile_flairs')
+        .from('profile_flairs')
         .select('*')
         .eq('is_active', true)
         .order('cost', { ascending: true });
 
       const userFlairsPromise = supabase
-        .from<UserFlair>('user_flairs')
+        .from('user_flairs')
         .select('id, flair_id, is_equipped, expires_at, acquired_at, purchase_scope, last_equipped_at')
         .eq('user_id', userId);
 
@@ -94,9 +88,9 @@ export const FlairsShop = ({
 
       // Profile tier
       if (profileRes.status === 'fulfilled') {
-        const { data: profile, error: profileError } = profileRes.value;
+        const { data: profile, error: profileError } = profileRes.value as any;
         if (profileError) logError('Profile error', profileError);
-        const tier = profile?.subscription_tier === 'vip' ? 'vip' : 'free';
+        const tier = (profile?.subscription_tier || 'free') as 'free' | 'vip';
         setUserTier(tier);
       } else {
         logError('Profile load rejected', profileRes.reason);
@@ -104,7 +98,7 @@ export const FlairsShop = ({
 
       // Flairs list
       if (flairsRes.status === 'fulfilled') {
-        const { data: flairsData, error: flairsError } = flairsRes.value;
+        const { data: flairsData, error: flairsError } = flairsRes.value as any;
         if (flairsError) {
           logError('Flairs error', flairsError);
           throw flairsError;
@@ -117,7 +111,7 @@ export const FlairsShop = ({
 
       // User flairs
       if (userFlairsRes.status === 'fulfilled') {
-        const { data: userFlairsData, error: userFlairsError } = userFlairsRes.value;
+        const { data: userFlairsData, error: userFlairsError } = userFlairsRes.value as any;
         if (userFlairsError) logError('User flairs error', userFlairsError);
         setUserFlairs(userFlairsData || []);
       } else {
@@ -128,8 +122,8 @@ export const FlairsShop = ({
       refetchCoins();
       setHasLoaded(true);
       setError(null);
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : 'Failed to load flairs';
+    } catch (e: any) {
+      const msg = e?.message || 'Failed to load flairs';
       // Retry transient network errors up to 2 times
       if (msg.includes('Failed to fetch') && retryCount < 2) {
         setTimeout(() => loadData(retryCount + 1), 800);

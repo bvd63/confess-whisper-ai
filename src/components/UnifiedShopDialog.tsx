@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SubscriptionPlansGrid } from "./SubscriptionPlansGrid";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { toast } from "sonner";
@@ -10,8 +10,6 @@ import { Loader2, Crown, Coins, Sparkles, TrendingUp, Zap } from "lucide-react";
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { logWarn, logError, logDebug } from "@/lib/logger";
-import type { RealtimePostgresUpdatePayload } from '@supabase/supabase-js';
-import type { Database } from '@/integrations/supabase/types';
 
 interface CoinPackage {
   id: string;
@@ -60,33 +58,6 @@ export const UnifiedShopDialog = ({
     }
   });
 
-  const loadSubscriptionStatus = useCallback(async () => {
-    if (!user?.id) {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('subscription_tier, stripe_subscription_id, subscription_cadence')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (profile) {
-        setCurrentPlan(profile.subscription_tier || 'free');
-        // Use subscription_cadence from database, fallback to monthly if not set
-        const detectedInterval = (profile.subscription_cadence as 'monthly' | 'yearly') || 'monthly';
-        setCurrentInterval(detectedInterval);
-        setInterval(detectedInterval);
-      }
-    } catch (error) {
-      logError('Error loading subscription', error as Error);
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.id]);
-
   useEffect(() => {
     if (open && user) {
       loadSubscriptionStatus();
@@ -102,12 +73,9 @@ export const UnifiedShopDialog = ({
             table: 'profiles',
             filter: `user_id=eq.${user.id}`,
           },
-          (payload: RealtimePostgresUpdatePayload<Database['public']['Tables']['profiles']['Row']>) => {
+          (payload) => {
             logDebug('Real-time subscription update received', payload);
-            const newProfile = payload.new;
-            if (!newProfile) {
-              return;
-            }
+            const newProfile = payload.new as any;
             if (newProfile.subscription_tier) {
               setCurrentPlan(newProfile.subscription_tier);
             }
@@ -124,7 +92,29 @@ export const UnifiedShopDialog = ({
         supabase.removeChannel(channel);
       };
     }
-  }, [loadSubscriptionStatus, open, user]);
+  }, [open, user]);
+
+  const loadSubscriptionStatus = async () => {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('subscription_tier, stripe_subscription_id, subscription_cadence')
+        .eq('user_id', user?.id)
+        .maybeSingle();
+
+      if (profile) {
+        setCurrentPlan(profile.subscription_tier || 'free');
+        // Use subscription_cadence from database, fallback to monthly if not set
+        const detectedInterval = (profile.subscription_cadence as 'monthly' | 'yearly') || 'monthly';
+        setCurrentInterval(detectedInterval);
+        setInterval(detectedInterval);
+      }
+    } catch (error) {
+      logError('Error loading subscription', error as Error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const goToStripeCheckout = async (url: string) => {
     try {

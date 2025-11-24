@@ -12,7 +12,6 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { FunctionsHttpError } from "@supabase/supabase-js";
 import { logError, logWarn } from "@/lib/logger";
-import { env } from "@/lib/env";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
@@ -94,10 +93,9 @@ export default function ForgotPassword() {
 
       setSuccess(true);
       setCaptchaToken("");
-    } catch (err) {
-      const errorInstance = err instanceof Error ? err : new Error('Password reset error');
-      logError("Password reset request failed", errorInstance);
-      setError(err instanceof Error && err.message ? err.message : t.auth_error_generic);
+    } catch (err: any) {
+      logError("Password reset request failed", err as Error);
+      setError(err.message || t.auth_error_generic);
     } finally {
       setIsLoading(false);
     }
@@ -172,7 +170,7 @@ export default function ForgotPassword() {
             {/* CAPTCHA */}
             <div className="space-y-2">
               <Turnstile
-                siteKey={env.client.turnstileSiteKey ?? "1x00000000000000000000AA"}
+                siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
                 onSuccess={(token) => {
                   setCaptchaToken(token);
                   setError("");

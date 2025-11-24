@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useCurrentUser } from './useCurrentUser';
-import { usePremiumStatus } from './usePremiumStatus';
-import { logError } from '@/lib/logger';
+import { useState, useEffect, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useCurrentUser } from "./useCurrentUser";
+import { usePremiumStatus } from "./usePremiumStatus";
+import { logError } from "@/lib/logger";
 
 interface ConfessionLimitInfo {
   canPost: boolean;
@@ -12,14 +12,6 @@ interface ConfessionLimitInfo {
   tier: string;
   isLoading: boolean;
 }
-
-type ConfessionLimitResponse = {
-  can_post: boolean;
-  current_count: number;
-  daily_limit: number;
-  tier: string;
-  remaining: number;
-};
 
 export const useConfessionLimits = () => {
   const { user } = useCurrentUser();
@@ -47,20 +39,26 @@ export const useConfessionLimits = () => {
     }
 
     try {
-      const { data, error } = await supabase.rpc<ConfessionLimitResponse>('can_user_post_confession', {
+      const { data, error } = await supabase.rpc('can_user_post_confession', {
         _user_id: user.id,
-      });
+      }) as { data: any; error: any };
 
-      if (error || !data) {
-        throw error ?? new Error('Unable to determine confession limits');
-      }
+      if (error) throw error;
+
+      const result = data as {
+        can_post: boolean;
+        current_count: number;
+        daily_limit: number;
+        tier: string;
+        remaining: number;
+      };
 
       setLimitInfo({
-        canPost: data.can_post,
-        currentCount: data.current_count,
-        dailyLimit: data.daily_limit === -1 ? Infinity : data.daily_limit,
-        remaining: data.remaining === -1 ? Infinity : data.remaining,
-        tier: data.tier,
+        canPost: result.can_post,
+        currentCount: result.current_count,
+        dailyLimit: result.daily_limit === -1 ? Infinity : result.daily_limit,
+        remaining: result.remaining === -1 ? Infinity : result.remaining,
+        tier: result.tier,
         isLoading: false,
       });
     } catch (error) {

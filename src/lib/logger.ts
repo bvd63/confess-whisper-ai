@@ -25,10 +25,9 @@ function log(level: LogLevel, message: string, context?: LogContext): void {
 
   // Always log to console in development
   if (env.isDev) {
-    const logFn = level === 'error' ? console.error :
-            level === 'warn' ? console.warn :
-            level === 'info' ? console.info :
-            console.debug;
+    const logFn = level === 'error' ? console.error : 
+                  level === 'warn' ? console.warn : 
+                  console.log;
     
     if (context) {
       logFn(`${prefix} ${message}`, context);
@@ -118,8 +117,8 @@ export function logCache(operation: string, key: string, hit: boolean = true, co
 }
 
 /**
- * Legacy console logging replacement
- * Use this to gradually migrate old console statements
+ * Legacy console.log replacement
+ * Use this to gradually migrate old console.log statements
  */
 export const logger = {
   debug: logDebug,

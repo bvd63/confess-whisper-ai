@@ -5,16 +5,12 @@
 		"jsx": "react-jsx",
 		"lib": ["ES2020", "DOM", "DOM.Iterable"],
 		"allowJs": true,
-		"composite": true,
-		"declaration": true,
-		"emitDeclarationOnly": true,
+		"noEmit": true,
 		"module": "ESNext",
-		"moduleResolution": "bundler",
 		"downlevelIteration": true
 	},
 	"include": [
 		"tests/**/*.ts",
-		"tests/**/*.tsx",
-		"scripts/**/*.ts"
+		"tests/**/*.tsx"
 	]
 }

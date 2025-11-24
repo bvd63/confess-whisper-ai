@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
@@ -23,7 +23,11 @@ export const NicknameSettings = ({ userId }: NicknameSettingsProps) => {
   const [nicknameUpdatedAt, setNicknameUpdatedAt] = useState<string | null>(null);
   const [daysRemaining, setDaysRemaining] = useState<number | null>(null);
 
-  const loadNickname = useCallback(async () => {
+  useEffect(() => {
+    loadNickname();
+  }, [userId]);
+
+  const loadNickname = async () => {
     try {
       const { data } = await supabase
         .from("profiles")
@@ -51,11 +55,7 @@ export const NicknameSettings = ({ userId }: NicknameSettingsProps) => {
     } catch (error) {
       logError("Error loading nickname", error as Error);
     }
-  }, [userId]);
-
-  useEffect(() => {
-    loadNickname();
-  }, [loadNickname]);
+  };
 
   const handleUpdateNickname = async () => {
     if (!nickname || nickname.trim() === "") {

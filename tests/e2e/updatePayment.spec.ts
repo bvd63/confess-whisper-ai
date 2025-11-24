@@ -2,7 +2,6 @@ import { test, expect } from '@playwright/test';
 import { loginAs } from '../helpers/auth';
 import { mockSubscriptionRoutes } from '../helpers/network';
 import { closeOpenDialogs, waitForAppReady } from '../helpers/pageHelpers';
-import { openManageSubscriptionModal } from '../helpers/manageSubscription';
 
 test.describe('Update Payment Method', () => {
   test('delinquent VIP user can open subscription modal', async ({ page }) => {
@@ -16,7 +15,12 @@ test.describe('Update Payment Method', () => {
     await waitForAppReady(page);
     await closeOpenDialogs(page);
     
-    await openManageSubscriptionModal(page);
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.waitFor({ state: 'visible', timeout: 10000 });
+    await manageButton.click();
+    
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
   });
 
   test('modal displays subscription information for past due accounts', async ({ page }) => {
@@ -30,7 +34,11 @@ test.describe('Update Payment Method', () => {
     await waitForAppReady(page);
     await closeOpenDialogs(page);
     
-    const { dialog } = await openManageSubscriptionModal(page);
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.click();
+    
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Verify modal shows content
     await expect(dialog.getByText(/subscription/i).first()).toBeVisible();
@@ -47,16 +55,20 @@ test.describe('Update Payment Method', () => {
     await waitForAppReady(page);
     await closeOpenDialogs(page);
     
-    const firstOpen = await openManageSubscriptionModal(page);
-    let dialog = firstOpen.dialog;
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.click();
+    
+    let dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Close with ESC
     await page.keyboard.press('Escape');
     await expect(dialog).not.toBeVisible();
     
     // Reopen
-    const reopened = await openManageSubscriptionModal(page);
-    dialog = reopened.dialog;
+    await manageButton.click();
+    dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
   });
 
   test('disables other actions while payment is past due', async ({ page }) => {
@@ -70,7 +82,11 @@ test.describe('Update Payment Method', () => {
     await waitForAppReady(page);
     await closeOpenDialogs(page);
     
-    const { dialog } = await openManageSubscriptionModal(page);
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.click();
+    
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Modal should have tabs
     await expect(dialog.getByRole('tablist')).toBeVisible();

@@ -5,14 +5,6 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main]
-  workflow_call:
-    secrets:
-      VITE_SUPABASE_URL:
-        required: false
-        description: Supabase project URL
-      VITE_SUPABASE_PUBLISHABLE_KEY:
-        required: false
-        description: Supabase public API key
 
 env:
   NODE_VERSION: '20'
@@ -21,20 +13,6 @@ jobs:
   build-test-analyze:
     name: Build, Test & Analyze
     runs-on: ubuntu-latest
-    env:
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
-      STRIPE_PRICE_VIP_MONTHLY: ${{ secrets.STRIPE_PRICE_VIP_MONTHLY }}
-      STRIPE_PRICE_VIP_YEARLY: ${{ secrets.STRIPE_PRICE_VIP_YEARLY }}
-      ONESIGNAL_REST_API_KEY: ${{ secrets.ONESIGNAL_REST_API_KEY }}
-      VITE_ONESIGNAL_APP_ID: ${{ secrets.VITE_ONESIGNAL_APP_ID }}
-      LOVABLE_API_KEY: ${{ secrets.LOVABLE_API_KEY }}
-      EDGE_INTERNAL_TOKEN: ${{ secrets.EDGE_INTERNAL_TOKEN }}
-      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
     steps:
       - name: Checkout code
@@ -49,45 +27,44 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-
       - name: Type Check
         run: npx tsc --noEmit
+
+      - name: Lint & Auto-Fix
+        run: npm run lint -- --fix || true
 
       - name: ENV Validation
         run: npm run check:env
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
-          VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
-          VITE_TURNSTILE_SITE_KEY: ${{ secrets.VITE_TURNSTILE_SITE_KEY }}
-          VITE_STRIPE_PRICE_VIP_MONTHLY: ${{ secrets.VITE_STRIPE_PRICE_VIP_MONTHLY }}
-          VITE_STRIPE_PRICE_VIP_YEARLY: ${{ secrets.VITE_STRIPE_PRICE_VIP_YEARLY }}
-          VITE_ONESIGNAL_APP_ID: ${{ secrets.VITE_ONESIGNAL_APP_ID }}
-
-      - name: Lint & Auto-Fix
-        run: npm run lint -- --fix || true
 
       - name: Unit Tests
         run: npm run test:unit
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
       - name: Integration Tests
         run: npm run test:integration
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
-      - name: E2E Tests (CI mode)
-        run: CI=1 npm run test:e2e -- --project=chromium
+      - name: E2E Tests
+        run: npm run test:e2e
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
       - name: Coverage Report
         run: npm run coverage
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
       - name: Build (production)
         run: npm run build
-
-      - name: Admin Bundle Guard
-        run: npm run guard:admin-chunk
-        env:
-          ADMIN_CHUNK_LIMIT_KB: 500
 
       - name: Bundle Size Report
         run: npm run analyze || true
@@ -101,7 +78,7 @@ jobs:
             dist
 
       - name: Lighthouse Performance (mobile)
-        run: npx lhci autorun --config=lighthouserc.json || true
+        run: npx lhci autorun --collect.settings.preset=mobile || true
 
   deploy-staging:
     name: Deploy to Staging

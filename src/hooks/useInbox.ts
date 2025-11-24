@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import type { Database } from '@/integrations/supabase/types';
 import { useCachePurgeOnDelete } from './useCachePurgeOnDelete';
 import { getNicknameCached, primeNicknameCache } from '@/lib/nicknameCache';
 import { persistenceManager } from '@/lib/persistenceManager';
@@ -15,15 +14,6 @@ interface Conversation {
   last_message_at: string | null;
   unread_count: number;
 }
-
-type ConversationRow = Database['public']['Tables']['conversations']['Row'];
-
-const parseDeletedFor = (value: ConversationRow['deleted_for']): string[] => {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-  return value.filter((entry): entry is string => typeof entry === 'string');
-};
 
 /**
  * Instagram-style inbox hook with realtime updates and cache cleanup
@@ -77,11 +67,10 @@ export const useInbox = (userId: string | null) => {
       if (conversationsError) throw conversationsError;
 
       // Filter out conversations where current user is in deleted_for array
-      const conversationsData =
-        allConversationsData?.filter((conv) => {
-          const deletedFor = parseDeletedFor(conv.deleted_for);
-          return !deletedFor.includes(userId);
-        }) || [];
+      const conversationsData = allConversationsData?.filter((conv: any) => {
+        const deletedFor = conv.deleted_for || [];
+        return !deletedFor.includes(userId);
+      }) || [];
 
       // Use the ordered conversations list
       const orderedParticipants = conversationsData?.map(conv => 
@@ -157,7 +146,7 @@ export const useInbox = (userId: string | null) => {
     } finally {
       setIsLoading(false);
     }
-  }, [unreadCounts, userId]);
+  }, [userId]);
 
   const deleteConversation = useCallback(async (conversationId: string) => {
     try {

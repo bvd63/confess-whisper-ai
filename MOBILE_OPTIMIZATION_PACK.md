@@ -124,7 +124,7 @@ npm run test:e2e
 
 Run Lighthouse audit locally:
 ```bash
-npx lhci autorun --config=lighthouserc.json
+npx lhci autorun --collect.settings.preset=mobile
 ```
 
 ## 🎨 Design System Integration

@@ -1,13 +1,9 @@
 import { useEffect, useRef } from 'react';
-import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import type { Database } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import { logDebug } from '@/lib/logger';
-
-type NotificationRow = Database['public']['Tables']['notifications']['Row'];
 
 interface UseMessageNotificationsProps {
   userId: string | undefined;
@@ -51,9 +47,8 @@ export const useMessageNotifications = ({ userId, enabled = true }: UseMessageNo
           table: 'notifications',
           filter: `user_id=eq.${userId}`
         },
-        async (payload: RealtimePostgresChangesPayload<NotificationRow>) => {
+        async (payload: any) => {
           const notification = payload.new;
-          if (!notification) return;
           
           // Only handle message notifications (type 'comment' is used for messages)
           if (notification.type !== 'comment') return;
@@ -99,5 +94,5 @@ export const useMessageNotifications = ({ userId, enabled = true }: UseMessageNo
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [enabled, navigate, t.anonymous_user, t.notification_message_new, t.notification_view, userId]);
+  }, [userId, enabled]);
 };

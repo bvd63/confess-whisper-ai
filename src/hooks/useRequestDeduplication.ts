@@ -1,7 +1,7 @@
 import { useRef, useCallback } from 'react';
 
 interface PendingRequest {
-  promise: Promise<unknown>;
+  promise: Promise<any>;
   timestamp: number;
 }
 

@@ -5,8 +5,6 @@ import { logCache } from '@/lib/logger';
  * Cache cleanup hook for immediate purge after delete operations
  * Ensures zero residual cache after deletion of confessions, comments, messages, conversations
  */
-type WindowWithGc = Window & { gc?: () => void };
-
 export const useCachePurgeOnDelete = () => {
   const purgeConfession = useCallback((confessionId: string) => {
     // Clear from localStorage
@@ -23,7 +21,7 @@ export const useCachePurgeOnDelete = () => {
 
     // Trigger garbage collection hint
     if (typeof window !== 'undefined' && 'gc' in window) {
-      (window as WindowWithGc).gc?.();
+      (window as any).gc?.();
     }
 
     logCache('purge', `confession-${confessionId}`, true);

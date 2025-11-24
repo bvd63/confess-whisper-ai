@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, memo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,7 @@ interface MessageThreadProps {
   onBack: () => void;
 }
 
-export const MessageThread = memo(({ 
+export const MessageThread = ({ 
   conversationId, 
   currentUserId, 
   otherUserId,
@@ -36,21 +36,6 @@ export const MessageThread = memo(({
   const [sending, setSending] = useState(false);
   const { t } = useLanguage();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const loadMessages = useCallback(async () => {
-    try {
-      const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true });
-
-      if (error) throw error;
-      setMessages(data || []);
-    } catch (error) {
-      logError('Error loading messages', error as Error);
-    }
-  }, [conversationId]);
 
   useEffect(() => {
     loadMessages();
@@ -75,15 +60,30 @@ export const MessageThread = memo(({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId, loadMessages]);
+  }, [conversationId]);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, scrollToBottom]);
+  }, [messages]);
 
-  const scrollToBottom = useCallback(() => {
+  const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
+  };
+
+  const loadMessages = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      setMessages(data || []);
+    } catch (error) {
+      logError('Error loading messages', error as Error);
+    }
+  };
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,4 +180,4 @@ export const MessageThread = memo(({
       </form>
     </div>
   );
-});
+};

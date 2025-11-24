@@ -1,155 +1,92 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
-import { buildCorsHeaders } from "../_shared/env.ts";
-import { handleOptions, jsonResponse } from "../_shared/http.ts";
-import { logError, logInfo, logWarn } from "../_shared/logger.ts";
-import { getRequestContext } from "../_shared/security.ts";
-import { requireAuth } from "../_shared/supabase.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const SearchBodySchema = z.object({
-  nickname: z.string().trim().min(1).max(64).optional(),
-});
-
-const MIN_NICKNAME_LENGTH = 2;
-const ALLOW_HEADER = "GET,POST,OPTIONS";
-
-const withCorsOverrides = (origin?: string | null) => ({
-  ...buildCorsHeaders(origin ?? undefined),
-  "Access-Control-Allow-Methods": ALLOW_HEADER,
-});
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
 serve(async (req) => {
-  const context = getRequestContext(req);
-
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: withCorsOverrides(context.origin) });
-  }
-
-  if (!["GET", "POST"].includes(req.method)) {
-    return jsonResponse({ error: "METHOD_NOT_ALLOWED" }, 405, context.origin, {
-      "Allow": ALLOW_HEADER,
-      "Access-Control-Allow-Methods": ALLOW_HEADER,
-    });
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    const authResult = await requireAuth(authHeader);
-    if (!authResult.user || !authResult.client) {
-      logWarn("search-users: unauthorized", { reason: authResult.error });
-      return jsonResponse({ error: "UNAUTHORIZED" }, 401, context.origin, {
-        "Access-Control-Allow-Methods": ALLOW_HEADER,
-      });
-    }
-
-    let nicknameCandidate = "";
-    if (req.method === "GET") {
-      nicknameCandidate = new URL(req.url).searchParams.get("nickname") ?? "";
-    } else {
-      let rawBody: unknown;
-      try {
-        rawBody = await req.json();
-      } catch (parseError) {
-        logWarn("search-users: invalid JSON", {
-          userId: authResult.user.id,
-          error: parseError instanceof Error ? parseError.message : String(parseError),
-        });
-        return jsonResponse({ error: "INVALID_JSON" }, 400, context.origin, {
-          "Access-Control-Allow-Methods": ALLOW_HEADER,
-        });
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: { Authorization: req.headers.get('Authorization')! },
+        },
       }
+    );
 
-      const parsed = SearchBodySchema.safeParse(rawBody);
-      if (!parsed.success) {
-        logWarn("search-users: invalid payload", {
-          userId: authResult.user.id,
-          issues: parsed.error.flatten().fieldErrors,
-        });
-        return jsonResponse({ error: "INVALID_PAYLOAD" }, 400, context.origin, {
-          "Access-Control-Allow-Methods": ALLOW_HEADER,
-        });
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) throw new Error('Unauthorized');
+
+    // Support both GET query param and POST body
+    let nickname = '';
+    try {
+      if (req.method !== 'GET') {
+        const body = await req.json().catch(() => null);
+        nickname = (body?.nickname ?? '').toString();
       }
-
-      nicknameCandidate = parsed.data.nickname ?? "";
+    } catch (_) {
+      // ignore body parse errors
     }
 
-    const nickname = nicknameCandidate.trim();
-    if (nickname.length < MIN_NICKNAME_LENGTH) {
-      logInfo("search-users: nickname too short", {
-        userId: authResult.user.id,
-        nicknameLength: nickname.length,
-      });
-      return jsonResponse({ users: [] }, 200, context.origin, {
-        "Access-Control-Allow-Methods": ALLOW_HEADER,
+    if (!nickname) {
+      const url = new URL(req.url);
+      nickname = url.searchParams.get('nickname') || '';
+    }
+
+    const query = nickname.trim();
+
+    if (query.length < 2) {
+      return new Response(JSON.stringify({ users: [] }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const sanitizedQuery = nickname.slice(0, 64);
-    const supabase = authResult.client;
-
-    const { data: profiles, error: profileError } = await supabase
-      .from("profiles")
-      .select("user_id, nickname, bio, avatar_url")
-      .ilike("nickname", `%${sanitizedQuery}%`)
-      .not("user_id", "eq", authResult.user.id)
+    // Search for users by nickname (case-insensitive, partial match)
+    const { data: profiles, error } = await supabaseClient
+      .from('profiles')
+      .select('user_id, nickname, bio, avatar_url')
+      .ilike('nickname', `%${nickname}%`)
+      .not('user_id', 'eq', user.id)
       .limit(20);
 
-    if (profileError) {
-      logError("search-users: profile lookup failed", {
-        userId: authResult.user.id,
-        error: profileError.message,
-      });
-      return jsonResponse({ error: "PROFILE_LOOKUP_FAILED" }, 500, context.origin, {
-        "Access-Control-Allow-Methods": ALLOW_HEADER,
-      });
-    }
+    if (error) throw error;
 
-    const profileIds = profiles?.map((profile) => profile.user_id) ?? [];
-    let followingIds = new Set<string>();
-    if (profileIds.length > 0) {
-      const { data: followData, error: followError } = await supabase
-        .from("user_follows")
-        .select("following_id")
-        .eq("follower_id", authResult.user.id)
-        .in("following_id", profileIds);
+    // Check which users the current user is following
+    const { data: followData } = await supabaseClient
+      .from('user_follows')
+      .select('following_id')
+      .eq('follower_id', user.id)
+      .in('following_id', profiles?.map((p: any) => p.user_id) || []);
 
-      if (followError) {
-        logError("search-users: follow lookup failed", {
-          userId: authResult.user.id,
-          error: followError.message,
-        });
-        return jsonResponse({ error: "FOLLOW_LOOKUP_FAILED" }, 500, context.origin, {
-          "Access-Control-Allow-Methods": ALLOW_HEADER,
-        });
-      }
+    const followingIds = new Set(followData?.map((f: any) => f.following_id) || []);
 
-      followingIds = new Set(followData?.map((row) => row.following_id) ?? []);
-    }
+    const users = profiles?.map((p: any) => ({
+      id: p.user_id,
+      nickname: p.nickname,
+      bio: p.bio,
+      avatarUrl: p.avatar_url,
+      isFollowing: followingIds.has(p.user_id),
+    })) || [];
 
-    const users = (profiles ?? []).map((profile) => ({
-      id: profile.user_id,
-      nickname: profile.nickname,
-      bio: profile.bio,
-      avatarUrl: profile.avatar_url,
-      isFollowing: followingIds.has(profile.user_id),
-    }));
-
-    logInfo("search-users: completed", {
-      userId: authResult.user.id,
-      queryLength: sanitizedQuery.length,
-      resultCount: users.length,
-      ipAddress: context.ipAddress,
+    return new Response(JSON.stringify({ users }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200,
     });
 
-    return jsonResponse({ users }, 200, context.origin, {
-      "Access-Control-Allow-Methods": ALLOW_HEADER,
-    });
   } catch (error) {
-    logError("search-users: unexpected failure", {
-      error: error instanceof Error ? error.message : String(error),
-    });
-    return jsonResponse({ error: "INTERNAL_ERROR" }, 500, context.origin, {
-      "Access-Control-Allow-Methods": ALLOW_HEADER,
+    console.error('Error in search-users:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 500,
     });
   }
 });

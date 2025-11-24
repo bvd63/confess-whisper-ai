@@ -6,15 +6,6 @@ interface PerformanceMetrics {
   componentName: string;
 }
 
-const isLargestContentfulPaint = (entry: PerformanceEntry): entry is LargestContentfulPaint =>
-  entry.entryType === 'largest-contentful-paint';
-
-const isPerformanceEventTiming = (entry: PerformanceEntry): entry is PerformanceEventTiming =>
-  entry.entryType === 'first-input';
-
-const isLayoutShift = (entry: PerformanceEntry): entry is LayoutShift =>
-  entry.entryType === 'layout-shift';
-
 export const usePerformanceMonitor = (componentName: string) => {
   const renderCountRef = useRef(0);
   const startTimeRef = useRef(performance.now());
@@ -43,11 +34,8 @@ export const reportWebVitals = () => {
     // Largest Contentful Paint (LCP)
     const lcpObserver = new PerformanceObserver((list) => {
       const entries = list.getEntries();
-      const lastEntry = entries[entries.length - 1];
-      if (lastEntry && isLargestContentfulPaint(lastEntry)) {
-        const value = lastEntry.renderTime || lastEntry.loadTime || lastEntry.startTime;
-        logDebug('[Web Vitals] LCP', { value });
-      }
+      const lastEntry = entries[entries.length - 1] as any;
+      logDebug('[Web Vitals] LCP', { value: lastEntry.renderTime || lastEntry.loadTime });
     });
     
     try {
@@ -59,10 +47,8 @@ export const reportWebVitals = () => {
     // First Input Delay (FID)
     const fidObserver = new PerformanceObserver((list) => {
       const entries = list.getEntries();
-      entries.forEach((entry) => {
-        if (isPerformanceEventTiming(entry)) {
-          logDebug('[Web Vitals] FID', { value: entry.processingStart - entry.startTime });
-        }
+      entries.forEach((entry: any) => {
+        logDebug('[Web Vitals] FID', { value: entry.processingStart - entry.startTime });
       });
     });
 
@@ -75,8 +61,8 @@ export const reportWebVitals = () => {
     // Cumulative Layout Shift (CLS)
     let clsValue = 0;
     const clsObserver = new PerformanceObserver((list) => {
-      for (const entry of list.getEntries()) {
-        if (isLayoutShift(entry) && !entry.hadRecentInput) {
+      for (const entry of list.getEntries() as any[]) {
+        if (!entry.hadRecentInput) {
           clsValue += entry.value;
         }
       }

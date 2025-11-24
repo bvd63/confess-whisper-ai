@@ -2,7 +2,6 @@ import { test, expect } from '@playwright/test';
 import { loginAs } from '../helpers/auth';
 import { mockSubscriptionRoutes } from '../helpers/network';
 import { closeOpenDialogs, waitForAppReady } from '../helpers/pageHelpers';
-import { openManageSubscriptionModal } from '../helpers/manageSubscription';
 
 test.describe('Internationalization (i18n)', () => {
   test.beforeEach(async ({ page }) => {
@@ -24,7 +23,12 @@ test.describe('Internationalization (i18n)', () => {
     await waitForAppReady(page);
     await closeOpenDialogs(page);
     
-    const { dialog } = await openManageSubscriptionModal(page);
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.waitFor({ state: 'visible', timeout: 10000 });
+    await manageButton.click();
+    
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Verify Spanish labels - use specific heading to avoid strict mode violation
     await expect(dialog.getByRole('heading', { name: /vip/i }).first()).toBeVisible({ timeout: 10000 });
@@ -43,7 +47,12 @@ test.describe('Internationalization (i18n)', () => {
     await waitForAppReady(page);
     await closeOpenDialogs(page);
     
-    const { dialog } = await openManageSubscriptionModal(page);
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.waitFor({ state: 'visible', timeout: 10000 });
+    await manageButton.click();
+    
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Verify German labels - use specific heading to avoid strict mode violation
     await expect(dialog.getByRole('heading', { name: /vip/i }).first()).toBeVisible({ timeout: 10000 });
@@ -64,7 +73,12 @@ test.describe('Internationalization (i18n)', () => {
       await waitForAppReady(page);
       await closeOpenDialogs(page);
       
-      const { dialog } = await openManageSubscriptionModal(page);
+      const manageButton = page.getByTestId('manage-subscription-btn');
+      await manageButton.waitFor({ state: 'visible', timeout: 10000 });
+      await manageButton.click();
+      
+      const dialog = page.getByTestId('manage-subscription-modal');
+      await expect(dialog).toBeVisible({ timeout: 10000 });
       
       // All buttons should have text (not empty)
       const buttons = dialog.locator('button');
@@ -92,7 +106,12 @@ test.describe('Internationalization (i18n)', () => {
     await waitForAppReady(page);
     await closeOpenDialogs(page);
     
-    const { dialog } = await openManageSubscriptionModal(page);
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.waitFor({ state: 'visible', timeout: 10000 });
+    await manageButton.click();
+    
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Check that dialog content is visible (dates may not be visible for all users)
     const dialogContent = await dialog.textContent();
@@ -108,7 +127,12 @@ test.describe('Internationalization (i18n)', () => {
     await waitForAppReady(page);
     await closeOpenDialogs(page);
     
-    const { dialog } = await openManageSubscriptionModal(page);
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.waitFor({ state: 'visible', timeout: 10000 });
+    await manageButton.click();
+    
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Check that VIP pricing is displayed (currency may vary by locale)
     await expect(dialog.getByText(/6\.99|54\.99/)).toBeVisible({ timeout: 10000 });
@@ -135,7 +159,12 @@ test.describe('Internationalization (i18n)', () => {
     await waitForAppReady(page);
     await closeOpenDialogs(page);
     
-    const { dialog } = await openManageSubscriptionModal(page);
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.waitFor({ state: 'visible', timeout: 10000 });
+    await manageButton.click();
+    
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Try to trigger an error by clicking an action
     const actionButtons = dialog.locator('button[data-testid^="action-"]');

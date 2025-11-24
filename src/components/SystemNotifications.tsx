@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { observability } from '@/lib/observability';
@@ -17,31 +17,6 @@ export const SystemNotifications = () => {
   const { t } = useLanguage();
   const [notifications, setNotifications] = useState<SystemNotification[]>([]);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-
-  const removeNotification = useCallback((id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
-  }, []);
-
-  const addNotification = useCallback((notification: Omit<SystemNotification, 'id' | 'timestamp'>) => {
-    const id = `${Date.now()}-${Math.random()}`;
-    const newNotification: SystemNotification = {
-      ...notification,
-      id,
-      timestamp: Date.now(),
-    };
-
-    setNotifications(prev => [...prev, newNotification]);
-
-    if (notification.autoClose !== false) {
-      setTimeout(() => {
-        removeNotification(id);
-      }, 5000);
-    }
-
-    observability.info('System notification shown', {
-      metadata: { notification: newNotification },
-    });
-  }, [removeNotification]);
 
   useEffect(() => {
     const handleOnline = () => {
@@ -69,7 +44,32 @@ export const SystemNotifications = () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, [addNotification, t]);
+  }, [t]);
+
+  const addNotification = (notification: Omit<SystemNotification, 'id' | 'timestamp'>) => {
+    const id = `${Date.now()}-${Math.random()}`;
+    const newNotification: SystemNotification = {
+      ...notification,
+      id,
+      timestamp: Date.now(),
+    };
+
+    setNotifications(prev => [...prev, newNotification]);
+
+    if (notification.autoClose !== false) {
+      setTimeout(() => {
+        removeNotification(id);
+      }, 5000);
+    }
+
+    observability.info('System notification shown', {
+      metadata: { notification: newNotification },
+    });
+  };
+
+  const removeNotification = (id: string) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
 
   // Monitor circuit breaker states
   useEffect(() => {
@@ -98,7 +98,7 @@ export const SystemNotifications = () => {
     }, 10000); // Check every 10 seconds
 
     return () => clearInterval(interval);
-  }, [addNotification, notifications, t]);
+  }, [notifications, t]);
 
   if (notifications.length === 0 && isOnline) {
     return null;

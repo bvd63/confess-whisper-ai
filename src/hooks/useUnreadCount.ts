@@ -1,11 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import type { Database } from '@/integrations/supabase/types';
 import { persistenceManager } from '@/lib/persistenceManager';
 import { logError } from '@/lib/logger';
-
-type MessageRow = Database['public']['Tables']['messages']['Row'];
 
 /**
  * Hook for tracking unread message counts across conversations
@@ -14,7 +10,52 @@ export const useUnreadCount = (userId: string | null) => {
   const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
   const [totalUnread, setTotalUnread] = useState(0);
 
-  const loadUnreadCounts = useCallback(async () => {
+  useEffect(() => {
+    if (!userId) return;
+
+    loadUnreadCounts();
+
+    // Subscribe to new messages
+    const channel = supabase
+      .channel('unread-messages')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `sender_id=neq.${userId}`
+        },
+        (payload) => {
+          // Increment unread count for this conversation
+          const message = payload.new as any;
+          setUnreadCounts(prev => ({
+            ...prev,
+            [message.conversation_id]: (prev[message.conversation_id] || 0) + 1
+          }));
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'messages',
+          filter: `is_read=eq.true`
+        },
+        () => {
+          // Refresh counts when messages are marked as read
+          loadUnreadCounts();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId]);
+
+  const loadUnreadCounts = async () => {
     if (!userId) return;
 
     try {
@@ -64,53 +105,7 @@ export const useUnreadCount = (userId: string | null) => {
     } catch (error) {
       logError('Error loading unread counts', error as Error);
     }
-  }, [userId]);
-
-  useEffect(() => {
-    if (!userId) return;
-
-    loadUnreadCounts();
-
-    // Subscribe to new messages
-    const channel = supabase
-      .channel('unread-messages')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `sender_id=neq.${userId}`
-        },
-        (payload: RealtimePostgresChangesPayload<MessageRow>) => {
-          if (!payload.new) return;
-          // Increment unread count for this conversation
-          const conversationId = payload.new.conversation_id;
-          setUnreadCounts(prev => ({
-            ...prev,
-            [conversationId]: (prev[conversationId] || 0) + 1
-          }));
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'messages',
-          filter: `is_read=eq.true`
-        },
-        () => {
-          // Refresh counts when messages are marked as read
-          loadUnreadCounts();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [loadUnreadCounts, userId]);
+  };
 
   const markConversationAsRead = async (conversationId: string) => {
     if (!userId) return;
@@ -124,15 +119,15 @@ export const useUnreadCount = (userId: string | null) => {
         .eq('is_read', false)
         .neq('sender_id', userId);
 
-      // Update local state and cache
+      // Update local state
       setUnreadCounts(prev => {
         const updated = { ...prev };
         delete updated[conversationId];
-        const total = Object.values(updated).reduce((sum, count) => sum + count, 0);
-        setTotalUnread(total);
-        persistenceManager.set('state', `unread_counts_${userId}`, updated);
         return updated;
       });
+
+      // Update cache
+      await persistenceManager.set('state', `unread_counts_${userId}`, unreadCounts);
     } catch (error) {
       logError('Error marking conversation as read', error as Error);
     }

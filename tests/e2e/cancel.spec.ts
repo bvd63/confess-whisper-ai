@@ -1,8 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { loginAs } from '../helpers/auth';
 import { mockSubscriptionRoutes } from '../helpers/network';
-import { closeOpenDialogs, waitForAppReady } from '../helpers/pageHelpers';
-import { openManageSubscriptionModal } from '../helpers/manageSubscription';
 
 test.describe('Subscription Management Flow', () => {
   test.beforeEach(async ({ page }) => {
@@ -12,21 +10,39 @@ test.describe('Subscription Management Flow', () => {
     
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-
-    await waitForAppReady(page);
-    await closeOpenDialogs(page);
+    
+    // Close any open dialogs
+    const openDialog = page.locator('[data-state="open"][role="dialog"]');
+    if (await openDialog.isVisible()) {
+      await page.keyboard.press('Escape');
+      await expect(openDialog).not.toBeVisible();
+    }
+    
+    // Wait for app ready
+    await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
+    await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
   });
 
   test('VIP user can open subscription management modal', async ({ page }) => {
-    const { dialog, manageButton } = await openManageSubscriptionModal(page);
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.waitFor({ state: 'visible', timeout: 10000 });
     await expect(manageButton).toBeVisible();
+    
+    await manageButton.click();
+    
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Verify modal has subscription content (first() to handle multiple matches)
     await expect(dialog.getByText(/subscription/i).first()).toBeVisible();
   });
 
   test('subscription modal shows current plan information', async ({ page }) => {
-    const { dialog } = await openManageSubscriptionModal(page);
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.click();
+    
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Modal should show subscription-related content
     const tabsList = dialog.locator('[role="tablist"]');
@@ -40,15 +56,23 @@ test.describe('Subscription Management Flow', () => {
     
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-
-    await waitForAppReady(page);
-    await closeOpenDialogs(page);
     
-    const { dialog } = await openManageSubscriptionModal(page);
+    await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
+    await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
+    
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.click();
+    
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
   });
 
   test('modal can be closed with ESC key', async ({ page }) => {
-    const { dialog } = await openManageSubscriptionModal(page);
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.click();
+    
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
     await page.keyboard.press('Escape');
     await expect(dialog).not.toBeVisible({ timeout: 5000 });

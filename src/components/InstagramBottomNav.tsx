@@ -83,18 +83,16 @@ export const InstagramBottomNav = () => {
     if (!buttons) return;
 
     switch (e.key) {
-      case 'ArrowLeft': {
+      case 'ArrowLeft':
         e.preventDefault();
         const prevButton = buttons[index - 1] as HTMLButtonElement;
         prevButton?.focus();
         break;
-      }
-      case 'ArrowRight': {
+      case 'ArrowRight':
         e.preventDefault();
         const nextButton = buttons[index + 1] as HTMLButtonElement;
         nextButton?.focus();
         break;
-      }
       case 'Home':
         e.preventDefault();
         (buttons[0] as HTMLButtonElement)?.focus();

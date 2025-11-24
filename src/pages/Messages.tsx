@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { getNicknameCached } from "@/lib/nicknameCache";
@@ -71,9 +71,43 @@ const Messages = () => {
       // Clear any persisted conversation so it won't auto-redirect back
       sessionManager.saveSessionState('/messages', null);
     }
-  }, [location.pathname, location.search, selectedConversation]);
+  }, [location.pathname]);
 
-  const loadOtherUserInfo = useCallback(async (userId: string) => {
+  useEffect(() => {
+    if (isLoading) return;
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+
+    // Start conversation with URL user param only once (guard StrictMode double-invoke)
+    const userId = searchParams.get('user');
+    if (userId && !startedRef.current) {
+      startedRef.current = true;
+      startConversation(userId);
+    }
+  }, [user, isLoading, searchParams, navigate]);
+
+  const startConversation = async (targetUserId: string) => {
+    try {
+      const { data: convId, error } = await supabase.rpc('get_or_create_conversation', {
+        _user1: user!.id,
+        _user2: targetUserId,
+      });
+
+      if (error) throw error;
+
+      await loadOtherUserInfo(targetUserId);
+      setSelectedConversation((convId as string) || null);
+      setOtherUserId(targetUserId);
+      // Ensure messages tab stack reflects deep-linked conversation
+      pushToTabStack('messages', `/messages`);
+    } catch (error) {
+      logError('Error starting conversation', error as Error);
+    }
+  };
+
+  const loadOtherUserInfo = async (userId: string) => {
     try {
       const nickname = await getNicknameCached(userId);
 
@@ -95,43 +129,9 @@ const Messages = () => {
       logError('Error loading user info', error as Error);
       setOtherUserNickname(null);
     }
-  }, []);
+  };
 
-  const startConversation = useCallback(async (targetUserId: string) => {
-    try {
-      const { data: convId, error } = await supabase.rpc('get_or_create_conversation', {
-        _user1: user!.id,
-        _user2: targetUserId,
-      });
-
-      if (error) throw error;
-
-      await loadOtherUserInfo(targetUserId);
-      setSelectedConversation((convId as string) || null);
-      setOtherUserId(targetUserId);
-      // Ensure messages tab stack reflects deep-linked conversation
-      pushToTabStack('messages', `/messages`);
-    } catch (error) {
-      logError('Error starting conversation', error as Error);
-    }
-  }, [loadOtherUserInfo, pushToTabStack, user]);
-
-  useEffect(() => {
-    if (isLoading) return;
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
-
-    // Start conversation with URL user param only once (guard StrictMode double-invoke)
-    const userId = searchParams.get('user');
-    if (userId && !startedRef.current) {
-      startedRef.current = true;
-      startConversation(userId);
-    }
-  }, [isLoading, navigate, searchParams, startConversation, user]);
-
-  const handleConversationSelect = useCallback(async (conversationId: string, userId: string) => {
+  const handleConversationSelect = async (conversationId: string, userId: string) => {
     // Validate userId before proceeding
     if (!userId || userId.trim() === '') {
       logError('Invalid userId provided to handleConversationSelect');
@@ -148,9 +148,9 @@ const Messages = () => {
     
     // Save session state (never persist a specific conversation)
     await sessionManager.saveSessionState('/messages', null);
-  }, [loadOtherUserInfo, pushToTabStack, t]);
+  };
 
-  const handleBackFromConversation = useCallback(() => {
+  const handleBackFromConversation = () => {
     setSelectedConversation(null);
     setOtherUserId(null);
     setOtherUserNickname(null);
@@ -163,7 +163,7 @@ const Messages = () => {
 
     // Clear any persisted conversation redirect
     sessionManager.saveSessionState('/messages', null);
-  }, [navigate, popFromTabStack]);
+  };
   if (isLoading) {
     return null;
   }

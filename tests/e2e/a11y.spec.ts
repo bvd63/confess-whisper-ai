@@ -3,40 +3,57 @@ import AxeBuilder from '@axe-core/playwright';
 import { loginAs } from '../helpers/auth';
 import { mockSubscriptionRoutes } from '../helpers/network';
 import { closeOpenDialogs, waitForAppReady } from '../helpers/pageHelpers';
-import { openManageSubscriptionModal } from '../helpers/manageSubscription';
 
 test.describe('Manage Subscription Accessibility', () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await loginAs(page, 'premium_monthly_active');
     await mockSubscriptionRoutes(page, { currentPlan: 'vip', interval: 'monthly', status: 'active' });
-
+    
     await page.goto('/');
-    await page.waitForLoadState('load');
-
-    await waitForAppReady(page);
-    await closeOpenDialogs(page);
-
-    // Final guard in case any overlay lingers due to slow animations
-    await page
-      .locator('[data-state="open"][aria-hidden="true"]')
-      .first()
-      .waitFor({ state: 'hidden', timeout: 3000 })
-      .catch(() => {});
-  });
-
-  test.afterEach(async ({ page }) => {
-    await closeOpenDialogs(page);
-
-    const overlay = page.locator('[data-state="open"][aria-hidden="true"]');
-    await overlay.waitFor({ state: 'hidden', timeout: 3000 }).catch(() => {});
-
-    // Give Radix animations a moment to finish before next test
+    await page.waitForLoadState('load'); // Changed from 'networkidle' to 'load'
+    
+    // Wait for app ready
+    await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
+    await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
+    
+    // Wait for any dialog overlays to disappear
+    await page.locator('[data-state="open"][aria-hidden="true"]').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+    
+    // Close any open dialogs
+    const openDialog = page.locator('[data-state="open"][role="dialog"]');
+    if (await openDialog.isVisible()) {
+      await page.keyboard.press('Escape');
+      await expect(openDialog).not.toBeVisible();
+    }
+    
+    // Extra wait for dialog close animation
     await page.waitForTimeout(500);
   });
 
+  test.afterEach(async ({ page }) => {
+    // Force close all dialogs by pressing ESC multiple times and waiting for overlays to disappear
+    for (let i = 0; i < 5; i++) {
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(300);
+    }
+    
+    // Wait for any overlays to fully disappear
+    const overlay = page.locator('[data-state="open"][aria-hidden="true"]');
+    await overlay.waitFor({ state: 'hidden', timeout: 3000 }).catch(() => {});
+    
+    // Extra wait for animations
+    await page.waitForTimeout(1000);
+  });
+
   test('modal has no critical accessibility violations', async ({ page }) => {
-    const { dialog } = await openManageSubscriptionModal(page);
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.waitFor({ state: 'visible', timeout: 10000 });
+    await manageButton.click();
+    
+    // Wait for modal to open
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Run axe accessibility scan
     const accessibilityScanResults = await new AxeBuilder({ page })
@@ -48,7 +65,12 @@ test.describe('Manage Subscription Accessibility', () => {
   });
 
   test('modal has proper focus trap', async ({ page }) => {
-    const { dialog } = await openManageSubscriptionModal(page);
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.waitFor({ state: 'visible', timeout: 10000 });
+    await manageButton.click();
+    
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Check that focus is trapped within modal
     const focusableElements = dialog.locator('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
@@ -60,7 +82,12 @@ test.describe('Manage Subscription Accessibility', () => {
   });
 
   test('ESC key closes modal and returns focus', async ({ page }) => {
-    const { dialog, manageButton } = await openManageSubscriptionModal(page);
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.waitFor({ state: 'visible', timeout: 10000 });
+    await manageButton.click();
+    
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Press ESC
     await page.keyboard.press('Escape');
@@ -74,7 +101,12 @@ test.describe('Manage Subscription Accessibility', () => {
   });
 
   test('keyboard navigation works correctly', async ({ page }) => {
-    const { dialog } = await openManageSubscriptionModal(page);
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.waitFor({ state: 'visible', timeout: 10000 });
+    await manageButton.click();
+    
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Tab through focusable elements
     await page.keyboard.press('Tab');
@@ -86,7 +118,12 @@ test.describe('Manage Subscription Accessibility', () => {
 
   test('modal has proper ARIA attributes', async ({ page }) => {
     
-    const { dialog } = await openManageSubscriptionModal(page);
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.waitFor({ state: 'visible', timeout: 10000 });
+    await manageButton.click();
+    
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Check for aria-labelledby or aria-label
     const hasLabel = await dialog.evaluate((el) => {
@@ -102,7 +139,12 @@ test.describe('Manage Subscription Accessibility', () => {
   });
 
   test('action buttons have proper disabled state communication', async ({ page }) => {
-    const { dialog } = await openManageSubscriptionModal(page);
+    const manageButton = page.getByTestId('manage-subscription-btn');
+    await manageButton.waitFor({ state: 'visible', timeout: 10000 });
+    await manageButton.click();
+    
+    const dialog = page.getByTestId('manage-subscription-modal');
+    await expect(dialog).toBeVisible({ timeout: 10000 });
     
     // Find any disabled button
     const disabledButtons = dialog.locator('button[disabled]');

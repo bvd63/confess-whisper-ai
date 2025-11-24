@@ -1,25 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import type { Database } from '@/integrations/supabase/types';
 import { logError } from '@/lib/logger';
-
-type AnalyticsEventRow = Database['public']['Tables']['analytics_events']['Row'];
-
-interface NotificationEventData {
-  notificationId?: string;
-  notification_type?: string;
-}
-
-const parseNotificationEventData = (data: AnalyticsEventRow['event_data']): NotificationEventData => {
-  if (!data || Array.isArray(data) || typeof data !== 'object') {
-    return {};
-  }
-
-  const record = data as Record<string, unknown>;
-  const notificationId = typeof record.notificationId === 'string' ? record.notificationId : undefined;
-  const notification_type = typeof record.notification_type === 'string' ? record.notification_type : undefined;
-  return { notificationId, notification_type };
-};
 
 export interface NotificationMetrics {
   totalSent: number;
@@ -67,7 +48,11 @@ export const useNotificationAnalytics = (startDate: Date, endDate: Date) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAnalytics = useCallback(async () => {
+  useEffect(() => {
+    fetchAnalytics();
+  }, [startDate, endDate]);
+
+  const fetchAnalytics = async () => {
     try {
       setLoading(true);
       setError(null);
@@ -88,8 +73,7 @@ export const useNotificationAnalytics = (startDate: Date, endDate: Date) => {
         ])
         .gte('created_at', startDate.toISOString())
         .lte('created_at', endDate.toISOString())
-        .order('created_at', { ascending: true })
-        .returns<AnalyticsEventRow[]>();
+        .order('created_at', { ascending: true });
 
       if (eventsError) throw eventsError;
 
@@ -112,12 +96,13 @@ export const useNotificationAnalytics = (startDate: Date, endDate: Date) => {
       let responseCount = 0;
       
       clickedEvents.forEach(clicked => {
-        const { notificationId } = parseNotificationEventData(clicked.event_data);
+        const clickedData = clicked.event_data as any;
+        const notificationId = clickedData?.notificationId;
         if (notificationId) {
           const sentEvent = sentEvents.find(
             s => {
-              const sentData = parseNotificationEventData(s.event_data);
-              return sentData.notificationId === notificationId;
+              const sentData = s.event_data as any;
+              return sentData?.notificationId === notificationId;
             }
           );
           if (sentEvent) {
@@ -167,8 +152,8 @@ export const useNotificationAnalytics = (startDate: Date, endDate: Date) => {
       const typeMap = new Map<string, { sent: number; clicked: number }>();
       
       events?.forEach(event => {
-        const { notification_type } = parseNotificationEventData(event.event_data);
-        const type = notification_type || 'unknown';
+        const eventData = event.event_data as any;
+        const type = eventData?.notification_type || 'unknown';
         const existing = typeMap.get(type) || { sent: 0, clicked: 0 };
         
         if (event.event_type === 'notification_sent') existing.sent++;
@@ -209,11 +194,7 @@ export const useNotificationAnalytics = (startDate: Date, endDate: Date) => {
     } finally {
       setLoading(false);
     }
-  }, [endDate, startDate]);
-
-  useEffect(() => {
-    fetchAnalytics();
-  }, [fetchAnalytics]);
+  };
 
   return {
     metrics,

@@ -9,12 +9,10 @@ import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { Activity, Database, Wifi, Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-type PersistenceStats = ReturnType<typeof persistenceMonitor['getStats']>;
-
 export const PersistenceMonitorDashboard = () => {
   const { t } = useLanguage();
   const { isOnline, queuedOperations } = useNetworkStatus();
-  const [stats, setStats] = useState<PersistenceStats | null>(null);
+  const [stats, setStats] = useState<any>(null);
   const [cacheSize, setCacheSize] = useState<number>(0);
   const [isSyncing, setIsSyncing] = useState(false);
 

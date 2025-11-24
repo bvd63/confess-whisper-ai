@@ -6,52 +6,38 @@ import { Page } from '@playwright/test';
  */
 export async function closeOpenDialogs(page: Page) {
   try {
-    await page.waitForTimeout(400); // allow open/close animations to settle
-
-    const overlayLocator = page.locator('[data-state="open"][aria-hidden="true"]');
-    const dialogLocator = page.locator('[data-state="open"][role="dialog"]');
-
-    const hasBlockingElements = async () => {
-      const [overlayCount, dialogCount] = await Promise.all([
-        overlayLocator.count().catch(() => 0),
-        dialogLocator.count().catch(() => 0)
-      ]);
-      return overlayCount + dialogCount > 0;
-    };
-
-    if (!(await hasBlockingElements())) {
-      return;
-    }
-
-    console.log('Detected open modal overlay/dialog, attempting cleanup...');
-
-    // Try standard close paths first (Escape then clicking backdrop)
-    for (let i = 0; i < 3; i++) {
-      await page.keyboard.press('Escape');
-      await page.waitForTimeout(300);
-      if (!(await hasBlockingElements())) {
-        console.log('Modal closed successfully');
-        return;
+    // Wait a bit for any animations to complete
+    await page.waitForTimeout(800);
+    
+    // Check for dialog overlay (the one that blocks clicks)
+    const overlay = page.locator('[data-state="open"][aria-hidden="true"]').first();
+    const isOverlayVisible = await overlay.isVisible().catch(() => false);
+    
+    if (isOverlayVisible) {
+      console.log('Detected open modal overlay, attempting to close...');
+      
+      // Try pressing Escape multiple times
+      for (let i = 0; i < 3; i++) {
+        await page.keyboard.press('Escape');
+        await page.waitForTimeout(400);
+        
+        const stillVisible = await overlay.isVisible().catch(() => false);
+        if (!stillVisible) {
+          console.log('Modal closed successfully');
+          break;
+        }
+      }
+      
+      // Final check - if still visible, try clicking outside the dialog
+      const stillVisibleAfterEscape = await overlay.isVisible().catch(() => false);
+      if (stillVisibleAfterEscape) {
+        console.log('Escape key failed, trying to click outside dialog');
+        await page.mouse.click(10, 10); // Click top-left corner
+        await page.waitForTimeout(400);
       }
     }
-
-    // Attempt a click outside dialog bounds as a fallback
-    await page.mouse.click(10, 10);
-    await page.waitForTimeout(300);
-    if (!(await hasBlockingElements())) {
-      console.log('Modal closed via backdrop click');
-      return;
-    }
-
-    // As a last resort, force-remove lingering overlays to keep tests unblocked
-    console.log('Overlay still present, forcing removal for test stability');
-    await overlayLocator.evaluateAll((elements) => {
-      elements.forEach((element) => {
-        (element as HTMLElement).style.pointerEvents = 'none';
-        element.remove();
-      });
-    });
   } catch (error) {
+    // Ignore errors - this is best-effort cleanup
     console.log('Could not close dialogs:', error);
   }
 }
@@ -68,55 +54,4 @@ export async function waitForAppReady(page: Page) {
   
   // Small delay for any remaining async operations
   await page.waitForTimeout(500);
-
-  // Ensure lazy-loaded dialog overlay is gone before interacting
-  await page
-    .waitForFunction(() => !document.querySelector('[data-testid="dialog-loading-overlay"]'), {
-      timeout: 15000,
-    })
-    .catch(async () => {
-      await page.locator('[data-testid="dialog-loading-overlay"]').evaluateAll((elements) => {
-        elements.forEach((element) => {
-          (element as HTMLElement).style.pointerEvents = 'none';
-        });
-      }).catch(() => {});
-    });
-
-  await dismissNotificationBanner(page);
-}
-
-async function dismissNotificationBanner(page: Page) {
-  try {
-    await page.evaluate(() => {
-      localStorage.setItem('onesignal-banner-dismissed', 'true');
-      localStorage.setItem('hasSeenOnboarding', 'true');
-    });
-  } catch (error) {
-    console.log('Failed to prime notification banner storage:', error);
-  }
-
-  try {
-    const banner = page.locator('[aria-label="Notifications banner"]');
-    const bannerCount = await banner.count();
-    if (bannerCount === 0) {
-      return;
-    }
-
-    const visible = await banner.first().isVisible().catch(() => false);
-    if (!visible) {
-      return;
-    }
-
-    const dismissButton = banner.getByRole('button').last();
-    const dismissVisible = await dismissButton.isVisible().catch(() => false);
-    if (dismissVisible) {
-      await dismissButton.click({ timeout: 2000 }).catch(() => {});
-    } else {
-      await banner.evaluateAll((elements) => elements.forEach((element) => element.remove()));
-    }
-
-    await page.waitForTimeout(200);
-  } catch (error) {
-    console.log('Could not dismiss notification banner:', error);
-  }
 }

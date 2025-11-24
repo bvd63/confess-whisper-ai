@@ -1,13 +1,15 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import {
   normalizeRateLimitRequest,
   type RateLimitIdentifier,
   type RateLimitConfig,
 } from "./utils.ts";
-import { createServiceClient } from "../_shared/supabase.ts";
-import { getServerEnv } from "../_shared/env.ts";
-import { handleOptions, jsonResponse } from "../_shared/http.ts";
-import { logError, logWarn } from "../_shared/logger.ts";
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
 interface RateLimitCheckResult {
   allowed: boolean;
@@ -100,16 +102,8 @@ const applyRateLimit = async (
 };
 
 serve(async (req: Request) => {
-  const origin = req.headers.get("origin");
   if (req.method === 'OPTIONS') {
-    return handleOptions(origin);
-  }
-
-  const env = getServerEnv();
-
-  if (req.headers.get('x-edge-token') !== env.EDGE_INTERNAL_TOKEN) {
-    logWarn('Unauthorized rate-limit access attempt');
-    return jsonResponse({ error: 'UNAUTHORIZED' }, 401, origin);
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
@@ -117,40 +111,58 @@ serve(async (req: Request) => {
     try {
       rawBody = await req.json();
     } catch (parseError) {
-      logWarn('Rate-limit body parse failed', { error: parseError instanceof Error ? parseError.message : String(parseError) });
-      return jsonResponse({ error: 'INVALID_JSON' }, 400, origin);
+      console.warn('[rate-limit] Failed to parse request body', parseError);
+      return new Response(
+        JSON.stringify({ error: 'INVALID_JSON' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
     }
 
     const normalized = normalizeRateLimitRequest(rawBody);
     if (!normalized.ok) {
-      return jsonResponse({ error: normalized.error }, 400, origin);
+      return new Response(
+        JSON.stringify({ error: normalized.error }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
     }
 
     const { action, identifiers, config } = normalized.data;
 
-    const supabaseClient = createServiceClient();
+    // Initialize Supabase client with service role for database access
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
     const checks: RateLimitCheckResult[] = [];
     for (const identifier of identifiers) {
       const result = await applyRateLimit(supabaseClient, action, identifier, config);
       if (!result.allowed) {
-        const extraHeaders = result.retryAfter
-          ? {
-              "Retry-After": result.retryAfter.toString(),
-              "X-RateLimit-Limit": config.maxAttempts.toString(),
-              "X-RateLimit-Remaining": "0",
-            }
-          : undefined;
-
-        return jsonResponse({
-          allowed: false,
-          remaining: 0,
-          resetAt: result.resetAt,
-          retryAfter: result.retryAfter,
-          message: result.retryAfter
-            ? `Rate limit exceeded. Try again in ${result.retryAfter} seconds.`
-            : 'Rate limit exceeded.',
-          identifierType: result.identifierType,
-        }, 429, origin, extraHeaders);
+        return new Response(
+          JSON.stringify({
+            allowed: false,
+            remaining: 0,
+            resetAt: result.resetAt,
+            retryAfter: result.retryAfter,
+            message: result.retryAfter
+              ? `Rate limit exceeded. Try again in ${result.retryAfter} seconds.`
+              : 'Rate limit exceeded.',
+            identifierType: result.identifierType,
+          }),
+          {
+            status: 429,
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+              ...(result.retryAfter
+                ? {
+                    'Retry-After': result.retryAfter.toString(),
+                    'X-RateLimit-Limit': config.maxAttempts.toString(),
+                    'X-RateLimit-Remaining': '0',
+                  }
+                : {}),
+            },
+          },
+        );
       }
       checks.push(result);
     }
@@ -175,10 +187,16 @@ serve(async (req: Request) => {
       responseBody.error = erroredCheck.error;
     }
 
-    return jsonResponse(responseBody, 200, origin);
+    return new Response(
+      JSON.stringify(responseBody),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
 
   } catch (error) {
-    logError('Rate limit error', { error: error instanceof Error ? error.message : 'unknown' });
-    return jsonResponse({ error: 'INTERNAL_ERROR' }, 500, origin);
+    console.error('Rate limit error:', error);
+    return new Response(
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 });

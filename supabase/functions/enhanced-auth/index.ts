@@ -1,7 +1,10 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { handleOptions, jsonResponse } from "../_shared/http.ts";
-import { getServerEnv } from "../_shared/env.ts";
-import { createServiceClient } from "../_shared/supabase.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
 // Environment configuration
 const SESSION_MAX_PER_USER = 5;
@@ -35,8 +38,7 @@ interface RateLimitCheckResult {
 }
 
 async function enforceRateLimit(
-  client: ReturnType<typeof createServiceClient>,
-  edgeToken: string,
+  client: any,
   {
     action,
     userId,
@@ -56,19 +58,11 @@ async function enforceRateLimit(
   }
 
   try {
-    if (!edgeToken) {
-      console.error('[enhanced-auth] EDGE_INTERNAL_TOKEN is not configured');
-      return { allowed: true };
-    }
-
     const result = await client.functions.invoke('rate-limit', {
       body: {
         action,
         userId: userId ?? undefined,
         ip: ip ?? undefined,
-      },
-      headers: {
-        'x-edge-token': edgeToken,
       },
     });
 
@@ -140,8 +134,7 @@ async function verifyCaptcha(
   token: string,
   remoteIp?: string
 ): Promise<{ success: boolean; error?: string }> {
-  const env = getServerEnv();
-  const turnstileSecret = env.TURNSTILE_SECRET;
+  const turnstileSecret = Deno.env.get('TURNSTILE_SECRET');
   
   if (!turnstileSecret) {
     console.warn('TURNSTILE_SECRET not configured - CAPTCHA verification disabled');
@@ -200,17 +193,15 @@ function validatePasswordStrength(password: string): { valid: boolean; error?: s
 }
 
 serve(async (req) => {
-  const origin = req.headers.get('origin');
   if (req.method === 'OPTIONS') {
-    return handleOptions(origin);
+    return new Response(null, { headers: corsHeaders });
   }
 
-  const respond = (body: Record<string, unknown>, status = 200, headers?: Record<string, string>) =>
-    jsonResponse(body, status, origin, headers);
-
   try {
-    const env = getServerEnv();
-    const supabaseClient = createServiceClient();
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+    );
 
     const url = new URL(req.url);
     const action = url.searchParams.get('action');
@@ -218,7 +209,7 @@ serve(async (req) => {
                      req.headers.get('x-real-ip') || 
                      'unknown';
     const userAgent = req.headers.get('user-agent') || 'unknown';
-    const requestOrigin = origin || undefined;
+    const requestOrigin = req.headers.get('origin') || undefined;
 
     // Handle different auth actions
     switch (action) {
@@ -230,7 +221,10 @@ serve(async (req) => {
 
         if (error) throw error;
 
-        return respond({ required: data || false });
+        return new Response(
+          JSON.stringify({ required: data || false }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
       case 'enhanced-login': {
@@ -241,7 +235,7 @@ serve(async (req) => {
         const metadataIp = sessionMetadata?.ipAddress || clientIp;
         const stayConnectedPreference = sessionMetadata?.stayConnected ?? false;
 
-        const loginRateLimit = await enforceRateLimit(supabaseClient, env.EDGE_INTERNAL_TOKEN, {
+        const loginRateLimit = await enforceRateLimit(supabaseClient, {
           action: 'auth_login',
           userId: normalizedEmail,
           ip: clientIp,
@@ -261,15 +255,26 @@ serve(async (req) => {
             metadataUserAgent
           );
 
-          const headerOverrides = loginRateLimit.retryAfter
-            ? { 'Retry-After': loginRateLimit.retryAfter.toString() }
-            : undefined;
+          const responseHeaders: Record<string, string> = {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          };
+          
+          if (loginRateLimit.retryAfter) {
+            responseHeaders['Retry-After'] = loginRateLimit.retryAfter.toString();
+          }
 
-          return respond({
-            error: 'RATE_LIMIT',
-            messageKey: 'common.rate_limit',
-            retryAfter: loginRateLimit.retryAfter,
-          }, 429, headerOverrides);
+          return new Response(
+            JSON.stringify({
+              error: 'RATE_LIMIT',
+              messageKey: 'common.rate_limit',
+              retryAfter: loginRateLimit.retryAfter,
+            }),
+            {
+              status: 429,
+              headers: responseHeaders,
+            }
+          );
         }
 
         const attemptWindowStartIso = new Date(Date.now() - FAILED_ATTEMPT_WINDOW * 60 * 1000).toISOString();
@@ -313,10 +318,13 @@ serve(async (req) => {
               reason: 'rate_limit_vector',
             }, { onConflict: 'email' });
 
-          return respond({
-            error: 'RATE_LIMIT',
-            messageKey: 'common.rate_limit',
-          }, 429);
+          return new Response(
+            JSON.stringify({
+              error: 'RATE_LIMIT',
+              messageKey: 'common.rate_limit',
+            }),
+            { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
 
         const { data: captchaRequired } = await supabaseClient
@@ -324,18 +332,24 @@ serve(async (req) => {
 
         if (captchaRequired) {
           if (!captchaToken || typeof captchaToken !== 'string') {
-            return respond({
-              error: 'CAPTCHA_REQUIRED',
-              messageKey: 'auth.captcha_failed',
-            }, 403);
+            return new Response(
+              JSON.stringify({
+                error: 'CAPTCHA_REQUIRED',
+                messageKey: 'auth.captcha_failed',
+              }),
+              { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
           }
 
           const captchaResult = await verifyCaptcha(captchaToken, clientIp);
           if (!captchaResult.success) {
-            return respond({
-              error: 'CAPTCHA_FAILED',
-              messageKey: captchaResult.error,
-            }, 403);
+            return new Response(
+              JSON.stringify({
+                error: 'CAPTCHA_FAILED',
+                messageKey: captchaResult.error,
+              }),
+              { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
           }
         }
 
@@ -400,24 +414,33 @@ serve(async (req) => {
               }, { onConflict: 'email' });
 
             // Return logical error but with 200 status so the frontend can handle it
-            return respond({
-              error: 'ACCOUNT_LOCKED',
-              messageKey: 'auth.account_locked',
-            });
+            return new Response(
+              JSON.stringify({
+                error: 'ACCOUNT_LOCKED',
+                messageKey: 'auth.account_locked',
+              }),
+              { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
           }
 
           // Invalid credentials: handled as business error with 200 status to avoid runtime overlay
-          return respond({
-            error: 'INVALID_CREDENTIALS',
-            messageKey: 'auth.invalid_credentials',
-          });
+          return new Response(
+            JSON.stringify({
+              error: 'INVALID_CREDENTIALS',
+              messageKey: 'auth.invalid_credentials',
+            }),
+            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
 
         if (!authData?.user || !authData.session) {
-          return respond({
-            error: 'INVALID_RESPONSE',
-            messageKey: 'common.something_went_wrong',
-          }, 500);
+          return new Response(
+            JSON.stringify({
+              error: 'INVALID_RESPONSE',
+              messageKey: 'common.something_went_wrong',
+            }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
 
         const refreshToken = generateRefreshToken();
@@ -465,10 +488,13 @@ serve(async (req) => {
               _user_agent: metadataUserAgent,
             });
 
-          return respond({
-            error: 'RATE_LIMIT',
-            messageKey: 'common.rate_limit',
-          }, 429);
+          return new Response(
+            JSON.stringify({
+              error: 'RATE_LIMIT',
+              messageKey: 'common.rate_limit',
+            }),
+            { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
 
         const now = new Date();
@@ -495,20 +521,26 @@ serve(async (req) => {
             _user_agent: metadataUserAgent,
           });
 
-        return respond({
-          user: authData.user,
-          session: authData.session,
-          refreshToken,
-          expiresAt: sessionExpiresAt.toISOString(),
-          stayConnected: stayConnectedPreference,
-        });
+        return new Response(
+          JSON.stringify({
+            user: authData.user,
+            session: authData.session,
+            refreshToken,
+            expiresAt: sessionExpiresAt.toISOString(),
+            stayConnected: stayConnectedPreference,
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
       case 'refresh-session': {
         const { refreshToken, sessionMetadata }: { refreshToken?: string; sessionMetadata?: SessionMetadata } = await req.json();
 
         if (!refreshToken || typeof refreshToken !== 'string') {
-          return respond({ error: 'INVALID_REQUEST', messageKey: 'common.something_went_wrong' }, 400);
+          return new Response(
+            JSON.stringify({ error: 'INVALID_REQUEST', messageKey: 'common.something_went_wrong' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
 
         const tokenHash = await hashToken(refreshToken);
@@ -520,10 +552,13 @@ serve(async (req) => {
           .single();
 
         if (!sessionRecord || sessionRecord.revoked_at) {
-          return respond({ error: 'INVALID_REFRESH_TOKEN', messageKey: 'common.unauthorized' }, 401);
+          return new Response(
+            JSON.stringify({ error: 'INVALID_REFRESH_TOKEN', messageKey: 'common.unauthorized' }),
+            { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
 
-        const refreshRateLimit = await enforceRateLimit(supabaseClient, env.EDGE_INTERNAL_TOKEN, {
+        const refreshRateLimit = await enforceRateLimit(supabaseClient, {
           action: 'auth_refresh',
           userId: sessionRecord.user_id,
           ip: sessionMetadata?.ipAddress || clientIp,
@@ -543,15 +578,26 @@ serve(async (req) => {
             sessionMetadata?.userAgent || userAgent
           );
 
-          const headerOverrides = refreshRateLimit.retryAfter
-            ? { 'Retry-After': refreshRateLimit.retryAfter.toString() }
-            : undefined;
+          const responseHeaders: Record<string, string> = {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          };
+          
+          if (refreshRateLimit.retryAfter) {
+            responseHeaders['Retry-After'] = refreshRateLimit.retryAfter.toString();
+          }
 
-          return respond({
-            error: 'RATE_LIMIT',
-            messageKey: 'common.rate_limit',
-            retryAfter: refreshRateLimit.retryAfter,
-          }, 429, headerOverrides);
+          return new Response(
+            JSON.stringify({
+              error: 'RATE_LIMIT',
+              messageKey: 'common.rate_limit',
+              retryAfter: refreshRateLimit.retryAfter,
+            }),
+            {
+              status: 429,
+              headers: responseHeaders,
+            }
+          );
         }
 
         const now = new Date();
@@ -572,13 +618,19 @@ serve(async (req) => {
               _user_agent: sessionMetadata?.userAgent || userAgent,
             });
 
-          return respond({ error: 'REFRESH_TOKEN_EXPIRED', messageKey: 'auth.session_revoked' }, 401);
+          return new Response(
+            JSON.stringify({ error: 'REFRESH_TOKEN_EXPIRED', messageKey: 'auth.session_revoked' }),
+            { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
 
         if (sessionRecord.last_refreshed_at) {
           const lastRefreshedAt = new Date(sessionRecord.last_refreshed_at);
           if (now.getTime() - lastRefreshedAt.getTime() < REFRESH_MIN_ROTATION_INTERVAL) {
-            return respond({ error: 'RATE_LIMIT', messageKey: 'common.rate_limit' }, 429);
+            return new Response(
+              JSON.stringify({ error: 'RATE_LIMIT', messageKey: 'common.rate_limit' }),
+              { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
           }
         }
 
@@ -587,7 +639,10 @@ serve(async (req) => {
           const bearerToken = authHeader.replace('Bearer ', '');
           const { data: { user: authUser } = { user: null } } = await supabaseClient.auth.getUser(bearerToken);
           if (!authUser || authUser.id !== sessionRecord.user_id) {
-            return respond({ error: 'UNAUTHORIZED', messageKey: 'common.unauthorized' }, 403);
+            return new Response(
+              JSON.stringify({ error: 'UNAUTHORIZED', messageKey: 'common.unauthorized' }),
+              { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
           }
         }
 
@@ -618,12 +673,15 @@ serve(async (req) => {
             _user_agent: sessionMetadata?.userAgent || userAgent,
           });
 
-        return respond({
-          refreshToken: newRefreshToken,
-          expiresAt: newExpiryDate.toISOString(),
-          stayConnected,
-          sessionId: sessionRecord.id,
-        });
+        return new Response(
+          JSON.stringify({
+            refreshToken: newRefreshToken,
+            expiresAt: newExpiryDate.toISOString(),
+            stayConnected,
+            sessionId: sessionRecord.id,
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
       case 'validate-signup': {
@@ -632,7 +690,7 @@ serve(async (req) => {
         // Normalize email
         const normalizedEmail = email.toLowerCase().trim();
 
-        const signupRateLimit = await enforceRateLimit(supabaseClient, env.EDGE_INTERNAL_TOKEN, {
+        const signupRateLimit = await enforceRateLimit(supabaseClient, {
           action: 'auth_signup',
           userId: normalizedEmail,
           ip: clientIp,
@@ -652,40 +710,60 @@ serve(async (req) => {
             userAgent
           );
 
-          const headerOverrides = signupRateLimit.retryAfter
-            ? { 'Retry-After': signupRateLimit.retryAfter.toString() }
-            : undefined;
+          const responseHeaders: Record<string, string> = {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          };
+          
+          if (signupRateLimit.retryAfter) {
+            responseHeaders['Retry-After'] = signupRateLimit.retryAfter.toString();
+          }
 
-          return respond({
-            error: 'RATE_LIMIT',
-            messageKey: 'common.rate_limit',
-            retryAfter: signupRateLimit.retryAfter,
-          }, 429, headerOverrides);
+          return new Response(
+            JSON.stringify({
+              error: 'RATE_LIMIT',
+              messageKey: 'common.rate_limit',
+              retryAfter: signupRateLimit.retryAfter,
+            }),
+            {
+              status: 429,
+              headers: responseHeaders,
+            }
+          );
         }
         
         // Validate password strength
         const passwordValidation = validatePasswordStrength(password);
         if (!passwordValidation.valid) {
-          return respond({ 
-            error: 'WEAK_PASSWORD', 
-            messageKey: passwordValidation.error 
-          }, 400);
+          return new Response(
+            JSON.stringify({ 
+              error: 'WEAK_PASSWORD', 
+              messageKey: passwordValidation.error 
+            }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
         
         if (!captchaToken || typeof captchaToken !== 'string') {
-          return respond({
-            error: 'CAPTCHA_REQUIRED',
-            messageKey: 'auth.captcha_failed',
-          }, 403);
+          return new Response(
+            JSON.stringify({
+              error: 'CAPTCHA_REQUIRED',
+              messageKey: 'auth.captcha_failed',
+            }),
+            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
 
         // Verify CAPTCHA
         const captchaResult = await verifyCaptcha(captchaToken, clientIp);
         if (!captchaResult.success) {
-          return respond({ 
-            error: 'CAPTCHA_FAILED', 
-            messageKey: captchaResult.error 
-          }, 403);
+          return new Response(
+            JSON.stringify({ 
+              error: 'CAPTCHA_FAILED', 
+              messageKey: captchaResult.error 
+            }),
+            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
 
         // Check rate limiting for signup attempts from this IP
@@ -697,10 +775,13 @@ serve(async (req) => {
           .limit(MAX_SIGNUP_ATTEMPTS);
         
         if (recentSignups && recentSignups.length >= MAX_SIGNUP_ATTEMPTS) {
-          return respond({ 
-            error: 'RATE_LIMIT', 
-            messageKey: 'common.rate_limit' 
-          }, 429);
+          return new Response(
+            JSON.stringify({ 
+              error: 'RATE_LIMIT', 
+              messageKey: 'common.rate_limit' 
+            }),
+            { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
         
         // Log security event for signup validation
@@ -713,10 +794,13 @@ serve(async (req) => {
             user_agent: userAgent,
           });
         
-        return respond({ 
-          valid: true,
-          messageKey: 'auth.validation_passed' 
-        });
+        return new Response(
+          JSON.stringify({ 
+            valid: true,
+            messageKey: 'auth.validation_passed' 
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
       case 'request-password-reset': {
@@ -724,14 +808,20 @@ serve(async (req) => {
 
         const normalizedEmail = email?.toLowerCase().trim();
         if (!normalizedEmail) {
-          return respond({ error: 'INVALID_REQUEST', messageKey: 'common.invalid_request' }, 400);
+          return new Response(
+            JSON.stringify({ error: 'INVALID_REQUEST', messageKey: 'common.invalid_request' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
 
         if (!captchaToken || typeof captchaToken !== 'string') {
-          return respond({ error: 'CAPTCHA_REQUIRED', messageKey: 'auth.captcha_failed' }, 403);
+          return new Response(
+            JSON.stringify({ error: 'CAPTCHA_REQUIRED', messageKey: 'auth.captcha_failed' }),
+            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
 
-        const passwordResetRateLimit = await enforceRateLimit(supabaseClient, env.EDGE_INTERNAL_TOKEN, {
+        const passwordResetRateLimit = await enforceRateLimit(supabaseClient, {
           action: 'auth_password_reset',
           userId: normalizedEmail,
           ip: clientIp,
@@ -751,24 +841,38 @@ serve(async (req) => {
             userAgent
           );
 
-          const headerOverrides = passwordResetRateLimit.retryAfter
-            ? { 'Retry-After': passwordResetRateLimit.retryAfter.toString() }
-            : undefined;
+          const responseHeaders: Record<string, string> = {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          };
+          
+          if (passwordResetRateLimit.retryAfter) {
+            responseHeaders['Retry-After'] = passwordResetRateLimit.retryAfter.toString();
+          }
 
-          return respond({
-            error: 'RATE_LIMIT',
-            messageKey: 'common.rate_limit',
-            retryAfter: passwordResetRateLimit.retryAfter,
-          }, 429, headerOverrides);
+          return new Response(
+            JSON.stringify({
+              error: 'RATE_LIMIT',
+              messageKey: 'common.rate_limit',
+              retryAfter: passwordResetRateLimit.retryAfter,
+            }),
+            {
+              status: 429,
+              headers: responseHeaders,
+            }
+          );
         }
 
         const passwordResetCaptchaResult = await verifyCaptcha(captchaToken, clientIp);
         if (!passwordResetCaptchaResult.success) {
-          return respond({ error: 'CAPTCHA_FAILED', messageKey: passwordResetCaptchaResult.error }, 403);
+          return new Response(
+            JSON.stringify({ error: 'CAPTCHA_FAILED', messageKey: passwordResetCaptchaResult.error }),
+            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
 
-        const redirectTarget = env.PASSWORD_RESET_REDIRECT_URL
-          ?? (requestOrigin ? `${requestOrigin.replace(/\/$/, '')}/reset-password` : undefined);
+        const redirectTarget = Deno.env.get('PASSWORD_RESET_REDIRECT_URL')
+          || (requestOrigin ? `${requestOrigin.replace(/\/$/, '')}/reset-password` : undefined);
 
         try {
           await supabaseClient.auth.resetPasswordForEmail(normalizedEmail, redirectTarget ? { redirectTo: redirectTarget } : undefined);
@@ -785,20 +889,29 @@ serve(async (req) => {
           userAgent
         );
 
-        return respond({ success: true, messageKey: 'auth.forgot_password_success' });
+        return new Response(
+          JSON.stringify({ success: true, messageKey: 'auth.forgot_password_success' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
       case 'revoke-session': {
         const authHeader = req.headers.get('Authorization');
         if (!authHeader) {
-          return respond({ error: 'UNAUTHORIZED', messageKey: 'common.unauthorized' }, 401);
+          return new Response(
+            JSON.stringify({ error: 'UNAUTHORIZED', messageKey: 'common.unauthorized' }),
+            { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
 
         const token = authHeader.replace('Bearer ', '');
         const { data: { user }, error } = await supabaseClient.auth.getUser(token);
 
         if (error || !user) {
-          return respond({ error: 'UNAUTHORIZED', messageKey: 'common.unauthorized' }, 401);
+          return new Response(
+            JSON.stringify({ error: 'UNAUTHORIZED', messageKey: 'common.unauthorized' }),
+            { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
 
         const { sessionId } = await req.json();
@@ -818,23 +931,32 @@ serve(async (req) => {
             _user_agent: userAgent,
           });
 
-        return respond({ 
-          success: true, 
-          messageKey: 'auth.session_revoked' 
-        });
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            messageKey: 'auth.session_revoked' 
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
       case 'revoke-all-sessions': {
         const authHeader = req.headers.get('Authorization');
         if (!authHeader) {
-          return respond({ error: 'UNAUTHORIZED', messageKey: 'common.unauthorized' }, 401);
+          return new Response(
+            JSON.stringify({ error: 'UNAUTHORIZED', messageKey: 'common.unauthorized' }),
+            { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
 
         const token = authHeader.replace('Bearer ', '');
         const { data: { user }, error } = await supabaseClient.auth.getUser(token);
 
         if (error || !user) {
-          return respond({ error: 'UNAUTHORIZED', messageKey: 'common.unauthorized' }, 401);
+          return new Response(
+            JSON.stringify({ error: 'UNAUTHORIZED', messageKey: 'common.unauthorized' }),
+            { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
 
         await supabaseClient
@@ -848,23 +970,32 @@ serve(async (req) => {
             _user_agent: userAgent,
           });
 
-        return respond({ 
-          success: true, 
-          messageKey: 'auth.all_sessions_revoked' 
-        });
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            messageKey: 'auth.all_sessions_revoked' 
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
       case 'list-sessions': {
         const authHeader = req.headers.get('Authorization');
         if (!authHeader) {
-          return respond({ error: 'UNAUTHORIZED', messageKey: 'common.unauthorized' }, 401);
+          return new Response(
+            JSON.stringify({ error: 'UNAUTHORIZED', messageKey: 'common.unauthorized' }),
+            { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
 
         const token = authHeader.replace('Bearer ', '');
         const { data: { user }, error } = await supabaseClient.auth.getUser(token);
 
         if (error || !user) {
-          return respond({ error: 'UNAUTHORIZED', messageKey: 'common.unauthorized' }, 401);
+          return new Response(
+            JSON.stringify({ error: 'UNAUTHORIZED', messageKey: 'common.unauthorized' }),
+            { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
 
         const { data: sessions } = await supabaseClient
@@ -874,17 +1005,26 @@ serve(async (req) => {
           .is('revoked_at', null)
           .order('created_at', { ascending: false });
 
-        return respond({ sessions: sessions || [] });
+        return new Response(
+          JSON.stringify({ sessions: sessions || [] }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
       default:
-        return respond({ error: 'INVALID_ACTION', message: 'Invalid action specified' }, 400);
+        return new Response(
+          JSON.stringify({ error: 'INVALID_ACTION', message: 'Invalid action specified' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
     }
   } catch (error) {
     console.error('Enhanced auth error:', error);
-    return respond({ 
-      error: 'INTERNAL_ERROR', 
-      message: error instanceof Error ? error.message : 'Unknown error' 
-    }, 500);
+    return new Response(
+      JSON.stringify({ 
+        error: 'INTERNAL_ERROR', 
+        message: error instanceof Error ? error.message : 'Unknown error' 
+      }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 });

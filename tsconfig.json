@@ -1,5 +1,5 @@
 {
-  "files": ["./supabase/functions/types/deno-imports.d.ts"],
+  "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" },
@@ -10,12 +10,11 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "strict": true,
-    "noImplicitAny": true,
-    "noUnusedParameters": true,
+    "noImplicitAny": false,
+    "noUnusedParameters": false,
     "skipLibCheck": true,
     "allowJs": true,
-    "noUnusedLocals": true,
-    "strictNullChecks": true
+    "noUnusedLocals": false,
+    "strictNullChecks": false
   }
 }

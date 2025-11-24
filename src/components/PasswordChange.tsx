@@ -88,10 +88,9 @@ export const PasswordChange = ({ userId, passwordChangedAt }: PasswordChangeProp
       
       // Trigger parent to reload the password_changed_at
       window.location.reload();
-    } catch (error) {
-      logError('Error changing password', error instanceof Error ? error : undefined);
-      const message = error instanceof Error ? error.message : t.error_generic;
-      toast.error(message || t.error_generic);
+    } catch (error: any) {
+      logError('Error changing password', error);
+      toast.error(error.message || t.error_generic);
     } finally {
       setLoading(false);
     }

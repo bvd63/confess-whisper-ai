@@ -60,12 +60,6 @@ const NotificationAnalytics = () => {
     'hsl(var(--chart-5))',
   ];
 
-  const handleDateRangeChange = (value: string) => {
-    if (value === '7d' || value === '30d' || value === '90d') {
-      setDateRange(value);
-    }
-  };
-
   const exportData = () => {
     const csv = [
       ['Metric', 'Value'],
@@ -110,7 +104,7 @@ const NotificationAnalytics = () => {
           </div>
           
           <div className="flex items-center gap-2">
-            <Select value={dateRange} onValueChange={handleDateRangeChange}>
+            <Select value={dateRange} onValueChange={(v: any) => setDateRange(v)}>
               <SelectTrigger className="w-[140px]">
                 <SelectValue />
               </SelectTrigger>

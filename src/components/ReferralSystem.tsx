@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,11 @@ const ReferralSystem = ({ userId }: ReferralSystemProps) => {
   const { toast } = useToast();
   const { t } = useLanguage();
 
-  const loadReferralData = useCallback(async () => {
+  useEffect(() => {
+    loadReferralData();
+  }, [userId]);
+
+  const loadReferralData = async () => {
     // Load referral code from profile
     const { data: profile } = await supabase
       .from('profiles')
@@ -58,11 +62,7 @@ const ReferralSystem = ({ userId }: ReferralSystemProps) => {
     // Calculate rewards (20 coins per completed referral)
     const completedReferrals = referralsData?.filter(r => r.status === 'completed').length || 0;
     setTotalRewards(completedReferrals * 20);
-  }, [userId]);
-
-  useEffect(() => {
-    loadReferralData();
-  }, [loadReferralData]);
+  };
 
   const copyReferralLink = () => {
     const link = `${window.location.origin}/?ref=${referralCode}`;

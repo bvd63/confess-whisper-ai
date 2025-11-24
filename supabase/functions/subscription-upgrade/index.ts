@@ -1,153 +1,133 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
-import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
-import { getServerEnv } from "../_shared/env.ts";
-import { handleOptions, jsonResponse } from "../_shared/http.ts";
-import { logError, logInfo, logWarn } from "../_shared/logger.ts";
-import { getRequestContext } from "../_shared/security.ts";
-import { createServiceClient, requireAuth } from "../_shared/supabase.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
-type SubscriptionTier = "free" | "vip";
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
 
-const UpgradeRequestSchema = z.object({
-  targetPriceId: z.string().trim().min(4, "targetPriceId").max(128, "targetPriceId"),
-});
+const log = (level: string, message: string, data?: any) => {
+  console.log(JSON.stringify({ 
+    level, 
+    message, 
+    data, 
+    timestamp: new Date().toISOString(),
+    function: "subscription-upgrade" 
+  }));
+};
 
-const resolveTierForPrice = (priceId: string): SubscriptionTier => {
-  const mapping: Record<string, SubscriptionTier> = {
-    [Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") ?? ""]: "vip",
-    [Deno.env.get("STRIPE_PRICE_VIP_YEARLY") ?? ""]: "vip",
-  };
-  return mapping[priceId] ?? "vip";
+const PRICE_ID_TO_TIER: Record<string, "premium" | "vip"> = {
+  [Deno.env.get("STRIPE_PRICE_PREMIUM_MONTHLY") || ""]: "premium",
+  [Deno.env.get("STRIPE_PRICE_PREMIUM_YEARLY") || ""]: "premium",
+  [Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || ""]: "vip",
+  [Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || ""]: "vip",
 };
 
 serve(async (req) => {
-  const context = getRequestContext(req);
-
   if (req.method === "OPTIONS") {
-    return handleOptions(context.origin);
-  }
-
-  if (req.method !== "POST") {
-    return jsonResponse({ error: "METHOD_NOT_ALLOWED" }, 405, context.origin, {
-      "Allow": "POST,OPTIONS",
-    });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const authHeader = req.headers.get("Authorization");
-    const authResult = await requireAuth(authHeader);
-    if (!authResult.user) {
-      logWarn("subscription-upgrade: unauthorized", { reason: authResult.error });
-      return jsonResponse({ error: "UNAUTHORIZED" }, 401, context.origin);
+    if (!authHeader) {
+      throw new Error("No authorization header");
     }
 
-    let rawBody: unknown;
-    try {
-      rawBody = await req.json();
-    } catch (parseError) {
-      logWarn("subscription-upgrade: invalid JSON", {
-        userId: authResult.user.id,
-        error: parseError instanceof Error ? parseError.message : String(parseError),
-      });
-      return jsonResponse({ error: "INVALID_JSON" }, 400, context.origin);
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (userError || !user) {
+      throw new Error("Unauthorized");
     }
 
-    const parsed = UpgradeRequestSchema.safeParse(rawBody);
-    if (!parsed.success) {
-      logWarn("subscription-upgrade: invalid payload", {
-        userId: authResult.user.id,
-        issues: parsed.error.flatten().fieldErrors,
-      });
-      return jsonResponse({ error: "INVALID_PAYLOAD" }, 400, context.origin);
+    const { targetPriceId } = await req.json();
+    if (!targetPriceId) {
+      throw new Error("targetPriceId is required");
     }
 
-    const { targetPriceId } = parsed.data;
-    const env = getServerEnv();
-    const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
+    log("info", "Upgrade request", { userId: user.id, targetPriceId });
+
+    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
     });
-    const supabaseAdmin = createServiceClient();
 
-    const { data: profile, error: profileError } = await supabaseAdmin
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    // Get user's profile
+    const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("stripe_subscription_id")
-      .eq("user_id", authResult.user.id)
-      .maybeSingle();
-
-    if (profileError) {
-      logError("subscription-upgrade: profile lookup failed", {
-        userId: authResult.user.id,
-        error: profileError.message,
-      });
-      return jsonResponse({ error: "PROFILE_LOOKUP_FAILED" }, 500, context.origin);
-    }
+      .select("stripe_customer_id, stripe_subscription_id")
+      .eq("user_id", user.id)
+      .single();
 
     if (!profile?.stripe_subscription_id) {
-      return jsonResponse({ error: "No active subscription found" }, 400, context.origin);
+      throw new Error("No active subscription found");
     }
 
-    logInfo("subscription-upgrade: request", {
-      userId: authResult.user.id,
-      targetPriceId,
-      ipAddress: context.ipAddress,
-    });
-
+    // Get current subscription
     const subscription = await stripe.subscriptions.retrieve(profile.stripe_subscription_id);
-    const currentItemId = subscription.items.data[0]?.id;
-    if (!currentItemId) {
-      logError("subscription-upgrade: subscription missing items", {
-        userId: authResult.user.id,
-        subscriptionId: profile.stripe_subscription_id,
-      });
-      return jsonResponse({ error: "SUBSCRIPTION_INVALID" }, 500, context.origin);
-    }
+    const currentItemId = subscription.items.data[0].id;
 
+    // Update subscription with immediate proration
     const updatedSubscription = await stripe.subscriptions.update(profile.stripe_subscription_id, {
-      items: [{ id: currentItemId, price: targetPriceId }],
+      items: [
+        {
+          id: currentItemId,
+          price: targetPriceId,
+        },
+      ],
       proration_behavior: "create_prorations",
       billing_cycle_anchor: "now",
     });
 
+    // Ensure we have a valid current_period_end (some API responses may omit it on immediate proration)
     const refreshedSubscription = await stripe.subscriptions.retrieve(profile.stripe_subscription_id);
     const periodEnd = refreshedSubscription.current_period_end || updatedSubscription.current_period_end || null;
 
-    const newTier = resolveTierForPrice(targetPriceId);
-    const subscriptionEndsAt = periodEnd ? new Date(periodEnd * 1000).toISOString() : null;
+    const newTier = PRICE_ID_TO_TIER[targetPriceId] || "premium";
 
-    const { error: updateError } = await supabaseAdmin
+    // Update profiles table
+    await supabaseAdmin
       .from("profiles")
       .update({
         is_premium: true,
         subscription_tier: newTier,
         subscription_status: "active",
-        subscription_ends_at: subscriptionEndsAt,
+        subscription_ends_at: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
       })
-      .eq("user_id", authResult.user.id);
+      .eq("user_id", user.id);
 
-    if (updateError) {
-      logError("subscription-upgrade: profile update failed", {
-        userId: authResult.user.id,
-        error: updateError.message,
-      });
-      return jsonResponse({ error: "PROFILE_UPDATE_FAILED" }, 500, context.origin);
-    }
+    log("info", "Upgrade successful", { userId: user.id, newTier });
 
-    logInfo("subscription-upgrade: success", {
-      userId: authResult.user.id,
-      tier: newTier,
-      subscriptionEndsAt,
-    });
-
-    return jsonResponse({
-      success: true,
-      message: "upgrade_processing",
-      tier: newTier,
-    }, 200, context.origin);
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: "upgrade_processing",
+        tier: newTier,
+      }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      }
+    );
   } catch (error) {
-    logError("subscription-upgrade: unexpected failure", {
-      error: error instanceof Error ? error.message : String(error),
-    });
-    return jsonResponse({ error: "INTERNAL_ERROR" }, 500, context.origin);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    log("error", "Upgrade error", { error: errorMessage });
+    return new Response(
+      JSON.stringify({ error: errorMessage }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      }
+    );
   }
 });

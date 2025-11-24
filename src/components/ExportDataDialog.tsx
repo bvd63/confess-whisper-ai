@@ -15,31 +15,6 @@ interface ExportDataDialogProps {
   userId: string;
 }
 
-interface ConfessionRecord {
-  content: string | null;
-  category: string | null;
-  created_at: string;
-}
-
-interface CommentRecord {
-  content: string | null;
-  created_at: string;
-}
-
-type GenericRecord = Record<string, unknown>;
-
-interface ExportPayload {
-  exported_at: string;
-  user_id: string;
-  confessions?: ConfessionRecord[] | null;
-  comments?: CommentRecord[] | null;
-  likes?: GenericRecord[] | null;
-  bookmarks?: GenericRecord[] | null;
-  streaks?: GenericRecord | null;
-  badges?: GenericRecord[] | null;
-  moods?: GenericRecord[] | null;
-}
-
 const ExportDataDialog = ({ open, onOpenChange, userId }: ExportDataDialogProps) => {
   const [exporting, setExporting] = useState(false);
   const [format, setFormat] = useState<'json' | 'csv'>('json');
@@ -54,7 +29,7 @@ const ExportDataDialog = ({ open, onOpenChange, userId }: ExportDataDialogProps)
     setExporting(true);
 
     try {
-      const exportData: ExportPayload = {
+      const exportData: any = {
         exported_at: new Date().toISOString(),
         user_id: userId,
       };
@@ -62,7 +37,7 @@ const ExportDataDialog = ({ open, onOpenChange, userId }: ExportDataDialogProps)
       // Fetch confessions
       if (includeConfessions) {
         const { data: confessions } = await supabase
-          .from<ConfessionRecord>('confessions')
+          .from('confessions')
           .select('*')
           .eq('user_id', userId);
         exportData.confessions = confessions;
@@ -71,7 +46,7 @@ const ExportDataDialog = ({ open, onOpenChange, userId }: ExportDataDialogProps)
       // Fetch comments
       if (includeComments) {
         const { data: comments } = await supabase
-          .from<CommentRecord>('comments')
+          .from('comments')
           .select('*')
           .eq('user_id', userId);
         exportData.comments = comments;
@@ -126,17 +101,14 @@ const ExportDataDialog = ({ open, onOpenChange, userId }: ExportDataDialogProps)
         let csv = 'Type,Content,Category,Created At\n';
         
         if (exportData.confessions) {
-          exportData.confessions.forEach((confession) => {
-            const sanitizedContent = (confession.content ?? '').replace(/"/g, '""');
-            const category = confession.category ?? 'N/A';
-            csv += `Confession,"${sanitizedContent}",${category},${confession.created_at}\n`;
+          exportData.confessions.forEach((c: any) => {
+            csv += `Confession,"${c.content.replace(/"/g, '""')}",${c.category},${c.created_at}\n`;
           });
         }
         
         if (exportData.comments) {
-          exportData.comments.forEach((comment) => {
-            const sanitizedContent = (comment.content ?? '').replace(/"/g, '""');
-            csv += `Comment,"${sanitizedContent}",N/A,${comment.created_at}\n`;
+          exportData.comments.forEach((c: any) => {
+            csv += `Comment,"${c.content.replace(/"/g, '""')}",N/A,${c.created_at}\n`;
           });
         }
 

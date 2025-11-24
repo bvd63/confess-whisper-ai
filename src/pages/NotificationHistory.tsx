@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell, Heart, MessageSquare, UserPlus, MessageCircle, ArrowLeft, Check, Trash2, Filter, Award, Lightbulb, Flame, ChevronDown, ChevronRight, BarChart3 } from "lucide-react";
 import { analytics } from '@/lib/analytics';
@@ -8,7 +8,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import type { Database } from "@/integrations/supabase/types";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { getNicknameCached } from "@/lib/nicknameCache";
@@ -37,15 +36,6 @@ interface Notification {
   triggered_by_nickname?: string;
 }
 
-type NotificationRow = Database['public']['Tables']['notifications']['Row'];
-
-const parseDeletedFor = (value: NotificationRow['deleted_for']): string[] => {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-  return value.filter((entry): entry is string => typeof entry === 'string');
-};
-
 interface GroupedNotification {
   id: string;
   type: 'like' | 'comment' | 'follow' | 'message' | 'badge_earned' | 'deep_insight' | 'streak_milestone';
@@ -71,74 +61,32 @@ const NotificationHistory = () => {
   const [loading, setLoading] = useState(true);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
 
-  const loadNotifications = useCallback(async () => {
-    if (!user?.id) return;
-    
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      // Filter out soft-deleted notifications
-      const visibleNotifications = (data || []).filter((notif) => {
-        const deletedFor = parseDeletedFor(notif.deleted_for);
-        return !deletedFor.includes(user.id);
-      });
-
-      // Fetch nicknames for users who triggered notifications
-      const notificationsWithNicknames = await Promise.all(
-        visibleNotifications.map(async (notification) => {
-          if (notification.triggered_by) {
-            const nickname = await getNicknameCached(notification.triggered_by);
-            return {
-              ...notification,
-              triggered_by_nickname: nickname || null,
-            };
+  useEffect(() => {
+    if (user?.id) {
+      loadNotifications();
+      
+      // Set up real-time subscription
+      const channel = supabase
+        .channel('notification-history-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'notifications',
+            filter: `user_id=eq.${user.id}`
+          },
+          () => {
+            loadNotifications();
           }
-          return notification;
-        })
-      );
+        )
+        .subscribe();
 
-      setNotifications(notificationsWithNicknames);
-    } catch (error) {
-      logError('Error loading notifications', error as Error);
-      toast.error('Failed to load notifications');
-    } finally {
-      setLoading(false);
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user?.id]);
-
-  useEffect(() => {
-    if (!user?.id) return;
-
-    loadNotifications();
-    
-    // Set up real-time subscription
-    const channel = supabase
-      .channel('notification-history-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user.id}`
-        },
-        () => {
-          loadNotifications();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [loadNotifications, user?.id]);
 
   useEffect(() => {
     // Apply filter
@@ -223,7 +171,47 @@ const NotificationHistory = () => {
     });
   };
 
-  
+  const loadNotifications = async () => {
+    if (!user?.id) return;
+    
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Filter out soft-deleted notifications
+      const visibleNotifications = (data || []).filter((notif: any) => {
+        const deletedFor = notif.deleted_for || [];
+        return !deletedFor.includes(user.id);
+      });
+
+      // Fetch nicknames for users who triggered notifications
+      const notificationsWithNicknames = await Promise.all(
+        visibleNotifications.map(async (notification) => {
+          if (notification.triggered_by) {
+            const nickname = await getNicknameCached(notification.triggered_by);
+            return {
+              ...notification,
+              triggered_by_nickname: nickname || null,
+            };
+          }
+          return notification;
+        })
+      );
+
+      setNotifications(notificationsWithNicknames);
+    } catch (error) {
+      logError('Error loading notifications', error as Error);
+      toast.error('Failed to load notifications');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const markAsRead = async (notificationId: string) => {
     try {

@@ -28,12 +28,12 @@ export function useThrottle<T>(value: T, interval: number = 100): T {
 /**
  * Throttled callback hook
  */
-export function useThrottledCallback<T extends (...args: unknown[]) => void>(
+export function useThrottledCallback<T extends (...args: any[]) => any>(
   callback: T,
   interval: number = 100
-): (...args: Parameters<T>) => void {
+): T {
   const lastRan = useRef<number>(Date.now());
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     return () => {
@@ -44,7 +44,7 @@ export function useThrottledCallback<T extends (...args: unknown[]) => void>(
   }, []);
 
   return useCallback(
-    ((...args: Parameters<T>) => {
+    ((...args) => {
       const now = Date.now();
 
       if (now >= lastRan.current + interval) {
@@ -63,7 +63,7 @@ export function useThrottledCallback<T extends (...args: unknown[]) => void>(
           interval - (now - lastRan.current)
         );
       }
-    }),
+    }) as T,
     [callback, interval]
   );
 }

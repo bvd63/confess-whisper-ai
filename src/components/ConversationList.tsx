@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, memo } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,7 @@ interface ConversationListProps {
   markAsRead?: (conversationId: string) => void;
 }
 
-export const ConversationList = memo(({ currentUserId, onConversationSelect, markAsRead }: ConversationListProps) => {
+export const ConversationList = ({ currentUserId, onConversationSelect, markAsRead }: ConversationListProps) => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -46,8 +46,67 @@ export const ConversationList = memo(({ currentUserId, onConversationSelect, mar
   const { t } = useLanguage();
   const navigate = useNavigate();
 
-  const loadConversations = useCallback(async () => {
+  useEffect(() => {
+    loadConversations();
+    
+    // Subscribe to real-time updates for messages, participants, and conversations
+    const messagesChannel = supabase
+      .channel('conversations-messages-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'messages'
+        },
+        () => {
+          loadConversations();
+        }
+      )
+      .subscribe();
+
+    const participantsChannel = supabase
+      .channel('conversations-participants-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'conversation_participants',
+          filter: `user_id=eq.${currentUserId}`
+        },
+        () => {
+          loadConversations();
+        }
+      )
+      .subscribe();
+
+    const conversationsChannel = supabase
+      .channel('conversations-table-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'conversations'
+        },
+        () => {
+          loadConversations();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(messagesChannel);
+      supabase.removeChannel(participantsChannel);
+      supabase.removeChannel(conversationsChannel);
+    };
+  }, [currentUserId]);
+
+  const loadConversations = async () => {
     try {
+      
+      
       // Get all conversations first
       const { data: allConversations, error: convError } = await supabase
         .from('conversations')
@@ -57,19 +116,17 @@ export const ConversationList = memo(({ currentUserId, onConversationSelect, mar
       
       // Filter out conversations where current user is in deleted_for
       const visibleConversationIds = allConversations
-        ?.filter((conv: { deleted_for?: string[] }) => {
+        ?.filter((conv: any) => {
           const deletedFor = conv.deleted_for || [];
           return !deletedFor.includes(currentUserId);
         })
-        .map((conv) => conv.id) || [];
+        .map((conv: any) => conv.id) || [];
       
       if (visibleConversationIds.length === 0) {
-        setConversations((prev) => {
-          if (prev.length === 0) {
-            return [];
-          }
-          return prev;
-        });
+        // Preserve existing list on transient empty responses
+        if (conversations.length === 0) {
+          setConversations([]);
+        }
         setLoading(false);
         return;
       }
@@ -80,7 +137,7 @@ export const ConversationList = memo(({ currentUserId, onConversationSelect, mar
         .select('conversation_id')
         .eq('user_id', currentUserId)
         .in('conversation_id', visibleConversationIds);
-  
+
       if (participantError) {
         logError("Error loading participants", participantError);
         throw participantError;
@@ -188,64 +245,7 @@ export const ConversationList = memo(({ currentUserId, onConversationSelect, mar
     } finally {
       setLoading(false);
     }
-  }, [currentUserId]);
-
-  useEffect(() => {
-    loadConversations();
-    
-    // Subscribe to real-time updates for messages, participants, and conversations
-    const messagesChannel = supabase
-      .channel('conversations-messages-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'messages'
-        },
-        () => {
-          loadConversations();
-        }
-      )
-      .subscribe();
-
-    const participantsChannel = supabase
-      .channel('conversations-participants-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'conversation_participants',
-          filter: `user_id=eq.${currentUserId}`
-        },
-        () => {
-          loadConversations();
-        }
-      )
-      .subscribe();
-
-    const conversationsChannel = supabase
-      .channel('conversations-table-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'conversations'
-        },
-        () => {
-          loadConversations();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(messagesChannel);
-      supabase.removeChannel(participantsChannel);
-      supabase.removeChannel(conversationsChannel);
-    };
-  }, [currentUserId, loadConversations]);
+  };
 
   const handleDeleteConversation = async (conversationId: string) => {
     try {
@@ -370,4 +370,4 @@ export const ConversationList = memo(({ currentUserId, onConversationSelect, mar
       </AlertDialog>
     </>
   );
-});
+};

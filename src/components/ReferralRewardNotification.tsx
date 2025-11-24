@@ -2,8 +2,7 @@ import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { RealtimePostgresInsertPayload } from "@supabase/supabase-js";
-import type { Database } from "@/integrations/supabase/types";
+import { Coins } from "lucide-react";
 
 interface ReferralRewardNotificationProps {
   userId: string;
@@ -25,7 +24,7 @@ export const ReferralRewardNotification = ({ userId }: ReferralRewardNotificatio
           table: 'coin_transactions',
           filter: `user_id=eq.${userId}`,
         },
-        (payload: RealtimePostgresInsertPayload<Database["public"]["Tables"]["coin_transactions"]["Row"]>) => {
+        (payload: any) => {
           const transaction = payload.new;
           
           // Check if it's a referral reward

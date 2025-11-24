@@ -2,7 +2,7 @@
 // Environment validation script for CI/CD pipeline
 // Validates all required environment variables using Zod schemas
 
-import { env, ServerEnvSchema } from "../src/config/env";
+import { env } from "../src/lib/env";
 
 console.log("🔍 Validating environment configuration...\n");
 
@@ -57,26 +57,35 @@ console.log(`   - Profile Mini Analytics: ${env.features.profileMiniAnalytics ? 
 console.log(`   - Web Share API: ${env.features.webShareEnabled ? 'ENABLED' : 'disabled'}`);
 console.log(`   - Turnstile Enforcement: ${env.features.confessionTurnstileRequired ? 'ENABLED' : 'disabled'}`);
 
-const serverEnvResult = ServerEnvSchema.safeParse(process.env);
+const serverEnvRequirements = [
+  { key: "SUPABASE_SERVICE_ROLE_KEY", description: "Required for edge functions and rate limiting" },
+  { key: "STRIPE_SECRET_KEY", description: "Used to call Stripe APIs" },
+  { key: "STRIPE_WEBHOOK_SECRET", description: "Validates incoming Stripe webhooks" },
+  { key: "PRICE_VIP_MONTHLY", description: "Maps subscriptions to VIP monthly tier" },
+  { key: "PRICE_VIP_YEARLY", description: "Maps subscriptions to VIP yearly tier" },
+];
 
-if (!serverEnvResult.success) {
+const missingServerEnv = serverEnvRequirements.filter(({ key }) => !process.env[key]);
+
+if (missingServerEnv.length > 0) {
   hasFatalError = true;
-  console.error("\n❌ Server environment: Invalid or missing variables");
-  const issues = serverEnvResult.error.flatten().fieldErrors;
-  for (const [key, messages] of Object.entries(issues)) {
-    console.error(`   - ${key}: ${messages?.join(", ") ?? "invalid"}`);
+  console.error("\n❌ Server environment: Missing required secrets");
+  for (const req of missingServerEnv) {
+    console.error(`   - ${req.key}: ${req.description}`);
   }
 } else {
-  const serverEnv = serverEnvResult.data;
-  console.log("\n✅ Server environment: All required secrets present");
-  console.log(`   - Supabase URL: ${serverEnv.SUPABASE_URL}`);
-  console.log(`   - Stripe Prices: monthly=${serverEnv.STRIPE_PRICE_VIP_MONTHLY}, yearly=${serverEnv.STRIPE_PRICE_VIP_YEARLY}`);
-  console.log(`   - Edge allowed origins: ${serverEnv.EDGE_ALLOWED_ORIGINS.length > 0 ? serverEnv.EDGE_ALLOWED_ORIGINS.join(", ") : "(none - falling back to * in dev)"}`);
+  console.log("\n✅ Server environment: All critical secrets available");
+}
 
-  if (env.features.confessionTurnstileRequired && !serverEnv.TURNSTILE_SECRET) {
+if (env.features.confessionTurnstileRequired) {
+  if (!process.env.TURNSTILE_SECRET) {
     hasFatalError = true;
     console.error("⚠️  Turnstile Secret: Missing while confession CAPTCHA enforcement is enabled");
+  } else {
+    console.log("✅ Turnstile Secret: Configured");
   }
+} else if (!process.env.TURNSTILE_SECRET) {
+  console.log("⚠️  Turnstile Secret: Not configured (CAPTCHA enforcement disabled)");
 }
 
 // Check environment mode

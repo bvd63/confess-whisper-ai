@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { logError } from "@/lib/logger";
 
@@ -6,7 +6,16 @@ export const useUserRole = (userId: string | undefined) => {
   const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const checkRole = useCallback(async () => {
+  useEffect(() => {
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+
+    checkRole();
+  }, [userId]);
+
+  const checkRole = async () => {
     if (!userId) return;
 
     try {
@@ -23,16 +32,7 @@ export const useUserRole = (userId: string | undefined) => {
     } finally {
       setLoading(false);
     }
-  }, [userId]);
-
-  useEffect(() => {
-    if (!userId) {
-      setLoading(false);
-      return;
-    }
-
-    checkRole();
-  }, [checkRole, userId]);
+  };
 
   const isAdmin = role === 'admin';
   const isModerator = role === 'moderator' || role === 'admin';

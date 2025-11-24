@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { AnimatedCard } from "./AnimatedCard";
@@ -9,7 +9,6 @@ import { format } from "date-fns";
 import { Eye, EyeOff, Star, StarOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/lib/logger";
-import { getStringTranslation } from "@/lib/translationUtils";
 
 interface UserPerk {
   id: string;
@@ -31,44 +30,21 @@ interface MyPerksProps {
   subscriptionEndsAt?: string;
 }
 
-interface UserFlairRow {
-  id: string;
-  flair_id: string | null;
-  acquired_at: string;
-  expires_at: string | null;
-  is_public: boolean;
-  is_featured: boolean;
-  purchase_scope?: string | null;
-  profile_flairs: {
-    icon: string;
-    name_key: string;
-  };
-}
-
-interface UserBadgeRow {
-  id: string;
-  badge_id: string | null;
-  acquired_at: string;
-  expires_at: string | null;
-  is_public: boolean;
-  is_featured: boolean;
-  badges: {
-    icon: string;
-    name: string;
-  };
-}
-
 export const MyPerks = ({ userId, subscriptionTier, subscriptionEndsAt }: MyPerksProps) => {
   const { t } = useLanguage();
   const { toast } = useToast();
   const [perks, setPerks] = useState<UserPerk[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const loadPerks = useCallback(async () => {
+  useEffect(() => {
+    loadPerks();
+  }, [userId]);
+
+  const loadPerks = async () => {
     try {
       // Load flairs
       const { data: flairs } = await supabase
-        .from<UserFlairRow>("user_flairs")
+        .from("user_flairs")
         .select(`
           id,
           flair_id,
@@ -87,7 +63,7 @@ export const MyPerks = ({ userId, subscriptionTier, subscriptionEndsAt }: MyPerk
 
       // Load badges
       const { data: badges } = await supabase
-        .from<UserBadgeRow>("user_badges")
+        .from("user_badges")
         .select(`
           id,
           badge_id,
@@ -104,7 +80,7 @@ export const MyPerks = ({ userId, subscriptionTier, subscriptionEndsAt }: MyPerk
         .order("acquired_at", { ascending: false });
 
       const allPerks: UserPerk[] = [
-        ...(flairs || []).map((f) => ({
+        ...(flairs || []).map((f: any) => ({
           id: f.id,
           type: "flair" as const,
           flair_id: f.flair_id,
@@ -116,7 +92,7 @@ export const MyPerks = ({ userId, subscriptionTier, subscriptionEndsAt }: MyPerk
           is_featured: f.is_featured,
           purchase_scope: f.purchase_scope,
         })),
-        ...(badges || []).map((b) => ({
+        ...(badges || []).map((b: any) => ({
           id: b.id,
           type: "badge" as const,
           badge_id: b.badge_id,
@@ -135,11 +111,7 @@ export const MyPerks = ({ userId, subscriptionTier, subscriptionEndsAt }: MyPerk
     } finally {
       setLoading(false);
     }
-  }, [userId]);
-
-  useEffect(() => {
-    loadPerks();
-  }, [loadPerks]);
+  };
 
   const toggleVisibility = async (perk: UserPerk) => {
     const table = perk.type === "flair" ? "user_flairs" : "user_badges";
@@ -224,8 +196,8 @@ export const MyPerks = ({ userId, subscriptionTier, subscriptionEndsAt }: MyPerk
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {perks.map((perk) => {
-              const translationKey = `flair_${perk.name_key}`;
-              const perkName = getStringTranslation(t, translationKey) || perk.name_key;
+              const translationKey = `flair_${perk.name_key}` as any;
+              const perkName = (t as any)[translationKey] || perk.name_key;
               const expired = isExpired(perk.expires_at);
               
               return (

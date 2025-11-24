@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -16,9 +16,6 @@ import {
 import { useCachePurgeOnDelete } from "@/hooks/useCachePurgeOnDelete";
 import { getNicknameCached } from "@/lib/nicknameCache";
 import { logError } from "@/lib/logger";
-import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
-
-type MessageReaction = { userId: string; emoji: string; createdAt: string };
 
 interface Message {
   id: string;
@@ -29,22 +26,10 @@ interface Message {
   sent_at: string | null;
   delivered_at: string | null;
   seen_at: string | null;
-  reactions?: MessageReaction[];
+  reactions?: Array<{ userId: string; emoji: string; createdAt: string }>;
   optimistic?: boolean;
   failed?: boolean;
 }
-
-interface RawMessage extends Message {
-  deleted_for_sender?: boolean | null;
-  deleted_for_recipient?: boolean | null;
-  reactions?: unknown;
-}
-
-type TypingStatusRow = {
-  conversation_id: string;
-  user_id: string;
-  is_typing: boolean;
-};
 
 interface EnhancedMessageThreadProps {
   conversationId: string;
@@ -72,38 +57,6 @@ export const EnhancedMessageThread = ({
   const { t } = useLanguage();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { purgeMessage, purgeConversation } = useCachePurgeOnDelete();
-  const normalizeMessage = useCallback((raw: RawMessage): Message => ({
-    ...raw,
-    reactions: Array.isArray(raw.reactions) ? (raw.reactions as MessageReaction[]) : [],
-  }), []);
-
-  const loadMessages = useCallback(async () => {
-    try {
-      const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true });
-
-      if (error) throw error;
-
-      const rawMessages: RawMessage[] = Array.isArray(data) ? (data as RawMessage[]) : [];
-
-      // Filter out soft-deleted messages for current user
-      const visibleMessages = rawMessages
-        .filter((message) => {
-          const deletedFlag = message.sender_id === currentUserId
-            ? message.deleted_for_sender
-            : message.deleted_for_recipient;
-          return !deletedFlag;
-        })
-        .map((message) => normalizeMessage(message));
-
-      setMessages(visibleMessages);
-    } catch (error) {
-      logError('Error loading messages', error instanceof Error ? error : undefined);
-    }
-  }, [conversationId, currentUserId, normalizeMessage]);
 
   useEffect(() => {
     loadMessages();
@@ -119,9 +72,8 @@ export const EnhancedMessageThread = ({
           table: 'messages',
           filter: `conversation_id=eq.${conversationId}`,
         },
-        (payload: RealtimePostgresChangesPayload<RawMessage>) => {
-          if (!payload.new) return;
-          const newMsg = normalizeMessage(payload.new);
+        (payload) => {
+          const newMsg = payload.new as Message;
           // Remove optimistic version if exists
           setMessages((prev) => [
             ...prev.filter(m => !m.optimistic),
@@ -137,9 +89,13 @@ export const EnhancedMessageThread = ({
           table: 'messages',
           filter: `conversation_id=eq.${conversationId}`,
         },
-        (payload: RealtimePostgresChangesPayload<RawMessage>) => {
-          if (!payload.new) return;
-          const updatedMessage = normalizeMessage(payload.new);
+        (payload) => {
+          const updatedMessage = payload.new as Message;
+          // Ensure reactions is always an array
+          updatedMessage.reactions = Array.isArray(updatedMessage.reactions) 
+            ? updatedMessage.reactions 
+            : [];
+          
           setMessages((prev) =>
             prev.map((m) =>
               m.id === updatedMessage.id ? updatedMessage : m
@@ -155,8 +111,9 @@ export const EnhancedMessageThread = ({
           table: 'message_typing_status',
           filter: `conversation_id=eq.${conversationId}`,
         },
-        (payload: RealtimePostgresChangesPayload<TypingStatusRow>) => {
-          const typingData = payload.new ?? payload.old;
+        (payload) => {
+          // Guard against DELETE events where payload.new is undefined
+          const typingData: any = (payload as any).new || (payload as any).old;
           if (!typingData) {
             setIsTyping(false);
             return;
@@ -171,16 +128,44 @@ export const EnhancedMessageThread = ({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId, currentUserId, loadMessages, normalizeMessage]);
+  }, [conversationId, currentUserId]);
 
   useEffect(() => {
     scrollToBottom();
     markAsRead();
-  }, [markAsRead, messages, scrollToBottom]);
+  }, [messages]);
 
-  const scrollToBottom = useCallback(() => {
+  const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
+  };
+
+  const loadMessages = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      // Filter out soft-deleted messages for current user
+      const visibleMessages = (data || []).filter((m: any) => {
+        if (m.sender_id === currentUserId) {
+          return !m.deleted_for_sender;
+        } else {
+          return !m.deleted_for_recipient;
+        }
+      }).map((m: any) => ({
+        ...m,
+        reactions: Array.isArray(m.reactions) ? m.reactions : []
+      }));
+
+      setMessages(visibleMessages);
+    } catch (error) {
+      logError('Error loading messages', error instanceof Error ? error : undefined);
+    }
+  };
 
   // Mark undelivered messages as delivered when conversation loads
   useEffect(() => {
@@ -202,7 +187,7 @@ export const EnhancedMessageThread = ({
   }, [messages, otherUserId]);
 
   // Mark messages as seen when in viewport
-  const markAsRead = useCallback(async () => {
+  const markAsRead = async () => {
     try {
       // Get all unseen messages from the other user
       const unseenMessages = messages
@@ -219,7 +204,7 @@ export const EnhancedMessageThread = ({
     } catch (error) {
       logError('Error marking messages as seen', error instanceof Error ? error : undefined);
     }
-  }, [messages, otherUserId]);
+  };
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();

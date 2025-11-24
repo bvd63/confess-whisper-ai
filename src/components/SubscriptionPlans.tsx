@@ -52,9 +52,7 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
         window.top.location.href = url;
         return;
       }
-    } catch (error) {
-      logError('Unable to redirect using window.top', error as Error);
-    }
+    } catch {}
     const win = window.open(url, '_blank');
     if (win) return;
     window.location.href = url;

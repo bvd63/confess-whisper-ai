@@ -4,7 +4,6 @@
  */
 
 import { logWarn, logError } from '@/lib/logger';
-import { env } from '@/lib/env';
 
 let isInitialized = false;
 
@@ -51,7 +50,7 @@ export const initializeOneSignal = async (): Promise<boolean> => {
     return isInitialized;
   }
 
-  const appId = env.client.oneSignalAppId;
+  const appId = import.meta.env.VITE_ONESIGNAL_APP_ID;
   
   if (!appId) {
     if (import.meta.env.DEV) {
@@ -188,8 +187,7 @@ export const getOneSignalPlayerId = async (): Promise<string | null> => {
  */
 export const savePlayerIdToProfile = async (userId: string, playerId: string): Promise<void> => {
   try {
-    const { getSupabaseClient } = await import('@/integrations/supabase/safeClient');
-    const supabase = await getSupabaseClient();
+    const { supabase } = await import('@/integrations/supabase/client');
     
     const { error } = await supabase
       .from('profiles')

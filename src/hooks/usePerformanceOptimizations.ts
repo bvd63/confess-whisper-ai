@@ -20,7 +20,7 @@ export const usePerformanceOptimizations = () => {
     try {
       let totalSize = 0;
       for (const key in localStorage) {
-        if (Object.prototype.hasOwnProperty.call(localStorage, key)) {
+        if (localStorage.hasOwnProperty(key)) {
           totalSize += localStorage[key].length + key.length;
         }
       }
@@ -104,13 +104,9 @@ export const usePerformanceOptimizations = () => {
     fpsInterval = requestAnimationFrame(measureFPS);
 
     // Measure memory (if available)
-    type PerformanceMemory = {
-      usedJSHeapSize: number;
-    };
-
     const memoryInterval = setInterval(() => {
-      const memory = (performance as Performance & { memory?: PerformanceMemory }).memory;
-      if (memory) {
+      if ('memory' in performance) {
+        const memory = (performance as any).memory;
         setMetrics(prev => ({
           ...prev,
           memoryUsage: Math.round(memory.usedJSHeapSize / 1048576), // MB

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Users } from "lucide-react";
@@ -17,42 +17,23 @@ interface FollowingFeedProps {
   onUpgradeClick: () => void;
 }
 
-interface FollowRecord {
-  following_id: string;
-}
-
-interface Confession {
-  id: string;
-  content: string;
-  category: string;
-  user_id?: string | null;
-  comments_count?: number;
-  likes_count?: number;
-  ai_response?: string | null;
-  ai_deep_insight?: string | null;
-  created_at: string;
-  image_url?: string | null;
-  image_blurred?: boolean;
-  author_nickname_snapshot?: string | null;
-  author_visibility_snapshot?: string | null;
-  emotional_tone?: string | null;
-  is_anonymous?: boolean;
-  author_display_name_snapshot?: string | null;
-}
-
 const FollowingFeed = ({ userId, isPremium, onUpgradeClick }: FollowingFeedProps) => {
-  const [confessions, setConfessions] = useState<Confession[]>([]);
+  const [confessions, setConfessions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { likedConfessions, bookmarkedConfessions, reloadLikes, reloadBookmarks } = useConfessionInteractions({ userId });
   const { toast } = useToast();
   const { t } = useLanguage();
 
-  const loadFollowingConfessions = useCallback(async () => {
+  useEffect(() => {
+    loadFollowingConfessions();
+  }, [userId]);
+
+  const loadFollowingConfessions = async () => {
     try {
       // Get list of users the current user is following
       const { data: following, error: followError } = await supabase
-        .from<FollowRecord>('user_follows')
+        .from('user_follows')
         .select('following_id')
         .eq('follower_id', userId);
 
@@ -64,11 +45,11 @@ const FollowingFeed = ({ userId, isPremium, onUpgradeClick }: FollowingFeedProps
         return;
       }
 
-      const followingIds = following.map((f) => f.following_id);
+      const followingIds = following.map(f => f.following_id);
 
       // Get confessions from followed users
       const { data: confessionsData, error: confError } = await supabase
-        .from<Confession>('confessions')
+        .from('confessions')
         .select('*')
         .in('user_id', followingIds)
         .order('created_at', { ascending: false })
@@ -78,16 +59,12 @@ const FollowingFeed = ({ userId, isPremium, onUpgradeClick }: FollowingFeedProps
 
       setConfessions(confessionsData || []);
     } catch (err) {
-      logError('Error loading following feed', err instanceof Error ? err : undefined);
+      logError('Error loading following feed', err as Error);
       setError(t.following_load_error);
     } finally {
       setLoading(false);
     }
-  }, [t.following_load_error, userId]);
-
-  useEffect(() => {
-    loadFollowingConfessions();
-  }, [loadFollowingConfessions]);
+  };
 
   if (loading) {
     return <LoadingQuotes />;

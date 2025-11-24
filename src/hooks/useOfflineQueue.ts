@@ -4,7 +4,7 @@ import { logError } from '@/lib/logger';
 
 interface QueueItem {
   id: string;
-  action: () => Promise<unknown>;
+  action: () => Promise<any>;
   retries: number;
   timestamp: number;
 }
@@ -17,7 +17,7 @@ export const useOfflineQueue = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const { isOnline } = useNetworkStatus();
 
-  const addToQueue = useCallback((action: () => Promise<unknown>) => {
+  const addToQueue = useCallback((action: () => Promise<any>) => {
     const item: QueueItem = {
       id: crypto.randomUUID(),
       action,

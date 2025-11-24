@@ -1,18 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import type { Database } from '@/integrations/supabase/types';
 import { useReadReceipts } from './useReadReceipts';
 import { offlineQueue } from '@/lib/offlineQueue';
 import { toast } from 'sonner';
 import { logError } from '@/lib/logger';
-
-type MessageRow = Database['public']['Tables']['messages']['Row'];
-interface MessageReaction {
-  userId: string;
-  emoji: string;
-  createdAt: string;
-}
 
 interface Message {
   id: string;
@@ -28,41 +19,6 @@ interface Message {
   client_message_id?: string | null;
 }
 
-const isMessageReaction = (reaction: unknown): reaction is MessageReaction => {
-  if (typeof reaction !== 'object' || reaction === null) {
-    return false;
-  }
-
-  const candidate = reaction as Partial<MessageReaction>;
-  return (
-    typeof candidate.userId === 'string' &&
-    typeof candidate.emoji === 'string' &&
-    typeof candidate.createdAt === 'string'
-  );
-};
-
-const parseReactions = (value: MessageRow['reactions']): MessageReaction[] => {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-
-  return value.filter(isMessageReaction);
-};
-
-const toMessage = (row: MessageRow): Message => ({
-  id: row.id,
-  content: row.content,
-  sender_id: row.sender_id,
-  created_at: row.created_at,
-  read_at: row.read_at,
-  edited_at: row.edited_at,
-  sent_at: row.sent_at,
-  delivered_at: row.delivered_at,
-  seen_at: row.seen_at,
-  reactions: parseReactions(row.reactions),
-  client_message_id: row.client_message_id,
-});
-
 export const useConversation = (conversationId: string | null, userId: string | null) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -76,13 +32,24 @@ export const useConversation = (conversationId: string | null, userId: string | 
         .from('messages')
         .select('*')
         .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true })
-        .returns<MessageRow[]>();
+        .order('created_at', { ascending: true });
 
       if (error) throw error;
       
       // Map database messages to our Message type with proper typing
-      const typedMessages: Message[] = (data || []).map(toMessage);
+      const typedMessages: Message[] = (data || []).map(msg => ({
+        id: msg.id,
+        content: msg.content,
+        sender_id: msg.sender_id,
+        created_at: msg.created_at,
+        read_at: msg.read_at,
+        edited_at: msg.edited_at,
+        sent_at: msg.sent_at,
+        delivered_at: msg.delivered_at,
+        seen_at: msg.seen_at,
+        reactions: Array.isArray(msg.reactions) ? msg.reactions as Array<{ userId: string; emoji: string; createdAt: string }> : [],
+        client_message_id: msg.client_message_id,
+      }));
       
       setMessages(typedMessages);
     } catch (error) {
@@ -126,17 +93,24 @@ export const useConversation = (conversationId: string | null, userId: string | 
         .from('messages')
         .insert(messageData)
         .select()
-        .returns<MessageRow[]>();
+        .single();
 
       if (error) throw error;
 
-      const insertedMessage = data?.[0];
-      if (!insertedMessage) {
-        throw new Error('Message insert succeeded without returning data');
-      }
-
       // Replace temp message with real one - map to proper type
-      const typedMessage = toMessage(insertedMessage);
+      const typedMessage: Message = {
+        id: data.id,
+        content: data.content,
+        sender_id: data.sender_id,
+        created_at: data.created_at,
+        read_at: data.read_at,
+        edited_at: data.edited_at,
+        sent_at: data.sent_at,
+        delivered_at: data.delivered_at,
+        seen_at: data.seen_at,
+        reactions: Array.isArray(data.reactions) ? data.reactions as Array<{ userId: string; emoji: string; createdAt: string }> : [],
+        client_message_id: data.client_message_id,
+      };
       setMessages(prev => prev.map(m => m.id === tempId ? typedMessage : m));
     } catch (error) {
       logError('Error sending message', error as Error);
@@ -203,9 +177,21 @@ export const useConversation = (conversationId: string | null, userId: string | 
           table: 'messages',
           filter: `conversation_id=eq.${conversationId}`
         },
-        (payload: RealtimePostgresChangesPayload<MessageRow>) => {
-          if (!payload.new) return;
-          const typedMessage = toMessage(payload.new);
+        (payload) => {
+          const newMsg = payload.new as any;
+          const typedMessage: Message = {
+            id: newMsg.id,
+            content: newMsg.content,
+            sender_id: newMsg.sender_id,
+            created_at: newMsg.created_at,
+            read_at: newMsg.read_at,
+            edited_at: newMsg.edited_at,
+            sent_at: newMsg.sent_at,
+            delivered_at: newMsg.delivered_at,
+            seen_at: newMsg.seen_at,
+            reactions: Array.isArray(newMsg.reactions) ? newMsg.reactions : [],
+            client_message_id: newMsg.client_message_id,
+          };
           setMessages(prev => [...prev, typedMessage]);
           
           // Auto-mark as read if not sent by current user
@@ -222,9 +208,21 @@ export const useConversation = (conversationId: string | null, userId: string | 
           table: 'messages',
           filter: `conversation_id=eq.${conversationId}`
         },
-        (payload: RealtimePostgresChangesPayload<MessageRow>) => {
-          if (!payload.new) return;
-          const typedMessage = toMessage(payload.new);
+        (payload) => {
+          const updatedMsg = payload.new as any;
+          const typedMessage: Message = {
+            id: updatedMsg.id,
+            content: updatedMsg.content,
+            sender_id: updatedMsg.sender_id,
+            created_at: updatedMsg.created_at,
+            read_at: updatedMsg.read_at,
+            edited_at: updatedMsg.edited_at,
+            sent_at: updatedMsg.sent_at,
+            delivered_at: updatedMsg.delivered_at,
+            seen_at: updatedMsg.seen_at,
+            reactions: Array.isArray(updatedMsg.reactions) ? updatedMsg.reactions : [],
+            client_message_id: updatedMsg.client_message_id,
+          };
           setMessages(prev =>
             prev.map(m => m.id === typedMessage.id ? typedMessage : m)
           );

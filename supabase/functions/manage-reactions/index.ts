@@ -1,72 +1,71 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
-import { handleOptions, jsonResponse } from "../_shared/http.ts";
-import { logError, logInfo, logWarn } from "../_shared/logger.ts";
-import { getRequestContext } from "../_shared/security.ts";
-import { requireAuth } from "../_shared/supabase.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.0';
 
-const ReactionPayloadSchema = z.object({
-  messageId: z.string().min(8, "messageId"),
-  emoji: z.string().min(1).max(16),
-  action: z.enum(["add", "remove"]),
-});
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
 serve(async (req) => {
-  const { origin, ipAddress, userAgent } = getRequestContext(req);
-
-  if (req.method === "OPTIONS") {
-    return handleOptions(origin);
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    const authResult = await requireAuth(authHeader);
-    if (!authResult.user || !authResult.client) {
-      return jsonResponse({ error: "UNAUTHORIZED" }, 401, origin);
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: { Authorization: req.headers.get('Authorization')! },
+        },
+      }
+    );
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    let rawBody: unknown;
-    try {
-      rawBody = await req.json();
-    } catch (parseError) {
-      logWarn("manage-reactions: invalid JSON", { userId: authResult.user.id, parseError });
-      return jsonResponse({ error: "INVALID_JSON" }, 400, origin);
+    const { messageId, emoji, action } = await req.json();
+
+    if (!messageId || !emoji) {
+      return new Response(
+        JSON.stringify({ error: 'Missing messageId or emoji' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    const parsed = ReactionPayloadSchema.safeParse(rawBody);
-    if (!parsed.success) {
-      logWarn("manage-reactions: invalid payload", {
-        userId: authResult.user.id,
-        issues: parsed.error.flatten().fieldErrors,
-      });
-      return jsonResponse({ error: "INVALID_PAYLOAD" }, 400, origin);
-    }
-
-    const payload = parsed.data;
-    const supabase = authResult.client;
+    // Get the current message
     const { data: message, error: fetchError } = await supabase
-      .from("messages")
-      .select("reactions, conversation_id")
-      .eq("id", payload.messageId)
+      .from('messages')
+      .select('reactions, conversation_id')
+      .eq('id', messageId)
       .single();
 
     if (fetchError || !message) {
-      return jsonResponse({ error: "MESSAGE_NOT_FOUND" }, 404, origin);
+      return new Response(
+        JSON.stringify({ error: 'Message not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
+    // Verify user is part of the conversation
     const { data: participant } = await supabase
-      .from("conversation_participants")
-      .select("user_id")
-      .eq("conversation_id", message.conversation_id)
-      .eq("user_id", authResult.user.id)
-      .maybeSingle();
+      .from('conversation_participants')
+      .select('user_id')
+      .eq('conversation_id', message.conversation_id)
+      .eq('user_id', user.id)
+      .single();
 
     if (!participant) {
-      logWarn("manage-reactions: unauthorized conversation access", {
-        userId: authResult.user.id,
-        conversationId: message.conversation_id,
-      });
-      return jsonResponse({ error: "FORBIDDEN" }, 403, origin);
+      return new Response(
+        JSON.stringify({ error: 'Not authorized' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const reactions = (message.reactions || []) as Array<{
@@ -75,46 +74,52 @@ serve(async (req) => {
       createdAt: string;
     }>;
 
-    let updatedReactions: typeof reactions;
-    if (payload.action === "add") {
-      updatedReactions = reactions.filter((reaction) => !(reaction.userId === authResult.user.id && reaction.emoji === payload.emoji));
+    let updatedReactions;
+
+    if (action === 'add') {
+      // Remove any existing reaction from this user with the same emoji
+      updatedReactions = reactions.filter(
+        r => !(r.userId === user.id && r.emoji === emoji)
+      );
+      // Add new reaction
       updatedReactions.push({
-        userId: authResult.user.id,
-        emoji: payload.emoji,
+        userId: user.id,
+        emoji,
         createdAt: new Date().toISOString(),
       });
+    } else if (action === 'remove') {
+      // Remove the reaction
+      updatedReactions = reactions.filter(
+        r => !(r.userId === user.id && r.emoji === emoji)
+      );
     } else {
-      updatedReactions = reactions.filter((reaction) => !(reaction.userId === authResult.user.id && reaction.emoji === payload.emoji));
+      return new Response(
+        JSON.stringify({ error: 'Invalid action. Use "add" or "remove"' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
+    // Update the message
     const { error: updateError } = await supabase
-      .from("messages")
+      .from('messages')
       .update({ reactions: updatedReactions })
-      .eq("id", payload.messageId);
+      .eq('id', messageId);
 
     if (updateError) {
-      logError("manage-reactions: failed to persist reactions", {
-        userId: authResult.user.id,
-        messageId: payload.messageId,
-        error: updateError.message,
-      });
-      return jsonResponse({ error: "PERSISTENCE_ERROR" }, 500, origin);
+      throw updateError;
     }
 
-    logInfo("manage-reactions: reaction updated", {
-      action: payload.action,
-      emoji: payload.emoji,
-      messageId: payload.messageId,
-      userId: authResult.user.id,
-      ipAddress,
-      userAgent,
-    });
+    console.log(`[REACTIONS] User ${user.id} ${action}ed ${emoji} to message ${messageId}`);
 
-    return jsonResponse({ success: true, reactions: updatedReactions }, 200, origin);
+    return new Response(
+      JSON.stringify({ success: true, reactions: updatedReactions }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
-    logError("manage-reactions: unexpected error", {
-      error: error instanceof Error ? error.message : String(error),
-    });
-    return jsonResponse({ error: "INTERNAL_ERROR" }, 500, req.headers.get("origin"));
+    console.error('[REACTIONS] Error:', error);
+    return new Response(
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 });

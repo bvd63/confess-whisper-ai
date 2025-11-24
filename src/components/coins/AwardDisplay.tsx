@@ -2,7 +2,6 @@ import { Star, Heart, Flame, Diamond } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import type { Database } from '@/integrations/supabase/types';
 
 interface AwardDisplayProps {
   confessionId: string;
@@ -15,27 +14,19 @@ const AWARD_ICONS = {
   diamond: { icon: Diamond, color: 'text-blue-500' },
 };
 
-const GET_CONFESSION_AWARDS_FN = 'get_confession_awards' as unknown as keyof Database['public']['Functions'];
-
-interface ConfessionAwardAggregate {
-  award_type: string;
-  award_count: number | string;
-}
-
 export const AwardDisplay = ({ confessionId }: AwardDisplayProps) => {
   const { data: awards } = useQuery({
     queryKey: ['confessionAwards', confessionId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .rpc(GET_CONFESSION_AWARDS_FN, { confession_id_param: confessionId });
+        .rpc('get_confession_awards' as any, { confession_id_param: confessionId });
 
       if (error) throw error;
 
       // Convert array to object with counts
-      const awardsArray: ConfessionAwardAggregate[] = Array.isArray(data) ? data : [];
-      const counts = awardsArray.reduce((acc: Record<string, number>, award) => {
-        const parsedCount = Number(award.award_count);
-        acc[award.award_type] = Number.isNaN(parsedCount) ? 0 : parsedCount;
+      const awardsArray = Array.isArray(data) ? data : [];
+      const counts = awardsArray.reduce((acc: Record<string, number>, award: any) => {
+        acc[award.award_type] = parseInt(award.award_count);
         return acc;
       }, {} as Record<string, number>);
 

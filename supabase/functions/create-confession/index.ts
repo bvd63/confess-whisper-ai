@@ -102,9 +102,8 @@ serve(async (req: Request) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-  const edgeInternalToken = Deno.env.get("EDGE_INTERNAL_TOKEN") ?? "";
 
-  if (!supabaseUrl || !anonKey || !serviceKey || !edgeInternalToken) {
+  if (!supabaseUrl || !anonKey || !serviceKey) {
     console.error("[create-confession] Missing Supabase configuration");
     return jsonResponse({ error: "CONFIGURATION_ERROR", message: "Server is misconfigured" }, 500);
   }
@@ -213,9 +212,6 @@ serve(async (req: Request) => {
         action: "confession_create",
         userId: user.id,
         ip: clientIp,
-      },
-      headers: {
-        "x-edge-token": edgeInternalToken,
       },
     });
 

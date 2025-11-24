@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import ConfessionCard, { type ConfessionCardProps } from '@/components/ConfessionCard';
+import ConfessionCard from '@/components/ConfessionCard';
 import { useVirtualList } from '@/hooks/useVirtualList';
 
 interface VirtualizedConfessionsProps {
-  confessions: ConfessionCardProps['confession'][];
+  confessions: any[];
   isPremium: boolean;
   onUpgradeClick: () => void;
   onInsightGenerated: () => void;

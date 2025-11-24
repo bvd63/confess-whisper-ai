@@ -285,7 +285,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
       }
 
       logInfo('Invoking create-confession function', {
-        hasSupabaseFunctions: Boolean(supabase.functions),
+        hasSupabaseFunctions: Boolean((supabase as any).functions),
       });
 
       const creationResponse = await supabase.functions.invoke('create-confession', {
@@ -557,7 +557,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
               )}
               <Turnstile
                 key={captchaRenderKey}
-                siteKey={env.client.turnstileSiteKey ?? "1x00000000000000000000AA"}
+                siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
                 onSuccess={(token) => {
                   setCaptchaToken(token);
                   setTurnstileError(false);

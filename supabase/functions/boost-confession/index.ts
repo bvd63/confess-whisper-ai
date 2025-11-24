@@ -1,148 +1,159 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
-import { handleOptions, jsonResponse } from "../_shared/http.ts";
-import { logError, logInfo } from "../_shared/logger.ts";
-import { getRequestContext } from "../_shared/security.ts";
-import { requireAuth } from "../_shared/supabase.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.75.0";
 
-const BoostPayloadSchema = z.object({
-  confessionId: z.string().min(8, "confessionId"),
-});
-
-const BOOST_COST = 15;
-const BOOST_DURATION_MS = 24 * 60 * 60 * 1000;
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
 serve(async (req) => {
-  const { origin, ipAddress, userAgent } = getRequestContext(req);
-
-  if (req.method === "OPTIONS") {
-    return handleOptions(origin);
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    const authResult = await requireAuth(authHeader);
-    if (!authResult.user || !authResult.client) {
-      return jsonResponse({ error: "UNAUTHORIZED" }, 401, origin);
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error('No authorization header');
     }
 
-    let rawBody: unknown;
-    try {
-      rawBody = await req.json();
-    } catch {
-      return jsonResponse({ error: "INVALID_JSON" }, 400, origin);
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    // Get authenticated user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      throw new Error('Unauthorized');
     }
 
-    const parsed = BoostPayloadSchema.safeParse(rawBody);
-    if (!parsed.success) {
-      return jsonResponse({ error: "INVALID_PAYLOAD" }, 400, origin);
-    }
+    const { confessionId } = await req.json();
 
-    const payload = parsed.data;
-    const supabase = authResult.client;
-
+    // Check if user is on trial to determine purchase scope
     const { data: profileCheck } = await supabase
-      .from("profiles")
-      .select("trial_premium_ends_at")
-      .eq("user_id", authResult.user.id)
-      .maybeSingle();
+      .from('profiles')
+      .select('trial_premium_ends_at')
+      .eq('user_id', user.id)
+      .single();
 
-    const isOnTrial = Boolean(profileCheck?.trial_premium_ends_at && new Date(profileCheck.trial_premium_ends_at) > new Date());
-    const purchaseScope = isOnTrial ? "TRIAL" : "OWNED";
+    const isOnTrial = profileCheck?.trial_premium_ends_at && 
+                      new Date(profileCheck.trial_premium_ends_at) > new Date();
+    const purchaseScope = isOnTrial ? 'TRIAL' : 'OWNED';
 
+    if (!confessionId) {
+      throw new Error('Confession ID is required');
+    }
+
+    // Verify the confession belongs to the user
     const { data: confession, error: confessionError } = await supabase
-      .from("confessions")
-      .select("id, user_id")
-      .eq("id", payload.confessionId)
-      .maybeSingle();
+      .from('confessions')
+      .select('id, user_id')
+      .eq('id', confessionId)
+      .single();
 
     if (confessionError || !confession) {
-      return jsonResponse({ error: "CONFESSION_NOT_FOUND" }, 404, origin);
+      return new Response(
+        JSON.stringify({ error: 'Confession not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    if (confession.user_id !== authResult.user.id) {
-      return jsonResponse({ error: "FORBIDDEN" }, 403, origin);
+    if (confession.user_id !== user.id) {
+      return new Response(
+        JSON.stringify({ error: 'You can only boost your own confessions' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
+    // Check if already boosted and active
     const { data: existingBoost } = await supabase
-      .from("confession_boosts")
-      .select("id, ends_at, status")
-      .eq("confession_id", payload.confessionId)
-      .eq("status", "ACTIVE")
-      .maybeSingle();
+      .from('confession_boosts')
+      .select('id, ends_at, status')
+      .eq('confession_id', confessionId)
+      .eq('status', 'ACTIVE')
+      .single();
 
     if (existingBoost) {
-      const secondsRemaining = Math.max(0, Math.floor((new Date(existingBoost.ends_at).getTime() - Date.now()) / 1000));
-      return jsonResponse({
-        error: "ALREADY_BOOSTED",
-        secondsRemaining,
-        endsAt: existingBoost.ends_at,
-      }, 409, origin);
+      const secondsRemaining = Math.floor((new Date(existingBoost.ends_at).getTime() - Date.now()) / 1000);
+      return new Response(
+        JSON.stringify({ 
+          error: 'This confession is already boosted',
+          secondsRemaining,
+          endsAt: existingBoost.ends_at
+        }),
+        { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
+    // Check and deduct coins
     const { data: coinsData, error: coinsError } = await supabase
-      .from("user_coins")
-      .select("balance")
-      .eq("user_id", authResult.user.id)
-      .maybeSingle();
+      .from('user_coins')
+      .select('balance')
+      .eq('user_id', user.id)
+      .single();
 
-    if (coinsError || !coinsData || coinsData.balance < BOOST_COST) {
-      return jsonResponse({ error: "INSUFFICIENT_COINS" }, 400, origin);
+    if (coinsError || !coinsData || coinsData.balance < 15) {
+      return new Response(
+        JSON.stringify({ error: 'Insufficient coins. You need 15 coins to boost your confession.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    const { error: deductError } = await supabase.rpc("deduct_coins", {
-      _user_id: authResult.user.id,
-      _amount: BOOST_COST,
-      _type: "boost_confession",
-      _description: "Boosted confession",
-      _reference_id: payload.confessionId,
+    // Deduct coins
+    const { error: deductError } = await supabase.rpc('deduct_coins', {
+      _user_id: user.id,
+      _amount: 15,
+      _type: 'boost_confession',
+      _description: 'Boosted confession',
+      _reference_id: confessionId
     });
 
     if (deductError) {
-      logError("boost-confession: deduct failed", { error: deductError.message, userId: authResult.user.id });
-      return jsonResponse({ error: "COIN_DEDUCTION_FAILED" }, 500, origin);
+      console.error('Error deducting coins:', deductError);
+      throw new Error('Failed to deduct coins');
     }
 
-    const boostUntil = new Date(Date.now() + BOOST_DURATION_MS).toISOString();
+    // Create boost entry (24 hours boost)
+    const boostUntil = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours from now
     const { data: boostData, error: boostError } = await supabase
-      .from("confession_boosts")
+      .from('confession_boosts')
       .insert({
-        confession_id: payload.confessionId,
-        user_id: authResult.user.id,
-        coins_spent: BOOST_COST,
-        status: "ACTIVE",
-        ends_at: boostUntil,
+        confession_id: confessionId,
+        user_id: user.id,
+        coins_spent: 15,
+        status: 'ACTIVE',
+        ends_at: boostUntil.toISOString(),
         purchase_scope: purchaseScope,
       })
       .select()
-      .maybeSingle();
+      .single();
 
-    if (boostError || !boostData) {
-      logError("boost-confession: create failed", { error: boostError?.message, userId: authResult.user.id });
-      return jsonResponse({ error: "BOOST_CREATE_FAILED" }, 500, origin);
+    if (boostError) {
+      console.error('Error creating boost:', boostError);
+      throw new Error('Failed to create boost');
     }
 
-    logInfo("boost-confession: boost created", {
-      boostId: boostData.id,
-      confessionId: payload.confessionId,
-      userId: authResult.user.id,
-      ipAddress,
-      userAgent,
-    });
+    return new Response(
+      JSON.stringify({ 
+        success: true,
+        boost: {
+          id: boostData.id,
+          endsAt: boostData.ends_at,
+          secondsRemaining: 24 * 60 * 60
+        },
+        coinsDeducted: 15
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
 
-    return jsonResponse({
-      success: true,
-      boost: {
-        id: boostData.id,
-        endsAt: boostData.ends_at,
-        secondsRemaining: BOOST_DURATION_MS / 1000,
-      },
-      coinsDeducted: BOOST_COST,
-    }, 200, origin);
   } catch (error) {
-    logError("boost-confession: unexpected error", {
-      error: error instanceof Error ? error.message : String(error),
-    });
-    return jsonResponse({ error: "INTERNAL_ERROR" }, 500, origin);
+    console.error('Error in boost-confession:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+    return new Response(
+      JSON.stringify({ error: errorMessage }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 });

@@ -1,30 +1,38 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
-import { getServerEnv } from "../_shared/env.ts";
-import { jsonResponse, handleOptions } from "../_shared/http.ts";
-import { logError, logInfo, logWarn } from "../_shared/logger.ts";
-import { createServiceClient, requireAuth } from "../_shared/supabase.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
-const NotificationPayloadSchema = z.object({
-  userId: z.string().uuid(),
-  type: z.enum(["like", "comment", "follow", "message"]),
-  triggeredBy: z.string().uuid(),
-  confessionId: z.string().uuid().optional(),
-  commentContent: z.string().max(500).optional(),
-});
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
 
-type NotificationPayload = z.infer<typeof NotificationPayloadSchema>;
+const ONESIGNAL_APP_ID = Deno.env.get("VITE_ONESIGNAL_APP_ID");
+const ONESIGNAL_REST_API_KEY = Deno.env.get("ONESIGNAL_REST_API_KEY");
 
+interface NotificationPayload {
+  userId: string;
+  type: "like" | "comment" | "follow" | "message";
+  triggeredBy: string;
+  confessionId?: string;
+  commentContent?: string;
+}
+
+const logStep = (step: string, details?: any) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
+  console.log(`[SEND-NOTIFICATION] ${step}${detailsStr}`);
+};
+
+// Check for recent similar notifications (for batching)
 const checkRecentNotifications = async (
-  supabaseClient: ReturnType<typeof createServiceClient>,
+  supabaseClient: any,
   userId: string,
-  type: NotificationPayload["type"],
+  type: string,
   confessionId: string | undefined,
-  minutesWindow = 5,
-) => {
+  minutesWindow: number = 5
+): Promise<{ shouldBatch: boolean; count: number }> => {
   const timeAgo = new Date(Date.now() - minutesWindow * 60 * 1000).toISOString();
-
+  
   const { data, error } = await supabaseClient
     .from("notifications")
     .select("id")
@@ -33,11 +41,12 @@ const checkRecentNotifications = async (
     .gte("created_at", timeAgo);
 
   if (error) {
-    logWarn("Recent notification lookup failed", { error: error.message });
-    return { shouldBatch: false, count: 1 } as const;
+    logStep("Error checking recent notifications", { error });
+    return { shouldBatch: false, count: 0 };
   }
 
-  if (confessionId && type !== "follow" && type !== "message") {
+  // For confession-specific notifications, check if they're for the same confession
+  if (confessionId && type !== 'follow' && type !== 'message') {
     const { data: confessionNotifs } = await supabaseClient
       .from("notifications")
       .select("id")
@@ -45,43 +54,39 @@ const checkRecentNotifications = async (
       .eq("type", type)
       .eq("confession_id", confessionId)
       .gte("created_at", timeAgo);
-
-    const count = (confessionNotifs?.length ?? 0) + 1;
-    return { shouldBatch: count > 1, count } as const;
+    
+    return { 
+      shouldBatch: (confessionNotifs?.length || 0) > 0, 
+      count: (confessionNotifs?.length || 0) + 1 
+    };
   }
 
-  const count = (data?.length ?? 0) + 1;
-  return { shouldBatch: count > 1, count } as const;
+  return { shouldBatch: (data?.length || 0) > 0, count: (data?.length || 0) + 1 };
 };
 
 serve(async (req) => {
-  const origin = req.headers.get("origin");
   if (req.method === "OPTIONS") {
-    return handleOptions(origin);
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const env = getServerEnv();
-    const authHeader = req.headers.get("Authorization");
-    const authResult = await requireAuth(authHeader);
-    if (!authResult.user) {
-      return jsonResponse({ error: "UNAUTHORIZED" }, 401, origin);
+    logStep("Function started");
+
+    if (!ONESIGNAL_APP_ID || !ONESIGNAL_REST_API_KEY) {
+      throw new Error("OneSignal credentials not configured");
     }
 
-    const body = await req.json();
-    const parsed = NotificationPayloadSchema.safeParse(body);
-    if (!parsed.success) {
-      logWarn("Invalid notification payload", { issues: parsed.error.flatten().fieldErrors });
-      return jsonResponse({ error: "INVALID_PAYLOAD" }, 400, origin);
-    }
+    const payload: NotificationPayload = await req.json();
+    logStep("Received payload", { type: payload.type, userId: payload.userId });
 
-    const payload = parsed.data;
-    if (payload.triggeredBy !== authResult.user.id) {
-      return jsonResponse({ error: "FORBIDDEN" }, 403, origin);
-    }
+    // Create Supabase client
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
 
-    const supabaseClient = createServiceClient();
-
+    // Get recipient's profile and OneSignal player ID
     const { data: recipientProfile, error: profileError } = await supabaseClient
       .from("profiles")
       .select("nickname, onesignal_player_id")
@@ -89,77 +94,96 @@ serve(async (req) => {
       .single();
 
     if (profileError || !recipientProfile) {
-      return jsonResponse({ error: "RECIPIENT_NOT_FOUND" }, 404, origin);
+      logStep("Recipient profile not found", { error: profileError });
+      return new Response(
+        JSON.stringify({ error: "Recipient not found" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 404 }
+      );
     }
 
     if (!recipientProfile.onesignal_player_id) {
-      return jsonResponse({ message: "User has not enabled push notifications" }, 200, origin);
+      logStep("User does not have OneSignal player ID");
+      return new Response(
+        JSON.stringify({ message: "User has not enabled push notifications" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      );
     }
 
+    // Check user notification preferences
     const { data: notificationSettings } = await supabaseClient
       .from("notification_settings")
       .select("notify_likes, notify_comments, notify_follows, notify_messages")
       .eq("user_id", payload.userId)
       .single();
 
+    // If settings exist, check if this notification type is enabled
     if (notificationSettings) {
       const typePreferenceMap = {
         like: notificationSettings.notify_likes,
         comment: notificationSettings.notify_comments,
         follow: notificationSettings.notify_follows,
         message: notificationSettings.notify_messages,
-      } as const;
+      };
 
-      if (typePreferenceMap[payload.type] === false) {
-        return jsonResponse({ message: "Notification type disabled by user preferences" }, 200, origin);
+      const isEnabled = typePreferenceMap[payload.type];
+      
+      if (isEnabled === false) {
+        logStep("User has disabled this notification type", { type: payload.type });
+        return new Response(
+          JSON.stringify({ message: "Notification type disabled by user preferences" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+        );
       }
     }
 
+    // Check for recent similar notifications (batching)
     const batchCheck = await checkRecentNotifications(
       supabaseClient,
       payload.userId,
       payload.type,
       payload.confessionId,
-      5,
+      5 // 5 minute window
     );
 
+    // Get triggered by user's nickname
     const { data: triggeredByProfile } = await supabaseClient
       .from("profiles")
       .select("nickname")
       .eq("user_id", payload.triggeredBy)
       .single();
 
-    const triggeredByName = triggeredByProfile?.nickname ?? "Someone";
+    const triggeredByName = triggeredByProfile?.nickname || "Someone";
 
+    // Build notification message based on type
     let heading = "";
     let message = "";
     let url = "";
 
     switch (payload.type) {
       case "like":
-        heading = batchCheck.shouldBatch
-          ? `${batchCheck.count} New Likes! 💖`
+        heading = batchCheck.shouldBatch 
+          ? `${batchCheck.count} New Likes! 💖` 
           : "New Like! 💖";
         message = batchCheck.shouldBatch
-          ? `${triggeredByName} and ${batchCheck.count - 1} other${batchCheck.count > 2 ? "s" : ""} liked your confession`
+          ? `${triggeredByName} and ${batchCheck.count - 1} other${batchCheck.count > 2 ? 's' : ''} liked your confession`
           : `${triggeredByName} liked your confession`;
-        url = `/confession/${payload.confessionId ?? ""}`;
+        url = `/confession/${payload.confessionId}`;
         break;
       case "comment":
         heading = batchCheck.shouldBatch
           ? `${batchCheck.count} New Comments 💬`
           : "New Comment 💬";
         message = batchCheck.shouldBatch
-          ? `${triggeredByName} and ${batchCheck.count - 1} other${batchCheck.count > 2 ? "s" : ""} commented on your confession`
-          : `${triggeredByName}: ${payload.commentContent?.substring(0, 50) ?? "commented"}`;
-        url = `/confession/${payload.confessionId ?? ""}`;
+          ? `${triggeredByName} and ${batchCheck.count - 1} other${batchCheck.count > 2 ? 's' : ''} commented on your confession`
+          : `${triggeredByName}: ${payload.commentContent?.substring(0, 50)}${payload.commentContent && payload.commentContent.length > 50 ? "..." : ""}`;
+        url = `/confession/${payload.confessionId}`;
         break;
       case "follow":
         heading = batchCheck.shouldBatch
           ? `${batchCheck.count} New Followers! 👥`
           : "New Follower! 👥";
         message = batchCheck.shouldBatch
-          ? `${triggeredByName} and ${batchCheck.count - 1} other${batchCheck.count > 2 ? "s" : ""} followed you`
+          ? `${triggeredByName} and ${batchCheck.count - 1} other${batchCheck.count > 2 ? 's' : ''} followed you`
           : `${triggeredByName} started following you`;
         url = `/profile/${payload.triggeredBy}`;
         break;
@@ -168,25 +192,39 @@ serve(async (req) => {
         message = `${triggeredByName} sent you a message`;
         url = "/messages";
         break;
+      default:
+        throw new Error("Unknown notification type");
     }
 
+    // Skip sending push notification if batching (already sent one recently)
     if (batchCheck.shouldBatch && batchCheck.count > 2) {
-      logInfo("Notification batched, skipping push", { type: payload.type, count: batchCheck.count });
-      return jsonResponse({ success: true, batched: true, count: batchCheck.count }, 200, origin);
+      logStep("Skipping push notification due to batching", { count: batchCheck.count });
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: "Notification batched, push skipped",
+          batched: true,
+          count: batchCheck.count
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      );
     }
 
+    logStep("Sending OneSignal notification", { heading, playerId: recipientProfile.onesignal_player_id });
+
+    // Send OneSignal notification
     const oneSignalResponse = await fetch("https://onesignal.com/api/v1/notifications", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Basic ${env.ONESIGNAL_REST_API_KEY}`,
+        "Authorization": `Basic ${ONESIGNAL_REST_API_KEY}`,
       },
       body: JSON.stringify({
-        app_id: env.VITE_ONESIGNAL_APP_ID,
+        app_id: ONESIGNAL_APP_ID,
         include_player_ids: [recipientProfile.onesignal_player_id],
         headings: { en: heading },
         contents: { en: message },
-        url: `${origin ?? ""}${url}`,
+        url: `${req.headers.get("origin") || ""}${url}`,
         data: {
           type: payload.type,
           confessionId: payload.confessionId,
@@ -198,14 +236,17 @@ serve(async (req) => {
     const oneSignalData = await oneSignalResponse.json();
 
     if (!oneSignalResponse.ok) {
-      logError("OneSignal API error", { response: oneSignalData });
-      return jsonResponse({ error: "ONESIGNAL_ERROR" }, 502, origin);
+      logStep("OneSignal API error", oneSignalData);
+      throw new Error(`OneSignal API error: ${JSON.stringify(oneSignalData)}`);
     }
 
+    logStep("Notification sent successfully", { recipients: oneSignalData.recipients });
+
+    // Track notification sent event in analytics
     try {
-      await supabaseClient.from("analytics_events").insert({
+      await supabaseClient.from('analytics_events').insert({
         user_id: payload.userId,
-        event_type: "notification_sent",
+        event_type: 'notification_sent',
         event_data: {
           notification_type: payload.type,
           notificationId: oneSignalData.id,
@@ -213,12 +254,24 @@ serve(async (req) => {
         },
       });
     } catch (analyticsError) {
-      logWarn("Analytics insert failed", { error: (analyticsError as Error).message });
+      logStep("Failed to track analytics", { error: analyticsError });
+      // Don't fail the whole request if analytics fails
     }
 
-    return jsonResponse({ success: true, recipients: oneSignalData.recipients, id: oneSignalData.id }, 200, origin);
+    return new Response(
+      JSON.stringify({ 
+        success: true, 
+        recipients: oneSignalData.recipients,
+        id: oneSignalData.id 
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+    );
   } catch (error) {
-    logError("send-notification failed", { error: error instanceof Error ? error.message : String(error) });
-    return jsonResponse({ error: "INTERNAL_ERROR" }, 500, req.headers.get("origin"));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logStep("ERROR", { message: errorMessage });
+    return new Response(
+      JSON.stringify({ error: errorMessage }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
+    );
   }
 });

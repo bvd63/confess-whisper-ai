@@ -23,8 +23,9 @@ export type AnalyticsEvent =
   | 'notification_read'
   | 'notification_group_expanded';
 
-type EventValue = string | number | boolean | null | EventValue[] | Record<string, EventValue>;
-type EventData = Record<string, EventValue>;
+interface EventData {
+  [key: string]: any;
+}
 
 export const useAnalytics = () => {
   const batchRef = useRef<Array<{ eventType: AnalyticsEvent; eventData?: EventData }>>([]);

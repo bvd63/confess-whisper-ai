@@ -1,9 +1,8 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
-import { handleOptions, jsonResponse } from "../_shared/http.ts";
-import { logError, logInfo } from "../_shared/logger.ts";
-import { ensureEdgeAuthorized, getRequestContext } from "../_shared/security.ts";
-import { createServiceClient } from "../_shared/supabase.ts";
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 const BONUSES = [
   { days: 3, coins: 10 },
@@ -11,66 +10,61 @@ const BONUSES = [
   { days: 7, coins: 50 },
 ];
 
-const AwardPayloadSchema = z.object({
-  userId: z.string().uuid(),
-  currentStreak: z.number().int().min(1).max(365),
-});
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
 serve(async (req) => {
-  const { origin } = getRequestContext(req);
-
-  if (req.method === "OPTIONS") {
-    return handleOptions(origin);
-  }
-
-  const edgeResponse = ensureEdgeAuthorized(req, origin);
-  if (edgeResponse) {
-    return edgeResponse;
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    let rawBody: unknown;
-    try {
-      rawBody = await req.json();
-    } catch {
-      return jsonResponse({ error: "INVALID_JSON" }, 400, origin);
+    const { userId, currentStreak } = await req.json();
+    
+    if (!userId || typeof currentStreak !== 'number') {
+      return new Response(
+        JSON.stringify({ ok: false, reason: 'invalid-input' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
     }
 
-    const parsed = AwardPayloadSchema.safeParse(rawBody);
-    if (!parsed.success) {
-      return jsonResponse({ error: "INVALID_PAYLOAD" }, 400, origin);
-    }
-
-    const payload = parsed.data;
-    const bonus = BONUSES.find((item) => item.days === payload.currentStreak);
+    const bonus = BONUSES.find(b => b.days === currentStreak);
     if (!bonus) {
-      return jsonResponse({ ok: false, reason: "no-bonus" }, 200, origin);
+      return new Response(
+        JSON.stringify({ ok: false, reason: 'no-bonus' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    const supabase = createServiceClient();
-    const { error } = await supabase.rpc("award_coins", {
-      p_user_id: payload.userId,
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    
+    // Call award_coins RPC with idempotent reason key
+    const { data, error } = await supabase.rpc('award_coins', {
+      p_user_id: userId,
       p_amount: bonus.coins,
-      p_session_id: `streak_${payload.currentStreak}_${new Date().toISOString().split("T")[0]}`,
-      p_description: `Streak bonus: ${payload.currentStreak} days`,
+      p_session_id: `streak_${currentStreak}_${new Date().toISOString().split('T')[0]}`,
+      p_description: `Streak bonus: ${currentStreak} days`,
     });
 
     if (error) {
-      logError("award-streak-bonus: award failed", { error: error.message, userId: payload.userId });
-      return jsonResponse({ error: "COIN_AWARD_FAILED" }, 500, origin);
+      console.error('award_coins RPC error:', error);
+      return new Response(
+        JSON.stringify({ ok: false, error: error.message }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      );
     }
 
-    logInfo("award-streak-bonus: coins awarded", {
-      userId: payload.userId,
-      coins: bonus.coins,
-      currentStreak: payload.currentStreak,
-    });
-
-    return jsonResponse({ ok: true, awarded: bonus.coins }, 200, origin);
-  } catch (error) {
-    logError("award-streak-bonus: unexpected error", {
-      error: error instanceof Error ? error.message : String(error),
-    });
-    return jsonResponse({ error: "INTERNAL_ERROR" }, 500, origin);
+    return new Response(
+      JSON.stringify({ ok: true, awarded: bonus.coins }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  } catch (e) {
+    console.error('Unexpected error:', e);
+    return new Response(
+      JSON.stringify({ ok: false, error: String(e) }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+    );
   }
 });

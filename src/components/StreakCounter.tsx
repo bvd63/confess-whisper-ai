@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Flame } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -23,7 +23,10 @@ const StreakCounter = ({
     t,
     language
   } = useLanguage();
-  const loadStreak = useCallback(async () => {
+  useEffect(() => {
+    loadStreak();
+  }, [userId]);
+  const loadStreak = async () => {
     const {
       data,
       error
@@ -32,11 +35,7 @@ const StreakCounter = ({
       setStreak(data);
     }
     setLoading(false);
-  }, [userId]);
-
-  useEffect(() => {
-    loadStreak();
-  }, [loadStreak]);
+  };
   if (loading || !streak) return null;
   if (variant === "compact") {
     if (streak.current_streak === 0) return null;

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, memo } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ProfileTierBadge } from "./ProfileTierBadge";
@@ -24,119 +24,16 @@ interface BadgeDisplayProps {
   variant?: "default" | "compact";
 }
 
-interface EquippedFlairRow {
-  id: string;
-  acquired_at: string;
-  expires_at?: string | null;
-  is_featured: boolean;
-  profile_flairs: {
-    icon: string;
-    name_key: string;
-  };
-}
-
-interface UserBadgeRow {
-  id: string;
-  acquired_at: string;
-  expires_at?: string | null;
-  is_featured: boolean;
-  badges: {
-    icon: string;
-    name: string;
-  };
-}
-
-export const BadgeDisplay = memo(({ 
+export const BadgeDisplay = ({ 
   userId, 
   subscriptionTier = "free",
   maxBadges = 2,
   showSubscription = true,
   variant = "compact"
 }: BadgeDisplayProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [badges, setBadges] = useState<UserBadge[]>([]);
   const [loading, setLoading] = useState(true);
-  const translationMap = t as Record<string, string | undefined>;
-
-  const loadBadges = useCallback(async () => {
-    try {
-      // Load equipped flairs (equipped flairs are automatically featured and public)
-      const { data: flairs } = await supabase
-        .from("user_flairs")
-        .select(`
-          id,
-          acquired_at,
-          expires_at,
-          is_featured,
-          is_equipped,
-          purchase_scope,
-          profile_flairs!inner(
-            icon,
-            name_key
-          )
-        `)
-        .eq("user_id", userId)
-        .eq("is_public", true)
-        .eq("is_equipped", true)
-        .order("acquired_at", { ascending: false })
-        .limit(maxBadges)
-        .returns<EquippedFlairRow[]>();
-
-      // Load featured badges
-      const { data: userBadges } = await supabase
-        .from("user_badges")
-        .select(`
-          id,
-          acquired_at,
-          expires_at,
-          is_featured,
-          badges!inner(
-            icon,
-            name
-          )
-        `)
-        .eq("user_id", userId)
-        .eq("is_public", true)
-        .eq("is_featured", true)
-        .order("acquired_at", { ascending: false })
-        .limit(maxBadges)
-        .returns<UserBadgeRow[]>();
-
-      const allBadges: UserBadge[] = [
-        ...(flairs || []).map((f) => ({
-          id: f.id,
-          type: "flair" as const,
-          icon: f.profile_flairs.icon,
-          name_key: f.profile_flairs.name_key,
-          acquired_at: f.acquired_at,
-          expires_at: f.expires_at || undefined,
-          is_featured: f.is_featured,
-        })),
-        ...(userBadges || []).map((b) => ({
-          id: b.id,
-          type: "badge" as const,
-          icon: b.badges.icon,
-          name_key: b.badges.name,
-          acquired_at: b.acquired_at,
-          expires_at: b.expires_at || undefined,
-          is_featured: b.is_featured,
-        })),
-      ]
-        .filter(b => {
-          // Filter expired badges
-          if (!b.expires_at) return true;
-          return new Date(b.expires_at) > new Date();
-        })
-        .sort((a, b) => new Date(b.acquired_at).getTime() - new Date(a.acquired_at).getTime())
-        .slice(0, maxBadges);
-
-      setBadges(allBadges);
-    } catch (error) {
-      logError("Error loading badges", error instanceof Error ? error : undefined);
-    } finally {
-      setLoading(false);
-    }
-  }, [userId, maxBadges]);
 
   useEffect(() => {
     loadBadges();
@@ -169,7 +66,85 @@ export const BadgeDisplay = memo(({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId, loadBadges]);
+  }, [userId]);
+
+  const loadBadges = async () => {
+    try {
+      // Load equipped flairs (equipped flairs are automatically featured and public)
+      const { data: flairs } = await supabase
+        .from("user_flairs")
+        .select(`
+          id,
+          acquired_at,
+          expires_at,
+          is_featured,
+          is_equipped,
+          purchase_scope,
+          profile_flairs!inner(
+            icon,
+            name_key
+          )
+        `)
+        .eq("user_id", userId)
+        .eq("is_public", true)
+        .eq("is_equipped", true)
+        .order("acquired_at", { ascending: false })
+        .limit(maxBadges);
+
+      // Load featured badges
+      const { data: userBadges } = await supabase
+        .from("user_badges")
+        .select(`
+          id,
+          acquired_at,
+          expires_at,
+          is_featured,
+          badges!inner(
+            icon,
+            name
+          )
+        `)
+        .eq("user_id", userId)
+        .eq("is_public", true)
+        .eq("is_featured", true)
+        .order("acquired_at", { ascending: false })
+        .limit(maxBadges);
+
+      const allBadges: UserBadge[] = [
+        ...(flairs || []).map((f: any) => ({
+          id: f.id,
+          type: "flair" as const,
+          icon: f.profile_flairs.icon,
+          name_key: f.profile_flairs.name_key,
+          acquired_at: f.acquired_at,
+          expires_at: f.expires_at,
+          is_featured: f.is_featured,
+        })),
+        ...(userBadges || []).map((b: any) => ({
+          id: b.id,
+          type: "badge" as const,
+          icon: b.badges.icon,
+          name_key: b.badges.name,
+          acquired_at: b.acquired_at,
+          expires_at: b.expires_at,
+          is_featured: b.is_featured,
+        })),
+      ]
+        .filter(b => {
+          // Filter expired badges
+          if (!b.expires_at) return true;
+          return new Date(b.expires_at) > new Date();
+        })
+        .sort((a, b) => new Date(b.acquired_at).getTime() - new Date(a.acquired_at).getTime())
+        .slice(0, maxBadges);
+
+      setBadges(allBadges);
+    } catch (error) {
+      logError("Error loading badges", error instanceof Error ? error : undefined);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) return null;
 
@@ -183,8 +158,8 @@ export const BadgeDisplay = memo(({
       )}
       
       {badges.map((badge) => {
-        const translationKey = `flair_${badge.name_key}`;
-        const badgeName = translationMap[translationKey] || badge.name_key;
+        const translationKey = `flair_${badge.name_key}` as any;
+        const badgeName = (t as any)[translationKey] || badge.name_key;
         
         return (
           <TooltipProvider key={badge.id}>
@@ -217,4 +192,4 @@ export const BadgeDisplay = memo(({
       )}
     </div>
   );
-});
+};

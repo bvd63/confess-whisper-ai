@@ -35,7 +35,6 @@ interface Notification {
   created_at: string;
   triggered_by?: string;
   triggered_by_nickname?: string;
-  deleted_for?: string[] | null;
 }
 
 const NotificationsDropdown = () => {
@@ -78,7 +77,7 @@ const NotificationsDropdown = () => {
       if (!user) return;
 
       const { data, error } = await supabase
-        .from<Notification>('notifications')
+        .from('notifications')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
@@ -87,7 +86,7 @@ const NotificationsDropdown = () => {
       if (error) throw error;
 
       // Filter out soft-deleted notifications
-      const visibleNotifications = (data || []).filter((notif) => {
+      const visibleNotifications = (data || []).filter((notif: any) => {
         const deletedFor = notif.deleted_for || [];
         return !deletedFor.includes(user.id);
       });
