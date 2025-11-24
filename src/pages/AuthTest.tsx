@@ -375,8 +375,8 @@ export default function AuthTest() {
                     )}
                     <AlertDescription>
                       {captchaRequired
-                        ? "🔒 CAPTCHA is REQUIRED for this email address"
-                        : "✅ CAPTCHA is NOT required for this email address"}
+                        ? "CAPTCHA is REQUIRED for this email address"
+                        : "CAPTCHA is NOT required for this email address"}
                     </AlertDescription>
                   </Alert>
                 )}
