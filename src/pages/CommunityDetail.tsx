@@ -163,7 +163,7 @@ const CommunityDetail = () => {
           <div className="flex items-start justify-between mb-3 sm:mb-4">
             <div className="flex items-center gap-2.5 sm:gap-3 md:gap-4">
               <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-primary/10 flex items-center justify-center text-2xl sm:text-3xl md:text-4xl">
-                {community.icon || "🌟"}
+                {community.icon || "✨"}
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-1">

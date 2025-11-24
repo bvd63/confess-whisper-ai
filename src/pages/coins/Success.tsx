@@ -123,7 +123,7 @@ export default function CoinPurchaseSuccess() {
         {coinsAwarded && (
           <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 border border-yellow-200 dark:border-yellow-800">
             <p className="text-lg font-semibold text-yellow-900 dark:text-yellow-100">
-              +{coinsAwarded} coins added to your account! 🪙
+              +{coinsAwarded} coins added to your account!
             </p>
           </div>
         )}
