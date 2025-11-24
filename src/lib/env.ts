@@ -1,6 +1,5 @@
 // src/lib/env.ts
 import { z } from "zod";
-import { logError, logWarn } from '@/lib/logger';
 
 const booleanString = z.enum(["true", "false"]).optional();
 
@@ -21,7 +20,14 @@ const RawEnv = z.object({
   MODE: z.enum(["development", "production", "test"]).default("development"),
 });
 
-const _raw = (typeof window !== "undefined" ? import.meta.env : ({} as any)) as Record<string, any>;
+const browserEnv = (typeof window !== "undefined" && typeof import.meta !== "undefined") ? (import.meta.env as Record<string, any>) : undefined;
+const nodeEnv = typeof process !== "undefined" ? (process.env as Record<string, any>) : undefined;
+
+const _raw: Record<string, any> = {
+  ...(nodeEnv || {}),
+  ...(browserEnv || {}),
+  MODE: browserEnv?.MODE || nodeEnv?.MODE || nodeEnv?.NODE_ENV || "development",
+};
 
 const parsed = RawEnv.safeParse({
   VITE_SUPABASE_URL: _raw.VITE_SUPABASE_URL,
@@ -41,13 +47,14 @@ const parsed = RawEnv.safeParse({
 });
 
 if (!parsed.success) {
-  logError("[ENV] Invalid client ENV", new Error(JSON.stringify(parsed.error.flatten().fieldErrors)));
+  const serializedErrors = JSON.stringify(parsed.error.flatten().fieldErrors);
+  console.error("[ENV] Invalid client ENV", serializedErrors);
   // Only throw if Supabase credentials are missing (required for app to function)
   const errors = parsed.error.flatten().fieldErrors;
   if (errors.VITE_SUPABASE_URL || errors.VITE_SUPABASE_PUBLISHABLE_KEY) {
     throw new Error("Critical environment variables missing: Supabase credentials are required");
   }
-  logWarn("[ENV] Some optional features may be unavailable (Stripe, OneSignal)");
+  console.warn("[ENV] Some optional features may be unavailable (Stripe, OneSignal)");
 }
 
 export const env = {
@@ -71,3 +78,5 @@ export const env = {
   isProd: (parsed.data?.MODE || _raw.MODE) === "production",
   isDev: (parsed.data?.MODE || _raw.MODE) === "development",
 } as const;
+
+export type AppEnv = typeof env;

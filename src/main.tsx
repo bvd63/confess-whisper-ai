@@ -13,8 +13,10 @@ import { initOneSignal } from "@/lib/onesignal";
 import { initPerformanceMonitoring } from "@/lib/performance";
 import AppWrapper from "./components/AppWrapper.tsx";
 import { env } from "@/lib/env";
-import { logError } from "@/lib/logger";
+import { configureLogger, logError } from "@/lib/logger";
 import "./index.css";
+
+configureLogger(env);
 
 // Initialize Sentry error tracking
 initSentry();

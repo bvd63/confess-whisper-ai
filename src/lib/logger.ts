@@ -8,7 +8,7 @@
  */
 
 import { captureSentryMessage, captureSentryError } from '@/lib/sentry';
-import { env } from '@/lib/env';
+import type { AppEnv } from '@/lib/env';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -16,111 +16,144 @@ interface LogContext {
   [key: string]: any;
 }
 
-/**
- * Core logging function
- */
-function log(level: LogLevel, message: string, context?: LogContext): void {
-  const timestamp = new Date().toISOString();
-  const prefix = `[${timestamp}] [${level.toUpperCase()}]`;
+export type LoggerEnv = Pick<AppEnv, 'isDev' | 'isProd'>;
 
-  // Always log to console in development
-  if (env.isDev) {
-    const logFn = level === 'error' ? console.error : 
-                  level === 'warn' ? console.warn : 
-                  console.log;
-    
-    if (context) {
-      logFn(`${prefix} ${message}`, context);
-    } else {
-      logFn(`${prefix} ${message}`);
+export interface Logger {
+  debug: (message: string, context?: LogContext) => void;
+  info: (message: string, context?: LogContext) => void;
+  warn: (message: string, context?: LogContext) => void;
+  error: (message: string, error?: Error | unknown, context?: LogContext) => void;
+  performance: (metric: string, value: number, context?: LogContext) => void;
+  feature: (feature: string, enabled: boolean, context?: LogContext) => void;
+  api: (method: string, endpoint: string, status?: number, context?: LogContext) => void;
+  cache: (operation: string, key: string, hit?: boolean, context?: LogContext) => void;
+}
+
+function resolveRuntimeEnv(): LoggerEnv {
+  const nodeEnv = typeof process !== 'undefined' ? process.env?.NODE_ENV : undefined;
+  const mode = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.MODE : nodeEnv;
+  return {
+    isDev: mode === 'development' || (!mode && nodeEnv !== 'production'),
+    isProd: mode === 'production',
+  };
+}
+
+export function createLogger(envConfig: LoggerEnv): Logger {
+  function log(level: LogLevel, message: string, context?: LogContext): void {
+    const timestamp = new Date().toISOString();
+    const prefix = `[${timestamp}] [${level.toUpperCase()}]`;
+
+    if (envConfig.isDev) {
+      const logFn = level === 'error' ? console.error :
+                    level === 'warn' ? console.warn :
+                    console.log;
+
+      if (context) {
+        logFn(`${prefix} ${message}`, context);
+      } else {
+        logFn(`${prefix} ${message}`);
+      }
+    }
+
+    if (envConfig.isProd) {
+      if (level === 'error' && context?.error instanceof Error) {
+        captureSentryError(context.error, { message, ...context });
+      } else if (level === 'warn' || level === 'error') {
+        captureSentryMessage(message, level === 'error' ? 'error' : 'warning');
+      }
     }
   }
 
-  // Send to Sentry in production (info and above)
-  if (env.isProd) {
-    if (level === 'error' && context?.error instanceof Error) {
-      captureSentryError(context.error, { message, ...context });
-    } else if (level === 'warn' || level === 'error') {
-      captureSentryMessage(message, level === 'error' ? 'error' : 'warning');
+  const logDebug = (message: string, context?: LogContext): void => {
+    if (envConfig.isDev) {
+      log('debug', message, context);
     }
-    // Skip debug/info in production to reduce noise
-  }
+  };
+
+  const logInfo = (message: string, context?: LogContext): void => {
+    log('info', message, context);
+  };
+
+  const logWarn = (message: string, context?: LogContext): void => {
+    log('warn', message, context);
+  };
+
+  const logError = (message: string, error?: Error | unknown, context?: LogContext): void => {
+    const errorContext = error instanceof Error 
+      ? { error, stack: error.stack, ...context }
+      : { error, ...context };
+    log('error', message, errorContext);
+  };
+
+  const logPerformance = (metric: string, value: number, context?: LogContext): void => {
+    logDebug(`📊 ${metric}: ${value.toFixed(2)}ms`, context);
+  };
+
+  const logFeature = (feature: string, enabled: boolean, context?: LogContext): void => {
+    logDebug(`🚩 Feature "${feature}": ${enabled ? 'enabled' : 'disabled'}`, context);
+  };
+
+  const logAPI = (method: string, endpoint: string, status?: number, context?: LogContext): void => {
+    const statusEmoji = status && status >= 200 && status < 300 ? '✅' :
+                        status && status >= 400 ? '❌' : '🔄';
+    logDebug(`${statusEmoji} ${method} ${endpoint}${status ? ` (${status})` : ''}`, context);
+  };
+
+  const logCache = (operation: string, key: string, hit: boolean = true, context?: LogContext): void => {
+    const emoji = hit ? '✅' : '❌';
+    logDebug(`${emoji} Cache ${operation}: ${key}`, context);
+  };
+
+  return {
+    debug: logDebug,
+    info: logInfo,
+    warn: logWarn,
+    error: logError,
+    performance: logPerformance,
+    feature: logFeature,
+    api: logAPI,
+    cache: logCache,
+  };
+}
+let activeLogger = createLogger(resolveRuntimeEnv());
+
+export function configureLogger(envConfig: LoggerEnv) {
+  activeLogger = createLogger(envConfig);
 }
 
-/**
- * Debug level - for detailed debugging info
- * Only shows in development
- */
-export function logDebug(message: string, context?: LogContext): void {
-  if (env.isDev) {
-    log('debug', message, context);
-  }
-}
+export const logDebug = (message: string, context?: LogContext): void => {
+  activeLogger.debug(message, context);
+};
 
-/**
- * Info level - for general informational messages
- * Shows in development, not sent to Sentry
- */
-export function logInfo(message: string, context?: LogContext): void {
-  log('info', message, context);
-}
+export const logInfo = (message: string, context?: LogContext): void => {
+  activeLogger.info(message, context);
+};
 
-/**
- * Warning level - for non-critical issues
- * Shows in console and sends to Sentry
- */
-export function logWarn(message: string, context?: LogContext): void {
-  log('warn', message, context);
-}
+export const logWarn = (message: string, context?: LogContext): void => {
+  activeLogger.warn(message, context);
+};
 
-/**
- * Error level - for errors and exceptions
- * Shows in console and sends to Sentry
- */
-export function logError(message: string, error?: Error | unknown, context?: LogContext): void {
-  const errorContext = error instanceof Error 
-    ? { error, stack: error.stack, ...context }
-    : { error, ...context };
-  
-  log('error', message, errorContext);
-}
+export const logError = (message: string, error?: Error | unknown, context?: LogContext): void => {
+  activeLogger.error(message, error, context);
+};
 
-/**
- * Performance logging helper
- */
-export function logPerformance(metric: string, value: number, context?: LogContext): void {
-  logDebug(`📊 ${metric}: ${value.toFixed(2)}ms`, context);
-}
+export const logPerformance = (metric: string, value: number, context?: LogContext): void => {
+  activeLogger.performance(metric, value, context);
+};
 
-/**
- * Feature flag logging helper
- */
-export function logFeature(feature: string, enabled: boolean, context?: LogContext): void {
-  logDebug(`🚩 Feature "${feature}": ${enabled ? 'enabled' : 'disabled'}`, context);
-}
+export const logFeature = (feature: string, enabled: boolean, context?: LogContext): void => {
+  activeLogger.feature(feature, enabled, context);
+};
 
-/**
- * API call logging helper
- */
-export function logAPI(method: string, endpoint: string, status?: number, context?: LogContext): void {
-  const statusEmoji = status && status >= 200 && status < 300 ? '✅' : 
-                      status && status >= 400 ? '❌' : '🔄';
-  logDebug(`${statusEmoji} ${method} ${endpoint}${status ? ` (${status})` : ''}`, context);
-}
+export const logAPI = (method: string, endpoint: string, status?: number, context?: LogContext): void => {
+  activeLogger.api(method, endpoint, status, context);
+};
 
-/**
- * Cache operation logging helper
- */
-export function logCache(operation: string, key: string, hit: boolean = true, context?: LogContext): void {
-  const emoji = hit ? '✅' : '❌';
-  logDebug(`${emoji} Cache ${operation}: ${key}`, context);
-}
+export const logCache = (operation: string, key: string, hit: boolean = true, context?: LogContext): void => {
+  activeLogger.cache(operation, key, hit, context);
+};
 
-/**
- * Legacy console.log replacement
- * Use this to gradually migrate old console.log statements
- */
-export const logger = {
+export const logger: Logger = {
   debug: logDebug,
   info: logInfo,
   warn: logWarn,
