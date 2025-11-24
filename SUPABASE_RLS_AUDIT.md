@@ -1,6 +1,6 @@
 # Supabase RLS Audit
 
-_Last updated: 2025-11-23_
+## Last updated: 2025-11-23
 
 This document enumerates the Supabase tables and Edge functions that ConfessAI relies on, together with the row-level security (RLS) expectations we must keep enforced in the hosted project. No SQL changes are shipped from this repository, so every checklist item below needs to be verified and enforced directly inside Supabase.
 
@@ -26,6 +26,7 @@ This document enumerates the Supabase tables and Edge functions that ConfessAI r
 | `rate_limit_events` / `log_security_event` RPC tables | Used via Supabase RPC inside functions | Keep them service-role only; no direct client access. |
 
 ### Additional tables spotted in code
+
 - `coin_packages`, `coin_awards`, `user_rewards` (check migrations) should be admin/service-role managed.
 - `security_events` logged via `log_security_event` RPC must be restricted to service role writers and admin readers.
 - `vip_audit`, `subscription_audit` tables (if present) should be read-only for finance/admin.

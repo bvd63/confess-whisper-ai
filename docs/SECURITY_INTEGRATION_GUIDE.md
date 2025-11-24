@@ -8,7 +8,8 @@ This guide covers the comprehensive security infrastructure integrated into the 
 
 ### Core Functions
 
-#### `sanitizeText(text: string): string`
+**`sanitizeText(text: string): string`**
+
 Removes dangerous HTML tags and scripts while preserving safe content.
 
 ```typescript
@@ -20,11 +21,13 @@ const safe = sanitizeText(userInput);
 ```
 
 **Protects Against:**
+
 - XSS injection via script tags
 - Event handler injection (`onclick`, `onerror`, etc.)
 - Dangerous HTML elements (iframe, object, embed, form)
 
-#### `validateConfessionContent(content: string)`
+**`validateConfessionContent(content: string)`**
+
 Validates and sanitizes confession submission.
 
 ```typescript
@@ -38,11 +41,13 @@ if (result.valid) {
 ```
 
 **Validation Rules:**
+
 - Minimum length: 10 characters
 - Maximum length: 10,000 characters
 - Always sanitized before return
 
-#### `validateCommentContent(content: string)`
+**`validateCommentContent(content: string)`**
+
 Validates and sanitizes comment submission.
 
 ```typescript
@@ -54,10 +59,12 @@ if (result.valid) {
 ```
 
 **Validation Rules:**
+
 - Minimum length: 1 character
 - Maximum length: 1,000 characters
 
-#### `validateUsername(username: string)`
+**`validateUsername(username: string)`**
+
 Validates username format and length.
 
 ```typescript
@@ -70,10 +77,12 @@ if (result.valid) {
 ```
 
 **Allowed Characters:** a-z, A-Z, 0-9, underscore, hyphen
+
 - Minimum length: 3 characters
 - Maximum length: 30 characters
 
-#### `validateEmail(email: string): boolean`
+**`validateEmail(email: string): boolean`**
+
 Validates email format.
 
 ```typescript
@@ -82,7 +91,8 @@ if (validateEmail(userEmail)) {
 }
 ```
 
-#### `sanitizeUrl(url: string): string | null`
+**`sanitizeUrl(url: string): string | null`**
+
 Sanitizes and validates URLs, blocks dangerous protocols.
 
 ```typescript
@@ -96,7 +106,8 @@ if (safeUrl) {
 
 **Blocked Protocols:** javascript:, data:, vbscript:, file:, about:
 
-#### `escapeHtml(text: string): string`
+**`escapeHtml(text: string): string`**
+
 Escapes HTML special characters for safe display.
 
 ```typescript
@@ -106,7 +117,8 @@ const safe = escapeHtml('<script>alert("xss")</script>');
 // Result: '&lt;script&gt;alert(&quot;xss&quot;)&lt;&#x2F;script&gt;'
 ```
 
-#### `stripHtml(html: string): string`
+**`stripHtml(html: string): string`**
+
 Removes all HTML tags for plain text display.
 
 ```typescript
@@ -114,7 +126,8 @@ const plainText = stripHtml('<p>Hello <b>World</b></p>');
 // Result: 'Hello World'
 ```
 
-#### `validateEnum<T>(value: unknown, allowedValues: T[]): value is T[number]`
+**`validateEnum<T>(value: unknown, allowedValues: T[]): value is T[number]`**
+
 Type-safe enum validation.
 
 ```typescript
@@ -128,7 +141,8 @@ if (validateEnum(userCategory, categories)) {
 
 ### Secure Payment Handling
 
-#### `createPaymentIntent(options)`
+**`createPaymentIntent(options)`**
+
 Create a Stripe PaymentIntent for confessions.
 
 ```typescript
@@ -143,12 +157,14 @@ const intent = await createPaymentIntent({
 ```
 
 **Security Features:**
+
 - Amount is server-validated
 - Only authenticated users can create intents
 - CORS protection enabled
 - Audit logging enabled
 
-#### `createSubscription(options)`
+**`createSubscription(options)`**
+
 Create a Stripe subscription for VIP tier.
 
 ```typescript
@@ -161,11 +177,13 @@ const subscription = await createSubscription({
 ```
 
 **Automatic Handling:**
+
 - Webhook processing for subscription updates
 - Automatic user tier updates
 - Retry logic for failed payments
 
-#### `validateStripeSignature(event, signature)`
+**`validateStripeSignature(event, signature)`**
+
 Validates webhook signatures from Stripe.
 
 ```typescript
@@ -179,6 +197,7 @@ if (!valid) {
 ```
 
 **Protection:**
+
 - HMAC signature verification
 - Timestamp validation (5-minute window)
 - Replay attack prevention
@@ -291,6 +310,7 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 ```
 
 **Rules:**
+
 - Never include secrets in client-side code
 - Use `VITE_` prefix only for public keys
 - Rotate keys regularly
@@ -300,7 +320,7 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 
 ### Headers Configuration (`_headers`)
 
-```
+```http
 Content-Security-Policy: 
   default-src 'self';
   script-src 'self' 'wasm-unsafe-eval';
@@ -312,6 +332,7 @@ Content-Security-Policy:
 ```
 
 **Protection:**
+
 - Prevents inline scripts
 - Restricts external resources
 - Blocks insecure connections

@@ -1,6 +1,6 @@
 # ConfessAI 🎭
 
-**Production-Ready Anonymous Confession Platform**
+## Production-Ready Anonymous Confession Platform
 
 [![App Score](https://img.shields.io/badge/App%20Score-10%2F10-brightgreen)](QA_REPORT_FINAL.md)
 [![Security](https://img.shields.io/badge/Security-Verified-brightgreen)](SECURITY_AUDIT_COMPLETE.md)
@@ -25,12 +25,14 @@
 ## ✨ Core Features
 
 ### 🎭 Anonymous Confessions
+
 - Share thoughts without revealing identity
 - AI-powered responses (Gemini 2.5 Pro/Flash, GPT-5)
 - Category-based organization
 - Community features
 
 ### 💎 VIP Subscriptions
+
 - Monthly & yearly billing via Stripe
 - Unlimited confessions
 - Priority AI responses
@@ -38,6 +40,7 @@
 - Instant 250 coin bonus
 
 ### 🏆 Gamification
+
 - Coin system (+2 per confession)
 - Time-limited badges (5 days)
 - Purchasable flairs
@@ -45,12 +48,14 @@
 - Streak tracking
 
 ### 🌍 Internationalization
+
 - English, Spanish, German
 - Real-time language switching
 - Complete UI translation
 - Mixed language prevention
 
 ### 🔒 Security (v2.0)
+
 - **XSS Protection** - DOMPurify sanitization on all user content
 - **CSRF Protection** - Token-based validation with timing-safe comparison
 - **Security Headers** - CSP, HSTS, X-Frame-Options, etc.
@@ -64,6 +69,7 @@
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **React 18.3.1** + TypeScript 5.8 (strict mode)
 - **Vite** - Lightning-fast builds
 - **Tailwind CSS** + Shadcn UI
@@ -72,18 +78,21 @@
 - **PWA** - Installable web app
 
 ### Backend (Lovable Cloud)
+
 - **Supabase** - PostgreSQL + Auth + Storage (RLS enforced)
 - **Edge Functions** - Deno serverless with structured logging
 - **Stripe** - Payment processing
 - **Lovable AI** - Gemini & GPT models
 
 ### Testing & Quality
+
 - **Vitest** - Unit testing
 - **Playwright** - E2E testing (65 specs, all passing)
 - **118+ tests** - 95%+ coverage
 - **Lighthouse 94+** - Performance score
 
 ### Security & Performance
+
 - **DOMPurify** - XSS sanitization
 - **Zod** - Schema-based input validation
 - **Structured Logging** - Edge & client-side

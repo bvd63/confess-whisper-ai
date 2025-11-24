@@ -11,6 +11,7 @@ This document summarizes the comprehensive security infrastructure implemented i
 **Location:** `/workspaces/confess-whisper-ai/src/lib/sanitize.ts`
 
 **Key Functions:**
+
 - `sanitizeText()` - Removes XSS attack vectors
 - `validateConfessionContent()` - Validates and sanitizes user confessions
 - `validateCommentContent()` - Validates user comments
@@ -24,6 +25,7 @@ This document summarizes the comprehensive security infrastructure implemented i
 - `checkTextRateLimit()` - Client-side rate limiting
 
 **Protection Against:**
+
 - Cross-Site Scripting (XSS)
 - Event handler injection
 - Dangerous HTML tags (script, iframe, form, etc.)
@@ -36,6 +38,7 @@ This document summarizes the comprehensive security infrastructure implemented i
 **Location:** `/workspaces/confess-whisper-ai/src/lib/stripe.ts`
 
 **Key Functions:**
+
 - `validateStripeSignature()` - Webhook signature verification with HMAC-SHA256
 - `createPaymentIntent()` - Stub for server-side payment creation
 - `createSubscription()` - Stub for VIP tier subscriptions
@@ -44,6 +47,7 @@ This document summarizes the comprehensive security infrastructure implemented i
 - Webhook handlers for subscription events
 
 **Security Features:**
+
 - HMAC-SHA256 signature verification
 - Timestamp validation (5-minute window)
 - Constant-time comparison to prevent timing attacks
@@ -56,6 +60,7 @@ This document summarizes the comprehensive security infrastructure implemented i
 **Location:** `/workspaces/confess-whisper-ai/src/lib/constants.ts`
 
 **Key Constants:**
+
 - `VALIDATION` - Input length and format constraints
 - `RATE_LIMITS` - Submission frequency limits
 - `SUBSCRIPTION_TIERS` - FREE and VIP only
@@ -63,6 +68,7 @@ This document summarizes the comprehensive security infrastructure implemented i
 - `REPORT_REASONS` - Content moderation reasons
 
 **Rate Limits:**
+
 - Confessions: 5/hour, 20/day
 - Comments: 30/hour
 - Reports: 10/hour
@@ -73,6 +79,7 @@ This document summarizes the comprehensive security infrastructure implemented i
 **Location:** `/workspaces/confess-whisper-ai/scripts/verify-security.sh`
 
 **Checks Performed:**
+
 - Core security files existence
 - Sanitization module completeness
 - Stripe integration security
@@ -89,6 +96,7 @@ This document summarizes the comprehensive security infrastructure implemented i
 - Dependency vulnerabilities
 
 **Usage:**
+
 ```bash
 cd /workspaces/confess-whisper-ai
 bash scripts/verify-security.sh
@@ -99,6 +107,7 @@ bash scripts/verify-security.sh
 ### Row Level Security (RLS)
 
 All database tables have RLS policies enabling:
+
 - Users can only view/modify their own data
 - Authenticated users verified via `auth.uid()`
 - Service role used for admin operations
@@ -107,6 +116,7 @@ All database tables have RLS policies enabling:
 ### Parameterized Queries
 
 All database operations use Supabase client SDK which automatically:
+
 - Uses parameterized queries preventing SQL injection
 - Validates connection credentials
 - Enforces HTTPS for data transmission
@@ -115,12 +125,14 @@ All database operations use Supabase client SDK which automatically:
 ## Authentication & Authorization
 
 ### JWT Token Management
+
 - Supabase Auth handles JWT creation and validation
 - Tokens include user ID and role information
 - Automatic session refresh
 - Secure HTTP-only cookie storage
 
 ### User Roles
+
 - `authenticated_user` - Regular users
 - `moderator` - Content moderation
 - `admin` - System administration
@@ -131,18 +143,21 @@ All database operations use Supabase client SDK which automatically:
 ### Headers Configuration
 
 **Content Security Policy:**
+
 - Blocks inline scripts
 - Restricts resource loading to same-origin
 - Allows Stripe and Supabase connections
 - Prevents frame injection
 
 **Other Security Headers:**
+
 - X-Content-Type-Options: nosniff
 - X-Frame-Options: DENY
 - X-XSS-Protection: 1; mode=block
 - Strict-Transport-Security: max-age=31536000
 
 ### CORS Configuration
+
 - Allows requests from configured origins only
 - Credentials included in same-origin requests
 - Strict method validation (GET, POST, PUT, DELETE)
@@ -150,6 +165,7 @@ All database operations use Supabase client SDK which automatically:
 ## Environment Variable Security
 
 ### Configuration Strategy
+
 - Public keys use `VITE_` prefix (exposed to client)
 - Secret keys stored in `.env.local` (server-side only)
 - All secrets excluded from version control (`.gitignore`)
@@ -158,7 +174,8 @@ All database operations use Supabase client SDK which automatically:
 ### Required Environment Variables
 
 **Client-side (Public):**
-```
+
+```shell
 VITE_SUPABASE_URL
 VITE_SUPABASE_PUBLISHABLE_KEY
 VITE_STRIPE_PRICE_VIP_MONTHLY
@@ -167,7 +184,8 @@ VITE_TURNSTILE_SITE_KEY
 ```
 
 **Server-side (Secret):**
-```
+
+```shell
 STRIPE_SECRET_KEY
 STRIPE_WEBHOOK_SECRET
 SUPABASE_SERVICE_ROLE_KEY
@@ -186,6 +204,7 @@ SUPABASE_SERVICE_ROLE_KEY
 ## Testing & Quality Assurance
 
 ### Unit Tests
+
 - Sanitization function tests
 - Email validation tests
 - URL validation tests
@@ -193,12 +212,14 @@ SUPABASE_SERVICE_ROLE_KEY
 - Rate limiting logic tests
 
 ### Integration Tests
+
 - Database operation security
 - Authentication flow
 - Payment processing
 - Webhook handling
 
 ### End-to-End Tests
+
 - Full user submission flow
 - Payment flow with Stripe
 - Multi-user interactions
@@ -207,6 +228,7 @@ SUPABASE_SERVICE_ROLE_KEY
 ## Monitoring & Logging
 
 ### Security Events Logged
+
 - Failed authentication attempts
 - Suspicious content submissions
 - Rate limit violations
@@ -215,6 +237,7 @@ SUPABASE_SERVICE_ROLE_KEY
 - Security policy violations
 
 ### Monitoring Dashboards
+
 - Failed login attempts
 - Sensitive error rates
 - Payment success/failure ratio
@@ -224,6 +247,7 @@ SUPABASE_SERVICE_ROLE_KEY
 ## Compliance & Standards
 
 ### OWASP Top 10 Protections
+
 1. ✓ Injection - Parameterized queries
 2. ✓ Broken Authentication - JWT + session management
 3. ✓ XSS - Input sanitization + HTML escaping
@@ -236,6 +260,7 @@ SUPABASE_SERVICE_ROLE_KEY
 10. ✓ Insufficient Logging - Comprehensive event logging
 
 ### PCI DSS Compliance (for payments)
+
 - Never stores full credit card numbers
 - All payments processed through Stripe
 - Webhook signature verification
@@ -279,11 +304,13 @@ Before deploying to production, verify:
 ## Performance Impact
 
 ### Sanitization Overhead
+
 - Text sanitization: < 1ms for typical input
 - Email validation: < 0.1ms
 - JSON parsing: < 0.5ms
 
 ### Recommendation
+
 - Cache validation results where appropriate
 - Sanitize input server-side before database storage
 - Use rate limiting to prevent abuse
@@ -302,11 +329,13 @@ Before deploying to production, verify:
 ### Common Issues
 
 **High rate of 400 errors on content submission:**
+
 - Check if input validation rules are too strict
 - Verify sanitization isn't removing legitimate content
 - Review error logs for specific failures
 
 **Stripe webhook failures:**
+
 - Verify webhook secret matches configuration
 - Check network connectivity to Stripe
 - Review webhook handler implementations
