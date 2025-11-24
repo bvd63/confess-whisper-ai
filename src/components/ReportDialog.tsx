@@ -149,14 +149,14 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto bg-card border-border">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl text-foreground">
             <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-destructive" />
-            {t.report_title}
+            🚨 {t.report_title}
           </DialogTitle>
-          <DialogDescription className="text-xs sm:text-sm">
-            {t.report_description}
+          <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
+            ⚠️ {t.report_description}
           </DialogDescription>
         </DialogHeader>
 
@@ -201,25 +201,25 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={submitting}
-              className="flex-1 text-xs sm:text-sm"
+              className="flex-1 text-xs sm:text-sm rounded-lg h-10 border-border hover:bg-accent"
               size="sm"
             >
-              {t.moderation_cancel}
+              ❌ {t.moderation_cancel}
             </Button>
             <Button
               onClick={handleSubmit}
               disabled={submitting || !selectedReason}
               variant="destructive"
-              className="flex-1 text-xs sm:text-sm"
+              className="flex-1 text-xs sm:text-sm rounded-lg h-10 font-semibold"
               size="sm"
             >
               {submitting ? (
                 <>
                   <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 mr-2 animate-spin" />
-                  {t.report_submitting}
+                  ⏳ {t.report_submitting}
                 </>
               ) : (
-                t.report_submit_button
+                <>🚨 {t.report_submit_button}</>
               )}
             </Button>
           </div>
