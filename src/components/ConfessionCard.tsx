@@ -215,23 +215,20 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
       {confession.ai_response && (
         <>
           <div className={cn(
-            "mt-4 rounded-lg transition-all",
+            "mt-4 rounded-xl transition-all",
             subscriptionTier === 'vip' 
-              ? "p-4 bg-gradient-to-r from-purple-500/10 to-purple-600/10 border border-purple-500/30 shadow-lg shadow-purple-500/10" 
-              : "p-3 bg-muted/50"
+              ? "p-4 bg-gradient-to-r from-primary/10 to-primary/20 border border-primary/30 shadow-lg shadow-primary/10" 
+              : "p-3 bg-card border border-border"
           )}>
             {subscriptionTier === 'vip' && (
               <div className="flex items-center gap-1.5 mb-3">
-                <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
-                <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">
-                  VIP Priority AI Response
+                <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+                <span className="text-xs font-bold text-primary uppercase tracking-wider">
+                  👑 VIP Priority AI Response
                 </span>
               </div>
             )}
-            <p className={cn(
-              "text-sm leading-relaxed",
-              subscriptionTier === 'vip' && "text-purple-100"
-            )}>
+            <p className="text-sm leading-relaxed text-foreground">
               {confession.ai_response}
             </p>
           </div>
@@ -240,12 +237,12 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
           <EnhancedButton
             onClick={() => setIsDeepInsightOpen(true)}
             variant="outline"
-            className="w-full mt-3 border-primary/30 text-primary"
+            className="w-full mt-3 border-primary/30 text-primary hover:bg-primary/10 h-10 rounded-lg font-semibold"
             glow
             shine
           >
             <Sparkles className="w-4 h-4 mr-2 animate-pulse-glow" />
-            {confession.ai_deep_insight ? t.deep_insight_title : t.generate_insight}
+            ✨ {confession.ai_deep_insight ? t.deep_insight_title : t.generate_insight}
           </EnhancedButton>
         </>
       )}
