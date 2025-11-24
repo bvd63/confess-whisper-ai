@@ -99,8 +99,8 @@ const Rewards = () => {
     <AppLayout>
       <div className="max-w-2xl mx-auto">
         {/* Header */}
-        <div className="sticky top-0 z-10 backdrop-blur-2xl bg-background/80 border-b border-border/50 shadow-ios">
-          <div className="flex items-center gap-4 px-5 py-5">
+        <div className="sticky top-0 z-10 backdrop-blur-2xl bg-background/95 border-b border-border/50 shadow-ios">
+          <div className="flex items-center gap-4 px-6 py-5">
             <Button
               variant="ghost"
               size="icon"
@@ -110,10 +110,13 @@ const Rewards = () => {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-500/10 rounded-2xl">
-                <Trophy className="h-6 w-6 text-amber-500" />
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center shadow-glow">
+                <span className="text-2xl">🏆</span>
               </div>
-              <h1 className="text-2xl font-bold">Rewards</h1>
+              <div>
+                <h1 className="text-2xl font-bold gradient-text">Rewards</h1>
+                <p className="text-xs text-muted-foreground">Track your progress</p>
+              </div>
             </div>
           </div>
         </div>
