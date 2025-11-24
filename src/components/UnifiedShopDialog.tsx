@@ -264,7 +264,7 @@ export const UnifiedShopDialog = ({
         <DialogHeader className="space-y-4 mt-4 text-center">
           <DialogTitle className="flex items-center justify-center gap-2 text-2xl sm:text-3xl font-bold text-foreground">
             <Crown className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
-            👑 Subscription & Coins
+            Subscription & Coins
           </DialogTitle>
         </DialogHeader>
 
@@ -275,14 +275,14 @@ export const UnifiedShopDialog = ({
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none py-4 px-4 text-base font-semibold data-[state=active]:text-primary text-muted-foreground"
             >
               <Crown className="w-4 h-4 mr-2" />
-              👑 Subscriptions
+              Subscriptions
             </TabsTrigger>
             <TabsTrigger 
               value="coins" 
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none py-4 px-4 text-base font-semibold data-[state=active]:text-primary text-muted-foreground"
             >
               <Coins className="w-4 h-4 mr-2" />
-              🪙 Coin Shop
+              Coin Shop
             </TabsTrigger>
           </TabsList>
 
@@ -303,7 +303,7 @@ export const UnifiedShopDialog = ({
                   onIntervalChange={setInterval}
                 />
                 <p className="text-center text-xs text-muted-foreground mt-6">
-                  ℹ️ You can cancel anytime from account settings. No long-term commitments.
+                  You can cancel anytime from account settings. No long-term commitments.
                 </p>
               </>
             )}
@@ -321,7 +321,7 @@ export const UnifiedShopDialog = ({
                 >
                   {pkg.is_popular && (
                     <Badge className="absolute top-3 right-3 bg-primary text-primary-foreground font-bold shadow-lg">
-                      ⭐ Popular
+                      Popular
                     </Badge>
                   )}
                   <CardContent className="p-6">
@@ -331,14 +331,14 @@ export const UnifiedShopDialog = ({
                       </div>
                       <h3 className="font-bold text-xl text-foreground">{pkg.name}</h3>
                       <p className="text-sm text-muted-foreground font-medium mt-1">
-                        🪙 {pkg.coins.toLocaleString()} coins
+                        {pkg.coins.toLocaleString()} coins
                       </p>
                     </div>
                     
                     {pkg.discount_percentage > 0 && (
                       <div className="flex items-center justify-center gap-2 text-sm mb-4">
                         <Badge variant="secondary" className="bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20 font-semibold">
-                          💰 {pkg.discount_percentage}% BONUS
+                          {pkg.discount_percentage}% BONUS
                         </Badge>
                       </div>
                     )}

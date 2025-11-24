@@ -33,25 +33,25 @@ export class NotificationService {
       en: {
         notification_daily_title: "Time for today's confession",
         notification_daily_body: "Take a moment to reflect and share what's on your mind",
-        notification_streak_title: "Don't lose your streak! 🔥",
+        notification_streak_title: "Don't lose your streak!",
         notification_streak_body: "You have 4 hours left to keep your streak alive",
-        notification_streak_lost_title: "Streak ended 😔",
+        notification_streak_lost_title: "Streak ended",
         notification_streak_lost_body: "Start a new streak today. Every confession counts!"
       },
       es: {
         notification_daily_title: "Hora de la confesión de hoy",
         notification_daily_body: "Tómate un momento para reflexionar y compartir lo que piensas",
-        notification_streak_title: "¡No pierdas tu racha! 🔥",
+        notification_streak_title: "¡No pierdas tu racha!",
         notification_streak_body: "Te quedan 4 horas para mantener tu racha",
-        notification_streak_lost_title: "Racha terminada 😔",
+        notification_streak_lost_title: "Racha terminada",
         notification_streak_lost_body: "Comienza una nueva racha hoy. ¡Cada confesión cuenta!"
       },
       de: {
         notification_daily_title: "Zeit für deine heutige Beichte",
         notification_daily_body: "Nimm dir einen Moment zum Nachdenken und teile deine Gedanken",
-        notification_streak_title: "Verliere nicht deine Serie! 🔥",
+        notification_streak_title: "Verliere nicht deine Serie!",
         notification_streak_body: "Du hast noch 4 Stunden, um deine Serie am Leben zu erhalten",
-        notification_streak_lost_title: "Serie beendet 😔",
+        notification_streak_lost_title: "Serie beendet",
         notification_streak_lost_body: "Starte heute eine neue Serie. Jede Beichte zählt!"
       }
     };
