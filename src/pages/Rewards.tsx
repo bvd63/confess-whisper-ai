@@ -174,7 +174,7 @@ const Rewards = () => {
                     </div>
                     <div>
                       <p className="text-sm font-semibold">
-                        {streakData.currentStreak} Day Streak 🔥
+                        {streakData.currentStreak} Day Streak
                       </p>
                       <p className="text-xs text-muted-foreground">
                         Best: {streakData.longestStreak} days
@@ -272,14 +272,14 @@ const Rewards = () => {
                 </li>
                 <li className="flex items-center justify-between p-2 bg-background rounded-md">
                   <span className="flex items-center gap-2">
-                    <span className="text-lg">🔥🔥</span>
+                    <span className="text-lg">🔥</span>
                     <span>5 days streak</span>
                   </span>
                   <span className="font-semibold text-orange-500">+20 coins</span>
                 </li>
                 <li className="flex items-center justify-between p-2 bg-background rounded-md">
                   <span className="flex items-center gap-2">
-                    <span className="text-lg">🔥🔥🔥</span>
+                    <span className="text-lg">🔥</span>
                     <span>7 days streak</span>
                   </span>
                   <span className="font-semibold text-red-500">+50 coins</span>

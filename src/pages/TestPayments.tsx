@@ -515,7 +515,7 @@ export default function TestPayments() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <h3 className="font-semibold mb-2">🪙 Coin Purchase Flow:</h3>
+            <h3 className="font-semibold mb-2">Coin Purchase Flow:</h3>
             <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
               <li>Run "Test Create Checkout" to generate a Stripe checkout URL</li>
               <li>Open the URL in test mode (use card: 4242 4242 4242 4242)</li>
