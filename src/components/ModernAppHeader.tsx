@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Crown, LogIn, Bell } from "lucide-react";
+import { Crown, LogIn, Bell, Heart } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationsDropdown from "@/components/NotificationsDropdown";
 import CoinsDisplay from "@/components/CoinsDisplay";
@@ -43,19 +43,14 @@ const ModernAppHeader = ({
   return (
     <header className="sticky top-0 z-50 glass-strong border-b border-border shadow-elegant">
       <div className="w-full">
-        <div className="flex items-center justify-between px-4 py-3 max-w-7xl mx-auto">
-          {/* Logo */}
-          <button
-            onClick={() => navigate('/')}
-            className="flex items-center gap-2 focus-ring rounded-lg px-2 -ml-2"
-          >
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-md">
-              <span className="text-white text-lg font-bold">C</span>
-            </div>
-            <h1 className="text-xl font-bold gradient-text hidden sm:block">
-              {t.app_name}
-            </h1>
-          </button>
+      <div className="flex items-center justify-between px-4 py-3 max-w-7xl mx-auto">
+        {/* Brand Section - Heart Icon + Confess Text */}
+        <div className="flex items-center gap-2">
+          <Heart className="w-5 h-5 text-primary" fill="currentColor" />
+          <span className="text-lg font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+            Confess
+          </span>
+        </div>
           
           {/* Right Side Actions */}
           <div className="flex items-center gap-2">

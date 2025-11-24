@@ -199,20 +199,30 @@ const SettingsActivity = () => {
             onClick={() => toggleSection('account')}
           >
             {profileData && (
-              <div className="space-y-4">
-                <ProfileEditor 
-                  userId={user.id} 
-                  currentProfile={profileData} 
-                  onUpdate={reloadProfileData} 
-                />
-                <EmailDisplay email={user.email || ''} />
-                <PasswordChange 
-                  userId={user.id} 
-                  passwordChangedAt={passwordChangedAt} 
-                />
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <ProfileEditor 
+                    userId={user.id} 
+                    currentProfile={profileData} 
+                    onUpdate={reloadProfileData} 
+                  />
+                </div>
                 
-                <LogoutSection />
-                <DeleteAccountSection userId={user.id} userEmail={user.email || ''} />
+                <div className="pt-2">
+                  <EmailDisplay email={user.email || ''} />
+                </div>
+                
+                <div className="pt-2">
+                  <PasswordChange 
+                    userId={user.id} 
+                    passwordChangedAt={passwordChangedAt} 
+                  />
+                </div>
+                
+                <div className="pt-4 space-y-3">
+                  <LogoutSection />
+                  <DeleteAccountSection userId={user.id} userEmail={user.email || ''} />
+                </div>
               </div>
             )}
           </MenuItem>

@@ -281,7 +281,7 @@ const Auth = () => {
             <Heart className="w-6 h-6 sm:w-8 sm:h-8 text-primary animate-heart-beat" fill="currentColor" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold mb-2">
-            <GradientText variant="hero">Confess+</GradientText>
+            <GradientText variant="hero">Confess</GradientText>
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
             {isLogin ? t.auth_welcome_back : t.auth_create_account}

@@ -33,13 +33,13 @@
     
     /* Neutral Tones */
     --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted-foreground: 215 16% 42%;
     --border: 220 13% 91%;
     --input: 220 13% 91%;
     --ring: 262 83% 58%;
     
-    /* Destructive */
-    --destructive: 0 84% 60%;
+    /* Destructive - Softened */
+    --destructive: 0 70% 55%;
     --destructive-foreground: 0 0% 100%;
     
     /* Sidebar */
@@ -89,13 +89,13 @@
     
     /* Neutral Tones */
     --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
+    --muted-foreground: 215 20% 72%;
     --border: 217 33% 17%;
     --input: 217 33% 17%;
     --ring: 262 83% 58%;
     
-    /* Destructive */
-    --destructive: 0 63% 31%;
+    /* Destructive - Softened */
+    --destructive: 0 55% 45%;
     --destructive-foreground: 0 0% 100%;
     
     /* Sidebar */
