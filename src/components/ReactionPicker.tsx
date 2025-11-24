@@ -19,10 +19,10 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
   const [isLoading, setIsLoading] = useState(false);
   
   const reactions = [
-    { type: 'heart', emoji: '❤️', label: t.reaction_heart, color: 'text-red-500' },
-    { type: 'sad', emoji: '🥺', label: t.reaction_sad, color: 'text-blue-500' },
-    { type: 'strong', emoji: '💪', label: t.reaction_strong, color: 'text-yellow-500' },
-    { type: 'thinking', emoji: '🤔', label: t.reaction_thinking, color: 'text-purple-500' },
+    { type: 'heart', emoji: '❤️', label: t.reaction_heart, color: 'text-red-500 dark:text-red-400' },
+    { type: 'sad', emoji: '🥺', label: t.reaction_sad, color: 'text-blue-500 dark:text-blue-400' },
+    { type: 'strong', emoji: '💪', label: t.reaction_strong, color: 'text-yellow-500 dark:text-yellow-400' },
+    { type: 'thinking', emoji: '🤔', label: t.reaction_thinking, color: 'text-purple-500 dark:text-purple-400' },
   ];
 
   useEffect(() => {
