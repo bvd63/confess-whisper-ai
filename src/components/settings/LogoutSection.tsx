@@ -32,7 +32,7 @@ export const LogoutSection = () => {
   };
 
   return (
-    <div className="p-4 bg-card rounded-lg border">
+    <div className="p-4 sm:p-5 bg-card rounded-lg border">
       <Button
         onClick={handleLogout}
         variant="destructive"

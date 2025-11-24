@@ -119,8 +119,8 @@ export const ModernBottomNav = () => {
                   className={cn(
                     "relative flex flex-col items-center justify-center min-w-[60px] h-14 rounded-xl transition-all duration-200 touch-target focus-ring",
                     active
-                      ? "text-primary"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                      ? "text-primary opacity-100"
+                      : "text-muted-foreground opacity-70 hover:text-foreground hover:opacity-100 hover:bg-muted/50",
                     item.isSpecial && "scale-110" // Make create button larger
                   )}
                 >

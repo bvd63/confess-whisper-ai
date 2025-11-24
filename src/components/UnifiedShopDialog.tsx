@@ -256,7 +256,7 @@ export const UnifiedShopDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
         data-testid="manage-subscription-modal"
-        className="max-w-5xl max-h-[90vh] overflow-y-auto bg-[#0a0b14] border-[#1a1b2e] text-white"
+        className="max-w-5xl max-h-[90vh] overflow-y-auto bg-[#0a0b14] border-[#1a1b2e] text-white p-4 sm:p-6"
       >
         <DialogHeader className="space-y-2">
           <DialogTitle className="flex items-center justify-center gap-2 text-2xl font-semibold text-white">
