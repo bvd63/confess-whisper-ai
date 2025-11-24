@@ -23,21 +23,21 @@ const EmptyState = ({
   return (
     <Card 
       className={cn(
-        "p-6 sm:p-8 md:p-12 text-center animate-fade-in",
-        "bg-gradient-to-br from-card via-card to-muted/20",
+        "p-8 sm:p-10 md:p-14 text-center animate-fade-in rounded-3xl shadow-card",
+        "bg-gradient-to-br from-card via-muted/10 to-card",
         "border-border/50",
         className
       )}
     >
-      <div className="inline-flex p-4 sm:p-5 rounded-full bg-primary/10 mb-4 sm:mb-5 animate-bounce-subtle">
-        <Icon className="w-10 h-10 sm:w-12 sm:h-12 text-primary" />
+      <div className="inline-flex p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-primary/10 to-primary/5 mb-5 sm:mb-6 shadow-ios animate-pulse">
+        <Icon className="w-12 h-12 sm:w-14 sm:h-14 text-primary" />
       </div>
       
-      <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-2 sm:mb-3">
+      <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-3 sm:mb-4">
         {title}
       </h3>
       
-      <p className="text-xs sm:text-sm md:text-base text-muted-foreground mb-4 sm:mb-6 max-w-md mx-auto">
+      <p className="text-sm sm:text-base md:text-lg text-muted-foreground mb-6 sm:mb-8 max-w-md mx-auto leading-relaxed font-medium">
         {description}
       </p>
       
@@ -45,7 +45,7 @@ const EmptyState = ({
         <Button 
           onClick={onAction}
           size="lg"
-          className="hover-lift"
+          className="h-12 sm:h-14 px-8 rounded-2xl shadow-elevated hover:shadow-ios text-base font-bold"
         >
           {actionLabel}
         </Button>
