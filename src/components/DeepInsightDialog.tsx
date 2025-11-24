@@ -97,11 +97,13 @@ const DeepInsightDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-card border-border">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-3xl shadow-elevated border-border/50 bg-card">
         <DialogHeader>
-          <DialogTitle className="text-xl sm:text-2xl text-foreground flex items-center gap-2">
-            <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-primary animate-pulse" />
-            ✨ {t.deep_insight_title}
+          <DialogTitle className="text-xl sm:text-2xl flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shadow-glow">
+              <span className="text-xl">✨</span>
+            </div>
+            <span className="gradient-text">{t.deep_insight_title}</span>
           </DialogTitle>
           <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
             {t.deep_insight_description}

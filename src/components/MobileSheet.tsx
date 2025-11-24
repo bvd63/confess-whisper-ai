@@ -57,10 +57,10 @@ const MobileSheet = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`max-h-[90vh] overflow-y-auto ${className}`}>
+      <DialogContent className={`max-h-[90vh] overflow-y-auto rounded-3xl shadow-elevated border-border/50 ${className}`}>
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          {description && <DialogDescription>{description}</DialogDescription>}
+          <DialogTitle className="text-xl font-bold gradient-text">{title}</DialogTitle>
+          {description && <DialogDescription className="text-muted-foreground">{description}</DialogDescription>}
         </DialogHeader>
         {children}
       </DialogContent>
