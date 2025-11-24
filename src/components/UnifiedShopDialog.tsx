@@ -259,52 +259,41 @@ export const UnifiedShopDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
         data-testid="manage-subscription-modal"
-        className="w-[calc(100vw-2rem)] max-w-4xl max-h-[90vh] overflow-y-auto bg-background border-border/50 rounded-3xl p-0 mx-auto shadow-elevated"
+        className="max-w-5xl max-h-[90vh] overflow-y-auto bg-background border-border p-4 sm:p-6 mx-4 sm:mx-auto"
       >
-        {/* Header with proper spacing for mobile */}
-        <DialogHeader className="sticky top-0 z-10 backdrop-blur-xl bg-background/95 border-b border-border/50 px-4 py-5 sm:px-6 sm:py-6">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl flex items-center justify-center shadow-ios">
-                <Crown className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-              </div>
-              <div>
-                <DialogTitle className="text-xl sm:text-2xl font-bold text-foreground text-left">
-                  Upgrade & Shop
-                </DialogTitle>
-                <p className="text-xs sm:text-sm text-muted-foreground text-left">Choose your plan or get coins</p>
-              </div>
+        <DialogHeader className="space-y-2 mt-2 text-center border-b border-border/50 pb-6">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <div className="p-3 bg-primary/10 rounded-2xl">
+              <Crown className="w-7 h-7 text-primary" />
             </div>
           </div>
+          <DialogTitle className="text-2xl sm:text-3xl font-bold text-foreground">
+            Upgrade & Shop
+          </DialogTitle>
+          <p className="text-sm text-muted-foreground">Choose your plan or get coins</p>
         </DialogHeader>
 
-        <Tabs key={`${open}-${defaultTab}`} defaultValue={defaultTab} className="w-full">
-          {/* Tabs with 50/50 split */}
-          <TabsList className="w-full h-14 sm:h-16 bg-muted/20 border-b border-border/50 p-0 grid grid-cols-2 rounded-none">
+        <Tabs key={`${open}-${defaultTab}`} defaultValue={defaultTab} className="w-full mt-4">
+          <TabsList className="grid w-full grid-cols-2 h-12 bg-muted/30 rounded-2xl p-1">
             <TabsTrigger 
               value="subscriptions" 
-              className="h-full rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-primary/5 data-[state=active]:text-foreground text-muted-foreground transition-all duration-300"
+              className="rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-ios py-2.5 px-4 text-sm font-semibold data-[state=active]:text-foreground text-muted-foreground transition-all"
             >
-              <div className="flex flex-col items-center gap-1.5 sm:flex-row sm:gap-2">
-                <span className="text-xl sm:text-2xl">👑</span>
-                <span className="text-xs sm:text-sm font-bold">VIP</span>
-              </div>
+              <Crown className="w-4 h-4 mr-2" />
+              VIP
             </TabsTrigger>
             <TabsTrigger 
               value="coins" 
-              className="h-full rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-primary/5 data-[state=active]:text-foreground text-muted-foreground transition-all duration-300"
+              className="rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-ios py-2.5 px-4 text-sm font-semibold data-[state=active]:text-foreground text-muted-foreground transition-all"
             >
-              <div className="flex flex-col items-center gap-1.5 sm:flex-row sm:gap-2">
-                <span className="text-xl sm:text-2xl">🪙</span>
-                <span className="text-xs sm:text-sm font-bold">Coins</span>
-              </div>
+              <Coins className="w-4 h-4 mr-2" />
+              Coins
             </TabsTrigger>
           </TabsList>
 
-          {/* VIP Tab Content */}
-          <TabsContent value="subscriptions" className="mt-0 p-4 sm:p-6 animate-fade-in">
+          <TabsContent value="subscriptions" className="mt-0 p-4 sm:p-6 bg-background">
             {loading ? (
-              <div className="flex items-center justify-center py-16">
+              <div className="flex items-center justify-center py-12">
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
               </div>
             ) : (
@@ -318,90 +307,78 @@ export const UnifiedShopDialog = ({
                   interval={interval}
                   onIntervalChange={setInterval}
                 />
-                <div className="flex items-center justify-center gap-2 mt-8 text-xs sm:text-sm text-muted-foreground">
-                  <span>✨ Cancel anytime</span>
-                  <span>•</span>
-                  <span>⚡ Instant access</span>
-                </div>
+                <p className="text-center text-sm text-muted-foreground mt-8 px-4">
+                  Cancel anytime • No commitments • Instant access
+                </p>
               </>
             )}
           </TabsContent>
 
-          {/* Coins Tab Content */}
-          <TabsContent value="coins" className="mt-0 p-4 sm:p-6 animate-fade-in">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+          <TabsContent value="coins" className="mt-0 p-6 bg-background space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {packages?.map((pkg) => (
                 <Card 
                   key={pkg.id} 
                   className={cn(
-                    "relative overflow-hidden border-border/50 bg-card hover:border-primary/30 transition-all duration-300 hover:scale-[1.02] shadow-card hover:shadow-elevated rounded-3xl",
-                    pkg.is_popular && "border-primary/50 ring-2 ring-primary/20"
+                    "relative overflow-hidden border-border bg-card hover:border-primary/30 transition-all duration-300 hover:scale-[1.02] shadow-card hover:shadow-elevated rounded-2xl",
+                    pkg.is_popular && "border-primary/50 shadow-ios-lg ring-2 ring-primary/20"
                   )}
                 >
                   {pkg.is_popular && (
-                    <div className="absolute top-0 right-0 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold px-4 py-1.5 rounded-bl-2xl rounded-tr-2xl shadow-ios">
+                    <div className="absolute top-0 right-0 bg-gradient-to-r from-primary to-purple-600 text-white text-xs font-bold px-4 py-1.5 rounded-bl-2xl rounded-tr-2xl">
                       ⭐ Popular
                     </div>
                   )}
-                  <CardContent className="p-5 sm:p-6">
+                  <CardContent className="p-6">
                     <div className="text-center mb-5">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-br from-yellow-500/10 to-amber-500/10 flex items-center justify-center mx-auto mb-4 shadow-ios">
-                        <span className="text-4xl sm:text-5xl">🪙</span>
+                      <div className="text-6xl mb-4">
+                        {getPackageIcon(pkg.name)}
                       </div>
-                      <h3 className="font-bold text-lg sm:text-xl text-foreground mb-2">{pkg.name}</h3>
-                      <p className="text-sm sm:text-base text-muted-foreground font-semibold">
-                        {pkg.coins.toLocaleString()} coins
+                      <h3 className="font-bold text-xl text-foreground mb-1">{pkg.name}</h3>
+                      <p className="text-base text-muted-foreground font-medium">
+                        💰 {pkg.coins.toLocaleString()} coins
                       </p>
                     </div>
                     
                     {pkg.discount_percentage > 0 && (
-                      <div className="flex items-center justify-center mb-4">
-                        <Badge className="bg-green-500/15 text-green-600 dark:text-green-400 border-0 font-bold px-3 py-1.5 rounded-full shadow-ios">
-                          💰 +{pkg.discount_percentage}% BONUS
+                      <div className="flex items-center justify-center gap-2 mb-4">
+                        <Badge variant="secondary" className="bg-green-500/15 text-green-600 dark:text-green-400 border-0 font-bold px-3 py-1 rounded-full">
+                          +{pkg.discount_percentage}% BONUS
                         </Badge>
                       </div>
                     )}
 
                     <div className="text-center mb-5">
-                      <p className="text-3xl sm:text-4xl font-bold text-foreground">${pkg.price_usd.toFixed(2)}</p>
-                      <p className="text-xs sm:text-sm text-muted-foreground mt-2 font-medium">
-                        ${(pkg.price_usd / pkg.coins).toFixed(3)} per coin
-                      </p>
+                      <p className="text-4xl font-bold text-foreground">${pkg.price_usd.toFixed(2)}</p>
+                      <p className="text-sm text-muted-foreground mt-1.5">${(pkg.price_usd / pkg.coins).toFixed(3)} per coin</p>
                     </div>
 
                     <Button 
                       onClick={() => handleCoinPurchase(pkg.id)}
                       disabled={coinLoading === pkg.id}
-                      className="w-full h-12 sm:h-14 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-bold text-sm sm:text-base rounded-2xl shadow-elevated hover:shadow-ios transition-all"
+                      className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-base rounded-2xl shadow-ios-lg hover:shadow-elevated transition-all"
                     >
-                      {coinLoading === pkg.id ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      ) : (
-                        <>
-                          <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                          Buy Now
-                        </>
-                      )}
+                      <ShoppingCart className="w-5 h-5 mr-2" />
+                      {coinLoading === pkg.id ? t.processing : "Buy Now"}
                     </Button>
                   </CardContent>
                 </Card>
               ))}
             </div>
 
-            {/* Trust Badges */}
-            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mt-6 text-xs sm:text-sm text-muted-foreground font-semibold">
+            <div className="flex items-center justify-center gap-3 mt-8 px-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5">
-                <span className="text-base">🔒</span>
+                <span>🔒</span>
                 <span>Secure</span>
               </span>
               <span>•</span>
               <span className="flex items-center gap-1.5">
-                <span className="text-base">⚡</span>
+                <span>⚡</span>
                 <span>Instant</span>
               </span>
               <span>•</span>
               <span className="flex items-center gap-1.5">
-                <span className="text-base">💯</span>
+                <span>💯</span>
                 <span>Guaranteed</span>
               </span>
             </div>

@@ -109,9 +109,9 @@ export const InstagramBottomNav = () => {
         <nav 
           role="navigation" 
           aria-label="Main navigation"
-          className="fixed bottom-0 left-0 right-0 z-[9999] pointer-events-auto bg-background/95 backdrop-blur-xl border-t border-border/50 safe-area-inset-bottom shadow-elevated"
+          className="fixed bottom-0 left-0 right-0 z-[9999] pointer-events-auto glass-strong border-t border-border/50 safe-area-inset-bottom shadow-elegant"
         >
-          <div ref={navRef} className="flex items-center justify-around h-16 max-w-screen-xl mx-auto px-4" role="tablist">
+          <div ref={navRef} className="flex items-center justify-around h-16 max-w-screen-xl mx-auto px-2" role="tablist">
             {navItems.map((item, index) => {
               const Icon = item.icon;
               const active = item.isActive;
@@ -129,18 +129,18 @@ export const InstagramBottomNav = () => {
                   onKeyDown={(e) => handleKeyDown(e, item.tabId, index)}
                   onMouseEnter={() => prefetchPage(item.tabId)}
                   className={cn(
-                    "relative flex flex-col items-center justify-center min-w-[56px] min-h-[56px] rounded-2xl transition-all duration-300 animate-fade-in touch-target",
+                    "relative flex flex-col items-center justify-center min-w-[56px] min-h-[56px] rounded-lg transition-all duration-200 animate-fade-in hover-scale touch-target",
                     "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background",
                     active
-                      ? "text-primary scale-105 bg-primary/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent/50 active:scale-95"
+                      ? "text-primary"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   )}
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   <div className="relative">
                     <Icon
                       className={cn(
-                        "w-6 h-6 transition-all duration-300",
+                        "w-6 h-6 transition-all duration-200",
                         active && "scale-110"
                       )}
                       strokeWidth={active ? 2.5 : 2}
@@ -148,8 +148,8 @@ export const InstagramBottomNav = () => {
                     />
                     {item.showVIPBadge && (
                       <div className="absolute -top-1 -right-1" aria-label="VIP member">
-                        <div className="relative w-3 h-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full shadow-elevated">
-                          <div className="absolute inset-0 w-3 h-3 bg-purple-400 rounded-full animate-ping" />
+                        <div className="relative w-2.5 h-2.5 bg-purple-500 rounded-full">
+                          <div className="absolute inset-0 w-2.5 h-2.5 bg-purple-400 rounded-full animate-ping" />
                         </div>
                       </div>
                     )}
@@ -158,8 +158,8 @@ export const InstagramBottomNav = () => {
                   {item.badge !== undefined && item.badge > 0 && (
                     <span 
                       className={cn(
-                        "absolute top-1 right-2 flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold rounded-full shadow-elevated text-center border-2 border-background",
-                        "text-white bg-red-500 animate-pulse-glow"
+                        "absolute top-1 right-3 flex items-center justify-center min-w-[20px] h-5 px-1 text-xs font-bold rounded-full shadow-elegant text-center",
+                        "text-white bg-destructive animate-pulse-glow"
                       )}
                       aria-label={`${item.badge} unread ${item.badge === 1 ? 'message' : 'messages'}`}
                       role="status"
@@ -168,12 +168,9 @@ export const InstagramBottomNav = () => {
                     </span>
                   )}
 
-                  <span className={cn(
-                    "text-[10px] font-semibold mt-0.5 transition-all",
-                    active ? "opacity-100" : "opacity-70"
-                  )}>
-                    {item.label}
-                  </span>
+                  {active && (
+                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full animate-pulse-glow" aria-hidden="true" />
+                  )}
                 </button>
               );
             })}

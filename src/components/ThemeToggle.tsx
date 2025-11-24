@@ -42,7 +42,7 @@ const ThemeToggle = () => {
         <Button
           variant="ghost"
           size="icon"
-          className="h-10 w-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all shadow-ios"
+          className="text-muted-foreground hover:text-foreground hover:bg-accent transition-all rounded-lg"
           aria-label={t.common_theme_aria}
         >
           {theme === "light" ? (
@@ -52,20 +52,14 @@ const ThemeToggle = () => {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-40">
-        <DropdownMenuItem 
-          onClick={() => changeTheme("light")} 
-          className="cursor-pointer gap-2"
-        >
-          <Sun className="w-4 h-4 text-amber-500" />
-          <span className="font-medium">Light</span>
+      <DropdownMenuContent align="end" className="bg-card border-border">
+        <DropdownMenuItem onClick={() => changeTheme("light")} className="text-foreground hover:bg-accent rounded-lg cursor-pointer">
+          <Sun className="w-4 h-4 mr-2 text-amber-500" />
+          Light
         </DropdownMenuItem>
-        <DropdownMenuItem 
-          onClick={() => changeTheme("dark")} 
-          className="cursor-pointer gap-2"
-        >
-          <Moon className="w-4 h-4 text-indigo-400" />
-          <span className="font-medium">Dark</span>
+        <DropdownMenuItem onClick={() => changeTheme("dark")} className="text-foreground hover:bg-accent rounded-lg cursor-pointer">
+          <Moon className="w-4 h-4 mr-2 text-indigo-400" />
+          Dark
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

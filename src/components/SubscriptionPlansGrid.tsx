@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Check, Crown, Zap, Star, Loader2 } from "lucide-react";
+import { Check, Crown, Zap, Star } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
 import { getPlansForInterval } from "@/lib/subscription-plans";
@@ -158,115 +158,117 @@ export const SubscriptionPlansGrid = ({
   const filteredPlans = plans.filter(plan => plan.id !== 'free');
 
   return (
-    <div className="space-y-6 sm:space-y-8">
-      {/* Interval Tabs - Responsive */}
+    <div className="space-y-8">
+      {/* Interval Tabs */}
       {onIntervalChange && (
-        <div className="flex justify-center">
-          <div className="inline-flex w-full max-w-sm rounded-2xl bg-muted/30 p-1 sm:p-1.5">
+        <div className="flex justify-center mb-8">
+          <div className="inline-flex rounded-2xl bg-muted/30 p-1.5 gap-1.5">
             <button
               onClick={() => onIntervalChange('monthly')}
-              className={`flex-1 px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl transition-all duration-300 font-bold text-xs sm:text-sm ${
+              className={`px-10 py-3 rounded-xl transition-all font-semibold text-sm ${
                 interval === 'monthly'
-                  ? 'bg-background text-foreground shadow-ios scale-[1.02]'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
+                  ? 'bg-background text-foreground shadow-ios'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               Monthly
             </button>
             <button
               onClick={() => onIntervalChange('yearly')}
-              className={`flex-1 px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl transition-all duration-300 font-bold text-xs sm:text-sm relative ${
+              className={`px-10 py-3 rounded-xl transition-all font-semibold text-sm relative ${
                 interval === 'yearly'
-                  ? 'bg-background text-foreground shadow-ios scale-[1.02]'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
+                  ? 'bg-background text-foreground shadow-ios'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               Yearly
-              <span className="absolute -top-2 -right-2 sm:-top-2.5 sm:-right-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full font-bold shadow-ios animate-pulse">
-                💰 34%
+              <span className="absolute -top-2.5 -right-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs px-2.5 py-1 rounded-full font-bold shadow-ios">
+                Save 34%
               </span>
             </button>
           </div>
         </div>
       )}
 
-      {/* VIP Plan Card - Centered and Responsive */}
-      <div className="flex justify-center px-2 sm:px-0">
-        <div className="w-full max-w-lg">
+      {/* Plans Grid - Centered for single VIP plan */}
+      <div className="flex justify-center">
+        <div className="w-full max-w-md">
           {filteredPlans.map((plan: any) => (
             <Card
               key={`${plan.id}-${plan.interval}`}
-              className={`p-6 sm:p-8 relative bg-card border-border/50 transition-all duration-300 hover:scale-[1.01] rounded-3xl shadow-card hover:shadow-elevated ${
+              className={`p-8 relative bg-card border transition-all duration-300 hover:scale-[1.02] rounded-3xl shadow-card hover:shadow-elevated ${
                 plan.id === 'vip'
-                  ? 'border-primary/30 hover:border-primary/50 ring-2 ring-primary/10'
-                  : 'hover:border-primary/30'
+                  ? 'border-primary/30 hover:border-primary/50'
+                  : 'border-border hover:border-primary/30'
               }`}
             >
-            {/* Active Badge - Responsive positioning */}
+            {/* Active Badge for VIP if current plan */}
             {isCurrentPlan(plan) && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-                <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 sm:px-4 py-1 sm:py-1.5 font-bold text-xs sm:text-sm rounded-full shadow-elevated">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-1.5 font-bold rounded-full shadow-ios">
                   ⭐ Your Plan
                 </Badge>
               </div>
             )}
 
-            {/* Savings Badge - Better mobile positioning */}
-            {interval === 'yearly' && !isCurrentPlan(plan) && (
-              <div className="absolute -top-3 -right-2 sm:-right-3 z-10">
-                <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-2.5 sm:px-3 py-1 sm:py-1.5 font-bold text-xs rounded-full shadow-elevated animate-pulse">
+            {/* Savings Badge */}
+            {interval === 'yearly' && (
+              <div className="absolute -top-3 -right-3">
+                <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-1.5 font-bold rounded-full shadow-ios">
                   💰 Save 34%
                 </Badge>
               </div>
             )}
 
-            {/* Plan Header - Responsive typography */}
-            <div className="mb-6 sm:mb-8">
-              <div className="flex items-center gap-3 mb-4 sm:mb-6">
-                <span className="text-3xl sm:text-4xl">👑</span>
-                <h3 className="text-xl sm:text-2xl font-bold text-foreground">{plan.name}</h3>
+
+            {/* Plan Header */}
+            <div className="mb-8">
+              <div className="flex items-center gap-3 mb-6">
+                <span className="text-3xl">{plan.id === 'vip' ? '👑' : '✨'}</span>
+                <h3 className="text-2xl font-bold text-white">{plan.name}</h3>
               </div>
               <div className="mb-2">
-                <span className="text-4xl sm:text-5xl font-bold text-foreground">
+                <span className="text-5xl font-bold text-white">
                   ${interval === 'yearly' ? (plan.price / 12).toFixed(2) : plan.price}
                 </span>
-                <span className="text-muted-foreground text-base sm:text-lg ml-2">/month</span>
+                <span className="text-gray-400 text-lg ml-2">/per month</span>
               </div>
-              <p className="text-xs sm:text-sm text-muted-foreground font-medium">
+              <p className="text-sm text-gray-400">
                 {interval === 'yearly' 
-                  ? `Billed annually ($${plan.price.toFixed(2)}/year)`
+                  ? `Billed annually ($${plan.price.toFixed(2)}/per year)`
                   : 'Billed monthly'
                 }
               </p>
             </div>
 
-            {/* Benefits List - Responsive spacing */}
-            <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
+            {/* Benefits List */}
+            <div className="space-y-4 mb-8">
               {plan.benefits.map((benefit: string, index: number) => (
-                <div key={index} className="flex items-start gap-2.5 sm:gap-3 group/benefit">
-                  <div className="w-5 h-5 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/benefit:bg-primary/20 transition-all shadow-ios">
-                    <Check className="w-3.5 h-3.5 text-primary" />
+                <div key={index} className="flex items-start gap-3 group/benefit">
+                  <div className="w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/benefit:bg-purple-500/30 transition-colors">
+                    <Check className="w-3.5 h-3.5 text-purple-400" />
                   </div>
-                  <span className="text-xs sm:text-sm text-foreground/90 leading-relaxed font-medium">{getStringTranslation(t, benefit) || benefit}</span>
+                  <span className="text-sm text-white/90 leading-relaxed">{getStringTranslation(t, benefit) || benefit}</span>
                 </div>
               ))}
             </div>
 
             {/* Debug Warning - visible only when price ID is missing */}
             {!plan.priceId && plan.id !== 'free' && (
-              <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
-                <p className="text-yellow-600 text-xs font-bold">
-                  ⚠️ Configuration Issue
+              <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                <p className="text-yellow-500 text-xs font-medium">
+                  ⚠️ Configuration Issue: Price ID missing
                 </p>
-                <p className="text-yellow-600/70 text-xs mt-1">
-                  Price ID missing for {plan.id}
+                <p className="text-yellow-400/70 text-xs mt-1">
+                  Expected: price_1XXX... | Got: "{plan.priceId}"
                 </p>
               </div>
             )}
 
-            {/* Action Button - Fully responsive */}
+            {/* Action Button */}
             <Button
               onClick={() => {
+                // If user has VIP (regardless of interval), open portal to manage/change subscription
                 if (currentPlan === 'vip' && plan.id === 'vip') {
                   handleOpenPortal();
                 } else if (isCurrentPlan(plan)) {
@@ -284,15 +286,12 @@ export const SubscriptionPlansGrid = ({
                 (isLoading || !canChangePlan || (plan.id !== 'free' && !plan.priceId)) && !(currentPlan === 'vip' && plan.id === 'vip') || 
                 portalLoading
               }
-              className="w-full h-12 sm:h-14 rounded-2xl font-bold text-sm sm:text-base transition-all duration-300 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-elevated hover:shadow-ios hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100"
+              className="w-full py-6 rounded-lg font-semibold transition-all duration-300 bg-transparent border-2 border-white hover:bg-white text-white hover:text-black hover:scale-[1.02] disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-white disabled:scale-100"
             >
-              {portalLoading && (
-                <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
-              )}
               {(currentPlan === 'vip' && plan.id === 'vip')
-                ? (portalLoading ? 'Opening...' : '⚙️ Manage Subscription') 
+                ? (portalLoading ? 'Opening Portal...' : 'Manage Subscription') 
                 : isCurrentPlan(plan) 
-                  ? (portalLoading ? 'Opening...' : '⚙️ Manage Subscription') 
+                  ? (portalLoading ? 'Opening Portal...' : 'Manage Subscription') 
                   : getButtonText(plan)}
             </Button>
           </Card>

@@ -101,11 +101,11 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
   const showSuggestionsDropdown = showSuggestions && (recentSearches.length > 0 || trendingSearches.length > 0);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2 sm:space-y-3">
       <div className="flex gap-2">
         {/* Single Search Input - Press Enter or Icon to search */}
         <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <Input
             ref={inputRef}
             placeholder={t.search_placeholder}
@@ -117,16 +117,16 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
                 handleSearch();
               }
             }}
-            className="pl-12 pr-12 h-12 text-base rounded-xl shadow-ios"
+            className="pl-10 pr-10 h-10 text-sm"
             aria-label={t.search_button}
           />
           {query && (
             <button
               onClick={() => setQuery("")}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-full p-1 hover:bg-accent/50 transition-all"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
               aria-label={t.search_clear_filters}
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           )}
 
@@ -134,18 +134,18 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
           {showSuggestionsDropdown && (
             <div 
               ref={suggestionsRef}
-              className="absolute top-full left-0 right-0 mt-2 bg-popover border border-border/50 rounded-2xl shadow-elevated z-50 max-h-80 overflow-y-auto backdrop-blur-xl"
+              className="absolute top-full left-0 right-0 mt-1 bg-popover border rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto"
             >
               {recentSearches.length > 0 && (
-                <div className="p-3 border-b border-border/50">
-                  <div className="flex items-center justify-between px-3 py-2">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                      <Clock className="h-4 w-4" />
+                <div className="p-2 border-b">
+                  <div className="flex items-center justify-between px-2 py-1">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Clock className="h-3 w-3" />
                       <span>{t.search_recent}</span>
                     </div>
                     <button
                       onClick={clearRecentSearches}
-                      className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                      className="text-xs text-muted-foreground hover:text-foreground"
                     >
                       {t.search_clear}
                     </button>
@@ -154,7 +154,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
                     <button
                       key={`recent-${idx}`}
                       onClick={() => handleSuggestionClick(search)}
-                      className="w-full text-left px-4 py-3 hover:bg-accent rounded-xl text-base transition-colors"
+                      className="w-full text-left px-3 py-2 hover:bg-accent rounded text-sm"
                     >
                       {search}
                     </button>
@@ -162,16 +162,16 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
                 </div>
               )}
               {trendingSearches.length > 0 && (
-                <div className="p-3">
-                  <div className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-muted-foreground">
-                    <TrendingUp className="h-4 w-4" />
+                <div className="p-2">
+                  <div className="flex items-center gap-2 px-2 py-1 text-xs text-muted-foreground">
+                    <TrendingUp className="h-3 w-3" />
                     <span>{t.search_trending}</span>
                   </div>
                   {trendingSearches.map((search, idx) => (
                     <button
                       key={`trending-${idx}`}
                       onClick={() => handleSuggestionClick(search)}
-                      className="w-full text-left px-4 py-3 hover:bg-accent rounded-xl text-base transition-colors"
+                      className="w-full text-left px-3 py-2 hover:bg-accent rounded text-sm"
                     >
                       {search}
                     </button>
@@ -188,17 +188,17 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
             <Button
               variant="outline"
               size="icon"
-              className="h-12 w-12 rounded-xl shadow-ios"
+              className="h-10 w-10"
               aria-label={t.search_sort_label}
             >
-              <SlidersHorizontal className="w-5 h-5" />
+              <SlidersHorizontal className="w-4 h-4" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-80 sm:w-96" align="end">
             <div className="space-y-4">
               {/* Category Filter */}
               <div className="space-y-2">
-                <Label className="text-base">{t.search_category_label}</Label>
+                <Label>{t.search_category_label}</Label>
                 <Select
                   value={filters.category || 'all'}
                   onValueChange={(value) =>
@@ -208,10 +208,10 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
                     }))
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="h-10">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-background">
                     {categories.map((cat) => (
                       <SelectItem key={cat.value} value={cat.value}>
                         {cat.label}
@@ -223,17 +223,17 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
 
               {/* Sort By */}
               <div className="space-y-2">
-                <Label className="text-base">{t.search_sort_label}</Label>
+                <Label>{t.search_sort_label}</Label>
                 <Select
                   value={filters.sortBy}
                   onValueChange={(value: any) =>
                     setFilters((prev) => ({ ...prev, sortBy: value }))
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="h-10">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-background">
                     {sortOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
@@ -245,7 +245,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
 
               {/* Time Range */}
               <div className="space-y-2">
-                <Label className="text-base">{t.search_period_label}</Label>
+                <Label>{t.search_period_label}</Label>
                 <Select
                   value={filters.timeRange || 'all'}
                   onValueChange={(value: any) =>
@@ -255,10 +255,10 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
                     }))
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="h-10">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-background">
                     {timeRanges.map((range) => (
                       <SelectItem key={range.value} value={range.value}>
                         {range.label}
@@ -274,9 +274,9 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
                   variant="ghost"
                   size="sm"
                   onClick={handleClear}
-                  className="w-full h-12 text-base rounded-xl"
+                  className="w-full h-10 text-sm"
                 >
-                  <X className="w-5 h-5 mr-2" />
+                  <X className="w-4 h-4 mr-2" />
                   {t.search_clear_filters}
                 </Button>
               )}
