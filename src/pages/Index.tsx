@@ -9,7 +9,6 @@ import Leaderboard from "@/components/Leaderboard";
 import { QuoteOfTheDay } from "@/components/QuoteOfTheDay";
 import QuoteOfTheDaySkeleton from "@/components/QuoteOfTheDaySkeleton";
 import { useToast } from "@/hooks/use-toast";
-import { useAnalytics } from "@/hooks/useAnalytics";
 import StreakCounter from "@/components/StreakCounter";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useMessageNotifications } from "@/hooks/useMessageNotifications";
@@ -39,7 +38,6 @@ const FAQ = lazy(() => import("@/components/FAQ"));
 
 const Index = () => {
   const navigate = useNavigate();
-  const { trackEvent } = useAnalytics();
   const { t, language } = useLanguage();
   const { user } = useCurrentUser();
   const { isPremium } = usePremiumStatus(user?.id);
@@ -73,9 +71,6 @@ const Index = () => {
   usePerformanceBudget();
 
   useEffect(() => {
-    // Track page view
-    trackEvent('page_view', { page: 'index' });
-    
     // Check notification permission
     if ('Notification' in window) {
       setNotificationPermission(Notification.permission);
@@ -157,8 +152,6 @@ const Index = () => {
       });
       return;
     }
-    
-    trackEvent('confession_create_clicked');
     
     // On mobile, route to /compose; on desktop, open dialog inline
     if (isMobile) {
@@ -271,7 +264,7 @@ const Index = () => {
           open={isNewConfessionOpen}
           onOpenChange={setIsNewConfessionOpen}
           onConfessionCreated={() => {
-            trackEvent('confession_created');
+            // Confession created
           }}
         />
 

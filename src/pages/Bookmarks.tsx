@@ -13,7 +13,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
-import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 import { ModernBottomNav } from "@/components/ModernBottomNav";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import VirtualizedConfessions from "@/components/VirtualizedConfessions";
@@ -40,7 +39,6 @@ const Bookmarks = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { user, isLoading: userLoading } = useCurrentUser();
-  useAnalyticsTracking(user?.id || null);
   const { isPremium } = usePremiumStatus(user?.id);
   const { likedConfessions, bookmarkedConfessions, reloadLikes, reloadBookmarks } = useConfessionInteractions({ userId: user?.id || null });
   const [confessions, setConfessions] = useState<Confession[]>([]);
