@@ -84,46 +84,53 @@ const NotificationAnalytics = () => {
 
   return (
     <AppLayout>
-      <div className="container max-w-6xl mx-auto px-4 py-6 space-y-6">
+      <div className="container max-w-6xl mx-auto px-4 py-6 space-y-6 pb-24">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate('/notifications')}
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold">Notification Analytics</h1>
-              <p className="text-sm text-muted-foreground">
-                Track engagement and performance metrics
-              </p>
+        <div className="sticky top-0 z-10 backdrop-blur-2xl bg-background/95 border-b border-border/50 shadow-ios px-4 py-4 -mx-4 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/')}
+                className="h-10 w-10 rounded-full hover:bg-accent"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shadow-glow">
+                <span className="text-2xl">📊</span>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold gradient-text">Notification Analytics</h1>
+                <p className="text-sm text-muted-foreground">
+                  Track engagement and performance metrics
+                </p>
+              </div>
             </div>
-          </div>
           
-          <div className="flex items-center gap-2">
-            <Select value={dateRange} onValueChange={(v: any) => setDateRange(v)}>
-              <SelectTrigger className="w-[140px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="7d">Last 7 days</SelectItem>
-                <SelectItem value="30d">Last 30 days</SelectItem>
-                <SelectItem value="90d">Last 90 days</SelectItem>
-              </SelectContent>
-            </Select>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={exportData}
-              disabled={loading || timeSeriesData.length === 0}
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Export
-            </Button>
+            <div className="flex items-center gap-2">
+              <Select value={dateRange} onValueChange={(v: any) => setDateRange(v)}>
+                <SelectTrigger className="w-[140px] h-10 rounded-2xl border-border/50">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl">
+                  <SelectItem value="7d">Last 7 days</SelectItem>
+                  <SelectItem value="30d">Last 30 days</SelectItem>
+                  <SelectItem value="90d">Last 90 days</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={exportData}
+                disabled={loading || timeSeriesData.length === 0}
+                className="h-10 px-4 rounded-2xl hover:bg-accent"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Export
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -137,10 +144,10 @@ const NotificationAnalytics = () => {
 
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
+          <Card className="rounded-3xl shadow-card border-border/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-chart-1" />
+                <span className="text-lg">📈</span>
                 Total Sent
               </CardTitle>
             </CardHeader>
@@ -153,10 +160,10 @@ const NotificationAnalytics = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="rounded-3xl shadow-card border-border/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <MousePointer className="w-4 h-4 text-chart-2" />
+                <span className="text-lg">👆</span>
                 Total Clicked
               </CardTitle>
             </CardHeader>
@@ -169,10 +176,10 @@ const NotificationAnalytics = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="rounded-3xl shadow-card border-border/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-chart-3" />
+                <span className="text-lg">📊</span>
                 CTR
               </CardTitle>
             </CardHeader>
@@ -185,10 +192,10 @@ const NotificationAnalytics = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="rounded-3xl shadow-card border-border/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Clock className="w-4 h-4 text-chart-4" />
+                <span className="text-lg">⏱️</span>
                 Avg Response
               </CardTitle>
             </CardHeader>
@@ -203,9 +210,12 @@ const NotificationAnalytics = () => {
         </div>
 
         {/* Time Series Chart */}
-        <Card>
+        <Card className="rounded-3xl shadow-card border-border/50">
           <CardHeader>
-            <CardTitle>Notifications Over Time</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <span className="text-xl">📈</span>
+              Notifications Over Time
+            </CardTitle>
             <CardDescription>Daily notification activity</CardDescription>
           </CardHeader>
           <CardContent>
