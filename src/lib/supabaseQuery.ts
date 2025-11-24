@@ -3,7 +3,7 @@
  * Ensures all Supabase queries have proper error handling and typing
  */
 
-import { SupabaseClient, PostgrestError } from '@supabase/supabase-js';
+import { PostgrestError } from '@supabase/supabase-js';
 import { logError, logWarn } from '@/lib/logger';
 
 export interface QueryResult<T> {

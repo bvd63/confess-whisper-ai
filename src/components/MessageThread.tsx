@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, memo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,7 @@ interface MessageThreadProps {
   onBack: () => void;
 }
 
-export const MessageThread = ({ 
+export const MessageThread = memo(({ 
   conversationId, 
   currentUserId, 
   otherUserId,
@@ -180,4 +180,4 @@ export const MessageThread = ({
       </form>
     </div>
   );
-};
+});

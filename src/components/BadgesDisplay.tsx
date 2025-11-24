@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, memo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -23,7 +23,7 @@ interface UserFlair {
   };
 }
 
-const BadgesDisplay = ({
+const BadgesDisplay = memo(({
   userId,
   variant = "compact"
 }: BadgesDisplayProps) => {
@@ -124,6 +124,6 @@ const BadgesDisplay = ({
       })}
     </div>
   );
-};
+});
 
 export default BadgesDisplay;

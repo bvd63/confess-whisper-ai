@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, memo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ProfileTierBadge } from "./ProfileTierBadge";
@@ -46,7 +46,7 @@ interface UserBadgeRow {
   };
 }
 
-export const BadgeDisplay = ({ 
+export const BadgeDisplay = memo(({ 
   userId, 
   subscriptionTier = "free",
   maxBadges = 2,
@@ -217,4 +217,4 @@ export const BadgeDisplay = ({
       )}
     </div>
   );
-};
+});

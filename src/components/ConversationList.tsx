@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,7 @@ interface ConversationListProps {
   markAsRead?: (conversationId: string) => void;
 }
 
-export const ConversationList = ({ currentUserId, onConversationSelect, markAsRead }: ConversationListProps) => {
+export const ConversationList = memo(({ currentUserId, onConversationSelect, markAsRead }: ConversationListProps) => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -370,4 +370,4 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
       </AlertDialog>
     </>
   );
-};
+});
