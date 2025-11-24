@@ -49,9 +49,14 @@ const ShareDialog = ({ open, onOpenChange, confessionId }: ShareDialogProps) => 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-card border-border">
+      <DialogContent className="sm:max-w-md rounded-3xl shadow-elevated border-border/50 bg-card">
         <DialogHeader>
-          <DialogTitle className="text-lg sm:text-xl text-foreground">{t.share_title}</DialogTitle>
+          <DialogTitle className="flex items-center gap-3 text-lg sm:text-xl">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shadow-glow">
+              <span className="text-xl">📤</span>
+            </div>
+            <span className="gradient-text">{t.share_title}</span>
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-3 sm:space-y-4">
@@ -59,7 +64,7 @@ const ShareDialog = ({ open, onOpenChange, confessionId }: ShareDialogProps) => 
             <Button
               variant="outline"
               onClick={() => handleShare('facebook')}
-              className="gap-1.5 sm:gap-2 text-xs sm:text-sm rounded-lg border-border hover:bg-accent h-10"
+              className="gap-1.5 sm:gap-2 text-xs sm:text-sm rounded-2xl border-border hover:bg-accent h-11 shadow-card"
               size="sm"
             >
               <Facebook className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
@@ -69,7 +74,7 @@ const ShareDialog = ({ open, onOpenChange, confessionId }: ShareDialogProps) => 
             <Button
               variant="outline"
               onClick={() => handleShare('twitter')}
-              className="gap-1.5 sm:gap-2 text-xs sm:text-sm rounded-lg border-border hover:bg-accent h-10"
+              className="gap-1.5 sm:gap-2 text-xs sm:text-sm rounded-2xl border-border hover:bg-accent h-11 shadow-card"
               size="sm"
             >
               <Twitter className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -79,7 +84,7 @@ const ShareDialog = ({ open, onOpenChange, confessionId }: ShareDialogProps) => 
             <Button
               variant="outline"
               onClick={() => handleShare('linkedin')}
-              className="gap-1.5 sm:gap-2 text-xs sm:text-sm rounded-lg border-border hover:bg-accent h-10"
+              className="gap-1.5 sm:gap-2 text-xs sm:text-sm rounded-2xl border-border hover:bg-accent h-11 shadow-card"
               size="sm"
             >
               <Linkedin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-700" />
@@ -88,7 +93,7 @@ const ShareDialog = ({ open, onOpenChange, confessionId }: ShareDialogProps) => 
             <Button
               variant="outline"
               onClick={() => handleShare('email')}
-              className="gap-1.5 sm:gap-2 text-xs sm:text-sm rounded-lg border-border hover:bg-accent h-10"
+              className="gap-1.5 sm:gap-2 text-xs sm:text-sm rounded-2xl border-border hover:bg-accent h-11 shadow-card"
               size="sm"
             >
               <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -100,7 +105,7 @@ const ShareDialog = ({ open, onOpenChange, confessionId }: ShareDialogProps) => 
             <Button
               onClick={handleCopyLink}
               variant="secondary"
-              className="w-full gap-2 text-xs sm:text-sm rounded-lg h-10 bg-secondary hover:bg-secondary/80"
+              className="w-full gap-2 text-xs sm:text-sm rounded-2xl h-11 bg-secondary hover:bg-secondary/80 shadow-card"
               size="sm"
             >
               <Link2 className="w-3 h-3 sm:w-4 sm:h-4" />
