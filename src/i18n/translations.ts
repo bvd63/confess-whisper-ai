@@ -2266,7 +2266,7 @@ export const translations: Record<Language, Translations> = {
     performance_slow_query: "Slow response detected",
     performance_optimizing: "Optimizing performance...",
     
-    achievement_new_badge: "🏆 You earned a new badge!",
+    achievement_new_badge: "You earned a new badge!",
     
     daily_prompt_title: "Question of the Day",
     daily_prompt_share: "Share your thoughts",
@@ -3759,8 +3759,8 @@ export const translations: Record<Language, Translations> = {
     coins_per_coin: "per coin",
     coins_buy_now: "Buy Now",
     coins_processing: "Processing...",
-    coins_secure_payment: "🔒 Secure Payment",
-    coins_instant_delivery: "⚡ Instant Delivery",
+    coins_secure_payment: "Secure Payment",
+    coins_instant_delivery: "Instant Delivery",
     coins_satisfaction: "✓ 100% Satisfaction",
     coins_purchase_error: "Purchase failed. Please try again.",
     coins_purchase_success_title: "Purchase Successful!",
@@ -4556,7 +4556,7 @@ export const translations: Record<Language, Translations> = {
     performance_slow_query: "Respuesta lenta detectada",
     performance_optimizing: "Optimizando rendimiento...",
     
-    achievement_new_badge: "🏆 ¡Has obtenido una nueva insignia!",
+    achievement_new_badge: "¡Has obtenido una nueva insignia!",
     
     daily_prompt_title: "Pregunta del Día",
     daily_prompt_share: "Comparte tus pensamientos",
@@ -5658,8 +5658,8 @@ export const translations: Record<Language, Translations> = {
     coins_per_coin: "por moneda",
     coins_buy_now: "Comprar Ahora",
     coins_processing: "Procesando...",
-    coins_secure_payment: "🔒 Pago Seguro",
-    coins_instant_delivery: "⚡ Entrega Instantánea",
+    coins_secure_payment: "Pago Seguro",
+    coins_instant_delivery: "Entrega Instantánea",
     coins_satisfaction: "✓ 100% Satisfacción",
     coins_purchase_error: "Compra fallida. Por favor intenta de nuevo.",
     coins_purchase_success_title: "¡Compra Exitosa!",
@@ -6455,7 +6455,7 @@ export const translations: Record<Language, Translations> = {
     performance_slow_query: "Langsame Antwort erkannt",
     performance_optimizing: "Leistung wird optimiert...",
     
-    achievement_new_badge: "🏆 Du hast ein neues Abzeichen erhalten!",
+    achievement_new_badge: "Du hast ein neues Abzeichen erhalten!",
     
     daily_prompt_title: "Frage des Tages",
     daily_prompt_share: "Teile deine Gedanken",
@@ -7557,8 +7557,8 @@ export const translations: Record<Language, Translations> = {
     coins_per_coin: "pro Münze",
     coins_buy_now: "Jetzt Kaufen",
     coins_processing: "Wird verarbeitet...",
-    coins_secure_payment: "🔒 Sichere Zahlung",
-    coins_instant_delivery: "⚡ Sofortige Lieferung",
+    coins_secure_payment: "Sichere Zahlung",
+    coins_instant_delivery: "Sofortige Lieferung",
     coins_satisfaction: "✓ 100% Zufriedenheit",
     coins_purchase_error: "Kauf fehlgeschlagen. Bitte versuche es erneut.",
     coins_purchase_success_title: "Kauf Erfolgreich!",

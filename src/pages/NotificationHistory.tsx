@@ -354,7 +354,7 @@ const NotificationHistory = () => {
       case 'deep_insight':
         return `New AI insight on your confession`;
       case 'streak_milestone':
-        return `You reached a streak milestone! 🔥`;
+        return `You reached a streak milestone!`;
       default:
         return 'New notification';
     }

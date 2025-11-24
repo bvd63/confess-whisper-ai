@@ -183,7 +183,7 @@ const SettingsActivity = () => {
         <Card className="mx-4 mt-4 overflow-hidden bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border-amber-500/20">
           <MenuItem
             icon={Flame}
-            title="🏆 Rewards & Achievements"
+            title="Rewards & Achievements"
             expandable={false}
             onClick={() => navigate('/rewards')}
           />

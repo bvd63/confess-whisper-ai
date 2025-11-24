@@ -211,7 +211,7 @@ export default function TestSubscriptions() {
                 <p className="text-sm text-red-400 mb-2">{result.error}</p>
                 {isSubscriptionRequiredError && (
                   <div className="mt-2 p-3 bg-yellow-900/20 border border-yellow-500/30 rounded text-yellow-200 text-sm">
-                    💡 <strong>Acest test necesită o subscripție activă.</strong>
+                    <strong>Acest test necesită o subscripție activă.</strong>
                     <br />Creează mai întâi o subscripție folosind "Create Checkout" și completează plata în Stripe.
                   </div>
                 )}
