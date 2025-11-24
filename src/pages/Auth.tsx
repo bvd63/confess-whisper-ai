@@ -269,21 +269,21 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-mesh flex items-center justify-center p-3 sm:p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex items-center justify-center p-4">
       <AnimatedCard 
         hover="glow"
         glass
-        className="w-full max-w-md p-5 sm:p-6 md:p-8 border-primary/20 mx-4 sm:mx-auto"
+        className="w-full max-w-md p-8 rounded-3xl shadow-elevated border-border/50"
       >
         {/* Logo & Title */}
         <div className="text-center mb-6 sm:mb-8 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 mb-5 sm:mb-6 shadow-[0_0_20px_rgba(147,51,234,0.4)]">
-            <Heart className="w-9 h-9 sm:w-11 sm:h-11 text-primary animate-heart-beat" fill="currentColor" />
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 mb-6 shadow-glow">
+            <span className="text-5xl">💜</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold mb-3">
-            <GradientText variant="hero">Confess</GradientText>
+          <h1 className="text-4xl font-bold mb-3 gradient-text">
+            Confess
           </h1>
-          <p className="text-sm sm:text-base text-muted-foreground font-medium">
+          <p className="text-base text-muted-foreground font-medium">
             {isLogin ? t.auth_welcome_back : t.auth_create_account}
           </p>
         </div>
