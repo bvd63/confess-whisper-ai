@@ -26,9 +26,9 @@ export const ProfileTierBadge = ({
         };
       case "vip":
         return {
-          label: t.profile_tiers_vip,
+          label: "👑 " + t.profile_tiers_vip,
           icon: Crown,
-          className: "bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-white border-amber-400 shadow-lg shadow-amber-500/50 animate-pulse badge-hover badge-glow badge-vip-glow",
+          className: "bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-white dark:text-white border-amber-400 shadow-lg shadow-amber-500/50 animate-pulse badge-hover badge-glow badge-vip-glow",
         };
     }
   };
