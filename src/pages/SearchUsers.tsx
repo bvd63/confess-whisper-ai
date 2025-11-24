@@ -5,7 +5,7 @@ import AppLayout from "@/components/AppLayout";
 import { UserSearch } from "@/components/UserSearch";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { InstagramBottomNav } from "@/components/InstagramBottomNav";
+import { ModernBottomNav } from "@/components/ModernBottomNav";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 
 const SearchUsers = () => {
@@ -36,7 +36,7 @@ const SearchUsers = () => {
         <UserSearch currentUserId={user.id} />
       </div>
       
-      <InstagramBottomNav />
+      <ModernBottomNav />
     </AppLayout>
     <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
     </>

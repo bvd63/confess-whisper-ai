@@ -7,7 +7,7 @@ import { ConfirmProvider } from '@/contexts/ConfirmContext';
 import { TabNavigationProvider } from '@/contexts/TabNavigationContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ErrorBoundary from "./components/ErrorBoundary";
-import { InstagramBottomNav } from "./components/InstagramBottomNav";
+import { ModernBottomNav } from "./components/ModernBottomNav";
 import { AnalyticsProvider } from "./components/AnalyticsProvider";
 import { SystemNotifications } from '@/components/SystemNotifications';
 import { PerformanceIndicator } from '@/components/PerformanceIndicator';
@@ -277,7 +277,7 @@ const AppContent = () => {
           <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
-        <InstagramBottomNav />
+        <ModernBottomNav />
       </TabNavigationProvider>
     </div>
   );

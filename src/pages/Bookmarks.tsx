@@ -14,7 +14,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
-import { InstagramBottomNav } from "@/components/InstagramBottomNav";
+import { ModernBottomNav } from "@/components/ModernBottomNav";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import VirtualizedConfessions from "@/components/VirtualizedConfessions";
 import { logError } from "@/lib/logger";
@@ -186,7 +186,7 @@ const Bookmarks = () => {
         )}
       </main>
 
-      <InstagramBottomNav />
+      <ModernBottomNav />
 
       <Suspense fallback={null}>
         <NewConfessionDialog

@@ -10,7 +10,7 @@ import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 import FollowingFeed from "@/components/FollowingFeed";
 import FollowStats from "@/components/FollowStats";
 import AppLayout from "@/components/AppLayout";
-import { InstagramBottomNav } from "@/components/InstagramBottomNav";
+import { ModernBottomNav } from "@/components/ModernBottomNav";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Loader2 } from "lucide-react";
@@ -96,7 +96,7 @@ const Following = () => {
         </div>
       </div>
 
-      <InstagramBottomNav />
+      <ModernBottomNav />
 
       <Suspense fallback={null}>
         <NewConfessionDialog
