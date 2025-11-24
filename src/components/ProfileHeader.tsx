@@ -44,34 +44,34 @@ export const ProfileHeader = ({
   };
 
   return (
-    <AnimatedCard hover="lift" glass className={cn("p-4 border-b border-border/50", tierStyles.cardClass)}>
+    <AnimatedCard hover="lift" className={cn("p-6 border-b border-border/50 rounded-3xl shadow-card", tierStyles.cardClass)}>
       {/* Avatar and Stats Row */}
-      <div className="flex items-center gap-4">
-          <Avatar className={cn("w-20 h-20 shadow-glow", tierStyles.avatarClass, tierStyles.glowClass)}>
+      <div className="flex items-center gap-6">
+          <Avatar className={cn("w-24 h-24 shadow-elevated border-4 border-background", tierStyles.avatarClass, tierStyles.glowClass)}>
             <AvatarImage src={avatarUrl || undefined} alt={nickname || t.confession_anonymous} />
-            <AvatarFallback className="text-2xl font-bold bg-gradient-to-br from-primary/20 to-primary/10">
+            <AvatarFallback className="text-3xl font-bold bg-gradient-to-br from-primary/20 to-primary/10">
               {(nickname || t.confession_anonymous).charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
 
         <div className="flex-1 flex justify-around">
           <div className="flex flex-col items-center">
-            <span className="text-xl font-bold">{confessionsCount}</span>
-            <span className="text-xs text-muted-foreground">{t.profile_posts || "Posts"}</span>
+            <span className="text-2xl font-bold">{confessionsCount}</span>
+            <span className="text-sm font-medium text-muted-foreground">{t.profile_posts || "Posts"}</span>
           </div>
           <div className="flex flex-col items-center">
-            <span className="text-xl font-bold">{stats.followers}</span>
-            <span className="text-xs text-muted-foreground">{t.profile_followers || "Followers"}</span>
+            <span className="text-2xl font-bold">{stats.followers}</span>
+            <span className="text-sm font-medium text-muted-foreground">{t.profile_followers || "Followers"}</span>
           </div>
           <div className="flex flex-col items-center">
-            <span className="text-xl font-bold">{stats.following}</span>
-            <span className="text-xs text-muted-foreground">{t.profile_following || "Following"}</span>
+            <span className="text-2xl font-bold">{stats.following}</span>
+            <span className="text-sm font-medium text-muted-foreground">{t.profile_following || "Following"}</span>
           </div>
         </div>
       </div>
 
       {/* Name and Bio */}
-      <div className="mt-3">
+      <div className="mt-4">
         <div className="flex items-center gap-2 mb-1 flex-wrap">
           <UserDisplayName 
             userId={userId}
@@ -88,22 +88,22 @@ export const ProfileHeader = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-2">
+      <div className="flex gap-3 mt-5">
         {isOwnProfile ? (
           <EnhancedButton
             variant="outline"
-            className="flex-1"
+            className="flex-1 h-12 text-base font-semibold rounded-xl"
             onClick={onEditProfile || (() => navigate("/profile"))}
             lift
           >
-            <Settings className="w-4 h-4 mr-2" />
+            <Settings className="w-5 h-5 mr-2" />
             {t.settings || "Edit Profile"}
           </EnhancedButton>
         ) : (
           <>
             <EnhancedButton
               variant={stats.isFollowing ? "outline" : "default"}
-              className="flex-1"
+              className="flex-1 h-12 text-base font-semibold rounded-xl"
               onClick={toggleFollow}
               disabled={isProcessing}
               glow={!stats.isFollowing}
@@ -111,22 +111,23 @@ export const ProfileHeader = ({
             >
               {stats.isFollowing ? (
                 <>
-                  <UserMinus className="w-4 h-4 mr-2" />
+                  <UserMinus className="w-5 h-5 mr-2" />
                   {t.profile_unfollow || "Unfollow"}
                 </>
               ) : (
                 <>
-                  <UserPlus className="w-4 h-4 mr-2" />
+                  <UserPlus className="w-5 h-5 mr-2" />
                   {t.profile_follow || "Follow"}
                 </>
               )}
             </EnhancedButton>
             <EnhancedButton
               variant="outline"
+              className="h-12 w-12 rounded-xl"
               onClick={() => navigate(`/messages?user=${userId}`)}
               lift
             >
-              <MessageCircle className="w-4 h-4" />
+              <MessageCircle className="w-5 h-5" />
             </EnhancedButton>
           </>
         )}
