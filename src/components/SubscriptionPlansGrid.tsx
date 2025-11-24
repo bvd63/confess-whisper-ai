@@ -65,9 +65,9 @@ export const SubscriptionPlansGrid = ({
   const getPlanIcon = (planId: string) => {
     switch (planId) {
       case 'vip':
-        return <Crown className="w-6 h-6" />;
+        return <span className="text-3xl">👑</span>;
       default:
-        return <Star className="w-6 h-6" />;
+        return <span className="text-3xl">⭐</span>;
     }
   };
 
@@ -224,16 +224,16 @@ export const SubscriptionPlansGrid = ({
             {/* Plan Header */}
             <div className="mb-8">
               <div className="flex items-center gap-3 mb-6">
-                <span className="text-3xl">{plan.id === 'vip' ? '👑' : '✨'}</span>
-                <h3 className="text-2xl font-bold text-white">{plan.name}</h3>
+                <span className="text-4xl">{plan.id === 'vip' ? '👑' : '✨'}</span>
+                <h3 className="text-2xl font-bold gradient-text">{plan.name}</h3>
               </div>
               <div className="mb-2">
-                <span className="text-5xl font-bold text-white">
+                <span className="text-5xl font-bold text-foreground">
                   ${interval === 'yearly' ? (plan.price / 12).toFixed(2) : plan.price}
                 </span>
-                <span className="text-gray-400 text-lg ml-2">/per month</span>
+                <span className="text-muted-foreground text-lg ml-2">/per month</span>
               </div>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-muted-foreground">
                 {interval === 'yearly' 
                   ? `Billed annually ($${plan.price.toFixed(2)}/per year)`
                   : 'Billed monthly'
@@ -245,10 +245,10 @@ export const SubscriptionPlansGrid = ({
             <div className="space-y-4 mb-8">
               {plan.benefits.map((benefit: string, index: number) => (
                 <div key={index} className="flex items-start gap-3 group/benefit">
-                  <div className="w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/benefit:bg-purple-500/30 transition-colors">
-                    <Check className="w-3.5 h-3.5 text-purple-400" />
+                  <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/benefit:bg-primary/30 transition-colors">
+                    <Check className="w-3.5 h-3.5 text-primary" />
                   </div>
-                  <span className="text-sm text-white/90 leading-relaxed">{getStringTranslation(t, benefit) || benefit}</span>
+                  <span className="text-sm text-foreground/90 leading-relaxed">{getStringTranslation(t, benefit) || benefit}</span>
                 </div>
               ))}
             </div>

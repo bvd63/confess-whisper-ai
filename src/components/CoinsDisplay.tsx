@@ -52,36 +52,44 @@ const CoinsDisplay = ({
   };
   if (loading) return null;
   if (variant === "compact") {
-    return <Button 
-      variant="outline" 
-      size="sm" 
-      onClick={handleShowHistory} 
-      className="gap-2 h-10 min-w-[44px] px-4 touch-manipulation rounded-full border-border/50 hover:bg-accent/30 shadow-ios"
-    >
-      <Coins className="w-4 h-4 text-yellow-500 flex-shrink-0" />
-      <span className="font-semibold text-sm">{balance}</span>
-    </Button>;
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={handleShowHistory} 
+        className="gap-2 h-10 min-w-[44px] px-4 rounded-full border-border/50 hover:bg-accent/30 shadow-ios"
+      >
+        <span className="text-xl">🪙</span>
+        <span className="font-semibold text-sm">{balance}</span>
+      </Button>;
   }
-  return <>
+  return (
+    <>
       <Card className="p-6 rounded-3xl shadow-card border-border/50">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-yellow-500/10 rounded-xl">
-            <Coins className="w-6 h-6 text-yellow-500" />
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-amber-500/20 flex items-center justify-center shadow-glow">
+            <span className="text-3xl">🪙</span>
           </div>
-          <h3 className="text-xl font-bold">{t.coins_title}</h3>
+          <div>
+            <h3 className="text-xl font-bold gradient-text">{t.coins_title}</h3>
+            <p className="text-xs text-muted-foreground">Your coin balance</p>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-5">
-          <div className="text-center p-5 bg-yellow-500/10 rounded-2xl border border-yellow-500/20 shadow-ios">
-            <Coins className="w-7 h-7 text-yellow-500 mx-auto mb-3" />
+          <div className="text-center p-5 bg-gradient-to-br from-yellow-500/10 to-amber-500/10 rounded-2xl border border-yellow-500/20 shadow-card">
+            <div className="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center mx-auto mb-3">
+              <span className="text-2xl">🪙</span>
+            </div>
             <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400 mb-1">
               {balance}
             </p>
             <p className="text-sm text-muted-foreground font-medium">{t.coins_current_balance}</p>
           </div>
 
-          <div className="text-center p-5 bg-primary/10 rounded-2xl border border-primary/20 shadow-ios">
-            <TrendingUp className="w-7 h-7 text-primary mx-auto mb-3" />
+          <div className="text-center p-5 bg-gradient-to-br from-primary/10 to-purple-500/10 rounded-2xl border border-primary/20 shadow-card">
+            <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center mx-auto mb-3">
+              <span className="text-2xl">📈</span>
+            </div>
             <p className="text-3xl font-bold text-primary mb-1">{lifetimeEarned}</p>
             <p className="text-sm text-muted-foreground font-medium">{t.coins_total_earned}</p>
           </div>
@@ -95,37 +103,39 @@ const CoinsDisplay = ({
           {t.coins_history}
         </Button>
 
-        <div className="mt-5 p-4 rounded-2xl border border-border/50 bg-muted/30">
-          <p className="text-sm font-bold mb-3 text-foreground">
+        <div className="mt-5 p-5 rounded-2xl border border-border/50 bg-muted/30 shadow-card">
+          <p className="text-sm font-bold mb-4 text-foreground flex items-center gap-2">
+            <span className="text-xl">💰</span>
             {t.coins_how_to_earn}
           </p>
-          <ul className="text-sm text-muted-foreground space-y-2 leading-relaxed">
-            <li className="flex items-start gap-2">
-              <span className="text-lg">💰</span>
+          <ul className="text-sm text-muted-foreground space-y-3 leading-relaxed">
+            <li className="flex items-start gap-3 p-3 bg-background/50 rounded-xl">
+              <span className="text-2xl">💰</span>
               <span>{t.coins_per_confession_detail}</span>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="text-lg">🔥</span>
+            <li className="flex items-start gap-3 p-3 bg-background/50 rounded-xl">
+              <span className="text-2xl">🔥</span>
               <span>Streak bonuses: +10/+20/+50 coins at 3/5/7 days</span>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="text-lg">🎁</span>
+            <li className="flex items-start gap-3 p-3 bg-background/50 rounded-xl">
+              <span className="text-2xl">🎁</span>
               <span>Referral rewards: +20 coins per completed referral</span>
             </li>
           </ul>
         </div>
 
-        <div className="mt-5 p-4 bg-primary/10 rounded-2xl border border-primary/20">
-          <p className="text-sm font-bold mb-3 text-primary">
+        <div className="mt-5 p-5 bg-gradient-to-br from-primary/10 to-purple-500/10 rounded-2xl border border-primary/20 shadow-card">
+          <p className="text-sm font-bold mb-4 text-primary flex items-center gap-2">
+            <span className="text-xl">✨</span>
             {t.coins_how_to_spend}
           </p>
-          <ul className="text-sm text-muted-foreground space-y-2 leading-relaxed">
-            <li className="flex items-start gap-2">
-              <span className="text-lg">📈</span>
+          <ul className="text-sm text-foreground/90 space-y-3 leading-relaxed">
+            <li className="flex items-start gap-3 p-3 bg-background/30 rounded-xl">
+              <span className="text-2xl">📈</span>
               <span>Boost Confession (15 coins) - Highlight for 1 hour</span>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="text-lg">✨</span>
+            <li className="flex items-start gap-3 p-3 bg-background/30 rounded-xl">
+              <span className="text-2xl">✨</span>
               <span>Profile Flairs - Customize your profile appearance</span>
             </li>
           </ul>
@@ -133,12 +143,10 @@ const CoinsDisplay = ({
       </Card>
 
       <Dialog open={showHistory} onOpenChange={setShowHistory}>
-        <DialogContent className="sm:max-w-[550px] max-h-[90vh] rounded-3xl">
+        <DialogContent className="max-w-2xl max-h-[85vh] rounded-3xl shadow-elevated border-border/50">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-3 text-2xl">
-              <div className="p-2 bg-yellow-500/10 rounded-xl">
-                <Coins className="w-6 h-6 text-yellow-500" />
-              </div>
+            <DialogTitle className="text-2xl font-bold gradient-text flex items-center gap-2">
+              <span className="text-2xl">🪙</span>
               {t.coins_history}
             </DialogTitle>
             <DialogDescription className="text-base mt-2">
@@ -197,6 +205,7 @@ const CoinsDisplay = ({
           </ScrollArea>
         </DialogContent>
       </Dialog>
-    </>;
+    </>
+  );
 };
 export default CoinsDisplay;
