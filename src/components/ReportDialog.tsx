@@ -149,11 +149,13 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto bg-card border-border">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto rounded-3xl shadow-elevated border-border/50 bg-card">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl text-foreground">
-            <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-destructive" />
-            {t.report_title}
+          <DialogTitle className="flex items-center gap-3 text-lg sm:text-xl">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-destructive/20 to-red-500/20 flex items-center justify-center shadow-glow">
+              <span className="text-xl">⚠️</span>
+            </div>
+            <span className="gradient-text">{t.report_title}</span>
           </DialogTitle>
           <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
             {t.report_description}
@@ -201,7 +203,7 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={submitting}
-              className="flex-1 text-xs sm:text-sm rounded-lg h-10 border-border hover:bg-accent"
+              className="flex-1 text-xs sm:text-sm rounded-2xl h-11 border-border hover:bg-accent"
               size="sm"
             >
               {t.moderation_cancel}
@@ -210,7 +212,7 @@ const ReportDialog = ({ open, onOpenChange, confessionId, userId }: ReportDialog
               onClick={handleSubmit}
               disabled={submitting || !selectedReason}
               variant="destructive"
-              className="flex-1 text-xs sm:text-sm rounded-lg h-10 font-semibold"
+              className="flex-1 text-xs sm:text-sm rounded-2xl h-11 font-semibold shadow-elegant"
               size="sm"
             >
               {submitting ? (
