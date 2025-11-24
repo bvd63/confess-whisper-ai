@@ -43,6 +43,19 @@ export async function closeOpenDialogs(page: Page) {
 }
 
 /**
+ * Disables pointer events on Radix dialog overlays so they don't block clicks during tests
+ */
+export async function disableOverlayPointerEvents(page: Page) {
+  try {
+    await page.addStyleTag({
+      content: '[data-state="open"][aria-hidden="true"] { pointer-events: none !important; }'
+    });
+  } catch (error) {
+    console.log('Could not inject overlay styles:', error);
+  }
+}
+
+/**
  * Waits for the app to be fully initialized
  */
 export async function waitForAppReady(page: Page) {

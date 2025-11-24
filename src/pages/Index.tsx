@@ -64,6 +64,10 @@ const Index = () => {
     },
     threshold: 80,
   });
+
+  useEffect(() => {
+    (window as any).__manageSubDialogOpen = manageSubDialogOpen;
+  }, [manageSubDialogOpen]);
   
   // Monitor performance budget
   usePerformanceBudget();
@@ -171,6 +175,7 @@ const Index = () => {
       <AppLayout 
         onNewConfession={handleNewConfession}
         onManageSubscription={(defaultTab = 'subscriptions') => {
+          console.log('[E2E] Opening subscription dialog', defaultTab);
           setDialogDefaultTab(defaultTab);
           setManageSubDialogOpen(true);
         }}

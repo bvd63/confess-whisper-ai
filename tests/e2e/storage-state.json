@@ -1,0 +1,12 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:8080",
+      "localStorage": [
+        { "name": "hasSeenOnboarding", "value": "true" },
+        { "name": "onesignal-banner-dismissed", "value": "true" }
+      ]
+    }
+  ]
+}

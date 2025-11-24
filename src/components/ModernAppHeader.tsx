@@ -90,7 +90,7 @@ const ModernAppHeader = ({
                   ) : (
                     <>
                       <Crown className="w-4 h-4 animate-pulse" />
-                      <span className="text-sm">Upgrade</span>
+                      <span className="text-sm">Subscription</span>
                     </>
                   )}
                 </Button>

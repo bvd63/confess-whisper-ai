@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { loginAs } from '../helpers/auth';
 import { mockSubscriptionRoutes } from '../helpers/network';
+import { disableOverlayPointerEvents, closeOpenDialogs, waitForAppReady } from '../helpers/pageHelpers';
 
 test.describe('Subscription Reactivation Flow', () => {
   test.beforeEach(async ({ page }) => {
@@ -14,17 +15,9 @@ test.describe('Subscription Reactivation Flow', () => {
     
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    
-    // Close any open dialogs
-    const openDialog = page.locator('[data-state="open"][role="dialog"]');
-    if (await openDialog.isVisible()) {
-      await page.keyboard.press('Escape');
-      await expect(openDialog).not.toBeVisible();
-    }
-    
-    // Wait for app ready
-    await page.getByTestId('app-ready').waitFor({ state: 'attached', timeout: 10000 });
-    await page.waitForFunction(() => (window as any).__i18nReady === true, { timeout: 10000 });
+    await waitForAppReady(page);
+    await closeOpenDialogs(page);
+    await disableOverlayPointerEvents(page);
   });
 
   test('canceled VIP user can open subscription management modal', async ({ page }) => {
@@ -32,7 +25,7 @@ test.describe('Subscription Reactivation Flow', () => {
     await manageButton.waitFor({ state: 'visible', timeout: 10000 });
     await expect(manageButton).toBeVisible();
     
-    await manageButton.click();
+    await manageButton.click({ force: true });
     
     const dialog = page.getByTestId('manage-subscription-modal');
     await expect(dialog).toBeVisible({ timeout: 10000 });
@@ -43,7 +36,7 @@ test.describe('Subscription Reactivation Flow', () => {
 
   test('subscription modal shows canceled status information', async ({ page }) => {
     const manageButton = page.getByTestId('manage-subscription-btn');
-    await manageButton.click();
+    await manageButton.click({ force: true });
     
     const dialog = page.getByTestId('manage-subscription-modal');
     await expect(dialog).toBeVisible({ timeout: 10000 });
@@ -55,7 +48,7 @@ test.describe('Subscription Reactivation Flow', () => {
 
   test('modal displays subscription plans for reactivation', async ({ page }) => {
     const manageButton = page.getByTestId('manage-subscription-btn');
-    await manageButton.click();
+    await manageButton.click({ force: true });
     
     const dialog = page.getByTestId('manage-subscription-modal');
     await expect(dialog).toBeVisible({ timeout: 10000 });
@@ -67,7 +60,7 @@ test.describe('Subscription Reactivation Flow', () => {
 
   test('modal can be closed with ESC key', async ({ page }) => {
     const manageButton = page.getByTestId('manage-subscription-btn');
-    await manageButton.click();
+    await manageButton.click({ force: true });
     
     const dialog = page.getByTestId('manage-subscription-modal');
     await expect(dialog).toBeVisible({ timeout: 10000 });

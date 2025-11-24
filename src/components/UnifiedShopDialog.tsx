@@ -278,6 +278,7 @@ export const UnifiedShopDialog = ({
             <TabsTrigger 
               value="subscriptions" 
               className="rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-ios py-2.5 px-4 text-sm font-semibold data-[state=active]:text-foreground text-muted-foreground transition-all"
+              aria-label="Subscriptions"
             >
               <Crown className="w-4 h-4 mr-2" />
               VIP
