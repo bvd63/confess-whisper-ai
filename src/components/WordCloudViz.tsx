@@ -72,6 +72,29 @@ const WordCloudViz = ({
     const hue = 280 - ratio * 100; // Purple to blue gradient
     return `hsl(${hue}, 70%, 60%)`;
   };
-  return;
+  return <Card className="p-6 rounded-3xl shadow-card border-border/50">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center shadow-ios">
+          <span className="text-xl">💬</span>
+        </div>
+        <h3 className="text-lg font-bold">{t.word_cloud_title || 'Most Used Words'}</h3>
+      </div>
+      <div className="flex flex-wrap gap-3 justify-center items-center min-h-[200px] p-4">
+        {words.map((word, index) => (
+          <span
+            key={word.text}
+            className="inline-block px-3 py-1.5 rounded-xl font-bold cursor-default transition-all duration-300 hover:scale-110 shadow-ios"
+            style={{
+              fontSize: `${getFontSize(word.value)}px`,
+              color: getColor(word.value),
+              backgroundColor: `${getColor(word.value)}15`,
+              animationDelay: `${index * 50}ms`
+            }}
+          >
+            {word.text}
+          </span>
+        ))}
+      </div>
+    </Card>;
 };
 export default WordCloudViz;

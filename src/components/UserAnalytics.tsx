@@ -106,26 +106,33 @@ const UserAnalytics = ({
     icon: MessageSquare,
     color: "text-blue-500"
   }];
-  return <div className="space-y-4">
-      {/* Subscription Card */}
-      <Card className="border-primary/20">
-        <CardHeader className="px-[8px] mx-0 my-0 py-[9px]">
-          <div className="flex items-center justify-center gap-3">
-            <CardTitle className="text-lg">{t.subscription_title}</CardTitle>
+  return <div className="space-y-6">
+      {/* Subscription Card - Modern design */}
+      <Card className="border-primary/20 shadow-card rounded-3xl overflow-hidden">
+        <CardHeader className="bg-gradient-to-br from-primary/5 to-primary/10 px-6 py-5 border-b border-primary/10">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center shadow-ios">
+                <Crown className="w-5 h-5 text-primary" />
+              </div>
+              <CardTitle className="text-lg sm:text-xl font-bold">{t.subscription_title}</CardTitle>
+            </div>
             <ProfileTierBadge tier={subscriptionTier as "free" | "vip"} />
           </div>
         </CardHeader>
       </Card>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
-      {statCards.map(stat => <Card key={stat.title}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">
-            <CardTitle className="text-xs sm:text-sm font-medium">{stat.title}</CardTitle>
-            <stat.icon className={`h-3 w-3 sm:h-4 sm:w-4 ${stat.color}`} />
+      {/* Stats Grid - Premium cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {statCards.map(stat => <Card key={stat.title} className="rounded-3xl shadow-card hover:shadow-elevated transition-all duration-300 hover:scale-[1.02] border-border/50">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 p-5 sm:p-6">
+            <CardTitle className="text-sm font-bold text-muted-foreground">{stat.title}</CardTitle>
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center shadow-ios">
+              <stat.icon className={`h-5 w-5 ${stat.color}`} />
+            </div>
           </CardHeader>
-          <CardContent className="p-3 sm:p-4 pt-0">
-            <div className="text-xl sm:text-2xl font-bold">{stat.value}</div>
+          <CardContent className="p-5 sm:p-6 pt-0">
+            <div className="text-3xl sm:text-4xl font-bold text-foreground">{stat.value}</div>
           </CardContent>
         </Card>)}
     </div>
