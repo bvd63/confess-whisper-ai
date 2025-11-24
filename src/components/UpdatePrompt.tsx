@@ -12,7 +12,7 @@ import { logInfo, logDebug } from "@/lib/logger";
 export const UpdatePrompt = () => {
   const [showPrompt, setShowPrompt] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [autoReloadCountdown, setAutoReloadCountdown] = useState(5);
+  const [autoReloadCountdown, setAutoReloadCountdown] = useState(2);
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -66,19 +66,24 @@ export const UpdatePrompt = () => {
       }
     };
 
-    // Listen for service worker updates
+    // Listen for service worker FORCE_RELOAD
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.addEventListener('message', (event) => {
-        if (event.data?.type === 'SW_UPDATED') {
+        if (event.data?.type === 'SW_UPDATED' || event.data?.type === 'FORCE_RELOAD') {
+          // Immediate reload on force reload
+          if (event.data?.type === 'FORCE_RELOAD') {
+            window.location.reload();
+            return;
+          }
           setShowPrompt(true);
           setTimeout(() => setIsVisible(true), 100);
         }
       });
     }
 
-    // Check on mount, on page visibility change, and every 3 seconds for instant real-time updates
+    // Check IMMEDIATELY and every 2 seconds for INSTANT real-time updates
     checkForUpdates();
-    const interval = setInterval(checkForUpdates, 3 * 1000);
+    const interval = setInterval(checkForUpdates, 2 * 1000);
 
     // Check when user returns to tab
     const handleVisibilityChange = () => {
@@ -103,7 +108,7 @@ export const UpdatePrompt = () => {
     setTimeout(() => setShowPrompt(false), 300);
   };
 
-  // Auto-reload countdown after 3 seconds for instant updates
+  // Auto-reload countdown after 2 seconds for INSTANT updates
   useEffect(() => {
     if (!showPrompt) return;
 
