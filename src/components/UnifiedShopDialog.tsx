@@ -1,5 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SubscriptionPlansGrid } from "./SubscriptionPlansGrid";
 import { ModernVIPCard } from "./ModernVIPCard";
@@ -7,10 +9,11 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { toast } from "sonner";
-import { Loader2, Crown, Coins, Sparkles, TrendingUp, Zap } from "lucide-react";
+import { Loader2, Crown, Coins, Sparkles, TrendingUp, Zap, ShoppingCart } from "lucide-react";
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { logWarn, logError, logDebug } from "@/lib/logger";
+import { cn } from "@/lib/utils";
 
 interface CoinPackage {
   id: string;
@@ -256,26 +259,23 @@ export const UnifiedShopDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
         data-testid="manage-subscription-modal"
-        className="max-w-5xl max-h-[90vh] overflow-y-auto bg-[#0a0b14] border-[#1a1b2e] text-white p-4 sm:p-6"
+        className="max-w-5xl max-h-[90vh] overflow-y-auto bg-[#0a0b14] border-[#1a1b2e] text-white p-4 sm:p-6 mx-4 sm:mx-auto"
       >
-        <DialogHeader className="space-y-2">
+        <DialogHeader className="space-y-3 mt-2">
           <DialogTitle className="flex items-center justify-center gap-2 text-2xl font-semibold text-white">
-            <span className="text-purple-500">👑</span>
+            <Crown className="w-6 h-6 text-primary" />
             Subscription & Coins
           </DialogTitle>
-          <p className="text-center text-sm text-gray-400">
-            Manage your subscription and purchase coins
-          </p>
         </DialogHeader>
 
         <Tabs key={`${open}-${defaultTab}`} defaultValue={defaultTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="subscriptions" className="flex items-center gap-2">
-              <Crown className="w-4 h-4" />
+          <TabsList className="grid w-full grid-cols-2 mb-8 h-12 p-1">
+            <TabsTrigger value="subscriptions" className="text-sm sm:text-base data-[state=active]:bg-primary/20 rounded-md">
+              <Crown className="w-4 h-4 mr-1 sm:mr-2" />
               Subscriptions
             </TabsTrigger>
-            <TabsTrigger value="coins" className="flex items-center gap-2">
-              <Coins className="w-4 h-4" />
+            <TabsTrigger value="coins" className="text-sm sm:text-base data-[state=active]:bg-primary/20 rounded-md">
+              <Coins className="w-4 h-4 mr-1 sm:mr-2" />
               Coin Shop
             </TabsTrigger>
           </TabsList>
@@ -303,89 +303,66 @@ export const UnifiedShopDialog = ({
             )}
           </TabsContent>
 
-          <TabsContent value="coins">
-            <div className="space-y-6">
-              <div className="text-center">
-                <p className="text-lg font-semibold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
-                  {t.coins_shop_title || '🪙 Coin Shop'}
-                </p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  {t.coins_shop_subtitle || 'Get coins to unlock VIP features and more!'}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {packages?.map((pkg) => (
-                  <div
-                    key={pkg.id}
-                    className={`relative p-6 rounded-xl border-2 transition-all hover:scale-105 ${
-                      pkg.is_popular
-                        ? 'border-yellow-500 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20'
-                        : 'border-border bg-card'
-                    }`}
-                  >
-                    {pkg.is_popular && (
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-4 py-1 rounded-full text-xs font-bold">
-                        ⭐ {t.coins_best_value || 'BEST VALUE'}
-                      </div>
-                    )}
-
-                    {pkg.discount_percentage > 0 && (
-                      <div className="absolute -top-3 -right-3 bg-red-500 text-white w-12 h-12 rounded-full flex items-center justify-center text-xs font-bold shadow-lg">
-                        -{pkg.discount_percentage}%
-                      </div>
-                    )}
-
-                    <div className="flex flex-col items-center text-center space-y-4">
-                      <div className="text-yellow-500">
+          <TabsContent value="coins" className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {packages?.map((pkg) => (
+                <Card 
+                  key={pkg.id} 
+                  className={cn(
+                    "relative overflow-hidden border-[#1a1b2e] bg-[#0f1018] hover:border-primary/50 transition-all duration-200",
+                    pkg.is_popular && "border-primary shadow-[0_0_20px_rgba(147,51,234,0.2)]"
+                  )}
+                >
+                  {pkg.is_popular && (
+                    <div className="absolute top-0 right-0 bg-primary text-white text-xs px-3 py-1 rounded-bl-lg font-semibold">
+                      POPULAR
+                    </div>
+                  )}
+                  <CardContent className="p-5 sm:p-6 space-y-4 flex flex-col items-center text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="text-primary">
                         {getPackageIcon(pkg.name)}
                       </div>
-
                       <div>
-                        <h3 className="font-bold text-lg">{pkg.name}</h3>
-                        <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400 mt-2">
-                          {pkg.coins.toLocaleString()} 🪙
+                        <h3 className="font-semibold text-white text-lg">{pkg.name}</h3>
+                        <p className="text-primary text-2xl font-bold mt-1">
+                          {pkg.coins.toLocaleString()} <Coins className="inline w-5 h-5" />
                         </p>
                       </div>
-
-                      <div className="text-2xl font-bold">
-                        ${pkg.price_usd.toFixed(2)}
-                      </div>
-
-                      <div className="text-xs text-muted-foreground">
-                        ${(pkg.price_usd / pkg.coins).toFixed(4)} {t.coins_per_coin || 'per coin'}
-                      </div>
-
-                      <Button
-                        onClick={() => handleCoinPurchase(pkg.id)}
-                        disabled={coinLoading === pkg.id}
-                        className={`w-full ${
-                          pkg.is_popular
-                            ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
-                            : ''
-                        }`}
-                      >
-                        {coinLoading === pkg.id ? (
-                          <span className="flex items-center gap-2">
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                            {t.coins_processing || 'Processing...'}
-                          </span>
-                        ) : (
-                          t.coins_buy_now || 'Buy Now'
-                        )}
-                      </Button>
                     </div>
-                  </div>
-                ))}
-              </div>
+                    
+                    {pkg.discount_percentage > 0 && (
+                      <div className="flex items-center justify-center gap-2 text-sm">
+                        <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/30">
+                          {pkg.discount_percentage}% BONUS
+                        </Badge>
+                      </div>
+                    )}
 
-              <div className="mt-6 p-4 bg-muted rounded-lg">
-                <p className="text-sm text-center text-muted-foreground">
-                  💳 {t.coins_secure_payment || 'Secure payment powered by Stripe'} • 
-                  🔒 {t.coins_instant_delivery || 'Instant coin delivery'} •
-                  💯 {t.coins_satisfaction || '100% satisfaction guaranteed'}
-                </p>
-              </div>
+                    <div className="text-muted-foreground text-sm space-y-1">
+                      <p className="text-lg font-semibold text-white">${pkg.price_usd.toFixed(2)} USD</p>
+                      <p className="text-xs">≈ ${(pkg.price_usd / pkg.coins).toFixed(3)} per coin</p>
+                    </div>
+
+                    <Button 
+                      onClick={() => handleCoinPurchase(pkg.id)}
+                      disabled={coinLoading === pkg.id}
+                      className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white border-0 h-11"
+                    >
+                      <ShoppingCart className="w-4 h-4 mr-2" />
+                      {coinLoading === pkg.id ? t.processing : "Buy Now"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <div className="text-center space-y-2 mt-6">
+              <p className="text-sm text-muted-foreground">
+                💳 {t.coins_secure_payment || 'Secure payment via Stripe'} •
+                🔒 {t.coins_instant_delivery || 'Instant coin delivery'} •
+                💯 {t.coins_satisfaction || '100% satisfaction guaranteed'}
+              </p>
             </div>
           </TabsContent>
         </Tabs>
