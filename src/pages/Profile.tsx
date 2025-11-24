@@ -164,14 +164,14 @@ const Profile = () => {
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-4xl pb-24">
         
         
-        <div className="flex items-center gap-1.5 sm:gap-2 mb-4 sm:mb-6 animate-fade-in">
-          <div className="rounded-full">
-            <User className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-primary" />
+        <div className="flex items-center gap-3 mb-6 animate-fade-in">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shadow-glow">
+            <span className="text-2xl">👤</span>
           </div>
           <div className="flex-1">
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">
-                <GradientText variant="hero">{t.profile_title}</GradientText>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl sm:text-3xl font-bold gradient-text">
+                {t.profile_title}
               </h1>
               <VIPBadge tier={subscriptionTier as 'free' | 'vip'} size="lg" showLabel />
             </div>
@@ -186,13 +186,13 @@ const Profile = () => {
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
-              size="sm"
-              className="h-9 w-9 p-0 hover:bg-accent flex-shrink-0"
+              size="icon"
+              className="h-10 w-10 hover:bg-accent rounded-full"
               aria-label={t.settings}
               title={t.settings}
               onClick={() => navigate('/settings/activity')}
             >
-              <Settings className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+              <Settings className="h-5 w-5" />
             </Button>
             {profileData?.stripe_subscription_id && (
               <Button
@@ -208,12 +208,12 @@ const Profile = () => {
                   }
                 }}
                 variant="ghost"
-                size="sm"
-                className="h-9 w-9 p-0 hover:bg-accent flex-shrink-0"
+                size="icon"
+                className="h-10 w-10 hover:bg-accent rounded-full"
                 aria-label="Sync Subscription"
                 title="Sync Subscription"
               >
-                <RefreshCw className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+                <RefreshCw className="h-5 w-5" />
               </Button>
             )}
             <Button 
