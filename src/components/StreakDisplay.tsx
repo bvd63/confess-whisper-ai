@@ -1,4 +1,4 @@
-import { Flame, Trophy, Star } from 'lucide-react';
+import { Flame, Trophy, Star, Crown } from 'lucide-react';
 import { useStreakManager } from '@/hooks/useStreakManager';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -33,7 +33,7 @@ export const StreakDisplay = () => {
             )}
           </div>
           <div>
-            <p className="text-sm font-medium text-foreground">🔥 Current Streak</p>
+            <p className="text-sm font-medium text-foreground">Current Streak</p>
             <p className="text-2xl font-bold text-foreground">
               {streakData.currentStreak} {t.days || 'days'}
             </p>
@@ -49,7 +49,7 @@ export const StreakDisplay = () => {
             </span>
           </div>
           <div className="text-xs text-muted-foreground">
-            📈 Level {streakData.level}
+            Level {streakData.level}
           </div>
         </div>
       </div>
@@ -58,7 +58,7 @@ export const StreakDisplay = () => {
       {streakData.currentStreak < 30 && (
         <div className="mt-3">
           <div className="flex justify-between text-xs text-muted-foreground mb-1">
-            <span>⭐ Next milestone</span>
+            <span>Next milestone</span>
             <span>{getNextMilestone(streakData.currentStreak)} {t.days || 'days'}</span>
           </div>
           <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -73,7 +73,7 @@ export const StreakDisplay = () => {
       {/* VIP Double Rewards Badge */}
       {streakData.isVIP && (
         <div className="mt-3 flex items-center gap-2 text-xs text-primary font-semibold">
-          <span>👑</span>
+          <Crown className="w-3.5 h-3.5" />
           <span>VIP 2x rewards active</span>
         </div>
       )}

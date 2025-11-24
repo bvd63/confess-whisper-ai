@@ -18,7 +18,7 @@ export const OneSignalBanner: React.FC<Props> = ({ permission, onEnable, onDismi
     <div role="region" aria-label="Notifications banner" className={`w-full rounded-xl border border-border px-4 py-3 shadow-lg bg-card/95 backdrop-blur ${className}`}>
       <div className="flex items-start gap-3">
         <div className="flex-1">
-          <h4 className="font-semibold text-sm text-foreground">🔔 {i18n.title}</h4>
+          <h4 className="font-semibold text-sm text-foreground">{i18n.title}</h4>
           <p className="text-xs text-muted-foreground mt-1">{i18n.body}</p>
           <div className="mt-3 flex gap-2">
             <button 
