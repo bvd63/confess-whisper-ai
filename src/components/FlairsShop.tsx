@@ -412,21 +412,22 @@ export const FlairsShop = ({
       </Card>;
   };
   return <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh]">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] rounded-3xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between text-lg sm:text-xl">
-            <span className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-purple-500" />
-              {t.flairs_shop}
+          <DialogTitle className="flex items-center justify-between text-xl">
+            <span className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-2xl">
+                <Sparkles className="w-6 h-6 text-primary" />
+              </div>
+              <span>{t.flairs_shop}</span>
             </span>
-            <span className="flex items-center gap-2 text-yellow-600">
+            <span className="flex items-center gap-2.5 text-amber-600 bg-amber-500/10 px-4 py-2 rounded-full">
               <Coins className="w-5 h-5" />
-              {coinsBalance}
+              <span className="font-bold">{coinsBalance}</span>
             </span>
           </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground space-y-1">
-            <span>{t.flair_shop_description}</span>
-            
+          <DialogDescription className="text-sm text-muted-foreground mt-3">
+            {t.flair_shop_description}
           </DialogDescription>
         </DialogHeader>
 

@@ -41,16 +41,21 @@ const ModernAppHeader = ({
   };
 
   return (
-    <header className="sticky top-0 z-50 glass-strong border-b border-border shadow-elegant">
+    <header className="sticky top-0 z-50 backdrop-blur-2xl bg-background/80 border-b border-border/50 shadow-ios">
       <div className="w-full">
-      <div className="flex items-center justify-between px-4 py-3 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between px-5 py-4 max-w-7xl mx-auto">
         {/* Brand Section - Heart Icon + Confess Text */}
-        <div className="flex items-center gap-2">
-          <Heart className="w-5 h-5 text-primary" fill="currentColor" />
-          <span className="text-lg font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+        <button 
+          onClick={() => navigate('/')}
+          className="flex items-center gap-2.5 hover:scale-105 transition-transform"
+        >
+          <div className="p-2 bg-primary/10 rounded-2xl">
+            <Heart className="w-5 h-5 text-primary" fill="currentColor" />
+          </div>
+          <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
             Confess
           </span>
-        </div>
+        </button>
           
           {/* Right Side Actions */}
           <div className="flex items-center gap-2">
@@ -73,17 +78,21 @@ const ModernAppHeader = ({
                   variant={isPremium ? 'outline' : 'default'}
                   size="sm" 
                   className={cn(
-                    "h-9 px-3 gap-1.5 focus-ring",
-                    !isPremium && "bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 shadow-md"
+                    "h-10 px-4 gap-2 focus-ring rounded-full font-semibold shadow-ios",
+                    !isPremium && "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
                   )}
                 >
-                  <Crown className={cn(
-                    "w-4 h-4",
-                    !isPremium && "animate-pulse"
-                  )} />
-                  <span className="hidden sm:inline text-xs font-semibold">
-                    {isPremium ? 'VIP' : 'Go VIP'}
-                  </span>
+                  {isPremium ? (
+                    <>
+                      <Crown className="w-4 h-4" />
+                      <span className="hidden sm:inline text-sm">VIP</span>
+                    </>
+                  ) : (
+                    <>
+                      <Crown className="w-4 h-4 animate-pulse" />
+                      <span className="text-sm">Upgrade</span>
+                    </>
+                  )}
                 </Button>
 
                 {/* Coins Display */}

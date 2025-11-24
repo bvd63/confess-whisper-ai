@@ -100,7 +100,7 @@ export const ModernBottomNav = () => {
         <nav 
           role="navigation" 
           aria-label="Main navigation"
-          className="fixed bottom-0 left-0 right-0 z-[9999] glass-strong border-t border-border safe-area-inset-bottom shadow-elegant"
+          className="fixed bottom-0 left-0 right-0 z-[9999] backdrop-blur-2xl bg-background/80 border-t border-border/50 safe-area-inset-bottom shadow-ios-lg"
         >
           <div className="flex items-center justify-around h-16 max-w-screen-xl mx-auto px-2">
             {navItems.map((item) => {
@@ -117,17 +117,17 @@ export const ModernBottomNav = () => {
                   aria-label={`${item.label} (Alt+${item.shortcut})`}
                   onClick={() => handleTabClick(item)}
                   className={cn(
-                    "relative flex flex-col items-center justify-center min-w-[60px] h-14 rounded-xl transition-all duration-200 touch-target focus-ring",
+                    "relative flex flex-col items-center justify-center min-w-[60px] h-14 rounded-2xl transition-all duration-300 touch-target focus-ring",
                     active
                       ? "text-primary opacity-100"
-                      : "text-muted-foreground opacity-70 hover:text-foreground hover:opacity-100 hover:bg-muted/50",
-                    item.isSpecial && "scale-110" // Make create button larger
+                      : "text-muted-foreground opacity-60 hover:text-foreground hover:opacity-90 hover:bg-accent/30 hover:scale-105",
+                    item.isSpecial && "scale-110"
                   )}
                 >
                   <div className="relative">
                     <Icon
                       className={cn(
-                        "w-6 h-6 transition-all duration-200",
+                        "w-6 h-6 transition-all duration-300",
                         active && "scale-110",
                         item.isSpecial && "w-7 h-7"
                       )}
