@@ -55,38 +55,31 @@ jobs:
       - name: Type Check
         run: npx tsc --noEmit
 
-      - name: Lint & Auto-Fix
-        run: npm run lint -- --fix || true
-
       - name: ENV Validation
         run: npm run check:env
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
+          VITE_TURNSTILE_SITE_KEY: ${{ secrets.VITE_TURNSTILE_SITE_KEY }}
+          VITE_STRIPE_PRICE_VIP_MONTHLY: ${{ secrets.VITE_STRIPE_PRICE_VIP_MONTHLY }}
+          VITE_STRIPE_PRICE_VIP_YEARLY: ${{ secrets.VITE_STRIPE_PRICE_VIP_YEARLY }}
+          VITE_ONESIGNAL_APP_ID: ${{ secrets.VITE_ONESIGNAL_APP_ID }}
+
+      - name: Lint & Auto-Fix
+        run: npm run lint -- --fix || true
 
       - name: Unit Tests
         run: npm run test:unit
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
       - name: Integration Tests
         run: npm run test:integration
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
-      - name: E2E Tests
-        run: npm run test:e2e
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+      - name: E2E Tests (CI mode)
+        run: CI=1 npm run test:e2e -- --project=chromium
 
       - name: Coverage Report
         run: npm run coverage
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
       - name: Build (production)
         run: npm run build

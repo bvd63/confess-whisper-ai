@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getSupabase } from '@/lib/supabaseClient';
 import { supabase as integrationSupabase } from '@/integrations/supabase/client';
+import { env } from '@/lib/env';
 
 const SupabaseTest = () => {
   const [testResults, setTestResults] = useState<any>({});
@@ -17,9 +18,10 @@ const SupabaseTest = () => {
 
     // Test 1: Check environment variables
     results.envVars = {
-      VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
-      VITE_SUPABASE_PUBLISHABLE_KEY: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ? '✅ Present' : '❌ Missing',
-      VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY ? '✅ Present' : '❌ Missing',
+      VITE_SUPABASE_URL: env.client.supabaseUrl,
+      VITE_SUPABASE_PUBLISHABLE_KEY: env.client.supabaseAnonKey ? '✅ Present' : '❌ Missing',
+      VITE_SUPABASE_PROJECT_ID: env.client.supabaseProjectId,
+      VITE_TURNSTILE_SITE_KEY: env.client.turnstileSiteKey ? '✅ Present' : '❌ Missing',
     };
 
     // Test 2: Check supabaseClient

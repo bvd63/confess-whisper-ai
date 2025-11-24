@@ -11,6 +11,7 @@ import {
 } from '@/services/onesignal';
 import { useCurrentUser } from './useCurrentUser';
 import { logError } from '@/lib/logger';
+import { env } from '@/lib/env';
 
 export const useOneSignalInit = () => {
   const { user } = useCurrentUser();
@@ -18,7 +19,7 @@ export const useOneSignalInit = () => {
   useEffect(() => {
     const initPushNotifications = async () => {
       // Only initialize if OneSignal App ID is configured
-      const appId = import.meta.env.VITE_ONESIGNAL_APP_ID;
+      const appId = env.client.oneSignalAppId;
       if (!appId) return;
 
       try {

@@ -4,6 +4,7 @@
  */
 
 import { logWarn, logError } from '@/lib/logger';
+import { env } from '@/lib/env';
 
 let isInitialized = false;
 
@@ -50,7 +51,7 @@ export const initializeOneSignal = async (): Promise<boolean> => {
     return isInitialized;
   }
 
-  const appId = import.meta.env.VITE_ONESIGNAL_APP_ID;
+  const appId = env.client.oneSignalAppId;
   
   if (!appId) {
     if (import.meta.env.DEV) {

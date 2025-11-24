@@ -2,8 +2,7 @@
 // Environment validation script for CI/CD pipeline
 // Validates all required environment variables using Zod schemas
 
-import { env } from "../src/lib/env";
-import { ServerEnvSchema } from "../src/lib/serverEnv";
+import { env, ServerEnvSchema } from "../src/config/env";
 
 console.log("🔍 Validating environment configuration...\n");
 

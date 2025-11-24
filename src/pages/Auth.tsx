@@ -20,6 +20,7 @@ import { PasswordRulesChecklist } from "@/components/PasswordRulesChecklist";
 import { cn } from "@/lib/utils";
 import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
 import { logError } from "@/lib/logger";
+import { env } from "@/lib/env";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -497,7 +498,7 @@ const Auth = () => {
                 </Alert>
               )}
               <Turnstile
-                siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
+                siteKey={env.client.turnstileSiteKey ?? "1x00000000000000000000AA"}
                 onSuccess={(token) => {
                   setCaptchaToken(token);
                   setTurnstileError(false);

@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { Coins, CreditCard, RefreshCw, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import { useCoins } from '@/hooks/useCoins';
 import { SUBSCRIPTION_PLANS } from '@/lib/subscription-plans';
+import { env } from '@/lib/env';
 
 type TestResult = {
   success: boolean;
@@ -20,7 +21,7 @@ export default function TestPayments() {
   const [userId, setUserId] = useState<string | undefined>();
   const { balance, loading: coinsLoading } = useCoins(userId);
 
-  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+  const SUPABASE_URL = env.client.supabaseUrl;
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {

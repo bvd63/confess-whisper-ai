@@ -8,7 +8,9 @@ const createOptionalBooleanEnum = (z: any) => createBooleanEnum(z).optional();
 export const createClientEnvSchema = (z: any) =>
   z.object({
     VITE_SUPABASE_URL: z.string().url(),
+    VITE_SUPABASE_PROJECT_ID: z.string().min(3),
     VITE_SUPABASE_PUBLISHABLE_KEY: z.string().min(20),
+    VITE_TURNSTILE_SITE_KEY: z.string().min(10),
     VITE_STRIPE_PRICE_VIP_MONTHLY: z.string().optional(),
     VITE_STRIPE_PRICE_VIP_YEARLY: z.string().optional(),
     VITE_ONESIGNAL_APP_ID: z.string().optional(),

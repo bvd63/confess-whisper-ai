@@ -67,10 +67,10 @@ if (!self.define) {
     });
   };
 }
-define(['./workbox-4d6eb9d9'], (function (workbox) { 'use strict';
+define(['./workbox-28d7c21f'], (function (workbox) { 'use strict';
 
   workbox.setCacheNameDetails({
-    prefix: "confessai-1763929935833"
+    prefix: "confessai-1763975303514"
   });
   self.skipWaiting();
   workbox.clientsClaim();
@@ -82,7 +82,7 @@ define(['./workbox-4d6eb9d9'], (function (workbox) { 'use strict';
    */
   workbox.precacheAndRoute([{
     "url": "index.html",
-    "revision": "0.old3gadppvo"
+    "revision": "0.j85hc7bvj9o"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
