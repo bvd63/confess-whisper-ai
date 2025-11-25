@@ -230,27 +230,25 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto glass-strong">
-          <DialogHeader>
-            <DialogTitle className="text-xl sm:text-2xl flex items-center gap-2">
-              <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-primary animate-pulse-glow" />
-              {t.settings}
+        <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto glass-strong rounded-2xl border-primary/20">
+          <DialogHeader className="space-y-3">
+            <DialogTitle className="text-2xl sm:text-3xl flex items-center gap-3">
+              <div className="text-3xl">⚙️</div>
+              <span className="font-bold">{t.settings}</span>
             </DialogTitle>
-            <DialogDescription className="text-xs sm:text-sm">
+            <DialogDescription className="text-base text-foreground-secondary">
               {t.settings_manage}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-2 sm:space-y-3 py-3 sm:py-4">
+          <div className="space-y-4 py-6">
             {/* Current Plan */}
-            <div className="p-3 sm:p-4 border border-primary/30 rounded-lg bg-primary/5 hover-lift transition-colors">
-              <div className="flex items-start gap-3 sm:gap-4">
-                <div className="p-1.5 sm:p-2 rounded-full bg-primary/10">
-                  <Crown className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                </div>
+            <div className="p-6 border-2 border-primary/30 rounded-2xl bg-gradient-to-br from-primary/5 to-primary/10 hover-lift transition-all">
+              <div className="flex items-start gap-4">
+                <div className="text-3xl">👑</div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-sm sm:text-base text-foreground">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="font-bold text-lg text-foreground">
                       {t.plans_current_plan}
                     </h3>
                     <SubscriptionBadge 
