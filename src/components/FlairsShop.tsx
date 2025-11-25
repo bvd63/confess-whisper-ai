@@ -344,13 +344,13 @@ export const FlairsShop = ({
     const cooldownDays = (!expired && owned) ? getCooldownRemaining(flair.id) : null;
     const onCooldown = cooldownDays !== null;
     const cooldownEnd = (!expired && owned) ? getCooldownEnd(flair.id) : null;
-    return <Card key={flair.id} className={`p-5 flex flex-col items-center gap-3 relative hover:scale-105 transition-all duration-200 rounded-2xl ${equipped ? 'ring-2 ring-primary shadow-lg' : ''} ${isLocked ? 'opacity-60' : ''}`}>
-        {isLocked && <div className="absolute top-2 left-2">
-            <Lock className="w-4 h-4 text-muted-foreground" />
+    return <Card key={flair.id} className={`p-6 flex flex-col items-center gap-4 relative hover:scale-105 transition-all duration-200 rounded-2xl border-2 ${equipped ? 'border-primary/50 shadow-elegant bg-primary/5' : 'border-border/50'} ${isLocked ? 'opacity-60' : ''}`}>
+        {isLocked && <div className="absolute top-3 left-3">
+            <Lock className="w-5 h-5 text-muted-foreground" />
           </div>}
         
-        <div className="text-5xl mb-1">{flair.icon}</div>
-        <p className="text-sm font-semibold text-center">
+        <div className="text-6xl mb-2">{flair.icon}</div>
+        <p className="text-base font-semibold text-center">
           {getStringTranslation(t, flair.name_key) || flair.name_key}
         </p>
 
@@ -372,16 +372,16 @@ export const FlairsShop = ({
             </p>}
         </div>
         
-        <p className="text-xs font-semibold text-primary flex items-center justify-center gap-1">
-          <Coins className="w-3 h-3" />
-          {flair.cost}
-        </p>
+        <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20">
+          <div className="text-lg">🪙</div>
+          <span className="text-base font-bold">{flair.cost}</span>
+        </div>
 
         {owned && !expired ? (
           equipped ? (
-            <Button size="sm" variant="outline" disabled className="w-full gap-1.5 rounded-xl">
-              <Check className="w-4 h-4" />
-              <span className="font-medium">{t.equipped}</span>
+            <Button size="lg" variant="outline" disabled className="w-full gap-2 rounded-xl h-12">
+              <Check className="w-5 h-5" />
+              <span className="font-semibold">{t.equipped}</span>
             </Button>
           ) : isLocked ? (
             <Button size="sm" disabled className="w-full gap-1.5 rounded-xl" variant="outline">
@@ -412,19 +412,19 @@ export const FlairsShop = ({
       </Card>;
   };
   return <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] rounded-2xl">
-        <DialogHeader className="space-y-3">
-          <DialogTitle className="flex items-center justify-between text-xl">
-            <span className="flex items-center gap-2.5">
-              <Sparkles className="w-6 h-6 text-purple-500" />
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] rounded-2xl border-primary/20">
+        <DialogHeader className="space-y-4">
+          <DialogTitle className="flex items-center justify-between text-2xl">
+            <span className="flex items-center gap-3">
+              <div className="text-3xl">✨</div>
               <span className="font-bold">{t.flairs_shop}</span>
             </span>
-            <span className="flex items-center gap-2 text-yellow-600 bg-yellow-500/10 px-3 py-1.5 rounded-xl border border-yellow-500/20">
-              <Coins className="w-5 h-5" />
-              <span className="font-bold">{coinsBalance}</span>
+            <span className="flex items-center gap-2.5 bg-gradient-to-r from-amber-500/10 to-orange-500/10 px-4 py-2 rounded-xl border border-amber-500/20">
+              <div className="text-xl">🪙</div>
+              <span className="font-bold text-lg">{coinsBalance}</span>
             </span>
           </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground">
+          <DialogDescription className="text-base text-foreground-secondary">
             {t.flair_shop_description}
           </DialogDescription>
         </DialogHeader>

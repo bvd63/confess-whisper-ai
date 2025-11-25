@@ -162,27 +162,27 @@ export const SubscriptionPlansGrid = ({
       {/* Interval Tabs */}
       {onIntervalChange && (
         <div className="flex justify-center">
-          <div className="inline-flex rounded-xl bg-muted/50 p-1 gap-1">
+          <div className="inline-flex rounded-2xl bg-secondary p-1.5 gap-2">
             <button
               onClick={() => onIntervalChange('monthly')}
-              className={`px-8 py-3 rounded-lg transition-all font-medium ${
+              className={`px-10 py-3.5 rounded-xl transition-all font-semibold text-base ${
                 interval === 'monthly'
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-background text-foreground shadow-md'
+                  : 'text-foreground-secondary hover:text-foreground'
               }`}
             >
               Monthly
             </button>
             <button
               onClick={() => onIntervalChange('yearly')}
-              className={`px-8 py-3 rounded-lg transition-all font-medium relative ${
+              className={`px-10 py-3.5 rounded-xl transition-all font-semibold text-base relative ${
                 interval === 'yearly'
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-background text-foreground shadow-md'
+                  : 'text-foreground-secondary hover:text-foreground'
               }`}
             >
               Yearly
-              <span className="absolute -top-2 -right-2 bg-purple-600 text-white text-xs px-2.5 py-0.5 rounded-full font-bold">
+              <span className="absolute -top-3 -right-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs px-3 py-1 rounded-full font-bold shadow-lg">
                 -34%
               </span>
             </button>
@@ -196,15 +196,15 @@ export const SubscriptionPlansGrid = ({
           {filteredPlans.map((plan: any) => (
             <Card
               key={`${plan.id}-${plan.interval}`}
-              className={`p-8 relative bg-card border-2 transition-all duration-300 hover:scale-[1.02] rounded-2xl ${
+              className={`p-10 relative bg-card border-2 transition-all duration-300 hover:scale-[1.02] rounded-2xl ${
                 plan.id === 'vip'
-                  ? 'border-purple-500/30 hover:border-purple-500/50 shadow-lg'
-                  : 'border-border hover:border-purple-500/30'
+                  ? 'border-primary/30 hover:border-primary/50 shadow-elegant bg-gradient-to-br from-primary/5 to-primary/10'
+                  : 'border-border hover:border-primary/30'
               }`}
             >
             {/* Active Badge for VIP if current plan */}
             {isCurrentPlan(plan) && (
-              <Badge className="absolute -top-3 left-4 bg-purple-600/90 text-white px-3 py-1 font-medium">
+              <Badge className="absolute -top-3 left-6 bg-gradient-to-r from-primary to-primary-hover text-white px-4 py-1.5 font-semibold rounded-full shadow-lg text-sm">
                 Active
               </Badge>
             )}
@@ -212,9 +212,9 @@ export const SubscriptionPlansGrid = ({
             {/* Savings Badge with glow */}
             {interval === 'yearly' && (
               <div className="absolute -top-3 -right-3">
-                <div className="absolute inset-0 bg-purple-600/30 blur-xl rounded-full"></div>
-                <Badge className="relative bg-purple-600 text-white px-3 py-1 font-semibold">
-                  Save ~34%
+                <div className="absolute inset-0 bg-primary/30 blur-xl rounded-full"></div>
+                <Badge className="relative bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-1.5 font-bold rounded-full shadow-lg text-sm">
+                  Save 34%
                 </Badge>
               </div>
             )}

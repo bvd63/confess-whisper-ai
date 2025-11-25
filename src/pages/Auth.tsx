@@ -269,31 +269,31 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <AnimatedCard 
         hover="glow"
         glass
-        className="w-full max-w-md p-6 sm:p-8 border-primary/20"
+        className="w-full max-w-md p-8 sm:p-10 border-primary/20 rounded-2xl"
       >
         {/* Logo & Title */}
-        <div className="text-center mb-8 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 mb-4">
-            <Heart className="w-8 h-8 sm:w-10 sm:h-10 text-primary animate-heart-beat" fill="currentColor" />
+        <div className="text-center mb-10 animate-fade-in">
+          <div className="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 mb-6">
+            <div className="text-5xl">💜</div>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2">
-            <GradientText variant="hero">Confess</GradientText>
+          <h1 className="text-3xl sm:text-4xl font-bold mb-3 bg-gradient-to-r from-primary to-primary-hover bg-clip-text text-transparent">
+            Confess
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-base text-foreground-muted">
             {isLogin ? t.auth_welcome_back : t.auth_create_account}
           </p>
         </div>
 
         {/* Auth Form */}
-        <form onSubmit={handleAuth} className="space-y-5">
+        <form onSubmit={handleAuth} className="space-y-6">
           {/* Email Field */}
           <div className="space-y-2">
             <div className="relative">
-              <Mail className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
+              <Mail className="absolute left-4 top-4 w-5 h-5 text-muted-foreground" />
               <Input
                 type="email"
                 placeholder={t.auth_email_placeholder}
@@ -302,20 +302,23 @@ const Auth = () => {
                   setEmail(e.target.value);
                   setErrors(prev => ({ ...prev, email: "" }));
                 }}
-                className="pl-10"
+                className="pl-12 h-14 rounded-xl text-base"
                 disabled={isLoading}
                 autoComplete="email"
               />
             </div>
             {errors.email && (
-              <p className="text-xs text-destructive">{errors.email}</p>
+              <p className="text-sm text-destructive flex items-center gap-2 mt-2">
+                <AlertCircle className="w-4 h-4" />
+                {errors.email}
+              </p>
             )}
           </div>
 
           {/* Password Field */}
           <div className="space-y-2">
             <div className="relative">
-              <Lock className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
+              <Lock className="absolute left-4 top-4 w-5 h-5 text-muted-foreground" />
               <Input
                 type={showPassword ? "text" : "password"}
                 placeholder={t.auth_password_placeholder}
@@ -324,14 +327,14 @@ const Auth = () => {
                   setPassword(e.target.value);
                   setErrors(prev => ({ ...prev, password: "" }));
                 }}
-                className="pl-10 pr-10"
+                className="pl-12 pr-12 h-14 rounded-xl text-base"
                 disabled={isLoading}
                 autoComplete={isLogin ? "current-password" : "new-password"}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute right-4 top-4 text-muted-foreground hover:text-foreground transition-colors"
                 aria-label={showPassword ? t.auth_hide_password : t.auth_show_password}
                 tabIndex={-1}
               >
@@ -343,7 +346,10 @@ const Auth = () => {
               </button>
             </div>
             {errors.password && (
-              <p className="text-xs text-destructive">{errors.password}</p>
+              <p className="text-sm text-destructive flex items-center gap-2 mt-2">
+                <AlertCircle className="w-4 h-4" />
+                {errors.password}
+              </p>
             )}
 
             {/* Password Strength and Rules for Signup */}
@@ -362,7 +368,7 @@ const Auth = () => {
           {!isLogin && (
             <div className="space-y-2">
               <div className="relative">
-                <Lock className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
+                <Lock className="absolute left-4 top-4 w-5 h-5 text-muted-foreground" />
                 <Input
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder={t.auth_confirm_password_placeholder}
@@ -372,14 +378,14 @@ const Auth = () => {
                     setErrors(prev => ({ ...prev, confirmPassword: "" }));
                   }}
                   onPaste={(e) => e.preventDefault()}
-                  className="pl-10 pr-10"
+                  className="pl-12 pr-12 h-14 rounded-xl text-base"
                   disabled={isLoading}
                   autoComplete="new-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute right-4 top-4 text-muted-foreground hover:text-foreground transition-colors"
                   aria-label={showConfirmPassword ? t.auth_hide_password : t.auth_show_password}
                   tabIndex={-1}
                 >
