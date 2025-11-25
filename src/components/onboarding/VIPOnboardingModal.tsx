@@ -148,50 +148,50 @@ export const VIPOnboardingModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto rounded-[20px] border-border/50">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl">
         <DialogHeader>
           <div className="flex items-center justify-between">
-            <DialogTitle className="flex items-center gap-2.5 text-2xl font-bold">
-              <Crown className="w-7 h-7 text-[#B266FF] dark:text-[#B266FF]" />
+            <DialogTitle className="flex items-center gap-2 text-2xl">
+              <Crown className="w-6 h-6 text-primary" />
               {t.title}
             </DialogTitle>
             <Button
               variant="ghost"
               size="icon"
               onClick={handleSkip}
-              className="h-10 w-10 rounded-full hover:bg-secondary"
+              className="h-10 w-10 rounded-xl"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </Button>
           </div>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          <div className="text-center space-y-4">
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#B266FF]/10 dark:bg-[#B266FF]/20 text-[#9C27FF] dark:text-[#B266FF] text-sm font-semibold border border-[#B266FF]/20">
+          <div className="text-center space-y-3">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold">
               <Sparkles className="w-4 h-4" />
               {t.trialBadge}
             </div>
-            <h3 className="text-xl font-bold text-foreground px-4">
+            <h3 className="text-xl font-bold text-foreground">
               {t.subtitle}
             </h3>
-            <p className="text-base text-muted-foreground px-6 leading-relaxed">
+            <p className="text-base text-muted-foreground">
               {t.description}
             </p>
           </div>
 
           <VIPFeatureComparison lang={lang} />
 
-          <div className="flex flex-col sm:flex-row gap-3 pt-6">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button
               size="lg"
-              className="flex-1 gap-2 font-semibold rounded-full h-14 bg-gradient-to-r from-[#9C27FF] to-[#B266FF] hover:from-[#8B20E7] hover:to-[#A855F7] text-white shadow-lg shadow-[#9C27FF]/25"
+              className="flex-1 gap-2 font-semibold rounded-xl h-12"
               onClick={handleActivateTrial}
               disabled={isActivating}
             >
               {isActivating ? (
                 <>
-                  <span className="animate-spin text-lg">⏳</span>
+                  <span className="animate-spin">⏳</span>
                   {t.activating}
                 </>
               ) : (
@@ -204,14 +204,14 @@ export const VIPOnboardingModal = ({
             <Button
               size="lg"
               variant="outline"
-              className="flex-1 rounded-full h-14 border-border hover:bg-secondary"
+              className="flex-1 rounded-xl h-12"
               onClick={handleSkip}
             >
               {t.continueFree}
             </Button>
           </div>
 
-          <p className="text-sm text-center text-muted-foreground px-8 leading-relaxed">
+          <p className="text-sm text-center text-muted-foreground px-4">
             {t.trialNote}
           </p>
         </div>

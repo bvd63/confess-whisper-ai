@@ -101,13 +101,13 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[1000px] max-h-[90vh] overflow-y-auto bg-background border-border/50 rounded-[20px]">
-        <DialogHeader className="space-y-4 pb-2">
-          <DialogTitle className="text-3xl flex items-center gap-3 justify-center font-bold">
-            <Crown className="w-8 h-8 text-[#FFD700]" />
+      <DialogContent className="sm:max-w-[1000px] max-h-[90vh] overflow-y-auto bg-background border-primary/30 rounded-2xl">
+        <DialogHeader className="space-y-3">
+          <DialogTitle className="text-3xl flex items-center gap-2.5 justify-center font-bold">
+            <Crown className="w-8 h-8 text-primary" />
             {t.plans_paywall_title || "Your Subscription"}
           </DialogTitle>
-          <DialogDescription className="text-base text-center text-muted-foreground px-4 leading-relaxed">
+          <DialogDescription className="text-base text-center text-muted-foreground">
             {t.plans_paywall_subtitle || "Compare features and find your best experience."}
           </DialogDescription>
         </DialogHeader>

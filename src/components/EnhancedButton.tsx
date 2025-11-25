@@ -34,12 +34,12 @@ export const EnhancedButton = ({
   return (
     <Button
       className={cn(
-        "transition-all duration-300 rounded-full shadow-lg",
+        "transition-all duration-200",
         glow && "hover-glow",
         shine && "animate-shimmer",
-        lift && "hover-lift hover:-translate-y-0.5",
+        lift && "hover-lift",
         ripple && "ripple-effect",
-        "active:scale-95 active:shadow-md",
+        "active:scale-95",
         className
       )}
       onClick={handleClick}
