@@ -1,9 +1,9 @@
-// AGGRESSIVE CACHE BUSTING - Always serve fresh content
+// ULTRA-AGGRESSIVE CACHE BUSTING - Always serve fresh content immediately
 const VERSION = new Date().getTime();
 const CACHE_NAME = `confessai-v${VERSION}`;
 const RUNTIME_CACHE = `runtime-v${VERSION}`;
 
-// Minimal caching - prioritize fresh content
+// NO static assets cached - everything fresh
 const STATIC_ASSETS = [];
 
 // Install service worker
@@ -71,25 +71,45 @@ self.addEventListener('fetch', (event) => {
   // Skip external origins
   if (url.origin !== location.origin) return;
   
-  // ALWAYS fetch fresh HTML - never cache documents
+  // FORCE fresh HTML - absolutely no caching for documents
   if (request.destination === 'document') {
     event.respondWith(
       fetch(request, {
-        cache: 'no-store',
+        cache: 'reload', // Force reload from network
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache'
+          'Pragma': 'no-cache',
+          'Expires': '0'
         }
       }).catch(() => caches.match('/offline.html') || new Response('Offline', { status: 503 }))
     );
     return;
   }
   
-  // Cache first for static assets (images, scripts, styles)
-  if (request.destination === 'image' || 
-      request.destination === 'script' || 
-      request.destination === 'style' ||
-      request.destination === 'font') {
+  // Network first for ALL JavaScript/CSS - always check for updates
+  if (request.destination === 'script' || request.destination === 'style') {
+    event.respondWith(
+      fetch(request, {
+        cache: 'reload',
+        headers: {
+          'Cache-Control': 'no-cache',
+        }
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          const responseClone = response.clone();
+          caches.open(RUNTIME_CACHE)
+            .then((cache) => cache.put(request, responseClone));
+        }
+        return response;
+      })
+      .catch(() => caches.match(request) || new Response('Failed to load', { status: 503 }))
+    );
+    return;
+  }
+  
+  // Cache first only for images and fonts (static assets that rarely change)
+  if (request.destination === 'image' || request.destination === 'font') {
     event.respondWith(
       caches.match(request)
         .then((cached) => {

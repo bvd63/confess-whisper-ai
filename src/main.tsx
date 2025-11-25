@@ -29,11 +29,21 @@ if (typeof window !== 'undefined') {
   initOneSignal().catch(err => logError('OneSignal init failed', err as Error));
 }
 
-// Register service worker for PWA
+// Register service worker for PWA and force version check
 if ('serviceWorker' in navigator && env.isProd) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch((error) => {
-      logError('Service worker registration failed', error as Error);
+    // Force unregister old service workers and register new one
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      registrations.forEach((registration) => {
+        registration.unregister();
+      });
+      
+      // Register new service worker after unregistering old ones
+      setTimeout(() => {
+        navigator.serviceWorker.register('/sw.js').catch((error) => {
+          logError('Service worker registration failed', error as Error);
+        });
+      }, 1000);
     });
   });
 }

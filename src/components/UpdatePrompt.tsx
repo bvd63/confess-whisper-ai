@@ -12,7 +12,7 @@ import { logInfo, logDebug } from "@/lib/logger";
 export const UpdatePrompt = () => {
   const [showPrompt, setShowPrompt] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [autoReloadCountdown, setAutoReloadCountdown] = useState(5);
+  const [autoReloadCountdown, setAutoReloadCountdown] = useState(1);
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -76,9 +76,9 @@ export const UpdatePrompt = () => {
       });
     }
 
-    // Check on mount, on page visibility change, and every 3 seconds for instant real-time updates
+    // Check on mount, on page visibility change, and every 1 second for instant real-time updates
     checkForUpdates();
-    const interval = setInterval(checkForUpdates, 3 * 1000);
+    const interval = setInterval(checkForUpdates, 1 * 1000);
 
     // Check when user returns to tab
     const handleVisibilityChange = () => {
@@ -95,7 +95,15 @@ export const UpdatePrompt = () => {
   }, []);
 
   const handleRefresh = () => {
+    // Hard reload with cache bypass
     window.location.reload();
+    
+    // Additional cache clearing
+    if ('caches' in window) {
+      caches.keys().then((names) => {
+        names.forEach((name) => caches.delete(name));
+      });
+    }
   };
 
   const handleDismiss = () => {
@@ -103,7 +111,7 @@ export const UpdatePrompt = () => {
     setTimeout(() => setShowPrompt(false), 300);
   };
 
-  // Auto-reload countdown after 3 seconds for instant updates
+  // Auto-reload countdown after 1 second for instant updates
   useEffect(() => {
     if (!showPrompt) return;
 
@@ -118,7 +126,7 @@ export const UpdatePrompt = () => {
     }, 1000);
 
     return () => clearInterval(countdownInterval);
-  }, [showPrompt]);
+  }, [showPrompt, handleRefresh]);
 
   if (!showPrompt) return null;
 

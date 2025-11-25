@@ -1,7 +1,6 @@
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ThemeProvider } from 'next-themes';
 import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext';
 import { ConfirmProvider } from '@/contexts/ConfirmContext';
 import { TabNavigationProvider } from '@/contexts/TabNavigationContext';
@@ -136,10 +135,29 @@ const AppContent = () => {
     }
   }, [user]);
   
-  // Optimized: Clear cache on logout and run health checks
+  // Optimized: Clear cache on logout, aggressive cache clearing on mount, and run health checks
   useEffect(() => {
     const supabase = getSupabase();
     let dataRepairTimeout: NodeJS.Timeout;
+    
+    // AGGRESSIVE: Clear all old service worker caches on mount for fresh UI
+    if ('caches' in window) {
+      caches.keys().then((names) => {
+        const now = Date.now();
+        names.forEach((name) => {
+          // Delete caches older than 1 hour
+          if (name.includes('confessai-v') || name.includes('runtime-v')) {
+            const match = name.match(/v(\d+)/);
+            if (match) {
+              const cacheTime = parseInt(match[1]);
+              if (now - cacheTime > 60 * 60 * 1000) { // 1 hour
+                caches.delete(name);
+              }
+            }
+          }
+        });
+      }).catch(() => {});
+    }
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_OUT') {
