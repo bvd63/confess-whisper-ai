@@ -12,8 +12,10 @@ const logStep = (step: string, details?: any) => {
   console.log(`[BILLING-CHANGE] ${step}${detailsStr}`);
 };
 
+// Load price IDs from environment variables
 const STRIPE_PRICE_IDS = {
-  vip: "price_1SJ0vwR7kygIyYg9OeCiqV00",
+  vip_monthly: Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || "",
+  vip_yearly: Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || "",
 };
 
 serve(async (req) => {
@@ -44,12 +46,15 @@ serve(async (req) => {
 
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const { targetTier } = await req.json();
+    const { targetTier, cycle } = await req.json();
     if (!targetTier || targetTier !== 'vip') {
-      throw new Error("Invalid target tier");
+      throw new Error("Invalid target tier - only VIP is supported");
+    }
+    if (!cycle || !['monthly', 'yearly'].includes(cycle)) {
+      throw new Error("Invalid cycle - must be monthly or yearly");
     }
 
-    logStep("Target tier", { targetTier });
+    logStep("Target tier and cycle", { targetTier, cycle });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
@@ -76,10 +81,10 @@ serve(async (req) => {
     const subscriptionItemId = subscription.items.data[0].id;
     logStep("Found active subscription", { subscriptionId: subscription.id });
 
-    // Get target price ID from centralized config
-    const targetPriceId = STRIPE_PRICE_IDS[targetTier as keyof typeof STRIPE_PRICE_IDS];
+    // Get target price ID based on cycle
+    const targetPriceId = cycle === 'yearly' ? STRIPE_PRICE_IDS.vip_yearly : STRIPE_PRICE_IDS.vip_monthly;
     if (!targetPriceId) {
-      throw new Error(`Price ID for ${targetTier} not configured`);
+      throw new Error(`Price ID for VIP ${cycle} not configured in environment`);
     }
 
     logStep("Changing subscription", { targetPriceId });

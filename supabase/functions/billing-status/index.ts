@@ -13,24 +13,13 @@ const logStep = (step: string, details?: any) => {
   console.log(`[BILLING-STATUS] ${step}${detailsStr}`);
 };
 
-// Price IDs for both test and live mode
-const STRIPE_PRICE_IDS = {
-  // Test mode
-  vip_monthly_test: "price_1SL42cR7kygIyYg9LFEBp8uz",
-  vip_yearly_test: "price_1SL42zR7kygIyYg9IZrd2ExW",
-  // Live mode
-  vip_monthly_live: "price_1SJ0vwR7kygIyYg9OeCiqV00",
-  vip_yearly_live: "price_1SJ0vvR7kygIyYg9BJuciYGd",
-};
+// Load price IDs from environment variables - supports both monthly and yearly
+const VIP_MONTHLY_PRICE = Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || "";
+const VIP_YEARLY_PRICE = Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || "";
 
 const getTierFromPriceId = (priceId: string): string => {
-  // Check if it's a VIP price
-  if (
-    priceId === STRIPE_PRICE_IDS.vip_monthly_test ||
-    priceId === STRIPE_PRICE_IDS.vip_yearly_test ||
-    priceId === STRIPE_PRICE_IDS.vip_monthly_live ||
-    priceId === STRIPE_PRICE_IDS.vip_yearly_live
-  ) {
+  // Check if it's a VIP price (monthly or yearly)
+  if (priceId === VIP_MONTHLY_PRICE || priceId === VIP_YEARLY_PRICE) {
     return 'vip';
   }
   

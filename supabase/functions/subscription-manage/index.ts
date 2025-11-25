@@ -12,11 +12,10 @@ const logStep = (step: string, details?: any) => {
   console.log(`[SUBSCRIPTION-MANAGE] ${step}${detailsStr}`);
 };
 
+// Load VIP price IDs from environment - only FREE and VIP tiers supported
 const STRIPE_PRICE_IDS = {
-  premium_monthly: "price_1SJ0vvR7kygIyYg9oT1ju6lQ",
-  premium_yearly: "price_1SJ0vvR7kygIyYg9yORadPGD",
-  vip_monthly: "price_1SJ0vwR7kygIyYg9OeCiqV00",
-  vip_yearly: "price_1SJ0vvR7kygIyYg9BJuciYGd",
+  vip_monthly: Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || "",
+  vip_yearly: Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || "",
 };
 
 serve(async (req) => {
@@ -100,10 +99,10 @@ serve(async (req) => {
 
         const currentPriceId = subscription.items.data[0].price.id;
         const currentPrice = subscription.items.data[0].price;
-        let currentPlan = 'premium';
         const interval = currentPrice.recurring?.interval === 'year' ? 'yearly' : 'monthly';
         
-        // Determine tier
+        // Determine tier - only FREE and VIP supported
+        let currentPlan = 'free';
         if (currentPriceId === STRIPE_PRICE_IDS.vip_monthly || currentPriceId === STRIPE_PRICE_IDS.vip_yearly) {
           currentPlan = 'vip';
         }
@@ -160,8 +159,8 @@ serve(async (req) => {
         
         logStep("Subscription changed", { subscriptionId: updatedSubscription.id });
 
-        // Determine new tier
-        let newTier = 'premium';
+        // Determine new tier - only VIP or FREE
+        let newTier = 'free';
         const newInterval = updatedSubscription.items.data[0].price.recurring?.interval === 'year' ? 'yearly' : 'monthly';
         
         if (priceId === STRIPE_PRICE_IDS.vip_monthly || priceId === STRIPE_PRICE_IDS.vip_yearly) {
@@ -261,7 +260,7 @@ serve(async (req) => {
           });
 
           const priceId = updatedSubscription.items.data[0].price.id;
-          let tier = 'premium';
+          let tier = 'free';
           if (priceId === STRIPE_PRICE_IDS.vip_monthly || priceId === STRIPE_PRICE_IDS.vip_yearly) {
             tier = 'vip';
           }
