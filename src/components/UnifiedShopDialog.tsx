@@ -255,34 +255,41 @@ export const UnifiedShopDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
         data-testid="manage-subscription-modal"
-        className="max-w-5xl max-h-[90vh] overflow-y-auto bg-background border-border rounded-2xl"
+        className="max-w-5xl max-h-[90vh] overflow-y-auto bg-background border-border rounded-3xl p-0"
       >
-        <DialogHeader className="space-y-3 pb-2">
-          <DialogTitle className="flex items-center justify-center gap-2.5 text-2xl font-bold text-foreground">
-            <span className="text-2xl">👑</span>
-            Subscription & Coins
-          </DialogTitle>
-          <p className="text-center text-sm text-muted-foreground">
-            Manage your subscription and purchase coins
-          </p>
+        <DialogHeader className="sticky top-0 z-10 glass-strong border-b border-border px-6 py-5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-primary-pressed flex items-center justify-center shadow-lg shadow-primary/25">
+              <Crown className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <DialogTitle className="text-2xl font-bold text-foreground">
+                Subscription & Coins
+              </DialogTitle>
+              <p className="text-sm text-foreground-secondary mt-0.5">
+                Manage your subscription and purchase coins
+              </p>
+            </div>
+          </div>
         </DialogHeader>
 
-        <Tabs key={`${open}-${defaultTab}`} defaultValue={defaultTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6 h-12 rounded-xl bg-muted/50">
-            <TabsTrigger value="subscriptions" className="flex items-center gap-2 text-sm rounded-lg data-[state=active]:bg-background">
-              <Crown className="w-4 h-4" />
-              <span className="font-medium">Subscriptions</span>
-            </TabsTrigger>
-            <TabsTrigger value="coins" className="flex items-center gap-2 text-sm rounded-lg data-[state=active]:bg-background">
-              <Coins className="w-4 h-4" />
-              <span className="font-medium">Coins</span>
-            </TabsTrigger>
-          </TabsList>
+        <div className="px-6 py-6">
+          <Tabs key={`${open}-${defaultTab}`} defaultValue={defaultTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-8 h-14 rounded-2xl bg-muted p-1.5 gap-1.5">
+              <TabsTrigger value="subscriptions" className="flex items-center gap-2 text-sm rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg font-semibold">
+                <Crown className="w-5 h-5" />
+                <span>Subscriptions</span>
+              </TabsTrigger>
+              <TabsTrigger value="coins" className="flex items-center gap-2 text-sm rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg font-semibold">
+                <Coins className="w-5 h-5" />
+                <span>Coins</span>
+              </TabsTrigger>
+            </TabsList>
 
           <TabsContent value="subscriptions">
             {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="w-10 h-10 animate-spin text-primary" />
               </div>
             ) : (
               <>
@@ -295,7 +302,7 @@ export const UnifiedShopDialog = ({
                   interval={interval}
                   onIntervalChange={setInterval}
                 />
-                <p className="text-center text-xs text-gray-500 mt-6">
+                <p className="text-center text-sm text-foreground-muted mt-8 px-4">
                   You can cancel anytime from account settings. No long-term commitments.
                 </p>
               </>
@@ -305,9 +312,14 @@ export const UnifiedShopDialog = ({
           <TabsContent value="coins">
             <div className="space-y-8">
               <div className="text-center">
-                <p className="text-xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
-                  {t.coins_shop_title || '🪙 Coin Shop'}
-                </p>
+                <div className="inline-flex items-center gap-2 mb-3">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-vip to-warning flex items-center justify-center shadow-lg">
+                    <Coins className="w-5 h-5 text-white" />
+                  </div>
+                </div>
+                <h3 className="text-2xl font-bold text-foreground mb-2">
+                  {t.coins_shop_title || 'Coin Shop'}
+                </h3>
                 <p className="text-base text-muted-foreground mt-2">
                   {t.coins_shop_subtitle || 'Get coins to unlock exclusive features!'}
                 </p>
@@ -388,6 +400,7 @@ export const UnifiedShopDialog = ({
             </div>
           </TabsContent>
         </Tabs>
+        </div>
       </DialogContent>
     </Dialog>
   );

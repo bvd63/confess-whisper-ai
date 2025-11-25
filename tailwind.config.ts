@@ -29,11 +29,21 @@ export default {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        background: {
+          DEFAULT: "hsl(var(--background))",
+          secondary: "hsl(var(--background-secondary))",
+        },
+        foreground: {
+          DEFAULT: "hsl(var(--foreground))",
+          secondary: "hsl(var(--foreground-secondary))",
+          muted: "hsl(var(--foreground-muted))",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
+          hover: "hsl(var(--primary-hover))",
+          pressed: "hsl(var(--primary-pressed))",
           foreground: "hsl(var(--primary-foreground))",
+          glow: "hsl(var(--primary-glow))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -57,18 +67,19 @@ export default {
         },
         card: {
           DEFAULT: "hsl(var(--card))",
+          secondary: "hsl(var(--card-secondary))",
           foreground: "hsl(var(--card-foreground))",
         },
-        sidebar: {
-          DEFAULT: "hsl(var(--sidebar-background))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
+        // Highlight colors
+        vip: {
+          DEFAULT: "hsl(var(--vip-gold))",
         },
+        flame: "hsl(var(--flame))",
+        success: "hsl(var(--success))",
+        warning: "hsl(var(--warning))",
+        rare: "hsl(var(--rare-star))",
+        neon: "hsl(var(--neon-blue))",
+        pink: "hsl(var(--pink-glow))",
         safe: "var(--safe-area-bottom)",
       },
       borderRadius: {

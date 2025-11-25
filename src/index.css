@@ -8,90 +8,129 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Confess.AI - Empathetic & Calming Design System */
-    --background: 250 40% 98%;
-    --foreground: 250 30% 15%;
+    /* Premium Color System - Light Mode */
+    --background: 0 0% 100%;
+    --background-secondary: 220 14% 98%;
+    --foreground: 0 0% 7%;
+    --foreground-secondary: 220 9% 29%;
+    --foreground-muted: 220 9% 42%;
 
     --card: 0 0% 100%;
-    --card-foreground: 250 30% 15%;
+    --card-secondary: 220 13% 95%;
+    --card-foreground: 0 0% 7%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 250 30% 15%;
+    --popover-foreground: 0 0% 7%;
 
-    /* Primary - Deep Purple for empathy */
-    --primary: 265 60% 50%;
+    /* Primary - Vibrant Purple */
+    --primary: 277 100% 58%;
+    --primary-hover: 276 86% 62%;
+    --primary-pressed: 276 73% 52%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 265 80% 70%;
+    --primary-glow: 277 100% 70%;
 
-    /* Secondary - Soft Lavender */
-    --secondary: 250 50% 92%;
-    --secondary-foreground: 250 30% 25%;
+    /* Secondary - Clean Gray */
+    --secondary: 220 13% 95%;
+    --secondary-foreground: 220 9% 29%;
 
     /* Muted - Subtle backgrounds */
-    --muted: 250 40% 96%;
-    --muted-foreground: 250 20% 50%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 42%;
 
-    /* Accent - Gentle Blue */
-    --accent: 220 60% 88%;
-    --accent-foreground: 220 40% 25%;
+    /* Accent - Clean Purple */
+    --accent: 220 13% 91%;
+    --accent-foreground: 220 9% 29%;
 
-    --destructive: 0 70% 60%;
+    /* Highlight Colors */
+    --vip-gold: 45 93% 58%;
+    --flame: 24 100% 56%;
+    --success: 142 71% 45%;
+    --warning: 38 92% 50%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
+    --rare-star: 48 96% 89%;
+    --neon-blue: 217 91% 60%;
+    --pink-glow: 330 81% 60%;
 
-    --border: 250 30% 90%;
-    --input: 250 30% 90%;
-    --ring: 265 60% 50%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 277 100% 58%;
 
-    --radius: 1rem;
+    --radius: 1.125rem;
 
-    /* Custom Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(265 60% 50%), hsl(220 70% 60%));
-    --gradient-soft: linear-gradient(180deg, hsl(250 40% 98%), hsl(250 50% 95%));
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(250 40% 97%));
+    /* Premium Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(277 100% 58%), hsl(276 86% 62%));
+    --gradient-vip: linear-gradient(135deg, hsl(45 93% 58%), hsl(38 92% 50%));
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(220 14% 98%));
 
-    /* Shadows */
-    --shadow-elegant: 0 8px 30px rgba(147, 51, 234, 0.12);
-    --shadow-glow: 0 0 30px rgba(147, 51, 234, 0.15);
+    /* Premium Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    --shadow-elegant: 0 8px 24px rgba(156, 39, 255, 0.15);
+    --shadow-glow: 0 0 32px rgba(156, 39, 255, 0.2);
 
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark {
-    --background: 250 30% 10%;
-    --foreground: 250 20% 95%;
+    /* Premium Color System - Dark Mode */
+    --background: 222 47% 4%;
+    --background-secondary: 223 39% 8%;
+    --foreground: 0 0% 100%;
+    --foreground-secondary: 216 12% 84%;
+    --foreground-muted: 218 11% 65%;
 
-    --card: 250 25% 14%;
-    --card-foreground: 250 20% 95%;
+    --card: 223 39% 10%;
+    --card-secondary: 223 35% 13%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 250 25% 14%;
-    --popover-foreground: 250 20% 95%;
+    --popover: 223 39% 10%;
+    --popover-foreground: 0 0% 100%;
 
-    /* Primary - Lighter Purple for dark mode */
-    --primary: 265 70% 65%;
-    --primary-foreground: 250 30% 10%;
-    --primary-glow: 265 80% 75%;
+    /* Primary - Vibrant Purple (dark) */
+    --primary: 277 91% 71%;
+    --primary-hover: 277 85% 77%;
+    --primary-pressed: 277 85% 67%;
+    --primary-foreground: 222 47% 4%;
+    --primary-glow: 277 91% 80%;
 
-    /* Secondary - Softer Lavender for dark */
-    --secondary: 250 30% 20%;
-    --secondary-foreground: 250 20% 90%;
+    /* Secondary - Dark surfaces */
+    --secondary: 223 35% 13%;
+    --secondary-foreground: 216 12% 84%;
 
-    --muted: 250 25% 18%;
-    --muted-foreground: 250 15% 70%;
+    /* Muted - Subtle dark backgrounds */
+    --muted: 223 35% 16%;
+    --muted-foreground: 218 11% 65%;
 
-    --accent: 220 40% 30%;
-    --accent-foreground: 220 20% 90%;
+    /* Accent - Dark purple */
+    --accent: 223 35% 18%;
+    --accent-foreground: 216 12% 84%;
 
-    --destructive: 0 60% 50%;
+    /* Highlight Colors (dark mode adjusted) */
+    --vip-gold: 45 93% 58%;
+    --flame: 24 100% 56%;
+    --success: 142 71% 45%;
+    --warning: 38 92% 50%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
+    --rare-star: 48 96% 89%;
+    --neon-blue: 217 91% 60%;
+    --pink-glow: 330 81% 60%;
 
-    --border: 250 25% 25%;
-    --input: 250 25% 25%;
-    --ring: 265 70% 65%;
+    --border: 223 35% 18%;
+    --input: 223 35% 18%;
+    --ring: 277 91% 71%;
 
-    /* Shadows for dark mode */
-    --shadow-elegant: 0 8px 30px rgba(147, 51, 234, 0.25);
-    --shadow-glow: 0 0 40px rgba(147, 51, 234, 0.3);
+    /* Premium Shadows (dark) */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+    --shadow-elegant: 0 8px 24px rgba(178, 102, 255, 0.3);
+    --shadow-glow: 0 0 40px rgba(178, 102, 255, 0.4);
   }
 }
 
@@ -136,11 +175,12 @@ All colors MUST be HSL.
   }
 }
 
-/* Base Typography - Clean iOS-style fonts */
+/* Premium Typography - Apple-style System Fonts */
 * {
-  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
 }
 
 /* Smooth Scrolling */
@@ -182,27 +222,27 @@ body {
   @apply font-sans antialiased;
 }
 
-/* Glass Morphism Effects */
+/* Premium Glass Morphism Effects */
 .glass {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.35);
 }
 
 .dark .glass {
-  background: rgba(30, 20, 50, 0.7);
-  border: 1px solid rgba(147, 51, 234, 0.2);
+  background: rgba(34, 34, 41, 0.75);
+  border: 1px solid rgba(178, 102, 255, 0.15);
 }
 
 .glass-strong {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
 .dark .glass-strong {
-  background: rgba(30, 20, 50, 0.85);
+  background: rgba(34, 34, 41, 0.9);
 }
 
 /* Custom Animations */

@@ -97,40 +97,42 @@ const Rewards = () => {
 
   return (
     <AppLayout>
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 pb-24">
         {/* Header */}
-        <div className="sticky top-0 z-10 glass-strong border-b border-border/50">
-          <div className="flex items-center justify-between px-4 py-4">
+        <div className="sticky top-0 z-10 -mx-4 sm:-mx-6 mb-6 glass-strong border-b border-border">
+          <div className="flex items-center justify-between px-4 sm:px-6 py-5">
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => navigate(-1)}
-                className="hover:bg-accent rounded-xl"
+                className="hover:bg-muted rounded-2xl h-12 w-12"
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <div className="flex items-center gap-2.5">
-                <Trophy className="h-7 w-7 text-amber-500" />
-                <h1 className="text-2xl font-bold">Rewards Hub</h1>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-flame to-warning flex items-center justify-center shadow-lg shadow-flame/25">
+                  <Trophy className="h-5 w-5 text-white" />
+                </div>
+                <h1 className="text-2xl font-bold text-foreground">Rewards Hub</h1>
               </div>
             </div>
           </div>
         </div>
 
         {/* Tabs */}
-        <Tabs defaultValue={initialTab} className="px-4 py-6">
-          <TabsList className="grid w-full grid-cols-4 mb-6 h-11 rounded-xl">
-            <TabsTrigger value="overview" className="text-sm rounded-lg">
-              <Star className="w-4 h-4 mr-1" />
+        <Tabs defaultValue={initialTab} className="py-6">
+          <TabsList className="grid w-full grid-cols-4 mb-8 h-14 rounded-2xl bg-muted p-1.5 gap-1.5">
+            <TabsTrigger value="overview" className="text-sm rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg font-medium">
+              <Star className="w-4 h-4 mr-1.5" />
               <span className="hidden sm:inline">Overview</span>
             </TabsTrigger>
-            <TabsTrigger value="achievements" className="text-sm rounded-lg">
-              <Award className="w-4 h-4 mr-1" />
+            <TabsTrigger value="achievements" className="text-sm rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg font-medium">
+              <Award className="w-4 h-4 mr-1.5" />
               <span className="hidden xs:inline">Badges</span>
             </TabsTrigger>
-            <TabsTrigger value="daily" className="text-sm rounded-lg">
-              <Flame className="w-4 h-4 mr-1" />
+            <TabsTrigger value="daily" className="text-sm rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg font-medium">
+              <Flame className="w-4 h-4 mr-1.5" />
               <span className="hidden xs:inline">Daily</span>
             </TabsTrigger>
             <TabsTrigger value="referrals" className="text-sm rounded-lg">
