@@ -115,17 +115,17 @@ export const AwardPicker = ({ open, onOpenChange, confessionId }: AwardPickerPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md rounded-3xl">
         <DialogHeader>
-          <DialogTitle>Give an Award</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">Give an Award</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">
+        <div className="space-y-5">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             Show your appreciation! The creator will receive 50% of the award value.
           </p>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-4">
             {AWARDS.map((award) => {
               const Icon = award.icon;
               const isSelected = selectedAward?.type === award.type;
@@ -137,21 +137,22 @@ export const AwardPicker = ({ open, onOpenChange, confessionId }: AwardPickerPro
                   onClick={() => setSelectedAward(award)}
                   disabled={!canAfford}
                   className={cn(
-                    'p-4 rounded-lg border-2 transition-all',
-                    'flex flex-col items-center gap-2',
+                    'p-5 rounded-2xl border-2 transition-all duration-200',
+                    'flex flex-col items-center gap-3',
                     'disabled:opacity-50 disabled:cursor-not-allowed',
+                    'hover:scale-105 active:scale-95',
                     isSelected
-                      ? `${award.bgColor} ${award.borderColor}`
-                      : 'bg-background hover:bg-secondary border-border',
+                      ? `${award.bgColor} ${award.borderColor} shadow-lg`
+                      : 'bg-card hover:bg-secondary/50 border-border hover:border-primary/30',
                   )}
                 >
-                  <Icon className={cn('w-8 h-8', award.color)} />
-                  <span className="font-semibold">{award.name}</span>
-                  <span className="text-sm text-muted-foreground">
+                  <Icon className={cn('w-10 h-10', award.color)} />
+                  <span className="font-bold text-base">{award.name}</span>
+                  <span className="text-sm font-medium text-muted-foreground">
                     {award.cost} coins
                   </span>
                   {!canAfford && (
-                    <span className="text-xs text-destructive">
+                    <span className="text-xs font-semibold text-destructive">
                       Insufficient
                     </span>
                   )}
@@ -161,18 +162,18 @@ export const AwardPicker = ({ open, onOpenChange, confessionId }: AwardPickerPro
           </div>
 
           {selectedAward && (
-            <div className="p-3 bg-secondary/50 rounded-lg space-y-1">
+            <div className="p-4 bg-secondary/30 rounded-2xl space-y-2 border border-border/50">
               <div className="flex justify-between text-sm">
-                <span>Award cost:</span>
-                <span className="font-semibold">{selectedAward.cost} coins</span>
+                <span className="text-muted-foreground">Award cost:</span>
+                <span className="font-bold">{selectedAward.cost} coins</span>
               </div>
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <span>Creator earns:</span>
-                <span>{Math.floor(selectedAward.cost / 2)} coins</span>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Creator earns:</span>
+                <span className="font-semibold text-green-500">{Math.floor(selectedAward.cost / 2)} coins</span>
               </div>
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <span>Your balance:</span>
-                <span>{balance || 0} coins</span>
+              <div className="flex justify-between text-sm border-t border-border/50 pt-2 mt-2">
+                <span className="text-muted-foreground">Your balance:</span>
+                <span className="font-bold">{balance || 0} coins</span>
               </div>
             </div>
           )}
@@ -180,17 +181,17 @@ export const AwardPicker = ({ open, onOpenChange, confessionId }: AwardPickerPro
           <Button
             onClick={handleGiveAward}
             disabled={loading || !selectedAward || (selectedAward && selectedAward.cost > (balance || 0))}
-            className="w-full"
+            className="w-full h-11 rounded-xl font-semibold text-base"
           >
             {loading ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                 Processing...
               </>
             ) : (
               <>
                 {selectedAward && (
-                  <selectedAward.icon className="w-4 h-4 mr-2" />
+                  <selectedAward.icon className="w-5 h-5 mr-2" />
                 )}
                 Give Award
               </>

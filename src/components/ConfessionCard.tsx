@@ -1,7 +1,7 @@
 import { useState, memo } from "react";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { EnhancedButton } from "@/components/EnhancedButton";
-import { MessageCircle, Sparkles, Crown, Award, Wand2, Rocket } from "lucide-react";
+import { MessageCircle, Sparkles, Crown, Award, Wand2, Rocket, Loader2 } from "lucide-react";
 import DeepInsightDialog from "./DeepInsightDialog";
 import ShareDialog from "./ShareDialog";
 import ReportDialog from "./ReportDialog";
@@ -252,10 +252,10 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
             variant="ghost"
             size="sm"
             onClick={() => setIsAwardPickerOpen(true)}
-            className="gap-1 h-9 px-3"
+            className="gap-1.5 text-xs h-9 px-3 rounded-xl hover:bg-vip-gold/10 transition-colors"
           >
-            <Award className="w-4 h-4" />
-            <span className="text-xs">Award</span>
+            <Award className="w-4 h-4 text-vip-gold" />
+            <span className="hidden sm:inline font-medium">Award</span>
           </Button>
         )}
         
@@ -265,10 +265,10 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
               variant="ghost"
               size="sm"
               onClick={() => setIsAIMakeoverOpen(true)}
-              className="gap-1 h-9 px-3"
+              className="gap-1.5 text-xs h-9 px-3 rounded-xl hover:bg-purple-500/10 transition-colors"
             >
-              <Wand2 className="w-4 h-4" />
-              <span className="text-xs">{t.ai_makeover}</span>
+              <Wand2 className="w-4 h-4 text-purple-500" />
+              <span className="hidden sm:inline font-medium">{t.ai_makeover}</span>
             </Button>
             
             <Button
@@ -276,10 +276,16 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
               size="sm"
               onClick={handleBoostConfession}
               disabled={isBoostLoading}
-              className="gap-1 h-9 px-3"
+              className="gap-1.5 text-xs h-9 px-3 rounded-xl hover:bg-orange-500/10 transition-colors disabled:opacity-50"
             >
-              <Rocket className="w-4 h-4" />
-              <span className="text-xs">{isBoostLoading ? t.processing : t.boost_confession}</span>
+              {isBoostLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
+              ) : (
+                <Rocket className="w-4 h-4 text-orange-500" />
+              )}
+              <span className="hidden sm:inline font-medium">
+                {isBoostLoading ? t.processing : t.boost_confession}
+              </span>
             </Button>
           </>
         )}
