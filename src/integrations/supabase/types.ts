@@ -453,6 +453,55 @@ export type Database = {
           },
         ]
       }
+      confession_awards: {
+        Row: {
+          award_type: string
+          coins_spent: number
+          confession_id: string
+          created_at: string
+          giver_id: string
+          id: string
+        }
+        Insert: {
+          award_type: string
+          coins_spent: number
+          confession_id: string
+          created_at?: string
+          giver_id: string
+          id?: string
+        }
+        Update: {
+          award_type?: string
+          coins_spent?: number
+          confession_id?: string
+          created_at?: string
+          giver_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "confession_awards_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "confessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "confession_awards_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "hot_confessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "confession_awards_confession_id_fkey"
+            columns: ["confession_id"]
+            isOneToOne: false
+            referencedRelation: "trending_confessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       confession_boosts: {
         Row: {
           boost_until: string
@@ -2543,6 +2592,19 @@ export type Database = {
         Returns: string
       }
       get_user_nickname: { Args: { _target_user_id: string }; Returns: string }
+      gift_coins: {
+        Args: {
+          amount: number
+          is_anonymous?: boolean
+          message?: string
+          receiver_id: string
+        }
+        Returns: Json
+      }
+      give_award: {
+        Args: { award_type: string; confession_id: string }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

@@ -122,9 +122,9 @@ const UserProfile = () => {
                 onClick={() => setGiftCoinsOpen(true)}
                 variant="outline"
                 size="sm"
-                className="gap-2 h-9 px-4"
+                className="gap-2 h-10 px-6 rounded-xl border-2 hover:bg-primary/10 hover:border-primary/50 transition-all font-semibold"
               >
-                <Gift className="w-4 h-4" />
+                <Gift className="w-4 h-4 text-primary" />
                 <span className="text-sm">Send Coins</span>
               </Button>
             </div>

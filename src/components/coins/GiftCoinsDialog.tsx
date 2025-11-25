@@ -102,19 +102,19 @@ export const GiftCoinsDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md rounded-3xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Gift className="w-5 h-5 text-primary" />
+          <DialogTitle className="flex items-center gap-2 text-2xl font-bold">
+            <Gift className="w-6 h-6 text-primary" />
             Gift Coins
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-5">
           {recipientName && (
-            <div className="p-3 bg-muted rounded-lg">
-              <p className="text-sm text-muted-foreground">Sending to:</p>
-              <p className="font-semibold">{recipientName}</p>
+            <div className="p-4 bg-primary/5 rounded-2xl border border-primary/20">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Sending to:</p>
+              <p className="font-bold text-lg">{recipientName}</p>
             </div>
           )}
 
@@ -144,12 +144,12 @@ export const GiftCoinsDialog = ({
             />
           </div>
 
-          <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-secondary/30 rounded-2xl border border-border/50">
             <div>
-              <Label htmlFor="anonymous" className="font-semibold">
+              <Label htmlFor="anonymous" className="font-bold text-base">
                 Send Anonymously
               </Label>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 +50 coins fee
               </p>
             </div>
@@ -161,22 +161,22 @@ export const GiftCoinsDialog = ({
           </div>
 
           {giftAmount > 0 && (
-            <div className="p-3 bg-secondary/50 rounded-lg space-y-1">
+            <div className="p-4 bg-secondary/30 rounded-2xl space-y-2 border border-border/50">
               <div className="flex justify-between text-sm">
-                <span>Gift amount:</span>
-                <span className="font-semibold">{giftAmount} coins</span>
+                <span className="text-muted-foreground">Gift amount:</span>
+                <span className="font-bold">{giftAmount} coins</span>
               </div>
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <span>Platform fee (5%):</span>
-                <span>{fee} coins</span>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Platform fee (5%):</span>
+                <span className="font-semibold">{fee} coins</span>
               </div>
               {isAnonymous && (
-                <div className="flex justify-between text-sm text-muted-foreground">
-                  <span>Anonymous fee:</span>
-                  <span>{anonymousFee} coins</span>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Anonymous fee:</span>
+                  <span className="font-semibold">{anonymousFee} coins</span>
                 </div>
               )}
-              <div className="flex justify-between text-sm font-bold border-t border-border pt-1 mt-1">
+              <div className="flex justify-between text-base font-bold border-t border-border/50 pt-2 mt-2">
                 <span>Total cost:</span>
                 <span className="text-primary">{totalCost} coins</span>
               </div>
@@ -186,16 +186,16 @@ export const GiftCoinsDialog = ({
           <Button
             onClick={handleGift}
             disabled={loading || !giftAmount || totalCost > (balance || 0)}
-            className="w-full"
+            className="w-full h-11 rounded-xl font-semibold text-base"
           >
             {loading ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                 Sending...
               </>
             ) : (
               <>
-                <Gift className="w-4 h-4 mr-2" />
+                <Gift className="w-5 h-5 mr-2" />
                 Send Gift
               </>
             )}
