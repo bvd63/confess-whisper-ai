@@ -136,9 +136,11 @@ All colors MUST be HSL.
   }
 }
 
-/* Base Typography */
+/* Base Typography - Clean iOS-style fonts */
 * {
-  font-family: 'Inter var', 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Smooth Scrolling */

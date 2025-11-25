@@ -99,19 +99,19 @@ const Rewards = () => {
     <AppLayout>
       <div className="max-w-2xl mx-auto">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/50">
+        <div className="sticky top-0 z-10 glass-strong border-b border-border/50">
           <div className="flex items-center justify-between px-4 py-4">
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => navigate(-1)}
-                className="hover:bg-accent"
+                className="hover:bg-accent rounded-xl"
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <div className="flex items-center gap-2">
-                <Trophy className="h-6 w-6 text-amber-500" />
+              <div className="flex items-center gap-2.5">
+                <Trophy className="h-7 w-7 text-amber-500" />
                 <h1 className="text-2xl font-bold">Rewards Hub</h1>
               </div>
             </div>
@@ -119,30 +119,30 @@ const Rewards = () => {
         </div>
 
         {/* Tabs */}
-        <Tabs defaultValue={initialTab} className="px-4 py-4">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
-            <TabsTrigger value="overview" className="text-xs sm:text-sm">
+        <Tabs defaultValue={initialTab} className="px-4 py-6">
+          <TabsList className="grid w-full grid-cols-4 mb-6 h-11 rounded-xl">
+            <TabsTrigger value="overview" className="text-sm rounded-lg">
               <Star className="w-4 h-4 mr-1" />
-              Overview
+              <span className="hidden sm:inline">Overview</span>
             </TabsTrigger>
-            <TabsTrigger value="achievements" className="text-xs sm:text-sm">
+            <TabsTrigger value="achievements" className="text-sm rounded-lg">
               <Award className="w-4 h-4 mr-1" />
-              Achievements
+              <span className="hidden xs:inline">Badges</span>
             </TabsTrigger>
-            <TabsTrigger value="daily" className="text-xs sm:text-sm">
+            <TabsTrigger value="daily" className="text-sm rounded-lg">
               <Flame className="w-4 h-4 mr-1" />
-              Daily
+              <span className="hidden xs:inline">Daily</span>
             </TabsTrigger>
-            <TabsTrigger value="referrals" className="text-xs sm:text-sm">
+            <TabsTrigger value="referrals" className="text-sm rounded-lg">
               <Gift className="w-4 h-4 mr-1" />
-              Referrals
+              <span className="hidden xs:inline">Refer</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-4">
+          <TabsContent value="overview" className="space-y-5">
             {/* Level & Progress Card */}
-            <Card className="p-6 bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/20">
+            <Card className="p-6 bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/20 rounded-2xl">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="text-2xl font-bold">Level {streakData?.level || 1}</h3>
@@ -150,7 +150,7 @@ const Rewards = () => {
                     {streakData?.totalPoints || 0} Total Points
                   </p>
                 </div>
-                <div className="p-3 bg-amber-500/20 rounded-full">
+                <div className="p-3 bg-amber-500/20 rounded-2xl">
                   <TrendingUp className="w-8 h-8 text-amber-500" />
                 </div>
               </div>
@@ -166,10 +166,10 @@ const Rewards = () => {
 
             {/* Streak Status */}
             {streakData && streakData.currentStreak > 0 && (
-              <Card className="p-4 bg-gradient-to-r from-orange-500/10 to-red-500/10 border-orange-500/20">
+              <Card className="p-5 bg-gradient-to-r from-orange-500/10 to-red-500/10 border-orange-500/20 rounded-2xl">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-orange-500/20 rounded-full">
+                    <div className="p-2 bg-orange-500/20 rounded-2xl">
                       <Flame className="w-5 h-5 text-orange-500" />
                     </div>
                     <div>
@@ -195,20 +195,20 @@ const Rewards = () => {
 
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-2 gap-4">
-              <Card className="p-4">
+              <Card className="p-5 rounded-2xl">
                 <div className="flex items-center gap-2 mb-2">
                   <Award className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Badges Earned</span>
+                  <span className="text-xs text-muted-foreground font-medium">Badges</span>
                 </div>
                 <p className="text-2xl font-bold text-amber-500">
                   {badgesCount}
                 </p>
               </Card>
 
-              <Card className="p-4">
+              <Card className="p-5 rounded-2xl">
                 <div className="flex items-center gap-2 mb-2">
                   <Gift className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Referrals</span>
+                  <span className="text-xs text-muted-foreground font-medium">Referrals</span>
                 </div>
                 <p className="text-2xl font-bold text-green-500">
                   {referralsCount}

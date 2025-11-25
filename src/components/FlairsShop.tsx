@@ -344,13 +344,13 @@ export const FlairsShop = ({
     const cooldownDays = (!expired && owned) ? getCooldownRemaining(flair.id) : null;
     const onCooldown = cooldownDays !== null;
     const cooldownEnd = (!expired && owned) ? getCooldownEnd(flair.id) : null;
-    return <Card key={flair.id} className={`p-4 flex flex-col items-center gap-2 relative hover:scale-105 transition-transform ${equipped ? 'ring-2 ring-primary' : ''} ${isLocked ? 'opacity-60' : ''}`}>
+    return <Card key={flair.id} className={`p-5 flex flex-col items-center gap-3 relative hover:scale-105 transition-all duration-200 rounded-2xl ${equipped ? 'ring-2 ring-primary shadow-lg' : ''} ${isLocked ? 'opacity-60' : ''}`}>
         {isLocked && <div className="absolute top-2 left-2">
             <Lock className="w-4 h-4 text-muted-foreground" />
           </div>}
         
-        <div className="text-4xl">{flair.icon}</div>
-        <p className="text-sm font-medium text-center">
+        <div className="text-5xl mb-1">{flair.icon}</div>
+        <p className="text-sm font-semibold text-center">
           {getStringTranslation(t, flair.name_key) || flair.name_key}
         </p>
 
@@ -379,101 +379,101 @@ export const FlairsShop = ({
 
         {owned && !expired ? (
           equipped ? (
-            <Button size="sm" variant="outline" disabled className="w-full gap-1">
-              <Check className="w-3 h-3" />
-              {t.equipped}
+            <Button size="sm" variant="outline" disabled className="w-full gap-1.5 rounded-xl">
+              <Check className="w-4 h-4" />
+              <span className="font-medium">{t.equipped}</span>
             </Button>
           ) : isLocked ? (
-            <Button size="sm" disabled className="w-full gap-1" variant="outline">
-              <Lock className="w-3 h-3" />
-              {t.upgrade_required}
+            <Button size="sm" disabled className="w-full gap-1.5 rounded-xl" variant="outline">
+              <Lock className="w-4 h-4" />
+              <span className="font-medium">{t.upgrade_required}</span>
             </Button>
           ) : (
-            <Button size="sm" variant="outline" onClick={() => handleEquip(userFlair!.id)} className="w-full gap-1">
-              {t.equip}
+            <Button size="sm" variant="outline" onClick={() => handleEquip(userFlair!.id)} className="w-full gap-1.5 rounded-xl hover:bg-primary hover:text-primary-foreground">
+              <span className="font-medium">{t.equip}</span>
             </Button>
           )
         ) : isLocked ? (
-          <Button size="sm" disabled className="w-full gap-1" variant="outline">
-            <Lock className="w-3 h-3" />
-            {t.upgrade_required}
+          <Button size="sm" disabled className="w-full gap-1.5 rounded-xl" variant="outline">
+            <Lock className="w-4 h-4" />
+            <span className="font-medium">{t.upgrade_required}</span>
           </Button>
         ) : (
           <Button 
             size="sm" 
             onClick={() => handlePurchase(flair)} 
             disabled={purchasing === flair.id || coinsBalance < flair.cost} 
-            className="w-full gap-1"
+            className="w-full gap-1.5 rounded-xl font-medium"
           >
-            <Coins className="w-3 h-3" />
+            <Coins className="w-4 h-4" />
             {flair.cost}
           </Button>
         )}
       </Card>;
   };
   return <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh]">
-        <DialogHeader>
-          <DialogTitle className="flex items-center justify-between text-lg sm:text-xl">
-            <span className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-purple-500" />
-              {t.flairs_shop}
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] rounded-2xl">
+        <DialogHeader className="space-y-3">
+          <DialogTitle className="flex items-center justify-between text-xl">
+            <span className="flex items-center gap-2.5">
+              <Sparkles className="w-6 h-6 text-purple-500" />
+              <span className="font-bold">{t.flairs_shop}</span>
             </span>
-            <span className="flex items-center gap-2 text-yellow-600">
+            <span className="flex items-center gap-2 text-yellow-600 bg-yellow-500/10 px-3 py-1.5 rounded-xl border border-yellow-500/20">
               <Coins className="w-5 h-5" />
-              {coinsBalance}
+              <span className="font-bold">{coinsBalance}</span>
             </span>
           </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground space-y-1">
-            <span>{t.flair_shop_description}</span>
-            
+          <DialogDescription className="text-sm text-muted-foreground">
+            {t.flair_shop_description}
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="h-[400px] sm:h-[500px] pr-4">
+        <ScrollArea className="h-[450px] sm:h-[550px] pr-4">
           {loading ? (
-            <div className="text-center py-8 space-y-3">
-              <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
-              <p className="text-muted-foreground">{t.loading}</p>
+            <div className="text-center py-12 space-y-4">
+              <div className="w-14 h-14 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
+              <p className="text-muted-foreground text-sm font-medium">{t.loading}</p>
             </div>
           ) : error ? (
-            <div className="text-center py-8 space-y-4">
-              <p className="text-destructive">{error}</p>
+            <div className="text-center py-12 space-y-5">
+              <p className="text-destructive text-sm">{error}</p>
               <Button 
                 onClick={() => loadData()} 
                 variant="outline"
                 size="sm"
+                className="rounded-xl"
               >
                 Try Again
               </Button>
             </div>
           ) : (
-            <Accordion type="multiple" defaultValue={["free", "vip"]} className="w-full space-y-2">
-              {showFree && freeFlairs.length > 0 && <AccordionItem value="free" className="border rounded-lg px-4">
-                  <AccordionTrigger className="hover:no-underline">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg font-semibold">{t.shop_free_tier}</span>
-                      <Badge variant="secondary">{freeFlairs.length}</Badge>
+            <Accordion type="multiple" defaultValue={["free", "vip"]} className="w-full space-y-3">
+              {showFree && freeFlairs.length > 0 && <AccordionItem value="free" className="border rounded-2xl px-4 bg-card">
+                  <AccordionTrigger className="hover:no-underline py-5">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-lg font-bold">{t.shop_free_tier}</span>
+                      <Badge variant="secondary" className="rounded-lg">{freeFlairs.length}</Badge>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-3 pb-2">
                       {freeFlairs.map(renderFlairCard)}
                     </div>
                   </AccordionContent>
                 </AccordionItem>}
 
-              {showVIP && vipFlairs.length > 0 && <AccordionItem value="vip" className="border rounded-lg px-4">
-                  <AccordionTrigger className="hover:no-underline">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg font-semibold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
+              {showVIP && vipFlairs.length > 0 && <AccordionItem value="vip" className="border rounded-2xl px-4 bg-card">
+                  <AccordionTrigger className="hover:no-underline py-5">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-lg font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
                         {t.shop_vip_tier}
                       </span>
-                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">{vipFlairs.length}</Badge>
+                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 rounded-lg font-semibold">{vipFlairs.length}</Badge>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-3 pb-2">
                       {vipFlairs.map(renderFlairCard)}
                     </div>
                   </AccordionContent>

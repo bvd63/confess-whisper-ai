@@ -162,27 +162,27 @@ export const SubscriptionPlansGrid = ({
       {/* Interval Tabs */}
       {onIntervalChange && (
         <div className="flex justify-center">
-          <div className="inline-flex rounded-lg bg-[#13141f] p-1 gap-1">
+          <div className="inline-flex rounded-xl bg-muted/50 p-1 gap-1">
             <button
               onClick={() => onIntervalChange('monthly')}
-              className={`px-8 py-2.5 rounded-lg transition-all font-medium ${
+              className={`px-8 py-3 rounded-lg transition-all font-medium ${
                 interval === 'monthly'
-                  ? 'bg-[#1a1b2e] text-white'
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               Monthly
             </button>
             <button
               onClick={() => onIntervalChange('yearly')}
-              className={`px-8 py-2.5 rounded-lg transition-all font-medium relative ${
+              className={`px-8 py-3 rounded-lg transition-all font-medium relative ${
                 interval === 'yearly'
-                  ? 'bg-[#1a1b2e] text-white'
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               Yearly
-              <span className="absolute -top-2 -right-2 bg-purple-600 text-white text-xs px-2 py-0.5 rounded-full font-semibold">
+              <span className="absolute -top-2 -right-2 bg-purple-600 text-white text-xs px-2.5 py-0.5 rounded-full font-bold">
                 -34%
               </span>
             </button>
@@ -196,10 +196,10 @@ export const SubscriptionPlansGrid = ({
           {filteredPlans.map((plan: any) => (
             <Card
               key={`${plan.id}-${plan.interval}`}
-              className={`p-8 relative bg-[#13141f] border transition-all duration-300 hover:scale-[1.02] ${
+              className={`p-8 relative bg-card border-2 transition-all duration-300 hover:scale-[1.02] rounded-2xl ${
                 plan.id === 'vip'
-                  ? 'border-purple-500/30 hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]'
-                  : 'border-[#1a1b2e] hover:border-purple-500/30 hover:shadow-[0_0_20px_rgba(168,85,247,0.1)]'
+                  ? 'border-purple-500/30 hover:border-purple-500/50 shadow-lg'
+                  : 'border-border hover:border-purple-500/30'
               }`}
             >
             {/* Active Badge for VIP if current plan */}
@@ -223,18 +223,18 @@ export const SubscriptionPlansGrid = ({
             {/* Plan Header */}
             <div className="mb-8">
               <div className="flex items-center gap-3 mb-6">
-                <span className="text-3xl">{plan.id === 'vip' ? '👑' : '✨'}</span>
-                <h3 className="text-2xl font-bold text-white">{plan.name}</h3>
+                <span className="text-4xl">{plan.id === 'vip' ? '👑' : '✨'}</span>
+                <h3 className="text-2xl font-bold">{plan.name}</h3>
               </div>
               <div className="mb-2">
-                <span className="text-5xl font-bold text-white">
+                <span className="text-5xl font-bold">
                   ${interval === 'yearly' ? (plan.price / 12).toFixed(2) : plan.price}
                 </span>
-                <span className="text-gray-400 text-lg ml-2">/per month</span>
+                <span className="text-muted-foreground text-lg ml-2">/month</span>
               </div>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-muted-foreground">
                 {interval === 'yearly' 
-                  ? `Billed annually ($${plan.price.toFixed(2)}/per year)`
+                  ? `$${plan.price.toFixed(2)}/year (billed annually)`
                   : 'Billed monthly'
                 }
               </p>
@@ -245,9 +245,9 @@ export const SubscriptionPlansGrid = ({
               {plan.benefits.map((benefit: string, index: number) => (
                 <div key={index} className="flex items-start gap-3 group/benefit">
                   <div className="w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/benefit:bg-purple-500/30 transition-colors">
-                    <Check className="w-3.5 h-3.5 text-purple-400" />
+                    <Check className="w-4 h-4 text-purple-400" />
                   </div>
-                  <span className="text-sm text-white/90 leading-relaxed">{getStringTranslation(t, benefit) || benefit}</span>
+                  <span className="text-sm text-foreground/90 leading-relaxed">{getStringTranslation(t, benefit) || benefit}</span>
                 </div>
               ))}
             </div>
@@ -285,7 +285,7 @@ export const SubscriptionPlansGrid = ({
                 (isLoading || !canChangePlan || (plan.id !== 'free' && !plan.priceId)) && !(currentPlan === 'vip' && plan.id === 'vip') || 
                 portalLoading
               }
-              className="w-full py-6 rounded-lg font-semibold transition-all duration-300 bg-transparent border-2 border-white hover:bg-white text-white hover:text-black hover:scale-[1.02] disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-white disabled:scale-100"
+              className="w-full py-6 rounded-xl font-semibold transition-all duration-300 bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-[1.02] disabled:opacity-50 disabled:scale-100"
             >
               {(currentPlan === 'vip' && plan.id === 'vip')
                 ? (portalLoading ? 'Opening Portal...' : 'Manage Subscription') 

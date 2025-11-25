@@ -161,13 +161,13 @@ const Explore = () => {
 
       <div 
         ref={containerRef}
-        className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24"
+        className="container max-w-4xl mx-auto px-4 py-6 pb-24"
       >
-        <div className="mb-4 sm:mb-6 md:mb-8 animate-fade-in">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-1.5 sm:mb-2">
+        <div className="mb-6 animate-fade-in">
+          <h1 className="text-3xl font-bold mb-2">
             <GradientText variant="hero">{t.explore}</GradientText>
           </h1>
-          <p className="text-sm sm:text-base text-muted-foreground">{t.recommended_for_you}</p>
+          <p className="text-base text-muted-foreground">{t.recommended_for_you}</p>
         </div>
 
         <SearchUsersCard />
@@ -186,17 +186,17 @@ const Explore = () => {
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3 mb-4 sm:mb-6 h-auto">
-            <TabsTrigger value="trending" className="gap-1 sm:gap-2 text-xs sm:text-sm py-2">
-              <Flame className="w-3 h-3 sm:w-4 sm:h-4" />
+          <TabsList className="grid w-full grid-cols-3 mb-6 h-11 rounded-xl">
+            <TabsTrigger value="trending" className="gap-2 text-sm rounded-lg">
+              <Flame className="w-4 h-4" />
               <span className="hidden xs:inline">{t.search_trending}</span>
             </TabsTrigger>
-            <TabsTrigger value="popular" className="gap-1 sm:gap-2 text-xs sm:text-sm py-2">
-              <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
+            <TabsTrigger value="popular" className="gap-2 text-sm rounded-lg">
+              <TrendingUp className="w-4 h-4" />
               <span className="hidden xs:inline">{t.ui_popular}</span>
             </TabsTrigger>
-            <TabsTrigger value="recent" className="gap-1 sm:gap-2 text-xs sm:text-sm py-2">
-              <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+            <TabsTrigger value="recent" className="gap-2 text-sm rounded-lg">
+              <Clock className="w-4 h-4" />
               <span className="hidden xs:inline">{t.ui_recent}</span>
             </TabsTrigger>
           </TabsList>

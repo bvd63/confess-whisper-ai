@@ -192,14 +192,14 @@ const Messages = () => {
       
       <div 
         ref={containerRef}
-        className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 pb-24"
+        className="container max-w-4xl mx-auto px-4 py-6 pb-24"
       >
-        <AnimatedCard className="overflow-hidden" hover="none">
+        <AnimatedCard className="overflow-hidden rounded-2xl" hover="none">
           {!selectedConversation ? (
             <div>
-              <div className="p-4 sm:p-5 border-b border-border glass"
+              <div className="p-5 border-b border-border glass"
               >
-                <h1 className="text-lg sm:text-xl md:text-2xl font-bold">{t.messages_title}</h1>
+                <h1 className="text-2xl font-bold">{t.messages_title}</h1>
               </div>
               <ConversationList
                 currentUserId={user.id}

@@ -85,30 +85,30 @@ export default function ForgotPassword() {
   const turnstileSiteKey = env.client.turnstileSiteKey || (env.isDev ? "1x00000000000000000000AA" : "");
 
   return (
-    <div className="min-h-screen bg-gradient-mesh flex items-center justify-center p-3 sm:p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <AnimatedCard
         hover="glow"
         glass
-        className="w-full max-w-md p-4 sm:p-6 md:p-8 border-primary/20"
+        className="w-full max-w-md p-6 sm:p-8 border-primary/20"
       >
         {/* Logo & Title */}
-        <div className="text-center mb-6 sm:mb-8 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 mb-3 sm:mb-4">
-            <Heart className="w-6 h-6 sm:w-8 sm:h-8 text-primary animate-heart-beat" fill="currentColor" />
+        <div className="text-center mb-8 animate-fade-in">
+          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 mb-4">
+            <Heart className="w-8 h-8 sm:w-10 sm:h-10 text-primary animate-heart-beat" fill="currentColor" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold mb-2">
             <GradientText variant="hero">{t.auth_forgot_password_title}</GradientText>
           </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             {t.auth_forgot_password_desc}
           </p>
         </div>
 
         {success ? (
-          <div className="space-y-4">
-            <Alert className="border-green-500/20 bg-green-500/10">
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
-              <AlertDescription className="text-green-600 dark:text-green-400">
+          <div className="space-y-5">
+            <Alert className="border-green-500/20 bg-green-500/10 rounded-xl p-4">
+              <CheckCircle2 className="h-5 w-5 text-green-500" />
+              <AlertDescription className="text-green-600 dark:text-green-400 text-sm">
                 {t.auth_forgot_password_success}
               </AlertDescription>
             </Alert>
@@ -116,7 +116,7 @@ export default function ForgotPassword() {
             <EnhancedButton
               type="button"
               onClick={() => navigate('/auth')}
-              className="w-full"
+              className="w-full h-12 rounded-xl"
               variant="outline"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -124,7 +124,7 @@ export default function ForgotPassword() {
             </EnhancedButton>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email Field */}
             <div className="space-y-2">
               <div className="relative">
@@ -183,7 +183,7 @@ export default function ForgotPassword() {
             {/* Submit Button */}
             <EnhancedButton
               type="submit"
-              className="w-full"
+              className="w-full h-12 rounded-xl font-medium"
               disabled={isLoading || !email || !captchaToken}
               glow
               lift
