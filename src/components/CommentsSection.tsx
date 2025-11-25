@@ -15,6 +15,8 @@ import { CommentAuthor } from "./CommentAuthor";
 import { sanitizeComment } from "@/lib/security/sanitizer";
 import { addCsrfHeader } from "@/lib/security/csrf";
 import { logError } from "@/lib/logger";
+import { HighlightCommentButton } from "./coins/HighlightCommentButton";
+import { cn } from "@/lib/utils";
 
 interface Comment {
   id: string;
@@ -209,31 +211,50 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                 {t.comments_none}
               </p>
             ) : (
-              comments.map((comment) => (
-                <div
-                  key={comment.id}
-                  className="p-2 sm:p-3 bg-muted/30 rounded-lg border border-border/50"
-                >
-                  <div className="flex items-start justify-between mb-1 sm:mb-2">
-                    <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground">
-                      <CommentAuthor userId={comment.user_id} showBadge={true} />
-                      <span>•</span>
-                      <span>{timeAgo(comment.created_at)}</span>
-                    </div>
-                    {(user?.id === comment.user_id || user?.id === confessionOwnerId) && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(comment.id)}
-                        className="min-h-[44px] min-w-[44px] px-2 text-muted-foreground hover:text-destructive"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+              comments.map((comment) => {
+                const isHighlighted = (comment as any).is_highlighted;
+                const isCommentOwner = user?.id === comment.user_id;
+                
+                return (
+                  <div
+                    key={comment.id}
+                    className={cn(
+                      "p-2 sm:p-3 rounded-lg border",
+                      isHighlighted
+                        ? "bg-vip-gold/10 border-vip-gold/30 shadow-md"
+                        : "bg-muted/30 border-border/50"
                     )}
+                  >
+                    <div className="flex items-start justify-between mb-1 sm:mb-2">
+                      <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground">
+                        <CommentAuthor userId={comment.user_id} showBadge={true} />
+                        <span>•</span>
+                        <span>{timeAgo(comment.created_at)}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {isCommentOwner && (
+                          <HighlightCommentButton
+                            commentId={comment.id}
+                            isOwner={isCommentOwner}
+                            isHighlighted={isHighlighted}
+                          />
+                        )}
+                        {(user?.id === comment.user_id || user?.id === confessionOwnerId) && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(comment.id)}
+                            className="min-h-[44px] min-w-[44px] px-2 text-muted-foreground hover:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-xs sm:text-sm text-foreground leading-relaxed">{sanitizeComment(comment.content)}</p>
                   </div>
-                  <p className="text-xs sm:text-sm text-foreground leading-relaxed">{sanitizeComment(comment.content)}</p>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>

@@ -19,16 +19,19 @@ interface AIMakeoverDialogProps {
   confessionId: string;
   originalContent: string;
   isOwner: boolean;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 const MAKEOVER_COST = 100;
 
 export function AIMakeoverDialog({
+  open,
+  onOpenChange,
   confessionId,
   originalContent,
   isOwner,
 }: AIMakeoverDialogProps) {
-  const [isOpen, setIsOpen] = useState(false);
   const [makeoverContent, setMakeoverContent] = useState('');
   const queryClient = useQueryClient();
   const { t } = useLanguage();
@@ -49,15 +52,15 @@ export function AIMakeoverDialog({
         throw new Error('Insufficient coins');
       }
 
-      // Call AI makeover Edge Function
-      const { data, error } = await supabase.functions.invoke('ai-makeover', {
-        body: { content: originalContent },
+      // Call polish-confession Edge Function
+      const { data, error } = await supabase.functions.invoke('polish-confession', {
+        body: { confessionText: originalContent },
       });
 
       if (error) throw error;
-      if (!data?.improved_content) throw new Error('No improved content received');
+      if (!data?.polishedText) throw new Error('No improved content received');
 
-      setMakeoverContent(data.improved_content);
+      setMakeoverContent(data.polishedText);
 
       // Deduct coins
       const { error: txError } = await supabase
@@ -71,7 +74,7 @@ export function AIMakeoverDialog({
 
       if (txError) throw txError;
 
-      return data.improved_content;
+      return data.polishedText;
     },
     onError: (error: Error) => {
       if (error.message === 'Insufficient coins') {
@@ -97,7 +100,7 @@ export function AIMakeoverDialog({
       toast.success(t.ai_makeover_applied_title, {
         description: t.ai_makeover_applied_description,
       });
-      setIsOpen(false);
+      onOpenChange(false);
       setMakeoverContent('');
     },
     onError: () => {
@@ -108,18 +111,7 @@ export function AIMakeoverDialog({
   if (!isOwner) return null;
 
   return (
-    <>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => setIsOpen(true)}
-        className="gap-1"
-      >
-        <Wand2 className="h-3 w-3" />
-        {t.ai_makeover}
-      </Button>
-
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{t.ai_makeover}</DialogTitle>
@@ -182,7 +174,7 @@ export function AIMakeoverDialog({
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsOpen(false)}>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
               {t.cancel}
             </Button>
             {!makeoverContent ? (
@@ -203,6 +195,5 @@ export function AIMakeoverDialog({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
   );
 }

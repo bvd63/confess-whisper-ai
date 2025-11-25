@@ -109,8 +109,12 @@ const CoinsDisplay = ({
             {t.coins_how_to_spend}
           </p>
           <ul className="text-xs text-foreground-secondary space-y-1">
+            <li>🏆 Give Awards (50-300 coins) - Show appreciation</li>
+            <li>✨ AI Makeover (100 coins) - Improve your confession</li>
+            <li>💬 Highlight Comment (50 coins) - Stand out for 24h</li>
             <li>🚀 Boost Confession (15 coins) - Highlight for 1 hour</li>
-            <li>✨ Profile Flairs - Customize your profile appearance</li>
+            <li>🎁 Gift Coins (5% fee) - Send to other users</li>
+            <li>✨ Profile Flairs - Customize your profile</li>
           </ul>
         </div>
       </Card>

@@ -11,6 +11,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { logError } from "@/lib/logger";
 import { TierProfileCard } from "@/components/TierProfileCard";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
+import { GiftCoinsDialog } from "@/components/coins/GiftCoinsDialog";
+import { Button } from "@/components/ui/button";
+import { Gift } from "lucide-react";
 
 interface UserProfileData {
   nickname: string;
@@ -27,6 +30,8 @@ const UserProfile = () => {
   const [isLoading, setIsLoading] = useState(true);
   
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
+  const [giftCoinsOpen, setGiftCoinsOpen] = useState(false);
+  const isOwnProfile = currentUser?.id === userId;
 
   useEffect(() => {
     if (!userId) return;
@@ -110,12 +115,26 @@ const UserProfile = () => {
             nickname={profile.nickname}
             confessionsCount={confessionsCount}
           />
+          
+          {!isOwnProfile && currentUser && (
+            <div className="mt-4 flex justify-center">
+              <Button
+                onClick={() => setGiftCoinsOpen(true)}
+                variant="outline"
+                size="sm"
+                className="gap-2 h-9 px-4"
+              >
+                <Gift className="w-4 h-4" />
+                <span className="text-sm">Send Coins</span>
+              </Button>
+            </div>
+          )}
         </TierProfileCard>
 
         <div className="mt-8">
           <ProfileTabs 
             userId={userId!} 
-            isOwnProfile={currentUser.id === userId}
+            isOwnProfile={isOwnProfile}
             isPremium={isPremium}
             onUpgradeClick={() => {}}
             onInsightGenerated={() => {}}
@@ -126,6 +145,12 @@ const UserProfile = () => {
       <InstagramBottomNav />
     </AppLayout>
     <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    <GiftCoinsDialog 
+      open={giftCoinsOpen} 
+      onOpenChange={setGiftCoinsOpen}
+      recipientId={userId}
+      recipientName={profile.nickname}
+    />
     </>
   );
 };
