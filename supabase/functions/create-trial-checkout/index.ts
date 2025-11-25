@@ -67,8 +67,11 @@ serve(async (req) => {
     
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-    // Get VIP price ID - ALWAYS use VIP for trial
-    const vipPriceId = Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || "price_1SJ0vwR7kygIyYg9OeCiqV00";
+    // Get VIP price ID from environment - ALWAYS use VIP for trial
+    const vipPriceId = Deno.env.get("STRIPE_PRICE_VIP_MONTHLY");
+    if (!vipPriceId) {
+      throw new Error("STRIPE_PRICE_VIP_MONTHLY not configured in environment");
+    }
 
     // Check for existing customer
     const customers = await stripe.customers.list({ email: user.email!, limit: 1 });

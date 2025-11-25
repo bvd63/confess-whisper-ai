@@ -17,9 +17,8 @@ const log = (level: string, message: string, data?: any) => {
   }));
 };
 
-const PRICE_ID_TO_TIER: Record<string, "premium" | "vip"> = {
-  [Deno.env.get("STRIPE_PRICE_PREMIUM_MONTHLY") || ""]: "premium",
-  [Deno.env.get("STRIPE_PRICE_PREMIUM_YEARLY") || ""]: "premium",
+// Map price IDs to tiers - only VIP supported (no Premium)
+const PRICE_ID_TO_TIER: Record<string, "vip"> = {
   [Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || ""]: "vip",
   [Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || ""]: "vip",
 };
@@ -93,7 +92,7 @@ serve(async (req) => {
     const refreshedSubscription = await stripe.subscriptions.retrieve(profile.stripe_subscription_id);
     const periodEnd = refreshedSubscription.current_period_end || updatedSubscription.current_period_end || null;
 
-    const newTier = PRICE_ID_TO_TIER[targetPriceId] || "premium";
+    const newTier = PRICE_ID_TO_TIER[targetPriceId] || "vip";
 
     // Update profiles table
     await supabaseAdmin
