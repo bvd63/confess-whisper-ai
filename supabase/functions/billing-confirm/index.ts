@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { getVipPriceIds, isVipPriceId } from "../_shared/stripe-config.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,11 +12,7 @@ const log = (level: string, message: string, data?: any) => {
   console.log(JSON.stringify({ level, message, data, timestamp: new Date().toISOString() }));
 };
 
-// Map Stripe Price IDs to our tiers - dynamically built from environment
-const PRICE_ID_TO_TIER: Record<string, "free" | "vip"> = {
-  [Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || ""]: "vip",
-  [Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || ""]: "vip",
-};
+const VIP_PRICE_IDS = getVipPriceIds();
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -96,7 +93,7 @@ serve(async (req) => {
     // Load subscription to determine tier and end date
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     const priceId = subscription.items.data[0]?.price?.id || "";
-    const tier = PRICE_ID_TO_TIER[priceId] || "free";
+    const tier = priceId && isVipPriceId(priceId) ? "vip" : "free";
     const endEpoch = (subscription as any)?.current_period_end;
     const endsAtISO = typeof endEpoch === 'number' && !Number.isNaN(endEpoch)
       ? new Date(endEpoch * 1000).toISOString()
@@ -104,9 +101,7 @@ serve(async (req) => {
 
     // Determine cadence from price ID
     let cadence = 'monthly';
-    const monthlyPriceId = Deno.env.get('STRIPE_PRICE_VIP_MONTHLY');
-    const yearlyPriceId = Deno.env.get('STRIPE_PRICE_VIP_YEARLY');
-    if (priceId === yearlyPriceId) {
+    if (priceId === VIP_PRICE_IDS.yearly) {
       cadence = 'yearly';
     }
     

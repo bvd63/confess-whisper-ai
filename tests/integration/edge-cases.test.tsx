@@ -82,7 +82,7 @@ describe('Edge Cases - Comprehensive Tests', () => {
       const mockFrom = vi.fn().mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockResolvedValue({
-            data: { subscription_tier: 'free' }, // Not updated yet
+            data: [{ subscription_tier: 'free' }], // Not updated yet
             error: null,
           }),
         }),
@@ -248,15 +248,19 @@ describe('Edge Cases - Comprehensive Tests', () => {
     });
 
     it('should revoke trial benefits immediately on VIP purchase', async () => {
+      const mockResult = {
+        data: [{
+          subscription_tier: 'vip',
+          trial_active: false,
+          trial_premium_ends_at: null,
+        }],
+        error: null,
+      };
+
       const mockFrom = vi.fn().mockReturnValue({
         update: vi.fn().mockReturnValue({
-          eq: vi.fn().mockResolvedValue({
-            data: {
-              subscription_tier: 'vip',
-              trial_active: false,
-              trial_premium_ends_at: null,
-            },
-            error: null,
+          eq: vi.fn().mockReturnValue({
+            select: vi.fn().mockResolvedValue(mockResult),
           }),
         }),
       });
@@ -282,11 +286,11 @@ describe('Edge Cases - Comprehensive Tests', () => {
       const mockFrom = vi.fn().mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockResolvedValue({
-            data: {
+            data: [{
               trial_used: true,
               trial_started_at: '2025-10-20T00:00:00.000Z',
               trial_premium_ends_at: '2025-10-25T00:00:00.000Z',
-            },
+            }],
             error: null,
           }),
         }),

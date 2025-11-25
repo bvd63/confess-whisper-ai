@@ -13,8 +13,7 @@ describe("CommentAuthor", () => {
 
     // The component should render something (even if Anonymous while loading)
     await waitFor(() => {
-      // UserDisplayName renders a clickable span with role="button"
-      const authorElement = screen.getByRole('button');
+      const authorElement = screen.getByLabelText(/anonymous/i);
       expect(authorElement).toBeInTheDocument();
     });
   });

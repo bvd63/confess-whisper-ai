@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { getVipMonthlyPriceId, getVipYearlyPriceId } from "../_shared/stripe-config.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,11 +13,11 @@ const logStep = (step: string, details?: any) => {
   console.log(`[SUBSCRIPTION-MANAGE] ${step}${detailsStr}`);
 };
 
-// Load VIP price IDs from environment - only FREE and VIP tiers supported
+// Load VIP price IDs from shared helper so frontend/backend stay in sync
 const STRIPE_PRICE_IDS = {
-  vip_monthly: Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || "",
-  vip_yearly: Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || "",
-};
+  vip_monthly: getVipMonthlyPriceId(),
+  vip_yearly: getVipYearlyPriceId(),
+} as const;
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {

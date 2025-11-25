@@ -61,8 +61,6 @@ const serverEnvRequirements = [
   { key: "SUPABASE_SERVICE_ROLE_KEY", description: "Required for edge functions and rate limiting" },
   { key: "STRIPE_SECRET_KEY", description: "Used to call Stripe APIs" },
   { key: "STRIPE_WEBHOOK_SECRET", description: "Validates incoming Stripe webhooks" },
-  { key: "PRICE_VIP_MONTHLY", description: "Maps subscriptions to VIP monthly tier" },
-  { key: "PRICE_VIP_YEARLY", description: "Maps subscriptions to VIP yearly tier" },
 ];
 
 const missingServerEnv = serverEnvRequirements.filter(({ key }) => !process.env[key]);
@@ -75,6 +73,29 @@ if (missingServerEnv.length > 0) {
   }
 } else {
   console.log("\n✅ Server environment: All critical secrets available");
+}
+
+const priceEnvSets = [
+  {
+    label: "VIP monthly price ID",
+    keys: ["STRIPE_PRICE_VIP_MONTHLY", "PRICE_VIP_MONTHLY"],
+  },
+  {
+    label: "VIP yearly price ID",
+    keys: ["STRIPE_PRICE_VIP_YEARLY", "PRICE_VIP_YEARLY"],
+  },
+];
+
+const missingPriceVars = priceEnvSets.filter(({ keys }) => !keys.some((key) => !!process.env[key]));
+
+if (missingPriceVars.length > 0) {
+  hasFatalError = true;
+  console.error("\n❌ Stripe price IDs: Missing required values");
+  for (const { label, keys } of missingPriceVars) {
+    console.error(`   - ${label}: Set ${keys.join(' or ')}`);
+  }
+} else {
+  console.log("\n✅ Stripe price IDs: Server values configured");
 }
 
 if (env.features.confessionTurnstileRequired) {

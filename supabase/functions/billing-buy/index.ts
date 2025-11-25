@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { getVipPriceIds } from "../_shared/stripe-config.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -22,10 +23,7 @@ function log(level: string, message: string, context?: any) {
   console.log(JSON.stringify(logEntry));
 }
 
-const STRIPE_PRICE_IDS = {
-  vip_monthly: Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || "",
-  vip_yearly: Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || "",
-};
+const VIP_PRICE_IDS = getVipPriceIds();
 
 serve(async (req) => {
   const requestId = generateRequestId();
@@ -73,7 +71,7 @@ serve(async (req) => {
       throw new Error("Invalid tier. Must be 'vip'");
     }
 
-    const priceId = STRIPE_PRICE_IDS[`${tier}_${cycle}` as keyof typeof STRIPE_PRICE_IDS];
+    const priceId = cycle === 'yearly' ? VIP_PRICE_IDS.yearly : VIP_PRICE_IDS.monthly;
     if (!priceId) {
       throw new Error("Invalid price ID for selected tier and cycle");
     }

@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { getVipMonthlyPriceId } from "../_shared/stripe-config.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -97,11 +98,11 @@ serve(async (req) => {
         throw new Error("Invalid tier - only VIP tier is supported");
       }
 
-      // Get VIP price from environment
-      const newPriceId = Deno.env.get("STRIPE_PRICE_VIP_MONTHLY");
-      if (!newPriceId) {
-        throw new Error("STRIPE_PRICE_VIP_MONTHLY not configured in environment");
-      }
+      const priceIds = {
+        vip: getVipMonthlyPriceId(),
+      } as const;
+
+      const newPriceId = priceIds[newTier as keyof typeof priceIds];
 
       // Update subscription
       await stripe.subscriptions.update(subscription.id, {

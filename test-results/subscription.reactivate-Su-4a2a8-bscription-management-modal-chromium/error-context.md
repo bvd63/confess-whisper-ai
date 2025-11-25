@@ -1,0 +1,180 @@
+# Page snapshot
+
+```yaml
+- generic:
+  - generic:
+    - region "Notifications alt+T"
+    - generic:
+      - generic:
+        - banner:
+          - generic:
+            - generic:
+              - generic:
+                - img
+                - heading [level=1]: Confess+
+              - generic:
+                - button:
+                  - img
+                  - generic: Subscription & Coins
+                - button:
+                  - img
+                  - generic: "0"
+                - button:
+                  - img
+        - main:
+          - generic:
+            - region:
+              - generic:
+                - generic:
+                  - heading [level=4]: Enable notifications
+                  - paragraph: Get alerts for replies, messages, and new posts. You can change this anytime in your browser settings.
+                  - generic:
+                    - button: Enable
+                    - button: Not now
+          - generic:
+            - generic:
+              - img
+              - generic: 100% Anonymous & Secure
+            - heading [level=2]: Anonymous Confessions
+            - paragraph: A safe space where you can share anything anonymously.
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - img
+              - heading [level=2]: Frequently Asked Questions
+            - generic:
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: Is it really anonymous?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: How does the AI work?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: What is Deep Insight?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: Can I delete my confessions?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: What does the VIP subscription offer?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: How does the referral program work?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: Is my data secure?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: Can I use the platform for professional counseling?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: What makes the AI empathetic?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: How anonymous am I really?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: What are Deep Insights?
+                    - img
+              - generic:
+                - heading [level=3]:
+                  - button:
+                    - generic: How fast are the AI responses?
+                    - img
+        - contentinfo:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - img
+                - generic:
+                  - paragraph: 100% Anonymous
+                  - paragraph: Your identity remains confidential
+              - generic:
+                - generic:
+                  - img
+                - generic:
+                  - paragraph: SSL Secure
+                  - paragraph: All data is encrypted
+              - generic:
+                - generic:
+                  - img
+                - generic:
+                  - paragraph: AI Moderation
+                  - paragraph: Content automatically verified
+              - generic:
+                - generic:
+                  - img
+                - generic:
+                  - paragraph: Safe Community
+                  - paragraph: Judgment-free space
+          - generic:
+            - generic:
+              - button: Privacy Policy
+              - button: Terms of Service
+            - paragraph: © 2025 Confess+. All rights reserved.
+    - generic:
+      - generic:
+        - img
+        - generic: 694ms
+    - generic:
+      - generic:
+        - img
+        - generic: v1.0.1
+        - generic: (2025-01-18)
+      - button:
+        - img
+  - navigation [ref=e1]:
+    - tablist [ref=e2]:
+      - tab [selected] [ref=e3] [cursor=pointer]:
+        - img [ref=e5]
+      - tab [ref=e9] [cursor=pointer]:
+        - img [ref=e11]
+      - tab [ref=e14] [cursor=pointer]:
+        - img [ref=e16]
+      - tab [ref=e18] [cursor=pointer]:
+        - img [ref=e20]
+      - tab [ref=e22] [cursor=pointer]:
+        - img [ref=e24]
+  - dialog "Welcome to Confess+" [ref=e31]:
+    - heading "Welcome to Confess+" [level=2] [ref=e32]
+    - paragraph [ref=e33]: A safe space where you can share anything anonymously.
+    - button [active] [ref=e35] [cursor=pointer]:
+      - img
+    - generic [ref=e36]:
+      - img [ref=e38]
+      - generic [ref=e40]:
+        - heading "Welcome to Confess+" [level=2] [ref=e41]
+        - paragraph [ref=e42]: A safe space where you can share anything anonymously.
+      - generic [ref=e47]:
+        - button "Skip" [ref=e48] [cursor=pointer]
+        - button "Next" [ref=e49] [cursor=pointer]:
+          - text: Next
+          - img
+    - button "Close" [ref=e50] [cursor=pointer]:
+      - img [ref=e51]
+      - generic [ref=e54]: Close
+```

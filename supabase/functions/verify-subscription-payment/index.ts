@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { getVipMonthlyPriceId, getVipYearlyPriceId } from "../_shared/stripe-config.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -73,8 +74,8 @@ serve(async (req) => {
       let tier = 'free';
       let cadence = 'monthly';
       
-      const monthlyPriceId = Deno.env.get('VITE_STRIPE_PRICE_VIP_MONTH_ID');
-      const yearlyPriceId = Deno.env.get('VITE_STRIPE_PRICE_VIP_YEAR_ID');
+      const monthlyPriceId = getVipMonthlyPriceId();
+      const yearlyPriceId = getVipYearlyPriceId();
 
       if (priceId === monthlyPriceId) {
         tier = 'vip';

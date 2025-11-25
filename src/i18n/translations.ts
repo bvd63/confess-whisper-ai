@@ -276,6 +276,7 @@ type Translations = {
   auth_email_placeholder: string;
   auth_password_placeholder: string;
   auth_logging_in: string;
+  auth_sending_reset_link: string;
   auth_creating_account: string;
   auth_login_button: string;
   auth_signup_button: string;
@@ -2509,6 +2510,7 @@ export const translations: Record<Language, Translations> = {
     auth_email_placeholder: "Email",
     auth_password_placeholder: "Password",
     auth_logging_in: "Logging in...",
+    auth_sending_reset_link: "Sending reset link...",
     auth_creating_account: "Creating account...",
     auth_login_button: "Login",
     auth_signup_button: "Sign Up",
@@ -4155,6 +4157,7 @@ export const translations: Record<Language, Translations> = {
     auth_email_placeholder: "Email",
     auth_password_placeholder: "Contraseña",
     auth_logging_in: "Iniciando sesión...",
+    auth_sending_reset_link: "Enviando enlace de restablecimiento...",
     auth_creating_account: "Creando cuenta...",
     auth_login_button: "Iniciar Sesión",
     auth_signup_button: "Registrarse",
@@ -6056,6 +6059,7 @@ export const translations: Record<Language, Translations> = {
     auth_email_placeholder: "E-Mail",
     auth_password_placeholder: "Passwort",
     auth_logging_in: "Anmeldung läuft...",
+    auth_sending_reset_link: "Zurücksetz-Link wird gesendet...",
     auth_creating_account: "Konto wird erstellt...",
     auth_login_button: "Anmelden",
     auth_signup_button: "Registrieren",

@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { isVipPriceId } from "../_shared/stripe-config.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -13,19 +14,7 @@ const logStep = (step: string, details?: any) => {
   console.log(`[BILLING-STATUS] ${step}${detailsStr}`);
 };
 
-// Load price IDs from environment variables - supports both monthly and yearly
-const VIP_MONTHLY_PRICE = Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || "";
-const VIP_YEARLY_PRICE = Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || "";
-
-const getTierFromPriceId = (priceId: string): string => {
-  // Check if it's a VIP price (monthly or yearly)
-  if (priceId === VIP_MONTHLY_PRICE || priceId === VIP_YEARLY_PRICE) {
-    return 'vip';
-  }
-  
-  // Default to free if price not recognized
-  return 'free';
-};
+const getTierFromPriceId = (priceId: string): string => (isVipPriceId(priceId) ? 'vip' : 'free');
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {

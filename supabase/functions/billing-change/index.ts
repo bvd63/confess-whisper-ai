@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { getVipPriceIds } from "../_shared/stripe-config.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,11 +13,8 @@ const logStep = (step: string, details?: any) => {
   console.log(`[BILLING-CHANGE] ${step}${detailsStr}`);
 };
 
-// Load price IDs from environment variables
-const STRIPE_PRICE_IDS = {
-  vip_monthly: Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || "",
-  vip_yearly: Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || "",
-};
+// Shared helper keeps monthly/yearly IDs in sync across environments
+const STRIPE_PRICE_IDS = getVipPriceIds();
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -82,7 +80,9 @@ serve(async (req) => {
     logStep("Found active subscription", { subscriptionId: subscription.id });
 
     // Get target price ID based on cycle
-    const targetPriceId = cycle === 'yearly' ? STRIPE_PRICE_IDS.vip_yearly : STRIPE_PRICE_IDS.vip_monthly;
+    const targetPriceId = cycle === 'yearly'
+      ? STRIPE_PRICE_IDS.yearly
+      : STRIPE_PRICE_IDS.monthly;
     if (!targetPriceId) {
       throw new Error(`Price ID for VIP ${cycle} not configured in environment`);
     }

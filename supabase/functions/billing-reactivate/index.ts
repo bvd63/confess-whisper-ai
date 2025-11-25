@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { isVipPriceId } from "../_shared/stripe-config.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -10,11 +11,6 @@ const corsHeaders = {
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[BILLING-REACTIVATE] ${step}${detailsStr}`);
-};
-
-const STRIPE_PRICE_IDS = {
-  vip_monthly: Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || "",
-  vip_yearly: Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || "",
 };
 
 serve(async (req) => {
@@ -104,11 +100,7 @@ serve(async (req) => {
 
     // Determine tier from price using centralized config
     const priceId = updatedSubscription.items.data[0].price.id;
-    
-    let tier = 'vip'; // default for paid subscriptions
-    if (priceId === STRIPE_PRICE_IDS.vip_monthly || priceId === STRIPE_PRICE_IDS.vip_yearly) {
-      tier = 'vip';
-    }
+    const tier = isVipPriceId(priceId) ? 'vip' : 'free';
 
     // Update local database
     const updateData: any = {

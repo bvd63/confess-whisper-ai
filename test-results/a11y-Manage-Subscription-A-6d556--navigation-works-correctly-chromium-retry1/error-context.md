@@ -1,0 +1,140 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - region "Notifications alt+T"
+    - generic [ref=e4]:
+      - banner [ref=e5]:
+        - generic [ref=e7]:
+          - generic [ref=e8]:
+            - img [ref=e9]
+            - heading "Confess+" [level=1] [ref=e11] [cursor=pointer]
+          - generic [ref=e12]:
+            - button "Subscription & Coins" [ref=e13] [cursor=pointer]:
+              - img
+              - generic [ref=e14]: Subscription & Coins
+            - button "0" [ref=e15] [cursor=pointer]:
+              - img
+              - generic [ref=e16]: "0"
+            - button [ref=e17] [cursor=pointer]:
+              - img
+      - main [ref=e18]:
+        - region "Notifications banner" [ref=e20]:
+          - generic [ref=e22]:
+            - heading "Enable notifications" [level=4] [ref=e23]
+            - paragraph [ref=e24]: Get alerts for replies, messages, and new posts. You can change this anytime in your browser settings.
+            - generic [ref=e25]:
+              - button "Enable" [ref=e26] [cursor=pointer]
+              - button "Not now" [ref=e27] [cursor=pointer]
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - img [ref=e30]
+            - generic [ref=e32]: 100% Anonymous & Secure
+          - heading "Anonymous Confessions" [level=2] [ref=e33]
+          - paragraph [ref=e34]: A safe space where you can share anything anonymously.
+      - generic [ref=e36]:
+        - generic [ref=e37]:
+          - img [ref=e39]
+          - heading "Frequently Asked Questions" [level=2] [ref=e42]
+        - generic [ref=e43]:
+          - heading "Is it really anonymous?" [level=3] [ref=e45]:
+            - button "Is it really anonymous?" [ref=e46] [cursor=pointer]:
+              - generic [ref=e47]: Is it really anonymous?
+              - img [ref=e48]
+          - heading "How does the AI work?" [level=3] [ref=e51]:
+            - button "How does the AI work?" [ref=e52] [cursor=pointer]:
+              - generic [ref=e53]: How does the AI work?
+              - img [ref=e54]
+          - heading "What is Deep Insight?" [level=3] [ref=e57]:
+            - button "What is Deep Insight?" [ref=e58] [cursor=pointer]:
+              - generic [ref=e59]: What is Deep Insight?
+              - img [ref=e60]
+          - heading "Can I delete my confessions?" [level=3] [ref=e63]:
+            - button "Can I delete my confessions?" [ref=e64] [cursor=pointer]:
+              - generic [ref=e65]: Can I delete my confessions?
+              - img [ref=e66]
+          - heading "What does the VIP subscription offer?" [level=3] [ref=e69]:
+            - button "What does the VIP subscription offer?" [ref=e70] [cursor=pointer]:
+              - generic [ref=e71]: What does the VIP subscription offer?
+              - img [ref=e72]
+          - heading "How does the referral program work?" [level=3] [ref=e75]:
+            - button "How does the referral program work?" [ref=e76] [cursor=pointer]:
+              - generic [ref=e77]: How does the referral program work?
+              - img [ref=e78]
+          - heading "Is my data secure?" [level=3] [ref=e81]:
+            - button "Is my data secure?" [ref=e82] [cursor=pointer]:
+              - generic [ref=e83]: Is my data secure?
+              - img [ref=e84]
+          - heading "Can I use the platform for professional counseling?" [level=3] [ref=e87]:
+            - button "Can I use the platform for professional counseling?" [ref=e88] [cursor=pointer]:
+              - generic [ref=e89]: Can I use the platform for professional counseling?
+              - img [ref=e90]
+          - heading "What makes the AI empathetic?" [level=3] [ref=e93]:
+            - button "What makes the AI empathetic?" [ref=e94] [cursor=pointer]:
+              - generic [ref=e95]: What makes the AI empathetic?
+              - img [ref=e96]
+          - heading "How anonymous am I really?" [level=3] [ref=e99]:
+            - button "How anonymous am I really?" [ref=e100] [cursor=pointer]:
+              - generic [ref=e101]: How anonymous am I really?
+              - img [ref=e102]
+          - heading "What are Deep Insights?" [level=3] [ref=e105]:
+            - button "What are Deep Insights?" [ref=e106] [cursor=pointer]:
+              - generic [ref=e107]: What are Deep Insights?
+              - img [ref=e108]
+          - heading "How fast are the AI responses?" [level=3] [ref=e111]:
+            - button "How fast are the AI responses?" [ref=e112] [cursor=pointer]:
+              - generic [ref=e113]: How fast are the AI responses?
+              - img [ref=e114]
+      - contentinfo [ref=e116]:
+        - generic [ref=e118]:
+          - generic [ref=e119]:
+            - img [ref=e121]
+            - generic [ref=e123]:
+              - paragraph [ref=e124]: 100% Anonymous
+              - paragraph [ref=e125]: Your identity remains confidential
+          - generic [ref=e126]:
+            - img [ref=e128]
+            - generic [ref=e131]:
+              - paragraph [ref=e132]: SSL Secure
+              - paragraph [ref=e133]: All data is encrypted
+          - generic [ref=e134]:
+            - img [ref=e136]
+            - generic [ref=e139]:
+              - paragraph [ref=e140]: AI Moderation
+              - paragraph [ref=e141]: Content automatically verified
+          - generic [ref=e142]:
+            - img [ref=e144]
+            - generic [ref=e147]:
+              - paragraph [ref=e148]: Safe Community
+              - paragraph [ref=e149]: Judgment-free space
+        - generic [ref=e150]:
+          - generic [ref=e151]:
+            - button "Privacy Policy" [ref=e152] [cursor=pointer]
+            - button "Terms of Service" [ref=e153] [cursor=pointer]
+          - paragraph [ref=e154]: © 2025 Confess+. All rights reserved.
+    - generic [ref=e156] [cursor=pointer]:
+      - img [ref=e157]
+      - generic [ref=e159]: 734ms
+    - generic [ref=e160]:
+      - generic [ref=e161]:
+        - img [ref=e162]
+        - generic [ref=e164]: v1.0.1
+        - generic [ref=e165]: (2025-01-18)
+      - button "Verifică update-uri" [ref=e166] [cursor=pointer]:
+        - img
+  - navigation "Main navigation" [ref=e167]:
+    - tablist [ref=e168]:
+      - tab "Home (Alt+1)" [selected] [ref=e169] [cursor=pointer]:
+        - img [ref=e171]
+      - tab "Explore (Alt+2)" [ref=e175] [cursor=pointer]:
+        - img [ref=e177]
+      - tab "Compose (Alt+N)" [ref=e180] [cursor=pointer]:
+        - img [ref=e182]
+      - tab "Messages (Alt+3)" [ref=e184] [cursor=pointer]:
+        - img [ref=e186]
+      - tab "Profile (Alt+4)" [ref=e188] [cursor=pointer]:
+        - generic [ref=e189]:
+          - img [ref=e190]
+          - generic "VIP member" [ref=e193]
+```

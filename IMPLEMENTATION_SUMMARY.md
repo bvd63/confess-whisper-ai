@@ -10,8 +10,8 @@
 - **Validated variables**:
   - `VITE_SUPABASE_URL` (URL validation)
   - `VITE_SUPABASE_ANON_KEY` (min 20 chars)
-  - `VITE_STRIPE_PRICE_VIP_MONTH_ID` (min 3 chars)
-  - `VITE_STRIPE_PRICE_VIP_YEAR_ID` (min 3 chars)
+  - `VITE_STRIPE_PRICE_VIP_MONTHLY` (min 3 chars)
+  - `VITE_STRIPE_PRICE_VIP_YEARLY` (min 3 chars)
   - `VITE_ONESIGNAL_APP_ID` (min 10 chars)
   - `VITE_SENTRY_DSN` (optional URL)
 
@@ -54,7 +54,7 @@ export async function postWithIdempotency(url: string, body: unknown)
 ### 4. Stripe Integration Updates
 
 **Files updated**:
-- `src/lib/stripe-config.ts`: Uses `env.client.stripePriceVipMonthId/YearId`
+- `src/lib/stripe-config.ts`: Uses `env.client.stripePriceVipMonthly/stripePriceVipYearly`
 - `src/components/SubscriptionPlansGrid.tsx`: Added idempotency key to checkout
 - `src/pages/TestSubscriptions.tsx`: Uses validated env
 
@@ -160,8 +160,8 @@ Update `.env` (see `.env.example`):
 # Required
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJ...
-VITE_STRIPE_PRICE_VIP_MONTH_ID=price_...
-VITE_STRIPE_PRICE_VIP_YEAR_ID=price_...
+VITE_STRIPE_PRICE_VIP_MONTHLY=price_...
+VITE_STRIPE_PRICE_VIP_YEARLY=price_...
 VITE_ONESIGNAL_APP_ID=your-app-id
 
 # Optional

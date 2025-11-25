@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { getVipPriceIds } from "../_shared/stripe-config.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,11 +18,7 @@ function log(level: string, message: string, context?: any) {
   console.log(JSON.stringify(logEntry));
 }
 
-// Stripe price IDs - Loaded from environment secrets
-const PRICE_IDS = {
-  vip_monthly: Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || "",
-  vip_yearly: Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || "",
-};
+const VIP_PRICE_IDS = getVipPriceIds();
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -144,13 +141,13 @@ serve(async (req) => {
       let targetPrice: string;
       
       if (targetTier === 'vip') {
-        targetPrice = currentInterval === 'year' ? PRICE_IDS.vip_yearly : PRICE_IDS.vip_monthly;
+        targetPrice = currentInterval === 'year' ? VIP_PRICE_IDS.yearly : VIP_PRICE_IDS.monthly;
       } else {
         throw new Error(`Only VIP tier is supported. Received: ${targetTier}`);
       }
 
       if (!targetPrice) {
-        log('error', '[MANAGE-SUBSCRIPTION-V2] Target price not found', { targetTier, currentInterval, PRICE_IDS });
+        log('error', '[MANAGE-SUBSCRIPTION-V2] Target price not found', { targetTier, currentInterval, VIP_PRICE_IDS });
         throw new Error(`Price ID not configured for ${targetTier} ${currentInterval}`);
       }
 

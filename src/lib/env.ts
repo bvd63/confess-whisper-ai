@@ -6,6 +6,7 @@ const booleanString = z.enum(["true", "false"]).optional();
 const RawEnv = z.object({
   VITE_SUPABASE_URL: z.string().url(),
   VITE_SUPABASE_PUBLISHABLE_KEY: z.string().min(20),
+  VITE_TURNSTILE_SITE_KEY: z.string().optional(),
   VITE_STRIPE_PRICE_VIP_MONTHLY: z.string().optional(),
   VITE_STRIPE_PRICE_VIP_YEARLY: z.string().optional(),
   VITE_ONESIGNAL_APP_ID: z.string().optional(),
@@ -29,9 +30,22 @@ const _raw: Record<string, any> = {
   MODE: browserEnv?.MODE || nodeEnv?.MODE || nodeEnv?.NODE_ENV || "development",
 };
 
+const resolvedSupabaseUrl = _raw.VITE_SUPABASE_URL
+  || _raw.NEXT_PUBLIC_SUPABASE_URL
+  || _raw.SUPABASE_URL;
+
+const resolvedSupabaseAnonKey = _raw.VITE_SUPABASE_PUBLISHABLE_KEY
+  || _raw.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  || _raw.SUPABASE_ANON_KEY;
+
+const resolvedTurnstileSiteKey = _raw.VITE_TURNSTILE_SITE_KEY
+  || _raw.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+  || "";
+
 const parsed = RawEnv.safeParse({
-  VITE_SUPABASE_URL: _raw.VITE_SUPABASE_URL,
-  VITE_SUPABASE_PUBLISHABLE_KEY: _raw.VITE_SUPABASE_PUBLISHABLE_KEY,
+  VITE_SUPABASE_URL: resolvedSupabaseUrl,
+  VITE_SUPABASE_PUBLISHABLE_KEY: resolvedSupabaseAnonKey,
+  VITE_TURNSTILE_SITE_KEY: resolvedTurnstileSiteKey || undefined,
   VITE_STRIPE_PRICE_VIP_MONTHLY: _raw.VITE_STRIPE_PRICE_VIP_MONTHLY,
   VITE_STRIPE_PRICE_VIP_YEARLY: _raw.VITE_STRIPE_PRICE_VIP_YEARLY,
   VITE_ONESIGNAL_APP_ID: _raw.VITE_ONESIGNAL_APP_ID,
@@ -59,8 +73,9 @@ if (!parsed.success) {
 
 export const env = {
   client: {
-    supabaseUrl: parsed.data?.VITE_SUPABASE_URL || _raw.VITE_SUPABASE_URL,
-    supabaseAnonKey: parsed.data?.VITE_SUPABASE_PUBLISHABLE_KEY || _raw.VITE_SUPABASE_PUBLISHABLE_KEY,
+    supabaseUrl: parsed.data?.VITE_SUPABASE_URL || resolvedSupabaseUrl,
+    supabaseAnonKey: parsed.data?.VITE_SUPABASE_PUBLISHABLE_KEY || resolvedSupabaseAnonKey,
+    turnstileSiteKey: parsed.data?.VITE_TURNSTILE_SITE_KEY || resolvedTurnstileSiteKey,
     stripePriceVipMonthly: parsed.data?.VITE_STRIPE_PRICE_VIP_MONTHLY || _raw.VITE_STRIPE_PRICE_VIP_MONTHLY,
     stripePriceVipYearly: parsed.data?.VITE_STRIPE_PRICE_VIP_YEARLY || _raw.VITE_STRIPE_PRICE_VIP_YEARLY,
     oneSignalAppId: parsed.data?.VITE_ONESIGNAL_APP_ID || _raw.VITE_ONESIGNAL_APP_ID,

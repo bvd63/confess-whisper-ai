@@ -38,8 +38,8 @@ Comprehensive cleanup and hardening of the ConfessAI codebase following an 8-poi
     - VITE_TURNSTILE_SITE_KEY
   
   Stripe (REQUIRED in production):
-    - VITE_STRIPE_PRICE_VIP_MONTH_ID
-    - VITE_STRIPE_PRICE_VIP_YEAR_ID
+    - VITE_STRIPE_PRICE_VIP_MONTHLY
+    - VITE_STRIPE_PRICE_VIP_YEARLY
     - VITE_STRIPE_VIP_CHECKOUT_URL
   
   OneSignal (OPTIONAL):

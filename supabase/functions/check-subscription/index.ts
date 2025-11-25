@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { isVipPriceId } from "../_shared/stripe-config.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -137,12 +138,11 @@ serve(async (req) => {
       
       // Map price IDs to tiers - dynamically built from environment
       const priceId = subscription.items.data[0]?.price.id as string | undefined;
-      const PRICE_TO_TIER_MAP: Record<string, string> = {
-        [Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || ""]: 'vip',
-        [Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || ""]: 'vip',
-      };
-      
-      subscriptionTier = PRICE_TO_TIER_MAP[priceId ?? ''] || subscription.metadata?.plan_name?.toLowerCase() || 'vip';
+      if (priceId && isVipPriceId(priceId)) {
+        subscriptionTier = 'vip';
+      } else {
+        subscriptionTier = subscription.metadata?.plan_name?.toLowerCase() || 'vip';
+      }
       logStep("Determined subscription tier", { priceId, tier: subscriptionTier });
       
       // Update profile with subscription info

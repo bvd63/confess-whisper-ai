@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@12.18.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { isVipPriceId } from "../_shared/stripe-config.ts";
 
 // CORS headers for browser invocations
 const corsHeaders = {
@@ -71,8 +72,7 @@ serve(async (req) => {
           // Upsert DB for consistency
           const price = preferred.items.data[0]?.price;
           const cadence = price?.recurring?.interval === "year" ? "yearly" : "monthly";
-          const tier =
-            (price?.id === Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || price?.id === Deno.env.get("STRIPE_PRICE_VIP_YEARLY")) ? "vip" : "free";
+          const tier = price?.id && isVipPriceId(price.id) ? "vip" : "free";
 
           await supabase.from("subscriptions").upsert({
             user_id: user.id,
@@ -145,8 +145,7 @@ serve(async (req) => {
 
 function inferTier(priceId?: string) {
   if (!priceId) return "free";
-  if (priceId === Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || priceId === Deno.env.get("STRIPE_PRICE_VIP_YEARLY")) return "vip";
-  return "free";
+  return isVipPriceId(priceId) ? "vip" : "free";
 }
 function inferCadence(interval?: string) {
   if (interval === "year") return "yearly";

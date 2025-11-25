@@ -77,17 +77,6 @@ describe('AdvancedFilters', () => {
     expect(document.body).toContainElement(document.querySelector('[data-radix-popper-content-wrapper]'));
   });
 
-  // Communities feature disabled - test removed
-  it.skip('displays community options', async () => {
-    render(<AdvancedFilters onFilterChange={mockOnFilterChange} communities={[{id:'1', name:'Community 1'},{id:'2', name:'Community 2'}]} />);
-    fireEvent.click(screen.getByText('Filters'));
-
-    // Click placeholder to open
-    fireEvent.click(screen.getByText('All Communities'));
-
-    const all = await screen.findAllByText('All Communities');
-    expect(all.length).toBeGreaterThan(0);
-    expect(await screen.findByText('Community 1')).toBeInTheDocument();
-    expect(await screen.findByText('Community 2')).toBeInTheDocument();
-  });
+  // Communities feature disabled - test documented for future re-enable
+  it.todo('displays community options when community filters are available');
 });

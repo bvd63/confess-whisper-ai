@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { isVipPriceId } from "../_shared/stripe-config.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,10 +18,16 @@ const log = (level: string, message: string, data?: any) => {
   }));
 };
 
-// Map price IDs to tiers - only VIP supported (no Premium)
-const PRICE_ID_TO_TIER: Record<string, "vip"> = {
-  [Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || ""]: "vip",
-  [Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || ""]: "vip",
+const PREMIUM_PRICE_IDS = new Set(
+  ["STRIPE_PRICE_PREMIUM_MONTHLY", "STRIPE_PRICE_PREMIUM_YEARLY"]
+    .map((key) => Deno.env.get(key))
+    .filter((value): value is string => Boolean(value))
+);
+
+const resolveTierFromPriceId = (priceId?: string | null): "premium" | "vip" => {
+  if (priceId && isVipPriceId(priceId)) return "vip";
+  if (priceId && PREMIUM_PRICE_IDS.has(priceId)) return "premium";
+  return "premium";
 };
 
 serve(async (req) => {
@@ -92,7 +99,7 @@ serve(async (req) => {
     const refreshedSubscription = await stripe.subscriptions.retrieve(profile.stripe_subscription_id);
     const periodEnd = refreshedSubscription.current_period_end || updatedSubscription.current_period_end || null;
 
-    const newTier = PRICE_ID_TO_TIER[targetPriceId] || "vip";
+    const newTier = resolveTierFromPriceId(targetPriceId);
 
     // Update profiles table
     await supabaseAdmin

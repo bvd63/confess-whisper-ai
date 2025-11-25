@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { isVipPriceId } from "../_shared/stripe-config.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -16,11 +17,16 @@ const log = (level: string, message: string, data?: any) => {
   }));
 };
 
-const PRICE_ID_TO_TIER: Record<string, "premium" | "vip"> = {
-  [Deno.env.get("STRIPE_PRICE_PREMIUM_MONTHLY") || ""]: "premium",
-  [Deno.env.get("STRIPE_PRICE_PREMIUM_YEARLY") || ""]: "premium",
-  [Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || ""]: "vip",
-  [Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || ""]: "vip",
+const PREMIUM_PRICE_IDS = new Set(
+  ["STRIPE_PRICE_PREMIUM_MONTHLY", "STRIPE_PRICE_PREMIUM_YEARLY"]
+    .map((key) => Deno.env.get(key))
+    .filter((value): value is string => Boolean(value))
+);
+
+const resolveTierFromPriceId = (priceId?: string | null): "premium" | "vip" => {
+  if (priceId && isVipPriceId(priceId)) return "vip";
+  if (priceId && PREMIUM_PRICE_IDS.has(priceId)) return "premium";
+  return "premium";
 };
 
 const tierHierarchy: Record<string, number> = {
@@ -70,7 +76,7 @@ serve(async (req) => {
       .eq("user_id", user.id)
       .single();
 
-    const targetTier = PRICE_ID_TO_TIER[targetPriceId] || "premium";
+    const targetTier = resolveTierFromPriceId(targetPriceId);
     const currentTier = profile?.subscription_tier || "free";
 
     log("info", "Comparing tiers", { currentTier, targetTier });

@@ -26,34 +26,52 @@ VITE_SUPABASE_PROJECT_ID=your-project-id
 These variables enable **additional features** but are not required for basic functionality:
 
 ### Stripe VIP Subscriptions
+
 ```env
-VITE_STRIPE_PRICE_VIP_MONTH_ID=price_...
-VITE_STRIPE_PRICE_VIP_YEAR_ID=price_...
+# Frontend (Vite)
+VITE_STRIPE_PRICE_VIP_MONTHLY=price_...
+VITE_STRIPE_PRICE_VIP_YEARLY=price_...
+
+# Edge Functions / Supabase secrets
+STRIPE_PRICE_VIP_MONTHLY=price_...
+STRIPE_PRICE_VIP_YEARLY=price_...
+
+# Legacy fallback supported by helpers
+PRICE_VIP_MONTHLY=price_...
+PRICE_VIP_YEARLY=price_...
 ```
+
 - **Required for**: VIP subscription checkout and premium features
 - **Fallback behavior**: Subscription features will be hidden/disabled
+- **How it works**: `supabase/functions/_shared/stripe-config.ts` resolves these in order and caches the result for every edge function
 - **Setup guide**: See `STRIPE_SETUP_GUIDE.md`
 
 ### OneSignal Push Notifications
+
 ```env
 VITE_ONESIGNAL_APP_ID=your-onesignal-app-id
 ```
+
 - **Required for**: Push notifications to users
 - **Fallback behavior**: Notifications will not be sent
 - **Setup**: Configure in Lovable Cloud secrets
 
 ### Sentry Error Tracking
+
 ```env
 VITE_SENTRY_DSN=https://...@sentry.io/...
 ```
+
 - **Required for**: Production error monitoring
 - **Fallback behavior**: Errors logged to console only
 - **Setup**: Create Sentry project and add DSN
 
 ### Cloudflare Turnstile
+
 ```env
 VITE_TURNSTILE_SITE_KEY=1x00000000000000000000AA
 ```
+
 - **Required for**: CAPTCHA on forms
 - **Fallback behavior**: Forms work without CAPTCHA
 - **Setup**: Register at Cloudflare Turnstile
@@ -68,8 +86,8 @@ VITE_SUPABASE_URL: z.string().url()
 VITE_SUPABASE_PUBLISHABLE_KEY: z.string().min(20)
 
 // Optional variables - app starts with warnings if missing
-VITE_STRIPE_PRICE_VIP_MONTH_ID: z.string().optional()
-VITE_STRIPE_PRICE_VIP_YEAR_ID: z.string().optional()
+VITE_STRIPE_PRICE_VIP_MONTHLY: z.string().optional()
+VITE_STRIPE_PRICE_VIP_YEARLY: z.string().optional()
 VITE_ONESIGNAL_APP_ID: z.string().optional()
 VITE_SENTRY_DSN: z.string().url().optional()
 ```
@@ -81,6 +99,7 @@ npm run check:env
 ```
 
 This script validates all environment variables and outputs:
+
 - ✅ Valid configuration
 - ❌ Missing required variables
 - ⚠️ Missing optional variables
@@ -100,11 +119,14 @@ All backend secrets are managed through **Lovable Cloud** (Supabase):
 
 1. Navigate to Project → Settings → Cloud → Secrets
 2. Add the required secret keys:
-   - `STRIPE_SECRET_KEY`
-   - `STRIPE_WEBHOOK_SECRET`
-   - `STRIPE_PRICE_VIP_MONTHLY`
-   - `STRIPE_PRICE_VIP_YEARLY`
-   - `ONESIGNAL_REST_API_KEY`
+
+    - `STRIPE_SECRET_KEY`
+    - `STRIPE_WEBHOOK_SECRET`
+    - `STRIPE_PRICE_VIP_MONTHLY`
+    - `STRIPE_PRICE_VIP_YEARLY`
+    - (Optional legacy) `PRICE_VIP_MONTHLY` / `PRICE_VIP_YEARLY`
+    - `ONESIGNAL_REST_API_KEY`
+3. Keep `STRIPE_PRICE_*` values in sync with the frontend `VITE_STRIPE_PRICE_*` entries. The `scripts/check-env.ts` helper fails fast if either set is missing on deploy.
 
 > 💡 **Note**: These backend secrets are separate from frontend environment variables and are only accessible in edge functions.
 
@@ -114,7 +136,8 @@ All backend secrets are managed through **Lovable Cloud** (Supabase):
 
 **Cause**: Supabase credentials not configured
 
-**Fix**: 
+**Fix**:
+
 1. Check `.env` file contains valid Supabase credentials
 2. Ensure credentials match your Lovable Cloud project
 3. Restart dev server: `npm run dev`
@@ -124,6 +147,7 @@ All backend secrets are managed through **Lovable Cloud** (Supabase):
 **Cause**: Optional variables not configured
 
 **Fix**:
+
 1. Check which feature is failing (Stripe/OneSignal/Sentry)
 2. Add the corresponding environment variable to `.env`
 3. Restart dev server
@@ -133,6 +157,7 @@ All backend secrets are managed through **Lovable Cloud** (Supabase):
 **Cause**: GitHub Actions doesn't have access to secrets
 
 **Fix**:
+
 1. Add secrets to GitHub repository settings
 2. Update `.github/workflows/ci.yml` to inject secrets
 3. Or use Lovable Cloud deployment (recommended)

@@ -208,6 +208,10 @@ vi.mock('@/integrations/supabase/client', () => {
           data: { session: { access_token: 'mock-access-token', refresh_token: 'mock-refresh-token' } },
           error: null
         }),
+        verifyOtp: vi.fn().mockResolvedValue({
+          data: { session: { access_token: 'mock-access-token', refresh_token: 'mock-refresh-token' } },
+          error: null
+        }),
         signOut: vi.fn().mockResolvedValue({
           error: null
         }),

@@ -22,6 +22,9 @@ describe("stripe-webhook utils", () => {
       expect(resolveTier("price_vip_year", priceEnv)).toBe("vip");
     });
 
+    it("treats legacy premium price IDs as free tiers", () => {
+      expect(resolveTier("price_premium_year", priceEnv)).toBe("free");
+    });
     it("defaults to free when price is missing or not configured", () => {
       expect(resolveTier(undefined, priceEnv)).toBe("free");
       expect(resolveTier("unknown_price", priceEnv)).toBe("free");

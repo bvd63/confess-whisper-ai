@@ -159,4 +159,14 @@ describe("ResetPassword page", () => {
       expect(submitButton).toBeDisabled();
     });
   });
+
+  it("shows the invalid link UI when recovery parameters are missing", async () => {
+    window.history.pushState({}, "Test", "/auth/update-password");
+    window.location.hash = "";
+
+    renderResetPassword();
+
+    expect(await screen.findByText(translations.en.auth_reset_token_invalid)).toBeInTheDocument();
+    expect(screen.getByText(translations.en.auth_reset_token_expired)).toBeInTheDocument();
+  });
 });

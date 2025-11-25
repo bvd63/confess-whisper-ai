@@ -10,16 +10,16 @@ import {
   VIP_BONUS_AMOUNT,
   VIP_BONUS_DESCRIPTION,
   VIP_BONUS_TYPE,
+  type PriceEnvConfig,
   type SubscriptionTier,
 } from "./utils.ts";
+import { getVipMonthlyPriceId, getVipYearlyPriceId } from "../_shared/stripe-config.ts";
 
 const REQUIRED_ENV = [
   "SUPABASE_URL",
   "SUPABASE_SERVICE_ROLE_KEY",
   "STRIPE_SECRET_KEY",
   "STRIPE_WEBHOOK_SECRET",
-  "STRIPE_PRICE_VIP_MONTHLY",
-  "STRIPE_PRICE_VIP_YEARLY",
 ];
 
 const missingEnv = REQUIRED_ENV.filter((key) => !Deno.env.get(key));
@@ -47,9 +47,9 @@ const logError = (payload: Record<string, unknown>) => {
 
 type StripeSubscription = Stripe.Subscription;
 
-const priceConfig = {
-  vipMonthly: Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") ?? null,
-  vipYearly: Deno.env.get("STRIPE_PRICE_VIP_YEARLY") ?? null,
+const priceConfig: PriceEnvConfig = {
+  vipMonthly: getVipMonthlyPriceId(),
+  vipYearly: getVipYearlyPriceId(),
 };
 
 const extractUserId = async (supabase: SupabaseClient, customerId: string): Promise<string | null> => {

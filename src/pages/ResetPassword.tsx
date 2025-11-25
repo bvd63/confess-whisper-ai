@@ -33,19 +33,69 @@ export default function ResetPassword() {
   const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
 
   useEffect(() => {
-    // Check if we have the required parameters from Supabase
-    const tokenHash = searchParams.get('token_hash');
-    const type = searchParams.get('type');
-    const hashFragment = window.location.hash;
-    
-    // Modern Supabase uses token_hash in query params OR access_token in hash
-    const hasValidToken = (tokenHash && type === 'recovery') || 
-                          (hashFragment && hashFragment.includes('access_token='));
-    
-    if (!hasValidToken) {
-      setTokenValid(false);
-      setError(t.auth_reset_token_invalid);
-    }
+    let isMounted = true;
+
+    const establishRecoverySession = async () => {
+      const tokenHash = searchParams.get('token_hash');
+      const type = searchParams.get('type');
+      const hashFragment = window.location.hash;
+      const fragmentParams = new URLSearchParams(hashFragment.replace(/^#/u, ''));
+      const accessToken = fragmentParams.get('access_token');
+      const refreshToken = fragmentParams.get('refresh_token');
+
+      const hasIncomingSession = Boolean((tokenHash && type === 'recovery') || (accessToken && refreshToken));
+
+      if (!hasIncomingSession) {
+        if (isMounted) {
+          setTokenValid(false);
+          setError(t.auth_reset_token_invalid);
+        }
+        return;
+      }
+
+      try {
+        if (accessToken && refreshToken) {
+          const { error: sessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+
+          if (sessionError) throw sessionError;
+
+          window.history.replaceState({}, document.title, `${window.location.pathname}${window.location.search}`);
+        } else if (tokenHash && type === 'recovery') {
+          const { error: otpError } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: 'recovery',
+          });
+
+          if (otpError) throw otpError;
+        }
+
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (!session) {
+          throw new Error('missing_recovery_session');
+        }
+
+        if (isMounted) {
+          setTokenValid(true);
+          setError('');
+        }
+      } catch (sessionError) {
+        logError('Password recovery session error', sessionError as Error);
+        if (isMounted) {
+          setTokenValid(false);
+          setError(t.auth_reset_token_invalid);
+        }
+      }
+    };
+
+    establishRecoverySession();
+
+    return () => {
+      isMounted = false;
+    };
   }, [t, searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {

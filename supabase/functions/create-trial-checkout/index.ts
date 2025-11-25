@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { getVipMonthlyPriceId } from "../_shared/stripe-config.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -67,11 +68,8 @@ serve(async (req) => {
     
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-    // Get VIP price ID from environment - ALWAYS use VIP for trial
-    const vipPriceId = Deno.env.get("STRIPE_PRICE_VIP_MONTHLY");
-    if (!vipPriceId) {
-      throw new Error("STRIPE_PRICE_VIP_MONTHLY not configured in environment");
-    }
+    // Get VIP price ID - ALWAYS use VIP for trial
+    const vipPriceId = getVipMonthlyPriceId();
 
     // Check for existing customer
     const customers = await stripe.customers.list({ email: user.email!, limit: 1 });

@@ -24,7 +24,7 @@ Added the following scripts to `package.json`:
 #### Created:
 - **`scripts/check-env.ts`** (54 lines)
   - Environment variable checker aligned with `src/lib/env.ts`
-  - Validates required variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_STRIPE_PRICE_VIP_MONTH_ID`, `VITE_STRIPE_PRICE_VIP_YEAR_ID`, `VITE_ONESIGNAL_APP_ID`
+  - Validates required variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_STRIPE_PRICE_VIP_MONTHLY`, `VITE_STRIPE_PRICE_VIP_YEARLY`, `VITE_ONESIGNAL_APP_ID`
   - Loads `.env`, `.env.local`, and environment-specific `.env` files
   - Exits with clear error messages for missing/empty variables
 
@@ -50,7 +50,7 @@ Added the following scripts to `package.json`:
 #### ✅ `npm run check:env`
 ```bash
 ❌ Env issues detected:
-• Missing: VITE_SUPABASE_ANON_KEY, VITE_STRIPE_PRICE_VIP_MONTH_ID, VITE_STRIPE_PRICE_VIP_YEAR_ID, VITE_ONESIGNAL_APP_ID
+• Missing: VITE_SUPABASE_ANON_KEY, VITE_STRIPE_PRICE_VIP_MONTHLY, VITE_STRIPE_PRICE_VIP_YEARLY, VITE_ONESIGNAL_APP_ID
 ```
 **Status**: Script works correctly, detects missing variables as expected
 

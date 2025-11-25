@@ -11,6 +11,7 @@ import { Turnstile } from "@marsidev/react-turnstile";
 import { z } from "zod";
 import { logError } from "@/lib/logger";
 import { requestPasswordReset } from "@/services/passwordReset";
+import { env } from "@/lib/env";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
@@ -81,6 +82,8 @@ export default function ForgotPassword() {
     }
   };
 
+  const turnstileSiteKey = env.client.turnstileSiteKey || (env.isDev ? "1x00000000000000000000AA" : "");
+
   return (
     <div className="min-h-screen bg-gradient-mesh flex items-center justify-center p-3 sm:p-4">
       <AnimatedCard
@@ -149,25 +152,32 @@ export default function ForgotPassword() {
 
             {/* CAPTCHA */}
             <div className="space-y-2">
-              <Turnstile
-                siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
-                onSuccess={(token) => {
-                  setCaptchaToken(token);
-                  setError("");
-                }}
-                onError={() => {
-                  setCaptchaToken("");
-                  setError(t.auth_captcha_failed);
-                }}
-                onExpire={() => {
-                  setCaptchaToken("");
-                  setError(t.auth_captcha_failed);
-                }}
-                options={{
-                  theme: 'auto',
-                  size: 'normal',
-                }}
-              />
+              {turnstileSiteKey ? (
+                <Turnstile
+                  siteKey={turnstileSiteKey}
+                  onSuccess={(token) => {
+                    setCaptchaToken(token);
+                    setError("");
+                  }}
+                  onError={() => {
+                    setCaptchaToken("");
+                    setError(t.auth_captcha_failed);
+                  }}
+                  onExpire={() => {
+                    setCaptchaToken("");
+                    setError(t.auth_captcha_failed);
+                  }}
+                  options={{
+                    theme: 'auto',
+                    size: 'normal',
+                  }}
+                />
+              ) : (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{t.auth_error_generic}</AlertDescription>
+                </Alert>
+              )}
             </div>
 
             {/* Submit Button */}
@@ -181,7 +191,7 @@ export default function ForgotPassword() {
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {t.auth_logging_in}
+                  {t.auth_sending_reset_link}
                 </>
               ) : (
                 t.auth_forgot_password_button

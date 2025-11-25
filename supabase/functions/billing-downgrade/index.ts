@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { isVipPriceId } from "../_shared/stripe-config.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,11 +10,6 @@ const corsHeaders = {
 
 const log = (level: string, message: string, data?: any) => {
   console.log(JSON.stringify({ level, message, data, timestamp: new Date().toISOString() }));
-};
-
-const PRICE_ID_TO_TIER: Record<string, "vip"> = {
-  [Deno.env.get("STRIPE_PRICE_VIP_MONTHLY") || ""]: "vip",
-  [Deno.env.get("STRIPE_PRICE_VIP_YEARLY") || ""]: "vip",
 };
 
 const TIER_HIERARCHY = { free: 0, vip: 1 };
@@ -59,7 +55,7 @@ serve(async (req) => {
       .eq("user_id", user.id)
       .single();
 
-    const targetTier = PRICE_ID_TO_TIER[targetPriceId] || "free";
+    const targetTier = isVipPriceId(targetPriceId) ? "vip" : "free";
     const currentTier = profile?.subscription_tier || "free";
 
     // Validate downgrade (target tier must be lower than current)
