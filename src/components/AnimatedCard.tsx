@@ -29,10 +29,10 @@ export const AnimatedCard = ({
   return (
     <Card
       className={cn(
-        'animate-fade-in transition-all duration-300',
+        'animate-fade-in transition-all duration-300 rounded-[18px] border-border/60',
         hoverClass,
         glass && 'glass',
-        gradient && 'bg-gradient-to-br from-card to-card/95 border-primary/10',
+        gradient && 'bg-gradient-to-br from-card to-card-secondary border-primary/10',
         className
       )}
       style={{ animationDelay: `${delay}ms` }}

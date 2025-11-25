@@ -13,10 +13,10 @@ export const TierProfileCard = ({ tier, children, className }: TierProfileCardPr
     switch (tier) {
       case "vip":
         return {
-          background: "bg-gradient-to-br from-amber-500/5 via-yellow-500/5 to-amber-600/5",
-          border: "border-amber-500/30",
-          shadow: "shadow-xl shadow-amber-500/20",
-          glow: "before:absolute before:inset-0 before:rounded-lg before:bg-gradient-to-r before:from-amber-500/0 before:via-amber-500/10 before:to-amber-500/0 before:animate-[shimmer_3s_ease-in-out_infinite] before:pointer-events-none",
+          background: "bg-gradient-to-br from-vip-gold/5 via-vip-gold/5 to-vip-gold/10 dark:from-vip-gold/10 dark:via-vip-gold/5 dark:to-vip-gold/15",
+          border: "border-vip-gold/30 dark:border-vip-gold/40",
+          shadow: "shadow-lg shadow-vip-gold/10 dark:shadow-vip-gold/20",
+          glow: "before:absolute before:inset-0 before:rounded-[18px] before:bg-gradient-to-r before:from-vip-gold/0 before:via-vip-gold/10 before:to-vip-gold/0 before:animate-[shimmer_3s_ease-in-out_infinite] before:pointer-events-none",
         };
       default:
         return {
