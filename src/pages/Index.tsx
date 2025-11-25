@@ -193,7 +193,7 @@ const Index = () => {
       {/* Main Content */}
       <main 
         ref={containerRef}
-        className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8"
+        className="container max-w-2xl mx-auto px-4 py-6"
       >
         {/* OneSignal Notification Banner */}
         {user && !bannerDismissed && (
@@ -220,17 +220,17 @@ const Index = () => {
         )}
 
         {/* Welcome Section */}
-        <div className="mb-6 sm:mb-8 text-center animate-fade-in">
-          <div className="inline-flex items-center gap-2 mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 glass rounded-full border border-primary/20">
-            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
-            <span className="text-xs sm:text-sm text-primary font-medium">{t.anonymous_secure}</span>
+        <div className="mb-8 text-center animate-fade-in">
+          <div className="inline-flex items-center gap-2.5 mb-4 px-4 py-2 glass rounded-full border border-primary/20">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <span className="text-sm text-primary font-semibold">{t.anonymous_secure}</span>
           </div>
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-3 px-4">
+          <h2 className="text-3xl font-bold mb-3 px-4">
             <GradientText variant="hero">
               {t.home_title}
             </GradientText>
           </h2>
-          <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto px-4">
+          <p className="text-base text-muted-foreground max-w-lg mx-auto px-4">
             {t.welcome_description}
           </p>
         </div>
@@ -248,7 +248,7 @@ const Index = () => {
 
         {/* Leaderboard */}
         {showSecondaryContent && (
-          <div className="my-4 sm:my-6">
+          <div className="my-6">
             <Leaderboard />
           </div>
         )}

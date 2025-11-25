@@ -109,9 +109,9 @@ export const InstagramBottomNav = () => {
         <nav 
           role="navigation" 
           aria-label="Main navigation"
-          className="fixed bottom-0 left-0 right-0 z-[9999] pointer-events-auto glass-strong border-t border-border/50 safe-area-inset-bottom shadow-elegant"
+          className="fixed bottom-0 left-0 right-0 z-[9999] pointer-events-auto glass-strong border-t border-border/50 safe-area-inset-bottom"
         >
-          <div ref={navRef} className="flex items-center justify-around h-16 max-w-screen-xl mx-auto px-2" role="tablist">
+          <div ref={navRef} className="flex items-center justify-around h-16 max-w-screen-xl mx-auto px-4" role="tablist">
             {navItems.map((item, index) => {
               const Icon = item.icon;
               const active = item.isActive;

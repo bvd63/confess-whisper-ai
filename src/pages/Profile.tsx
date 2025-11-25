@@ -161,22 +161,22 @@ const Profile = () => {
       <AchievementToast userId={user.id} />
       <ReferralRewardNotification userId={user.id} />
       
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-4xl pb-24">
+      <div className="container mx-auto px-4 py-6 max-w-4xl pb-24">
         
         
-        <div className="flex items-center gap-1.5 sm:gap-2 mb-4 sm:mb-6 animate-fade-in">
+        <div className="flex items-center gap-2.5 mb-6 animate-fade-in">
           <div className="rounded-full">
-            <User className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-primary" />
+            <User className="h-7 w-7 text-primary" />
           </div>
           <div className="flex-1">
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl sm:text-3xl font-bold">
                 <GradientText variant="hero">{t.profile_title}</GradientText>
               </h1>
               <VIPBadge tier={subscriptionTier as 'free' | 'vip'} size="lg" showLabel />
             </div>
             {/* Show active equipped flairs */}
-            <div className="mt-1.5 sm:mt-2">
+            <div className="mt-2">
               <BadgesDisplay 
                 userId={user.id} 
                 variant="compact"
@@ -187,7 +187,7 @@ const Profile = () => {
             <Button
               variant="ghost"
               size="sm"
-              className="h-9 w-9 p-0 hover:bg-accent flex-shrink-0"
+              className="h-10 w-10 p-0 hover:bg-accent flex-shrink-0 rounded-xl"
               aria-label={t.settings}
               title={t.settings}
               onClick={() => navigate('/settings/activity')}
@@ -227,19 +227,19 @@ const Profile = () => {
               }} 
               variant="outline" 
               size="sm" 
-              className="border-primary/30 hover:bg-primary/10 h-9 px-3"
+              className="border-primary/30 hover:bg-primary/10 h-10 px-4 rounded-xl"
             >
-              <LogOut className="w-4 h-4 sm:mr-1" />
-              <span className="hidden sm:inline text-xs">{t.logout}</span>
+              <LogOut className="w-4 h-4 sm:mr-1.5" />
+              <span className="hidden sm:inline text-xs font-medium">{t.logout}</span>
             </Button>
           </div>
         </div>
 
-        <Tabs defaultValue="statistics" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
-          <TabsList className={`grid w-full ${isModerator ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2'} h-auto`}>
-            <TabsTrigger value="statistics" className="text-xs sm:text-sm py-2">{t.profile_statistics}</TabsTrigger>
-            <TabsTrigger value="confessions" className="text-xs sm:text-sm py-2">{t.profile_my_confessions}</TabsTrigger>
-            {isModerator && <TabsTrigger value="moderation" className="text-xs sm:text-sm py-2">{t.profile_moderation}</TabsTrigger>}
+        <Tabs defaultValue="statistics" className="space-y-6 mt-6">
+          <TabsList className={`grid w-full ${isModerator ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2'} h-11 rounded-xl`}>
+            <TabsTrigger value="statistics" className="text-sm rounded-lg">{t.profile_statistics}</TabsTrigger>
+            <TabsTrigger value="confessions" className="text-sm rounded-lg">{t.profile_my_confessions}</TabsTrigger>
+            {isModerator && <TabsTrigger value="moderation" className="text-sm rounded-lg">{t.profile_moderation}</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="statistics" className="space-y-6">

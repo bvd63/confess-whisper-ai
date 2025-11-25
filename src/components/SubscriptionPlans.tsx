@@ -101,18 +101,18 @@ const SubscriptionPlans = ({ open, onOpenChange }: SubscriptionPlansProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[1000px] max-h-[90vh] overflow-y-auto bg-background border-primary/30">
-        <DialogHeader>
-          <DialogTitle className="text-2xl sm:text-3xl flex items-center gap-2 justify-center">
-            <Crown className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
+      <DialogContent className="sm:max-w-[1000px] max-h-[90vh] overflow-y-auto bg-background border-primary/30 rounded-2xl">
+        <DialogHeader className="space-y-3">
+          <DialogTitle className="text-3xl flex items-center gap-2.5 justify-center font-bold">
+            <Crown className="w-8 h-8 text-primary" />
             {t.plans_paywall_title || "Your Subscription"}
           </DialogTitle>
-          <DialogDescription className="text-sm text-center text-muted-foreground">
+          <DialogDescription className="text-base text-center text-muted-foreground">
             {t.plans_paywall_subtitle || "Compare features and find your best experience."}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="py-6">
+        <div className="py-8">
           <SubscriptionPlansGrid
             currentPlan={currentTier}
             currentInterval={billingCycle}

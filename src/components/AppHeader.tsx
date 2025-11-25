@@ -70,23 +70,23 @@ const AppHeader = ({
     }
   };
   const isActive = (path: string) => location.pathname === path;
-  return <header className="sticky top-0 z-50 glass-strong border-b border-border/50 shadow-elegant">
+  return <header className="sticky top-0 z-50 glass-strong border-b border-border/50">
       {/* Unified Layout for All Screen Sizes */}
       <div className="w-full">
-        <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 max-w-7xl mx-auto">
-          <div className="flex items-center gap-2">
-            <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-primary flex-shrink-0 animate-heart-beat" fill="currentColor" />
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent cursor-pointer whitespace-nowrap" onClick={() => navigate('/')}>
+        <div className="flex items-center justify-between px-4 py-3 max-w-7xl mx-auto">
+          <div className="flex items-center gap-2.5">
+            <Heart className="w-6 h-6 text-primary flex-shrink-0 animate-heart-beat" fill="currentColor" />
+            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent cursor-pointer whitespace-nowrap" onClick={() => navigate('/')}>
               {t.app_name}
             </h1>
           </div>
           
-          <div className="flex items-center gap-1 sm:gap-1.5">
+          <div className="flex items-center gap-2">
             {user ? <>
                 {/* Payment Failed Warning */}
                 {subscriptionStatus === 'past_due' && (
-                  <Badge variant="destructive" className="h-6 px-2 text-[10px] sm:text-xs animate-pulse">
-                    Payment Failed - Update Required
+                  <Badge variant="destructive" className="h-7 px-3 text-xs animate-pulse">
+                    Payment Failed
                   </Badge>
                 )}
                 
@@ -97,25 +97,25 @@ const AppHeader = ({
                   variant={subscriptionTier === 'free' ? 'default' : 'outline'}
                   size="sm" 
                   className={cn(
-                    "h-8 px-2 sm:px-3",
+                    "h-9 px-3 rounded-xl",
                     subscriptionTier === 'free' 
                       ? "bg-purple-600 hover:bg-purple-700 text-white" 
                       : "border-primary/30 hover:bg-primary/10"
                   )}
                 >
                   <Crown className={cn(
-                    "w-3 h-3 sm:w-3.5 sm:h-3.5",
-                    subscriptionTier === 'free' && "text-white animate-pulse"
+                    "w-4 h-4",
+                    subscriptionTier === 'free' && "text-white"
                   )} />
-                  <span className="hidden sm:inline text-xs ml-1 font-semibold">
-                    {subscriptionTier === 'free' ? 'Subscription & Coins' : 'Manage'}
+                  <span className="hidden sm:inline text-xs ml-1.5 font-semibold">
+                    {subscriptionTier === 'free' ? 'Upgrade' : 'Manage'}
                   </span>
                 </Button>
                 <CoinsDisplay userId={user.id} variant="compact" />
                 <NotificationsDropdown />
-              </> : <Button onClick={() => navigate('/auth')} variant="outline" size="sm" className="border-primary/30 hover:bg-primary/10 h-8 px-2 sm:px-3">
-                <LogIn className="w-3 h-3 sm:w-3.5 sm:h-3.5 sm:mr-1" />
-                <span className="hidden sm:inline text-xs">{t.login}</span>
+              </> : <Button onClick={() => navigate('/auth')} variant="outline" size="sm" className="border-primary/30 hover:bg-primary/10 h-9 px-4 rounded-xl">
+                <LogIn className="w-4 h-4 sm:mr-1.5" />
+                <span className="hidden sm:inline text-xs font-medium">{t.login}</span>
               </Button>}
           </div>
         </div>

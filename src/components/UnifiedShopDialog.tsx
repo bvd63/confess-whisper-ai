@@ -255,27 +255,27 @@ export const UnifiedShopDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
         data-testid="manage-subscription-modal"
-        className="max-w-5xl max-h-[90vh] overflow-y-auto bg-[#0a0b14] border-[#1a1b2e] text-white"
+        className="max-w-5xl max-h-[90vh] overflow-y-auto bg-background border-border rounded-2xl"
       >
-        <DialogHeader className="space-y-2">
-          <DialogTitle className="flex items-center justify-center gap-2 text-2xl font-semibold text-white">
-            <span className="text-purple-500">👑</span>
+        <DialogHeader className="space-y-3 pb-2">
+          <DialogTitle className="flex items-center justify-center gap-2.5 text-2xl font-bold text-foreground">
+            <span className="text-2xl">👑</span>
             Subscription & Coins
           </DialogTitle>
-          <p className="text-center text-sm text-gray-400">
+          <p className="text-center text-sm text-muted-foreground">
             Manage your subscription and purchase coins
           </p>
         </DialogHeader>
 
         <Tabs key={`${open}-${defaultTab}`} defaultValue={defaultTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="subscriptions" className="flex items-center gap-2">
+          <TabsList className="grid w-full grid-cols-2 mb-6 h-12 rounded-xl bg-muted/50">
+            <TabsTrigger value="subscriptions" className="flex items-center gap-2 text-sm rounded-lg data-[state=active]:bg-background">
               <Crown className="w-4 h-4" />
-              Subscriptions
+              <span className="font-medium">Subscriptions</span>
             </TabsTrigger>
-            <TabsTrigger value="coins" className="flex items-center gap-2">
+            <TabsTrigger value="coins" className="flex items-center gap-2 text-sm rounded-lg data-[state=active]:bg-background">
               <Coins className="w-4 h-4" />
-              Coin Shop
+              <span className="font-medium">Coins</span>
             </TabsTrigger>
           </TabsList>
 
@@ -303,28 +303,28 @@ export const UnifiedShopDialog = ({
           </TabsContent>
 
           <TabsContent value="coins">
-            <div className="space-y-6">
+            <div className="space-y-8">
               <div className="text-center">
-                <p className="text-lg font-semibold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+                <p className="text-xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
                   {t.coins_shop_title || '🪙 Coin Shop'}
                 </p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  {t.coins_shop_subtitle || 'Get coins to unlock VIP features and more!'}
+                <p className="text-base text-muted-foreground mt-2">
+                  {t.coins_shop_subtitle || 'Get coins to unlock exclusive features!'}
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                 {packages?.map((pkg) => (
                   <div
                     key={pkg.id}
-                    className={`relative p-6 rounded-xl border-2 transition-all hover:scale-105 ${
+                    className={`relative p-6 rounded-2xl border-2 transition-all hover:scale-[1.02] hover:shadow-lg ${
                       pkg.is_popular
-                        ? 'border-yellow-500 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20'
+                        ? 'border-yellow-500 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20 shadow-md'
                         : 'border-border bg-card'
                     }`}
                   >
                     {pkg.is_popular && (
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-4 py-1 rounded-full text-xs font-bold">
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-5 py-1.5 rounded-full text-xs font-bold shadow-lg">
                         ⭐ {t.coins_best_value || 'BEST VALUE'}
                       </div>
                     )}
@@ -335,32 +335,32 @@ export const UnifiedShopDialog = ({
                       </div>
                     )}
 
-                    <div className="flex flex-col items-center text-center space-y-4">
-                      <div className="text-yellow-500">
+                    <div className="flex flex-col items-center text-center space-y-5">
+                      <div className="text-yellow-500 p-3 bg-yellow-500/10 rounded-2xl">
                         {getPackageIcon(pkg.name)}
                       </div>
 
                       <div>
-                        <h3 className="font-bold text-lg">{pkg.name}</h3>
-                        <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400 mt-2">
+                        <h3 className="font-bold text-lg mb-2">{pkg.name}</h3>
+                        <p className="text-4xl font-bold text-yellow-600 dark:text-yellow-400">
                           {pkg.coins.toLocaleString()} 🪙
                         </p>
                       </div>
 
-                      <div className="text-2xl font-bold">
+                      <div className="text-3xl font-bold">
                         ${pkg.price_usd.toFixed(2)}
                       </div>
 
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-muted-foreground font-medium">
                         ${(pkg.price_usd / pkg.coins).toFixed(4)} {t.coins_per_coin || 'per coin'}
                       </div>
 
                       <Button
                         onClick={() => handleCoinPurchase(pkg.id)}
                         disabled={coinLoading === pkg.id}
-                        className={`w-full ${
+                        className={`w-full h-12 rounded-xl font-semibold ${
                           pkg.is_popular
-                            ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
+                            ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white'
                             : ''
                         }`}
                       >
@@ -378,11 +378,11 @@ export const UnifiedShopDialog = ({
                 ))}
               </div>
 
-              <div className="mt-6 p-4 bg-muted rounded-lg">
-                <p className="text-sm text-center text-muted-foreground">
-                  💳 {t.coins_secure_payment || 'Secure payment powered by Stripe'} • 
-                  🔒 {t.coins_instant_delivery || 'Instant coin delivery'} •
-                  💯 {t.coins_satisfaction || '100% satisfaction guaranteed'}
+              <div className="mt-8 p-5 bg-muted/50 rounded-2xl">
+                <p className="text-sm text-center text-muted-foreground leading-relaxed">
+                  💳 {t.coins_secure_payment || 'Secure payment via Stripe'} • 
+                  🔒 {t.coins_instant_delivery || 'Instant delivery'} •
+                  💯 {t.coins_satisfaction || 'Guaranteed'}
                 </p>
               </div>
             </div>

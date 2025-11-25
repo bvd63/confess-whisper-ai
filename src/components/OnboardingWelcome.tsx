@@ -54,28 +54,28 @@ export const OnboardingWelcome = ({ userId, onComplete }: OnboardingWelcomeProps
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-2xl flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-primary" />
+        <DialogContent className="max-w-md rounded-2xl">
+          <DialogHeader className="space-y-3">
+            <DialogTitle className="text-2xl flex items-center gap-2.5">
+              <Sparkles className="w-7 h-7 text-primary" />
               {t.onboarding_welcome_title || "Welcome to Your Safe Space"}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-base">
               {t.onboarding_welcome_desc || "A place where you can share your thoughts anonymously and connect with others"}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6 py-4">
+          <div className="space-y-6 py-6">
             {step === 1 && (
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {features.map((feature, index) => (
-                  <div key={index} className="flex gap-3 items-start">
-                    <div className="p-2 bg-primary/10 rounded-lg">
+                  <div key={index} className="flex gap-3.5 items-start p-3 rounded-xl hover:bg-accent/50 transition-colors">
+                    <div className="p-2.5 bg-primary/10 rounded-xl flex-shrink-0">
                       <feature.icon className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold">{feature.title}</h3>
-                      <p className="text-sm text-muted-foreground">
+                      <h3 className="font-semibold text-base mb-1">{feature.title}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
                         {feature.description}
                       </p>
                     </div>
@@ -85,16 +85,16 @@ export const OnboardingWelcome = ({ userId, onComplete }: OnboardingWelcomeProps
             )}
 
             {step === 2 && (
-              <div className="space-y-4 text-center">
-                <div className="p-4 bg-primary/10 rounded-lg">
-                  <Shield className="w-12 h-12 text-primary mx-auto mb-3" />
-                  <h3 className="font-semibold mb-2">{t.onboarding_privacy_title || "Your Privacy Matters"}</h3>
-                  <p className="text-sm text-muted-foreground">
+              <div className="space-y-5 text-center">
+                <div className="p-6 bg-primary/10 rounded-2xl">
+                  <Shield className="w-14 h-14 text-primary mx-auto mb-4" />
+                  <h3 className="font-semibold text-lg mb-2">{t.onboarding_privacy_title || "Your Privacy Matters"}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     {t.onboarding_privacy_desc || "We use end-to-end encryption and never share your data. Your confessions remain anonymous unless you choose otherwise."}
                   </p>
                 </div>
-                <div className="p-4 bg-muted rounded-lg">
-                  <p className="text-sm">
+                <div className="p-5 bg-muted rounded-2xl">
+                  <p className="text-sm leading-relaxed">
                     {t.onboarding_terms_desc || "By continuing, you agree to our Terms of Service and Privacy Policy. You can delete your data at any time from your profile settings."}
                   </p>
                 </div>
@@ -102,17 +102,17 @@ export const OnboardingWelcome = ({ userId, onComplete }: OnboardingWelcomeProps
             )}
           </div>
 
-          <div className="flex justify-between">
+          <div className="flex justify-between gap-3 pt-2">
             {step === 1 ? (
-              <Button onClick={() => setStep(2)} className="w-full">
+              <Button onClick={() => setStep(2)} className="w-full h-12 rounded-xl font-medium">
                 {t.common_continue || "Continue"}
               </Button>
             ) : (
               <>
-                <Button variant="outline" onClick={() => setStep(1)}>
+                <Button variant="outline" onClick={() => setStep(1)} className="flex-1 h-12 rounded-xl">
                   {t.common_back || "Back"}
                 </Button>
-                <Button onClick={handleComplete}>{t.get_started}</Button>
+                <Button onClick={handleComplete} className="flex-1 h-12 rounded-xl font-medium">{t.get_started}</Button>
               </>
             )}
           </div>
