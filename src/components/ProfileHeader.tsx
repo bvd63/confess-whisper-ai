@@ -44,10 +44,10 @@ export const ProfileHeader = ({
   };
 
   return (
-    <AnimatedCard hover="lift" glass className={cn("p-4 border-b border-border/50", tierStyles.cardClass)}>
+    <AnimatedCard hover="lift" className={cn("p-6 border border-border/50 rounded-2xl", tierStyles.cardClass)}>
       {/* Avatar and Stats Row */}
-      <div className="flex items-center gap-4">
-          <Avatar className={cn("w-20 h-20 shadow-glow", tierStyles.avatarClass, tierStyles.glowClass)}>
+      <div className="flex items-center gap-4 mb-4">
+          <Avatar className={cn("w-20 h-20 shadow-lg border-2 border-primary/20", tierStyles.avatarClass, tierStyles.glowClass)}>
             <AvatarImage src={avatarUrl || undefined} alt={nickname || t.confession_anonymous} />
             <AvatarFallback className="text-2xl font-bold bg-gradient-to-br from-primary/20 to-primary/10">
               {(nickname || t.confession_anonymous).charAt(0).toUpperCase()}
@@ -88,11 +88,11 @@ export const ProfileHeader = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 mt-4">
         {isOwnProfile ? (
           <EnhancedButton
             variant="outline"
-            className="flex-1"
+            className="flex-1 rounded-xl h-10 font-medium"
             onClick={onEditProfile || (() => navigate("/profile"))}
             lift
           >
@@ -103,7 +103,7 @@ export const ProfileHeader = ({
           <>
             <EnhancedButton
               variant={stats.isFollowing ? "outline" : "default"}
-              className="flex-1"
+              className="flex-1 rounded-xl h-10 font-medium"
               onClick={toggleFollow}
               disabled={isProcessing}
               glow={!stats.isFollowing}
@@ -123,6 +123,7 @@ export const ProfileHeader = ({
             </EnhancedButton>
             <EnhancedButton
               variant="outline"
+              className="rounded-xl h-10"
               onClick={() => navigate(`/messages?user=${userId}`)}
               lift
             >

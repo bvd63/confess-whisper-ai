@@ -256,20 +256,20 @@ const NotificationsDropdown = () => {
     <>
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative h-8 w-8 sm:h-9 sm:w-9">
-          <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
+        <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-2xl hover:bg-muted">
+          <Bell className="w-5 h-5" />
           {unreadCount > 0 && (
             <Badge 
-              className="absolute -top-1 -right-1 h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center p-0 bg-primary text-primary-foreground text-[9px] sm:text-xs"
+              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-primary text-primary-foreground text-xs rounded-full shadow-lg shadow-primary/25"
             >
               {unreadCount > 9 ? '9+' : unreadCount}
             </Badge>
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[calc(100vw-2rem)] sm:w-80 p-0" align="end">
-        <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b border-border">
-          <h3 className="text-sm sm:text-base font-semibold">{t.notifications_title}</h3>
+      <PopoverContent className="w-[calc(100vw-2rem)] sm:w-96 p-0 rounded-2xl border border-border/50 shadow-xl" align="end">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border/50 bg-card/50 backdrop-blur-sm">
+          <h3 className="text-base font-bold">{t.notifications_title}</h3>
           <div className="flex gap-0.5 sm:gap-1">
             {unreadCount > 0 && (
               <Button
@@ -296,29 +296,29 @@ const NotificationsDropdown = () => {
         </div>
 
         {/* View All and Analytics Buttons */}
-        <div className="px-3 sm:px-4 py-2 border-b border-border bg-muted/30 space-y-1">
+        <div className="px-4 py-3 border-b border-border/50 bg-muted/30 space-y-2">
           <Button
             variant="ghost"
             size="sm"
-            className="w-full justify-start text-xs"
+            className="w-full justify-start text-sm rounded-xl hover:bg-muted/80"
             onClick={() => {
               navigate('/notifications');
               setIsOpen(false);
             }}
           >
-            <History className="w-3 h-3 mr-2" />
+            <History className="w-4 h-4 mr-2" />
             View All Notifications
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className="w-full justify-start text-xs"
+            className="w-full justify-start text-sm rounded-xl hover:bg-muted/80"
             onClick={() => {
               navigate('/notifications/analytics');
               setIsOpen(false);
             }}
           >
-            <BarChart3 className="w-3 h-3 mr-2" />
+            <BarChart3 className="w-4 h-4 mr-2" />
             View Analytics
           </Button>
         </div>
