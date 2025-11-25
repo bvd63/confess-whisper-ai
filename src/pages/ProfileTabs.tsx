@@ -91,8 +91,8 @@ export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, o
 
     if (!confessions || confessions.length === 0) {
       return (
-        <Card className="p-12 text-center">
-          <p className="text-muted-foreground">{emptyMessage}</p>
+        <Card className="p-12 text-center border-border/60 rounded-[18px]">
+          <p className="text-foreground-muted">{emptyMessage}</p>
         </Card>
       );
     }
@@ -125,18 +125,27 @@ export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, o
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      <TabsList className="grid w-full grid-cols-3">
-        <TabsTrigger value="posts" className="flex items-center gap-2">
+      <TabsList className="grid w-full grid-cols-3 h-11 bg-card-secondary border border-border/60 rounded-[14px] p-1">
+        <TabsTrigger 
+          value="posts" 
+          className="flex items-center gap-2 rounded-[10px] data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+        >
           <FileText className="h-4 w-4" />
           <span className="hidden sm:inline">Posts</span>
         </TabsTrigger>
         {isOwnProfile && (
           <>
-            <TabsTrigger value="liked" className="flex items-center gap-2">
+            <TabsTrigger 
+              value="liked" 
+              className="flex items-center gap-2 rounded-[10px] data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+            >
               <Heart className="h-4 w-4" />
               <span className="hidden sm:inline">Liked</span>
             </TabsTrigger>
-            <TabsTrigger value="saved" className="flex items-center gap-2">
+            <TabsTrigger 
+              value="saved" 
+              className="flex items-center gap-2 rounded-[10px] data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+            >
               <Bookmark className="h-4 w-4" />
               <span className="hidden sm:inline">Saved</span>
             </TabsTrigger>
