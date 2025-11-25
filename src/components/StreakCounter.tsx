@@ -39,10 +39,10 @@ const StreakCounter = ({
   if (loading || !streak) return null;
   if (variant === "compact") {
     if (streak.current_streak === 0) return null;
-    return <div className="flex items-center gap-1 text-xs sm:text-sm">
-        <Flame className={cn("w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0", streak.current_streak >= 7 ? "text-orange-500" : "text-yellow-500")} />
-        <span className="font-semibold">{streak.current_streak}</span>
-        <span className="text-muted-foreground hidden xs:inline">{t.time_days}</span>
+    return <div className="flex items-center gap-2 px-3 py-1.5 bg-[#FF7A00]/10 dark:bg-[#FF7A00]/20 border border-[#FF7A00]/20 rounded-full">
+        <Flame className={cn("w-4 h-4 flex-shrink-0", streak.current_streak >= 7 ? "text-[#FF7A00]" : "text-[#FFA500]")} />
+        <span className="font-bold text-sm text-foreground">{streak.current_streak}</span>
+        <span className="text-xs text-muted-foreground hidden xs:inline font-medium">{t.time_days}</span>
       </div>;
   }
   return;
