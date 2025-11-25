@@ -70,52 +70,48 @@ const AppHeader = ({
     }
   };
   const isActive = (path: string) => location.pathname === path;
-  return <header className="sticky top-0 z-50 glass-strong border-b border-border/50">
-      {/* Unified Layout for All Screen Sizes */}
+  return <header className="sticky top-0 z-50 glass-strong border-b border-border">
       <div className="w-full">
-        <div className="flex items-center justify-between px-4 py-3 max-w-7xl mx-auto">
-          <div className="flex items-center gap-2.5">
-            <Heart className="w-6 h-6 text-primary flex-shrink-0 animate-heart-beat" fill="currentColor" />
-            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent cursor-pointer whitespace-nowrap" onClick={() => navigate('/')}>
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 max-w-7xl mx-auto">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary via-primary-hover to-primary-pressed flex items-center justify-center shadow-lg shadow-primary/25">
+              <Heart className="w-5 h-5 text-white" fill="currentColor" />
+            </div>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground cursor-pointer" onClick={() => navigate('/')}>
               {t.app_name}
             </h1>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 sm:gap-3">
             {user ? <>
-                {/* Payment Failed Warning */}
                 {subscriptionStatus === 'past_due' && (
-                  <Badge variant="destructive" className="h-7 px-3 text-xs animate-pulse">
+                  <Badge variant="destructive" className="h-8 px-3 text-xs font-medium rounded-xl animate-pulse">
                     Payment Failed
                   </Badge>
                 )}
                 
-                {/* Subscription button */}
                 <Button 
                   data-testid="manage-subscription-btn"
                   onClick={() => onManageSubscription?.()} 
                   variant={subscriptionTier === 'free' ? 'default' : 'outline'}
                   size="sm" 
                   className={cn(
-                    "h-9 px-3 rounded-xl",
+                    "h-10 px-4 rounded-2xl font-semibold transition-all",
                     subscriptionTier === 'free' 
-                      ? "bg-purple-600 hover:bg-purple-700 text-white" 
-                      : "border-primary/30 hover:bg-primary/10"
+                      ? "bg-primary hover:bg-primary-hover text-white shadow-lg shadow-primary/25" 
+                      : "border-border bg-card hover:bg-muted"
                   )}
                 >
-                  <Crown className={cn(
-                    "w-4 h-4",
-                    subscriptionTier === 'free' && "text-white"
-                  )} />
-                  <span className="hidden sm:inline text-xs ml-1.5 font-semibold">
+                  <Crown className="w-4 h-4" />
+                  <span className="hidden sm:inline text-sm ml-2">
                     {subscriptionTier === 'free' ? 'Upgrade' : 'Manage'}
                   </span>
                 </Button>
                 <CoinsDisplay userId={user.id} variant="compact" />
                 <NotificationsDropdown />
-              </> : <Button onClick={() => navigate('/auth')} variant="outline" size="sm" className="border-primary/30 hover:bg-primary/10 h-9 px-4 rounded-xl">
-                <LogIn className="w-4 h-4 sm:mr-1.5" />
-                <span className="hidden sm:inline text-xs font-medium">{t.login}</span>
+              </> : <Button onClick={() => navigate('/auth')} variant="outline" size="sm" className="h-10 px-4 rounded-2xl border-border bg-card hover:bg-muted font-medium">
+                <LogIn className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline text-sm">{t.login}</span>
               </Button>}
           </div>
         </div>

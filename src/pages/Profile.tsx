@@ -162,21 +162,18 @@ const Profile = () => {
       <ReferralRewardNotification userId={user.id} />
       
       <div className="container mx-auto px-4 py-6 max-w-4xl pb-24">
-        
-        
-        <div className="flex items-center gap-2.5 mb-6 animate-fade-in">
-          <div className="rounded-full">
-            <User className="h-7 w-7 text-primary" />
+        <div className="flex items-center gap-3 mb-8 animate-fade-in">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary-pressed flex items-center justify-center shadow-lg shadow-primary/25">
+            <User className="h-6 w-6 text-white" />
           </div>
           <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl sm:text-3xl font-bold">
-                <GradientText variant="hero">{t.profile_title}</GradientText>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold text-foreground">
+                {t.profile_title}
               </h1>
               <VIPBadge tier={subscriptionTier as 'free' | 'vip'} size="lg" showLabel />
             </div>
-            {/* Show active equipped flairs */}
-            <div className="mt-2">
+            <div className="mt-3">
               <BadgesDisplay 
                 userId={user.id} 
                 variant="compact"
@@ -187,12 +184,12 @@ const Profile = () => {
             <Button
               variant="ghost"
               size="sm"
-              className="h-10 w-10 p-0 hover:bg-accent flex-shrink-0 rounded-xl"
+              className="h-12 w-12 p-0 hover:bg-muted rounded-2xl"
               aria-label={t.settings}
               title={t.settings}
               onClick={() => navigate('/settings/activity')}
             >
-              <Settings className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+              <Settings className="h-5 w-5 text-foreground-muted hover:text-foreground transition-colors" />
             </Button>
             {profileData?.stripe_subscription_id && (
               <Button
@@ -209,11 +206,11 @@ const Profile = () => {
                 }}
                 variant="ghost"
                 size="sm"
-                className="h-9 w-9 p-0 hover:bg-accent flex-shrink-0"
+                className="h-12 w-12 p-0 hover:bg-muted rounded-2xl"
                 aria-label="Sync Subscription"
                 title="Sync Subscription"
               >
-                <RefreshCw className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+                <RefreshCw className="h-5 w-5 text-foreground-muted hover:text-foreground transition-colors" />
               </Button>
             )}
             <Button 
@@ -227,19 +224,19 @@ const Profile = () => {
               }} 
               variant="outline" 
               size="sm" 
-              className="border-primary/30 hover:bg-primary/10 h-10 px-4 rounded-xl"
+              className="border-border bg-card hover:bg-muted h-12 px-5 rounded-2xl font-medium"
             >
-              <LogOut className="w-4 h-4 sm:mr-1.5" />
-              <span className="hidden sm:inline text-xs font-medium">{t.logout}</span>
+              <LogOut className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline text-sm">{t.logout}</span>
             </Button>
           </div>
         </div>
 
-        <Tabs defaultValue="statistics" className="space-y-6 mt-6">
-          <TabsList className={`grid w-full ${isModerator ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2'} h-11 rounded-xl`}>
-            <TabsTrigger value="statistics" className="text-sm rounded-lg">{t.profile_statistics}</TabsTrigger>
-            <TabsTrigger value="confessions" className="text-sm rounded-lg">{t.profile_my_confessions}</TabsTrigger>
-            {isModerator && <TabsTrigger value="moderation" className="text-sm rounded-lg">{t.profile_moderation}</TabsTrigger>}
+        <Tabs defaultValue="statistics" className="space-y-8 mt-8">
+          <TabsList className={`grid w-full ${isModerator ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2'} h-14 rounded-2xl bg-muted p-1.5 gap-1.5`}>
+            <TabsTrigger value="statistics" className="text-sm font-medium rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg">{t.profile_statistics}</TabsTrigger>
+            <TabsTrigger value="confessions" className="text-sm font-medium rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg">{t.profile_my_confessions}</TabsTrigger>
+            {isModerator && <TabsTrigger value="moderation" className="text-sm font-medium rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg">{t.profile_moderation}</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="statistics" className="space-y-6">

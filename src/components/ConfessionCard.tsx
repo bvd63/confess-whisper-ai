@@ -140,10 +140,9 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
     <NoScreenshotMode enabled={noScreenshotEnabled}>
       <AnimatedCard 
         hover="lift"
-        glass
-        className="p-3 sm:p-4 md:p-5 mb-3 sm:mb-4 touch-manipulation transition-smooth hover:shadow-lg animate-slide-up"
+        className="p-5 sm:p-6 mb-4 touch-manipulation transition-all duration-300 hover:shadow-xl bg-card border border-border rounded-3xl animate-slide-up"
       >
-        <div className="mb-2 sm:mb-3">
+        <div className="mb-4">
           <ConfessionHeader 
             category={confession.category} 
             createdAt={confession.created_at}
@@ -157,18 +156,17 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         </div>
 
         <SensitiveContentWarning isSensitive={isSensitive}>
-          <p className="text-sm sm:text-base text-foreground leading-relaxed mb-3 sm:mb-4 break-words">
+          <p className="text-base leading-relaxed text-foreground mb-4 break-words">
             {sanitizeConfession(confession.content)}
           </p>
         </SensitiveContentWarning>
 
-      {/* Display image if available */}
       {confession.image_url && (
-        <div className="mb-3 sm:mb-4">
+        <div className="mb-5">
           <OptimizedImage
             src={confession.image_url}
             alt={t.ui_confession_image}
-            className={`w-full h-auto object-cover max-h-[300px] sm:max-h-[400px] rounded-lg ${
+            className={`w-full h-auto object-cover max-h-[400px] rounded-2xl ${
               confession.image_blurred ? 'blur-lg' : ''
             }`}
             width={800}
@@ -177,26 +175,21 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         </div>
       )}
 
-      {/* Emotional Tone */}
       {confession.emotional_tone && (
-        <div className="mb-3">
+        <div className="mb-4">
           <EmotionalTone tone={confession.emotional_tone} size="sm" />
         </div>
       )}
 
-      {/* Awards Display */}
-      <div className="mb-3">
+      <div className="mb-4">
         <AwardDisplay confessionId={confession.id} />
       </div>
 
-      {/* Reactions */}
-      <div className="mb-3">
+      <div className="mb-4">
         <ReactionPicker confessionId={confession.id} userId={user?.id} />
       </div>
 
-      {/* Copy Text Button */}
-      {/* Interaction Buttons */}
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex items-center gap-2 flex-wrap mb-4">
         <ConfessionActions
           confessionId={confession.id}
           confessionUserId={confession.user_id}
@@ -215,36 +208,34 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
       {confession.ai_response && (
         <>
           <div className={cn(
-            "mt-4 rounded-lg transition-all",
+            "mt-5 rounded-2xl transition-all",
             subscriptionTier === 'vip' 
-              ? "p-4 bg-gradient-to-r from-purple-500/10 to-purple-600/10 border border-purple-500/30 shadow-lg shadow-purple-500/10" 
-              : "p-3 bg-muted/50"
+              ? "p-5 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 shadow-lg shadow-primary/10" 
+              : "p-4 bg-muted/60 border border-border"
           )}>
             {subscriptionTier === 'vip' && (
-              <div className="flex items-center gap-1.5 mb-3">
-                <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
-                <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">
-                  VIP Priority AI Response
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center">
+                  <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+                </div>
+                <span className="text-sm font-bold text-primary uppercase tracking-wide">
+                  VIP AI Response
                 </span>
               </div>
             )}
-            <p className={cn(
-              "text-sm leading-relaxed",
-              subscriptionTier === 'vip' && "text-purple-100"
-            )}>
+            <p className="text-sm leading-relaxed text-foreground-secondary">
               {confession.ai_response}
             </p>
           </div>
 
-          {/* Deep Insight Button */}
           <EnhancedButton
             onClick={() => setIsDeepInsightOpen(true)}
             variant="outline"
-            className="w-full mt-3 border-primary/30 text-primary"
+            className="w-full mt-4 h-12 rounded-2xl border-primary/20 text-primary hover:bg-primary/5 font-medium"
             glow
             shine
           >
-            <Sparkles className="w-4 h-4 mr-2 animate-pulse-glow" />
+            <Sparkles className="w-5 h-5 mr-2" />
             {confession.ai_deep_insight ? t.deep_insight_title : t.generate_insight}
           </EnhancedButton>
         </>
