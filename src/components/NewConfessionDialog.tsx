@@ -409,7 +409,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto glass-strong border-primary/20"
+        className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto glass-strong border-primary/20 rounded-2xl"
         style={{
           marginBottom: isKeyboardVisible ? `${keyboardHeight}px` : '0',
           transition: 'margin-bottom 0.3s ease-out'
@@ -420,22 +420,22 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
             <span className="text-xl sm:text-2xl text-gradient-hero">{t.new_confession}</span>
             {!limitsLoading && (
               dailyLimit !== Infinity ? (
-                <Badge variant={remaining > 2 ? "default" : "destructive"} className="ml-2">
+                <Badge variant={remaining > 2 ? "default" : "destructive"} className="ml-2 rounded-lg">
                   {remaining}/{dailyLimit}
                 </Badge>
               ) : (
-                <Badge className="bg-gradient-to-r from-amber-400 to-yellow-500 text-white border-0 ml-2">
+                <Badge className="bg-gradient-to-r from-amber-400 to-yellow-500 text-white border-0 ml-2 rounded-lg">
                   ∞
                 </Badge>
               )
             )}
           </DialogTitle>
-          <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
+          <DialogDescription className="text-sm text-muted-foreground">
             {t.placeholder_confession}
           </DialogDescription>
           {/* Confession Quota Display */}
           {!limitsLoading && dailyLimit !== Infinity && (
-            <div className="mt-2 p-2 glass rounded-lg border border-border/50">
+            <div className="mt-3 p-3 glass rounded-xl border border-border/50">
               <p className="text-xs text-muted-foreground text-center">
                 {remaining === Infinity 
                   ? t.limit_confessions_unlimited
@@ -445,7 +445,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
           )}
         </DialogHeader>
 
-        <div className="space-y-3 sm:space-y-4 py-3 sm:py-4">
+        <div className="space-y-4 py-4">
           {user && (
             <DraftManager
               userId={user.id}
@@ -468,10 +468,10 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
               {t.select_category}
             </Label>
             <Select value={category} onValueChange={setCategory} disabled={isSubmitting}>
-              <SelectTrigger className="border-primary/20 focus:border-primary/40 bg-background/50">
+              <SelectTrigger className="border-primary/20 focus:border-primary/40 bg-background/50 h-11 rounded-xl">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-xl">
                 {categories.map((cat) => (
                   <SelectItem key={cat.value} value={cat.value}>
                     {cat.label}
@@ -485,7 +485,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
             placeholder={t.placeholder_confession}
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="min-h-[120px] sm:min-h-[150px] resize-none border-primary/20 focus:border-primary/40 bg-background/50 text-sm"
+            className="min-h-[150px] resize-none border-primary/20 focus:border-primary/40 bg-background/50 text-sm rounded-xl"
             disabled={isSubmitting}
           />
 
@@ -539,7 +539,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
           </div>
 
           {aiResponse && (
-            <div className="p-4 glass rounded-lg border border-primary/20 animate-slide-up">
+            <div className="p-4 glass rounded-xl border border-primary/20 animate-slide-up">
               <div className="flex items-center gap-2 mb-2 text-primary">
                 <Sparkles className="w-4 h-4 animate-pulse-glow" />
                 <span className="text-sm font-medium">{t.ai_reply_title}</span>
@@ -587,7 +587,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
             <EnhancedButton
               onClick={handleSubmit}
               disabled={isSubmitting || !content.trim()}
-              className="w-full"
+              className="w-full rounded-xl h-11"
               glow
               shine
               lift
