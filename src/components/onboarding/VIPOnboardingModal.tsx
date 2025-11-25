@@ -148,7 +148,7 @@ export const VIPOnboardingModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-2 text-2xl">
@@ -159,7 +159,7 @@ export const VIPOnboardingModal = ({
               variant="ghost"
               size="icon"
               onClick={handleSkip}
-              className="h-8 w-8"
+              className="h-10 w-10 rounded-xl"
             >
               <X className="w-4 h-4" />
             </Button>
@@ -167,7 +167,7 @@ export const VIPOnboardingModal = ({
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          <div className="text-center space-y-2">
+          <div className="text-center space-y-3">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold">
               <Sparkles className="w-4 h-4" />
               {t.trialBadge}
@@ -175,7 +175,7 @@ export const VIPOnboardingModal = ({
             <h3 className="text-xl font-bold text-foreground">
               {t.subtitle}
             </h3>
-            <p className="text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               {t.description}
             </p>
           </div>
@@ -185,7 +185,7 @@ export const VIPOnboardingModal = ({
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button
               size="lg"
-              className="flex-1 gap-2 font-semibold"
+              className="flex-1 gap-2 font-semibold rounded-xl h-12"
               onClick={handleActivateTrial}
               disabled={isActivating}
             >
@@ -204,14 +204,14 @@ export const VIPOnboardingModal = ({
             <Button
               size="lg"
               variant="outline"
-              className="flex-1"
+              className="flex-1 rounded-xl h-12"
               onClick={handleSkip}
             >
               {t.continueFree}
             </Button>
           </div>
 
-          <p className="text-xs text-center text-muted-foreground">
+          <p className="text-sm text-center text-muted-foreground px-4">
             {t.trialNote}
           </p>
         </div>

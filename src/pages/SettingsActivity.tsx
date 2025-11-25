@@ -156,31 +156,24 @@ const SettingsActivity = () => {
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/50">
-          <div className="flex items-center justify-between px-4 py-4">
+          <div className="flex items-center justify-between px-4 py-5">
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => navigate(-1)}
-                className="hover:bg-accent"
+                className="hover:bg-accent rounded-xl h-10 w-10"
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <h1 className="text-2xl font-bold">{t.settings_activity_title}</h1>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-accent"
-            >
-              <User className="h-5 w-5" />
-            </Button>
           </div>
         </div>
 
         {/* Menu Sections */}
         {/* Rewards Hub - Separate Featured Card */}
-        <Card className="mx-4 mt-4 overflow-hidden bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border-amber-500/20">
+        <Card className="mx-4 mt-4 overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border-amber-500/20">
           <MenuItem
             icon={Flame}
             title="🏆 Rewards & Achievements"
@@ -190,7 +183,7 @@ const SettingsActivity = () => {
         </Card>
 
         {/* Regular Settings Card */}
-        <Card className="mx-4 my-4 overflow-hidden">
+        <Card className="mx-4 my-4 overflow-hidden rounded-2xl">
           {/* Account Settings */}
           <MenuItem
             icon={User}

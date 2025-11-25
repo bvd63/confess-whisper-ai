@@ -28,25 +28,25 @@ const NearbyConfessions = () => {
   return (
     <>
     <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
-      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
+      <div className="max-w-4xl mx-auto px-4 py-6 md:py-8 pb-24">
         {/* Header */}
-        <div className="mb-6 sm:mb-8 text-center">
-          <MapPin className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-3 sm:mb-4 text-primary" />
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1.5 sm:mb-2">
+        <div className="mb-8 text-center">
+          <MapPin className="w-16 h-16 mx-auto mb-4 text-primary" />
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">
             <GradientText variant="hero">{t.nearby_title}</GradientText>
           </h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
+          <p className="text-base text-muted-foreground">
             {t.nearby_discover}
           </p>
         </div>
 
         {/* Controls */}
-        <div className="flex flex-col md:flex-row gap-2.5 sm:gap-3 md:gap-4 mb-4 sm:mb-5 md:mb-6">
+        <div className="flex flex-col md:flex-row gap-3 mb-6">
           <Select value={radius.toString()} onValueChange={(v) => setRadius(Number(v))}>
-            <SelectTrigger className="w-full md:w-48">
+            <SelectTrigger className="w-full md:w-48 h-11 rounded-xl">
               <SelectValue placeholder={t.nearby_radius} />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-xl">
               <SelectItem value="10">{t.nearby_within_km.replace('{km}', '10')}</SelectItem>
               <SelectItem value="25">{t.nearby_within_km.replace('{km}', '25')}</SelectItem>
               <SelectItem value="50">{t.nearby_within_km.replace('{km}', '50')}</SelectItem>
@@ -57,18 +57,20 @@ const NearbyConfessions = () => {
           <div className="flex gap-2">
             <Button
               variant={view === 'list' ? 'default' : 'outline'}
-              size="sm"
+              size="default"
               onClick={() => setView('list')}
+              className="rounded-xl h-11"
             >
               <List className="w-4 h-4 mr-2" />
               {t.nearby_list_view}
             </Button>
             <Button
               variant={view === 'map' ? 'default' : 'outline'}
-              size="sm"
+              size="default"
               onClick={() => setView('map')}
               disabled
               title={t.nearby_map_coming_soon}
+              className="rounded-xl h-11"
             >
               <MapIcon className="w-4 h-4 mr-2" />
               {t.nearby_map_view}
@@ -80,10 +82,10 @@ const NearbyConfessions = () => {
         {isLoading ? (
           <LoadingQuotes />
         ) : error ? (
-          <AnimatedCard glass className="p-6 sm:p-8 text-center">
-            <MapPin className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-destructive" />
-            <p className="text-sm sm:text-base text-muted-foreground mb-1.5 sm:mb-2">{t.nearby_no_location}</p>
-            <p className="text-xs sm:text-sm text-muted-foreground">
+          <AnimatedCard glass className="p-8 text-center rounded-2xl">
+            <MapPin className="w-12 h-12 mx-auto mb-4 text-destructive" />
+            <p className="text-base font-semibold text-foreground mb-2">{t.nearby_no_location}</p>
+            <p className="text-sm text-muted-foreground">
               {t.nearby_enable_location}
             </p>
           </AnimatedCard>
@@ -110,9 +112,9 @@ const NearbyConfessions = () => {
                 />
                 {confession.distance !== undefined && (
                   <div className="absolute top-4 right-4">
-                    <AnimatedCard glass className="px-3 py-1">
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <MapPin className="w-3 h-3" />
+                    <AnimatedCard glass className="px-3 py-1.5 rounded-xl">
+                      <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                        <MapPin className="w-3.5 h-3.5" />
                         <span>{t.nearby_distance_km.replace('{distance}', confession.distance.toFixed(1))}</span>
                       </div>
                     </AnimatedCard>
@@ -122,10 +124,10 @@ const NearbyConfessions = () => {
             ))}
           </div>
         ) : (
-          <AnimatedCard glass className="p-6 sm:p-8 text-center">
-            <MapPin className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-muted-foreground" />
-            <p className="text-sm sm:text-base text-muted-foreground mb-1.5 sm:mb-2">{t.nearby_none_found}</p>
-            <p className="text-xs sm:text-sm text-muted-foreground">
+          <AnimatedCard glass className="p-8 text-center rounded-2xl">
+            <MapPin className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+            <p className="text-base font-semibold text-foreground mb-2">{t.nearby_none_found}</p>
+            <p className="text-sm text-muted-foreground">
               {t.nearby_increase_radius}
             </p>
           </AnimatedCard>

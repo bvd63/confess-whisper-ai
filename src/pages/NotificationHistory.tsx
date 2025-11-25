@@ -428,20 +428,20 @@ const NotificationHistory = () => {
     <AppLayout>
       <div className="container mx-auto px-4 py-6 max-w-4xl pb-24">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate(-1)}
-              className="flex-shrink-0"
+              className="flex-shrink-0 rounded-xl h-10 w-10"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
               <h1 className="text-2xl font-bold">Notification History</h1>
               <p className="text-sm text-muted-foreground">
-                {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}` : 'All caught up!'}
+                {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}` : 'All caught up! ✨'}
               </p>
             </div>
           </div>
@@ -451,7 +451,7 @@ const NotificationHistory = () => {
               variant="outline"
               size="sm"
               onClick={() => navigate('/notifications/analytics')}
-              className="gap-2"
+              className="gap-2 rounded-xl h-10"
             >
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Analytics</span>
@@ -461,6 +461,7 @@ const NotificationHistory = () => {
                 variant="outline"
                 size="sm"
                 onClick={markAllAsRead}
+                className="rounded-xl h-10"
               >
                 <Check className="w-4 h-4 mr-2" />
                 Mark all read
@@ -470,19 +471,19 @@ const NotificationHistory = () => {
         </div>
 
         {/* Filter Tabs */}
-        <Tabs value={filter} onValueChange={(v) => setFilter(v as 'all' | 'unread')} className="mb-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="all">
+        <Tabs value={filter} onValueChange={(v) => setFilter(v as 'all' | 'unread')} className="mb-6">
+          <TabsList className="grid w-full grid-cols-2 h-11 rounded-xl">
+            <TabsTrigger value="all" className="rounded-lg">
               All ({notifications.length})
             </TabsTrigger>
-            <TabsTrigger value="unread">
+            <TabsTrigger value="unread" className="rounded-lg">
               Unread ({unreadCount})
             </TabsTrigger>
           </TabsList>
         </Tabs>
 
         {/* Notifications List */}
-        <Card>
+        <Card className="rounded-2xl overflow-hidden">
           <CardContent className="p-0">
             {loading ? (
               <div className="flex items-center justify-center py-12">
@@ -491,9 +492,9 @@ const NotificationHistory = () => {
             ) : filteredNotifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                 <Bell className="w-16 h-16 mb-4 opacity-50" />
-                <p className="text-lg font-medium">No notifications</p>
+                <p className="text-lg font-semibold">No notifications</p>
                 <p className="text-sm">
-                  {filter === 'unread' ? 'All notifications have been read' : 'You have no notifications yet'}
+                  {filter === 'unread' ? 'All notifications have been read ✨' : 'You have no notifications yet'}
                 </p>
               </div>
             ) : (
