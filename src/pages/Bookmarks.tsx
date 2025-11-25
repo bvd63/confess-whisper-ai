@@ -137,11 +137,13 @@ const Bookmarks = () => {
       onNewConfession={() => setIsNewConfessionOpen(true)}
       onManageSubscription={() => setManageSubDialogOpen(true)}
     >
-      <main className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
-        <div className="flex items-center gap-1.5 sm:gap-2 mb-4 sm:mb-6 animate-fade-in">
-          <Bookmark className="w-4 h-4 sm:w-5 sm:h-5 text-primary animate-pulse-glow" />
-          <h1 className="text-lg sm:text-xl md:text-2xl font-bold">
-            <GradientText variant="hero">{t.bookmarks_title}</GradientText>
+      <main className="container max-w-2xl mx-auto px-4 py-6 pb-24">
+        <div className="flex items-center gap-3 mb-6 animate-fade-in">
+          <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+            <Bookmark className="w-6 h-6 text-primary" />
+          </div>
+          <h1 className="text-2xl font-bold">
+            {t.bookmarks_title}
           </h1>
         </div>
         {isLoading ? (

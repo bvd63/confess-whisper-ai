@@ -194,11 +194,10 @@ const Messages = () => {
         ref={containerRef}
         className="container max-w-4xl mx-auto px-4 py-6 pb-24"
       >
-        <AnimatedCard className="overflow-hidden rounded-2xl" hover="none">
+        <AnimatedCard className="overflow-hidden rounded-2xl border border-border/50" hover="none">
           {!selectedConversation ? (
             <div>
-              <div className="p-5 border-b border-border glass"
-              >
+              <div className="p-6 border-b border-border/50 bg-card/50 backdrop-blur-sm">
                 <h1 className="text-2xl font-bold">{t.messages_title}</h1>
               </div>
               <ConversationList
