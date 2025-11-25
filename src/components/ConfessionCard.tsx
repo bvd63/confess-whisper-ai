@@ -1,7 +1,7 @@
 import { useState, memo } from "react";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { EnhancedButton } from "@/components/EnhancedButton";
-import { MessageCircle, Sparkles, Crown } from "lucide-react";
+import { MessageCircle, Sparkles, Crown, Award, Wand2, Rocket } from "lucide-react";
 import DeepInsightDialog from "./DeepInsightDialog";
 import ShareDialog from "./ShareDialog";
 import ReportDialog from "./ReportDialog";
@@ -37,6 +37,7 @@ import { EmotionalTone } from "./EmotionalTone";
 import { VIPBadge } from "./VIPBadge";
 import { sanitizeConfession } from "@/lib/security/sanitizer";
 import { logError } from "@/lib/logger";
+import { useCoins } from "@/hooks/useCoins";
 
 interface ConfessionCardProps {
   confession: {
@@ -75,6 +76,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   const [isAwardPickerOpen, setIsAwardPickerOpen] = useState(false);
   const [isAIMakeoverOpen, setIsAIMakeoverOpen] = useState(false);
   const [commentsCount, setCommentsCount] = useState(confession.comments_count || 0);
+  const [isBoostLoading, setIsBoostLoading] = useState(false);
   const { user } = useCurrentUser();
   const { toast } = useToast();
   const { t, language } = useLanguage();
@@ -86,6 +88,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   const { vibrate } = useHaptic();
   const { isSensitive } = useSensitiveContent(confession.content);
   const noScreenshotEnabled = isPremium && isOwner;
+  const { balance } = useCoins(user?.id);
 
   const handleCopyText = async () => {
     try {
@@ -133,6 +136,45 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         description: t.error_delete,
         variant: "destructive",
       });
+    }
+  };
+
+  const handleBoostConfession = async () => {
+    if (!user || !isOwner) return;
+
+    const BOOST_COST = 15;
+    if (balance < BOOST_COST) {
+      toast({
+        title: t.insufficient_coins,
+        description: `You need ${BOOST_COST} coins to boost this confession.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsBoostLoading(true);
+    try {
+      const { error } = await supabase.functions.invoke('boost-confession', {
+        body: { confessionId: confession.id },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: t.boost_success_title,
+        description: t.boost_success_description,
+      });
+      
+      onLikeChange?.(); // Refresh to show boosted status
+    } catch (error) {
+      logError('Error boosting confession', error instanceof Error ? error : undefined);
+      toast({
+        title: t.error_generic,
+        description: 'Failed to boost confession. Please try again.',
+        variant: "destructive",
+      });
+    } finally {
+      setIsBoostLoading(false);
     }
   };
 
@@ -203,6 +245,44 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
           onReport={() => setIsReportOpen(true)}
           onDelete={handleDeleteConfession}
         />
+        
+        {/* Coin-Spending Features */}
+        {!isOwner && user && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsAwardPickerOpen(true)}
+            className="gap-1 h-9 px-3"
+          >
+            <Award className="w-4 h-4" />
+            <span className="text-xs">Award</span>
+          </Button>
+        )}
+        
+        {isOwner && (
+          <>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsAIMakeoverOpen(true)}
+              className="gap-1 h-9 px-3"
+            >
+              <Wand2 className="w-4 h-4" />
+              <span className="text-xs">{t.ai_makeover}</span>
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBoostConfession}
+              disabled={isBoostLoading}
+              className="gap-1 h-9 px-3"
+            >
+              <Rocket className="w-4 h-4" />
+              <span className="text-xs">{isBoostLoading ? t.processing : t.boost_confession}</span>
+            </Button>
+          </>
+        )}
       </div>
 
       {confession.ai_response && (
@@ -278,6 +358,14 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         open={isAwardPickerOpen}
         onOpenChange={setIsAwardPickerOpen}
         confessionId={confession.id}
+      />
+      
+      <AIMakeoverDialog
+        open={isAIMakeoverOpen}
+        onOpenChange={setIsAIMakeoverOpen}
+        confessionId={confession.id}
+        originalContent={confession.content}
+        isOwner={isOwner}
       />
       </AnimatedCard>
     </NoScreenshotMode>

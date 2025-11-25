@@ -317,7 +317,9 @@ export type Database = {
           confession_id: string
           content: string
           created_at: string
+          highlight_expires_at: string | null
           id: string
+          is_highlighted: boolean | null
           updated_at: string
           user_id: string
         }
@@ -325,7 +327,9 @@ export type Database = {
           confession_id: string
           content: string
           created_at?: string
+          highlight_expires_at?: string | null
           id?: string
+          is_highlighted?: boolean | null
           updated_at?: string
           user_id: string
         }
@@ -333,7 +337,9 @@ export type Database = {
           confession_id?: string
           content?: string
           created_at?: string
+          highlight_expires_at?: string | null
           id?: string
+          is_highlighted?: boolean | null
           updated_at?: string
           user_id?: string
         }
