@@ -13,6 +13,7 @@ import { PasswordRulesChecklist } from "@/components/PasswordRulesChecklist";
 import { supabase } from "@/integrations/supabase/client";
 import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
 import { cn } from "@/lib/utils";
+import { logError } from "@/lib/logger";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -80,7 +81,8 @@ export default function ResetPassword() {
         navigate('/auth');
       }, 2000);
     } catch (err: any) {
-      setError(err.message || t.auth_error_generic);
+      logError("Password update failed", err as Error);
+      setError(t.auth_reset_password_error || t.auth_error_generic);
     } finally {
       setIsLoading(false);
     }

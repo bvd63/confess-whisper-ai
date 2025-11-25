@@ -866,18 +866,55 @@ serve(async (req) => {
         const passwordResetCaptchaResult = await verifyCaptcha(captchaToken, clientIp);
         if (!passwordResetCaptchaResult.success) {
           return new Response(
-            JSON.stringify({ error: 'CAPTCHA_FAILED', messageKey: passwordResetCaptchaResult.error }),
+            JSON.stringify({
+              error: 'CAPTCHA_FAILED',
+              messageKey: passwordResetCaptchaResult.error ?? 'auth.captcha_failed',
+            }),
             { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
 
-        const redirectTarget = Deno.env.get('PASSWORD_RESET_REDIRECT_URL')
-          || (requestOrigin ? `${requestOrigin.replace(/\/$/, '')}/reset-password` : undefined);
+        const resolvePasswordResetRedirect = (): string | undefined => {
+          const configuredRedirect = Deno.env.get('PASSWORD_RESET_REDIRECT_URL');
+          if (configuredRedirect?.trim()) {
+            return configuredRedirect.trim();
+          }
+
+          const fallbackOrigin = requestOrigin || Deno.env.get('SITE_URL');
+          return fallbackOrigin
+            ? `${fallbackOrigin.replace(/\/$/, '')}/auth/update-password`
+            : undefined;
+        };
+
+        const redirectTarget = resolvePasswordResetRedirect();
+
+        if (!redirectTarget) {
+          console.error('[enhanced-auth] No password reset redirect URL configured');
+          return new Response(
+            JSON.stringify({ error: 'MISSING_REDIRECT', messageKey: 'auth.reset_password_failed' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
 
         try {
-          await supabaseClient.auth.resetPasswordForEmail(normalizedEmail, redirectTarget ? { redirectTo: redirectTarget } : undefined);
+          const { error: resetError } = await supabaseClient.auth.resetPasswordForEmail(
+            normalizedEmail,
+            { redirectTo: redirectTarget }
+          );
+
+          if (resetError) {
+            console.error('[enhanced-auth] Password reset request failed', resetError);
+            return new Response(
+              JSON.stringify({ error: 'RESET_FAILED', messageKey: 'auth.reset_password_failed' }),
+              { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
         } catch (error) {
-          console.error('[enhanced-auth] Password reset request failed', error);
+          console.error('[enhanced-auth] Password reset request threw', error);
+          return new Response(
+            JSON.stringify({ error: 'RESET_FAILED', messageKey: 'auth.reset_password_failed' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
 
         await logSecurityEvent(

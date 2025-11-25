@@ -458,6 +458,8 @@ type Translations = {
   auth_reset_password_desc: string;
   auth_reset_password_button: string;
   auth_reset_password_success: string;
+  auth_reset_password_failed: string;
+  auth_reset_password_error: string;
   auth_reset_password_new: string;
   auth_reset_password_confirm: string;
   auth_reset_token_invalid: string;
@@ -2686,6 +2688,8 @@ export const translations: Record<Language, Translations> = {
   auth_reset_password_desc: "Choose a strong password for your account.",
   auth_reset_password_button: "Update password",
   auth_reset_password_success: "Password successfully updated. Please sign in.",
+  auth_reset_password_failed: "We couldn't send the reset email. Please try again.",
+  auth_reset_password_error: "We couldn't update your password. Please try again.",
   auth_reset_password_new: "New password",
   auth_reset_password_confirm: "Confirm new password",
   auth_reset_token_invalid: "Invalid or expired reset link",
@@ -4330,6 +4334,8 @@ export const translations: Record<Language, Translations> = {
     auth_reset_password_desc: "Elige una contraseña segura para tu cuenta.",
     auth_reset_password_button: "Actualizar contraseña",
     auth_reset_password_success: "Contraseña actualizada con éxito. Inicia sesión.",
+    auth_reset_password_failed: "No pudimos enviar el correo de restablecimiento. Intenta de nuevo.",
+    auth_reset_password_error: "No pudimos actualizar tu contraseña. Intenta de nuevo.",
     auth_reset_password_new: "Nueva contraseña",
     auth_reset_password_confirm: "Confirmar nueva contraseña",
     auth_reset_token_invalid: "Enlace de restablecimiento inválido o expirado",
@@ -6229,6 +6235,8 @@ export const translations: Record<Language, Translations> = {
     auth_reset_password_desc: "Wähle ein sicheres Passwort für dein Konto.",
     auth_reset_password_button: "Passwort aktualisieren",
     auth_reset_password_success: "Passwort erfolgreich aktualisiert. Bitte melde dich an.",
+    auth_reset_password_failed: "Wir konnten die Zurücksetz-E-Mail nicht senden. Bitte versuche es erneut.",
+    auth_reset_password_error: "Wir konnten dein Passwort nicht aktualisieren. Bitte versuche es erneut.",
     auth_reset_password_new: "Neues Passwort",
     auth_reset_password_confirm: "Neues Passwort bestätigen",
     auth_reset_token_invalid: "Ungültiger oder abgelaufener Zurücksetzungs-Link",

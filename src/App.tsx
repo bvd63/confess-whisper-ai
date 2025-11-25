@@ -244,6 +244,7 @@ const AppContent = () => {
           <Route path="/supabase-test" element={<SupabaseTest />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/auth/update-password" element={<ResetPassword />} />
           <Route path="/verify-email" element={<EmailVerification />} />
           <Route path="/explore" element={<Explore />} />
           <Route path="/compose" element={<Compose />} />

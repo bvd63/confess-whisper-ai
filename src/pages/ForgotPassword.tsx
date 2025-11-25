@@ -9,9 +9,8 @@ import { Heart, Mail, Loader2, ArrowLeft, CheckCircle2, AlertCircle } from "luci
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
-import { FunctionsHttpError } from "@supabase/supabase-js";
-import { logError, logWarn } from "@/lib/logger";
+import { logError } from "@/lib/logger";
+import { requestPasswordReset } from "@/services/passwordReset";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
@@ -23,6 +22,13 @@ export default function ForgotPassword() {
   const [success, setSuccess] = useState(false);
 
   const emailSchema = z.string().email(t.auth_invalid_email);
+
+  const translateMessageKey = (messageKey?: string): string => {
+    if (!messageKey) return t.auth_error_generic;
+    const normalizedKey = messageKey.replace(/\./g, "_");
+    const translated = t[normalizedKey as keyof typeof t];
+    return typeof translated === "string" ? (translated as string) : t.auth_error_generic;
+  };
 
   const validateEmail = (): boolean => {
     try {
@@ -49,45 +55,19 @@ export default function ForgotPassword() {
     setError("");
 
     try {
-      const { data, error } = await supabase.functions.invoke("enhanced-auth?action=request-password-reset", {
-        body: {
-          email: email.trim(),
-          captchaToken,
-        },
+      const result = await requestPasswordReset({
+        email: email.trim(),
+        captchaToken,
       });
 
-      if (error) {
-        let errorMessage = t.auth_error_generic;
-        if (error instanceof FunctionsHttpError && error.context?.response) {
-          try {
-            const details = await error.context.response.json();
-            const messageKey = details?.messageKey as string | undefined;
-            if (messageKey) {
-              const translationKey = messageKey.replace(/\./g, "_");
-              errorMessage = (t[translationKey as keyof typeof t] as string) || errorMessage;
-            } else if (details?.error === "RATE_LIMIT") {
-              errorMessage = t.common_rate_limit;
-            }
-          } catch (parseError) {
-            logWarn("Failed to parse password reset error", { error: parseError });
-          }
-        } else if (error.message) {
-          errorMessage = error.message;
-        }
-        setError(errorMessage);
-        if (error instanceof FunctionsHttpError) {
+      if (!result.success) {
+        const message = result.messageKey === "common.rate_limit"
+          ? t.common_rate_limit
+          : translateMessageKey(result.messageKey);
+        setError(message);
+        if (result.shouldResetCaptcha) {
           setCaptchaToken("");
         }
-        return;
-      }
-
-      if (data?.error) {
-        const translationKey = data.messageKey?.replace(/\./g, "_");
-        setError(
-          translationKey && (t[translationKey as keyof typeof t] as string)
-            ? (t[translationKey as keyof typeof t] as string)
-            : t.auth_error_generic
-        );
         return;
       }
 

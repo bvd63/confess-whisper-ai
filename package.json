@@ -64,7 +64,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
-    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/coverage-v8": "^4.0.13",
     "axe-core": "^4.11.0",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",
