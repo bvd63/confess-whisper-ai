@@ -70,22 +70,22 @@ const AppHeader = ({
     }
   };
   const isActive = (path: string) => location.pathname === path;
-  return <header className="sticky top-0 z-50 glass-strong border-b border-border">
+  return <header className="sticky top-0 z-50 glass-strong border-b border-border/50 backdrop-blur-xl">
       <div className="w-full">
-        <div className="flex items-center justify-between px-4 sm:px-6 py-4 max-w-7xl mx-auto">
+        <div className="flex items-center justify-between px-6 sm:px-8 py-5 max-w-7xl mx-auto">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary via-primary-hover to-primary-pressed flex items-center justify-center shadow-lg shadow-primary/25">
-              <Heart className="w-5 h-5 text-white" fill="currentColor" />
+            <div className="w-12 h-12 rounded-[18px] bg-gradient-to-br from-[#9C27FF] via-[#B266FF] to-[#8B20E7] flex items-center justify-center shadow-xl shadow-[#9C27FF]/30">
+              <Heart className="w-6 h-6 text-white" fill="currentColor" />
             </div>
-            <h1 className="text-xl md:text-2xl font-bold text-foreground cursor-pointer" onClick={() => navigate('/')}>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground cursor-pointer hover:text-[#9C27FF] dark:hover:text-[#B266FF] transition-colors" onClick={() => navigate('/')}>
               {t.app_name}
             </h1>
           </div>
           
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-3 sm:gap-4">
             {user ? <>
                 {subscriptionStatus === 'past_due' && (
-                  <Badge variant="destructive" className="h-8 px-3 text-xs font-medium rounded-xl animate-pulse">
+                  <Badge variant="destructive" className="h-9 px-4 text-xs font-semibold rounded-full animate-pulse shadow-lg">
                     Payment Failed
                   </Badge>
                 )}
@@ -96,10 +96,10 @@ const AppHeader = ({
                   variant={subscriptionTier === 'free' ? 'default' : 'outline'}
                   size="sm" 
                   className={cn(
-                    "h-10 px-4 rounded-2xl font-semibold transition-all",
+                    "h-11 px-5 rounded-full font-semibold transition-all shadow-lg",
                     subscriptionTier === 'free' 
-                      ? "bg-primary hover:bg-primary-hover text-white shadow-lg shadow-primary/25" 
-                      : "border-border bg-card hover:bg-muted"
+                      ? "bg-gradient-to-r from-[#FFD700] via-[#FFC700] to-[#FFD700] hover:from-[#FFE44D] hover:to-[#FFE44D] text-[#1A1A1F] dark:text-[#0B0B0F] shadow-[#FFD700]/30" 
+                      : "border-border/50 bg-card hover:bg-muted shadow-sm"
                   )}
                 >
                   <Crown className="w-4 h-4" />
@@ -109,7 +109,7 @@ const AppHeader = ({
                 </Button>
                 <CoinsDisplay userId={user.id} variant="compact" />
                 <NotificationsDropdown />
-              </> : <Button onClick={() => navigate('/auth')} variant="outline" size="sm" className="h-10 px-4 rounded-2xl border-border bg-card hover:bg-muted font-medium">
+              </> : <Button onClick={() => navigate('/auth')} variant="outline" size="sm" className="h-11 px-5 rounded-full border-border/50 bg-card hover:bg-muted font-semibold shadow-sm">
                 <LogIn className="w-4 h-4 sm:mr-2" />
                 <span className="hidden sm:inline text-sm">{t.login}</span>
               </Button>}
