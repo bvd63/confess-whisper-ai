@@ -1,4 +1,5 @@
-import { supabase } from "@/integrations/supabase/client";
+import { env } from "@/lib/env";
+import { logError } from "@/lib/logger";
 
 export interface PasswordResetRequestResult {
   success: boolean;
@@ -13,88 +14,60 @@ interface PasswordResetRequestPayload {
   captchaToken: string;
 }
 
-interface EdgeFunctionErrorLike {
-  message?: string;
-  context?: {
-    response?: Response;
-  };
-}
+export async function requestPasswordReset(
+  payload: PasswordResetRequestPayload,
+): Promise<PasswordResetRequestResult> {
+  const { email, captchaToken } = payload;
+  const endpoint = `${env.client.supabaseUrl.replace(/\/$/, "")}/functions/v1/enhanced-auth?action=request-password-reset`;
 
-async function parseEdgeFunctionError(error: EdgeFunctionErrorLike): Promise<PasswordResetRequestResult> {
-  const response = error.context?.response;
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: env.client.supabaseAnonKey,
+        Authorization: `Bearer ${env.client.supabaseAnonKey}`,
+      },
+      body: JSON.stringify({ email, captchaToken }),
+    });
 
-  if (!response) {
+    let body: Record<string, unknown> | undefined;
+    try {
+      body = await response.json();
+    } catch (parseError) {
+      console.warn("[passwordReset] Failed to parse response body", parseError);
+    }
+
+    if (!response.ok) {
+      const retryAfterHeader = response.headers.get("Retry-After");
+      const retryAfter = (body?.retryAfter as number | undefined) ?? (retryAfterHeader ? Number(retryAfterHeader) : undefined);
+      const messageFromBody = typeof body?.messageKey === "string"
+        ? body.messageKey
+        : typeof body?.error === "string"
+          ? body.error
+          : "auth.reset_password_failed";
+
+      return {
+        success: false,
+        messageKey: messageFromBody,
+        retryAfter: Number.isFinite(retryAfter) ? Number(retryAfter) : undefined,
+        status: response.status,
+        shouldResetCaptcha: true,
+      };
+    }
+
+    const successMessageKey = typeof body?.messageKey === "string" ? body.messageKey : "auth.forgot_password_success";
+
+    return {
+      success: true,
+      messageKey: successMessageKey,
+    };
+  } catch (error) {
+    logError("Password reset request failed", error as Error);
     return {
       success: false,
       messageKey: "auth.reset_password_failed",
       shouldResetCaptcha: true,
     };
   }
-
-  const clonedResponse = response.clone();
-  let body: Record<string, unknown> | undefined;
-
-  try {
-    body = await clonedResponse.json();
-  } catch (jsonError) {
-    console.warn("[passwordReset] Failed to parse edge function error", jsonError);
-  }
-
-  const retryAfterHeader = clonedResponse.headers.get("Retry-After");
-  const retryAfter = (body?.retryAfter as number | undefined) ?? (retryAfterHeader ? Number(retryAfterHeader) : undefined);
-  const messageFromBody = typeof body?.messageKey === "string"
-    ? body.messageKey
-    : typeof body?.error === "string"
-      ? body.error
-      : undefined;
-
-  return {
-    success: false,
-    messageKey: messageFromBody ?? "auth.reset_password_failed",
-    retryAfter: Number.isFinite(retryAfter) ? Number(retryAfter) : undefined,
-    status: clonedResponse.status,
-    shouldResetCaptcha: clonedResponse.status >= 400,
-  };
-}
-
-export async function requestPasswordReset(
-  payload: PasswordResetRequestPayload,
-): Promise<PasswordResetRequestResult> {
-  const { email, captchaToken } = payload;
-
-  const { data, error } = await supabase.functions.invoke(
-    "enhanced-auth?action=request-password-reset",
-    {
-      body: {
-        email,
-        captchaToken,
-      },
-    },
-  );
-
-  if (error) {
-    return await parseEdgeFunctionError(error as EdgeFunctionErrorLike);
-  }
-
-  if (data?.error) {
-    const normalizedMessageKey = typeof data.messageKey === "string"
-      ? data.messageKey
-      : typeof data.error === "string"
-        ? data.error
-        : "auth.reset_password_failed";
-    return {
-      success: false,
-      messageKey: normalizedMessageKey,
-      retryAfter: data.retryAfter,
-      status: data.status,
-      shouldResetCaptcha: true,
-    };
-  }
-
-  const successMessageKey = typeof data?.messageKey === "string" ? data.messageKey : undefined;
-
-  return {
-    success: true,
-    messageKey: successMessageKey,
-  };
 }

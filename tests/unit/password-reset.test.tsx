@@ -3,6 +3,7 @@ import "../helpers/testUtils";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import type { Mock } from "vitest";
 import { requestPasswordReset } from "@/services/passwordReset";
+import { env } from "@/lib/env";
 import { supabase } from "@/integrations/supabase/client";
 import ResetPassword from "@/pages/ResetPassword";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
@@ -18,66 +19,64 @@ const STRONG_PASSWORD = "StrongPassw0rd!";
 const successText = translations.en.auth_reset_password_success;
 const mismatchText = translations.en.auth_password_match_fail;
 
-const buildEdgeFunctionError = (messageKey: string, status: number) => ({
-  message: "Edge Function returned a non-2xx status code",
-  context: {
-    response: new Response(
-      JSON.stringify({ messageKey }),
-      {
-        status,
-        headers: { "Content-Type": "application/json" },
-      },
-    ),
-  },
-});
+const originalFetch = globalThis.fetch;
+
+const createJsonResponse = (body: Record<string, unknown>, init?: ResponseInit) =>
+  new Response(JSON.stringify(body), {
+    status: init?.status ?? 200,
+    headers: {
+      "Content-Type": "application/json",
+      ...(init?.headers || {}),
+    },
+  });
 
 describe("requestPasswordReset", () => {
-  let invokeMock: Mock;
+  let fetchMock: Mock;
 
   beforeEach(() => {
-    invokeMock = supabase.functions.invoke as unknown as Mock;
-    invokeMock.mockReset();
+    fetchMock = vi.fn();
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
+  });
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
   });
 
   it("returns success when the edge function accepts the request", async () => {
-    invokeMock.mockResolvedValue({
-      data: { success: true, messageKey: "auth.forgot_password_success" },
-      error: null,
-    });
+    fetchMock.mockResolvedValue(createJsonResponse({ success: true, messageKey: "auth.forgot_password_success" }));
 
     const result = await requestPasswordReset({ email: VALID_EMAIL, captchaToken: TURNSTILE_TOKEN });
 
     expect(result.success).toBe(true);
     expect(result.messageKey).toBe("auth.forgot_password_success");
-    expect(invokeMock).toHaveBeenCalledWith(
-      "enhanced-auth?action=request-password-reset",
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${env.client.supabaseUrl.replace(/\/$/, "")}/functions/v1/enhanced-auth?action=request-password-reset`,
       expect.objectContaining({
-        body: { email: VALID_EMAIL, captchaToken: TURNSTILE_TOKEN },
+        method: "POST",
+        body: JSON.stringify({ email: VALID_EMAIL, captchaToken: TURNSTILE_TOKEN }),
       }),
     );
   });
 
   it("captures Turnstile verification failures", async () => {
-    const captchaError = buildEdgeFunctionError("auth.captcha_failed", 403);
-    invokeMock.mockResolvedValue({ data: null, error: captchaError });
+    fetchMock.mockResolvedValue(createJsonResponse({ error: "CAPTCHA_FAILED", messageKey: "auth.captcha_failed" }, { status: 400 }));
 
     const result = await requestPasswordReset({ email: VALID_EMAIL, captchaToken: TURNSTILE_TOKEN });
 
     expect(result.success).toBe(false);
     expect(result.messageKey).toBe("auth.captcha_failed");
-    expect(result.status).toBe(403);
+    expect(result.status).toBe(400);
     expect(result.shouldResetCaptcha).toBe(true);
   });
 
   it("propagates Supabase errors when the email cannot be sent", async () => {
-    const serverError = buildEdgeFunctionError("auth.reset_password_failed", 502);
-    invokeMock.mockResolvedValue({ data: null, error: serverError });
+    fetchMock.mockResolvedValue(createJsonResponse({ error: "RESET_FAILED", messageKey: "auth.reset_password_failed" }, { status: 500 }));
 
     const result = await requestPasswordReset({ email: VALID_EMAIL, captchaToken: TURNSTILE_TOKEN });
 
     expect(result.success).toBe(false);
     expect(result.messageKey).toBe("auth.reset_password_failed");
-    expect(result.status).toBe(502);
+    expect(result.status).toBe(500);
   });
 });
 

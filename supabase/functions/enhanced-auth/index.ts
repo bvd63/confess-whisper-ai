@@ -6,6 +6,18 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const SUPABASE_URL = Deno.env.get('NEXT_PUBLIC_SUPABASE_URL')
+  ?? Deno.env.get('VITE_SUPABASE_URL')
+  ?? Deno.env.get('SUPABASE_URL')
+  ?? '';
+
+const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')
+  ?? Deno.env.get('VITE_SUPABASE_PUBLISHABLE_KEY')
+  ?? Deno.env.get('NEXT_PUBLIC_SUPABASE_ANON_KEY')
+  ?? '';
+
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+
 // Environment configuration
 const SESSION_MAX_PER_USER = 5;
 const SESSION_CREATION_WINDOW_MINUTES = 60;
@@ -198,10 +210,15 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
-    );
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+      console.error('[enhanced-auth] Missing Supabase URL or anon key');
+      return new Response(
+        JSON.stringify({ error: 'CONFIGURATION_ERROR', messageKey: 'common.something_went_wrong' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const url = new URL(req.url);
     const action = url.searchParams.get('action');
@@ -817,7 +834,7 @@ serve(async (req) => {
         if (!captchaToken || typeof captchaToken !== 'string') {
           return new Response(
             JSON.stringify({ error: 'CAPTCHA_REQUIRED', messageKey: 'auth.captcha_failed' }),
-            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
 
@@ -870,9 +887,19 @@ serve(async (req) => {
               error: 'CAPTCHA_FAILED',
               messageKey: passwordResetCaptchaResult.error ?? 'auth.captcha_failed',
             }),
-            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
+
+        if (!SUPABASE_SERVICE_ROLE_KEY) {
+          console.error('[enhanced-auth] Missing SUPABASE_SERVICE_ROLE_KEY for password reset');
+          return new Response(
+            JSON.stringify({ error: 'MISSING_SERVICE_ROLE', messageKey: 'auth.reset_password_failed' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const supabaseServiceClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
         const resolvePasswordResetRedirect = (): string | undefined => {
           const configuredRedirect = Deno.env.get('PASSWORD_RESET_REDIRECT_URL');
@@ -897,7 +924,7 @@ serve(async (req) => {
         }
 
         try {
-          const { error: resetError } = await supabaseClient.auth.resetPasswordForEmail(
+          const { error: resetError } = await supabaseServiceClient.auth.resetPasswordForEmail(
             normalizedEmail,
             { redirectTo: redirectTarget }
           );
@@ -906,7 +933,7 @@ serve(async (req) => {
             console.error('[enhanced-auth] Password reset request failed', resetError);
             return new Response(
               JSON.stringify({ error: 'RESET_FAILED', messageKey: 'auth.reset_password_failed' }),
-              { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+              { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
             );
           }
         } catch (error) {
@@ -928,7 +955,7 @@ serve(async (req) => {
 
         return new Response(
           JSON.stringify({ success: true, messageKey: 'auth.forgot_password_success' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
