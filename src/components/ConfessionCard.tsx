@@ -16,7 +16,6 @@ import StreakCounter from "./StreakCounter";
 import { BadgeDisplay } from "./BadgeDisplay";
 import { AwardPicker } from "./coins/AwardPicker";
 import { AwardDisplay } from "./coins/AwardDisplay";
-import { AIMakeoverDialog } from "./coins/AIMakeoverDialog";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -74,7 +73,6 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [isAwardPickerOpen, setIsAwardPickerOpen] = useState(false);
-  const [isAIMakeoverOpen, setIsAIMakeoverOpen] = useState(false);
   const [commentsCount, setCommentsCount] = useState(confession.comments_count || 0);
   const [isBoostLoading, setIsBoostLoading] = useState(false);
   const { user } = useCurrentUser();
@@ -260,18 +258,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         )}
         
         {isOwner && (
-          <>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsAIMakeoverOpen(true)}
-              className="gap-1.5 text-xs h-9 px-3 rounded-xl hover:bg-purple-500/10 transition-colors"
-            >
-              <Wand2 className="w-4 h-4 text-purple-500" />
-              <span className="hidden sm:inline font-medium">{t.ai_makeover}</span>
-            </Button>
-            
-            <Button
+          <Button
               variant="ghost"
               size="sm"
               onClick={handleBoostConfession}
@@ -287,7 +274,6 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
                 {isBoostLoading ? t.processing : t.boost_confession}
               </span>
             </Button>
-          </>
         )}
       </div>
 
@@ -364,14 +350,6 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         open={isAwardPickerOpen}
         onOpenChange={setIsAwardPickerOpen}
         confessionId={confession.id}
-      />
-      
-      <AIMakeoverDialog
-        open={isAIMakeoverOpen}
-        onOpenChange={setIsAIMakeoverOpen}
-        confessionId={confession.id}
-        originalContent={confession.content}
-        isOwner={isOwner}
       />
       </AnimatedCard>
     </NoScreenshotMode>
