@@ -47,17 +47,18 @@ export function HighlightCommentButton({
         throw new Error('Insufficient coins');
       }
 
-      // Deduct coins
-      const { error: txError } = await supabase
-        .from('coin_transactions')
-        .insert({
-          user_id: user.id,
-          amount: -HIGHLIGHT_COST,
-          type: 'purchase',
-          description: 'Highlighted comment',
+      // Deduct coins using RPC function (updates balance and logs transaction)
+      const { data: deductResult, error: deductError } = await supabase
+        .rpc('deduct_coins', {
+          _user_id: user.id,
+          _amount: HIGHLIGHT_COST,
+          _type: 'highlight_comment',
+          _description: 'Highlighted comment',
+          _reference_id: commentId,
         });
 
-      if (txError) throw txError;
+      if (deductError) throw deductError;
+      if (!deductResult) throw new Error('Failed to deduct coins');
 
       // Mark comment as highlighted (expires in 24h)
       const expiresAt = new Date();

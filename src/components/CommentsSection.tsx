@@ -23,6 +23,8 @@ interface Comment {
   content: string;
   user_id: string;
   created_at: string;
+  is_highlighted?: boolean;
+  highlight_expires_at?: string | null;
 }
 
 interface CommentsSectionProps {
@@ -212,7 +214,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
               </p>
             ) : (
               comments.map((comment) => {
-                const isHighlighted = (comment as any).is_highlighted;
+                const isHighlighted = comment.is_highlighted;
                 const isCommentOwner = user?.id === comment.user_id;
                 
                 return (
