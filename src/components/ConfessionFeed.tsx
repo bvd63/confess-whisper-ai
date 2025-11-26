@@ -41,6 +41,14 @@ const ConfessionFeed = memo(({
   bookmarkedConfessions,
   onReport,
   onUpgradeClick,
+  onInsightGenerated,
+  onLikeChange,
+  onCommentChange,
+  onBookmarkChange,
+  onNewConfession,
+}: ConfessionFeedProps) => {
+  const { t } = useLanguage();
+
   if (isLoading) {
     return (
       <div className="mx-auto w-full max-w-2xl px-4">
@@ -100,14 +108,6 @@ const ConfessionFeed = memo(({
           />
         ))}
       </div>
-    </div>
-  );
-          onInsightGenerated={onInsightGenerated}
-          onLikeChange={onLikeChange}
-          onCommentChange={onCommentChange}
-          onBookmarkChange={onBookmarkChange}
-        />
-      ))}
     </div>
   );
 });
