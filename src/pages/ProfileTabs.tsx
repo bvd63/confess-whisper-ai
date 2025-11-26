@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FileText, Heart, Bookmark } from 'lucide-react';
 import VirtualizedConfessions from '@/components/VirtualizedConfessions';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ProfileTabsProps {
   userId: string;
@@ -18,6 +19,7 @@ interface ProfileTabsProps {
 
 export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, onInsightGenerated }: ProfileTabsProps) => {
   const [activeTab, setActiveTab] = useState('posts');
+  const { t } = useLanguage();
 
   // Fetch user's posts
   const { data: posts, isLoading: postsLoading } = useQuery({
@@ -91,8 +93,8 @@ export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, o
 
     if (!confessions || confessions.length === 0) {
       return (
-        <Card className="p-12 text-center border-border/60 rounded-[18px]">
-          <p className="text-foreground-muted">{emptyMessage}</p>
+        <Card className="rounded-2xl border border-border bg-card p-10 text-center">
+          <p className="text-sm text-muted-foreground">{emptyMessage}</p>
         </Card>
       );
     }
@@ -125,46 +127,46 @@ export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, o
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      <TabsList className="grid w-full grid-cols-3 h-11 bg-card-secondary border border-border/60 rounded-[14px] p-1">
+      <TabsList className="flex w-full gap-2 overflow-x-auto rounded-2xl bg-muted p-1.5">
         <TabsTrigger 
           value="posts" 
-          className="flex items-center gap-2 rounded-[10px] data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+          className="flex min-w-[120px] items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium whitespace-nowrap data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
         >
           <FileText className="h-4 w-4" />
-          <span className="hidden sm:inline">Posts</span>
+          <span>{t.profile_posts}</span>
         </TabsTrigger>
         {isOwnProfile && (
           <>
             <TabsTrigger 
               value="liked" 
-              className="flex items-center gap-2 rounded-[10px] data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+              className="flex min-w-[120px] items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium whitespace-nowrap data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
             >
               <Heart className="h-4 w-4" />
-              <span className="hidden sm:inline">Liked</span>
+              <span>{t.reaction_heart}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="saved" 
-              className="flex items-center gap-2 rounded-[10px] data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+              className="flex min-w-[120px] items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium whitespace-nowrap data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm"
             >
               <Bookmark className="h-4 w-4" />
-              <span className="hidden sm:inline">Saved</span>
+              <span>{t.bookmarks_title}</span>
             </TabsTrigger>
           </>
         )}
       </TabsList>
 
       <TabsContent value="posts" className="mt-6">
-        {renderConfessions(posts, postsLoading, 'No posts yet')}
+        {renderConfessions(posts, postsLoading, t.profile_no_confessions)}
       </TabsContent>
 
       {isOwnProfile && (
         <>
           <TabsContent value="liked" className="mt-6">
-            {renderConfessions(liked as any[], likedLoading, 'No liked posts yet')}
+            {renderConfessions(liked as any[], likedLoading, t.bookmarks_empty_state)}
           </TabsContent>
 
           <TabsContent value="saved" className="mt-6">
-            {renderConfessions(bookmarks as any[], bookmarksLoading, 'No saved posts yet')}
+            {renderConfessions(bookmarks as any[], bookmarksLoading, t.bookmarks_empty_description)}
           </TabsContent>
         </>
       )}

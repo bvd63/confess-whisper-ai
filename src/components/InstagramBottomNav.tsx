@@ -1,4 +1,4 @@
-import { Home, Search, PlusSquare, MessageCircle, User, Users, Sparkles } from "lucide-react";
+import { Home, Search, PlusSquare, MessageCircle, User } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useUnreadCount } from "@/hooks/useUnreadCount";
@@ -31,7 +31,7 @@ export const InstagramBottomNav = () => {
   const navItems = [
     { tabId: "home" as const, icon: Home, label: t.nav_home, isActive: activeTab === "home", shortcut: "1" },
     { tabId: "explore" as const, icon: Search, label: t.nav_explore, isActive: activeTab === "explore", shortcut: "2" },
-    { tabId: "compose" as const, icon: PlusSquare, label: "Compose", isActive: location.pathname === "/compose", shortcut: "N" },
+    { tabId: "compose" as const, icon: PlusSquare, label: t.compose, isActive: location.pathname === "/compose", shortcut: "N" },
     { tabId: "messages" as const, icon: MessageCircle, label: t.nav_messages, badge: totalUnread, isActive: activeTab === "messages", shortcut: "3" },
     { tabId: "profile" as const, icon: User, label: t.nav_profile, isActive: activeTab === "profile", showVIPBadge: isVip, shortcut: "4" },
   ];
@@ -109,9 +109,10 @@ export const InstagramBottomNav = () => {
         <nav 
           role="navigation" 
           aria-label="Main navigation"
-          className="fixed bottom-0 left-0 right-0 z-[9999] pointer-events-auto glass-strong border-t border-border safe-area-inset-bottom"
+          className="fixed bottom-0 left-0 right-0 z-[9999] border-t border-border bg-card/95 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]"
         >
-          <div ref={navRef} className="flex items-center justify-around h-20 max-w-screen-xl mx-auto px-4 sm:px-6" role="tablist">
+          <div className="mx-auto w-full max-w-2xl px-3">
+            <div ref={navRef} className="grid grid-cols-5 items-center gap-1 py-2" role="tablist">
             {navItems.map((item, index) => {
               const Icon = item.icon;
               const active = item.isActive;
@@ -129,22 +130,22 @@ export const InstagramBottomNav = () => {
                   onKeyDown={(e) => handleKeyDown(e, item.tabId, index)}
                   onMouseEnter={() => prefetchPage(item.tabId)}
                   className={cn(
-                    "relative flex flex-col items-center justify-center min-w-[60px] min-h-[60px] rounded-2xl transition-all duration-300 animate-fade-in touch-target",
+                    "relative flex flex-col items-center justify-center rounded-2xl py-2 text-xs font-medium text-muted-foreground transition-all duration-300",
                     "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background",
                     active
-                      ? "text-primary scale-105"
-                      : "text-foreground-muted hover:text-foreground hover:bg-muted/60 hover:scale-105"
+                      ? "bg-primary/10 text-primary shadow-inner"
+                      : "hover:bg-muted/70 hover:text-foreground"
                   )}
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   <div className="relative">
                     <div className={cn(
-                      "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300",
-                      active && "bg-primary/10"
+                      "flex h-11 w-11 items-center justify-center rounded-2xl transition-all duration-300",
+                      active && "bg-primary/15"
                     )}>
                       <Icon
                         className={cn(
-                          "w-6 h-6 transition-all duration-300",
+                          "h-5 w-5 transition-all duration-300",
                           active && "scale-110"
                         )}
                         strokeWidth={active ? 2.5 : 2}
@@ -165,9 +166,12 @@ export const InstagramBottomNav = () => {
                       {item.badge >= 10 ? "9+" : item.badge}
                     </span>
                   )}
+
+                  <span className="mt-1 text-[11px]">{item.label}</span>
                 </button>
               );
             })}
+            </div>
           </div>
         </nav>,
         document.body

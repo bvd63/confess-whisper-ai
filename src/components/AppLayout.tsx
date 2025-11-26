@@ -9,9 +9,11 @@ interface AppLayoutProps {
 
 const AppLayout = ({ children, onNewConfession, onManageSubscription }: AppLayoutProps) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background-secondary to-background">
+    <div className="min-h-screen bg-background">
       <AppHeader onNewConfession={onNewConfession} onManageSubscription={onManageSubscription} />
-      {children}
+      <main className="w-full max-w-5xl mx-auto px-4 pb-28 pt-4">
+        {children}
+      </main>
     </div>
   );
 };

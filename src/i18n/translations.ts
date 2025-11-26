@@ -1850,6 +1850,10 @@ type Translations = {
   perks_no_badges: string;
   
   // Shop
+  shop_manage_title: string;
+  shop_manage_subtitle: string;
+  shop_tab_subscriptions: string;
+  shop_tab_coins: string;
   shop_title: string;
   shop_required_plan_free: string;
   shop_required_plan_vip: string;
@@ -3535,6 +3539,10 @@ export const translations: Record<Language, Translations> = {
     perks_no_badges: "No badges yet. Start by posting confessions!",
     
     // Shop
+    shop_manage_title: "Subscription & Coins",
+    shop_manage_subtitle: "Manage your subscription and coin balance in one place.",
+    shop_tab_subscriptions: "Subscriptions",
+    shop_tab_coins: "Coins",
     shop_title: "Flairs Shop",
     shop_required_plan_free: "Available for all",
     shop_required_plan_vip: "Requires VIP",
@@ -5437,6 +5445,10 @@ export const translations: Record<Language, Translations> = {
     perks_no_badges: "Aún no tienes insignias. ¡Comienza publicando confesiones!",
     
     // Shop
+    shop_manage_title: "Suscripción y Monedas",
+    shop_manage_subtitle: "Administra tu suscripción y saldo de monedas en un solo lugar.",
+    shop_tab_subscriptions: "Suscripciones",
+    shop_tab_coins: "Monedas",
     shop_title: "Tienda de Flairs",
     shop_required_plan_free: "Disponible para todos",
     shop_required_plan_vip: "Requiere VIP",
@@ -7339,6 +7351,10 @@ export const translations: Record<Language, Translations> = {
     perks_no_badges: "Noch keine Abzeichen. Beginne damit, etwas zu posten!",
     
     // Shop
+    shop_manage_title: "Abos & Münzen",
+    shop_manage_subtitle: "Verwalte dein Abonnement und dein Münzguthaben an einem Ort.",
+    shop_tab_subscriptions: "Abos",
+    shop_tab_coins: "Münzen",
     shop_title: "Flairs-Shop",
     shop_required_plan_free: "Verfügbar für alle",
     shop_required_plan_vip: "Erfordert VIP",

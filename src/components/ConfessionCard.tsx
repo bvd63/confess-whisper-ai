@@ -144,7 +144,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
     if (balance < BOOST_COST) {
       toast({
         title: t.insufficient_coins,
-        description: `You need ${BOOST_COST} coins to boost this confession.`,
+        description: `${t.boost_cost} - ${t.coins_get_more}`,
         variant: "destructive",
       });
       return;
@@ -168,7 +168,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
       logError('Error boosting confession', error instanceof Error ? error : undefined);
       toast({
         title: t.error_generic,
-        description: 'Failed to boost confession. Please try again.',
+        description: t.boost_error,
         variant: "destructive",
       });
     } finally {
@@ -180,9 +180,9 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
     <NoScreenshotMode enabled={noScreenshotEnabled}>
       <AnimatedCard 
         hover="lift"
-        className="p-5 sm:p-6 mb-4 touch-manipulation transition-all duration-300 hover:shadow-xl bg-card border border-border rounded-3xl animate-slide-up"
+        className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-5 sm:p-6 touch-manipulation transition-all duration-300 hover:shadow-xl animate-slide-up"
       >
-        <div className="mb-4">
+        <div className="flex flex-col gap-4">
           <ConfessionHeader 
             category={confession.category} 
             createdAt={confession.created_at}
@@ -193,16 +193,15 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
             userId={confession.user_id}
             subscriptionTier={subscriptionTier}
           />
-        </div>
 
-        <SensitiveContentWarning isSensitive={isSensitive}>
-          <p className="text-base leading-relaxed text-foreground mb-4 break-words">
-            {sanitizeConfession(confession.content)}
-          </p>
-        </SensitiveContentWarning>
+          <SensitiveContentWarning isSensitive={isSensitive}>
+            <p className="text-base leading-relaxed text-foreground break-words text-balance">
+              {sanitizeConfession(confession.content)}
+            </p>
+          </SensitiveContentWarning>
 
-      {confession.image_url && (
-        <div className="mb-5">
+        {confession.image_url && (
+        <div className="overflow-hidden rounded-2xl">
           <OptimizedImage
             src={confession.image_url}
             alt={t.ui_confession_image}
@@ -216,20 +215,16 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
       )}
 
       {confession.emotional_tone && (
-        <div className="mb-4">
+        <div>
           <EmotionalTone tone={confession.emotional_tone} size="sm" />
         </div>
       )}
 
-      <div className="mb-4">
-        <AwardDisplay confessionId={confession.id} />
-      </div>
+      <AwardDisplay confessionId={confession.id} />
 
-      <div className="mb-4">
-        <ReactionPicker confessionId={confession.id} userId={user?.id} />
-      </div>
+      <ReactionPicker confessionId={confession.id} userId={user?.id} />
 
-      <div className="flex items-center gap-2 flex-wrap mb-4">
+      <div className="flex flex-wrap items-center gap-2">
         <ConfessionActions
           confessionId={confession.id}
           confessionUserId={confession.user_id}
@@ -250,10 +245,10 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
             variant="ghost"
             size="sm"
             onClick={() => setIsAwardPickerOpen(true)}
-            className="gap-1.5 text-xs h-9 px-3 rounded-xl hover:bg-vip-gold/10 transition-colors"
+            className="gap-1.5 rounded-xl border border-border/60 bg-background px-3 text-xs font-semibold text-foreground hover:border-primary/40 hover:bg-primary/5"
           >
-            <Award className="w-4 h-4 text-vip-gold" />
-            <span className="hidden sm:inline font-medium">Award</span>
+            <Award className="w-4 h-4 text-vip" />
+            <span className="hidden sm:inline">{t.coins_award_give}</span>
           </Button>
         )}
         
@@ -263,27 +258,27 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
               size="sm"
               onClick={handleBoostConfession}
               disabled={isBoostLoading}
-              className="gap-1.5 text-xs h-9 px-3 rounded-xl hover:bg-orange-500/10 transition-colors disabled:opacity-50"
+              className="gap-1.5 rounded-xl border border-border/60 bg-background px-3 text-xs font-semibold text-flame hover:border-flame/40 hover:bg-flame/10 disabled:opacity-50"
             >
               {isBoostLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                <Rocket className="w-4 h-4 text-orange-500" />
+                <Rocket className="w-4 h-4" />
               )}
-              <span className="hidden sm:inline font-medium">
-                {isBoostLoading ? t.processing : t.boost_confession}
-              </span>
-            </Button>
+            <span className="hidden sm:inline font-medium">
+              {isBoostLoading ? t.processing : t.boost_confession}
+            </span>
+          </Button>
         )}
       </div>
 
       {confession.ai_response && (
         <>
           <div className={cn(
-            "mt-5 rounded-2xl transition-all",
+            "rounded-2xl border transition-all",
             subscriptionTier === 'vip' 
-              ? "p-5 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 shadow-lg shadow-primary/10" 
-              : "p-4 bg-muted/60 border border-border"
+              ? "border-primary/30 bg-primary/5 p-5 shadow-lg shadow-primary/10" 
+              : "border-border bg-muted/50 p-4"
           )}>
             {subscriptionTier === 'vip' && (
               <div className="flex items-center gap-2 mb-3">
@@ -291,7 +286,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
                   <Sparkles className="w-4 h-4 text-primary animate-pulse" />
                 </div>
                 <span className="text-sm font-bold text-primary uppercase tracking-wide">
-                  VIP AI Response
+                  {t.vip_feature}
                 </span>
               </div>
             )}
@@ -303,7 +298,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
           <EnhancedButton
             onClick={() => setIsDeepInsightOpen(true)}
             variant="outline"
-            className="w-full mt-4 h-12 rounded-2xl border-primary/20 text-primary hover:bg-primary/5 font-medium"
+            className="w-full h-12 rounded-2xl border border-primary/30 text-primary hover:bg-primary/5 font-semibold"
             glow
             shine
           >
@@ -323,6 +318,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
           onCommentChange?.();
         }}
       />
+        </div>
 
       <DeepInsightDialog
         open={isDeepInsightOpen}

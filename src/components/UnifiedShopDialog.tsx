@@ -255,105 +255,106 @@ export const UnifiedShopDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
         data-testid="manage-subscription-modal"
-        className="max-w-5xl max-h-[90vh] overflow-y-auto bg-background border-border rounded-3xl p-0"
+        className="max-w-[900px] w-full max-h-[90vh] overflow-y-auto rounded-3xl border border-border bg-background p-0"
       >
-        <DialogHeader className="sticky top-0 z-10 glass-strong border-b border-border px-6 py-5">
+        <DialogHeader className="sticky top-0 z-10 border-b border-border bg-background/90 px-6 py-5 backdrop-blur">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-primary-pressed flex items-center justify-center shadow-lg shadow-primary/25">
               <Crown className="w-5 h-5 text-white" />
             </div>
             <div>
               <DialogTitle className="text-2xl font-bold text-foreground">
-                Subscription & Coins
+                {t.shop_manage_title || 'Subscription & Coins'}
               </DialogTitle>
-              <p className="text-sm text-foreground-secondary mt-0.5">
-                Manage your subscription and purchase coins
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {t.shop_manage_subtitle || 'Manage your subscription and purchase coins'}
               </p>
             </div>
           </div>
         </DialogHeader>
 
-        <div className="px-6 py-6">
+        <div className="px-6 py-6 space-y-8">
           <Tabs key={`${open}-${defaultTab}`} defaultValue={defaultTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-8 h-14 rounded-2xl bg-muted p-1.5 gap-1.5">
-              <TabsTrigger value="subscriptions" className="flex items-center gap-2 text-sm rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg font-semibold">
+            <TabsList className="grid w-full grid-cols-2 gap-2 rounded-2xl bg-muted p-1.5">
+              <TabsTrigger value="subscriptions" className="flex h-12 sm:h-14 items-center gap-2 rounded-xl text-sm font-semibold data-[state=active]:bg-card data-[state=active]:shadow-lg">
                 <Crown className="w-5 h-5" />
-                <span>Subscriptions</span>
+                <span>{t.shop_tab_subscriptions || 'Subscriptions'}</span>
               </TabsTrigger>
-              <TabsTrigger value="coins" className="flex items-center gap-2 text-sm rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg font-semibold">
+              <TabsTrigger value="coins" className="flex h-12 sm:h-14 items-center gap-2 rounded-xl text-sm font-semibold data-[state=active]:bg-card data-[state=active]:shadow-lg">
                 <Coins className="w-5 h-5" />
-                <span>Coins</span>
+                <span>{t.shop_tab_coins || 'Coins'}</span>
               </TabsTrigger>
             </TabsList>
 
-          <TabsContent value="subscriptions">
-            {loading ? (
-              <div className="flex items-center justify-center py-16">
-                <Loader2 className="w-10 h-10 animate-spin text-primary" />
-              </div>
-            ) : (
-              <>
-                <SubscriptionPlansGrid
-                  currentPlan={currentPlan}
-                  currentInterval={currentInterval}
-                  onSelectPlan={handleSelectPlan}
-                  isLoading={isProcessing}
-                  canChangePlan={true}
-                  interval={interval}
-                  onIntervalChange={setInterval}
-                />
-                <p className="text-center text-sm text-foreground-muted mt-8 px-4">
-                  You can cancel anytime from account settings. No long-term commitments.
-                </p>
-              </>
-            )}
-          </TabsContent>
+            <TabsContent value="subscriptions" className="space-y-6">
+              {loading ? (
+                <div className="flex items-center justify-center py-16">
+                  <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                </div>
+              ) : (
+                <>
+                  <SubscriptionPlansGrid
+                    currentPlan={currentPlan}
+                    currentInterval={currentInterval}
+                    onSelectPlan={handleSelectPlan}
+                    isLoading={isProcessing}
+                    canChangePlan={true}
+                    interval={interval}
+                    onIntervalChange={setInterval}
+                  />
+                  <p className="px-4 text-center text-sm text-muted-foreground">
+                    {t.subscription_cancel_anytime || 'You can cancel anytime from account settings. No long-term commitments.'}
+                  </p>
+                </>
+              )}
+            </TabsContent>
 
-          <TabsContent value="coins">
-            <div className="space-y-8">
-              <div className="text-center">
-                <div className="inline-flex items-center gap-2 mb-3">
-                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-vip to-warning flex items-center justify-center shadow-lg">
-                    <Coins className="w-5 h-5 text-white" />
+            <TabsContent value="coins" className="space-y-8">
+              <div className="text-center space-y-3">
+                <div className="inline-flex items-center gap-2">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-vip to-warning shadow-lg">
+                    <Coins className="h-5 w-5 text-white" />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-foreground mb-2">
-                  {t.coins_shop_title || 'Coin Shop'}
-                </h3>
-                <p className="text-base text-muted-foreground mt-2">
-                  {t.coins_shop_subtitle || 'Get coins to unlock exclusive features!'}
-                </p>
+                <div>
+                  <h3 className="text-2xl font-bold text-foreground">
+                    {t.coins_shop_title || 'Coin Shop'}
+                  </h3>
+                  <p className="mt-2 text-base text-muted-foreground">
+                    {t.coins_shop_subtitle || 'Get coins to unlock exclusive features!'}
+                  </p>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
                 {packages?.map((pkg) => (
                   <div
                     key={pkg.id}
-                    className={`relative p-6 rounded-2xl border-2 transition-all hover:scale-[1.02] hover:shadow-lg ${
+                    className={`relative rounded-2xl border-2 p-6 transition-all hover:scale-[1.01] hover:shadow-lg ${
                       pkg.is_popular
                         ? 'border-yellow-500 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20 shadow-md'
                         : 'border-border bg-card'
                     }`}
                   >
                     {pkg.is_popular && (
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-5 py-1.5 rounded-full text-xs font-bold shadow-lg">
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 px-5 py-1.5 text-xs font-bold text-white shadow-lg">
                         ⭐ {t.coins_best_value || 'BEST VALUE'}
                       </div>
                     )}
 
                     {pkg.discount_percentage > 0 && (
-                      <div className="absolute -top-3 -right-3 bg-red-500 text-white w-12 h-12 rounded-full flex items-center justify-center text-xs font-bold shadow-lg">
+                      <div className="absolute -top-3 -right-3 flex h-12 w-12 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white shadow-lg">
                         -{pkg.discount_percentage}%
                       </div>
                     )}
 
-                    <div className="flex flex-col items-center text-center space-y-5">
-                      <div className="text-yellow-500 p-3 bg-yellow-500/10 rounded-2xl">
+                    <div className="flex flex-col items-center space-y-5 text-center">
+                      <div className="rounded-2xl bg-yellow-500/10 p-3 text-yellow-500">
                         {getPackageIcon(pkg.name)}
                       </div>
 
                       <div>
-                        <h3 className="font-bold text-lg mb-2">{pkg.name}</h3>
+                        <h3 className="mb-2 text-lg font-bold">{pkg.name}</h3>
                         <p className="text-4xl font-bold text-yellow-600 dark:text-yellow-400">
                           {pkg.coins.toLocaleString()} 🪙
                         </p>
@@ -363,22 +364,22 @@ export const UnifiedShopDialog = ({
                         ${pkg.price_usd.toFixed(2)}
                       </div>
 
-                      <div className="text-xs text-muted-foreground font-medium">
+                      <div className="text-xs font-medium text-muted-foreground">
                         ${(pkg.price_usd / pkg.coins).toFixed(4)} {t.coins_per_coin || 'per coin'}
                       </div>
 
                       <Button
                         onClick={() => handleCoinPurchase(pkg.id)}
                         disabled={coinLoading === pkg.id}
-                        className={`w-full h-12 rounded-xl font-semibold ${
+                        className={`h-12 w-full rounded-xl font-semibold transition-colors ${
                           pkg.is_popular
-                            ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white'
-                            : ''
+                            ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:from-yellow-600 hover:to-orange-600'
+                            : 'bg-primary text-primary-foreground hover:bg-primary/90'
                         }`}
                       >
                         {coinLoading === pkg.id ? (
                           <span className="flex items-center gap-2">
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                             {t.coins_processing || 'Processing...'}
                           </span>
                         ) : (
@@ -390,16 +391,15 @@ export const UnifiedShopDialog = ({
                 ))}
               </div>
 
-              <div className="mt-8 p-5 bg-muted/50 rounded-2xl">
-                <p className="text-sm text-center text-muted-foreground leading-relaxed">
-                  💳 {t.coins_secure_payment || 'Secure payment via Stripe'} • 
-                  🔒 {t.coins_instant_delivery || 'Instant delivery'} •
-                  💯 {t.coins_satisfaction || 'Guaranteed'}
-                </p>
+              <div className="rounded-2xl border border-dashed border-border/60 px-4 py-3 text-sm text-muted-foreground">
+                <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-center">
+                  <span>💳 {t.coins_secure_payment || 'Secure payment via Stripe'}</span>
+                  <span>⚡ {t.coins_instant_delivery || 'Instant delivery'}</span>
+                  <span>💯 {t.coins_satisfaction || 'Guaranteed'}</span>
+                </div>
               </div>
-            </div>
-          </TabsContent>
-        </Tabs>
+            </TabsContent>
+          </Tabs>
         </div>
       </DialogContent>
     </Dialog>

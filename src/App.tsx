@@ -1,7 +1,7 @@
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { ConfirmProvider } from '@/contexts/ConfirmContext';
 import { TabNavigationProvider } from '@/contexts/TabNavigationContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -216,18 +216,9 @@ const AppContent = () => {
   }, []);
   
   return (
-    <div className="relative pb-16">
+    <div className="min-h-screen bg-background">
       <div data-testid="app-ready" style={{ display: 'none' }} />
-      
-      
-      {/* Trial banner */}
-      {trialStatus.isActive && trialStatus.daysRemaining !== null && trialStatus.daysRemaining <= 3 && (
-        <TrialBanner 
-          daysRemaining={trialStatus.daysRemaining} 
-          onUpgrade={() => navigate('/profile?section=subscription')}
-        />
-      )}
-      
+
       {/* VIP Onboarding modal for new users */}
       {onboardingChecked && showVIPOnboarding && user && (
         <VIPOnboardingModal
@@ -253,8 +244,17 @@ const AppContent = () => {
       <NetworkStatusIndicator />
       <CheckoutStatusHandler />
       <TabNavigationProvider>
-        <Suspense fallback={<PageLoading className="min-h-screen" />}>
-          <Routes>
+        <div className="pb-28">
+          <main className="max-w-2xl mx-auto w-full px-4 pt-4 pb-8 space-y-6">
+            {/* Trial banner */}
+            {trialStatus.isActive && trialStatus.daysRemaining !== null && trialStatus.daysRemaining <= 3 && (
+              <TrialBanner 
+                daysRemaining={trialStatus.daysRemaining} 
+                onUpgrade={() => navigate('/profile?section=subscription')}
+              />
+            )}
+            <Suspense fallback={<PageLoading className="min-h-[40vh]" />}>
+              <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/home" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
@@ -295,7 +295,9 @@ const AppContent = () => {
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="*" element={<NotFound />} />
           </Routes>
-        </Suspense>
+            </Suspense>
+          </main>
+        </div>
         <InstagramBottomNav />
       </TabNavigationProvider>
     </div>
@@ -304,11 +306,16 @@ const AppContent = () => {
 
 function App() {
   const { user, loading } = useAuth();
+  const { t } = useLanguage();
 
   // Location functionality removed - column doesn't exist in profiles table
 
   if (loading) {
-    return <div>Loading...</div>; // Show loading text instead of null
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+        {t.ui_loading}
+      </div>
+    );
   }
 
   return (
