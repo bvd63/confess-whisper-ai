@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useOptimizedQuery } from "./useOptimizedQuery";
 import { primeConfessionBatch } from '@/lib/confessionCache';
 import { primeNicknameCache } from '@/lib/nicknameCache';
+import { CONFESSION_FEED_COLUMNS } from '@/integrations/supabase/columnSets';
 
 interface Confession {
   id: string;
@@ -37,7 +38,7 @@ export const useConfessions = ({
       // Fetch confessions without join (faster)
       let query = supabase
         .from('confessions')
-        .select('*')
+        .select(CONFESSION_FEED_COLUMNS)
         .limit(limit);
 
       if (categoryFilter !== 'all') {

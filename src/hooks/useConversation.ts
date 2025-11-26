@@ -4,6 +4,7 @@ import { useReadReceipts } from './useReadReceipts';
 import { offlineQueue } from '@/lib/offlineQueue';
 import { toast } from 'sonner';
 import { logError } from '@/lib/logger';
+import { MESSAGE_THREAD_COLUMNS } from '@/integrations/supabase/columnSets';
 
 interface Message {
   id: string;
@@ -30,7 +31,7 @@ export const useConversation = (conversationId: string | null, userId: string | 
     try {
       const { data, error } = await supabase
         .from('messages')
-        .select('*')
+        .select(MESSAGE_THREAD_COLUMNS)
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
 
@@ -92,7 +93,7 @@ export const useConversation = (conversationId: string | null, userId: string | 
       const { data, error } = await supabase
         .from('messages')
         .insert(messageData)
-        .select()
+        .select(MESSAGE_THREAD_COLUMNS)
         .single();
 
       if (error) throw error;
@@ -125,7 +126,7 @@ export const useConversation = (conversationId: string | null, userId: string | 
           const { data, error } = await supabase
             .from('messages')
             .insert(messageData)
-            .select()
+            .select(MESSAGE_THREAD_COLUMNS)
             .single();
           if (error) throw error;
           return data;

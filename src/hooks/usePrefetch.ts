@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { CONFESSION_FEED_COLUMNS } from '@/integrations/supabase/columnSets';
 
 interface PrefetchOptions {
   enabled?: boolean;
@@ -194,7 +195,7 @@ export const usePrefetch = () => {
                   const { supabase } = await import('@/integrations/supabase/client');
                   const { data } = await supabase
                     .from('confessions')
-                    .select('*')
+                    .select(CONFESSION_FEED_COLUMNS)
                     .order('likes_count', { ascending: false })
                     .limit(10);
                   return data;
@@ -233,7 +234,7 @@ export const usePrefetch = () => {
                 const { supabase } = await import('@/integrations/supabase/client');
                 const { data } = await supabase
                   .from('confessions')
-                  .select('*')
+                  .select(CONFESSION_FEED_COLUMNS)
                   .order('likes_count', { ascending: false })
                   .limit(10);
                 return data;

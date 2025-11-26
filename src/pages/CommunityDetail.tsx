@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { CONFESSION_FEED_COLUMNS } from "@/integrations/supabase/columnSets";
 import AppLayout from "@/components/AppLayout";
 import { GradientText } from "@/components/GradientText";
 
@@ -53,7 +54,7 @@ const CommunityDetail = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('confessions')
-        .select('*')
+        .select(CONFESSION_FEED_COLUMNS)
         .eq('community_id', id)
         .eq('moderation_status', 'approved')
         .eq('is_draft', false)

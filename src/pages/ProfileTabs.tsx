@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FileText, Heart, Bookmark } from 'lucide-react';
 import VirtualizedConfessions from '@/components/VirtualizedConfessions';
+import { CONFESSION_FEED_COLUMNS } from '@/integrations/supabase/columnSets';
 
 interface ProfileTabsProps {
   userId: string;
@@ -25,7 +26,7 @@ export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, o
     queryFn: async () => {
       const { data, error } = await supabase
         .from('confessions')
-        .select('*')
+        .select(CONFESSION_FEED_COLUMNS)
         .eq('user_id', userId)
         .eq('is_draft', false)
         .eq('moderation_status', 'approved')
@@ -46,7 +47,7 @@ export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, o
         .from('user_likes')
         .select(`
           confession_id,
-          confessions (*)
+          confessions (${CONFESSION_FEED_COLUMNS})
         `)
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
@@ -67,7 +68,7 @@ export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, o
         .from('bookmarks')
         .select(`
           confession_id,
-          confessions (*)
+          confessions (${CONFESSION_FEED_COLUMNS})
         `)
         .eq('user_id', userId)
         .order('created_at', { ascending: false });

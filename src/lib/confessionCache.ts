@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { CONFESSION_FEED_COLUMNS } from '@/integrations/supabase/columnSets';
 
 // Cache for confession data with TTL
 interface ConfessionCacheEntry {
@@ -29,7 +30,7 @@ export async function getConfessionCached(confessionId: string): Promise<any> {
     try {
       const { data, error } = await supabase
         .from('confessions')
-        .select('*')
+        .select(CONFESSION_FEED_COLUMNS)
         .eq('id', confessionId)
         .maybeSingle();
 

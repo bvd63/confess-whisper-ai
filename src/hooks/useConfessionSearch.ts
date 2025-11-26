@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SearchFilters } from "@/components/SearchBar";
 import { logError } from "@/lib/logger";
+import { CONFESSION_FEED_COLUMNS } from "@/integrations/supabase/columnSets";
 
 export const useConfessionSearch = () => {
   const [confessions, setConfessions] = useState<any[]>([]);
@@ -15,7 +16,7 @@ export const useConfessionSearch = () => {
     try {
       let queryBuilder = supabase
         .from('confessions')
-        .select('*')
+        .select(CONFESSION_FEED_COLUMNS)
         .eq('is_draft', false);
 
       // Text search
@@ -60,7 +61,7 @@ export const useConfessionSearch = () => {
           // For trending, we'll use a view that calculates trending score
           const { data: trendingData, error: trendingError } = await supabase
             .from('trending_confessions')
-            .select('*')
+            .select(CONFESSION_FEED_COLUMNS)
             .limit(50);
 
           if (!trendingError && trendingData) {

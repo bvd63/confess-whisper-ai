@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import VirtualizedConfessions from "@/components/VirtualizedConfessions";
 import { logError } from "@/lib/logger";
+import { CONFESSION_FEED_COLUMNS } from "@/integrations/supabase/columnSets";
 
 interface FollowingFeedProps {
   userId: string;
@@ -50,7 +51,7 @@ const FollowingFeed = ({ userId, isPremium, onUpgradeClick }: FollowingFeedProps
       // Get confessions from followed users
       const { data: confessionsData, error: confError } = await supabase
         .from('confessions')
-        .select('*')
+        .select(CONFESSION_FEED_COLUMNS)
         .in('user_id', followingIds)
         .order('created_at', { ascending: false })
         .limit(20);

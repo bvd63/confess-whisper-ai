@@ -16,6 +16,7 @@ import {
 import { useCachePurgeOnDelete } from "@/hooks/useCachePurgeOnDelete";
 import { getNicknameCached } from "@/lib/nicknameCache";
 import { logError } from "@/lib/logger";
+import { MESSAGE_THREAD_COLUMNS } from "@/integrations/supabase/columnSets";
 
 interface Message {
   id: string;
@@ -143,7 +144,7 @@ export const EnhancedMessageThread = ({
     try {
       const { data, error } = await supabase
         .from('messages')
-        .select('*')
+        .select(MESSAGE_THREAD_COLUMNS)
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
 
