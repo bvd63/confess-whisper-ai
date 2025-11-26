@@ -23,7 +23,7 @@ interface AIMakeoverDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const MAKEOVER_COST = 100;
+const MAKEOVER_COST = 10;
 
 export function AIMakeoverDialog({
   open,
@@ -62,18 +62,7 @@ export function AIMakeoverDialog({
 
       setMakeoverContent(data.polishedText);
 
-      // Deduct coins
-      const { error: txError } = await supabase
-        .from('coin_transactions')
-        .insert({
-          user_id: user.id,
-          amount: -MAKEOVER_COST,
-          type: 'purchase',
-          description: 'AI Makeover for confession',
-        });
-
-      if (txError) throw txError;
-
+      // Note: Coin deduction is handled by the polish-confession edge function
       return data.polishedText;
     },
     onError: (error: Error) => {
