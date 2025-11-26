@@ -15,9 +15,9 @@ export const FlairsShopButton = ({ onClick, tier, className }: FlairsShopButtonP
   const getTierStyles = () => {
     switch (tier) {
       case "free":
-        return "bg-primary text-primary-foreground hover:bg-primary-hover shadow-lg shadow-primary/30 transition-all duration-300";
+        return "bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white shadow-lg hover:shadow-xl transition-all duration-300";
       case "vip":
-        return "border border-vip/50 bg-gradient-to-r from-vip/80 to-warning/80 text-foreground shadow-lg shadow-vip/30 transition-all duration-300";
+        return "bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:via-yellow-600 hover:to-amber-700 text-white shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50 border-2 border-amber-400 transition-all duration-300";
     }
   };
 

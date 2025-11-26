@@ -51,63 +51,56 @@ const ConfessionFeed = memo(({
 
   if (isLoading) {
     return (
-      <div className="mx-auto w-full max-w-2xl px-4">
-        <div className="space-y-4">
-          {[...Array(4)].map((_, index) => (
-            <ConfessionCardSkeleton key={index} />
-          ))}
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+        <ConfessionCardSkeleton />
+        <ConfessionCardSkeleton />
+        <ConfessionCardSkeleton />
+        <ConfessionCardSkeleton />
       </div>
     );
   }
 
   if (confessions.length === 0) {
     return (
-      <div className="mx-auto w-full max-w-2xl px-4">
-        <EmptyState
-          icon={Heart}
-          title={t.index_no_confessions_title}
-          description={t.index_no_confessions_desc}
-          actionLabel={t.new_confession}
-          onAction={onNewConfession}
-        />
-      </div>
+      <EmptyState
+        icon={Heart}
+        title={t.index_no_confessions_title}
+        description={t.index_no_confessions_desc}
+        actionLabel={t.new_confession}
+        onAction={onNewConfession}
+      />
     );
   }
 
   // Use virtual scrolling for large lists
   if (confessions.length > 15) {
     return (
-      <div className="mx-auto w-full max-w-2xl px-4">
-        <VirtualizedConfessions
-          confessions={confessions}
-          isPremium={isPremium}
-          onUpgradeClick={onUpgradeClick}
-          onInsightGenerated={onInsightGenerated}
-        />
-      </div>
+      <VirtualizedConfessions
+        confessions={confessions}
+        isPremium={isPremium}
+        onUpgradeClick={onUpgradeClick}
+        onInsightGenerated={onInsightGenerated}
+      />
     );
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4">
-      <div className="space-y-4">
-        {confessions.map((confession) => (
-          <ConfessionCard
-            key={confession.id}
-            confession={confession}
-            isPremium={isPremium}
-            isLiked={likedConfessions.has(confession.id)}
-            isBookmarked={bookmarkedConfessions.has(confession.id)}
-            onReport={onReport}
-            onUpgradeClick={onUpgradeClick}
-            onInsightGenerated={onInsightGenerated}
-            onLikeChange={onLikeChange}
-            onCommentChange={onCommentChange}
-            onBookmarkChange={onBookmarkChange}
-          />
-        ))}
-      </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      {confessions.map((confession) => (
+        <ConfessionCard
+          key={confession.id}
+          confession={confession}
+          isPremium={isPremium}
+          isLiked={likedConfessions.has(confession.id)}
+          isBookmarked={bookmarkedConfessions.has(confession.id)}
+          onReport={onReport}
+          onUpgradeClick={onUpgradeClick}
+          onInsightGenerated={onInsightGenerated}
+          onLikeChange={onLikeChange}
+          onCommentChange={onCommentChange}
+          onBookmarkChange={onBookmarkChange}
+        />
+      ))}
     </div>
   );
 });

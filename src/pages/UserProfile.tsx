@@ -6,6 +6,7 @@ import { ProfileHeader } from "@/components/ProfileHeader";
 import { ProfileTabs } from "@/pages/ProfileTabs";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { Skeleton } from "@/components/ui/skeleton";
 import { logError } from "@/lib/logger";
 import { TierProfileCard } from "@/components/TierProfileCard";
@@ -13,7 +14,6 @@ import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import { GiftCoinsDialog } from "@/components/coins/GiftCoinsDialog";
 import { Button } from "@/components/ui/button";
 import { Gift } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 interface UserProfileData {
   nickname: string;
@@ -32,7 +32,6 @@ const UserProfile = () => {
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const [giftCoinsOpen, setGiftCoinsOpen] = useState(false);
   const isOwnProfile = currentUser?.id === userId;
-  const { t } = useLanguage();
 
   useEffect(() => {
     if (!userId) return;
@@ -80,10 +79,11 @@ const UserProfile = () => {
     return (
       <>
       <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
-        <div className="mx-auto w-full max-w-2xl px-4 py-6 space-y-4">
-          <Skeleton className="h-32 w-full" />
+        <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
+          <Skeleton className="h-32 w-full mb-4 sm:mb-6" />
           <Skeleton className="h-64 w-full" />
         </div>
+        <InstagramBottomNav />
       </AppLayout>
       <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
       </>
@@ -94,9 +94,10 @@ const UserProfile = () => {
     return (
       <>
       <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
-        <div className="mx-auto w-full max-w-2xl px-4 py-6 text-center">
-          <p className="text-sm text-muted-foreground">{t.no_users_found}</p>
+        <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 text-center pb-24">
+          <p className="text-sm sm:text-base text-muted-foreground">User not found</p>
         </div>
+        <InstagramBottomNav />
       </AppLayout>
       <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
       </>
@@ -106,7 +107,7 @@ const UserProfile = () => {
   return (
     <>
     <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
-      <div className="mx-auto w-full max-w-2xl px-4 py-6 space-y-6">
+      <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
         <TierProfileCard tier={subscriptionTier as "free" | "vip"} className="mb-6">
           <ProfileHeader
             userId={userId!}
@@ -121,10 +122,10 @@ const UserProfile = () => {
                 onClick={() => setGiftCoinsOpen(true)}
                 variant="outline"
                 size="sm"
-                className="h-10 gap-2 rounded-xl border border-border/60 px-6 font-semibold hover:border-primary/40 hover:bg-primary/5"
+                className="gap-2 h-10 px-6 rounded-xl border-2 hover:bg-primary/10 hover:border-primary/50 transition-all font-semibold"
               >
                 <Gift className="w-4 h-4 text-primary" />
-                <span className="text-sm">{t.coins_gift_send}</span>
+                <span className="text-sm">Send Coins</span>
               </Button>
             </div>
           )}
@@ -140,6 +141,8 @@ const UserProfile = () => {
           />
         </div>
       </div>
+      
+      <InstagramBottomNav />
     </AppLayout>
     <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
     <GiftCoinsDialog 

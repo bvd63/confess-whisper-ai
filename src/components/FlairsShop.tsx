@@ -6,6 +6,7 @@ import { Coins, Sparkles, Check, ChevronDown, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCoins } from "@/hooks/useCoins";
 import { logDebug, logError } from "@/lib/logger";
 import { ExpiryTimer } from "@/components/ExpiryTimer";
@@ -411,24 +412,24 @@ export const FlairsShop = ({
       </Card>;
   };
   return <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-[700px] max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-background p-0 shadow-xl">
-        <DialogHeader className="space-y-4 px-6 pt-6">
-          <DialogTitle className="flex flex-wrap items-center justify-between gap-3 text-2xl">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] rounded-2xl border-primary/20">
+        <DialogHeader className="space-y-4">
+          <DialogTitle className="flex items-center justify-between text-2xl">
             <span className="flex items-center gap-3">
-              <div className="text-3xl" aria-hidden="true">✨</div>
+              <div className="text-3xl">✨</div>
               <span className="font-bold">{t.flairs_shop}</span>
             </span>
-            <span className="flex items-center gap-2.5 rounded-xl border border-vip/30 bg-vip/10 px-4 py-2">
-              <div className="text-xl" aria-hidden="true">🪙</div>
-              <span className="text-lg font-bold">{coinsBalance.toLocaleString()}</span>
+            <span className="flex items-center gap-2.5 bg-gradient-to-r from-amber-500/10 to-orange-500/10 px-4 py-2 rounded-xl border border-amber-500/20">
+              <div className="text-xl">🪙</div>
+              <span className="font-bold text-lg">{coinsBalance}</span>
             </span>
           </DialogTitle>
-          <DialogDescription className="text-base text-muted-foreground">
+          <DialogDescription className="text-base text-foreground-secondary">
             {t.flair_shop_description}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="px-6 pb-6">
+        <ScrollArea className="h-[450px] sm:h-[550px] pr-4">
           {loading ? (
             <div className="text-center py-12 space-y-4">
               <div className="w-14 h-14 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
@@ -443,12 +444,12 @@ export const FlairsShop = ({
                 size="sm"
                 className="rounded-xl"
               >
-                {t.error_retry}
+                Try Again
               </Button>
             </div>
           ) : (
             <Accordion type="multiple" defaultValue={["free", "vip"]} className="w-full space-y-3">
-              {showFree && freeFlairs.length > 0 && <AccordionItem value="free" className="rounded-2xl border border-border/50 bg-card px-4">
+              {showFree && freeFlairs.length > 0 && <AccordionItem value="free" className="border rounded-2xl px-4 bg-card">
                   <AccordionTrigger className="hover:no-underline py-5">
                     <div className="flex items-center gap-2.5">
                       <span className="text-lg font-bold">{t.shop_free_tier}</span>
@@ -456,13 +457,13 @@ export const FlairsShop = ({
                     </div>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-3 pb-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-3 pb-2">
                       {freeFlairs.map(renderFlairCard)}
                     </div>
                   </AccordionContent>
                 </AccordionItem>}
 
-              {showVIP && vipFlairs.length > 0 && <AccordionItem value="vip" className="rounded-2xl border border-border/50 bg-card px-4">
+              {showVIP && vipFlairs.length > 0 && <AccordionItem value="vip" className="border rounded-2xl px-4 bg-card">
                   <AccordionTrigger className="hover:no-underline py-5">
                     <div className="flex items-center gap-2.5">
                       <span className="text-lg font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
@@ -472,7 +473,7 @@ export const FlairsShop = ({
                     </div>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-3 pb-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-3 pb-2">
                       {vipFlairs.map(renderFlairCard)}
                     </div>
                   </AccordionContent>
@@ -481,7 +482,7 @@ export const FlairsShop = ({
           )}
 
           {!loading && !error && flairs.length === 0 && <div className="text-center py-8 text-muted-foreground">{t.shop_empty}</div>}
-        </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>;
 };

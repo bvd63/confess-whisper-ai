@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 interface VIPBadgeProps {
   tier?: 'free' | 'vip';
@@ -17,8 +16,6 @@ export const VIPBadge = ({
   // Don't render anything for free tier
   if (tier !== 'vip') return null;
 
-  const { t } = useLanguage();
-
   const textSizeClasses = {
     sm: 'text-sm',
     md: 'text-base',
@@ -34,14 +31,14 @@ export const VIPBadge = ({
   return (
     <div
       className={cn(
-        "inline-flex items-center rounded-full border border-vip/40 bg-vip/10 font-semibold text-vip transition-transform hover:scale-105",
+        "inline-flex items-center rounded-full bg-gradient-to-r from-yellow-500/20 to-amber-500/20 font-semibold transition-transform hover:scale-105",
         showLabel && containerSizeClasses[size],
         className
       )}
-      title={t.subscription_plan_vip}
+      title="VIP"
     >
       <span className={cn(textSizeClasses[size], "animate-pulse")}>👑</span>
-      {showLabel && <span className="text-xs font-semibold uppercase tracking-wide">{t.subscription_plan_vip}</span>}
+      {showLabel && <span className="text-yellow-600">VIP</span>}
     </div>
   );
 };

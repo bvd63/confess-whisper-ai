@@ -28,6 +28,7 @@ import CoinsDisplay from "@/components/CoinsDisplay";
 
 import { useUserRole } from "@/hooks/useUserRole";
 import { useToast } from "@/hooks/use-toast";
+import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { FlairsShop } from "@/components/FlairsShop";
 import { FlairsShopButton } from "@/components/FlairsShopButton";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
@@ -160,83 +161,77 @@ const Profile = () => {
       <AchievementToast userId={user.id} />
       <ReferralRewardNotification userId={user.id} />
       
-      <div className="mx-auto w-full max-w-2xl px-4 py-6 space-y-8">
-        <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-sm animate-fade-in space-y-4">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="container mx-auto px-4 py-6 max-w-4xl pb-24">
+        <div className="flex items-center gap-3 mb-8 animate-fade-in">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary-pressed flex items-center justify-center shadow-lg shadow-primary/25">
+            <User className="h-6 w-6 text-white" />
+          </div>
+          <div className="flex-1">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-pressed shadow-primary/25">
-                <User className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <div className="flex flex-wrap items-center gap-3">
-                  <h1 className="text-2xl font-bold text-foreground">
-                    {t.profile_title}
-                  </h1>
-                  <VIPBadge tier={subscriptionTier as 'free' | 'vip'} size="lg" showLabel />
-                </div>
-                <div className="mt-3 text-sm text-muted-foreground">
-                  <BadgesDisplay 
-                    userId={user.id} 
-                    variant="compact"
-                  />
-                </div>
-              </div>
+              <h1 className="text-3xl font-bold text-foreground">
+                {t.profile_title}
+              </h1>
             </div>
-
-            <div className="flex flex-wrap items-center justify-end gap-2">
+            <div className="mt-3">
+              <BadgesDisplay 
+                userId={user.id} 
+                variant="compact"
+              />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-12 w-12 p-0 hover:bg-muted rounded-2xl"
+              aria-label={t.settings}
+              title={t.settings}
+              onClick={() => navigate('/settings/activity')}
+            >
+              <Settings className="h-5 w-5 text-foreground-muted hover:text-foreground transition-colors" />
+            </Button>
+            {profileData?.stripe_subscription_id && (
               <Button
+                onClick={async () => {
+                  const { data, error } = await supabase.functions.invoke('fix-subscription-sync');
+                  if (error) throw error;
+                  if (data?.success) {
+                    toast({
+                      title: "Subscription Synced",
+                      description: data.message
+                    });
+                    setTimeout(() => window.location.reload(), 1500);
+                  }
+                }}
                 variant="ghost"
                 size="sm"
-                className="h-11 w-11 rounded-xl border border-border/60"
-                aria-label={t.settings}
-                title={t.settings}
-                onClick={() => navigate('/settings/activity')}
+                className="h-12 w-12 p-0 hover:bg-muted rounded-2xl"
+                aria-label="Sync Subscription"
+                title="Sync Subscription"
               >
-                <Settings className="h-5 w-5 text-muted-foreground" />
+                <RefreshCw className="h-5 w-5 text-foreground-muted hover:text-foreground transition-colors" />
               </Button>
-              {profileData?.stripe_subscription_id && (
-                <Button
-                  onClick={async () => {
-                    const { data, error } = await supabase.functions.invoke('fix-subscription-sync');
-                    if (error) throw error;
-                    if (data?.success) {
-                      toast({
-                        title: t.profile_refresh_status,
-                        description: data.message
-                      });
-                      setTimeout(() => window.location.reload(), 1500);
-                    }
-                  }}
-                  variant="ghost"
-                  size="sm"
-                  className="h-11 w-11 rounded-xl border border-border/60"
-                  aria-label={t.profile_refresh_status}
-                  title={t.profile_refresh_status}
-                >
-                  <RefreshCw className="h-5 w-5 text-muted-foreground" />
-                </Button>
-              )}
-              <Button 
-                onClick={async () => {
-                  await supabase.auth.signOut();
-                  navigate('/');
-                  toast({
-                    title: t.success_logout,
-                    description: t.success_logout
-                  });
-                }} 
-                variant="outline" 
-                size="sm" 
-                className="h-11 rounded-xl border-border bg-card px-4 font-medium"
-              >
-                <LogOut className="w-4 h-4 sm:mr-2" />
-                <span className="hidden sm:inline text-sm">{t.logout}</span>
-              </Button>
-            </div>
+            )}
+            <Button 
+              onClick={async () => {
+                await supabase.auth.signOut();
+                navigate('/');
+                toast({
+                  title: t.success_logout,
+                  description: t.success_logout
+                });
+              }} 
+              variant="outline" 
+              size="sm" 
+              className="border-border bg-card hover:bg-muted h-12 px-5 rounded-2xl font-medium"
+            >
+              <LogOut className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline text-sm">{t.logout}</span>
+            </Button>
           </div>
         </div>
 
-        <Tabs defaultValue="statistics" className="space-y-8">
+        <Tabs defaultValue="statistics" className="space-y-8 mt-8">
           <TabsList className={`grid w-full ${isModerator ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2'} h-14 rounded-2xl bg-muted p-1.5 gap-1.5`}>
             <TabsTrigger value="statistics" className="text-sm font-medium rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg">{t.profile_statistics}</TabsTrigger>
             <TabsTrigger value="confessions" className="text-sm font-medium rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg">{t.profile_my_confessions}</TabsTrigger>
@@ -259,10 +254,10 @@ const Profile = () => {
               <Button 
                 onClick={() => navigate('/rewards?tab=achievements')}
                 variant="outline"
-                className="gap-2 rounded-xl"
+                className="gap-2"
               >
                 <Trophy className="w-4 h-4" />
-                {t.common_view_all}
+                View All Achievements
               </Button>
             </div>
           </TabsContent>
@@ -279,6 +274,8 @@ const Profile = () => {
             </TabsContent>}
         </Tabs>
       </div>
+      
+      <InstagramBottomNav />
 
       <UnifiedShopDialog
         open={manageSubDialogOpen} 

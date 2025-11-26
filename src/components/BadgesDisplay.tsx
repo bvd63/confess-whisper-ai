@@ -106,17 +106,16 @@ const BadgesDisplay = ({
         return (
           <div 
             key={flair.id} 
-            className="flex flex-col items-center gap-2 rounded-2xl border border-border/60 bg-card p-4 text-center shadow-sm"
-            aria-label={flairName}
+            className="flex flex-col items-center gap-2 p-3 sm:p-4 border rounded-lg bg-card hover:bg-accent/50 transition-colors"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-              <span className="text-2xl" aria-hidden="true">{flair.profile_flairs.icon}</span>
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center bg-primary/10">
+              <span className="text-2xl">{flair.profile_flairs.icon}</span>
             </div>
             <div className="text-center">
-              <p className="text-sm font-semibold text-foreground">{flairName}</p>
+              <p className="font-semibold text-xs sm:text-sm">{flairName}</p>
               {flair.expires_at && (
                 <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
-                  {`${t.badge_expires_in}: ${new Date(flair.expires_at).toLocaleDateString()}`}
+                  Expires: {new Date(flair.expires_at).toLocaleDateString()}
                 </p>
               )}
             </div>
