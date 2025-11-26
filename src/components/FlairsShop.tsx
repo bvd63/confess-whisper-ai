@@ -412,24 +412,28 @@ export const FlairsShop = ({
       </Card>;
   };
   return <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] rounded-2xl border-primary/20">
-        <DialogHeader className="space-y-4">
-          <DialogTitle className="flex items-center justify-between text-2xl">
-            <span className="flex items-center gap-3">
-              <div className="text-3xl">✨</div>
-              <span className="font-bold">{t.flairs_shop}</span>
-            </span>
-            <span className="flex items-center gap-2.5 bg-gradient-to-r from-amber-500/10 to-orange-500/10 px-4 py-2 rounded-xl border border-amber-500/20">
-              <div className="text-xl">🪙</div>
-              <span className="font-bold text-lg">{coinsBalance}</span>
-            </span>
-          </DialogTitle>
+      <DialogContent className="w-full max-w-[min(100vw-32px,700px)] max-h-[90vh] overflow-hidden rounded-2xl border border-primary/20 p-0">
+        <DialogHeader className="space-y-3 px-4 pt-5 pb-4 pr-12">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="text-3xl shrink-0">✨</div>
+              <DialogTitle className="text-2xl font-bold text-foreground truncate">
+                {t.flairs_shop}
+              </DialogTitle>
+            </div>
+            <div className="flex items-center gap-2.5 shrink-0">
+              <div className="flex items-center gap-2 bg-gradient-to-r from-amber-500/10 to-orange-500/10 px-4 py-2 rounded-xl border border-amber-500/20">
+                <div className="text-xl">🪙</div>
+                <span className="font-bold text-lg">{coinsBalance}</span>
+              </div>
+            </div>
+          </div>
           <DialogDescription className="text-base text-foreground-secondary">
             {t.flair_shop_description}
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="h-[450px] sm:h-[550px] pr-4">
+        <ScrollArea className="h-[450px] sm:h-[550px] px-4 pb-6">
           {loading ? (
             <div className="text-center py-12 space-y-4">
               <div className="w-14 h-14 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
