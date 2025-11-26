@@ -165,10 +165,6 @@ export const InstagramBottomNav = () => {
                       {item.badge >= 10 ? "9+" : item.badge}
                     </span>
                   )}
-
-                  {active && (
-                    <span className="absolute bottom-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-primary rounded-full shadow-lg shadow-primary/50" aria-hidden="true" />
-                  )}
                 </button>
               );
             })}
