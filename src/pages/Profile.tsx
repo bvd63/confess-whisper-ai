@@ -171,7 +171,6 @@ const Profile = () => {
               <h1 className="text-3xl font-bold text-foreground">
                 {t.profile_title}
               </h1>
-              <VIPBadge tier={subscriptionTier as 'free' | 'vip'} size="lg" showLabel />
             </div>
             <div className="mt-3">
               <BadgesDisplay 
