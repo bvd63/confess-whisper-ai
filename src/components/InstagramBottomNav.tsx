@@ -151,13 +151,6 @@ export const InstagramBottomNav = () => {
                         aria-hidden="true"
                       />
                     </div>
-                    {item.showVIPBadge && (
-                      <div className="absolute -top-1 -right-1" aria-label="VIP member">
-                        <div className="relative w-3 h-3 bg-vip rounded-full shadow-lg">
-                          <div className="absolute inset-0 w-3 h-3 bg-vip/60 rounded-full animate-ping" />
-                        </div>
-                      </div>
-                    )}
                   </div>
                   
                   {item.badge !== undefined && item.badge > 0 && (
