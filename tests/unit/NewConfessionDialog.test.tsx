@@ -7,6 +7,7 @@ import { renderWithProviders } from "../helpers/testUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { getAiReply } from "@/services/aiService";
 import NewConfessionDialog from "@/components/NewConfessionDialog";
+import { FREE_DAILY_CONFESSION_LIMIT } from "@/constants/confessionLimits";
 
 const toastMock = vi.fn();
 const dismissToastMock = vi.fn();
@@ -63,8 +64,8 @@ vi.mock("@/hooks/useConfessionLimits", () => ({
   useConfessionLimits: () => ({
     canPost: canPostFlag,
     currentCount: 0,
-    dailyLimit: 5,
-    remaining: 5,
+    dailyLimit: FREE_DAILY_CONFESSION_LIMIT,
+    remaining: FREE_DAILY_CONFESSION_LIMIT,
     tier: "free",
     isLoading: false,
     checkLimits: checkLimitsMock,

@@ -2611,7 +2611,7 @@ export const translations: Record<Language, Translations> = {
     subscription_error: "Could not initiate subscription process. Try again.",
     
     // Subscription Plans - New Benefits (Confession Limits)
-    plans_free_benefit_confessions: "5 confessions per day",
+    plans_free_benefit_confessions: "{limit} confessions per day",
     plans_vip_benefit_confessions: "Unlimited confessions per day",
     plans_free_benefit_basic: "Basic features",
     plans_free_benefit_ads: "Ads enabled",
@@ -4258,7 +4258,7 @@ export const translations: Record<Language, Translations> = {
     subscription_error: "No se pudo iniciar el proceso de suscripción. Inténtalo de nuevo.",
     
     // Subscription Plans - New Benefits (Confession Limits)
-    plans_free_benefit_confessions: "5 confesiones por día",
+    plans_free_benefit_confessions: "{limit} confesiones por día",
     plans_vip_benefit_confessions: "Confesiones ilimitadas por día",
     plans_free_benefit_basic: "Funciones básicas",
     plans_free_benefit_ads: "Anuncios habilitados",
@@ -6160,7 +6160,7 @@ export const translations: Record<Language, Translations> = {
     subscription_error: "Abonnementprozess konnte nicht gestartet werden. Versuche es erneut.",
     
     // Subscription Plans - New Benefits (Confession Limits)
-    plans_free_benefit_confessions: "5 Beichten pro Tag",
+    plans_free_benefit_confessions: "{limit} Beichten pro Tag",
     plans_vip_benefit_confessions: "Unbegrenzte Beichten pro Tag",
     plans_free_benefit_basic: "Grundfunktionen",
     plans_free_benefit_ads: "Werbung aktiviert",

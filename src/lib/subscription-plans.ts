@@ -1,4 +1,5 @@
 import { STRIPE_PRICE } from './stripe-config';
+import { FREE_DAILY_CONFESSION_LIMIT } from '@/constants/confessionLimits';
 
 export type BillingInterval = 'monthly' | 'yearly';
 
@@ -28,7 +29,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     priceMonthly: 0,
     stripePriceIdMonthly: '',
     benefits: [
-      '5 confessions per day',
+      `${FREE_DAILY_CONFESSION_LIMIT} confessions per day`,
       'Basic AI responses',
       'Standard support',
       'Basic badges & achievements',

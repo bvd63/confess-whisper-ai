@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "./useCurrentUser";
 import { usePremiumStatus } from "./usePremiumStatus";
 import { logError } from "@/lib/logger";
+import { FREE_DAILY_CONFESSION_LIMIT } from "@/constants/confessionLimits";
 
 interface ConfessionLimitInfo {
   canPost: boolean;
@@ -19,8 +20,8 @@ export const useConfessionLimits = () => {
   const [limitInfo, setLimitInfo] = useState<ConfessionLimitInfo>({
     canPost: true,
     currentCount: 0,
-    dailyLimit: 5,
-    remaining: 5,
+    dailyLimit: FREE_DAILY_CONFESSION_LIMIT,
+    remaining: FREE_DAILY_CONFESSION_LIMIT,
     tier: 'free',
     isLoading: true,
   });
@@ -30,8 +31,8 @@ export const useConfessionLimits = () => {
       setLimitInfo({
         canPost: false,
         currentCount: 0,
-        dailyLimit: 5,
-        remaining: 5,
+        dailyLimit: FREE_DAILY_CONFESSION_LIMIT,
+        remaining: FREE_DAILY_CONFESSION_LIMIT,
         tier: 'free',
         isLoading: false,
       });

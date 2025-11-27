@@ -1,5 +1,6 @@
 import { Check, X, Sparkles, Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FREE_DAILY_CONFESSION_LIMIT, VIP_DAILY_CONFESSION_LIMIT } from "@/constants/confessionLimits";
 
 interface Feature {
   name: Record<string, string>;
@@ -10,8 +11,18 @@ interface Feature {
 const features: Feature[] = [
   { 
     name: { en: "Daily confessions", es: "Confesiones diarias", de: "Tägliche Geständnisse" }, 
-    free: { en: "5 per day", es: "5 por día", de: "5 pro Tag" }, 
-    vip: { en: "10 per day", es: "10 por día", de: "10 pro Tag" } 
+    free: {
+      en: `${FREE_DAILY_CONFESSION_LIMIT} per day`,
+      es: `${FREE_DAILY_CONFESSION_LIMIT} por día`,
+      de: `${FREE_DAILY_CONFESSION_LIMIT} pro Tag`,
+    }, 
+    vip: VIP_DAILY_CONFESSION_LIMIT === Infinity
+      ? { en: "Unlimited", es: "Ilimitadas", de: "Unbegrenzt" }
+      : {
+          en: `${VIP_DAILY_CONFESSION_LIMIT} per day`,
+          es: `${VIP_DAILY_CONFESSION_LIMIT} por día`,
+          de: `${VIP_DAILY_CONFESSION_LIMIT} pro Tag`,
+        }
   },
   { 
     name: { en: "Anonymous posting", es: "Publicación anónima", de: "Anonyme Veröffentlichung" }, 

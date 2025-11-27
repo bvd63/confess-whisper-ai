@@ -32,6 +32,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { logError } from "@/lib/logger";
+import { FREE_DAILY_CONFESSION_LIMIT } from "@/constants/confessionLimits";
 
 interface SettingsDialogProps {
   open: boolean;
@@ -57,6 +58,11 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const [rotatingCurrent, setRotatingCurrent] = useState(false);
 
   // Get benefits list based on tier
+  const freeConfessionBenefit = t.plans_free_benefit_confessions.replace(
+    '{limit}',
+    FREE_DAILY_CONFESSION_LIMIT.toString(),
+  );
+
   const getBenefits = () => {
     if (subscriptionTier === 'vip' || isOnTrial) {
       return [
@@ -72,7 +78,7 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
       ];
     }
     return [
-      t.plans_free_benefit_confessions,
+      freeConfessionBenefit,
       t.plans_free_benefit_basic,
     ];
   };
