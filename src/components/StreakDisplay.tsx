@@ -1,4 +1,4 @@
-import { Flame, Trophy, Star } from 'lucide-react';
+import { Flame } from 'lucide-react';
 import { useStreakManager } from '@/hooks/useStreakManager';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -37,19 +37,6 @@ export const StreakDisplay = () => {
             <p className="text-2xl font-bold">
               {streakData.currentStreak} {t.days || 'days'}
             </p>
-          </div>
-        </div>
-
-        {/* Points & Level */}
-        <div className="text-right">
-          <div className="flex items-center gap-2 justify-end mb-1">
-            <Star className="w-4 h-4 text-yellow-500" />
-            <span className="text-sm font-medium">
-              {streakData.totalPoints} points
-            </span>
-          </div>
-          <div className="text-xs text-muted-foreground">
-            Level {streakData.level}
           </div>
         </div>
       </div>

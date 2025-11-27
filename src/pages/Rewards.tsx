@@ -1,4 +1,4 @@
-import { ArrowLeft, Trophy, Flame, Gift, Award, Star, Coins as CoinsIcon, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Trophy, Flame, Gift, Award, Star, Coins as CoinsIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -100,7 +100,6 @@ const Rewards = () => {
     return null;
   }
   const isVIP = subscriptionTier === 'vip';
-  const levelProgress = streakData ? streakData.totalPoints % 100 : 0;
   return <AppLayout>
       <div className="max-w-2xl mx-auto px-4 sm:px-6 pb-24">
         {/* Header */}
@@ -143,30 +142,6 @@ const Rewards = () => {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-5">
-            {/* Level & Progress Card */}
-            <Card className="p-6 bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-2xl border-background bg-safe">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="text-2xl font-bold">Level {streakData?.level || 1}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {streakData?.totalPoints || 0} Total Points
-                  </p>
-                </div>
-                <div className="p-3 bg-amber-500/20 rounded-2xl">
-                  <TrendingUp className="w-8 h-8 text-amber-500" />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Progress to Level {(streakData?.level || 1) + 1}</span>
-                  <span className="font-semibold">{levelProgress}/100</span>
-                </div>
-                <Progress value={levelProgress} className="h-2" />
-              </div>
-            </Card>
-
-
             {/* Coins Balance */}
             <CoinsDisplay userId={user.id} variant="full" />
 
