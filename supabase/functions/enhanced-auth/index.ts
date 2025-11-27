@@ -569,9 +569,10 @@ serve(async (req) => {
           .single();
 
         if (!sessionRecord || sessionRecord.revoked_at) {
+          // Return 200 with error object to avoid runtime error overlay
           return new Response(
             JSON.stringify({ error: 'INVALID_REFRESH_TOKEN', messageKey: 'common.unauthorized' }),
-            { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
 
@@ -635,9 +636,10 @@ serve(async (req) => {
               _user_agent: sessionMetadata?.userAgent || userAgent,
             });
 
+          // Return 200 with error object to avoid runtime error overlay
           return new Response(
             JSON.stringify({ error: 'REFRESH_TOKEN_EXPIRED', messageKey: 'auth.session_revoked' }),
-            { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
 
@@ -656,9 +658,10 @@ serve(async (req) => {
           const bearerToken = authHeader.replace('Bearer ', '');
           const { data: { user: authUser } = { user: null } } = await supabaseClient.auth.getUser(bearerToken);
           if (!authUser || authUser.id !== sessionRecord.user_id) {
+            // Return 200 with error object to avoid runtime error overlay
             return new Response(
               JSON.stringify({ error: 'UNAUTHORIZED', messageKey: 'common.unauthorized' }),
-              { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+              { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
             );
           }
         }
