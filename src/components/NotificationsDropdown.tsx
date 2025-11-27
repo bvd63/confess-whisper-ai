@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Bell, Heart, MessageSquare, Check, Trash2, History, BarChart3 } from "lucide-react";
+import { Bell, Heart, MessageSquare, Check, Trash2, History } from "lucide-react";
 import { analytics } from '@/lib/analytics';
 import { Button } from "@/components/ui/button";
 import {
@@ -308,18 +308,6 @@ const NotificationsDropdown = () => {
           >
             <History className="w-4 h-4 mr-2" />
             View All Notifications
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full justify-start text-sm rounded-xl hover:bg-muted/80"
-            onClick={() => {
-              navigate('/notifications/analytics');
-              setIsOpen(false);
-            }}
-          >
-            <BarChart3 className="w-4 h-4 mr-2" />
-            View Analytics
           </Button>
         </div>
 
