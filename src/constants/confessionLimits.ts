@@ -1,7 +1,7 @@
 export type SubscriptionTier = 'free' | 'vip';
 
 export const FREE_DAILY_CONFESSION_LIMIT = 5 as const;
-export const VIP_DAILY_CONFESSION_LIMIT = Infinity as const;
+export const VIP_DAILY_CONFESSION_LIMIT = Infinity;
 
 export const getDailyConfessionLimitForTier = (tier: SubscriptionTier): number =>
   tier === 'vip' ? VIP_DAILY_CONFESSION_LIMIT : FREE_DAILY_CONFESSION_LIMIT;
