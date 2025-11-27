@@ -166,27 +166,6 @@ const Rewards = () => {
               </div>
             </Card>
 
-            {/* Streak Status */}
-            {streakData && streakData.currentStreak > 0 && <Card className="p-5 bg-gradient-to-r from-orange-500/10 to-red-500/10 rounded-2xl border-background">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-orange-500/20 rounded-2xl">
-                      <Flame className="w-5 h-5 text-orange-500" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold">
-                        {streakData.currentStreak} Day Streak 🔥
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Best: {streakData.longestStreak} days
-                      </p>
-                    </div>
-                  </div>
-                  {streakData.isVIP && <div className="px-3 py-1 bg-purple-500/20 border border-purple-500/30 rounded-full">
-                      <span className="text-xs font-semibold text-purple-400">2x Rewards</span>
-                    </div>}
-                </div>
-              </Card>}
 
             {/* Coins Balance */}
             <CoinsDisplay userId={user.id} variant="full" />
