@@ -22,19 +22,27 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { logError } from '@/lib/logger';
-
 const Rewards = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
-  const { user, isLoading } = useCurrentUser();
-  const { 
-    remainingRequests, 
-    totalRequests, 
-    getRemainingTime, 
-    isLimited 
+  const {
+    t
+  } = useLanguage();
+  const {
+    user,
+    isLoading
+  } = useCurrentUser();
+  const {
+    remainingRequests,
+    totalRequests,
+    getRemainingTime,
+    isLimited
   } = useConfessionRateLimit();
-  const { streakData } = useStreakManager();
-  const { subscriptionTier } = useSubscription();
+  const {
+    streakData
+  } = useStreakManager();
+  const {
+    subscriptionTier
+  } = useSubscription();
   const [searchParams] = useSearchParams();
   const initialTab = searchParams.get('tab') || 'overview';
   const [flairsShopOpen, setFlairsShopOpen] = useState(false);
@@ -53,11 +61,12 @@ const Rewards = () => {
     const loadBadgesCount = async () => {
       if (!user?.id) return;
       try {
-        const { count } = await supabase
-          .from('user_badges')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id)
-          .or('expires_at.is.null,expires_at.gt.now()');
+        const {
+          count
+        } = await supabase.from('user_badges').select('*', {
+          count: 'exact',
+          head: true
+        }).eq('user_id', user.id).or('expires_at.is.null,expires_at.gt.now()');
         setBadgesCount(count || 0);
       } catch (error) {
         logError('Error loading badges count', error as Error);
@@ -71,11 +80,12 @@ const Rewards = () => {
     const loadReferralsCount = async () => {
       if (!user?.id) return;
       try {
-        const { count } = await supabase
-          .from('referrals')
-          .select('*', { count: 'exact', head: true })
-          .eq('referrer_user_id', user.id)
-          .eq('status', 'completed');
+        const {
+          count
+        } = await supabase.from('referrals').select('*', {
+          count: 'exact',
+          head: true
+        }).eq('referrer_user_id', user.id).eq('status', 'completed');
         setReferralsCount(count || 0);
       } catch (error) {
         logError('Error loading referrals count', error as Error);
@@ -83,35 +93,25 @@ const Rewards = () => {
     };
     loadReferralsCount();
   }, [user?.id]);
-
   if (isLoading) {
     return null;
   }
-
   if (!user) {
     return null;
   }
-
   const isVIP = subscriptionTier === 'vip';
-  const levelProgress = streakData ? (streakData.totalPoints % 100) : 0;
-
-  return (
-    <AppLayout>
+  const levelProgress = streakData ? streakData.totalPoints % 100 : 0;
+  return <AppLayout>
       <div className="max-w-2xl mx-auto px-4 sm:px-6 pb-24">
         {/* Header */}
         <div className="sticky top-0 z-10 -mx-4 sm:-mx-6 mb-6 glass-strong border-b border-border">
           <div className="flex items-center justify-between px-4 sm:px-6 py-5">
             <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate(-1)}
-                className="hover:bg-muted rounded-2xl h-12 w-12"
-              >
+              <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="hover:bg-muted rounded-2xl h-12 w-12">
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-flame to-warning flex items-center justify-center shadow-lg shadow-flame/25">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-flame to-warning flex items-center justify-center shadow-lg shadow-flame/25 text-background bg-background">
                   <Trophy className="h-5 w-5 text-white" />
                 </div>
                 <h1 className="text-2xl font-bold text-foreground">Rewards Hub</h1>
@@ -144,7 +144,7 @@ const Rewards = () => {
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-5">
             {/* Level & Progress Card */}
-            <Card className="p-6 bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/20 rounded-2xl">
+            <Card className="p-6 bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-2xl border-background bg-safe">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="text-2xl font-bold">Level {streakData?.level || 1}</h3>
@@ -167,8 +167,7 @@ const Rewards = () => {
             </Card>
 
             {/* Streak Status */}
-            {streakData && streakData.currentStreak > 0 && (
-              <Card className="p-5 bg-gradient-to-r from-orange-500/10 to-red-500/10 border-orange-500/20 rounded-2xl">
+            {streakData && streakData.currentStreak > 0 && <Card className="p-5 bg-gradient-to-r from-orange-500/10 to-red-500/10 rounded-2xl border-background">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-orange-500/20 rounded-2xl">
@@ -183,14 +182,11 @@ const Rewards = () => {
                       </p>
                     </div>
                   </div>
-                  {streakData.isVIP && (
-                    <div className="px-3 py-1 bg-purple-500/20 border border-purple-500/30 rounded-full">
+                  {streakData.isVIP && <div className="px-3 py-1 bg-purple-500/20 border border-purple-500/30 rounded-full">
                       <span className="text-xs font-semibold text-purple-400">2x Rewards</span>
-                    </div>
-                  )}
+                    </div>}
                 </div>
-              </Card>
-            )}
+              </Card>}
 
             {/* Coins Balance */}
             <CoinsDisplay userId={user.id} variant="full" />
@@ -224,12 +220,7 @@ const Rewards = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold">Your Badges</h2>
-                {isVIP && (
-                  <FlairsShopButton 
-                    onClick={() => setFlairsShopOpen(true)} 
-                    tier="vip" 
-                  />
-                )}
+                {isVIP && <FlairsShopButton onClick={() => setFlairsShopOpen(true)} tier="vip" />}
               </div>
               
               <BadgesDisplay userId={user.id} variant="full" />
@@ -247,12 +238,7 @@ const Rewards = () => {
             {/* Daily Confession Limit */}
             <div>
               <h3 className="font-semibold mb-3 text-lg">Daily Confession Limit</h3>
-              <RateLimitIndicator
-                remaining={remainingRequests}
-                total={totalRequests}
-                resetTime={getRemainingTime()}
-                isLimited={isLimited}
-              />
+              <RateLimitIndicator remaining={remainingRequests} total={totalRequests} resetTime={getRemainingTime()} isLimited={isLimited} />
             </div>
 
             {/* Info Card */}
@@ -297,16 +283,8 @@ const Rewards = () => {
         </Tabs>
 
         {/* Flairs Shop Dialog */}
-        {flairsShopOpen && (
-          <FlairsShop 
-            userId={user.id}
-            open={flairsShopOpen} 
-            onOpenChange={setFlairsShopOpen} 
-          />
-        )}
+        {flairsShopOpen && <FlairsShop userId={user.id} open={flairsShopOpen} onOpenChange={setFlairsShopOpen} />}
       </div>
-    </AppLayout>
-  );
+    </AppLayout>;
 };
-
 export default Rewards;
