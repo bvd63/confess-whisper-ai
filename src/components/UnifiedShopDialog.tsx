@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { toast } from "sonner";
-import { Loader2, Crown, Coins, Sparkles, TrendingUp, Zap } from "lucide-react";
+import { Loader2, Crown, Coins, Sparkles, TrendingUp, Zap, X } from "lucide-react";
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { logWarn, logError, logDebug } from "@/lib/logger";
@@ -258,11 +258,11 @@ export const UnifiedShopDialog = ({
         className="max-w-5xl max-h-[90vh] overflow-y-auto bg-background border-border rounded-3xl p-0"
       >
         <DialogHeader className="sticky top-0 z-10 glass-strong border-b border-border px-6 py-5">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 relative">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-primary-pressed flex items-center justify-center shadow-lg shadow-primary/25">
               <Crown className="w-5 h-5 text-white" />
             </div>
-            <div>
+            <div className="flex-1">
               <DialogTitle className="text-2xl font-bold text-foreground">
                 Subscription & Coins
               </DialogTitle>
@@ -270,6 +270,14 @@ export const UnifiedShopDialog = ({
                 Manage your subscription and purchase coins
               </p>
             </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onOpenChange(false)}
+              className="absolute right-0 top-1/2 -translate-y-1/2 h-9 w-9 rounded-xl hover:bg-muted"
+            >
+              <X className="h-5 w-5" />
+            </Button>
           </div>
         </DialogHeader>
 
