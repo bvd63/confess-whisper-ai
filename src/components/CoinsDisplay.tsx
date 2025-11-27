@@ -64,26 +64,16 @@ const CoinsDisplay = ({
   }
   return <>
       <Card className="p-4 sm:p-5 border-border/60 rounded-[18px]">
-        <div className="flex items-center gap-2 mb-4">
-          <Coins className="w-5 h-5 sm:w-6 sm:h-6 text-vip-gold" />
-          <h3 className="text-base sm:text-lg font-semibold">{t.coins_title}</h3>
-        </div>
+      <div className="flex items-center gap-2 mb-4">
+        <Coins className="w-5 h-5 sm:w-6 sm:h-6 text-vip-gold" />
+        <h3 className="text-base sm:text-lg font-semibold">{t.coins_title}</h3>
+      </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
-          <div className="text-center p-3 sm:p-4 bg-vip-gold/10 dark:bg-vip-gold/15 rounded-[16px] border border-vip-gold/20">
-            <Coins className="w-5 h-5 sm:w-6 sm:h-6 text-vip-gold mx-auto mb-2" />
-            <p className="text-2xl sm:text-3xl font-bold text-vip-gold">
-              {balance}
-            </p>
-            <p className="text-xs sm:text-sm text-foreground-muted mt-1">{t.coins_current_balance}</p>
-          </div>
-
-          <div className="text-center p-3 sm:p-4 bg-primary/10 dark:bg-primary/15 rounded-[16px] border border-primary/20">
-            <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-2" />
-            <p className="text-2xl sm:text-3xl font-bold text-primary">{lifetimeEarned}</p>
-            <p className="text-xs sm:text-sm text-foreground-muted mt-1">{t.coins_total_earned}</p>
-          </div>
-        </div>
+      <div className="text-center p-4 sm:p-5 bg-primary/10 dark:bg-primary/15 rounded-[16px] border border-primary/20">
+        <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 text-primary mx-auto mb-3" />
+        <p className="text-3xl sm:text-4xl font-bold text-primary">{lifetimeEarned}</p>
+        <p className="text-sm sm:text-base text-foreground-muted mt-2">{t.coins_total_earned}</p>
+      </div>
 
         <Button 
           onClick={handleShowHistory} 
