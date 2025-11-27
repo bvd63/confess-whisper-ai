@@ -263,14 +263,14 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
               size="sm"
               onClick={handleBoostConfession}
               disabled={isBoostLoading}
-              className="gap-2 h-11 px-5 rounded-[22px] bg-gradient-to-br from-orange-500/15 via-orange-600/10 to-red-500/15 hover:from-orange-500/25 hover:via-orange-600/20 hover:to-red-500/25 border border-orange-400/30 hover:border-orange-400/50 shadow-lg shadow-orange-500/20 hover:shadow-xl hover:shadow-orange-500/30 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 backdrop-blur-sm"
+              className="gap-1.5 text-xs h-9 px-3 rounded-xl hover:bg-orange-500/10 transition-colors disabled:opacity-50"
             >
               {isBoostLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin text-orange-500 drop-shadow-sm" />
+                <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
               ) : (
-                <Rocket className="w-5 h-5 text-orange-500 drop-shadow-sm animate-pulse" />
+                <Rocket className="w-4 h-4 text-orange-500" />
               )}
-              <span className="hidden sm:inline font-semibold text-[15px] bg-gradient-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400 bg-clip-text text-transparent drop-shadow-sm">
+              <span className="hidden sm:inline font-medium">
                 {isBoostLoading ? t.processing : t.boost_confession}
               </span>
             </Button>
