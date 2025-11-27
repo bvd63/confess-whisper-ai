@@ -298,7 +298,7 @@ Backend (Lovable Cloud):
 - Security event logging
 
 ✅ **Subscriptions**
-- Free tier (3 confessions/day)
+- Free tier (5 confessions/day)
 - VIP tier (unlimited + bonuses)
 - Monthly/yearly billing
 - Stripe Customer Portal

@@ -63,8 +63,8 @@ vi.mock("@/hooks/useConfessionLimits", () => ({
   useConfessionLimits: () => ({
     canPost: canPostFlag,
     currentCount: 0,
-    dailyLimit: 3,
-    remaining: 3,
+    dailyLimit: 5,
+    remaining: 5,
     tier: "free",
     isLoading: false,
     checkLimits: checkLimitsMock,

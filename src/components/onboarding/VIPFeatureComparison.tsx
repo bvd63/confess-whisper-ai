@@ -10,7 +10,7 @@ interface Feature {
 const features: Feature[] = [
   { 
     name: { en: "Daily confessions", es: "Confesiones diarias", de: "Tägliche Geständnisse" }, 
-    free: { en: "3 per day", es: "3 por día", de: "3 pro Tag" }, 
+    free: { en: "5 per day", es: "5 por día", de: "5 pro Tag" }, 
     vip: { en: "10 per day", es: "10 por día", de: "10 pro Tag" } 
   },
   { 

@@ -19,8 +19,8 @@ export const useConfessionLimits = () => {
   const [limitInfo, setLimitInfo] = useState<ConfessionLimitInfo>({
     canPost: true,
     currentCount: 0,
-    dailyLimit: 3,
-    remaining: 3,
+    dailyLimit: 5,
+    remaining: 5,
     tier: 'free',
     isLoading: true,
   });
@@ -30,8 +30,8 @@ export const useConfessionLimits = () => {
       setLimitInfo({
         canPost: false,
         currentCount: 0,
-        dailyLimit: 3,
-        remaining: 3,
+        dailyLimit: 5,
+        remaining: 5,
         tier: 'free',
         isLoading: false,
       });

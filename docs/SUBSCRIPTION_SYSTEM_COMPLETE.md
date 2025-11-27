@@ -24,7 +24,7 @@ User → Frontend Component → Edge Function → Stripe API → Webhook → Dat
 ```
 
 ### Three-Tier System
-- **Free**: 3 confessions/day, basic features, ads
+- **Free**: 5 confessions/day, basic features, ads
 - **Premium**: 10 confessions/day, no ads, advanced analytics ($4.99/mo or $39.99/yr)
 - **VIP**: Unlimited confessions, all premium features, priority support ($9.99/mo or $79.99/yr)
 

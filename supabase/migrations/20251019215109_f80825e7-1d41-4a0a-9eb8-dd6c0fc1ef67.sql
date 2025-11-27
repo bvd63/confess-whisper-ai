@@ -102,10 +102,10 @@ BEGIN
   
   -- Determine limit based on tier
   CASE v_tier
-    WHEN 'free' THEN v_limit := 3;
+    WHEN 'free' THEN v_limit := 5;
     WHEN 'premium' THEN v_limit := 10;
     WHEN 'vip' THEN v_limit := -1; -- unlimited
-    ELSE v_limit := 3;
+    ELSE v_limit := 5;
   END CASE;
   
   -- Check if can post

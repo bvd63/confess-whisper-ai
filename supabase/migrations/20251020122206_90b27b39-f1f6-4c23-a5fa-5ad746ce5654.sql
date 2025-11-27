@@ -30,10 +30,10 @@ BEGIN
   END IF;
   
   CASE v_tier
-    WHEN 'free' THEN v_limit := 3;
+    WHEN 'free' THEN v_limit := 5;
     WHEN 'premium' THEN v_limit := 10;
     WHEN 'vip' THEN v_limit := -1;
-    ELSE v_limit := 3;
+    ELSE v_limit := 5;
   END CASE;
   
   IF v_limit = -1 THEN
