@@ -9,9 +9,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import AppLayout from '@/components/AppLayout';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { StreakDisplay } from '@/components/StreakDisplay';
-import { RateLimitIndicator } from '@/components/RateLimitIndicator';
-import { useConfessionRateLimit } from '@/hooks/useConfessionRateLimit';
 import { useStreakManager } from '@/hooks/useStreakManager';
+import { useConfessionLimits } from '@/hooks/useConfessionLimits';
 import ReferralSystem from '@/components/ReferralSystem';
 import BadgesDisplay from '@/components/BadgesDisplay';
 import { FlairsShopButton } from '@/components/FlairsShopButton';
@@ -32,11 +31,12 @@ const Rewards = () => {
     isLoading
   } = useCurrentUser();
   const {
-    remainingRequests,
-    totalRequests,
-    getRemainingTime,
-    isLimited
-  } = useConfessionRateLimit();
+    canPost,
+    currentCount,
+    dailyLimit,
+    remaining,
+    tier
+  } = useConfessionLimits();
   const {
     streakData
   } = useStreakManager();
@@ -238,7 +238,27 @@ const Rewards = () => {
             {/* Daily Confession Limit */}
             <div>
               <h3 className="font-semibold mb-3 text-lg">Daily Confession Limit</h3>
-              <RateLimitIndicator remaining={remainingRequests} total={totalRequests} resetTime={getRemainingTime()} isLimited={isLimited} />
+              <div className="p-5 rounded-2xl border bg-card">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {tier === 'vip' ? 'Unlimited' : 'Confessions Today'}
+                  </span>
+                  <span className="text-sm font-semibold">
+                    {tier === 'vip' ? '∞' : `${currentCount}/${dailyLimit}`}
+                  </span>
+                </div>
+                {tier !== 'vip' && (
+                  <Progress 
+                    value={(currentCount / dailyLimit) * 100} 
+                    className="h-2"
+                  />
+                )}
+                <p className="text-xs text-muted-foreground mt-3">
+                  {tier === 'vip' 
+                    ? 'As a VIP member, you have unlimited confessions!' 
+                    : `You have ${remaining} confession${remaining !== 1 ? 's' : ''} remaining today.`}
+                </p>
+              </div>
             </div>
 
             {/* Info Card */}

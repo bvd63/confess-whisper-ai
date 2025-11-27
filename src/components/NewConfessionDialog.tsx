@@ -586,7 +586,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
             />
             <EnhancedButton
               onClick={handleSubmit}
-              disabled={isSubmitting || !content.trim()}
+              disabled={isSubmitting || !content.trim() || !canPost || (dailyLimit !== Infinity && remaining === 0)}
               className="w-full rounded-xl h-11"
               glow
               shine
