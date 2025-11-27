@@ -190,29 +190,7 @@ const Profile = () => {
             >
               <Settings className="h-5 w-5 text-foreground-muted hover:text-foreground transition-colors" />
             </Button>
-            {profileData?.stripe_subscription_id && (
-              <Button
-                onClick={async () => {
-                  const { data, error } = await supabase.functions.invoke('fix-subscription-sync');
-                  if (error) throw error;
-                  if (data?.success) {
-                    toast({
-                      title: "Subscription Synced",
-                      description: data.message
-                    });
-                    setTimeout(() => window.location.reload(), 1500);
-                  }
-                }}
-                variant="ghost"
-                size="sm"
-                className="h-12 w-12 p-0 hover:bg-muted rounded-2xl"
-                aria-label="Sync Subscription"
-                title="Sync Subscription"
-              >
-                <RefreshCw className="h-5 w-5 text-foreground-muted hover:text-foreground transition-colors" />
-              </Button>
-            )}
-            <Button 
+            <Button
               onClick={async () => {
                 await supabase.auth.signOut();
                 navigate('/');
