@@ -255,15 +255,15 @@ export const UnifiedShopDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
         data-testid="manage-subscription-modal"
-        className="w-full max-w-[min(100vw-24px,1120px)] max-h-[90vh] overflow-y-auto bg-background border-border rounded-3xl p-0"
+        className="max-w-5xl max-h-[90vh] overflow-y-auto bg-background border-border rounded-3xl p-0"
       >
-        <DialogHeader className="sticky top-0 z-10 glass-strong border-b border-border pl-4 sm:pl-6 pr-14 sm:pr-20 py-5">
-          <div className="flex flex-wrap items-center gap-3">
+        <DialogHeader className="sticky top-0 z-10 glass-strong border-b border-border px-6 py-5">
+          <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-primary-pressed flex items-center justify-center shadow-lg shadow-primary/25">
               <Crown className="w-5 h-5 text-white" />
             </div>
-            <div className="min-w-0">
-              <DialogTitle className="text-2xl font-bold text-foreground truncate">
+            <div>
+              <DialogTitle className="text-2xl font-bold text-foreground">
                 Subscription & Coins
               </DialogTitle>
               <p className="text-sm text-foreground-secondary mt-0.5">
@@ -273,7 +273,7 @@ export const UnifiedShopDialog = ({
           </div>
         </DialogHeader>
 
-        <div className="px-4 sm:px-6 py-6">
+        <div className="px-6 py-6">
           <Tabs key={`${open}-${defaultTab}`} defaultValue={defaultTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-8 h-14 rounded-2xl bg-muted p-1.5 gap-1.5">
               <TabsTrigger value="subscriptions" className="flex items-center gap-2 text-sm rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg font-semibold">

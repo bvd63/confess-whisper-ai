@@ -5,7 +5,6 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 import { TrendingUp, Calendar, Heart, MessageSquare } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { logError } from "@/lib/logger";
-import { buildConfessionColumns } from "@/integrations/supabase/columnSets";
 interface AdvancedAnalyticsProps {
   userId: string;
 }
@@ -28,10 +27,7 @@ const AdvancedAnalytics = ({
       // Get confessions
       const {
         data: confessions
-      } = await supabase
-        .from('confessions')
-        .select(buildConfessionColumns(['category', 'likes_count', 'comments_count', 'created_at']))
-        .eq('user_id', userId);
+      } = await supabase.from('confessions').select('*').eq('user_id', userId);
       if (!confessions) return;
 
       // Category distribution

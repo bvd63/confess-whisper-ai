@@ -9,7 +9,6 @@ import ConfessionSkeleton from "@/components/ConfessionSkeleton";
 import EmptyState from "@/components/EmptyState";
 import AppLayout from "@/components/AppLayout";
 import { supabase } from "@/integrations/supabase/client";
-import { CONFESSION_FEED_COLUMNS } from "@/integrations/supabase/columnSets";
 import { useToast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
@@ -87,7 +86,7 @@ const Bookmarks = () => {
       // Get the confessions
       const { data: confessionsData, error: confessionsError } = await supabase
         .from('confessions')
-        .select(CONFESSION_FEED_COLUMNS)
+        .select('*')
         .in('id', confessionIds);
 
       if (confessionsError) throw confessionsError;

@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { UserDisplayName } from "./UserDisplayName";
 import { logError } from "@/lib/logger";
-import { MESSAGE_MIN_COLUMNS } from "@/integrations/supabase/columnSets";
 
 interface Message {
   id: string;
@@ -75,7 +74,7 @@ export const MessageThread = ({
     try {
       const { data, error } = await supabase
         .from('messages')
-        .select(MESSAGE_MIN_COLUMNS)
+        .select('*')
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
 

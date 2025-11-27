@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { CONFESSION_LOCATION_COLUMNS } from "@/integrations/supabase/columnSets";
 import { Geolocation } from "@capacitor/geolocation";
 
 interface NearbyConfessionsOptions {
@@ -30,7 +29,7 @@ export const useNearbyConfessions = (options: NearbyConfessionsOptions = {}) => 
 
       const { data, error } = await supabase
         .from('confessions')
-        .select(CONFESSION_LOCATION_COLUMNS)
+        .select('*')
         .eq('location_enabled', true)
         .eq('moderation_status', 'approved')
         .eq('is_draft', false)

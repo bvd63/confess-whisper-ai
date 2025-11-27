@@ -25,7 +25,6 @@ import { AdvancedFilters, FilterState } from "@/components/AdvancedFilters";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Loader2 } from "lucide-react";
 import VirtualizedConfessions from "@/components/VirtualizedConfessions";
-import { CONFESSION_FEED_COLUMNS } from "@/integrations/supabase/columnSets";
 // Communities feature disabled
 // import { CommunitiesSectionExpanded } from "@/components/CommunitiesSectionExpanded";
 
@@ -68,7 +67,7 @@ const Explore = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("confessions")
-        .select(CONFESSION_FEED_COLUMNS)
+        .select("*")
         .eq("moderation_status", "approved")
         .order("created_at", { ascending: false })
         .limit(20);
@@ -83,7 +82,7 @@ const Explore = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("confessions")
-        .select(CONFESSION_FEED_COLUMNS)
+        .select("*")
         .eq("moderation_status", "approved")
         .order("likes_count", { ascending: false })
         .limit(20);

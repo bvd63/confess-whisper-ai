@@ -6,7 +6,6 @@
 import { logInfo, logError } from '@/lib/logger';
 import { persistenceManager } from './persistenceManager';
 import { supabase } from '@/integrations/supabase/client';
-import { MESSAGE_MIN_COLUMNS } from '@/integrations/supabase/columnSets';
 
 interface ValidationResult {
   isValid: boolean;
@@ -78,7 +77,7 @@ class DataValidator {
     try {
       const { data: message, error } = await supabase
         .from('messages')
-        .select(MESSAGE_MIN_COLUMNS)
+        .select('*')
         .eq('id', messageId)
         .single();
 
