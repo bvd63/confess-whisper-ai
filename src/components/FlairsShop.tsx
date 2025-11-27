@@ -57,38 +57,23 @@ export const FlairsShop = ({
     balance: coinsBalance,
     refetch: refetchCoins
   } = useCoins(userId);
-
   const loadData = useCallback(async (retryCount = 0) => {
-    setLoading((prev) => (hasLoaded ? prev : true));
+    setLoading(prev => hasLoaded ? prev : true);
     setError(null);
-
     try {
-      const profilePromise = supabase
-        .from('profiles')
-        .select('subscription_tier, trial_active, trial_premium_ends_at')
-        .eq('user_id', userId)
-        .maybeSingle();
-
-      const flairsPromise = supabase
-        .from('profile_flairs')
-        .select('*')
-        .eq('is_active', true)
-        .order('cost', { ascending: true });
-
-      const userFlairsPromise = supabase
-        .from('user_flairs')
-        .select('id, flair_id, is_equipped, expires_at, acquired_at, purchase_scope, last_equipped_at')
-        .eq('user_id', userId);
-
-      const [profileRes, flairsRes, userFlairsRes] = await Promise.allSettled([
-        profilePromise,
-        flairsPromise,
-        userFlairsPromise,
-      ]);
+      const profilePromise = supabase.from('profiles').select('subscription_tier, trial_active, trial_premium_ends_at').eq('user_id', userId).maybeSingle();
+      const flairsPromise = supabase.from('profile_flairs').select('*').eq('is_active', true).order('cost', {
+        ascending: true
+      });
+      const userFlairsPromise = supabase.from('user_flairs').select('id, flair_id, is_equipped, expires_at, acquired_at, purchase_scope, last_equipped_at').eq('user_id', userId);
+      const [profileRes, flairsRes, userFlairsRes] = await Promise.allSettled([profilePromise, flairsPromise, userFlairsPromise]);
 
       // Profile tier
       if (profileRes.status === 'fulfilled') {
-        const { data: profile, error: profileError } = profileRes.value as any;
+        const {
+          data: profile,
+          error: profileError
+        } = profileRes.value as any;
         if (profileError) logError('Profile error', profileError);
         const tier = (profile?.subscription_tier || 'free') as 'free' | 'vip';
         setUserTier(tier);
@@ -98,7 +83,10 @@ export const FlairsShop = ({
 
       // Flairs list
       if (flairsRes.status === 'fulfilled') {
-        const { data: flairsData, error: flairsError } = flairsRes.value as any;
+        const {
+          data: flairsData,
+          error: flairsError
+        } = flairsRes.value as any;
         if (flairsError) {
           logError('Flairs error', flairsError);
           throw flairsError;
@@ -111,7 +99,10 @@ export const FlairsShop = ({
 
       // User flairs
       if (userFlairsRes.status === 'fulfilled') {
-        const { data: userFlairsData, error: userFlairsError } = userFlairsRes.value as any;
+        const {
+          data: userFlairsData,
+          error: userFlairsError
+        } = userFlairsRes.value as any;
         if (userFlairsError) logError('User flairs error', userFlairsError);
         setUserFlairs(userFlairsData || []);
       } else {
@@ -134,7 +125,6 @@ export const FlairsShop = ({
       setLoading(false);
     }
   }, [userId, refetchCoins, hasLoaded]);
-
   useEffect(() => {
     if (open) {
       setHasLoaded(false);
@@ -147,36 +137,28 @@ export const FlairsShop = ({
   // Real-time listener for user_flairs updates
   useEffect(() => {
     if (!userId || !open) return;
-
-    const channel = supabase
-      .channel(`user-flairs-${userId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'user_flairs',
-          filter: `user_id=eq.${userId}`,
-        },
-        (payload) => {
-          logDebug('[FlairsShop] Real-time update', payload);
-          loadData();
-        }
-      )
-      .subscribe();
-
+    const channel = supabase.channel(`user-flairs-${userId}`).on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'user_flairs',
+      filter: `user_id=eq.${userId}`
+    }, payload => {
+      logDebug('[FlairsShop] Real-time update', payload);
+      loadData();
+    }).subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
     // Intenționat nu includem loadData în deps pentru a evita buclele
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, open]);
-
   const handlePurchase = async (flair: Flair) => {
     setPurchasing(flair.id);
     try {
-      logDebug('[FlairsShop] Purchasing flair', { flairId: flair.id, nameKey: flair.name_key });
-      
+      logDebug('[FlairsShop] Purchasing flair', {
+        flairId: flair.id,
+        nameKey: flair.name_key
+      });
       const {
         data,
         error
@@ -186,9 +168,10 @@ export const FlairsShop = ({
           equip: true
         }
       });
-      
-      logDebug('[FlairsShop] Purchase response', { data, error });
-      
+      logDebug('[FlairsShop] Purchase response', {
+        data,
+        error
+      });
       if (error) throw error;
       if (data?.error) {
         logError('[FlairsShop] Purchase error from function', data.error);
@@ -226,11 +209,9 @@ export const FlairsShop = ({
     const lastEquipped = new Date(userFlair.last_equipped_at);
     return new Date(lastEquipped.getTime() + 5 * 24 * 60 * 60 * 1000); // 5 days
   };
-
   const getCooldownRemaining = (flairId: string) => {
     const end = getCooldownEnd(flairId);
     if (!end) return null;
-
     const now = new Date();
     if (now < end) {
       const msRemaining = end.getTime() - now.getTime();
@@ -239,7 +220,6 @@ export const FlairsShop = ({
     }
     return null;
   };
-
   const handleEquip = async (userFlairId: string) => {
     try {
       // Prevent equipping flairs above current subscription tier
@@ -253,7 +233,6 @@ export const FlairsShop = ({
         });
         return;
       }
-
 
       // Unequip all first (also unfeaturing them)
       await supabase.from('user_flairs').update({
@@ -273,7 +252,6 @@ export const FlairsShop = ({
         is_public: true,
         last_equipped_at: new Date().toISOString()
       };
-
       const {
         error
       } = await supabase.from('user_flairs').update(updateData).eq('id', userFlairId);
@@ -339,11 +317,11 @@ export const FlairsShop = ({
     const userFlair = userFlairs.find(uf => uf.flair_id === flair.id);
     const canBuy = canPurchase(flair);
     const isLocked = !canBuy;
-    
+
     // Only show cooldown for active (non-expired) flairs that were unequipped
-    const cooldownDays = (!expired && owned) ? getCooldownRemaining(flair.id) : null;
+    const cooldownDays = !expired && owned ? getCooldownRemaining(flair.id) : null;
     const onCooldown = cooldownDays !== null;
-    const cooldownEnd = (!expired && owned) ? getCooldownEnd(flair.id) : null;
+    const cooldownEnd = !expired && owned ? getCooldownEnd(flair.id) : null;
     return <Card key={flair.id} className={`p-6 flex flex-col items-center gap-4 relative hover:scale-105 transition-all duration-200 rounded-2xl border-2 ${equipped ? 'border-primary/50 shadow-elegant bg-primary/5' : 'border-border/50'} ${isLocked ? 'opacity-60' : ''}`}>
         {isLocked && <div className="absolute top-3 left-3">
             <Lock className="w-5 h-5 text-muted-foreground" />
@@ -359,13 +337,9 @@ export const FlairsShop = ({
               {t.subscription_plan_vip} {t.required}
             </Badge>}
 
-          {owned && !onCooldown && userFlair?.expires_at && (
-            <ExpiryTimer expiresAt={userFlair.expires_at} className="text-[10px]" showIcon={false} />
-          )}
+          {owned && !onCooldown && userFlair?.expires_at && <ExpiryTimer expiresAt={userFlair.expires_at} className="text-[10px]" showIcon={false} />}
 
-          {onCooldown && cooldownEnd && (
-            <ExpiryTimer expiresAt={cooldownEnd.toISOString()} className="text-[10px]" showIcon={false} />
-          )}
+          {onCooldown && cooldownEnd && <ExpiryTimer expiresAt={cooldownEnd.toISOString()} className="text-[10px]" showIcon={false} />}
 
           {!owned && !expired && !isLocked && <p className="text-[10px] text-muted-foreground text-center">
               {t.shop_expires_in.replace('{days}', '5')}
@@ -377,38 +351,21 @@ export const FlairsShop = ({
           <span className="text-base font-bold">{flair.cost}</span>
         </div>
 
-        {owned && !expired ? (
-          equipped ? (
-            <Button size="lg" variant="outline" disabled className="w-full gap-2 rounded-xl h-12">
+        {owned && !expired ? equipped ? <Button size="lg" variant="outline" disabled className="w-full gap-2 rounded-xl h-12">
               <Check className="w-5 h-5" />
               <span className="font-semibold">{t.equipped}</span>
-            </Button>
-          ) : isLocked ? (
-            <Button size="sm" disabled className="w-full gap-1.5 rounded-xl" variant="outline">
+            </Button> : isLocked ? <Button size="sm" disabled className="w-full gap-1.5 rounded-xl" variant="outline">
               <Lock className="w-4 h-4" />
               <span className="font-medium">{t.upgrade_required}</span>
-            </Button>
-          ) : (
-            <Button size="sm" variant="outline" onClick={() => handleEquip(userFlair!.id)} className="w-full gap-1.5 rounded-xl hover:bg-primary hover:text-primary-foreground">
+            </Button> : <Button size="sm" variant="outline" onClick={() => handleEquip(userFlair!.id)} className="w-full gap-1.5 rounded-xl hover:bg-primary hover:text-primary-foreground">
               <span className="font-medium">{t.equip}</span>
-            </Button>
-          )
-        ) : isLocked ? (
-          <Button size="sm" disabled className="w-full gap-1.5 rounded-xl" variant="outline">
+            </Button> : isLocked ? <Button size="sm" disabled className="w-full gap-1.5 rounded-xl" variant="outline">
             <Lock className="w-4 h-4" />
             <span className="font-medium">{t.upgrade_required}</span>
-          </Button>
-        ) : (
-          <Button 
-            size="sm" 
-            onClick={() => handlePurchase(flair)} 
-            disabled={purchasing === flair.id || coinsBalance < flair.cost} 
-            className="w-full gap-1.5 rounded-xl font-medium"
-          >
+          </Button> : <Button size="sm" onClick={() => handlePurchase(flair)} disabled={purchasing === flair.id || coinsBalance < flair.cost} className="w-full gap-1.5 rounded-xl font-medium">
             <Coins className="w-4 h-4" />
             {flair.cost}
-          </Button>
-        )}
+          </Button>}
       </Card>;
   };
   return <Dialog open={open} onOpenChange={onOpenChange}>
@@ -419,7 +376,7 @@ export const FlairsShop = ({
               <div className="text-3xl">✨</div>
               <span className="font-bold">{t.flairs_shop}</span>
             </span>
-            <span className="flex items-center gap-2.5 bg-gradient-to-r from-amber-500/10 to-orange-500/10 px-4 py-2 rounded-xl border border-amber-500/20">
+            <span className="flex items-center gap-2.5 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-xl border border-amber-500/20 mx-[55px] my-0 px-[11px] py-0 font-sans text-left bg-slate-950">
               <div className="text-xl">🪙</div>
               <span className="font-bold text-lg">{coinsBalance}</span>
             </span>
@@ -430,25 +387,15 @@ export const FlairsShop = ({
         </DialogHeader>
 
         <ScrollArea className="h-[450px] sm:h-[550px] pr-4">
-          {loading ? (
-            <div className="text-center py-12 space-y-4">
+          {loading ? <div className="text-center py-12 space-y-4">
               <div className="w-14 h-14 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
               <p className="text-muted-foreground text-sm font-medium">{t.loading}</p>
-            </div>
-          ) : error ? (
-            <div className="text-center py-12 space-y-5">
+            </div> : error ? <div className="text-center py-12 space-y-5">
               <p className="text-destructive text-sm">{error}</p>
-              <Button 
-                onClick={() => loadData()} 
-                variant="outline"
-                size="sm"
-                className="rounded-xl"
-              >
+              <Button onClick={() => loadData()} variant="outline" size="sm" className="rounded-xl">
                 Try Again
               </Button>
-            </div>
-          ) : (
-            <Accordion type="multiple" defaultValue={["free", "vip"]} className="w-full space-y-3">
+            </div> : <Accordion type="multiple" defaultValue={["free", "vip"]} className="w-full space-y-3">
               {showFree && freeFlairs.length > 0 && <AccordionItem value="free" className="border rounded-2xl px-4 bg-card">
                   <AccordionTrigger className="hover:no-underline py-5">
                     <div className="flex items-center gap-2.5">
@@ -478,8 +425,7 @@ export const FlairsShop = ({
                     </div>
                   </AccordionContent>
                 </AccordionItem>}
-            </Accordion>
-          )}
+            </Accordion>}
 
           {!loading && !error && flairs.length === 0 && <div className="text-center py-8 text-muted-foreground">{t.shop_empty}</div>}
         </ScrollArea>
