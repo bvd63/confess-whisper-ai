@@ -12,7 +12,7 @@ import { logInfo, logDebug } from "@/lib/logger";
 export const UpdatePrompt = () => {
   const [showPrompt, setShowPrompt] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [autoReloadCountdown, setAutoReloadCountdown] = useState(1);
+  const [autoReloadCountdown, setAutoReloadCountdown] = useState(0);
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -76,9 +76,9 @@ export const UpdatePrompt = () => {
       });
     }
 
-    // Check on mount, on page visibility change, and every 1 second for instant real-time updates
+    // Check on mount, on page visibility change, and every 500ms for instant real-time updates
     checkForUpdates();
-    const interval = setInterval(checkForUpdates, 1 * 1000);
+    const interval = setInterval(checkForUpdates, 500);
 
     // Check when user returns to tab
     const handleVisibilityChange = () => {
@@ -111,22 +111,17 @@ export const UpdatePrompt = () => {
     setTimeout(() => setShowPrompt(false), 300);
   };
 
-  // Auto-reload countdown after 1 second for instant updates
+  // Instant auto-reload - no countdown, reload immediately
   useEffect(() => {
     if (!showPrompt) return;
 
-    const countdownInterval = setInterval(() => {
-      setAutoReloadCountdown((prev) => {
-        if (prev <= 1) {
-          handleRefresh();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    // Reload immediately when update is detected
+    const immediateReload = setTimeout(() => {
+      handleRefresh();
+    }, 100);
 
-    return () => clearInterval(countdownInterval);
-  }, [showPrompt, handleRefresh]);
+    return () => clearTimeout(immediateReload);
+  }, [showPrompt]);
 
   if (!showPrompt) return null;
 
@@ -147,8 +142,8 @@ export const UpdatePrompt = () => {
             <p className="text-xs text-muted-foreground mb-3">
               {t.update_available_description}
             </p>
-            <p className="text-xs text-muted-foreground/60 mb-2">
-              {t.auto_refresh_in.replace('{seconds}', autoReloadCountdown.toString())}
+            <p className="text-xs text-primary/80 font-medium mb-2">
+              ✨ Reloading now for instant updates...
             </p>
             <div className="flex items-center gap-2">
               <Button

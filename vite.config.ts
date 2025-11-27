@@ -49,23 +49,10 @@ export default defineConfig(({ mode }) => ({
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
-        globPatterns: mode === 'development' ? [] : ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globPatterns: [], // Disable all caching - always fetch fresh
         navigateFallbackDenylist: [/^\/version\.json/],
         cacheId: `confessai-${Date.now()}`,
-        runtimeCaching: mode === 'development' ? [] : [
-          {
-            urlPattern: /^https:\/\/fxwvlbopvnjjjrzshqvw\.supabase\.co\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'supabase-cache',
-              networkTimeoutSeconds: 3,
-              expiration: {
-                maxEntries: 30,
-                maxAgeSeconds: 60 * 30 // 30 minutes
-              }
-            }
-          }
-        ]
+        runtimeCaching: [] // Disable all runtime caching for instant updates
       }
     })
   ].filter(Boolean),
