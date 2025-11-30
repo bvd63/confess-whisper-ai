@@ -85,8 +85,13 @@ const ConfessionFeed = memo(({
   }
 
   return (
-    <div className="space-y-4">
-      {confessions.map((confession) => (
+    <div className="space-y-5">
+      {confessions.map((confession, index) => (
+        <div 
+          key={confession.id}
+          className="animate-fade-in"
+          style={{ animationDelay: `${index * 0.05}s` }}
+        >
         <ConfessionCard
           key={confession.id}
           confession={confession}
@@ -100,6 +105,7 @@ const ConfessionFeed = memo(({
           onCommentChange={onCommentChange}
           onBookmarkChange={onBookmarkChange}
         />
+        </div>
       ))}
     </div>
   );

@@ -174,9 +174,9 @@ const Index = () => {
       >
         {/* Premium Header Pill */}
         {user && (
-          <div className="sticky top-0 z-40 glass-strong border-b border-border/50 backdrop-blur-xl">
+          <div className="sticky top-0 z-40 glass-strong border-b border-border/30 backdrop-blur-xl animate-fade-in">
             <div className="max-w-2xl mx-auto px-4 py-3">
-              <div className="flex items-center justify-between gap-4 px-6 py-3 rounded-full bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 border border-primary/20 shadow-lg shadow-primary/10">
+              <div className="flex items-center justify-between gap-4 px-6 py-3 rounded-full bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 border border-primary/20 shadow-lg shadow-primary/10 transition-all duration-300 hover:shadow-xl hover:shadow-primary/20">
                 <h1 className="text-lg font-bold text-foreground">
                   Confess<span className="text-primary">AI</span>
                 </h1>
@@ -196,9 +196,9 @@ const Index = () => {
         )}
 
         {/* Feed Container */}
-        <div className="max-w-2xl mx-auto px-4 py-6">
+        <div className="max-w-2xl mx-auto px-4 py-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
           {/* Section Title */}
-          <h2 className="text-lg font-bold text-foreground mb-4 px-2">
+          <h2 className="text-lg font-bold text-foreground mb-5 px-2">
             {t.popular_confessions}
           </h2>
 
