@@ -24,11 +24,14 @@ export const ExpiryTimer = ({ expiresAt, className, showIcon = true }: ExpiryTim
     );
   }
 
+  // Calculate total hours instead of showing days separately
+  const totalHours = (days * 24) + hours;
+  
   return (
     <div className={cn("flex items-center gap-1 text-muted-foreground text-xs", className)}>
       {showIcon && <Clock className="w-3 h-3" />}
       <span>
-        {t.badge_expires_in}: {days}d {hours}h
+        {t.badge_expires_in}: {totalHours}h
       </span>
     </div>
   );
