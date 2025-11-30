@@ -83,11 +83,35 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
       return;
     }
 
+    // Store previous state for rollback on error
+    const previousUserReactions = new Set(userReactions);
+    const previousReactionCounts = { ...reactionCounts };
+
+    // Optimistic update: immediately update UI
+    const newUserReactions = new Set(userReactions);
+    const newReactionCounts = { ...reactionCounts };
+
+    if (userReactions.has(reactionType)) {
+      // Removing reaction
+      newUserReactions.delete(reactionType);
+      newReactionCounts[reactionType] = Math.max(0, (newReactionCounts[reactionType] || 0) - 1);
+    } else {
+      // Changing/adding reaction: remove old one, add new one
+      userReactions.forEach(oldType => {
+        newUserReactions.delete(oldType);
+        newReactionCounts[oldType] = Math.max(0, (newReactionCounts[oldType] || 0) - 1);
+      });
+      newUserReactions.add(reactionType);
+      newReactionCounts[reactionType] = (newReactionCounts[reactionType] || 0) + 1;
+    }
+
+    setUserReactions(newUserReactions);
+    setReactionCounts(newReactionCounts);
     setIsLoading(true);
 
     try {
       // If clicking on already selected reaction, remove it
-      if (userReactions.has(reactionType)) {
+      if (previousUserReactions.has(reactionType)) {
         const { error } = await supabase
           .from('confession_reactions')
           .delete()
@@ -118,6 +142,10 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
         if (insertError) throw insertError;
       }
     } catch (error) {
+      // Revert optimistic update on error
+      setUserReactions(previousUserReactions);
+      setReactionCounts(previousReactionCounts);
+      
       logError('Error toggling reaction', error as Error);
       toast({
         title: t.common_error,
@@ -130,32 +158,38 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
   };
 
   return (
-    <div className="flex flex-wrap gap-1 sm:gap-1.5">
-      {reactions.map(({ type, emoji, label, color }) => {
+    <div className="flex flex-wrap gap-2">
+      {reactions.map(({ type, emoji, label }) => {
         const count = reactionCounts[type] || 0;
         const isActive = userReactions.has(type);
         const displayCount = count > 99 ? '99+' : count;
 
         return (
-          <Button
+          <button
             key={type}
-            variant={isActive ? "default" : "outline"}
-            size="sm"
             onClick={() => toggleReaction(type)}
             disabled={isLoading}
             className={cn(
-              "flex-col gap-0.5 h-auto min-w-[44px] sm:min-w-[48px] px-2 py-1.5 touch-manipulation transition-transform hover:scale-110 active:scale-95",
-              isActive && color
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200",
+              "touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+              isActive 
+                ? "bg-primary/15 border border-primary/30 hover:bg-primary/20 active:bg-primary/25" 
+                : "bg-muted/40 border border-border/50 hover:bg-muted/60 hover:scale-105 active:scale-100",
+              "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
             title={label}
+            aria-label={`${label}${count > 0 ? ` (${displayCount})` : ''}`}
           >
-            <span className="text-xl sm:text-2xl">{emoji}</span>
+            <span className="text-lg leading-none">{emoji}</span>
             {count > 0 && (
-              <span className="text-[9px] sm:text-[10px] font-semibold leading-none">
+              <span className={cn(
+                "text-xs font-medium leading-none",
+                isActive ? "text-foreground" : "text-foreground/70"
+              )}>
                 {displayCount}
               </span>
             )}
-          </Button>
+          </button>
         );
       })}
     </div>
