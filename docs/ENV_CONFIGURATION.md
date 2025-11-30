@@ -70,11 +70,14 @@ VITE_SENTRY_DSN=https://...@sentry.io/...
 
 ```env
 VITE_TURNSTILE_SITE_KEY=1x00000000000000000000AA
+TURNSTILE_SECRET=your_server_secret
+SKIP_TURNSTILE_FOR_PASSWORD_RESET=false
+NEXT_PUBLIC_APP_URL=https://app.confessai.com
 ```
 
-- **Required for**: CAPTCHA on forms
-- **Fallback behavior**: Forms work without CAPTCHA
-- **Setup**: Register at Cloudflare Turnstile
+- **Required for**: CAPTCHA on forms and secure password reset requests
+- **Fallback behavior**: Forms work without CAPTCHA when `SKIP_TURNSTILE_FOR_PASSWORD_RESET=true` (development only)
+- **Setup**: Register at Cloudflare Turnstile. Store the server secret (`TURNSTILE_SECRET`) and optional dev bypass flag in Supabase/Lovable secrets. `NEXT_PUBLIC_APP_URL` must match the deployed domain so password reset links redirect to `/auth/update-password` inside the app.
 
 ### Support Inbox + Resend Email
 
