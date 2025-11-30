@@ -67,23 +67,25 @@ serve(async (req) => {
       );
     }
 
-    // Check if already boosted and active
+    // Check if already boosted and active - defensive backend check
     const { data: existingBoost } = await supabase
       .from('confession_boosts')
       .select('id, ends_at, status')
       .eq('confession_id', confessionId)
       .eq('status', 'ACTIVE')
+      .gte('ends_at', new Date().toISOString())
       .single();
 
     if (existingBoost) {
       const secondsRemaining = Math.floor((new Date(existingBoost.ends_at).getTime() - Date.now()) / 1000);
       return new Response(
         JSON.stringify({ 
-          error: 'This confession is already boosted',
+          error: 'BOOST_ALREADY_ACTIVE',
+          message: 'This confession already has an active boost',
           secondsRemaining,
           endsAt: existingBoost.ends_at
         }),
-        { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
