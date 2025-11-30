@@ -96,9 +96,9 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .single();
 
-    if (coinsError || !coinsData || coinsData.balance < 15) {
+    if (coinsError || !coinsData || coinsData.balance < 25) {
       return new Response(
-        JSON.stringify({ error: 'Insufficient coins. You need 15 coins to boost your confession.' }),
+        JSON.stringify({ error: 'Insufficient coins. You need 25 coins to boost your confession.' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -106,7 +106,7 @@ serve(async (req) => {
     // Deduct coins
     const { error: deductError } = await supabase.rpc('deduct_coins', {
       _user_id: user.id,
-      _amount: 15,
+      _amount: 25,
       _type: 'boost_confession',
       _description: 'Boosted confession',
       _reference_id: confessionId
@@ -124,7 +124,7 @@ serve(async (req) => {
       .insert({
         confession_id: confessionId,
         user_id: user.id,
-        coins_spent: 15,
+        coins_spent: 25,
         status: 'ACTIVE',
         boost_until: boostUntil.toISOString(),
         ends_at: boostUntil.toISOString(),
@@ -146,7 +146,7 @@ serve(async (req) => {
           endsAt: boostData.ends_at,
           secondsRemaining: 24 * 60 * 60
         },
-        coinsDeducted: 15
+        coinsDeducted: 25
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

@@ -100,8 +100,8 @@ const CoinsDisplay = ({
           </p>
           <ul className="text-xs text-foreground-secondary space-y-1">
             <li>🏆 Give Awards (50-300 coins) - Show appreciation</li>
-            <li>💬 Highlight Comment (50 coins) - Stand out for 24h</li>
-            <li>🚀 Boost Confession (15 coins) - Highlight for 24 hours</li>
+            <li>⭐ Highlight Comment (15 coins) - Stand out for 24h</li>
+            <li>🚀 Boost Confession (25 coins) - Highlight for 24 hours</li>
             <li>🎁 Gift Coins (5% fee) - Send to other users</li>
             <li>✨ Profile Flairs - Customize your profile</li>
           </ul>
