@@ -338,6 +338,11 @@ type Translations = {
   auth_success: string;
   
   // Password Reset
+  passwordReset_title: string;
+  passwordReset_emailSent: string;
+  passwordReset_emailPlaceholder: string;
+  passwordReset_submitButton: string;
+  passwordReset_loading: string;
   
   // Common
   common_success: string;
@@ -466,7 +471,6 @@ type Translations = {
   auth_reset_password_title: string;
   auth_reset_password_desc: string;
   auth_reset_password_button: string;
-  auth_updating_password: string;
   auth_reset_password_success: string;
   auth_reset_password_failed: string;
   auth_reset_password_error: string;
@@ -2091,9 +2095,9 @@ export const translations: Record<Language, Translations> = {
     welcome_title: "Welcome to Confess+",
     welcome_description: "A safe space where you can share anything anonymously.",
     anonymous_secure: "100% Anonymous & Secure",
-    anonymous_description: "Your identity stays private. We never store personal info.",
+    anonymous_description: "Your identity remains completely confidential. We don't store any personal information.",
     ai_support: "Empathetic AI Support",
-    ai_description: "Get empathetic AI replies and VIP-only deep insights.",
+    ai_description: "Get empathetic AI responses and, with VIP, deep psychological insights.",
     get_started: "Get Started",
     skip: "Skip",
     next: "Next",
@@ -2458,7 +2462,7 @@ export const translations: Record<Language, Translations> = {
     help_contact_desc: "Send us an email for support",
     help_send_email: "Send email",
     help_dialog_title: "How can we help?",
-    help_dialog_desc: "Pick an option below for help",
+    help_dialog_desc: "Choose one of the options below to get help",
     help_response_time: "We usually reply within 24 hours",
     
     streak_reminder_text: "You have a {count} day streak! Post a confession today to keep it.",
@@ -2613,6 +2617,13 @@ export const translations: Record<Language, Translations> = {
     auth_validation_passed: "Validation successful",
     auth_success: "Success!",
     
+    // Password Reset
+    passwordReset_title: "Reset Password",
+    passwordReset_emailSent: "Password reset email sent! Check your inbox.",
+    passwordReset_emailPlaceholder: "Enter your email address",
+    passwordReset_submitButton: "Send Reset Link",
+    passwordReset_loading: "Sending...",
+    
     common_success: "Success",
     common_something_went_wrong: "Something went wrong. Please try again.",
     common_unauthorized: "Unauthorized access.",
@@ -2737,7 +2748,6 @@ export const translations: Record<Language, Translations> = {
   auth_reset_password_title: "Set a new password",
   auth_reset_password_desc: "Choose a strong password for your account.",
   auth_reset_password_button: "Update password",
-  auth_updating_password: "Updating password...",
   auth_reset_password_success: "Password successfully updated. Please sign in.",
   auth_reset_password_failed: "We couldn't send the reset email. Please try again.",
   auth_reset_password_error: "We couldn't update your password. Please try again.",
@@ -2808,7 +2818,7 @@ export const translations: Record<Language, Translations> = {
     faq_q1: "Is it really anonymous?",
     faq_a1: "Yes! Your confessions are completely anonymous. Your name never appears publicly and can't be linked to your confessions by other users. We only store the data necessary for the platform to function.",
     faq_q2: "How does the AI work?",
-    faq_a2: "Our AI analyzes each confession with empathetic language models to deliver supportive, non-judgmental replies. Every response is generated uniquely for your submission.",
+    faq_a2: "Our AI analyzes your confession and generates an empathetic, understanding response. We use advanced language models trained to be empathic and non-judgmental. Responses aren't pre-written; they're generated uniquely for each confession.",
     faq_q3: "What is Deep Insight?",
     faq_a3: "Deep Insight is a VIP feature that provides deeper psychological analysis of your confession. It includes extra perspectives, practical advice, and reflective questions to help you better understand your situation.",
     faq_q4: "Can I delete my confessions?",
@@ -2820,13 +2830,13 @@ export const translations: Record<Language, Translations> = {
     faq_q7: "Is my data secure?",
     faq_a7: "Yes! All data is encrypted and stored securely. We use best-in-class security practices and comply with GDPR. We do not sell or share your data with third parties.",
     faq_q8: "Can I use the platform for professional counseling?",
-    faq_a8: "No. Confess+ is not professional counseling. If you're dealing with serious mental health issues, contact a licensed specialist or emergency services.",
+    faq_a8: "No. Confess+ does not replace professional counseling. If you're facing serious mental health issues, please contact a specialist. Our platform is for emotional support and personal reflection.",
     faq_q9: "What makes the AI empathetic?",
-    faq_a9: "Our AI is trained on empathetic conversations and advanced language models that understand emotions and deliver supportive, non-judgmental replies tailored to each confession.",
+    faq_a9: "Our AI is trained on empathetic conversations and uses advanced language models designed to understand emotions and provide supportive, non-judgmental responses. Every reply is generated uniquely for your situation.",
     faq_q10: "How anonymous am I really?",
-    faq_a10: "Your identity stays 100% confidential. Confessions cannot be linked back to you, and we only retain the minimal data required for the platform.",
+    faq_a10: "Your identity is 100% confidential. Your confessions cannot be linked to you by other users, and we only collect minimal data necessary for the platform to function. Your name never appears publicly.",
     faq_q11: "What are Deep Insights?",
-    faq_a11: "Deep Insights are VIP-only analyses that add extra perspectives, practical advice, and reflective questions to help you understand your situation.",
+    faq_a11: "Deep Insights are advanced psychological analyses available for VIP members. They provide deeper perspectives, practical advice, and reflective questions to help you understand your situation better.",
     faq_q12: "How fast are the AI responses?",
     faq_a12: "AI responses are generated instantly after you submit your confession. VIP members receive priority processing for even faster responses during peak times.",
     
@@ -3785,7 +3795,7 @@ export const translations: Record<Language, Translations> = {
     support_ai_label: "AI Support (24/7)",
     support_ai_title: "AI Support",
     support_ai_description: "Get quick technical help about your ConfessAI account, VIP, coins, and app issues.",
-    support_ai_initial_message: "Hi! I'm the ConfessAI support bot. Ask me about login issues, VIP & payments, coins, confessions, notifications, or bugs. For urgent billing or login help email confess.supp@gmail.com.",
+    support_ai_initial_message: "Hi! I'm your ConfessAI support bot. I can help with account & login issues, VIP & payments, coins & rewards, posting or viewing confessions, notifications, and app bugs. For serious billing or login problems, please email confess.supp@gmail.com.",
     support_ai_input_placeholder: "Describe your issue...",
     support_ai_loading: "AI Support is typing...",
     support_ai_error: "We couldn't reach AI support right now. Please try again or email confess.supp@gmail.com.",
@@ -4037,9 +4047,9 @@ export const translations: Record<Language, Translations> = {
     welcome_title: "Bienvenido a Confess+",
     welcome_description: "Un espacio seguro donde puedes compartir cualquier cosa de forma anónima.",
     anonymous_secure: "100% Anónimo y Seguro",
-    anonymous_description: "Tu identidad sigue privada. No guardamos datos personales.",
+    anonymous_description: "Tu identidad permanece completamente confidencial. No almacenamos información personal.",
     ai_support: "Soporte IA Empático",
-    ai_description: "Recibe respuestas empáticas y, con VIP, insights profundos.",
+    ai_description: "Recibe respuestas empáticas de IA y, con VIP, insights psicológicos profundos.",
     get_started: "Comenzar",
     skip: "Saltar",
     next: "Siguiente",
@@ -4305,6 +4315,13 @@ export const translations: Record<Language, Translations> = {
     auth_validation_passed: "Validación exitosa",
     auth_success: "¡Éxito!",
     
+    // Password Reset
+    passwordReset_title: "Restablecer Contraseña",
+    passwordReset_emailSent: "¡Correo de restablecimiento enviado! Revisa tu bandeja de entrada.",
+    passwordReset_emailPlaceholder: "Ingresa tu dirección de correo",
+    passwordReset_submitButton: "Enviar Enlace de Restablecimiento",
+    passwordReset_loading: "Enviando...",
+    
     common_success: "Éxito",
     common_something_went_wrong: "Algo salió mal. Por favor, inténtalo de nuevo.",
     common_unauthorized: "Acceso no autorizado.",
@@ -4429,7 +4446,6 @@ export const translations: Record<Language, Translations> = {
     auth_reset_password_title: "Crea una nueva contraseña",
     auth_reset_password_desc: "Elige una contraseña segura para tu cuenta.",
     auth_reset_password_button: "Actualizar contraseña",
-    auth_updating_password: "Actualizando contraseña...",
     auth_reset_password_success: "Contraseña actualizada con éxito. Inicia sesión.",
     auth_reset_password_failed: "No pudimos enviar el correo de restablecimiento. Intenta de nuevo.",
     auth_reset_password_error: "No pudimos actualizar tu contraseña. Intenta de nuevo.",
@@ -4500,7 +4516,7 @@ export const translations: Record<Language, Translations> = {
     faq_q1: "¿Es realmente anónimo?",
     faq_a1: "¡Sí! Tus confesiones son completamente anónimas. Tu nombre nunca aparece públicamente y no puede ser vinculado a tus confesiones por otros usuarios. Solo almacenamos los datos necesarios para que la plataforma funcione.",
     faq_q2: "¿Cómo funciona la IA?",
-    faq_a2: "Nuestra IA analiza tu confesión con modelos empáticos para ofrecer respuestas solidarias y sin juicios. Cada mensaje se genera de forma única para tu situación.",
+    faq_a2: "Nuestra IA analiza tu confesión y genera una respuesta empática y comprensiva. Usamos modelos de lenguaje avanzados entrenados para ser empáticos y sin juicios. Las respuestas no están pre-escritas; se generan únicamente para cada confesión.",
     faq_q3: "¿Qué es Deep Insight?",
     faq_a3: "Deep Insight es una función VIP que proporciona un análisis psicológico más profundo de tu confesión. Incluye perspectivas adicionales, consejos prácticos y preguntas reflexivas para ayudarte a comprender mejor tu situación.",
     faq_q4: "¿Puedo eliminar mis confesiones?",
@@ -4512,13 +4528,13 @@ export const translations: Record<Language, Translations> = {
     faq_q7: "¿Mis datos están seguros?",
     faq_a7: "¡Sí! Todos los datos están encriptados y almacenados de forma segura. Usamos las mejores prácticas de seguridad y cumplimos con el GDPR. No vendemos ni compartimos tus datos con terceros.",
     faq_q8: "¿Puedo usar la plataforma para asesoramiento profesional?",
-    faq_a8: "No. Confess+ no sustituye la terapia profesional. Si enfrentas problemas graves de salud mental, contacta a un especialista o a los servicios de emergencia.",
+    faq_a8: "No. Confess+ no reemplaza el asesoramiento profesional. Si enfrentas problemas graves de salud mental, por favor contacta a un especialista. Nuestra plataforma es para apoyo emocional y reflexión personal.",
     faq_q9: "¿Qué hace empática a la IA?",
-    faq_a9: "Nuestra IA se entrenó con conversaciones empáticas y modelos avanzados que entienden las emociones y entregan respuestas solidarias y sin juicios adaptadas a cada confesión.",
+    faq_a9: "Nuestra IA está entrenada en conversaciones empáticas y utiliza modelos de lenguaje avanzados diseñados para comprender emociones y proporcionar respuestas de apoyo y sin juicios. Cada respuesta se genera únicamente para tu situación.",
     faq_q10: "¿Qué tan anónimo soy realmente?",
-    faq_a10: "Tu identidad permanece 100% confidencial. Nadie puede vincular tus confesiones contigo y solo guardamos los datos mínimos necesarios para la app.",
+    faq_a10: "Tu identidad es 100% confidencial. Tus confesiones no pueden ser vinculadas a ti por otros usuarios, y solo recopilamos datos mínimos necesarios para que la plataforma funcione. Tu nombre nunca aparece públicamente.",
     faq_q11: "¿Qué son los Deep Insights?",
-    faq_a11: "Los Deep Insights son análisis exclusivos para VIP que añaden perspectivas extra, consejos prácticos y preguntas reflexivas para entender mejor tu situación.",
+    faq_a11: "Los Deep Insights son análisis psicológicos avanzados disponibles para miembros VIP. Proporcionan perspectivas más profundas, consejos prácticos y preguntas reflexivas para ayudarte a comprender mejor tu situación.",
     faq_q12: "¿Qué tan rápidas son las respuestas de la IA?",
     faq_a12: "Las respuestas de IA se generan instantáneamente después de enviar tu confesión. Los miembros VIP reciben procesamiento prioritario para respuestas aún más rápidas durante horas pico.",
     
@@ -4793,7 +4809,7 @@ export const translations: Record<Language, Translations> = {
     help_contact_desc: "Envíanos un correo para soporte",
     help_send_email: "Enviar correo",
     help_dialog_title: "¿Cómo podemos ayudarte?",
-    help_dialog_desc: "Elige una opción para recibir ayuda",
+    help_dialog_desc: "Elige una de las opciones a continuación para obtener ayuda",
     help_response_time: "Normalmente respondemos en 24 horas",
     
     streak_reminder_text: "¡Tienes una racha de {count} días! Publica una confesión hoy para mantenerla.",
@@ -5732,7 +5748,7 @@ export const translations: Record<Language, Translations> = {
     support_ai_label: "Soporte con IA (24/7)",
     support_ai_title: "Soporte con IA",
     support_ai_description: "Obtén ayuda técnica rápida sobre tu cuenta de ConfessAI, VIP, coins y problemas de la app.",
-    support_ai_initial_message: "¡Hola! Soy el bot de soporte de ConfessAI. Pregúntame sobre inicios de sesión, VIP y pagos, coins, confesiones, notificaciones o errores. Para casos urgentes escribe a confess.supp@gmail.com.",
+    support_ai_initial_message: "¡Hola! Soy tu asistente de soporte de ConfessAI. Puedo ayudarte con problemas de cuenta e inicio de sesión, VIP y pagos, coins y recompensas, publicación o visualización de confesiones, notificaciones y errores de la app. Para emergencias de facturación o inicio de sesión, escribe a confess.supp@gmail.com.",
     support_ai_input_placeholder: "Describe tu problema...",
     support_ai_loading: "El soporte con IA está escribiendo...",
     support_ai_error: "No pudimos conectar con el soporte con IA. Inténtalo de nuevo o escribe a confess.supp@gmail.com.",
@@ -5984,9 +6000,9 @@ export const translations: Record<Language, Translations> = {
     welcome_title: "Willkommen bei Confess+",
     welcome_description: "Ein sicherer Ort, an dem du anonym alles teilen kannst.",
     anonymous_secure: "100% Anonym & Sicher",
-    anonymous_description: "Deine Identität bleibt privat. Wir speichern keine persönlichen Daten.",
+    anonymous_description: "Deine Identität bleibt vollständig vertraulich. Wir speichern keine persönlichen Informationen.",
     ai_support: "Einfühlsame KI-Unterstützung",
-    ai_description: "Erhalte empathische KI-Antworten plus VIP-exklusive Einblicke.",
+    ai_description: "Erhalte empathische KI-Antworten und mit VIP tiefe psychologische Einblicke.",
     get_started: "Jetzt Starten",
     skip: "Überspringen",
     next: "Weiter",
@@ -6252,6 +6268,13 @@ export const translations: Record<Language, Translations> = {
     auth_validation_passed: "Validierung erfolgreich",
     auth_success: "Erfolg!",
     
+    // Password Reset
+    passwordReset_title: "Passwort Zurücksetzen",
+    passwordReset_emailSent: "Passwort-Reset-E-Mail gesendet! Überprüfe deinen Posteingang.",
+    passwordReset_emailPlaceholder: "Gib deine E-Mail-Adresse ein",
+    passwordReset_submitButton: "Reset-Link Senden",
+    passwordReset_loading: "Wird gesendet...",
+    
     common_success: "Erfolg",
     common_something_went_wrong: "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
     common_unauthorized: "Unbefugter Zugriff.",
@@ -6376,7 +6399,6 @@ export const translations: Record<Language, Translations> = {
     auth_reset_password_title: "Neues Passwort erstellen",
     auth_reset_password_desc: "Wähle ein sicheres Passwort für dein Konto.",
     auth_reset_password_button: "Passwort aktualisieren",
-    auth_updating_password: "Passwort wird aktualisiert...",
     auth_reset_password_success: "Passwort erfolgreich aktualisiert. Bitte melde dich an.",
     auth_reset_password_failed: "Wir konnten die Zurücksetz-E-Mail nicht senden. Bitte versuche es erneut.",
     auth_reset_password_error: "Wir konnten dein Passwort nicht aktualisieren. Bitte versuche es erneut.",
@@ -6447,7 +6469,7 @@ export const translations: Record<Language, Translations> = {
     faq_q1: "Ist es wirklich anonym?",
     faq_a1: "Ja! Deine Geständnisse sind vollständig anonym. Dein Name erscheint nie öffentlich und kann von anderen Nutzern nicht mit deinen Geständnissen verknüpft werden. Wir speichern nur die Daten, die für den Betrieb der Plattform erforderlich sind.",
     faq_q2: "Wie funktioniert die KI?",
-    faq_a2: "Unsere KI analysiert dein Geständnis mit empathischen Sprachmodellen und liefert unterstützende, nicht wertende Antworten. Jede Antwort wird individuell erzeugt.",
+    faq_a2: "Unsere KI analysiert dein Geständnis und generiert eine empathische, verständnisvolle Antwort. Wir verwenden fortschrittliche Sprachmodelle, die darauf trainiert sind, einfühlsam und nicht wertend zu sein. Die Antworten sind nicht vorgeschrieben; sie werden einzigartig für jedes Geständnis generiert.",
     faq_q3: "Was ist Deep Insight?",
     faq_a3: "Deep Insight ist eine VIP-Funktion, die eine tiefere psychologische Analyse deines Geständnisses bietet. Es umfasst zusätzliche Perspektiven, praktische Ratschläge und reflektierende Fragen, um dir zu helfen, deine Situation besser zu verstehen.",
     faq_q4: "Kann ich meine Geständnisse löschen?",
@@ -6459,13 +6481,13 @@ export const translations: Record<Language, Translations> = {
     faq_q7: "Sind meine Daten sicher?",
     faq_a7: "Ja! Alle Daten sind verschlüsselt und sicher gespeichert. Wir verwenden erstklassige Sicherheitspraktiken und entsprechen der DSGVO. Wir verkaufen oder teilen deine Daten nicht mit Dritten.",
     faq_q8: "Kann ich die Plattform für professionelle Beratung nutzen?",
-    faq_a8: "Nein. Confess+ ersetzt keine professionelle Beratung. Bei ernsthaften psychischen Problemen wende dich bitte an Fachpersonal oder den Notdienst.",
+    faq_a8: "Nein. Confess+ ersetzt keine professionelle Beratung. Wenn du mit ernsthaften psychischen Problemen konfrontiert bist, wende dich bitte an einen Spezialisten. Unsere Plattform dient der emotionalen Unterstützung und persönlichen Reflexion.",
     faq_q9: "Was macht die KI empathisch?",
-    faq_a9: "Unsere KI wurde mit empathischen Gesprächen und modernen Sprachmodellen trainiert, versteht Emotionen und liefert unterstützende, nicht wertende Antworten, die zu jedem Geständnis passen.",
+    faq_a9: "Unsere KI ist auf empathische Gespräche trainiert und verwendet fortschrittliche Sprachmodelle, die entwickelt wurden, um Emotionen zu verstehen und unterstützende, nicht wertende Antworten zu geben. Jede Antwort wird einzigartig für deine Situation generiert.",
     faq_q10: "Wie anonym bin ich wirklich?",
-    faq_a10: "Deine Identität bleibt zu 100 % vertraulich. Niemand kann Geständnisse mit dir verknüpfen und wir speichern nur die minimal nötigen Daten für die Plattform.",
+    faq_a10: "Deine Identität ist zu 100% vertraulich. Deine Geständnisse können von anderen Nutzern nicht mit dir in Verbindung gebracht werden, und wir sammeln nur minimale Daten, die für den Betrieb der Plattform erforderlich sind. Dein Name erscheint nie öffentlich.",
     faq_q11: "Was sind Deep Insights?",
-    faq_a11: "Deep Insights sind VIP-exklusive Analysen mit zusätzlichen Perspektiven, praktischen Tipps und reflektierenden Fragen, damit du deine Situation besser verstehst.",
+    faq_a11: "Deep Insights sind fortgeschrittene psychologische Analysen, die für VIP-Mitglieder verfügbar sind. Sie bieten tiefere Perspektiven, praktische Ratschläge und reflektierende Fragen, um dir zu helfen, deine Situation besser zu verstehen.",
     faq_q12: "Wie schnell sind die KI-Antworten?",
     faq_a12: "KI-Antworten werden sofort generiert, nachdem du dein Geständnis eingereicht hast. VIP-Mitglieder erhalten prioritäre Verarbeitung für noch schnellere Antworten während Spitzenzeiten.",
     
@@ -6740,7 +6762,7 @@ export const translations: Record<Language, Translations> = {
     help_contact_desc: "Sende uns eine E-Mail für Unterstützung",
     help_send_email: "E-Mail senden",
     help_dialog_title: "Wie können wir helfen?",
-    help_dialog_desc: "Wähle unten eine Option für Hilfe",
+    help_dialog_desc: "Wähle eine der folgenden Optionen, um Hilfe zu erhalten",
     help_response_time: "Wir antworten normalerweise innerhalb von 24 Stunden",
     
     streak_reminder_text: "Du hast eine {count}-Tage-Serie! Poste heute ein Geständnis, um sie zu behalten.",
@@ -7679,7 +7701,7 @@ export const translations: Record<Language, Translations> = {
     support_ai_label: "KI-Support (24/7)",
     support_ai_title: "KI-Support",
     support_ai_description: "Erhalte schnelle technische Hilfe zu deinem ConfessAI-Konto, VIP, Coins und App-Problemen.",
-    support_ai_initial_message: "Hallo! Ich bin der ConfessAI Support-Bot. Frag mich zu Login-Problemen, VIP & Zahlungen, Coins, Geständnissen, Benachrichtigungen oder Bugs. Für dringende Fälle sende eine Mail an confess.supp@gmail.com.",
+    support_ai_initial_message: "Hallo! Ich bin dein ConfessAI Support-Bot. Ich helfe bei Konto- und Login-Problemen, VIP und Zahlungen, Coins und Belohnungen, Problemen beim Posten oder Anzeigen von Geständnissen, Benachrichtigungen sowie Sprach- und App-Fehlern. Bei dringenden Abrechnungs- oder Login-Themen sende bitte eine E-Mail an confess.supp@gmail.com.",
     support_ai_input_placeholder: "Beschreibe dein Problem...",
     support_ai_loading: "KI-Support schreibt...",
     support_ai_error: "Der KI-Support ist gerade nicht erreichbar. Bitte versuche es erneut oder schreibe an confess.supp@gmail.com.",

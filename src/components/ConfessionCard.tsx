@@ -239,12 +239,7 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
     <NoScreenshotMode enabled={noScreenshotEnabled}>
       <AnimatedCard 
         hover="lift"
-        className={cn(
-          "p-5 sm:p-6 mb-4 touch-manipulation transition-all duration-300 rounded-3xl animate-slide-up relative",
-          boostStatus.isBoosted 
-            ? "bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-purple-900/20 border border-purple-500/30 shadow-lg shadow-purple-500/20"
-            : "bg-gradient-to-br from-card via-card to-card/95 border border-border/50 hover:shadow-xl"
-        )}
+        className="p-5 sm:p-6 mb-4 touch-manipulation transition-all duration-300 hover:shadow-xl bg-card border border-border rounded-3xl animate-slide-up relative"
       >
         {/* Boost Badge - Top Right */}
         {boostStatus.isBoosted && (

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { GradientText } from "@/components/GradientText";
@@ -28,28 +28,9 @@ export default function ResetPassword() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [tokenValid, setTokenValid] = useState(true);
-  const redirectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const passwordValidation = usePasswordValidation(password);
   const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
-
-  const markResetLinkInvalid = () => {
-    setTokenValid(false);
-    setSuccess(false);
-    setError(t.auth_reset_token_invalid);
-  };
-
-  const isExpiredOrInvalidResetError = (err: { message?: string; status?: number; code?: string } | null) => {
-    if (!err) return false;
-    const messageSource = err.message || (err as any)?.error_description || "";
-    const normalizedMessage = typeof messageSource === "string" ? messageSource.toLowerCase() : "";
-    return normalizedMessage.includes("expired")
-      || normalizedMessage.includes("invalid")
-      || err.code === "expired_token"
-      || err.code === "invalid_token"
-      || err.status === 401
-      || err.status === 410;
-  };
 
   useEffect(() => {
     let isMounted = true;
@@ -66,7 +47,8 @@ export default function ResetPassword() {
 
       if (!hasIncomingSession) {
         if (isMounted) {
-          markResetLinkInvalid();
+          setTokenValid(false);
+          setError(t.auth_reset_token_invalid);
         }
         return;
       }
@@ -103,7 +85,8 @@ export default function ResetPassword() {
       } catch (sessionError) {
         logError('Password recovery session error', sessionError as Error);
         if (isMounted) {
-          markResetLinkInvalid();
+          setTokenValid(false);
+          setError(t.auth_reset_token_invalid);
         }
       }
     };
@@ -114,14 +97,6 @@ export default function ResetPassword() {
       isMounted = false;
     };
   }, [t, searchParams]);
-
-  useEffect(() => {
-    return () => {
-      if (redirectTimeoutRef.current) {
-        clearTimeout(redirectTimeoutRef.current);
-      }
-    };
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,44 +115,23 @@ export default function ResetPassword() {
     setError("");
 
     try {
-      const { data: sessionCheck } = await supabase.auth.getSession();
-      if (!sessionCheck.session) {
-        markResetLinkInvalid();
-        return;
-      }
-
       const { error: updateError } = await supabase.auth.updateUser({
         password: password,
       });
 
-      if (updateError) {
-        if (isExpiredOrInvalidResetError(updateError)) {
-          markResetLinkInvalid();
-          return;
-        }
-        throw updateError;
-      }
+      if (updateError) throw updateError;
 
       // Revoke all existing sessions after password reset for security
-      try {
-        await revokeAllSessions();
-      } catch (revokeError) {
-        logError('Failed to revoke sessions after password reset', revokeError as Error);
-      }
+      await revokeAllSessions();
 
       setSuccess(true);
-      setError("");
 
       // Redirect to login after 2 seconds
-      redirectTimeoutRef.current = setTimeout(() => {
+      setTimeout(() => {
         navigate('/auth');
-      }, 2000) as any;
+      }, 2000);
     } catch (err: any) {
       logError("Password update failed", err as Error);
-      if (isExpiredOrInvalidResetError(err)) {
-        markResetLinkInvalid();
-        return;
-      }
       setError(t.auth_reset_password_error || t.auth_error_generic);
     } finally {
       setIsLoading(false);
@@ -374,7 +328,7 @@ export default function ResetPassword() {
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {t.auth_updating_password}
+                  {t.auth_creating_account}
                 </>
               ) : (
                 t.auth_reset_password_button

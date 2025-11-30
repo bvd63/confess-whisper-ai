@@ -41,7 +41,7 @@ import { logError, logWarn } from '@/lib/logger';
 
 // Lazy load all routes for code splitting
 const Index = lazy(() => import("./pages/Index"));
-const Profile = lazy(() => import("./pages/ProfileSimplified"));
+const Profile = lazy(() => import("./pages/Profile"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const Admin = lazy(() => import("./pages/Admin"));
 const Bookmarks = lazy(() => import("./pages/Bookmarks"));
@@ -63,7 +63,7 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const SettingsActivity = lazy(() => import("./pages/SettingsActivity"));
-const Rewards = lazy(() => import("./pages/RewardsSimplified"));
+const Rewards = lazy(() => import("./pages/Rewards"));
 const NotificationHistory = lazy(() => import("./pages/NotificationHistory"));
 const AiSupport = lazy(() => import("./pages/AiSupport"));
 const ContactSupport = lazy(() => import("./pages/ContactSupport"));

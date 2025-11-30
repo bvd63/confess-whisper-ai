@@ -163,10 +163,11 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
   };
 
   return (
-    <div className="flex items-center gap-2 flex-wrap">
-      {reactions.map(({ type, emoji }) => {
+    <div className="flex flex-wrap gap-2">
+      {reactions.map(({ type, emoji, label }) => {
         const count = reactionCounts[type] || 0;
         const isActive = userReactions.has(type);
+        const displayCount = count > 99 ? '99+' : count;
 
         return (
           <button
@@ -175,20 +176,31 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
             disabled={isLoading}
             aria-pressed={isActive}
             className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200",
-              "touch-manipulation focus:outline-none",
+              "flex items-center gap-2 px-3.5 py-2 rounded-2xl border transition-all duration-200",
+              "touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
               isActive
-                ? "bg-primary/15 border border-primary/30"
-                : "bg-muted/40 border border-transparent hover:bg-muted/60",
-              "disabled:opacity-50"
+                ? "bg-white/80 text-primary border-primary/40 shadow-lg shadow-primary/15"
+                : "bg-muted/30 border-border/50 hover:bg-muted/50 hover:border-border hover:shadow-md",
+              "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
+            title={label}
+            aria-label={`${label}${count > 0 ? ` (${displayCount})` : ''}`}
           >
-            <span className="text-base leading-none">{emoji}</span>
-            {count > 0 && (
-              <span className="text-xs font-semibold text-foreground-secondary">
-                {count}
-              </span>
-            )}
+            <span className="text-2xl leading-none drop-shadow-sm">{emoji}</span>
+            <span className={cn(
+              "hidden sm:inline text-xs font-semibold tracking-tight",
+              isActive ? "text-primary" : "text-foreground/70"
+            )}>
+              {label}
+            </span>
+            <span
+              className={cn(
+                "text-[11px] font-bold rounded-full px-2 py-0.5",
+                isActive ? "bg-primary/10 text-primary" : "bg-background/60 text-foreground/80"
+              )}
+            >
+              {displayCount}
+            </span>
           </button>
         );
       })}
