@@ -277,8 +277,8 @@ const Auth = () => {
       >
         {/* Logo & Title */}
         <div className="text-center mb-10 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 mb-6">
-            <div className="text-5xl">💜</div>
+          <div className="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-primary via-primary-hover to-primary-pressed shadow-lg shadow-primary/25">
+            <Heart className="w-10 h-10 sm:w-12 sm:h-12 text-white" fill="currentColor" />
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold mb-3 bg-gradient-to-r from-primary to-primary-hover bg-clip-text text-transparent">
             Confess
