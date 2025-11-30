@@ -186,20 +186,22 @@ const Explore = () => {
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3 mb-6 h-11 rounded-xl">
-            <TabsTrigger value="trending" className="gap-2 text-sm rounded-lg">
-              <Flame className="w-4 h-4" />
-              <span className="hidden xs:inline">{t.search_trending}</span>
-            </TabsTrigger>
-            <TabsTrigger value="popular" className="gap-2 text-sm rounded-lg">
-              <TrendingUp className="w-4 h-4" />
-              <span className="hidden xs:inline">{t.ui_popular}</span>
-            </TabsTrigger>
-            <TabsTrigger value="recent" className="gap-2 text-sm rounded-lg">
-              <Clock className="w-4 h-4" />
-              <span className="hidden xs:inline">{t.ui_recent}</span>
-            </TabsTrigger>
-          </TabsList>
+          <div className="flex justify-center mb-6">
+            <TabsList className="inline-flex h-11 rounded-xl">
+              <TabsTrigger value="trending" className="flex items-center gap-2 text-sm rounded-lg px-4">
+                <Flame className="w-4 h-4" />
+                <span className="hidden xs:inline">{t.search_trending}</span>
+              </TabsTrigger>
+              <TabsTrigger value="popular" className="flex items-center gap-2 text-sm rounded-lg px-4">
+                <TrendingUp className="w-4 h-4" />
+                <span className="hidden xs:inline">{t.ui_popular}</span>
+              </TabsTrigger>
+              <TabsTrigger value="recent" className="flex items-center gap-2 text-sm rounded-lg px-4">
+                <Clock className="w-4 h-4" />
+                <span className="hidden xs:inline">{t.ui_recent}</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="trending" className="space-y-4">
             {renderConfessions(hotConfessions, loadingHot)}
