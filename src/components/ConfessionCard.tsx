@@ -195,6 +195,15 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
   const handleBoostConfession = async () => {
     if (!user || !isOwner) return;
 
+    // Block if already boosted
+    if (isBoosted) {
+      toast({
+        title: t.coins_boost_already_active,
+        variant: "destructive",
+      });
+      return;
+    }
+
     const BOOST_COST = 15;
     if (balance < BOOST_COST) {
       toast({
@@ -215,9 +224,19 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
 
     setIsBoostLoading(true);
     try {
-      const { error } = await supabase.functions.invoke('boost-confession', {
+      const { data, error } = await supabase.functions.invoke('boost-confession', {
         body: { confessionId: confession.id },
       });
+
+      // Handle backend response for active boost
+      if (data?.error === 'BOOST_ALREADY_ACTIVE') {
+        toast({
+          title: t.coins_boost_already_active,
+          variant: "destructive",
+        });
+        setIsBoostLoading(false);
+        return;
+      }
 
       if (error) throw error;
 
@@ -347,7 +366,7 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
               variant="ghost"
               size="sm"
               onClick={handleBoostConfession}
-              disabled={isBoostLoading}
+              disabled={isBoostLoading || isBoosted}
               className="gap-1.5 text-xs h-9 px-3 rounded-xl hover:bg-orange-500/10 transition-colors disabled:opacity-50"
             >
               {isBoostLoading ? (
@@ -356,7 +375,7 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
                 <span className="text-base">🚀</span>
               )}
               <span className="hidden sm:inline font-medium">
-                {isBoostLoading ? t.processing : t.boost_confession}
+                {isBoostLoading ? t.processing : (isBoosted ? t.boost_active : t.boost_confession)}
               </span>
             </Button>
         )}
