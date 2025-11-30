@@ -342,7 +342,7 @@ const Auth = () => {
               }));
             }} onPaste={e => e.preventDefault()} className="pl-12 pr-12 h-14 rounded-xl text-base" disabled={isLoading} autoComplete="new-password" />
                 <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-4 text-muted-foreground hover:text-foreground transition-colors" aria-label={showConfirmPassword ? t.auth_hide_password : t.auth_show_password} tabIndex={-1}>
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showConfirmPassword ? <EyeOff className="w-5 h-5 px-0 mx-[10px] my-0 mb-[17px]" /> : <Eye className="w-5 h-5 px-0 mx-[10px] my-0 mb-[17px]" />}
                 </button>
               </div>
               
