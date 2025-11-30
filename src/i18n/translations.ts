@@ -3921,7 +3921,7 @@ export const translations: Record<Language, Translations> = {
       },
       boostConfession: {
         title: "Boost confession?",
-        message: "Are you sure you want to boost this confession? This will spend your coins.",
+        message: "Are you sure you want to boost this confession for 24 hours?",
       },
       generic: {
         title: "Are you sure?",
@@ -5827,7 +5827,7 @@ export const translations: Record<Language, Translations> = {
       },
       boostConfession: {
         title: "¿Impulsar confesión?",
-        message: "¿Seguro que quieres impulsar esta confesión? Esto gastará tus monedas.",
+        message: "¿Seguro que quieres impulsar esta confesión durante 24 horas?",
       },
       generic: {
         title: "¿Estás seguro?",
@@ -7733,7 +7733,7 @@ export const translations: Record<Language, Translations> = {
       },
       boostConfession: {
         title: "Beichte boosten?",
-        message: "Bist du sicher, dass du diese Beichte boosten möchtest? Dadurch werden deine Coins verwendet.",
+        message: "Bist du sicher, dass du diese Beichte für 24 Stunden boosten möchtest?",
       },
       generic: {
         title: "Bist du sicher?",
