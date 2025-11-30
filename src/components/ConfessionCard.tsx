@@ -150,6 +150,14 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
       return;
     }
 
+    const confirmed = await confirm({
+      titleKey: 'confirm.boostConfession.title',
+      messageKey: 'confirm.boostConfession.message',
+      variant: 'default',
+    });
+    
+    if (!confirmed) return;
+
     setIsBoostLoading(true);
     try {
       const { error } = await supabase.functions.invoke('boost-confession', {
@@ -162,7 +170,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         title: t.boost_success_title,
         description: t.boost_success_description,
       });
-      
+
       onLikeChange?.(); // Refresh to show boosted status
     } catch (error) {
       logError('Error boosting confession', error instanceof Error ? error : undefined);

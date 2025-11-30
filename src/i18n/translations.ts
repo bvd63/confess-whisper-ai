@@ -132,6 +132,10 @@ type Translations = {
       title: string;
       message: string;
     };
+    boostConfession: {
+      title: string;
+      message: string;
+    };
     generic: {
       title: string;
       message: string;
@@ -3915,6 +3919,10 @@ export const translations: Record<Language, Translations> = {
         title: "Unblock User?",
         message: "This user will be able to interact with you again.",
       },
+      boostConfession: {
+        title: "Boost confession?",
+        message: "Are you sure you want to boost this confession? This will spend your coins.",
+      },
       generic: {
         title: "Are you sure?",
         message: "Please confirm your action.",
@@ -5817,6 +5825,10 @@ export const translations: Record<Language, Translations> = {
         title: "¿Desbloquear usuario?",
         message: "Este usuario podrá interactuar contigo nuevamente.",
       },
+      boostConfession: {
+        title: "¿Impulsar confesión?",
+        message: "¿Seguro que quieres impulsar esta confesión? Esto gastará tus monedas.",
+      },
       generic: {
         title: "¿Estás seguro?",
         message: "Por favor, confirma tu acción.",
@@ -7718,6 +7730,10 @@ export const translations: Record<Language, Translations> = {
       unblockUser: {
         title: "Benutzer entsperren?",
         message: "Dieser Benutzer kann wieder mit dir interagieren.",
+      },
+      boostConfession: {
+        title: "Beichte boosten?",
+        message: "Bist du sicher, dass du diese Beichte boosten möchtest? Dadurch werden deine Coins verwendet.",
       },
       generic: {
         title: "Bist du sicher?",
