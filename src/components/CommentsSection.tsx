@@ -506,9 +506,8 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                   new Date(highlightExpiresAt).getTime() > now
                 );
                 const isCommentOwner = user?.id === comment.user_id;
-                const isAnonymousComment = comment.is_anonymous !== false; // Default to true for backward compatibility
+                const isAnonymousComment = comment.is_anonymous !== false;
                 
-                // Display name logic
                 const displayName = isAnonymousComment 
                   ? (comment.alias || 'Anonymous')
                   : `@${comment.profiles?.nickname || 'User'}`;
@@ -517,62 +516,87 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                   <div
                     key={comment.id}
                     className={cn(
-                      "p-2 sm:p-3 rounded-lg border",
+                      "relative p-4 rounded-2xl border transition-all animate-fade-in",
                       isHighlightActive
-                        ? "bg-vip-gold/10 border-vip-gold/30 shadow-md"
-                        : "bg-muted/30 border-border/50"
+                        ? "bg-gradient-to-br from-amber-500/5 via-amber-400/5 to-amber-500/5 border-amber-500/40 shadow-lg shadow-amber-500/10"
+                        : "bg-card/50 border-border/30 hover:bg-card"
                     )}
                   >
-                    <div className="flex items-start justify-between mb-1 sm:mb-2">
-                      <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground">
-                        <span className={cn(
-                          "font-medium",
-                          isAnonymousComment ? "text-foreground/80" : "text-primary"
-                        )}>
-                          {displayName}
-                        </span>
-                        <span>•</span>
-                        <span>{timeAgo(comment.created_at)}</span>
-                        {/* Highlight Timer Badge - Inline */}
-                        {isHighlightActive && (
-                          <div className="flex items-center gap-1 bg-vip-gold/20 border border-vip-gold/40 rounded-full px-2 py-0.5 ml-1">
-                            <span className="text-xs">⭐</span>
-                            <ExpiryTimer 
-                              expiresAt={highlightExpiresAt || undefined}
-                              className="text-[10px] sm:text-xs"
-                              showIcon={false}
+                    {/* Star icon for highlighted comments */}
+                    {isHighlightActive && (
+                      <div className="absolute top-3 right-3">
+                        <span className="text-2xl">⭐</span>
+                      </div>
+                    )}
+                    
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        {/* Header with name and time */}
+                        <div className="flex items-center gap-2 mb-2">
+                          <p className={cn(
+                            "font-semibold text-sm truncate",
+                            isAnonymousComment ? "text-foreground/80" : "text-primary"
+                          )}>
+                            {displayName}
+                          </p>
+                          <span className="text-xs text-muted-foreground whitespace-nowrap">
+                            {timeAgo(comment.created_at)}
+                          </span>
+                        </div>
+                        
+                        {/* Comment content */}
+                        <p className="text-sm text-foreground-secondary mb-3 whitespace-pre-wrap break-words leading-relaxed">
+                          {sanitizeComment(comment.content)}
+                        </p>
+                        
+                        {/* Highlighted badge and timer */}
+                        {isHighlightActive && highlightExpiresAt && (
+                          <div className="mb-3">
+                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20">
+                              <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">
+                                Highlighted
+                              </span>
+                              <span className="text-xs text-amber-600/60 dark:text-amber-400/60">•</span>
+                              <ExpiryTimer
+                                expiresAt={highlightExpiresAt}
+                                className="text-xs font-medium text-amber-600 dark:text-amber-400"
+                                showIcon={false}
+                              />
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Show highlight button for comment owner or confession owner */}
+                        {(isCommentOwner || user?.id === confessionOwnerId) && !isHighlightActive && (
+                          <div className="flex items-center gap-2">
+                            <HighlightCommentButton
+                              commentId={comment.id}
+                              isOwner={isCommentOwner}
+                              highlightExpiresAt={highlightExpiresAt}
+                              onHighlightActivated={(expiresAt) => {
+                                setComments(prev => prev.map(existing =>
+                                  existing.id === comment.id
+                                    ? { ...existing, is_highlighted: true, highlight_expires_at: expiresAt }
+                                    : existing
+                                ));
+                              }}
                             />
+                            <span className="text-xs text-muted-foreground">15 coins</span>
                           </div>
                         )}
                       </div>
-                      <div className="flex items-center gap-1">
-                        {isCommentOwner && (
-                          <HighlightCommentButton
-                            commentId={comment.id}
-                            isOwner={isCommentOwner}
-                            highlightExpiresAt={highlightExpiresAt}
-                            onHighlightActivated={(expiresAt) => {
-                              setComments(prev => prev.map(existing =>
-                                existing.id === comment.id
-                                  ? { ...existing, is_highlighted: true, highlight_expires_at: expiresAt }
-                                  : existing
-                              ));
-                            }}
-                          />
-                        )}
-                        {(user?.id === comment.user_id || user?.id === confessionOwnerId) && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDelete(comment.id)}
-                            className="min-h-[44px] min-w-[44px] px-2 text-muted-foreground hover:text-destructive"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        )}
-                      </div>
+                      
+                      {(user?.id === comment.user_id || user?.id === confessionOwnerId) && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(comment.id)}
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
-                    <p className="text-xs sm:text-sm text-foreground leading-relaxed">{sanitizeComment(comment.content)}</p>
                   </div>
                 );
               })
