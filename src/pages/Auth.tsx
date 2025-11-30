@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Heart, Mail, Lock, Loader2, Sparkles, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { Heart, Mail, Lock, Loader2, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
@@ -540,10 +540,7 @@ const Auth = () => {
                 {isLogin ? t.auth_logging_in : t.auth_creating_account}
               </>
             ) : (
-              <>
-                <Sparkles className="w-4 h-4 mr-2 animate-pulse-glow" />
-                {isLogin ? t.auth_login_button : t.auth_signup_button}
-              </>
+              isLogin ? t.auth_login_button : t.auth_signup_button
             )}
           </EnhancedButton>
         </form>
