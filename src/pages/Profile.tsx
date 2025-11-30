@@ -161,95 +161,106 @@ const Profile = () => {
       <ReferralRewardNotification userId={user.id} />
       
       <div className="container mx-auto px-4 py-6 max-w-4xl pb-24">
-        <div className="flex items-center gap-3 mb-8 animate-fade-in">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary-pressed flex items-center justify-center shadow-lg shadow-primary/25">
-            <User className="h-6 w-6 text-white" />
-          </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold text-foreground">
-                {t.profile_title}
-              </h1>
-            </div>
-            <div className="mt-3">
-              <BadgesDisplay 
-                userId={user.id} 
-                variant="compact"
-              />
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-12 w-12 p-0 hover:bg-muted rounded-2xl"
-              aria-label={t.settings}
-              title={t.settings}
-              onClick={() => navigate('/settings/activity')}
-            >
-              <Settings className="h-5 w-5 text-foreground-muted hover:text-foreground transition-colors" />
-            </Button>
-            <Button
-              onClick={async () => {
-                await supabase.auth.signOut();
-                navigate('/');
-                toast({
-                  title: t.success_logout,
-                  description: t.success_logout
-                });
-              }} 
-              variant="outline" 
-              size="sm" 
-              className="border-border bg-card hover:bg-muted h-12 px-5 rounded-2xl font-medium"
-            >
-              <LogOut className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline text-sm">{t.logout}</span>
-            </Button>
+        {/* Header */}
+        <div className="sticky top-0 z-10 -mx-4 mb-8 glass-strong border-b border-border">
+          <div className="px-4 py-5">
+            <h1 className="text-2xl font-bold text-center text-foreground">
+              Profile & Settings
+            </h1>
           </div>
         </div>
 
-        <Tabs defaultValue="statistics" className="space-y-8 mt-8">
-          <TabsList className={`grid w-full ${isModerator ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2'} h-14 rounded-2xl bg-muted p-1.5 gap-1.5`}>
-            <TabsTrigger value="statistics" className="text-sm font-medium rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg">{t.profile_statistics}</TabsTrigger>
-            <TabsTrigger value="confessions" className="text-sm font-medium rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg">{t.profile_my_confessions}</TabsTrigger>
-            {isModerator && <TabsTrigger value="moderation" className="text-sm font-medium rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg">{t.profile_moderation}</TabsTrigger>}
-          </TabsList>
+        {/* Username with VIP Badge */}
+        <div className="flex items-center justify-center gap-3 mb-12">
+          <h2 className="text-2xl font-bold text-foreground">
+            @{user.id.slice(0, 8)}
+          </h2>
+          {isVip && (
+            <>
+              <span className="text-2xl">👑</span>
+              <span className="px-3 py-1 rounded-full bg-primary/20 text-primary text-sm font-bold">
+                VIP
+              </span>
+            </>
+          )}
+        </div>
 
-          <TabsContent value="statistics" className="space-y-6">
-            <FollowStats userId={user.id} />
-            <UserAnalytics
-              onUpgradeClick={() => {}}
-              onManageSubscription={() => setManageSubDialogOpen(true)}
-            />
-            
-            <AdvancedAnalytics userId={user.id} />
-            
-            <WordCloudViz userId={user.id} />
-            
-            {/* Link to Rewards Hub */}
-            <div className="flex justify-center pt-4">
-              <Button 
-                onClick={() => navigate('/rewards?tab=achievements')}
-                variant="outline"
-                className="gap-2"
-              >
-                <Trophy className="w-4 h-4" />
-                View All Achievements
-              </Button>
+        {/* Settings Section */}
+        <div className="space-y-4 mb-8">
+          {/* Language Selector Card */}
+          <div className="p-6 rounded-3xl bg-gradient-to-br from-card via-card to-card/95 border border-border/50">
+            <div className="mb-4">
+              <h3 className="text-lg font-bold text-foreground">Settings</h3>
             </div>
-          </TabsContent>
+            
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-foreground-secondary">Language</span>
+              <div className="flex gap-2">
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="h-9 px-4 rounded-xl font-semibold bg-primary text-white"
+                >
+                  EN
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-4 rounded-xl font-semibold"
+                >
+                  ES
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-4 rounded-xl font-semibold"
+                >
+                  DE
+                </Button>
+              </div>
+            </div>
+          </div>
 
-          <TabsContent value="confessions" className="space-y-6">
-            <UserConfessionsList />
-          </TabsContent>
+          {/* AI Support Chat */}
+          <div 
+            className="p-6 rounded-3xl bg-gradient-to-br from-card via-card to-card/95 border border-border/50 hover:border-primary/30 transition-all cursor-pointer"
+            onClick={() => navigate('/settings/support/ai')}
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <MessageCircle className="w-6 h-6 text-primary" />
+              </div>
+              <span className="text-lg font-semibold text-foreground">AI Support Chat</span>
+            </div>
+          </div>
 
-          {/* Achievements tab removed - now in Rewards Hub */}
+          {/* Contact Email */}
+          <div className="p-6 rounded-3xl bg-gradient-to-br from-card via-card to-card/95 border border-border/50">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center">
+                <MessageCircle className="w-6 h-6 text-foreground-muted" />
+              </div>
+              <div>
+                <span className="text-lg font-semibold text-foreground block">AI Support Chat</span>
+                <span className="text-sm text-foreground-secondary">confess.supp@gmail.com</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-
-          {isModerator && <TabsContent value="moderation" className="space-y-6">
-              <ModerationPanel userId={user.id} />
-            </TabsContent>}
-        </Tabs>
+        {/* For Free users - Show upgrade button */}
+        {!isVip && (
+          <div className="mt-8 flex justify-center">
+            <Button
+              onClick={() => setManageSubDialogOpen(true)}
+              size="lg"
+              className="h-14 px-8 rounded-2xl bg-primary hover:bg-primary-hover text-white font-bold"
+            >
+              <Crown className="w-5 h-5 mr-2" />
+              Unlock VIP
+            </Button>
+          </div>
+        )}
       </div>
       
       <InstagramBottomNav />
