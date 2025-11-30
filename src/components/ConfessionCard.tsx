@@ -239,11 +239,11 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
     <NoScreenshotMode enabled={noScreenshotEnabled}>
       <AnimatedCard 
         hover="lift"
-        className="p-5 sm:p-6 mb-4 touch-manipulation transition-all duration-300 hover:shadow-xl bg-card border border-border rounded-3xl animate-slide-up relative"
+        className="relative p-6 mb-0 touch-manipulation transition-all duration-300 hover:shadow-2xl bg-gradient-to-br from-primary/5 via-background to-primary/5 border border-border/50 rounded-3xl animate-slide-up backdrop-blur-sm"
       >
         {/* Boost Badge - Top Right */}
         {boostStatus.isBoosted && (
-          <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-orange-500/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-orange-500/20">
+          <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-orange-500/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-orange-500/20">
             <span className="text-base">🚀</span>
             <span className="text-xs font-medium text-orange-500">
               {t.boosted.badge.label} · {boostStatus.lessThanHour
@@ -253,7 +253,7 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
           </div>
         )}
 
-        <div className="mb-4">
+        <div className="mb-5">
           <ConfessionHeader
             category={confession.category} 
             createdAt={confession.created_at}
@@ -267,7 +267,7 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
         </div>
 
         <SensitiveContentWarning isSensitive={isSensitive}>
-          <p className="text-base leading-relaxed text-foreground mb-4 break-words">
+          <p className="text-base leading-relaxed text-foreground mb-5 break-words whitespace-pre-wrap">
             {sanitizeConfession(confession.content)}
           </p>
         </SensitiveContentWarning>
@@ -292,15 +292,11 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
         </div>
       )}
 
-      <div className="mb-4">
-        <AwardDisplay confessionId={confession.id} />
-      </div>
-
-      <div className="mb-4">
+      <div className="mb-5">
         <ReactionPicker confessionId={confession.id} userId={user?.id} />
       </div>
 
-      <div className="flex items-center gap-2 flex-wrap mb-4">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
         <ConfessionActions
           confessionId={confession.id}
           confessionUserId={confession.user_id}
@@ -315,37 +311,39 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
           onDelete={handleDeleteConfession}
         />
         
-        {/* Coin-Spending Features */}
-        {!isOwner && user && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsAwardPickerOpen(true)}
-            className="gap-1.5 text-xs h-9 px-3 rounded-xl hover:bg-vip-gold/10 transition-colors"
-          >
-            <Award className="w-4 h-4 text-vip-gold" />
-            <span className="hidden sm:inline font-medium">Award</span>
-          </Button>
-        )}
-        
-        {isOwner && (
-          <Button
+        <div className="flex items-center gap-2">
+          {/* Coin-Spending Features */}
+          {!isOwner && user && (
+            <Button
               variant="ghost"
               size="sm"
-              onClick={handleBoostConfession}
-              disabled={isBoostLoading || boostStatus.isBoosted}
-              className="gap-1.5 text-xs h-9 px-3 rounded-xl hover:bg-orange-500/10 transition-colors disabled:opacity-50"
+              onClick={() => setIsAwardPickerOpen(true)}
+              className="gap-1.5 text-xs h-10 px-4 rounded-2xl hover:bg-vip-gold/10 transition-colors border border-border/50"
             >
-              {isBoostLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
-              ) : (
-                <span className="text-base">🚀</span>
-              )}
-              <span className="hidden sm:inline font-medium">
-                {isBoostLoading ? t.processing : (boostStatus.isBoosted ? t.boost_active : t.boost_confession)}
-              </span>
+              <Award className="w-4 h-4 text-vip-gold" />
+              <span className="font-medium">Award</span>
             </Button>
-        )}
+          )}
+          
+          {isOwner && (
+            <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleBoostConfession}
+                disabled={isBoostLoading || boostStatus.isBoosted}
+                className="gap-1.5 text-xs h-10 px-4 rounded-2xl hover:bg-orange-500/10 transition-colors disabled:opacity-50 border border-border/50"
+              >
+                {isBoostLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
+                ) : (
+                  <span className="text-base">🚀</span>
+                )}
+                <span className="font-medium">
+                  {isBoostLoading ? t.processing : (boostStatus.isBoosted ? t.boost_active : t.boost_confession)}
+                </span>
+              </Button>
+          )}
+        </div>
       </div>
 
       {confession.ai_response && (
