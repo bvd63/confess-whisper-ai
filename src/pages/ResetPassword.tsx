@@ -169,9 +169,9 @@ export default function ResetPassword() {
       setError("");
 
       // Redirect to login after 2 seconds
-      redirectTimeoutRef.current = window.setTimeout(() => {
+      redirectTimeoutRef.current = setTimeout(() => {
         navigate('/auth');
-      }, 2000);
+      }, 2000) as any;
     } catch (err: any) {
       logError("Password update failed", err as Error);
       if (isExpiredOrInvalidResetError(err)) {

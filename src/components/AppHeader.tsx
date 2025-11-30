@@ -70,49 +70,30 @@ const AppHeader = ({
     }
   };
   const isActive = (path: string) => location.pathname === path;
-  return <header className="sticky top-0 z-50 glass-strong border-b border-border">
+  return <header className="sticky top-0 z-50 bg-gradient-to-r from-blue-900/90 via-purple-900/90 to-blue-900/90 backdrop-blur-xl border-b border-white/10">
       <div className="w-full">
         <div className="flex items-center justify-between px-4 sm:px-6 py-4 max-w-7xl mx-auto">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary via-primary-hover to-primary-pressed flex items-center justify-center shadow-lg shadow-primary/25">
-              <Heart className="w-5 h-5 text-white" fill="currentColor" />
-            </div>
-            <h1 className="text-xl md:text-2xl font-bold text-foreground cursor-pointer" onClick={() => navigate('/')}>
-              {t.app_name}
-            </h1>
-          </div>
+          {/* Centered App Name */}
+          <div className="flex-1" />
+          <h1 className="text-xl sm:text-2xl font-bold text-white cursor-pointer tracking-tight" onClick={() => navigate('/')}>
+            Confess<span className="text-primary-glow">AI</span>
+          </h1>
           
-          <div className="flex items-center gap-2 sm:gap-3">
-            {user ? <>
-                {subscriptionStatus === 'past_due' && (
-                  <Badge variant="destructive" className="h-8 px-3 text-xs font-medium rounded-xl animate-pulse">
-                    Payment Failed
-                  </Badge>
-                )}
-                
-                <Button 
-                  data-testid="manage-subscription-btn"
-                  onClick={() => onManageSubscription?.()} 
-                  variant={subscriptionTier === 'free' ? 'default' : 'outline'}
-                  size="sm" 
-                  className={cn(
-                    "h-10 px-4 rounded-2xl font-semibold transition-all",
-                    subscriptionTier === 'free' 
-                      ? "bg-primary hover:bg-primary-hover text-white shadow-lg shadow-primary/25" 
-                      : "border-border bg-card hover:bg-muted"
-                  )}
-                >
-                  <Crown className="w-4 h-4" />
-                  <span className="hidden sm:inline text-sm ml-2">
-                    {subscriptionTier === 'free' ? 'Upgrade' : 'Manage'}
-                  </span>
-                </Button>
-                <CoinsDisplay userId={user.id} variant="compact" />
-                <NotificationsDropdown />
-              </> : <Button onClick={() => navigate('/auth')} variant="outline" size="sm" className="h-10 px-4 rounded-2xl border-border bg-card hover:bg-muted font-medium">
-                <LogIn className="w-4 h-4 sm:mr-2" />
-                <span className="hidden sm:inline text-sm">{t.login}</span>
-              </Button>}
+          {/* Right: Coins (or Login) */}
+          <div className="flex-1 flex items-center justify-end gap-2">
+            {user ? (
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
+                <span className="text-xl">🪙</span>
+                <span className="text-sm font-bold text-white">
+                  <CoinsDisplay userId={user.id} variant="compact" />
+                </span>
+              </div>
+            ) : (
+              <Button onClick={() => navigate('/auth')} variant="ghost" size="sm" className="h-9 px-4 rounded-full text-white hover:bg-white/10 font-medium">
+                <LogIn className="w-4 h-4 mr-2" />
+                {t.login}
+              </Button>
+            )}
           </div>
         </div>
       </div>
