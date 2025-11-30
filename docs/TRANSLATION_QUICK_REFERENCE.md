@@ -25,7 +25,6 @@ function MyComponent() {
 ## 📋 Common Translation Keys
 
 ### Navigation
-
 ```typescript
 t.nav_home           // "Home" / "Inicio" / "Startseite"
 t.nav_explore        // "Explore" / "Explorar" / "Erkunden"
@@ -35,7 +34,6 @@ t.nav_settings       // "Settings" / "Ajustes" / "Einstellungen"
 ```
 
 ### Common Actions
-
 ```typescript
 t.common_save        // "Save"
 t.common_cancel      // "Cancel"
@@ -48,7 +46,6 @@ t.common_next        // "Next"
 ```
 
 ### Status Messages
-
 ```typescript
 t.common_success     // "Success"
 t.common_error       // "Error"
@@ -59,7 +56,6 @@ t.error_generic      // "An error occurred"
 ```
 
 ### Authentication
-
 ```typescript
 t.auth_signin        // "Sign In"
 t.auth_signup        // "Sign Up"
@@ -70,7 +66,6 @@ t.auth_forgot_password  // "Forgot Password?"
 ```
 
 ### Confessions
-
 ```typescript
 t.confession_submit     // "Submit Confession"
 t.confession_anonymous  // "Anonymous"
@@ -80,7 +75,6 @@ t.confession_delete     // "Delete Confession"
 ```
 
 ### Comments
-
 ```typescript
 t.comments_add          // "Add Comment"
 t.comments_reply        // "Reply"
@@ -88,20 +82,12 @@ t.comments_delete       // "Delete Comment"
 t.comments_empty        // "No comments yet"
 ```
 
-### VIP & Subscription
-
+### Premium Features
 ```typescript
-t.vip_member             // "VIP Member"
-t.vip_feature            // "VIP Feature"
-t.vip_benefits           // "VIP Benefits"
-t.upgrade_now            // "Upgrade Now"
-t.subscription_upgrade   // "Upgrade"
-t.subscription_upgrade_vip // "Upgrade to VIP"
-t.subscription_cta_upgrade // "Become a VIP"
-t.subscription_tier_vip  // "VIP Plan"
-t.subscription_downgrade // "Downgrade"
-t.subs_manage            // "Manage Subscription"
-t.trial_active           // "Trial Active"
+t.subscription_upgrade  // "Upgrade"
+t.subs_manage          // "Manage Subscription"
+t.premium_feature      // "Premium Feature"
+t.trial_active         // "Trial Active"
 ```
 
 ---
@@ -109,7 +95,6 @@ t.trial_active           // "Trial Active"
 ## 🔄 Language Switching
 
 ### Programmatic Language Change
-
 ```tsx
 const { setLanguage } = useLanguage();
 
@@ -124,7 +109,6 @@ setLanguage('en');
 ```
 
 ### Using LanguageSelector Component
-
 ```tsx
 import { LanguageSelector } from '@/components/LanguageSelector';
 
@@ -142,7 +126,6 @@ function MyHeader() {
 ## 🎨 Dynamic Content
 
 ### String Interpolation
-
 ```tsx
 // For dynamic content, use string replacement
 const count = 5;
@@ -152,7 +135,6 @@ const message = t.items_count_text.replace('{count}', count.toString());
 ```
 
 ### Date Formatting
-
 ```tsx
 const { language } = useLanguage();
 
@@ -169,7 +151,6 @@ const formatted = date.toLocaleDateString(
 ## ✅ Form Validation
 
 ### Using i18n Validation
-
 ```tsx
 import { useI18nValidation } from '@/lib/i18nValidation';
 import { z } from 'zod';
@@ -191,7 +172,6 @@ function MyForm() {
 ## 🐛 Troubleshooting
 
 ### Missing Translation Key
-
 ```tsx
 // If a key is missing, it will show the key name
 {t.nonexistent_key} // Shows: "nonexistent_key"
@@ -200,14 +180,12 @@ function MyForm() {
 ```
 
 ### Language Not Persisting
-
 ```tsx
 // Language is saved to localStorage automatically
 // If not persisting, check browser storage permissions
 ```
 
 ### TypeScript Errors
-
 ```tsx
 // Make sure the key exists in types.ts
 // If adding new keys, add to both types.ts and translations.ts
@@ -218,7 +196,6 @@ function MyForm() {
 ## 📝 Adding New Translations
 
 ### Step 1: Add to Types
-
 ```typescript
 // src/i18n/types.ts
 export interface Translations {
@@ -228,7 +205,6 @@ export interface Translations {
 ```
 
 ### Step 2: Add to All Languages
-
 ```typescript
 // src/i18n/translations.ts
 export const translations = {
@@ -248,7 +224,6 @@ export const translations = {
 ```
 
 ### Step 3: Use in Component
-
 ```tsx
 const { t } = useLanguage();
 <p>{t.my_new_key}</p>
@@ -259,7 +234,6 @@ const { t } = useLanguage();
 ## 🧪 Testing Translations
 
 ### Manual Testing
-
 1. Change language using LanguageSelector
 2. Navigate through all pages
 3. Verify text updates correctly
@@ -267,7 +241,6 @@ const { t } = useLanguage();
 5. Test error/success notifications
 
 ### E2E Testing
-
 ```typescript
 // tests/e2e/i18n.spec.ts
 test('displays in Spanish', async ({ page }) => {
@@ -285,7 +258,6 @@ test('displays in Spanish', async ({ page }) => {
 ## 💡 Best Practices
 
 ### DO ✅
-
 - Always use translation keys for user-facing text
 - Add keys to all three languages simultaneously
 - Use descriptive key names
@@ -293,7 +265,6 @@ test('displays in Spanish', async ({ page }) => {
 - Keep translations concise
 
 ### DON'T ❌
-
 - Don't hardcode user-facing strings
 - Don't use generic key names like `text1`, `label2`
 - Don't forget to add TypeScript types
@@ -305,7 +276,6 @@ test('displays in Spanish', async ({ page }) => {
 ## 📚 Full Documentation
 
 For complete documentation, see:
-
 - `docs/TRANSLATION_SYSTEM.md` - Full system documentation
 - `docs/TRANSLATION_IMPLEMENTATION_COMPLETE.md` - Implementation details
 - `docs/TRANSLATION_ACCEPTANCE_TESTS.md` - Testing checklist
