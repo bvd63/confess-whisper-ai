@@ -1,16 +1,9 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
-import { GradientText } from "@/components/GradientText";
-import { Sparkles, TrendingUp, Bell } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import AppLayout from "@/components/AppLayout";
-import DailyPrompt from "@/components/DailyPrompt";
-import Leaderboard from "@/components/Leaderboard";
-import { QuoteOfTheDay } from "@/components/QuoteOfTheDay";
-import QuoteOfTheDaySkeleton from "@/components/QuoteOfTheDaySkeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import StreakCounter from "@/components/StreakCounter";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useMessageNotifications } from "@/hooks/useMessageNotifications";
 import { useVipStatus } from "@/hooks/usePremiumStatus";
@@ -19,20 +12,19 @@ import SEOHead from "@/components/SEOHead";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePerformanceBudget } from "@/hooks/usePerformanceBudget";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
-import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { OneSignalBanner } from "@/components/OneSignalBanner";
 import { oneSignalBannerI18n } from "@/i18n/onesignal";
 import { requestNotificationPermission } from "@/services/onesignal";
-
-
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import ConfessionCard from "@/components/ConfessionCard";
+import { ConfessionCardSkeleton } from "@/components/skeletons/ConfessionCardSkeleton";
+import { attachActiveBoosts } from "@/lib/boosts";
 
 // Lazy load heavy components
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
-
 const OnboardingDialog = lazy(() => import("@/components/OnboardingDialog"));
 const TrustBadges = lazy(() => import("@/components/TrustBadges"));
 const FAQ = lazy(() => import("@/components/FAQ"));
@@ -56,7 +48,20 @@ const Index = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   
-  // Pull to refresh
+  // Fetch recent confessions for home feed
+  const { data: confessions, isLoading: loadingConfessions } = useQuery({
+    queryKey: ["home-feed-confessions"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("confessions")
+        .select("*")
+        .eq("moderation_status", "approved")
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      return attachActiveBoosts(data || []);
+    },
+  });
   const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
     onRefresh: async () => {
       // Reload data
@@ -193,7 +198,7 @@ const Index = () => {
       {/* Main Content */}
       <main 
         ref={containerRef}
-        className="container max-w-2xl mx-auto px-4 py-6"
+        className="container max-w-2xl mx-auto px-4 py-6 pb-24"
       >
         {/* OneSignal Notification Banner */}
         {user && !bannerDismissed && (
@@ -219,40 +224,34 @@ const Index = () => {
           </div>
         )}
 
-        {/* Welcome Section */}
-        <div className="mb-12 text-center animate-fade-in">
-          <div className="inline-flex items-center gap-3 mb-6 px-6 py-3 glass rounded-full border border-primary/15 shadow-lg shadow-primary/5">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-pressed flex items-center justify-center shadow-lg shadow-primary/25">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-sm text-primary font-semibold">{t.anonymous_secure}</span>
+        {/* Confession Feed */}
+        {loadingConfessions ? (
+          <div className="space-y-4">
+            <ConfessionCardSkeleton />
+            <ConfessionCardSkeleton />
+            <ConfessionCardSkeleton />
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 px-4 text-foreground">
-            {t.home_title}
-          </h2>
-          <p className="text-lg text-foreground-secondary max-w-xl mx-auto px-4 leading-relaxed">
-            {t.welcome_description}
-          </p>
-        </div>
-
-
-        {/* Quote of the Day */}
-        {user && (
-          <Suspense fallback={<QuoteOfTheDaySkeleton />}>
-            <QuoteOfTheDay />
-          </Suspense>
-        )}
-
-        {/* Daily Prompt */}
-        {user && <DailyPrompt onOpenNewConfession={handleNewConfession} />}
-
-        {/* Leaderboard */}
-        {showSecondaryContent && (
-          <div className="my-6">
-            <Leaderboard />
+        ) : confessions && confessions.length > 0 ? (
+          <div className="space-y-4">
+            {confessions.map((confession) => (
+              <ConfessionCard
+                key={confession.id}
+                confession={confession}
+                isVip={isVip}
+                onUpgradeClick={() => {}}
+                onInsightGenerated={() => {
+                  toast({
+                    title: t.deep_insight_success,
+                  });
+                }}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">{t.ui_no_confessions}</p>
           </div>
         )}
-
       </main>
 
       {/* Dialogs with Suspense for lazy loading */}
