@@ -2043,6 +2043,13 @@ type Translations = {
   support_contact_email: string;
   support_email_subject: string;
   support_email_body: string;
+  contact_support_title: string;
+  contact_support_description: string;
+  contact_support_name_label: string;
+  contact_support_email_label: string;
+  contact_support_issue_label: string;
+  contact_support_button: string;
+  contact_support_email_footer: string;
   
   // Additional Loading States
   loading_content: string;
@@ -3781,6 +3788,13 @@ export const translations: Record<Language, Translations> = {
     support_contact_email: "Contact Support",
     support_email_subject: "ConfessAI Support Request",
     support_email_body: "Hello ConfessAI support team,\n\nAccount email (optional):\nIssue summary:\n- \n\nAdditional details:\n- \n\nThank you!",
+    contact_support_title: "Contact Support",
+    contact_support_description: "Tell us about any ConfessAI issue.",
+    contact_support_name_label: "Name",
+    contact_support_email_label: "Email",
+    contact_support_issue_label: "Issue details",
+    contact_support_button: "Send email",
+    contact_support_email_footer: "Sent via ConfessAI app.",
     
     // Additional Loading States
     loading_content: "Loading content",
@@ -5715,6 +5729,13 @@ export const translations: Record<Language, Translations> = {
     support_contact_email: "Contactar soporte",
     support_email_subject: "Solicitud de soporte ConfessAI",
     support_email_body: "Hola equipo de soporte de ConfessAI,\n\nCorreo de la cuenta (opcional):\nResumen del problema:\n- \n\nDetalles adicionales:\n- \n\n¡Gracias!",
+    contact_support_title: "Contactar con soporte",
+    contact_support_description: "Cuéntanos cualquier problema en ConfessAI.",
+    contact_support_name_label: "Nombre",
+    contact_support_email_label: "Correo electrónico",
+    contact_support_issue_label: "Detalles del problema",
+    contact_support_button: "Enviar correo",
+    contact_support_email_footer: "Enviado desde la app ConfessAI.",
     
     // Additional Loading States
     loading_content: "Cargando contenido",
@@ -7649,6 +7670,13 @@ export const translations: Record<Language, Translations> = {
     support_contact_email: "Support kontaktieren",
     support_email_subject: "ConfessAI Supportanfrage",
     support_email_body: "Hallo ConfessAI Support-Team,\n\nAccount-E-Mail (optional):\nProblembeschreibung:\n- \n\nWeitere Details:\n- \n\nDanke!",
+    contact_support_title: "Support kontaktieren",
+    contact_support_description: "Melde jedes ConfessAI-Problem.",
+    contact_support_name_label: "Name",
+    contact_support_email_label: "E-Mail",
+    contact_support_issue_label: "Problemdetails",
+    contact_support_button: "E-Mail senden",
+    contact_support_email_footer: "Gesendet aus der ConfessAI App.",
     
     // Additional Loading States
     loading_content: "Inhalt wird geladen",

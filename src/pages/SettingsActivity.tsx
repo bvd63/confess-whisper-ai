@@ -9,7 +9,7 @@ import { StreakDisplay } from '@/components/StreakDisplay';
 import { RateLimitIndicator } from '@/components/RateLimitIndicator';
 import { useConfessionRateLimit } from '@/hooks/useConfessionRateLimit';
 import { Card } from '@/components/ui/card';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useStreakManager } from '@/hooks/useStreakManager';
 import { cn } from '@/lib/utils';
 import { NotificationSettings as NotificationSettingsComponent } from '@/components/NotificationSettings';
@@ -23,7 +23,6 @@ import BlockedUsers from '@/components/BlockedUsers';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import ThemeToggle from '@/components/ThemeToggle';
 import { logError } from '@/lib/logger';
-import { buildSupportMailto } from '@/lib/support';
 
 interface MenuItemProps {
   icon: React.ElementType;
@@ -81,7 +80,6 @@ const SettingsActivity = () => {
   const [passwordChangedAt, setPasswordChangedAt] = useState<string | null>(null);
   
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
-  const supportMailto = useMemo(() => buildSupportMailto(language), [language]);
 
   // Navigate to auth if no user - use useEffect to avoid render errors
   useEffect(() => {
@@ -305,8 +303,8 @@ const SettingsActivity = () => {
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </button>
 
-              <a
-                href={supportMailto}
+              <button
+                onClick={() => navigate('/settings/support/contact')}
                 className="w-full flex items-center justify-between p-3 bg-muted/30 hover:bg-muted/50 rounded-lg transition-colors"
               >
                 <div className="flex items-center gap-3">
@@ -314,7 +312,7 @@ const SettingsActivity = () => {
                   <span className="text-sm font-medium">{t.support_contact_email}</span>
                 </div>
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </a>
+              </button>
             </div>
           </MenuItem>
         </Card>

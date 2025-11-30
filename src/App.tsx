@@ -66,6 +66,7 @@ const SettingsActivity = lazy(() => import("./pages/SettingsActivity"));
 const Rewards = lazy(() => import("./pages/Rewards"));
 const NotificationHistory = lazy(() => import("./pages/NotificationHistory"));
 const AiSupport = lazy(() => import("./pages/AiSupport"));
+const ContactSupport = lazy(() => import("./pages/ContactSupport"));
 
 const AppContent = () => {
   const { user } = useAuth();
@@ -269,6 +270,7 @@ const AppContent = () => {
           <Route path="/coins/cancel" element={<CoinPurchaseCancel />} />
           <Route path="/settings/activity" element={<SettingsActivity />} />
           <Route path="/settings/support/ai" element={<AiSupport />} />
+          <Route path="/settings/support/contact" element={<ContactSupport />} />
           <Route path="/rewards" element={<Rewards />} />
           <Route path="/notifications" element={<NotificationHistory />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
