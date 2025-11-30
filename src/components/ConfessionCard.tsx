@@ -304,11 +304,19 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
           likesCount={confession.likes_count || 0}
           isLiked={initialIsLiked || false}
           isBookmarked={initialIsBookmarked || false}
+          commentsCount={commentsCount}
           onLikeChange={onLikeChange || (() => {})}
           onBookmarkChange={onBookmarkChange || (() => {})}
           onShare={() => setIsShareOpen(true)}
           onReport={() => setIsReportOpen(true)}
           onDelete={handleDeleteConfession}
+          onCommentsClick={() => {
+            // Scroll to comments section
+            const commentsSection = document.getElementById(`comments-${confession.id}`);
+            if (commentsSection) {
+              commentsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+          }}
         />
         
         <div className="flex items-center gap-2">
