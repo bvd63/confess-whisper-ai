@@ -93,8 +93,8 @@ export default function ForgotPassword() {
       >
         {/* Logo & Title */}
         <div className="text-center mb-8 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 mb-4">
-            <Heart className="w-8 h-8 sm:w-10 sm:h-10 text-primary animate-heart-beat" fill="currentColor" />
+          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-primary via-primary-hover to-primary-pressed shadow-lg shadow-primary/25 mb-4">
+            <Heart className="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="currentColor" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold mb-2">
             <GradientText variant="hero">{t.auth_forgot_password_title}</GradientText>
