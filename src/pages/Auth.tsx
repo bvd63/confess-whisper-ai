@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { EnhancedButton } from "@/components/EnhancedButton";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { GradientText } from "@/components/GradientText";
-
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -20,12 +19,18 @@ import { PasswordRulesChecklist } from "@/components/PasswordRulesChecklist";
 import { cn } from "@/lib/utils";
 import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
 import { logError } from "@/lib/logger";
-
 const Auth = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const { t } = useLanguage();
-  const { enhancedLogin, checkCaptchaRequired } = useEnhancedAuth();
+  const {
+    toast
+  } = useToast();
+  const {
+    t
+  } = useLanguage();
+  const {
+    enhancedLogin,
+    checkCaptchaRequired
+  } = useEnhancedAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,30 +42,38 @@ const Auth = () => {
   const [captchaToken, setCaptchaToken] = useState("");
   const [turnstileError, setTurnstileError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({ email: "", password: "", confirmPassword: "", captcha: "" });
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+    confirmPassword: "",
+    captcha: ""
+  });
   const [failedLoginAttempts, setFailedLoginAttempts] = useState(0);
   const [showLoginCaptcha, setShowLoginCaptcha] = useState(false);
-
   const passwordValidation = usePasswordValidation(password);
   const emailSchema = z.string().email(t.auth_invalid_email);
-
   useEffect(() => {
     checkUser();
   }, []);
-
   const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: {
+        user
+      }
+    } = await supabase.auth.getUser();
     if (user) {
       navigate('/');
     }
   };
-
   const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
   const passwordsDontMatch = confirmPassword.length > 0 && !passwordsMatch;
-
   const validateForm = (): boolean => {
-    const newErrors = { email: "", password: "", confirmPassword: "", captcha: "" };
-    
+    const newErrors = {
+      email: "",
+      password: "",
+      confirmPassword: "",
+      captcha: ""
+    };
     try {
       emailSchema.parse(email);
     } catch (e) {
@@ -68,25 +81,20 @@ const Auth = () => {
         newErrors.email = e.errors[0].message;
       }
     }
-
     if (!isLogin) {
       if (!validatePasswordStrength(password)) {
         newErrors.password = t.auth_password_min;
       }
-
       if (!passwordsMatch) {
         newErrors.confirmPassword = t.auth_password_match_fail;
       }
-
       if (!captchaToken) {
         newErrors.captcha = t.auth_captcha_failed;
       }
     }
-
     setErrors(newErrors);
     return !newErrors.email && !newErrors.password && !newErrors.confirmPassword && !newErrors.captcha;
   };
-
   const isFormValid = (): boolean => {
     if (isLogin) {
       const basicValid = !!email && !!password;
@@ -95,49 +103,35 @@ const Auth = () => {
       }
       return basicValid;
     }
-    return (
-      !!email &&
-      passwordValidation.allRulesPassed &&
-      passwordsMatch &&
-      !!captchaToken &&
-      acceptTerms
-    );
+    return !!email && passwordValidation.allRulesPassed && passwordsMatch && !!captchaToken && acceptTerms;
   };
-
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!validateForm()) return;
-
     setIsLoading(true);
-
     try {
       if (isLogin) {
         // Check if CAPTCHA is required for this email
         const captchaRequired = await checkCaptchaRequired(email.trim());
-        
         if (captchaRequired && !captchaToken) {
           setShowLoginCaptcha(true);
           toast({
             title: t.auth_error,
             description: t.auth_captcha_failed,
-            variant: "destructive",
+            variant: "destructive"
           });
           setIsLoading(false);
           return;
         }
 
         // Use enhanced login for better security and session tracking
-        const { data, error } = await enhancedLogin(
-          email.trim(),
-          password,
-          captchaToken,
-          {
-            stayConnected: staySignedIn,
-            deviceId: localStorage.getItem('device_id') || undefined,
-          }
-        );
-
+        const {
+          data,
+          error
+        } = await enhancedLogin(email.trim(), password, captchaToken, {
+          stayConnected: staySignedIn,
+          deviceId: localStorage.getItem('device_id') || undefined
+        });
         if (error) {
           // Increment failed attempts and show captcha after 3 attempts
           const newAttempts = failedLoginAttempts + 1;
@@ -148,7 +142,10 @@ const Auth = () => {
 
           // Set inline error message on password field using translated message
           const message = (error as any)?.message || t.auth_invalid_credentials;
-          setErrors((prev) => ({ ...prev, password: message }));
+          setErrors(prev => ({
+            ...prev,
+            password: message
+          }));
 
           // Error already handled by useEnhancedAuth hook with toast
           setIsLoading(false);
@@ -162,54 +159,53 @@ const Auth = () => {
         // Award streak bonus if applicable
         if (data?.user?.id) {
           try {
-            const { data: streakData } = await supabase
-              .from('user_streaks')
-              .select('current_streak')
-              .eq('user_id', data.user.id)
-              .single();
-            
+            const {
+              data: streakData
+            } = await supabase.from('user_streaks').select('current_streak').eq('user_id', data.user.id).single();
             if (streakData?.current_streak) {
-              const { onDailyLogin } = await import('@/services/authHooks');
-              await onDailyLogin({ 
-                userId: data.user.id, 
-                currentStreak: streakData.current_streak 
+              const {
+                onDailyLogin
+              } = await import('@/services/authHooks');
+              await onDailyLogin({
+                userId: data.user.id,
+                currentStreak: streakData.current_streak
               });
             }
           } catch (err) {
             logError('Error checking streak bonus', err as Error);
           }
         }
-
         navigate('/');
       } else {
         // Server-side validation before signup
-        const { data: validationResult, error: validationError } = await supabase.functions.invoke('enhanced-auth?action=validate-signup', {
-          body: { 
+        const {
+          data: validationResult,
+          error: validationError
+        } = await supabase.functions.invoke('enhanced-auth?action=validate-signup', {
+          body: {
             email: email.trim(),
             password,
-            captchaToken,
-          },
+            captchaToken
+          }
         });
-
         if (validationError || validationResult?.error) {
-          const errorMsg = validationResult?.messageKey 
-            ? t[validationResult.messageKey.replace(/\./g, '_') as keyof typeof t] as string 
-            : t.auth_error_generic;
+          const errorMsg = validationResult?.messageKey ? t[validationResult.messageKey.replace(/\./g, '_') as keyof typeof t] as string : t.auth_error_generic;
           throw new Error(errorMsg);
         }
 
         // Proceed with signup after validation passes
-        const { error } = await supabase.auth.signUp({
+        const {
+          error
+        } = await supabase.auth.signUp({
           email: email.trim(),
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/`,
             data: {
-              staySignedIn,
-            },
-          },
+              staySignedIn
+            }
+          }
         });
-
         if (error) {
           if (error.message.includes("already registered")) {
             throw new Error(t.auth_email_exists);
@@ -227,20 +223,21 @@ const Auth = () => {
         if (referralCode) {
           try {
             await supabase.functions.invoke('process-referral', {
-              body: { referralCode },
+              body: {
+                referralCode
+              }
             });
             localStorage.removeItem('referralCode');
           } catch (refError) {
             logError('Error processing referral', refError as Error);
           }
         }
-
         toast({
           title: t.auth_signup_success,
           description: t.auth_check_email_verify,
-          duration: 6000,
+          duration: 6000
         });
-        
+
         // Don't auto-navigate - user needs to verify email first
       }
     } catch (error: any) {
@@ -249,14 +246,13 @@ const Auth = () => {
         toast({
           title: t.auth_error,
           description: error.message || t.auth_error_generic,
-          variant: "destructive",
+          variant: "destructive"
         });
       }
     } finally {
       setIsLoading(false);
     }
   };
-
   const handleModeSwitch = () => {
     setIsLogin(!isLogin);
     setPassword("");
@@ -265,16 +261,15 @@ const Auth = () => {
     setTurnstileError(false);
     setFailedLoginAttempts(0);
     setShowLoginCaptcha(false);
-    setErrors({ email: "", password: "", confirmPassword: "", captcha: "" });
+    setErrors({
+      email: "",
+      password: "",
+      confirmPassword: "",
+      captcha: ""
+    });
   };
-
-  return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6">
-      <AnimatedCard 
-        hover="glow"
-        glass
-        className="w-full max-w-md p-8 sm:p-10 border-primary/20 rounded-2xl"
-      >
+  return <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <AnimatedCard hover="glow" glass className="w-full max-w-md p-8 sm:p-10 border-primary/20 rounded-2xl">
         {/* Logo & Title */}
         <div className="text-center mb-10 animate-fade-in">
           <div className="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-primary via-primary-hover to-primary-pressed shadow-lg shadow-primary/25">
@@ -294,178 +289,95 @@ const Auth = () => {
           <div className="space-y-2">
             <div className="relative">
               <Mail className="absolute left-4 top-4 w-5 h-5 text-muted-foreground" />
-              <Input
-                type="email"
-                placeholder={t.auth_email_placeholder}
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setErrors(prev => ({ ...prev, email: "" }));
-                }}
-                className="pl-12 h-14 rounded-xl text-base"
-                disabled={isLoading}
-                autoComplete="email"
-              />
+              <Input type="email" placeholder={t.auth_email_placeholder} value={email} onChange={e => {
+              setEmail(e.target.value);
+              setErrors(prev => ({
+                ...prev,
+                email: ""
+              }));
+            }} className="pl-12 h-14 rounded-xl text-base" disabled={isLoading} autoComplete="email" />
             </div>
-            {errors.email && (
-              <p className="text-sm text-destructive flex items-center gap-2 mt-2">
+            {errors.email && <p className="text-sm text-destructive flex items-center gap-2 mt-2">
                 <AlertCircle className="w-4 h-4" />
                 {errors.email}
-              </p>
-            )}
+              </p>}
           </div>
 
           {/* Password Field */}
           <div className="space-y-2">
             <div className="relative">
               <Lock className="absolute left-4 top-4 w-5 h-5 text-muted-foreground" />
-              <Input
-                type={showPassword ? "text" : "password"}
-                placeholder={t.auth_password_placeholder}
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setErrors(prev => ({ ...prev, password: "" }));
-                }}
-                className="pl-12 pr-12 h-14 rounded-xl text-base"
-                disabled={isLoading}
-                autoComplete={isLogin ? "current-password" : "new-password"}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-4 text-muted-foreground hover:text-foreground transition-colors"
-                aria-label={showPassword ? t.auth_hide_password : t.auth_show_password}
-                tabIndex={-1}
-              >
-                {showPassword ? (
-                  <EyeOff className="w-5 h-5" />
-                ) : (
-                  <Eye className="w-5 h-5" />
-                )}
+              <Input type={showPassword ? "text" : "password"} placeholder={t.auth_password_placeholder} value={password} onChange={e => {
+              setPassword(e.target.value);
+              setErrors(prev => ({
+                ...prev,
+                password: ""
+              }));
+            }} className="pl-12 pr-12 h-14 rounded-xl text-base" disabled={isLoading} autoComplete={isLogin ? "current-password" : "new-password"} />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-4 text-muted-foreground hover:text-foreground transition-colors" aria-label={showPassword ? t.auth_hide_password : t.auth_show_password} tabIndex={-1}>
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5 px-0 mx-[10px] my-0 mb-[17px]" />}
               </button>
             </div>
-            {errors.password && (
-              <p className="text-sm text-destructive flex items-center gap-2 mt-2">
+            {errors.password && <p className="text-sm text-destructive flex items-center gap-2 mt-2">
                 <AlertCircle className="w-4 h-4" />
                 {errors.password}
-              </p>
-            )}
+              </p>}
 
             {/* Password Strength and Rules for Signup */}
-            {!isLogin && password.length > 0 && (
-              <div className="space-y-3 pt-2">
-                <PasswordStrengthMeter 
-                  strength={passwordValidation.strength}
-                  strengthScore={passwordValidation.strengthScore}
-                />
+            {!isLogin && password.length > 0 && <div className="space-y-3 pt-2">
+                <PasswordStrengthMeter strength={passwordValidation.strength} strengthScore={passwordValidation.strengthScore} />
                 <PasswordRulesChecklist rules={passwordValidation.rules} />
-              </div>
-            )}
+              </div>}
           </div>
 
           {/* Confirm Password Field (Signup only) */}
-          {!isLogin && (
-            <div className="space-y-2">
+          {!isLogin && <div className="space-y-2">
               <div className="relative">
                 <Lock className="absolute left-4 top-4 w-5 h-5 text-muted-foreground" />
-                <Input
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder={t.auth_confirm_password_placeholder}
-                  value={confirmPassword}
-                  onChange={(e) => {
-                    setConfirmPassword(e.target.value);
-                    setErrors(prev => ({ ...prev, confirmPassword: "" }));
-                  }}
-                  onPaste={(e) => e.preventDefault()}
-                  className="pl-12 pr-12 h-14 rounded-xl text-base"
-                  disabled={isLoading}
-                  autoComplete="new-password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-4 text-muted-foreground hover:text-foreground transition-colors"
-                  aria-label={showConfirmPassword ? t.auth_hide_password : t.auth_show_password}
-                  tabIndex={-1}
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
+                <Input type={showConfirmPassword ? "text" : "password"} placeholder={t.auth_confirm_password_placeholder} value={confirmPassword} onChange={e => {
+              setConfirmPassword(e.target.value);
+              setErrors(prev => ({
+                ...prev,
+                confirmPassword: ""
+              }));
+            }} onPaste={e => e.preventDefault()} className="pl-12 pr-12 h-14 rounded-xl text-base" disabled={isLoading} autoComplete="new-password" />
+                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-4 text-muted-foreground hover:text-foreground transition-colors" aria-label={showConfirmPassword ? t.auth_hide_password : t.auth_show_password} tabIndex={-1}>
+                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
               
               {/* Password Match Indicator */}
-              {confirmPassword.length > 0 && (
-                <p className={cn(
-                  "text-xs flex items-center gap-1.5",
-                  passwordsMatch ? "text-green-600 dark:text-green-500" : "text-destructive"
-                )}>
-                  {passwordsMatch ? (
-                    <>
+              {confirmPassword.length > 0 && <p className={cn("text-xs flex items-center gap-1.5", passwordsMatch ? "text-green-600 dark:text-green-500" : "text-destructive")}>
+                  {passwordsMatch ? <>
                       <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
                       {t.auth_password_match_ok}
-                    </>
-                  ) : (
-                    <>
+                    </> : <>
                       <span className="w-1.5 h-1.5 rounded-full bg-destructive" />
                       {t.auth_password_match_fail}
-                    </>
-                  )}
-                </p>
-              )}
-              {errors.confirmPassword && (
-                <p className="text-xs text-destructive">{errors.confirmPassword}</p>
-              )}
-            </div>
-          )}
+                    </>}
+                </p>}
+              {errors.confirmPassword && <p className="text-xs text-destructive">{errors.confirmPassword}</p>}
+            </div>}
 
           {/* Stay Signed In */}
           <div className="flex items-center justify-between space-x-2">
             <div className="flex items-center space-x-2">
-              <Checkbox
-                id="stay-signed-in"
-                checked={staySignedIn}
-                onCheckedChange={(checked) => setStaySignedIn(checked === true)}
-                disabled={isLoading}
-              />
-              <Label
-                htmlFor="stay-signed-in"
-                className="text-sm cursor-pointer select-none"
-              >
+              <Checkbox id="stay-signed-in" checked={staySignedIn} onCheckedChange={checked => setStaySignedIn(checked === true)} disabled={isLoading} />
+              <Label htmlFor="stay-signed-in" className="text-sm cursor-pointer select-none">
                 {isLogin ? "Stay logged in" : t.auth_stay_signed_in}
               </Label>
             </div>
             
             {/* Forgot Password Link - Login Only */}
-            {isLogin && (
-              <button
-                type="button"
-                onClick={() => navigate('/forgot-password')}
-                className="text-xs text-primary hover:underline"
-                disabled={isLoading}
-              >
+            {isLogin && <button type="button" onClick={() => navigate('/forgot-password')} className="text-xs text-primary hover:underline" disabled={isLoading}>
                 {t.auth_forgot_password}
-              </button>
-            )}
+              </button>}
           </div>
 
           {/* Terms & Privacy - Signup Only */}
-          {!isLogin && (
-            <div className="flex items-start space-x-2">
-              <Checkbox
-                id="accept-terms"
-                checked={acceptTerms}
-                onCheckedChange={(checked) => setAcceptTerms(checked === true)}
-                disabled={isLoading}
-                className="mt-0.5"
-              />
-              <Label
-                htmlFor="accept-terms"
-                className="text-xs cursor-pointer select-none text-muted-foreground leading-relaxed"
-              >
+          {!isLogin && <div className="flex items-start space-x-2">
+              <Checkbox id="accept-terms" checked={acceptTerms} onCheckedChange={checked => setAcceptTerms(checked === true)} disabled={isLoading} className="mt-0.5" />
+              <Label htmlFor="accept-terms" className="text-xs cursor-pointer select-none text-muted-foreground leading-relaxed">
                 By signing up you agree to our{" "}
                 <a href="/terms" target="_blank" className="text-primary hover:underline">
                   Terms
@@ -475,98 +387,72 @@ const Auth = () => {
                   Privacy Policy
                 </a>
               </Label>
-            </div>
-          )}
+            </div>}
 
           {/* Turnstile CAPTCHA (Signup always, Login after 3 failed attempts) */}
-          {(!isLogin || showLoginCaptcha) && (
-            <div className="space-y-2">
-              {showLoginCaptcha && (
-                <Alert className="mb-2">
+          {(!isLogin || showLoginCaptcha) && <div className="space-y-2">
+              {showLoginCaptcha && <Alert className="mb-2">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
                     {t.auth_captcha_required_after_fails || "Please verify you're human to continue"}
                   </AlertDescription>
-                </Alert>
-              )}
-              {turnstileError && (
-                <Alert variant="destructive" className="mb-2">
+                </Alert>}
+              {turnstileError && <Alert variant="destructive" className="mb-2">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
                     {t.auth_captcha_failed}
                   </AlertDescription>
-                </Alert>
-              )}
-              <Turnstile
-                siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
-                onSuccess={(token) => {
-                  setCaptchaToken(token);
-                  setTurnstileError(false);
-                  setErrors(prev => ({ ...prev, captcha: "" }));
-                }}
-                onError={() => {
-                  setCaptchaToken("");
-                  setTurnstileError(true);
-                  setErrors(prev => ({ ...prev, captcha: t.auth_captcha_failed }));
-                }}
-                onExpire={() => {
-                  setCaptchaToken("");
-                  setTurnstileError(true);
-                  setErrors(prev => ({ ...prev, captcha: t.auth_captcha_failed }));
-                }}
-                options={{
-                  theme: 'auto',
-                  size: 'normal',
-                }}
-              />
-              {errors.captcha && !turnstileError && (
-                <p className="text-xs text-destructive">{errors.captcha}</p>
-              )}
-            </div>
-          )}
+                </Alert>}
+              <Turnstile siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"} onSuccess={token => {
+            setCaptchaToken(token);
+            setTurnstileError(false);
+            setErrors(prev => ({
+              ...prev,
+              captcha: ""
+            }));
+          }} onError={() => {
+            setCaptchaToken("");
+            setTurnstileError(true);
+            setErrors(prev => ({
+              ...prev,
+              captcha: t.auth_captcha_failed
+            }));
+          }} onExpire={() => {
+            setCaptchaToken("");
+            setTurnstileError(true);
+            setErrors(prev => ({
+              ...prev,
+              captcha: t.auth_captcha_failed
+            }));
+          }} options={{
+            theme: 'auto',
+            size: 'normal'
+          }} />
+              {errors.captcha && !turnstileError && <p className="text-xs text-destructive">{errors.captcha}</p>}
+            </div>}
 
           {/* Submit Button */}
-          <EnhancedButton
-            type="submit"
-            className="w-full"
-            disabled={isLoading || !isFormValid()}
-            glow
-            lift
-            shine
-          >
-            {isLoading ? (
-              <>
+          <EnhancedButton type="submit" className="w-full" disabled={isLoading || !isFormValid()} glow lift shine>
+            {isLoading ? <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 {isLogin ? t.auth_logging_in : t.auth_creating_account}
-              </>
-            ) : (
-              isLogin ? t.auth_login_button : t.auth_signup_button
-            )}
+              </> : isLogin ? t.auth_login_button : t.auth_signup_button}
           </EnhancedButton>
         </form>
 
         {/* Toggle Login/Signup */}
         <div className="mt-6 text-center">
-          <button
-            onClick={handleModeSwitch}
-            className="text-sm text-muted-foreground hover:text-primary transition-colors"
-            disabled={isLoading}
-          >
-            {isLogin ? (
-              <>
+          <button onClick={handleModeSwitch} className="text-sm text-muted-foreground hover:text-primary transition-colors" disabled={isLoading}>
+            {isLogin ? <>
                 {t.auth_no_account} <span className="text-primary font-medium">{t.auth_signup_link}</span>
-              </>
-            ) : (
-              <>
+              </> : <>
                 {t.auth_have_account} <span className="text-primary font-medium">{t.auth_login_link}</span>
-              </>
-            )}
+              </>}
           </button>
         </div>
 
         {/* Benefits for new users */}
-        {!isLogin && (
-          <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-border/50">
+        {!isLogin && <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-border/50">
             <p className="text-[10px] sm:text-xs text-center text-muted-foreground mb-2 sm:mb-3">
               {t.auth_benefits_title}
             </p>
@@ -584,11 +470,8 @@ const Auth = () => {
                 <span>{t.auth_benefit_community}</span>
               </div>
             </div>
-          </div>
-        )}
+          </div>}
       </AnimatedCard>
-    </div>
-  );
+    </div>;
 };
-
 export default Auth;
