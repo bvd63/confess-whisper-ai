@@ -9,11 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useConfirm } from "@/contexts/ConfirmContext";
 import { notify } from "@/lib/notifications";
-import { SubscriptionBadge } from "@/components/SubscriptionBadge";
-import { useVipStatus } from "@/hooks/usePremiumStatus";
-import { CommentAuthor } from "./CommentAuthor";
 import { sanitizeComment } from "@/lib/security/sanitizer";
-import { addCsrfHeader } from "@/lib/security/csrf";
 import { logError } from "@/lib/logger";
 import { HighlightCommentButton } from "./coins/HighlightCommentButton";
 import { cn } from "@/lib/utils";
@@ -25,6 +21,7 @@ interface Comment {
   created_at: string;
   is_highlighted?: boolean;
   highlight_expires_at?: string | null;
+  alias?: string | null;
 }
 
 interface CommentsSectionProps {
@@ -39,6 +36,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const { user } = useCurrentUser();
   const { toast } = useToast();
   const { t, language } = useLanguage();
@@ -54,7 +52,23 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setComments(data || []);
+      
+      // Generate aliases for comments that don't have them
+      const commentsWithAliases = await Promise.all(
+        (data || []).map(async (comment) => {
+          if (!comment.alias && comment.user_id) {
+            const { data: aliasData } = await supabase
+              .rpc('generate_comment_alias', {
+                p_user_id: comment.user_id,
+                p_confession_id: confessionId
+              });
+            return { ...comment, alias: aliasData || 'Anonymous' };
+          }
+          return comment;
+        })
+      );
+      
+      setComments(commentsWithAliases);
     } catch (error) {
       logError('Error loading comments', error instanceof Error ? error : undefined);
     }
@@ -66,6 +80,58 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isExpanded, confessionId]);
+
+  // Cooldown timer effect
+  useEffect(() => {
+    if (cooldownSeconds > 0) {
+      const timer = setTimeout(() => {
+        setCooldownSeconds(cooldownSeconds - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [cooldownSeconds]);
+
+  const checkAntiSpamRules = async (): Promise<{ allowed: boolean; error?: string }> => {
+    if (!user) return { allowed: false, error: t.error_auth };
+
+    try {
+      // Check daily limit
+      const { data: dailyCheck } = await supabase
+        .rpc('check_daily_comment_limit', { p_user_id: user.id });
+      
+      const dailyResult = dailyCheck as { can_comment: boolean; comments_today: number; daily_limit: number; remaining: number } | null;
+      if (dailyResult && !dailyResult.can_comment) {
+        return { allowed: false, error: t.comments_error_daily_limit };
+      }
+
+      // Check consecutive limit per confession
+      const { data: consecutiveCheck } = await supabase
+        .rpc('check_consecutive_comment_limit', {
+          p_user_id: user.id,
+          p_confession_id: confessionId
+        });
+      
+      const consecutiveResult = consecutiveCheck as { can_comment: boolean; reason: string } | null;
+      if (consecutiveResult && !consecutiveResult.can_comment) {
+        return { allowed: false, error: t.comments_error_consecutive_limit };
+      }
+
+      // Check cooldown
+      const { data: cooldownCheck } = await supabase
+        .rpc('check_comment_cooldown', { p_user_id: user.id });
+      
+      const cooldownResult = cooldownCheck as { can_comment: boolean; seconds_remaining: number } | null;
+      if (cooldownResult && !cooldownResult.can_comment) {
+        setCooldownSeconds(cooldownResult.seconds_remaining || 10);
+        return { allowed: false, error: t.comments_error_cooldown };
+      }
+
+      return { allowed: true };
+    } catch (error) {
+      logError('Error checking anti-spam rules', error instanceof Error ? error : undefined);
+      return { allowed: false, error: t.error_generic };
+    }
+  };
 
   const handleSubmit = async () => {
     if (!newComment.trim() || !user) return;
@@ -79,10 +145,30 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
       return;
     }
 
+    // Check anti-spam rules
+    const spamCheck = await checkAntiSpamRules();
+    if (!spamCheck.allowed) {
+      toast({
+        title: t.error_generic,
+        description: spamCheck.error || t.error_generic,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       // Sanitize comment content before submission
       const sanitizedContent = sanitizeComment(newComment.trim());
+      
+      // Generate stable alias for this user on this confession
+      const { data: aliasData } = await supabase
+        .rpc('generate_comment_alias', {
+          p_user_id: user.id,
+          p_confession_id: confessionId
+        });
+      
+      const alias = aliasData || 'Anonymous';
       
       const { error } = await supabase
         .from('comments')
@@ -90,11 +176,13 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
           confession_id: confessionId,
           user_id: user.id,
           content: sanitizedContent,
+          alias: alias,
         });
 
       if (error) throw error;
 
       setNewComment("");
+      setCooldownSeconds(10); // Start cooldown
       await loadComments();
       onCommentChange?.();
       
@@ -182,20 +270,25 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
           {user && (
             <div className="space-y-2">
               <Textarea
-                placeholder={t.comments_placeholder}
+                placeholder={t.comments_anonymous_placeholder}
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 className="min-h-[60px] sm:min-h-[80px] resize-none border-primary/20 focus:border-primary/40 bg-background/50 text-xs sm:text-sm"
-                disabled={isSubmitting}
+                disabled={isSubmitting || cooldownSeconds > 0}
                 maxLength={500}
               />
               <div className="flex items-center justify-between">
                 <span className="text-[10px] sm:text-xs text-muted-foreground">
                   {newComment.length}/500
+                  {cooldownSeconds > 0 && (
+                    <span className="ml-2 text-orange-500">
+                      • {cooldownSeconds}s
+                    </span>
+                  )}
                 </span>
                 <Button
                   onClick={handleSubmit}
-                  disabled={isSubmitting || !newComment.trim()}
+                  disabled={isSubmitting || !newComment.trim() || cooldownSeconds > 0}
                   size="sm"
                   className="bg-gradient-to-r from-primary to-primary/80 text-xs sm:text-sm"
                 >
@@ -210,12 +303,13 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
           <div className="space-y-2 sm:space-y-3">
             {comments.length === 0 ? (
               <p className="text-xs sm:text-sm text-muted-foreground text-center py-3 sm:py-4">
-                {t.comments_none}
+                {t.comments_empty}
               </p>
             ) : (
               comments.map((comment) => {
                 const isHighlighted = comment.is_highlighted;
                 const isCommentOwner = user?.id === comment.user_id;
+                const displayAlias = comment.alias || 'Anonymous';
                 
                 return (
                   <div
@@ -229,7 +323,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                   >
                     <div className="flex items-start justify-between mb-1 sm:mb-2">
                       <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground">
-                        <CommentAuthor userId={comment.user_id} showBadge={true} />
+                        <span className="font-medium text-foreground/80">{displayAlias}</span>
                         <span>•</span>
                         <span>{timeAgo(comment.created_at)}</span>
                       </div>
