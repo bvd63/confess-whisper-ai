@@ -124,6 +124,7 @@ serve(async (req) => {
         user_id: user.id,
         coins_spent: 15,
         status: 'ACTIVE',
+        boost_until: boostUntil.toISOString(),
         ends_at: boostUntil.toISOString(),
         purchase_scope: purchaseScope,
       })
