@@ -92,7 +92,60 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
     if (isExpanded) {
       loadComments();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isExpanded, confessionId]);
+
+  // Real-time subscription for new comments
+  useEffect(() => {
+    if (!isExpanded) return;
+
+    const channel = supabase
+      .channel(`comments:${confessionId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'comments',
+          filter: `confession_id=eq.${confessionId}`,
+        },
+        async (payload) => {
+          const newComment = payload.new as Comment;
+          
+          // Generate alias if anonymous and not already set
+          if (newComment.is_anonymous !== false && !newComment.alias && newComment.user_id) {
+            const { data: aliasData } = await supabase
+              .rpc('generate_comment_alias', {
+                p_user_id: newComment.user_id,
+                p_confession_id: confessionId
+              });
+            newComment.alias = aliasData || 'Anonymous';
+          }
+          
+          // Fetch profile data for public comments
+          if (newComment.is_anonymous === false) {
+            const { data: profileData } = await supabase
+              .from('profiles')
+              .select('nickname, avatar_url')
+              .eq('user_id', newComment.user_id)
+              .single();
+            
+            if (profileData) {
+              newComment.profiles = profileData;
+            }
+          }
+          
+          setComments(prev => {
+            // Avoid duplicates
+            if (prev.some(c => c.id === newComment.id)) return prev;
+            return [newComment, ...prev];
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [isExpanded, confessionId]);
 
   // Load current user profile for public comment display
@@ -201,7 +254,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
       
       const alias = aliasData || 'Anonymous';
       
-      const { error } = await supabase
+      const { data: insertedComment, error } = await supabase
         .from('comments')
         .insert({
           confession_id: confessionId,
@@ -209,13 +262,26 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
           content: sanitizedContent,
           alias: isAnonymous ? alias : null,
           is_anonymous: isAnonymous,
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
+      // Optimistic update - add comment immediately to UI
+      if (insertedComment) {
+        const optimisticComment: Comment = {
+          ...insertedComment,
+          alias: isAnonymous ? alias : null,
+          profiles: !isAnonymous ? currentUserProfile : undefined,
+        };
+        
+        setComments(prev => [optimisticComment, ...prev]);
+      }
+
+      // Clear input and reset state
       setNewComment("");
-      setCooldownSeconds(10); // Start cooldown
-      await loadComments();
+      setCooldownSeconds(10); // Start cooldown internally
       onCommentChange?.();
       
       toast({
@@ -340,11 +406,6 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
               <div className="flex items-center justify-between">
                 <span className="text-[10px] sm:text-xs text-muted-foreground">
                   {newComment.length}/500
-                  {cooldownSeconds > 0 && (
-                    <span className="ml-2 text-orange-500">
-                      • {cooldownSeconds}s
-                    </span>
-                  )}
                 </span>
                 <Button
                   onClick={handleSubmit}
