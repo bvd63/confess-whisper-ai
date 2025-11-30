@@ -148,7 +148,6 @@ export const useSubscription = () => {
     subscriptionEnd: entitlements?.current_period_end,
     billingCycle: entitlements?.cadence,
     cancelAtPeriodEnd: entitlements?.cancel_at_period_end,
-    isVip: entitlements?.is_pro || false,
     isVip: entitlements?.is_vip || false,
     isLoading: loading,
     setOptimisticTier,
