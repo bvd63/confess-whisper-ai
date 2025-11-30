@@ -17,14 +17,16 @@ interface HighlightCommentButtonProps {
   commentId: string;
   isOwner: boolean;
   isHighlighted?: boolean;
+  highlightExpiresAt?: string | null;
 }
 
-const HIGHLIGHT_COST = 50;
+const HIGHLIGHT_COST = 15;
 
 export function HighlightCommentButton({
   commentId,
   isOwner,
   isHighlighted = false,
+  highlightExpiresAt,
 }: HighlightCommentButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const queryClient = useQueryClient();
@@ -90,7 +92,12 @@ export function HighlightCommentButton({
     },
   });
 
-  if (!isOwner || isHighlighted) return null;
+  // Only hide button if not owner, or if highlight is ACTIVE (not expired)
+  if (!isOwner) return null;
+  
+  // Check if highlight is currently active (not expired)
+  const isHighlightActive = isHighlighted && highlightExpiresAt && new Date(highlightExpiresAt) > new Date();
+  if (isHighlightActive) return null;
 
   return (
     <>

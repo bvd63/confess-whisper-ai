@@ -12,6 +12,7 @@ import { notify } from "@/lib/notifications";
 import { sanitizeComment } from "@/lib/security/sanitizer";
 import { logError } from "@/lib/logger";
 import { HighlightCommentButton } from "./coins/HighlightCommentButton";
+import { ExpiryTimer } from "@/components/ExpiryTimer";
 import { cn } from "@/lib/utils";
 
 interface Comment {
@@ -480,16 +481,31 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                   ? (comment.alias || 'Anonymous')
                   : `@${comment.profiles?.nickname || 'User'}`;
                 
+                // Check if highlight is currently active
+                const isHighlightActive = isHighlighted && comment.highlight_expires_at && new Date(comment.highlight_expires_at) > new Date();
+                
                 return (
                   <div
                     key={comment.id}
                     className={cn(
-                      "p-2 sm:p-3 rounded-lg border",
-                      isHighlighted
+                      "relative p-2 sm:p-3 rounded-lg border",
+                      isHighlightActive
                         ? "bg-vip-gold/10 border-vip-gold/30 shadow-md"
                         : "bg-muted/30 border-border/50"
                     )}
                   >
+                    {/* Highlight Timer Badge - Top Right */}
+                    {isHighlightActive && (
+                      <div className="absolute top-2 right-2 flex items-center gap-1 bg-vip-gold/20 border border-vip-gold/40 rounded-full px-2 py-0.5">
+                        <span className="text-xs">⭐</span>
+                        <ExpiryTimer 
+                          expiresAt={comment.highlight_expires_at} 
+                          className="text-[10px] sm:text-xs"
+                          showIcon={false}
+                        />
+                      </div>
+                    )}
+                    
                     <div className="flex items-start justify-between mb-1 sm:mb-2">
                       <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground">
                         <span className={cn(
@@ -507,6 +523,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                             commentId={comment.id}
                             isOwner={isCommentOwner}
                             isHighlighted={isHighlighted}
+                            highlightExpiresAt={comment.highlight_expires_at}
                           />
                         )}
                         {(user?.id === comment.user_id || user?.id === confessionOwnerId) && (
