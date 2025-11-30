@@ -1,4 +1,4 @@
-import { useState, memo } from "react";
+import { useState, useEffect, memo } from "react";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { EnhancedButton } from "@/components/EnhancedButton";
 import { MessageCircle, Sparkles, Crown, Award, Wand2, Loader2 } from "lucide-react";
@@ -75,6 +75,8 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   const [isAwardPickerOpen, setIsAwardPickerOpen] = useState(false);
   const [commentsCount, setCommentsCount] = useState(confession.comments_count || 0);
   const [isBoostLoading, setIsBoostLoading] = useState(false);
+  const [boostEndsAt, setBoostEndsAt] = useState<string | null>(null);
+  const [hoursLeft, setHoursLeft] = useState<number>(0);
   const { user } = useCurrentUser();
   const { toast } = useToast();
   const { t, language } = useLanguage();
@@ -87,6 +89,59 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   const { isSensitive } = useSensitiveContent(confession.content);
   const noScreenshotEnabled = isPremium && isOwner;
   const { balance } = useCoins(user?.id);
+
+  // Fetch active boost status
+  useEffect(() => {
+    const fetchBoostStatus = async () => {
+      const { data } = await supabase
+        .from('confession_boosts')
+        .select('ends_at')
+        .eq('confession_id', confession.id)
+        .eq('status', 'ACTIVE')
+        .gte('ends_at', new Date().toISOString())
+        .single();
+
+      if (data?.ends_at) {
+        setBoostEndsAt(data.ends_at);
+      } else {
+        setBoostEndsAt(null);
+      }
+    };
+
+    fetchBoostStatus();
+
+    // Poll every 5 minutes to update boost status
+    const interval = setInterval(fetchBoostStatus, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [confession.id]);
+
+  // Calculate remaining hours
+  useEffect(() => {
+    if (!boostEndsAt) {
+      setHoursLeft(0);
+      return;
+    }
+
+    const calculateHours = () => {
+      const now = new Date().getTime();
+      const end = new Date(boostEndsAt).getTime();
+      const diff = end - now;
+      
+      if (diff <= 0) {
+        setHoursLeft(0);
+        setBoostEndsAt(null);
+      } else {
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        setHoursLeft(hours);
+      }
+    };
+
+    calculateHours();
+    const interval = setInterval(calculateHours, 60 * 1000); // Update every minute
+    return () => clearInterval(interval);
+  }, [boostEndsAt]);
+
+  const isBoosted = boostEndsAt !== null && hoursLeft >= 0;
 
   const handleCopyText = async () => {
     try {
@@ -171,6 +226,18 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         description: t.boost_success_description,
       });
 
+      // Fetch updated boost status immediately
+      const { data: newBoost } = await supabase
+        .from('confession_boosts')
+        .select('ends_at')
+        .eq('confession_id', confession.id)
+        .eq('status', 'ACTIVE')
+        .single();
+
+      if (newBoost?.ends_at) {
+        setBoostEndsAt(newBoost.ends_at);
+      }
+
       onLikeChange?.(); // Refresh to show boosted status
     } catch (error) {
       logError('Error boosting confession', error instanceof Error ? error : undefined);
@@ -188,10 +255,20 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
     <NoScreenshotMode enabled={noScreenshotEnabled}>
       <AnimatedCard 
         hover="lift"
-        className="p-5 sm:p-6 mb-4 touch-manipulation transition-all duration-300 hover:shadow-xl bg-card border border-border rounded-3xl animate-slide-up"
+        className="p-5 sm:p-6 mb-4 touch-manipulation transition-all duration-300 hover:shadow-xl bg-card border border-border rounded-3xl animate-slide-up relative"
       >
+        {/* Boost Badge - Top Right */}
+        {isBoosted && (
+          <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-orange-500/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-orange-500/20">
+            <span className="text-base">🚀</span>
+            <span className="text-xs font-medium text-orange-500">
+              {t.boosted.badge.label} · {hoursLeft >= 1 ? t.boosted.badge.left.replace('{{hours}}', String(hoursLeft)) : t.boosted.badge.lessThanHour}
+            </span>
+          </div>
+        )}
+
         <div className="mb-4">
-          <ConfessionHeader 
+          <ConfessionHeader
             category={confession.category} 
             createdAt={confession.created_at}
             authorNicknameSnapshot={confession.author_nickname_snapshot}
