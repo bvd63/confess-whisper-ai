@@ -1,7 +1,7 @@
 import { useState, memo } from "react";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { EnhancedButton } from "@/components/EnhancedButton";
-import { MessageCircle, Sparkles, Crown, Award, Wand2, Rocket, Loader2 } from "lucide-react";
+import { MessageCircle, Sparkles, Crown, Award, Wand2, Loader2 } from "lucide-react";
 import DeepInsightDialog from "./DeepInsightDialog";
 import ShareDialog from "./ShareDialog";
 import ReportDialog from "./ReportDialog";
@@ -268,7 +268,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
               {isBoostLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
               ) : (
-                <Rocket className="w-4 h-4 text-orange-500" />
+                <span className="text-base">🚀</span>
               )}
               <span className="hidden sm:inline font-medium">
                 {isBoostLoading ? t.processing : t.boost_confession}
