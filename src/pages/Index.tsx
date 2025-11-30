@@ -185,11 +185,10 @@ const Index = () => {
                     setDialogDefaultTab('coins');
                     setManageSubDialogOpen(true);
                   }}
-                  className="flex items-center gap-2 px-4 py-2 bg-background/80 rounded-full border border-border hover:bg-background transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-background/60 rounded-full border border-border/50 hover:bg-background/80 transition-all hover:scale-105"
                 >
-                  <Coins className="w-4 h-4 text-vip-gold" />
+                  <span className="text-base">🪙</span>
                   <span className="text-sm font-semibold text-foreground">{balance}</span>
-                  <span className="text-xs text-muted-foreground">+</span>
                 </button>
               </div>
             </div>
@@ -199,7 +198,7 @@ const Index = () => {
         {/* Feed Container */}
         <div className="max-w-2xl mx-auto px-4 py-6">
           {/* Section Title */}
-          <h2 className="text-xl font-bold text-muted-foreground mb-6 px-2">
+          <h2 className="text-lg font-bold text-foreground mb-4 px-2">
             {t.popular_confessions}
           </h2>
 
