@@ -82,6 +82,7 @@ describe("requestPasswordReset", () => {
 
 describe("ResetPassword page", () => {
   let updateUserMock: Mock;
+  let getSessionMock: Mock;
   let revokeAllSessionsMock: Mock;
   let enhancedAuthSpy: ReturnType<typeof vi.spyOn>;
   let languageSpy: ReturnType<typeof vi.spyOn>;
@@ -89,6 +90,9 @@ describe("ResetPassword page", () => {
   beforeEach(() => {
     updateUserMock = supabase.auth.updateUser as unknown as Mock;
     updateUserMock.mockReset();
+    getSessionMock = supabase.auth.getSession as unknown as Mock;
+    getSessionMock.mockReset();
+    getSessionMock.mockResolvedValue({ data: { session: { access_token: 'mock-access-token' } }, error: null });
 
     revokeAllSessionsMock = vi.fn().mockResolvedValue({ success: true });
     enhancedAuthSpy = vi
@@ -168,5 +172,24 @@ describe("ResetPassword page", () => {
 
     expect(await screen.findByText(translations.en.auth_reset_token_invalid)).toBeInTheDocument();
     expect(screen.getByText(translations.en.auth_reset_token_expired)).toBeInTheDocument();
+  });
+
+  it("treats Supabase expired-session errors as invalid reset links", async () => {
+    updateUserMock.mockResolvedValue({
+      data: {},
+      error: { message: "Reset link invalid or expired", status: 401 },
+    });
+
+    renderResetPassword();
+
+    const newPasswordInput = await screen.findByPlaceholderText(translations.en.auth_reset_password_new);
+    const confirmPasswordInput = await screen.findByPlaceholderText(translations.en.auth_reset_password_confirm);
+    const submitButton = await screen.findByRole("button", { name: translations.en.auth_reset_password_button });
+
+    fireEvent.change(newPasswordInput, { target: { value: STRONG_PASSWORD } });
+    fireEvent.change(confirmPasswordInput, { target: { value: STRONG_PASSWORD } });
+    fireEvent.click(submitButton);
+
+    expect(await screen.findByText(translations.en.auth_reset_token_invalid)).toBeInTheDocument();
   });
 });

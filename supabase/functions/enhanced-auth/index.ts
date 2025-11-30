@@ -17,6 +17,9 @@ const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')
   ?? '';
 
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+const APP_URL = (Deno.env.get('NEXT_PUBLIC_APP_URL') ?? '').trim();
+const SKIP_TURNSTILE_FOR_PASSWORD_RESET = Deno.env.get('SKIP_TURNSTILE_FOR_PASSWORD_RESET') === 'true';
+const TURNSTILE_SECRET = Deno.env.get('TURNSTILE_SECRET') ?? '';
 
 // Environment configuration
 const SESSION_MAX_PER_USER = 5;
@@ -144,11 +147,14 @@ interface AuthRequest {
 
 async function verifyCaptcha(
   token: string,
-  remoteIp?: string
+  remoteIp?: string,
+  options: { requireSecret?: boolean } = {}
 ): Promise<{ success: boolean; error?: string }> {
-  const turnstileSecret = Deno.env.get('TURNSTILE_SECRET');
-  
-  if (!turnstileSecret) {
+  if (!TURNSTILE_SECRET) {
+    if (options.requireSecret) {
+      console.error('[enhanced-auth] TURNSTILE_SECRET missing but required for CAPTCHA verification');
+      return { success: false, error: 'auth.captcha_failed' };
+    }
     console.warn('TURNSTILE_SECRET not configured - CAPTCHA verification disabled');
     return { success: true }; // Allow in dev if not configured
   }
@@ -158,7 +164,7 @@ async function verifyCaptcha(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        secret: turnstileSecret,
+        secret: TURNSTILE_SECRET,
         response: token,
         remoteip: remoteIp,
       }),
@@ -840,6 +846,22 @@ serve(async (req) => {
             { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
+        
+        if (!SKIP_TURNSTILE_FOR_PASSWORD_RESET) {
+          const passwordResetCaptchaResult = await verifyCaptcha(captchaToken, clientIp, { requireSecret: true });
+          if (!passwordResetCaptchaResult.success) {
+            return new Response(
+              JSON.stringify({
+                error: passwordResetCaptchaResult.error ?? 'auth.captcha_failed',
+                messageKey: passwordResetCaptchaResult.error ?? 'auth.captcha_failed',
+                shouldResetCaptcha: true,
+              }),
+              { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+        } else {
+          console.warn('[enhanced-auth] Skipping Turnstile verification for password reset (SKIP_TURNSTILE_FOR_PASSWORD_RESET=true)');
+        }
 
         const passwordResetRateLimit = await enforceRateLimit(supabaseClient, {
           action: 'auth_password_reset',
@@ -883,19 +905,6 @@ serve(async (req) => {
           );
         }
 
-        const passwordResetCaptchaResult = await verifyCaptcha(captchaToken, clientIp);
-        if (!passwordResetCaptchaResult.success) {
-          return new Response(
-            JSON.stringify({
-              success: false,
-              error: 'CAPTCHA_FAILED',
-              messageKey: passwordResetCaptchaResult.error ?? 'auth.captcha_failed',
-              shouldResetCaptcha: true,
-            }),
-            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-
         if (!SUPABASE_SERVICE_ROLE_KEY) {
           console.error('[enhanced-auth] Missing SUPABASE_SERVICE_ROLE_KEY for password reset');
           return new Response(
@@ -906,27 +915,15 @@ serve(async (req) => {
 
         const supabaseServiceClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-        const resolvePasswordResetRedirect = (): string | undefined => {
-          const configuredRedirect = Deno.env.get('PASSWORD_RESET_REDIRECT_URL');
-          if (configuredRedirect?.trim()) {
-            return configuredRedirect.trim();
-          }
-
-          const fallbackOrigin = requestOrigin || Deno.env.get('SITE_URL');
-          return fallbackOrigin
-            ? `${fallbackOrigin.replace(/\/$/, '')}/auth/update-password`
-            : undefined;
-        };
-
-        const redirectTarget = resolvePasswordResetRedirect();
-
-        if (!redirectTarget) {
-          console.error('[enhanced-auth] No password reset redirect URL configured');
+        if (!APP_URL) {
+          console.error('[enhanced-auth] NEXT_PUBLIC_APP_URL must be configured for password reset redirects');
           return new Response(
-            JSON.stringify({ error: 'MISSING_REDIRECT', messageKey: 'auth.reset_password_failed' }),
+            JSON.stringify({ error: 'MISSING_APP_URL', messageKey: 'auth.reset_password_failed' }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
+
+        const redirectTarget = `${APP_URL.replace(/\/$/, '')}/auth/update-password`;
 
         try {
           const { error: resetError } = await supabaseServiceClient.auth.resetPasswordForEmail(
@@ -937,14 +934,14 @@ serve(async (req) => {
           if (resetError) {
             console.error('[enhanced-auth] Password reset request failed', resetError);
             return new Response(
-              JSON.stringify({ error: 'RESET_FAILED', messageKey: 'auth.reset_password_failed' }),
+              JSON.stringify({ error: resetError.message ?? 'auth.reset_password_failed', messageKey: 'auth.reset_password_failed' }),
               { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
             );
           }
         } catch (error) {
           console.error('[enhanced-auth] Password reset request threw', error);
           return new Response(
-            JSON.stringify({ error: 'RESET_FAILED', messageKey: 'auth.reset_password_failed' }),
+            JSON.stringify({ error: error instanceof Error ? error.message : 'auth.reset_password_failed', messageKey: 'auth.reset_password_failed' }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
