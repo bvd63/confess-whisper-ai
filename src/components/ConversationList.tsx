@@ -8,7 +8,7 @@ import { getNicknameCached } from "@/lib/nicknameCache";
 import { toast } from "sonner";
 import { UserDisplayName } from "@/components/UserDisplayName";
 import { BadgeDisplay } from "@/components/BadgeDisplay";
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { logError } from "@/lib/logger";
 import {
   AlertDialog,

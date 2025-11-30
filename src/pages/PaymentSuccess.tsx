@@ -7,7 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useVipStatus } from "@/hooks/usePremiumStatus";
 import confetti from "canvas-confetti";
 import { logError } from "@/lib/logger";
 
@@ -17,7 +17,7 @@ const PaymentSuccess = () => {
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const { user } = useCurrentUser();
-  const { subscriptionTier, refetch } = usePremiumStatus(user?.id);
+  const { subscriptionTier, refetch } = useVipStatus(user?.id);
   const [isProcessing, setIsProcessing] = useState(true);
   const [processingMessage, setProcessingMessage] = useState<string>('');
   const [activatedTier, setActivatedTier] = useState<'vip' | null>(null);

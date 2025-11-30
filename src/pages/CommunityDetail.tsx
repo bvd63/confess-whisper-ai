@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Users, MessageSquare, ArrowLeft, Settings, Lock, Globe, Plus } from "lucide-react";
 import { useCommunityMembers } from "@/hooks/useCommunities";
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { LoadingQuotes } from "@/components/LoadingQuotes";
 import ConfessionCard from "@/components/ConfessionCard";
@@ -28,7 +28,7 @@ const CommunityDetail = () => {
   const { user } = useCurrentUser();
   const { membership, isMember, isPending, isAdmin, isModerator, joinCommunity, leaveCommunity, isJoining, isLeaving } = 
     useCommunityMembers(id!);
-  const { isPremium } = usePremiumStatus(user?.id);
+  const { isVip } = useVipStatus(user?.id);
   const { t } = useLanguage();
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const [manageCommunityOpen, setManageCommunityOpen] = useState(false);
@@ -260,7 +260,7 @@ const CommunityDetail = () => {
           ) : confessions && confessions.length > 15 ? (
             <VirtualizedConfessions
               confessions={confessions}
-              isPremium={isPremium}
+              isVip={isVip}
               onUpgradeClick={() => {}}
               onInsightGenerated={() => {}}
             />
@@ -269,7 +269,7 @@ const CommunityDetail = () => {
               <div key={confession.id} style={{ animationDelay: `${index * 50}ms` }}>
                 <ConfessionCard 
                   confession={confession}
-                  isPremium={isPremium}
+                  isVip={isVip}
                   onUpgradeClick={() => {}}
                   onInsightGenerated={() => {}}
                 />

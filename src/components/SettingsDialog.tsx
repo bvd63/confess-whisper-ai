@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
 import { useConfirm } from "@/contexts/ConfirmContext";
 import { Badge } from "@/components/ui/badge";
@@ -47,7 +47,7 @@ const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { user } = useCurrentUser();
-  const { subscriptionTier, subscriptionEndsAt, isOnTrial, trialEndDate } = usePremiumStatus(user?.id);
+  const { subscriptionTier, subscriptionEndsAt, isOnTrial, trialEndDate } = useVipStatus(user?.id);
   const confirm = useConfirm();
   const { sessions: activeSessions, listSessions, revokeSession, revokeAllSessions, rotateCurrentSession } = useEnhancedAuth();
   const [sessionsLoaded, setSessionsLoaded] = useState(false);

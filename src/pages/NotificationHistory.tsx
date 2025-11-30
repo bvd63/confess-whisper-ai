@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, Heart, MessageSquare, UserPlus, MessageCircle, ArrowLeft, Check, Trash2, Filter, Award, Lightbulb, Flame, ChevronDown, ChevronRight, BarChart3 } from "lucide-react";
+import { Bell, Heart, MessageSquare, UserPlus, MessageCircle, ArrowLeft, Check, Trash2, Filter, Award, Lightbulb, Flame, ChevronDown, ChevronRight } from "lucide-react";
 import { analytics } from '@/lib/analytics';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -446,28 +446,17 @@ const NotificationHistory = () => {
             </div>
           </div>
           
-          <div className="flex items-center gap-2">
+          {unreadCount > 0 && (
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigate('/notifications/analytics')}
-              className="gap-2 rounded-xl h-10"
+              onClick={markAllAsRead}
+              className="rounded-xl h-10"
             >
-              <BarChart3 className="w-4 h-4" />
-              <span className="hidden sm:inline">Analytics</span>
+              <Check className="w-4 h-4 mr-2" />
+              Mark all read
             </Button>
-            {unreadCount > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={markAllAsRead}
-                className="rounded-xl h-10"
-              >
-                <Check className="w-4 h-4 mr-2" />
-                Mark all read
-              </Button>
-            )}
-          </div>
+          )}
         </div>
 
         {/* Filter Tabs */}

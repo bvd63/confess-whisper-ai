@@ -238,26 +238,6 @@ export default function Admin() {
             <h1 className="text-lg sm:text-xl md:text-2xl font-bold">{t('Admin Dashboard')}</h1>
             <p className="text-sm text-muted-foreground">{t('Manage content moderation and reports')}</p>
           </div>
-          <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => navigate('/admin/performance')}
-              className="gap-2"
-            >
-              <Eye className="w-4 h-4" />
-              <span className="hidden sm:inline">Performance</span>
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => navigate('/auth-test')}
-              className="gap-2"
-            >
-              <Shield className="w-4 h-4" />
-              <span className="hidden sm:inline">Auth Testing</span>
-            </Button>
-          </div>
         </div>
 
         <Tabs value={selectedTab} onValueChange={setSelectedTab}>

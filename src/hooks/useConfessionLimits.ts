@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "./useCurrentUser";
-import { usePremiumStatus } from "./usePremiumStatus";
+import { useVipStatus } from "./usePremiumStatus";
 import { logError } from "@/lib/logger";
 import { FREE_DAILY_CONFESSION_LIMIT } from "@/constants/confessionLimits";
 
@@ -16,7 +16,7 @@ interface ConfessionLimitInfo {
 
 export const useConfessionLimits = () => {
   const { user } = useCurrentUser();
-  const { subscriptionTier, isLoading: isPremiumLoading } = usePremiumStatus(user?.id);
+  const { subscriptionTier, isLoading: isVipLoading } = useVipStatus(user?.id);
   const [limitInfo, setLimitInfo] = useState<ConfessionLimitInfo>({
     canPost: true,
     currentCount: 0,
@@ -84,10 +84,10 @@ export const useConfessionLimits = () => {
   }, [user, checkLimits]);
 
   useEffect(() => {
-    if (!isPremiumLoading) {
+    if (!isVipLoading) {
       checkLimits();
     }
-  }, [checkLimits, isPremiumLoading]);
+  }, [checkLimits, isVipLoading]);
 
   return {
     ...limitInfo,

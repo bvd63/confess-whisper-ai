@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Crown, MessageSquare, Heart, Settings, FileText } from "lucide-react";
 import { Button } from "./ui/button";
@@ -26,8 +26,8 @@ const UserAnalytics = ({
   } = useCurrentUser();
   const {
     subscriptionTier,
-    isPremium
-  } = usePremiumStatus(userId || user?.id);
+    isVip
+  } = useVipStatus(userId || user?.id);
   const [stats, setStats] = useState({
     totalConfessions: 0,
     totalLikes: 0,
@@ -53,7 +53,7 @@ const UserAnalytics = ({
     }
   }, [targetUserId]);
   const handleManageSubscription = () => {
-    if (!isPremium) {
+    if (!isVip) {
       onUpgradeClick?.();
       return;
     }

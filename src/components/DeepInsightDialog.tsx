@@ -15,7 +15,7 @@ interface DeepInsightDialogProps {
     content: string;
     ai_deep_insight?: string | null;
   };
-  isPremium: boolean;
+  isVip: boolean;
   onUpgradeClick: () => void;
   onInsightGenerated: () => void;
 }
@@ -24,7 +24,7 @@ const DeepInsightDialog = ({
   open, 
   onOpenChange, 
   confession, 
-  isPremium,
+  isVip,
   onUpgradeClick,
   onInsightGenerated 
 }: DeepInsightDialogProps) => {
@@ -34,7 +34,7 @@ const DeepInsightDialog = ({
   const { language, t } = useLanguage();
 
   const generateDeepInsight = async () => {
-    if (!isPremium) {
+    if (!isVip) {
       onUpgradeClick();
       return;
     }
@@ -150,7 +150,7 @@ const DeepInsightDialog = ({
             </div>
           ) : (
             <div className="text-center py-6 sm:py-8">
-              {!isPremium ? (
+              {!isVip ? (
                 <div className="space-y-3 sm:space-y-4">
                   <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 rounded-full border border-primary/20">
                     <Crown className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />

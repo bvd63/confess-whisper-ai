@@ -24,7 +24,7 @@ import { PolishConfessionButton } from "@/components/PolishConfessionButton";
 import { useConfessionLimits } from "@/hooks/useConfessionLimits";
 // import { UpgradeModal } from "@/components/UpgradeModal";
 import { useMobileKeyboard } from "@/hooks/useMobileKeyboard";
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { getAiReply, type AiLocale } from "@/services/aiService";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { env } from "@/lib/env";
@@ -70,7 +70,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
   // const { communities } = useCommunities();
   const { canPost, currentCount, dailyLimit, remaining, tier, checkLimits, incrementCount, isLoading: limitsLoading } = useConfessionLimits();
   const { isKeyboardVisible, keyboardHeight } = useMobileKeyboard();
-  const { subscriptionTier } = usePremiumStatus(user?.id || null);
+  const { subscriptionTier } = useVipStatus(user?.id || null);
   const isVip = subscriptionTier === 'vip';
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [turnstileError, setTurnstileError] = useState(false);

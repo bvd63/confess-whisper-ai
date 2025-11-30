@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
@@ -41,7 +41,7 @@ const Bookmarks = () => {
   const { t } = useLanguage();
   const { user, isLoading: userLoading } = useCurrentUser();
   useAnalyticsTracking(user?.id || null);
-  const { isPremium } = usePremiumStatus(user?.id);
+  const { isVip } = useVipStatus(user?.id);
   const { likedConfessions, bookmarkedConfessions, reloadLikes, reloadBookmarks } = useConfessionInteractions({ userId: user?.id || null });
   const [confessions, setConfessions] = useState<Confession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -163,7 +163,7 @@ const Bookmarks = () => {
         ) : confessions.length > 15 ? (
           <VirtualizedConfessions
             confessions={confessions}
-            isPremium={isPremium}
+            isVip={isVip}
             onUpgradeClick={() => {}}
             onInsightGenerated={loadBookmarkedConfessions}
           />
@@ -173,7 +173,7 @@ const Bookmarks = () => {
               <ConfessionCard
                 key={confession.id}
                 confession={confession}
-                isPremium={isPremium}
+                isVip={isVip}
                 isLiked={likedConfessions.has(confession.id)}
                 isBookmarked={bookmarkedConfessions.has(confession.id)}
                 onReport={handleReport}

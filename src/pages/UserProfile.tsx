@@ -5,7 +5,7 @@ import AppLayout from "@/components/AppLayout";
 import { ProfileHeader } from "@/components/ProfileHeader";
 import { ProfileTabs } from "@/pages/ProfileTabs";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { Skeleton } from "@/components/ui/skeleton";
 import { logError } from "@/lib/logger";
@@ -24,7 +24,7 @@ const UserProfile = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const { user: currentUser } = useCurrentUser();
-  const { isPremium, isOnTrial, trialEndDate, subscriptionTier } = usePremiumStatus(currentUser?.id);
+  const { isVip, isOnTrial, trialEndDate, subscriptionTier } = useVipStatus(currentUser?.id);
   const [profile, setProfile] = useState<UserProfileData | null>(null);
   const [confessionsCount, setConfessionsCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -135,7 +135,7 @@ const UserProfile = () => {
           <ProfileTabs 
             userId={userId!} 
             isOwnProfile={isOwnProfile}
-            isPremium={isPremium}
+            isVip={isVip}
             onUpgradeClick={() => {}}
             onInsightGenerated={() => {}}
           />

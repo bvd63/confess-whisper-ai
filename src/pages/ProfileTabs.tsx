@@ -11,12 +11,12 @@ import VirtualizedConfessions from '@/components/VirtualizedConfessions';
 interface ProfileTabsProps {
   userId: string;
   isOwnProfile: boolean;
-  isPremium: boolean;
+  isVip: boolean;
   onUpgradeClick: () => void;
   onInsightGenerated: () => void;
 }
 
-export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, onInsightGenerated }: ProfileTabsProps) => {
+export const ProfileTabs = ({ userId, isOwnProfile, isVip, onUpgradeClick, onInsightGenerated }: ProfileTabsProps) => {
   const [activeTab, setActiveTab] = useState('posts');
 
   // Fetch user's posts
@@ -101,7 +101,7 @@ export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, o
       return (
         <VirtualizedConfessions
           confessions={confessions}
-          isPremium={isPremium}
+          isVip={isVip}
           onUpgradeClick={onUpgradeClick}
           onInsightGenerated={onInsightGenerated}
         />
@@ -114,7 +114,7 @@ export const ProfileTabs = ({ userId, isOwnProfile, isPremium, onUpgradeClick, o
           <ConfessionCard 
             key={confession.id} 
             confession={confession}
-            isPremium={isPremium}
+            isVip={isVip}
             onUpgradeClick={onUpgradeClick}
             onInsightGenerated={onInsightGenerated}
           />

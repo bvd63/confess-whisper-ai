@@ -5,7 +5,7 @@ import { GradientText } from "@/components/GradientText";
 import { Users } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 import FollowingFeed from "@/components/FollowingFeed";
 import FollowStats from "@/components/FollowStats";
@@ -23,7 +23,7 @@ const Following = () => {
   const { t } = useLanguage();
   const { user, isLoading } = useCurrentUser();
   useAnalyticsTracking(user?.id || null);
-  const { isPremium } = usePremiumStatus(user?.id);
+  const { isVip } = useVipStatus(user?.id);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
@@ -85,7 +85,7 @@ const Following = () => {
           <div className="lg:col-span-2">
             <FollowingFeed
               userId={user.id}
-              isPremium={isPremium}
+              isVip={isVip}
               onUpgradeClick={() => navigate('/')}
             />
           </div>

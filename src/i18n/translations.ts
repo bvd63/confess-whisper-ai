@@ -2024,6 +2024,17 @@ type Translations = {
   settings_activity_usage: string;
   settings_activity_subscription: string;
   settings_activity_support: string;
+  support_ai_label: string;
+  support_ai_title: string;
+  support_ai_description: string;
+  support_ai_initial_message: string;
+  support_ai_input_placeholder: string;
+  support_ai_loading: string;
+  support_ai_error: string;
+  support_ai_email_cta: string;
+  support_contact_email: string;
+  support_email_subject: string;
+  support_email_body: string;
   
   // Additional Loading States
   loading_content: string;
@@ -3743,6 +3754,17 @@ export const translations: Record<Language, Translations> = {
     settings_activity_usage: "Usage",
     settings_activity_subscription: "Subscription & Coins",
     settings_activity_support: "Support & Legal",
+    support_ai_label: "AI Support (24/7)",
+    support_ai_title: "AI Support",
+    support_ai_description: "Get quick technical help about your ConfessAI account, VIP, coins, and app issues.",
+    support_ai_initial_message: "Hi! I'm your ConfessAI support bot. I can help with account & login issues, VIP & payments, coins & rewards, posting or viewing confessions, notifications, and app bugs. For serious billing or login problems, please email confess.supp@gmail.com.",
+    support_ai_input_placeholder: "Describe your issue...",
+    support_ai_loading: "AI Support is typing...",
+    support_ai_error: "We couldn't reach AI support right now. Please try again or email confess.supp@gmail.com.",
+    support_ai_email_cta: "Need more help? Contact support by email",
+    support_contact_email: "Contact Support",
+    support_email_subject: "ConfessAI Support Request",
+    support_email_body: "Hello ConfessAI support team,\n\nAccount email (optional):\nIssue summary:\n- \n\nAdditional details:\n- \n\nThank you!",
     
     // Additional Loading States
     loading_content: "Loading content",
@@ -5658,6 +5680,17 @@ export const translations: Record<Language, Translations> = {
     settings_activity_usage: "Uso",
     settings_activity_subscription: "Suscripción y Monedas",
     settings_activity_support: "Soporte y Legal",
+    support_ai_label: "Soporte con IA (24/7)",
+    support_ai_title: "Soporte con IA",
+    support_ai_description: "Obtén ayuda técnica rápida sobre tu cuenta de ConfessAI, VIP, coins y problemas de la app.",
+    support_ai_initial_message: "¡Hola! Soy tu asistente de soporte de ConfessAI. Puedo ayudarte con problemas de cuenta e inicio de sesión, VIP y pagos, coins y recompensas, publicación o visualización de confesiones, notificaciones y errores de la app. Para emergencias de facturación o inicio de sesión, escribe a confess.supp@gmail.com.",
+    support_ai_input_placeholder: "Describe tu problema...",
+    support_ai_loading: "El soporte con IA está escribiendo...",
+    support_ai_error: "No pudimos conectar con el soporte con IA. Inténtalo de nuevo o escribe a confess.supp@gmail.com.",
+    support_ai_email_cta: "¿Necesitas más ayuda? Contacta por correo electrónico",
+    support_contact_email: "Contactar soporte",
+    support_email_subject: "Solicitud de soporte ConfessAI",
+    support_email_body: "Hola equipo de soporte de ConfessAI,\n\nCorreo de la cuenta (opcional):\nResumen del problema:\n- \n\nDetalles adicionales:\n- \n\n¡Gracias!",
     
     // Additional Loading States
     loading_content: "Cargando contenido",
@@ -7573,6 +7606,17 @@ export const translations: Record<Language, Translations> = {
     settings_activity_usage: "Nutzung",
     settings_activity_subscription: "Abonnement & Münzen",
     settings_activity_support: "Support & Rechtliches",
+    support_ai_label: "KI-Support (24/7)",
+    support_ai_title: "KI-Support",
+    support_ai_description: "Erhalte schnelle technische Hilfe zu deinem ConfessAI-Konto, VIP, Coins und App-Problemen.",
+    support_ai_initial_message: "Hallo! Ich bin dein ConfessAI Support-Bot. Ich helfe bei Konto- und Login-Problemen, VIP und Zahlungen, Coins und Belohnungen, Problemen beim Posten oder Anzeigen von Geständnissen, Benachrichtigungen sowie Sprach- und App-Fehlern. Bei dringenden Abrechnungs- oder Login-Themen sende bitte eine E-Mail an confess.supp@gmail.com.",
+    support_ai_input_placeholder: "Beschreibe dein Problem...",
+    support_ai_loading: "KI-Support schreibt...",
+    support_ai_error: "Der KI-Support ist gerade nicht erreichbar. Bitte versuche es erneut oder schreibe an confess.supp@gmail.com.",
+    support_ai_email_cta: "Weitere Hilfe? Kontaktiere den Support per E-Mail",
+    support_contact_email: "Support kontaktieren",
+    support_email_subject: "ConfessAI Supportanfrage",
+    support_email_body: "Hallo ConfessAI Support-Team,\n\nAccount-E-Mail (optional):\nProblembeschreibung:\n- \n\nWeitere Details:\n- \n\nDanke!",
     
     // Additional Loading States
     loading_content: "Inhalt wird geladen",

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, List, Map as MapIcon } from "lucide-react";
 import { useNearbyConfessions } from "@/hooks/useNearbyConfessions";
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { LoadingQuotes } from "@/components/LoadingQuotes";
 import ConfessionCard from "@/components/ConfessionCard";
@@ -21,7 +21,7 @@ const NearbyConfessions = () => {
   
   const { user } = useCurrentUser();
   const { data: confessions, isLoading, error } = useNearbyConfessions({ radiusKm: radius });
-  const { isPremium } = usePremiumStatus(user?.id);
+  const { isVip } = useVipStatus(user?.id);
   const { t } = useLanguage();
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
 
@@ -92,7 +92,7 @@ const NearbyConfessions = () => {
         ) : confessions && confessions.length > 15 ? (
           <VirtualizedConfessions
             confessions={confessions}
-            isPremium={isPremium}
+            isVip={isVip}
             onUpgradeClick={() => {}}
             onInsightGenerated={() => {}}
           />
@@ -106,7 +106,7 @@ const NearbyConfessions = () => {
               >
                 <ConfessionCard 
                   confession={confession}
-                  isPremium={isPremium}
+                  isVip={isVip}
                   onUpgradeClick={() => {}}
                   onInsightGenerated={() => {}}
                 />

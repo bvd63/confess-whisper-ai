@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrendingUp, Flame, Clock } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { InstagramBottomNav } from "@/components/InstagramBottomNav";
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 import { useToast } from "@/hooks/use-toast";
@@ -35,7 +35,7 @@ const Explore = () => {
   const [filters, setFilters] = useState<FilterState>({ sortBy: 'newest' });
   const { user } = useCurrentUser();
   useAnalyticsTracking(user?.id || null);
-  const { isPremium } = usePremiumStatus(user?.id);
+  const { isVip } = useVipStatus(user?.id);
   const { toast } = useToast();
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   // Communities feature disabled
@@ -115,7 +115,7 @@ const Explore = () => {
       return (
         <VirtualizedConfessions
           confessions={confessions}
-          isPremium={isPremium}
+          isVip={isVip}
           onUpgradeClick={() => {}}
           onInsightGenerated={() => {
             toast({
@@ -130,7 +130,7 @@ const Explore = () => {
       <ConfessionCard
         key={confession.id}
         confession={confession}
-        isPremium={isPremium}
+        isVip={isVip}
         onUpgradeClick={() => {}}
         onInsightGenerated={() => {
           toast({

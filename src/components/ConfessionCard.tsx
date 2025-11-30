@@ -16,7 +16,7 @@ import StreakCounter from "./StreakCounter";
 import { BadgeDisplay } from "./BadgeDisplay";
 import { AwardPicker } from "./coins/AwardPicker";
 import { AwardDisplay } from "./coins/AwardDisplay";
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -57,7 +57,7 @@ interface ConfessionCardProps {
     is_anonymous?: boolean;
     author_display_name_snapshot?: string | null;
   };
-  isPremium: boolean;
+  isVip: boolean;
   isLiked?: boolean;
   isBookmarked?: boolean;
   onReport?: (id: string) => void;
@@ -68,7 +68,7 @@ interface ConfessionCardProps {
   onBookmarkChange?: () => void;
 }
 
-const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBookmarked: initialIsBookmarked, onReport, onUpgradeClick, onInsightGenerated, onLikeChange, onCommentChange, onBookmarkChange }: ConfessionCardProps) => {
+const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmarked: initialIsBookmarked, onReport, onUpgradeClick, onInsightGenerated, onLikeChange, onCommentChange, onBookmarkChange }: ConfessionCardProps) => {
   const [isDeepInsightOpen, setIsDeepInsightOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
@@ -82,12 +82,12 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
   const { t, language } = useLanguage();
   const confirm = useConfirm();
   const { purgeConfession } = useCachePurgeOnDelete();
-  const { subscriptionTier } = usePremiumStatus(confession.user_id || null);
+  const { subscriptionTier } = useVipStatus(confession.user_id || null);
   const isOwner = user?.id === confession.user_id;
   const { canDelete, deleteTimeLeft } = useEditDeleteWindow(confession.created_at);
   const { vibrate } = useHaptic();
   const { isSensitive } = useSensitiveContent(confession.content);
-  const noScreenshotEnabled = isPremium && isOwner;
+  const noScreenshotEnabled = isVip && isOwner;
   const { balance } = useCoins(user?.id);
 
   // Fetch active boost status
@@ -413,7 +413,7 @@ const ConfessionCard = ({ confession, isPremium, isLiked: initialIsLiked, isBook
         open={isDeepInsightOpen}
         onOpenChange={setIsDeepInsightOpen}
         confession={confession}
-        isPremium={isPremium}
+        isVip={isVip}
         onUpgradeClick={onUpgradeClick}
         onInsightGenerated={onInsightGenerated}
       />

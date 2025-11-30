@@ -295,7 +295,7 @@ const NotificationsDropdown = () => {
           </div>
         </div>
 
-        {/* View All and Analytics Buttons */}
+        {/* View All Button */}
         <div className="px-4 py-3 border-b border-border/50 bg-muted/30 space-y-2">
           <Button
             variant="ghost"

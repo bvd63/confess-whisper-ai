@@ -82,7 +82,7 @@ vi.mock("@/hooks/useCurrentUser", () => ({
 }));
 
 vi.mock("@/hooks/usePremiumStatus", () => ({
-  usePremiumStatus: () => ({
+  useVipStatus: () => ({
     subscriptionTier: "free",
     isOnTrial: false,
     isLoading: false,

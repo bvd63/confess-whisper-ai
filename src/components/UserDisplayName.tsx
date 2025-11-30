@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { BadgeDisplay } from '@/components/BadgeDisplay';
-import { usePremiumStatus } from '@/hooks/usePremiumStatus';
+import { useVipStatus } from '@/hooks/usePremiumStatus';
 
 interface UserDisplayNameProps {
   userId: string | null | undefined;
@@ -30,7 +30,7 @@ export const UserDisplayName = memo(({
   showBadges = true,
 }: UserDisplayNameProps) => {
   const { displayName, loading } = useUserDisplayName(userId);
-  const { subscriptionTier } = usePremiumStatus(userId || null);
+  const { subscriptionTier } = useVipStatus(userId || null);
   const navigate = useNavigate();
 
   if (loading || !userId) {

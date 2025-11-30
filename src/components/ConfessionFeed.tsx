@@ -21,7 +21,7 @@ interface Confession {
 interface ConfessionFeedProps {
   confessions: Confession[];
   isLoading: boolean;
-  isPremium: boolean;
+  isVip: boolean;
   likedConfessions: Set<string>;
   bookmarkedConfessions: Set<string>;
   onReport?: (id: string) => void;
@@ -36,7 +36,7 @@ interface ConfessionFeedProps {
 const ConfessionFeed = memo(({
   confessions,
   isLoading,
-  isPremium,
+  isVip,
   likedConfessions,
   bookmarkedConfessions,
   onReport,
@@ -77,7 +77,7 @@ const ConfessionFeed = memo(({
     return (
       <VirtualizedConfessions
         confessions={confessions}
-        isPremium={isPremium}
+        isVip={isVip}
         onUpgradeClick={onUpgradeClick}
         onInsightGenerated={onInsightGenerated}
       />
@@ -90,7 +90,7 @@ const ConfessionFeed = memo(({
         <ConfessionCard
           key={confession.id}
           confession={confession}
-          isPremium={isPremium}
+          isVip={isVip}
           isLiked={likedConfessions.has(confession.id)}
           isBookmarked={bookmarkedConfessions.has(confession.id)}
           onReport={onReport}

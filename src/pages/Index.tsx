@@ -13,7 +13,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import StreakCounter from "@/components/StreakCounter";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useMessageNotifications } from "@/hooks/useMessageNotifications";
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { useSubscriptionCheck } from "@/hooks/useSubscriptionCheck";
 import SEOHead from "@/components/SEOHead";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -42,7 +42,7 @@ const Index = () => {
   const { trackEvent } = useAnalytics();
   const { t, language } = useLanguage();
   const { user } = useCurrentUser();
-  const { isPremium } = usePremiumStatus(user?.id);
+  const { isVip } = useVipStatus(user?.id);
   useSubscriptionCheck(user?.id);
   useMessageNotifications({ userId: user?.id });
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);

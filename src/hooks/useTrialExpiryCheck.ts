@@ -45,7 +45,7 @@ export const useTrialExpiryCheck = (userId: string | null, isOnTrial: boolean) =
         }
 
         // If trial expired, the backend already updated the profile
-        // The usePremiumStatus hook will automatically pick up the change
+        // The useVipStatus hook will automatically pick up the change
         if (data?.trialExpired && !hasShownExpiredToast.current) {
           toast({
             title: t.trial_ended_toast,

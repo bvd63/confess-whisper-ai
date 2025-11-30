@@ -1,4 +1,4 @@
-import { ArrowLeft, ChevronRight, User, Bell, Flame, HelpCircle, Gift, UserX, FileText, Shield, Mail, Globe, Palette } from 'lucide-react';
+import { ArrowLeft, ChevronRight, User, Bell, Flame, HelpCircle, Gift, UserX, FileText, Shield, Mail, Globe, Palette, Bot } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { StreakDisplay } from '@/components/StreakDisplay';
 import { RateLimitIndicator } from '@/components/RateLimitIndicator';
 import { useConfessionRateLimit } from '@/hooks/useConfessionRateLimit';
 import { Card } from '@/components/ui/card';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useStreakManager } from '@/hooks/useStreakManager';
 import { cn } from '@/lib/utils';
 import { NotificationSettings as NotificationSettingsComponent } from '@/components/NotificationSettings';
@@ -23,6 +23,7 @@ import BlockedUsers from '@/components/BlockedUsers';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import ThemeToggle from '@/components/ThemeToggle';
 import { logError } from '@/lib/logger';
+import { buildSupportMailto } from '@/lib/support';
 
 interface MenuItemProps {
   icon: React.ElementType;
@@ -61,7 +62,7 @@ const MenuItem = ({ icon: Icon, title, onClick, expandable = true, expanded = fa
 
 const SettingsActivity = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user, isLoading } = useCurrentUser();
   const { 
     remainingRequests, 
@@ -80,6 +81,7 @@ const SettingsActivity = () => {
   const [passwordChangedAt, setPasswordChangedAt] = useState<string | null>(null);
   
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const supportMailto = useMemo(() => buildSupportMailto(language), [language]);
 
   // Navigate to auth if no user - use useEffect to avoid render errors
   useEffect(() => {
@@ -271,6 +273,17 @@ const SettingsActivity = () => {
           >
             <div className="space-y-3">
               <button
+                onClick={() => navigate('/settings/support/ai')}
+                className="w-full flex items-center justify-between p-3 bg-muted/30 hover:bg-muted/50 rounded-lg transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <Bot className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">{t.support_ai_label}</span>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </button>
+
+              <button
                 onClick={() => navigate('/terms')}
                 className="w-full flex items-center justify-between p-3 bg-muted/30 hover:bg-muted/50 rounded-lg transition-colors"
               >
@@ -293,14 +306,12 @@ const SettingsActivity = () => {
               </button>
 
               <a
-                href="https://lovable.dev/support"
-                target="_blank"
-                rel="noopener noreferrer"
+                href={supportMailto}
                 className="w-full flex items-center justify-between p-3 bg-muted/30 hover:bg-muted/50 rounded-lg transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Contact Support</span>
+                  <span className="text-sm font-medium">{t.support_contact_email}</span>
                 </div>
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </a>

@@ -28,7 +28,7 @@ describe("Anonymity Display in Confession Card", () => {
     renderWithProviders(
       <ConfessionCard
         confession={confession}
-        isPremium={false}
+        isVip={false}
         isLiked={false}
         isBookmarked={false}
         onUpgradeClick={vi.fn()}
@@ -51,7 +51,7 @@ describe("Anonymity Display in Confession Card", () => {
     renderWithProviders(
       <ConfessionCard
         confession={confession}
-        isPremium={false}
+        isVip={false}
         isLiked={false}
         isBookmarked={false}
         onUpgradeClick={vi.fn()}
@@ -74,7 +74,7 @@ describe("Anonymity Display in Confession Card", () => {
     renderWithProviders(
       <ConfessionCard
         confession={confession}
-        isPremium={false}
+        isVip={false}
         isLiked={false}
         isBookmarked={false}
         onUpgradeClick={vi.fn()}

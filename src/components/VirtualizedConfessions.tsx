@@ -4,7 +4,7 @@ import { useVirtualList } from '@/hooks/useVirtualList';
 
 interface VirtualizedConfessionsProps {
   confessions: any[];
-  isPremium: boolean;
+  isVip: boolean;
   onUpgradeClick: () => void;
   onInsightGenerated: () => void;
   itemHeight?: number; // Approximate height per card
@@ -16,7 +16,7 @@ interface VirtualizedConfessionsProps {
  */
 const VirtualizedConfessions = ({
   confessions,
-  isPremium,
+  isVip,
   onUpgradeClick,
   onInsightGenerated,
   itemHeight = 320,
@@ -64,7 +64,7 @@ const VirtualizedConfessions = ({
             >
               <ConfessionCard
                 confession={confession}
-                isPremium={isPremium}
+                isVip={isVip}
                 onUpgradeClick={onUpgradeClick}
                 onInsightGenerated={onInsightGenerated}
               />

@@ -21,7 +21,10 @@ type AnalyticsEvent =
   | 'notification_clicked'
   | 'notification_dismissed'
   | 'notification_read'
-  | 'notification_group_expanded';
+  | 'notification_group_expanded'
+  | 'ai_support_user_message'
+  | 'ai_support_ai_response'
+  | 'ai_support_error';
 
 interface AnalyticsEventData {
   [key: string]: any;

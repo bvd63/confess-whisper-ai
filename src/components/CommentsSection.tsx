@@ -10,7 +10,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useConfirm } from "@/contexts/ConfirmContext";
 import { notify } from "@/lib/notifications";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { CommentAuthor } from "./CommentAuthor";
 import { sanitizeComment } from "@/lib/security/sanitizer";
 import { addCsrfHeader } from "@/lib/security/csrf";

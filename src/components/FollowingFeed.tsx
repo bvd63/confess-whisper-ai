@@ -13,11 +13,11 @@ import { logError } from "@/lib/logger";
 
 interface FollowingFeedProps {
   userId: string;
-  isPremium: boolean;
+  isVip: boolean;
   onUpgradeClick: () => void;
 }
 
-const FollowingFeed = ({ userId, isPremium, onUpgradeClick }: FollowingFeedProps) => {
+const FollowingFeed = ({ userId, isVip, onUpgradeClick }: FollowingFeedProps) => {
   const [confessions, setConfessions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -104,7 +104,7 @@ const FollowingFeed = ({ userId, isPremium, onUpgradeClick }: FollowingFeedProps
       {confessions.length > 15 ? (
         <VirtualizedConfessions
           confessions={confessions}
-          isPremium={isPremium}
+          isVip={isVip}
           onUpgradeClick={onUpgradeClick}
           onInsightGenerated={loadFollowingConfessions}
         />
@@ -113,7 +113,7 @@ const FollowingFeed = ({ userId, isPremium, onUpgradeClick }: FollowingFeedProps
           <ConfessionCard
             key={confession.id}
             confession={confession}
-            isPremium={isPremium}
+            isVip={isVip}
             isLiked={likedConfessions.has(confession.id)}
             isBookmarked={bookmarkedConfessions.has(confession.id)}
             onUpgradeClick={onUpgradeClick}

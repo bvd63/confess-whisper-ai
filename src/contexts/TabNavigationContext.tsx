@@ -98,7 +98,7 @@ export const TabNavigationProvider: React.FC<{ children: React.ReactNode }> = ({
     const path = location.pathname;
     let newTab: TabId | null = null;
 
-    if (path === '/' || path.startsWith('/community/') || path.startsWith('/nearby')) {
+    if (path === '/' || path.startsWith('/nearby')) {
       newTab = 'home';
     } else if (path.startsWith('/explore') || path.startsWith('/search-users')) {
       newTab = 'explore';

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BadgeDisplay } from "@/components/BadgeDisplay";
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useVipStatus } from "@/hooks/usePremiumStatus";
 
 interface ClickableNicknameProps {
   userId: string;
@@ -24,7 +24,7 @@ export const ClickableNickname = ({
   showBadges = true
 }: ClickableNicknameProps) => {
   const navigate = useNavigate();
-  const { subscriptionTier } = usePremiumStatus(userId);
+  const { subscriptionTier } = useVipStatus(userId);
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();

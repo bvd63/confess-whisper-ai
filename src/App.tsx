@@ -44,20 +44,14 @@ const Index = lazy(() => import("./pages/Index"));
 const Profile = lazy(() => import("./pages/Profile"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const Admin = lazy(() => import("./pages/Admin"));
-const SystemMonitor = lazy(() => import("./pages/SystemMonitor"));
 const Bookmarks = lazy(() => import("./pages/Bookmarks"));
 const Following = lazy(() => import("./pages/Following"));
 const SearchUsers = lazy(() => import("./pages/SearchUsers"));
 const Messages = lazy(() => import("./pages/Messages"));
 const Explore = lazy(() => import("./pages/Explore"));
 const Compose = lazy(() => import("./pages/Compose"));
-// Communities feature disabled
-// const Communities = lazy(() => import("./pages/Communities"));
-// const CommunityDetail = lazy(() => import("./pages/CommunityDetail"));
 const NearbyConfessions = lazy(() => import("./pages/NearbyConfessions"));
 const Auth = lazy(() => import("./pages/Auth"));
-const AuthTest = lazy(() => import("./pages/AuthTest"));
-const SupabaseTest = lazy(() => import("./pages/SupabaseTest"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const EmailVerification = lazy(() => import("./pages/EmailVerification"));
@@ -65,17 +59,13 @@ const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCanceled = lazy(() => import("./pages/PaymentCanceled"));
 const CoinPurchaseSuccess = lazy(() => import("./pages/coins/Success"));
 const CoinPurchaseCancel = lazy(() => import("./pages/coins/Cancel"));
-const TestPayments = lazy(() => import("./pages/TestPayments"));
-const TestSubscriptions = lazy(() => import("./pages/TestSubscriptions"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const Performance = lazy(() => import("./pages/admin/Performance"));
 const SettingsActivity = lazy(() => import("./pages/SettingsActivity"));
-const SubscriptionTest = lazy(() => import("./pages/SubscriptionTest"));
 const Rewards = lazy(() => import("./pages/Rewards"));
 const NotificationHistory = lazy(() => import("./pages/NotificationHistory"));
-const NotificationAnalytics = lazy(() => import("./pages/NotificationAnalytics"));
+const AiSupport = lazy(() => import("./pages/AiSupport"));
 
 const AppContent = () => {
   const { user } = useAuth();
@@ -258,24 +248,17 @@ const AppContent = () => {
           <Route path="/" element={<Index />} />
           <Route path="/home" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/auth-test" element={<AuthTest />} />
-          <Route path="/supabase-test" element={<SupabaseTest />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/auth/update-password" element={<ResetPassword />} />
           <Route path="/verify-email" element={<EmailVerification />} />
           <Route path="/explore" element={<Explore />} />
           <Route path="/compose" element={<Compose />} />
-          {/* Communities feature disabled - redirect to home */}
-          <Route path="/communities" element={<Index />} />
-          <Route path="/community/:id" element={<Index />} />
           <Route path="/nearby" element={<NearbyConfessions />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/u/:handle" element={<UserProfile />} />
           <Route path="/user/:userId" element={<UserProfile />} />
           <Route path="/admin" element={<Admin />} />
-          <Route path="/admin/performance" element={<Performance />} />
-          <Route path="/system-monitor" element={<SystemMonitor />} />
           <Route path="/bookmarks" element={<Bookmarks />} />
           <Route path="/following" element={<Following />} />
           <Route path="/search-users" element={<SearchUsers />} />
@@ -284,13 +267,10 @@ const AppContent = () => {
           <Route path="/payment-canceled" element={<PaymentCanceled />} />
           <Route path="/coins/success" element={<CoinPurchaseSuccess />} />
           <Route path="/coins/cancel" element={<CoinPurchaseCancel />} />
-          <Route path="/test-payments" element={<TestPayments />} />
-          <Route path="/test-subscriptions" element={<TestSubscriptions />} />
           <Route path="/settings/activity" element={<SettingsActivity />} />
-          <Route path="/subscription-test" element={<SubscriptionTest />} />
+          <Route path="/settings/support/ai" element={<AiSupport />} />
           <Route path="/rewards" element={<Rewards />} />
           <Route path="/notifications" element={<NotificationHistory />} />
-          <Route path="/notifications/analytics" element={<NotificationAnalytics />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="*" element={<NotFound />} />

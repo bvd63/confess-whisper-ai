@@ -11,6 +11,7 @@ const RawEnv = z.object({
   VITE_STRIPE_PRICE_VIP_YEARLY: z.string().optional(),
   VITE_ONESIGNAL_APP_ID: z.string().optional(),
   VITE_SENTRY_DSN: z.string().url().optional(),
+  VITE_OPENAI_API_KEY: z.string().min(20).optional(),
   VITE_FEATURE_PASSWORDLESS: booleanString,
   VITE_FEATURE_OFFLINE_QUEUE: booleanString,
   VITE_FEATURE_BACKGROUND_QUEUE: booleanString,
@@ -50,6 +51,7 @@ const parsed = RawEnv.safeParse({
   VITE_STRIPE_PRICE_VIP_YEARLY: _raw.VITE_STRIPE_PRICE_VIP_YEARLY,
   VITE_ONESIGNAL_APP_ID: _raw.VITE_ONESIGNAL_APP_ID,
   VITE_SENTRY_DSN: _raw.VITE_SENTRY_DSN,
+  VITE_OPENAI_API_KEY: _raw.VITE_OPENAI_API_KEY,
   VITE_FEATURE_PASSWORDLESS: _raw.VITE_FEATURE_PASSWORDLESS,
   VITE_FEATURE_OFFLINE_QUEUE: _raw.VITE_FEATURE_OFFLINE_QUEUE,
   VITE_FEATURE_BACKGROUND_QUEUE: _raw.VITE_FEATURE_BACKGROUND_QUEUE,
@@ -80,6 +82,7 @@ export const env = {
     stripePriceVipYearly: parsed.data?.VITE_STRIPE_PRICE_VIP_YEARLY || _raw.VITE_STRIPE_PRICE_VIP_YEARLY,
     oneSignalAppId: parsed.data?.VITE_ONESIGNAL_APP_ID || _raw.VITE_ONESIGNAL_APP_ID,
     sentryDsn: parsed.data?.VITE_SENTRY_DSN || _raw.VITE_SENTRY_DSN,
+    openAiApiKey: parsed.data?.VITE_OPENAI_API_KEY || _raw.VITE_OPENAI_API_KEY,
   },
   features: {
     passwordless: (parsed.data?.VITE_FEATURE_PASSWORDLESS || _raw.VITE_FEATURE_PASSWORDLESS) === "true",

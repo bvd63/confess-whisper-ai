@@ -18,7 +18,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
@@ -40,10 +40,10 @@ const AppHeader = ({
     user
   } = useCurrentUser();
   const {
-    isPremium,
+    isVip,
     subscriptionTier,
     subscriptionStatus
-  } = usePremiumStatus(user?.id);
+  } = useVipStatus(user?.id);
   const {
     toast
   } = useToast();

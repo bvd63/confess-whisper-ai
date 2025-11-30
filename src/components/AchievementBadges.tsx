@@ -16,10 +16,10 @@ interface Achievement {
 interface AchievementBadgesProps {
   totalConfessions: number;
   deepInsightsUsed: number;
-  isPremium: boolean;
+  isVip: boolean;
 }
 
-const AchievementBadges = ({ totalConfessions, deepInsightsUsed, isPremium }: AchievementBadgesProps) => {
+const AchievementBadges = ({ totalConfessions, deepInsightsUsed, isVip }: AchievementBadgesProps) => {
   const { t } = useLanguage();
   
   const achievements: Achievement[] = [
@@ -62,14 +62,14 @@ const AchievementBadges = ({ totalConfessions, deepInsightsUsed, isPremium }: Ac
       icon: Crown,
       title: t.achievement_vip_member,
       description: t.achievement_vip_member_desc,
-      unlocked: isPremium,
+      unlocked: isVip,
     },
     {
       id: 'supporter',
       icon: Heart,
       title: t.achievement_supporter,
       description: t.achievement_supporter_desc,
-      unlocked: isPremium,
+      unlocked: isVip,
     },
   ];
 

@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useConfessionInteractions } from "@/hooks/useConfessionInteractions";
-import { usePremiumStatus } from "@/hooks/usePremiumStatus";
+import { useVipStatus } from "@/hooks/usePremiumStatus";
 import ConfessionCard from "@/components/ConfessionCard";
 import ConfessionSkeleton from "@/components/ConfessionSkeleton";
 import EmptyState from "@/components/EmptyState";
@@ -17,7 +17,7 @@ type Confession = Tables<"confessions">;
 const UserConfessionsList = () => {
   const { t } = useLanguage();
   const { user } = useCurrentUser();
-  const { isPremium } = usePremiumStatus(user?.id);
+  const { isVip } = useVipStatus(user?.id);
   const { likedConfessions, bookmarkedConfessions, reloadLikes, reloadBookmarks } = useConfessionInteractions({ userId: user?.id || null });
   const [confessions, setConfessions] = useState<Confession[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,7 +83,7 @@ const UserConfessionsList = () => {
     return (
       <VirtualizedConfessions
         confessions={confessions}
-        isPremium={isPremium}
+        isVip={isVip}
         onUpgradeClick={() => {}}
         onInsightGenerated={fetchUserConfessions}
       />
@@ -96,7 +96,7 @@ const UserConfessionsList = () => {
         <ConfessionCard
           key={confession.id}
           confession={confession}
-          isPremium={isPremium}
+          isVip={isVip}
           isLiked={likedConfessions.has(confession.id)}
           isBookmarked={bookmarkedConfessions.has(confession.id)}
           onReport={() => {}}
