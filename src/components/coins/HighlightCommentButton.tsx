@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
@@ -101,7 +100,7 @@ export function HighlightCommentButton({
         onClick={() => setIsOpen(true)}
         className="gap-1"
       >
-        <Sparkles className="h-3 w-3" />
+        <span className="text-sm">⭐</span>
         {t.highlight_comment}
       </Button>
 
@@ -117,7 +116,7 @@ export function HighlightCommentButton({
           <div className="py-4">
             <div className="rounded-lg bg-yellow-50 dark:bg-yellow-900/20 p-4 border border-yellow-200 dark:border-yellow-800">
               <div className="flex items-center gap-2 text-yellow-800 dark:text-yellow-200">
-                <Sparkles className="h-5 w-5" />
+                <span className="text-xl">⭐</span>
                 <span className="font-semibold">{t.highlight_comment_features}</span>
               </div>
               <ul className="mt-2 space-y-1 text-sm text-yellow-700 dark:text-yellow-300">
