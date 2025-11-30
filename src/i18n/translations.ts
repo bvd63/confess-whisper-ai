@@ -94,6 +94,15 @@ type Translations = {
   success_reported: string;
   success_logout: string;
   
+  // Boost feature keys
+  boosted: {
+    badge: {
+      label: string;
+      left: string;
+      lessThanHour: string;
+    };
+  };
+  
   // Confirmation dialogs
   confirm: {
     logout: {
@@ -3881,6 +3890,15 @@ export const translations: Record<Language, Translations> = {
     tone_confused: "Confused",
     tone_overwhelmed: "Overwhelmed",
     
+    // Boost feature keys
+    boosted: {
+      badge: {
+        label: "Boosted",
+        left: "{{hours}}h left",
+        lessThanHour: "<1h left",
+      },
+    },
+    
     // Confirmation dialogs
     confirm: {
       logout: {
@@ -5787,6 +5805,15 @@ export const translations: Record<Language, Translations> = {
     tone_confused: "Confundido",
     tone_overwhelmed: "Abrumado",
     
+    // Boost feature keys
+    boosted: {
+      badge: {
+        label: "Impulsada",
+        left: "{{hours}}h restantes",
+        lessThanHour: "<1h restante",
+      },
+    },
+    
     // Confirmation dialogs
     confirm: {
       logout: {
@@ -7692,6 +7719,15 @@ export const translations: Record<Language, Translations> = {
     tone_regretful: "Bereut",
     tone_confused: "Verwirrt",
     tone_overwhelmed: "Überfordert",
+    
+    // Boost feature keys
+    boosted: {
+      badge: {
+        label: "Geboostet",
+        left: "{{hours}} Std. übrig",
+        lessThanHour: "<1 Std. übrig",
+      },
+    },
     
     // Confirmation dialogs
     confirm: {
