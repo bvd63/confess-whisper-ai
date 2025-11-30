@@ -314,6 +314,7 @@ export type Database = {
       }
       comments: {
         Row: {
+          alias: string | null
           confession_id: string
           content: string
           created_at: string
@@ -324,6 +325,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          alias?: string | null
           confession_id: string
           content: string
           created_at?: string
@@ -334,6 +336,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          alias?: string | null
           confession_id?: string
           content?: string
           created_at?: string
@@ -2531,6 +2534,12 @@ export type Database = {
         Returns: number
       }
       can_user_post_confession: { Args: { _user_id: string }; Returns: Json }
+      check_comment_cooldown: { Args: { p_user_id: string }; Returns: Json }
+      check_consecutive_comment_limit: {
+        Args: { p_confession_id: string; p_user_id: string }
+        Returns: Json
+      }
+      check_daily_comment_limit: { Args: { p_user_id: string }; Returns: Json }
       check_trial_expiry: { Args: { _user_id: string }; Returns: Json }
       cleanup_expired_rate_limits: { Args: never; Returns: undefined }
       cleanup_expired_sessions: { Args: never; Returns: undefined }
@@ -2552,6 +2561,10 @@ export type Database = {
         Returns: boolean
       }
       expire_active_boosts: { Args: never; Returns: undefined }
+      generate_comment_alias: {
+        Args: { p_confession_id: string; p_user_id: string }
+        Returns: string
+      }
       generate_unique_handle: {
         Args: { base_nickname: string }
         Returns: string

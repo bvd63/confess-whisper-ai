@@ -678,8 +678,13 @@ type Translations = {
   comments_delete: string;
   comments_edit: string;
   comments_none: string;
+  comments_empty: string;
   comments_show: string;
   comments_hide: string;
+  comments_anonymous_placeholder: string;
+  comments_error_daily_limit: string;
+  comments_error_consecutive_limit: string;
+  comments_error_cooldown: string;
   
   // Notifications
   notifications_title: string;
@@ -2200,8 +2205,13 @@ export const translations: Record<Language, Translations> = {
     comments_delete: "Delete",
     comments_edit: "Edit",
     comments_none: "No comments yet",
+    comments_empty: "No comments yet. Be the first to reply anonymously.",
     comments_show: "Show comments",
     comments_hide: "Hide comments",
+    comments_anonymous_placeholder: "Write an anonymous comment...",
+    comments_error_daily_limit: "You've reached your daily comment limit (20/day for FREE users).",
+    comments_error_consecutive_limit: "You cannot post more than 3 comments in a row on this confession.",
+    comments_error_cooldown: "You are commenting too fast. Please wait a moment.",
     
     // Notifications
     notifications_title: "Notifications",
@@ -4125,8 +4135,13 @@ export const translations: Record<Language, Translations> = {
     comments_delete: "Eliminar",
     comments_edit: "Editar",
     comments_none: "Sin comentarios aún",
+    comments_empty: "Aún no hay comentarios. Sé el primero en responder de forma anónima.",
     comments_show: "Mostrar comentarios",
     comments_hide: "Ocultar comentarios",
+    comments_anonymous_placeholder: "Escribe un comentario anónimo...",
+    comments_error_daily_limit: "Has alcanzado tu límite diario de comentarios (20/día para usuarios FREE).",
+    comments_error_consecutive_limit: "No puedes publicar más de 3 comentarios seguidos en esta confesión.",
+    comments_error_cooldown: "Estás comentando demasiado rápido. Por favor, espera un momento.",
     
     // Notifications
     notifications_title: "Notificaciones",
@@ -6051,8 +6066,13 @@ export const translations: Record<Language, Translations> = {
     comments_delete: "Löschen",
     comments_edit: "Bearbeiten",
     comments_none: "Noch keine Kommentare",
+    comments_empty: "Noch keine Kommentare. Sei der Erste, der anonym antwortet.",
     comments_show: "Kommentare anzeigen",
     comments_hide: "Kommentare ausblenden",
+    comments_anonymous_placeholder: "Schreibe einen anonymen Kommentar...",
+    comments_error_daily_limit: "Du hast dein tägliches Kommentarlimit erreicht (20/Tag für FREE-Nutzer).",
+    comments_error_consecutive_limit: "Du kannst nicht mehr als 3 Kommentare hintereinander zu diesem Geständnis posten.",
+    comments_error_cooldown: "Du kommentierst zu schnell. Bitte warte einen Moment.",
     
     // Notifications
     notifications_title: "Benachrichtigungen",
