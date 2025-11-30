@@ -52,7 +52,8 @@ const ConfessionFeed = memo(({
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+        <ConfessionCardSkeleton />
         <ConfessionCardSkeleton />
         <ConfessionCardSkeleton />
         <ConfessionCardSkeleton />
@@ -85,13 +86,8 @@ const ConfessionFeed = memo(({
   }
 
   return (
-    <div className="space-y-5">
-      {confessions.map((confession, index) => (
-        <div 
-          key={confession.id}
-          className="animate-fade-in"
-          style={{ animationDelay: `${index * 0.05}s` }}
-        >
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      {confessions.map((confession) => (
         <ConfessionCard
           key={confession.id}
           confession={confession}
@@ -105,7 +101,6 @@ const ConfessionFeed = memo(({
           onCommentChange={onCommentChange}
           onBookmarkChange={onBookmarkChange}
         />
-        </div>
       ))}
     </div>
   );

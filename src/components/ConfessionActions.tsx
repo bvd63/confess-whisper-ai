@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Heart, Share2, Bookmark, Trash2, AlertCircle, MessageCircle } from "lucide-react";
+import { Heart, Share2, Bookmark, Trash2, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -14,13 +14,11 @@ interface ConfessionActionsProps {
   likesCount: number;
   isLiked: boolean;
   isBookmarked: boolean;
-  commentsCount?: number;
   onLikeChange: () => void;
   onBookmarkChange: () => void;
   onShare: () => void;
   onReport?: () => void;
   onDelete?: () => void;
-  onCommentsClick?: () => void;
 }
 
 const ConfessionActions = ({
@@ -30,13 +28,11 @@ const ConfessionActions = ({
   likesCount,
   isLiked,
   isBookmarked,
-  commentsCount = 0,
   onLikeChange,
   onBookmarkChange,
   onShare,
   onReport,
   onDelete,
-  onCommentsClick,
 }: ConfessionActionsProps) => {
   const [localLikesCount, setLocalLikesCount] = useState(likesCount);
   const [localIsLiked, setLocalIsLiked] = useState(isLiked);
@@ -176,45 +172,17 @@ const ConfessionActions = ({
   const isOwner = currentUserId === confessionUserId;
 
   return (
-    <div className="flex items-center gap-2 flex-1">
-      {/* Comment Action */}
-      {onCommentsClick && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onCommentsClick}
-          className="h-10 px-3 rounded-full hover:bg-muted/60 transition-colors touch-manipulation gap-1.5"
-          aria-label={`${commentsCount} comments`}
-        >
-          <MessageCircle className="w-5 h-5 text-muted-foreground" />
-          {commentsCount > 0 && (
-            <span className="text-xs font-medium text-muted-foreground">{commentsCount}</span>
-          )}
-        </Button>
-      )}
-
-      {/* Share Action */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={handleShare}
-        className="h-10 w-10 p-0 rounded-full hover:bg-muted/60 transition-colors touch-manipulation"
-        aria-label={t.share}
-      >
-        <Share2 className="w-5 h-5 text-muted-foreground" />
-      </Button>
-
+    <div className="flex items-center gap-2 sm:gap-2 flex-wrap">
       {/* Owner Actions */}
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex items-center gap-2 sm:gap-2">
         {isOwner && onDelete && (
           <Button
             variant="ghost"
             size="sm"
             onClick={onDelete}
-            className="h-10 w-10 p-0 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors touch-manipulation"
-            aria-label={t.delete}
+            className="h-12 sm:h-10 min-w-[48px] px-3 text-muted-foreground hover:text-destructive transition-colors touch-manipulation"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-4 h-4 flex-shrink-0" />
           </Button>
         )}
       </div>

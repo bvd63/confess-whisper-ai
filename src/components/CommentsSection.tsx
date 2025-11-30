@@ -403,7 +403,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
   };
 
   return (
-    <div id={`comments-${confessionId}`} className="mt-3 sm:mt-4 border-t border-border/50 pt-3 sm:pt-4">
+    <div className="mt-3 sm:mt-4 border-t border-border/50 pt-3 sm:pt-4">
       <Button
         variant="ghost"
         size="sm"

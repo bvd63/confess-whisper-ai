@@ -1,10 +1,16 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
-import { Coins } from "lucide-react";
+import { GradientText } from "@/components/GradientText";
+import { Sparkles, TrendingUp, Bell } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import AppLayout from "@/components/AppLayout";
+import DailyPrompt from "@/components/DailyPrompt";
+import Leaderboard from "@/components/Leaderboard";
+import { QuoteOfTheDay } from "@/components/QuoteOfTheDay";
+import QuoteOfTheDaySkeleton from "@/components/QuoteOfTheDaySkeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import StreakCounter from "@/components/StreakCounter";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useMessageNotifications } from "@/hooks/useMessageNotifications";
 import { useVipStatus } from "@/hooks/usePremiumStatus";
@@ -13,15 +19,23 @@ import SEOHead from "@/components/SEOHead";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePerformanceBudget } from "@/hooks/usePerformanceBudget";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
+import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { useCoins } from "@/hooks/useCoins";
-import { useConfessions } from "@/hooks/useConfessions";
-import ConfessionFeed from "@/components/ConfessionFeed";
+import { OneSignalBanner } from "@/components/OneSignalBanner";
+import { oneSignalBannerI18n } from "@/i18n/onesignal";
+import { requestNotificationPermission } from "@/services/onesignal";
+
+
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 // Lazy load heavy components
+const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
+
 const OnboardingDialog = lazy(() => import("@/components/OnboardingDialog"));
+const TrustBadges = lazy(() => import("@/components/TrustBadges"));
+const FAQ = lazy(() => import("@/components/FAQ"));
 
 const Index = () => {
   const navigate = useNavigate();
@@ -29,7 +43,6 @@ const Index = () => {
   const { t, language } = useLanguage();
   const { user } = useCurrentUser();
   const { isVip } = useVipStatus(user?.id);
-  const { balance } = useCoins(user?.id);
   useSubscriptionCheck(user?.id);
   useMessageNotifications({ userId: user?.id });
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
@@ -39,6 +52,7 @@ const Index = () => {
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const [dialogDefaultTab, setDialogDefaultTab] = useState<'subscriptions' | 'coins'>('subscriptions');
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showSecondaryContent, setShowSecondaryContent] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
   
@@ -54,15 +68,20 @@ const Index = () => {
   // Monitor performance budget
   usePerformanceBudget();
 
-  // Fetch confessions for the feed
-  const { confessions, isLoading: loadingConfessions } = useConfessions({
-    sortBy: 'popular',
-    limit: 30
-  });
-
   useEffect(() => {
     // Track page view
     trackEvent('page_view', { page: 'index' });
+    
+    // Check notification permission
+    if ('Notification' in window) {
+      setNotificationPermission(Notification.permission);
+    } else {
+      setNotificationPermission('unsupported');
+    }
+    
+    // Check if banner was dismissed
+    const dismissed = localStorage.getItem('onesignal-banner-dismissed') === 'true';
+    setBannerDismissed(dismissed);
     
     // Check if user is new (show onboarding)
     const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
@@ -118,6 +137,10 @@ const Index = () => {
       // Clean URL
       window.history.replaceState({}, '', '/');
     }
+
+    // Stagger secondary content loading for better perceived performance
+    const timer = setTimeout(() => setShowSecondaryContent(true), 300);
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -170,56 +193,66 @@ const Index = () => {
       {/* Main Content */}
       <main 
         ref={containerRef}
-        className="w-full min-h-screen pb-24"
+        className="container max-w-2xl mx-auto px-4 py-6"
       >
-        {/* Premium Header Pill */}
-        {user && (
-          <div className="sticky top-0 z-40 glass-strong border-b border-border/30 backdrop-blur-xl animate-fade-in">
-            <div className="max-w-2xl mx-auto px-4 py-3">
-              <div className="flex items-center justify-between gap-4 px-6 py-3 rounded-full bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 border border-primary/20 shadow-lg shadow-primary/10 transition-all duration-300 hover:shadow-xl hover:shadow-primary/20">
-                <h1 className="text-lg font-bold text-foreground">
-                  Confess<span className="text-primary">AI</span>
-                </h1>
-                <button
-                  onClick={() => {
-                    setDialogDefaultTab('coins');
-                    setManageSubDialogOpen(true);
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-background/60 rounded-full border border-border/50 hover:bg-background/80 transition-all hover:scale-105"
-                >
-                  <span className="text-base">🪙</span>
-                  <span className="text-sm font-semibold text-foreground">{balance}</span>
-                </button>
-              </div>
-            </div>
+        {/* OneSignal Notification Banner */}
+        {user && !bannerDismissed && (
+          <div className="mb-4 sm:mb-6">
+            <OneSignalBanner
+              permission={notificationPermission}
+              onEnable={async () => {
+                const granted = await requestNotificationPermission();
+                if (granted) {
+                  setNotificationPermission('granted');
+                  toast({
+                    title: t.common_success,
+                    description: "Notifications enabled successfully",
+                  });
+                }
+              }}
+              onDismiss={() => {
+                localStorage.setItem('onesignal-banner-dismissed', 'true');
+                setBannerDismissed(true);
+              }}
+              i18n={oneSignalBannerI18n[language as 'en' | 'es' | 'de'] || oneSignalBannerI18n.en}
+            />
           </div>
         )}
 
-        {/* Feed Container */}
-        <div className="max-w-2xl mx-auto px-4 py-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-          {/* Section Title */}
-          <h2 className="text-lg font-bold text-foreground mb-5 px-2">
-            {t.popular_confessions}
+        {/* Welcome Section */}
+        <div className="mb-12 text-center animate-fade-in">
+          <div className="inline-flex items-center gap-3 mb-6 px-6 py-3 glass rounded-full border border-primary/15 shadow-lg shadow-primary/5">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-pressed flex items-center justify-center shadow-lg shadow-primary/25">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-sm text-primary font-semibold">{t.anonymous_secure}</span>
+          </div>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 px-4 text-foreground">
+            {t.home_title}
           </h2>
-
-          {/* Confession Feed */}
-          <ConfessionFeed
-            confessions={confessions}
-            isLoading={loadingConfessions}
-            isVip={isVip}
-            likedConfessions={new Set()}
-            bookmarkedConfessions={new Set()}
-            onUpgradeClick={() => {
-              setDialogDefaultTab('subscriptions');
-              setManageSubDialogOpen(true);
-            }}
-            onInsightGenerated={() => {}}
-            onLikeChange={() => {}}
-            onCommentChange={() => {}}
-            onBookmarkChange={() => {}}
-            onNewConfession={handleNewConfession}
-          />
+          <p className="text-lg text-foreground-secondary max-w-xl mx-auto px-4 leading-relaxed">
+            {t.welcome_description}
+          </p>
         </div>
+
+
+        {/* Quote of the Day */}
+        {user && (
+          <Suspense fallback={<QuoteOfTheDaySkeleton />}>
+            <QuoteOfTheDay />
+          </Suspense>
+        )}
+
+        {/* Daily Prompt */}
+        {user && <DailyPrompt onOpenNewConfession={handleNewConfession} />}
+
+        {/* Leaderboard */}
+        {showSecondaryContent && (
+          <div className="my-6">
+            <Leaderboard />
+          </div>
+        )}
+
       </main>
 
       {/* Dialogs with Suspense for lazy loading */}
@@ -231,6 +264,14 @@ const Index = () => {
           </div>
         </div>
       }>
+        <NewConfessionDialog
+          open={isNewConfessionOpen}
+          onOpenChange={setIsNewConfessionOpen}
+          onConfessionCreated={() => {
+            trackEvent('confession_created');
+          }}
+        />
+
         <OnboardingDialog
           open={showOnboarding}
           onComplete={() => {
@@ -238,6 +279,47 @@ const Index = () => {
             localStorage.setItem('hasSeenOnboarding', 'true');
           }}
         />
+      </Suspense>
+      
+      {/* FAQ Section with Suspense */}
+      <Suspense fallback={
+        <div className="mt-16 animate-pulse space-y-4">
+          <div className="h-8 bg-muted rounded w-1/3 mx-auto" />
+          <div className="h-32 bg-muted rounded" />
+        </div>
+      }>
+        <div id="faq-section" className="mt-16">
+          <FAQ />
+        </div>
+      </Suspense>
+
+      {/* Footer with trust badges */}
+      <Suspense fallback={
+        <div className="mt-16 h-64 bg-muted/20 rounded animate-pulse" />
+      }>
+        <footer className="mt-16">
+          <TrustBadges />
+        
+        <div className="text-center py-6 border-t border-border/50">
+          <div className="flex justify-center gap-4 sm:gap-6 text-sm text-muted-foreground">
+            <button
+              onClick={() => navigate('/privacy')}
+              className="hover:text-primary transition-colors"
+            >
+              {t.privacy_policy}
+            </button>
+            <button
+              onClick={() => navigate('/terms')}
+              className="hover:text-primary transition-colors"
+            >
+              {t.terms_of_service}
+            </button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-3">
+            © 2025 {t.app_name}. {t.all_rights_reserved}
+          </p>
+        </div>
+      </footer>
       </Suspense>
 
       <UnifiedShopDialog
