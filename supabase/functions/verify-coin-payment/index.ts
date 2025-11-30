@@ -29,17 +29,6 @@ serve(async (req) => {
       { auth: { persistSession: false } }
     );
 
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header");
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
-    if (userError) throw userError;
-    const user = userData.user;
-    if (!user?.id) throw new Error("User not authenticated");
-
-    logStep("User authenticated", { userId: user.id });
-
     const { sessionId } = await req.json();
     if (!sessionId) throw new Error("Session ID required");
 
