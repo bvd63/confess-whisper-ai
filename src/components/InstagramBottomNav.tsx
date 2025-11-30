@@ -109,7 +109,7 @@ export const InstagramBottomNav = () => {
         <nav 
           role="navigation" 
           aria-label="Main navigation"
-          className="fixed bottom-0 left-0 right-0 z-[9999] pointer-events-auto glass-strong border-t border-border/30 safe-area-inset-bottom backdrop-blur-2xl bg-background/80"
+          className="fixed bottom-0 left-0 right-0 z-[9999] pointer-events-auto glass-strong border-t border-border/30 safe-area-inset-bottom backdrop-blur-2xl bg-background/90 transition-all duration-300"
         >
           <div ref={navRef} className="flex items-center justify-around h-20 max-w-screen-xl mx-auto px-2 sm:px-6" role="tablist">
             {navItems.map((item, index) => {
