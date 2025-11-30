@@ -1074,6 +1074,9 @@ type Translations = {
   highlight_comment_feature_2: string;
   highlight_comment_feature_3: string;
   highlight_comment_cost: string;
+  highlight_comment_active_badge: string;
+  highlight_comment_time_left: string;
+  highlight_comment_active_note: string;
   highlight_now: string;
   ai_makeover: string;
   ai_makeover_description: string;
@@ -2049,7 +2052,16 @@ type Translations = {
   contact_support_email_label: string;
   contact_support_issue_label: string;
   contact_support_button: string;
+  contact_support_button_sending: string;
   contact_support_email_footer: string;
+  contact_support_success_title: string;
+  contact_support_success_body: string;
+  contact_support_error_title: string;
+  contact_support_error_body: string;
+  contact_support_success_toast_title: string;
+  contact_support_success_toast_body: string;
+  contact_support_error_toast_title: string;
+  contact_support_error_toast_body: string;
   
   // Additional Loading States
   loading_content: string;
@@ -3030,7 +3042,7 @@ export const translations: Record<Language, Translations> = {
     coins_confession_created: "New confession",
     coins_how_to_spend: "💎 How to Spend Coins",
     coins_polish_detail: "✨ Polish Confession (10 coins) - AI improves your text",
-    coins_boost_detail: "🚀 Boost Confession (15 coins) - Highlight for 24 hours",
+    coins_boost_detail: "🚀 Boost Confession (25 coins) - Highlight for 24 hours",
     coins_flairs_detail: "🎨 Profile Flairs (30 coins) - Active for 5 days",
     badge_expires_in: "Expires in",
     badge_expired: "Expired",
@@ -3047,7 +3059,7 @@ export const translations: Record<Language, Translations> = {
     boost_success_description: "Your confession will be highlighted for 24 hours",
     boost_error: "Failed to boost confession",
     boost_confirmation_description: "Boost this confession to make it more visible for 24 hours.",
-    boost_cost: "Cost: 15 coins",
+    boost_cost: "Cost: {cost} coins",
     boost_now: "Boost Now",
     
     customize_profile: "Customize Profile",
@@ -3075,15 +3087,18 @@ export const translations: Record<Language, Translations> = {
     insufficient_coins: "Not enough coins",
     
     highlight_comment: "Highlight Comment",
-    highlight_comment_description: "Make your comment stand out with a golden highlight for 24 hours.",
+    highlight_comment_description: "Make your comment stand out with a golden highlight for 4 hours.",
     highlight_comment_success_title: "Comment Highlighted!",
-    highlight_comment_success_description: "Your comment will be highlighted for 24 hours",
+    highlight_comment_success_description: "Your comment will be highlighted for 4 hours",
     highlight_comment_error: "Failed to highlight comment",
     highlight_comment_features: "Highlight Features:",
     highlight_comment_feature_1: "Golden border and background",
     highlight_comment_feature_2: "Stays at top of comments",
-    highlight_comment_feature_3: "Active for 24 hours",
+    highlight_comment_feature_3: "Active for 4 hours",
     highlight_comment_cost: "Cost: {cost} coins",
+    highlight_comment_active_badge: "Highlight active",
+    highlight_comment_time_left: "{time} left",
+    highlight_comment_active_note: "You'll be able to highlight again when the timer ends ({time}).",
     highlight_now: "Highlight Now",
     ai_makeover: "AI Makeover",
     ai_makeover_description: "Let AI improve your confession with better writing, clarity, and emotional impact.",
@@ -3793,8 +3808,17 @@ export const translations: Record<Language, Translations> = {
     contact_support_name_label: "Name",
     contact_support_email_label: "Email",
     contact_support_issue_label: "Issue details",
-    contact_support_button: "Send email",
+    contact_support_button: "Submit request",
+    contact_support_button_sending: "Sending...",
     contact_support_email_footer: "Sent via ConfessAI app.",
+    contact_support_success_title: "Message received",
+    contact_support_success_body: "Our team will get back to you within 24 hours.",
+    contact_support_error_title: "Something went wrong",
+    contact_support_error_body: "We couldn't deliver your request. Please try again.",
+    contact_support_success_toast_title: "Support request sent",
+    contact_support_success_toast_body: "Thanks! We'll reach out via email soon.",
+    contact_support_error_toast_title: "Unable to send",
+    contact_support_error_toast_body: "Check your connection and try again.",
     
     // Additional Loading States
     loading_content: "Loading content",
@@ -4870,7 +4894,7 @@ export const translations: Record<Language, Translations> = {
     coins_confession_created: "Nueva confesión",
     coins_how_to_spend: "💎 Cómo Gastar Monedas",
     coins_polish_detail: "✨ Mejorar Confesión (10 monedas) - IA mejora tu texto",
-    coins_boost_detail: "🚀 Impulsar Confesión (15 monedas) - Destacar por 24 horas",
+    coins_boost_detail: "🚀 Impulsar Confesión (25 monedas) - Destacar por 24 horas",
     coins_flairs_detail: "🎨 Insignias de Perfil (30 monedas) - Activas por 5 días",
     badge_expires_in: "Expira en",
     badge_expired: "Expirado",
@@ -4887,7 +4911,7 @@ export const translations: Record<Language, Translations> = {
     boost_success_description: "Tu confesión será destacada durante 24 horas",
     boost_error: "Error al impulsar confesión",
     boost_confirmation_description: "Impulsa esta confesión para hacerla más visible durante 24 horas.",
-    boost_cost: "Costo: 15 monedas",
+    boost_cost: "Costo: {cost} monedas",
     boost_now: "Impulsar Ahora",
     
     customize_profile: "Personalizar Perfil",
@@ -4915,15 +4939,18 @@ export const translations: Record<Language, Translations> = {
     insufficient_coins: "Monedas insuficientes",
     
     highlight_comment: "Destacar Comentario",
-    highlight_comment_description: "Haz que tu comentario se destaque con un resaltado dorado durante 24 horas.",
+    highlight_comment_description: "Haz que tu comentario se destaque con un resaltado dorado durante 4 horas.",
     highlight_comment_success_title: "¡Comentario Destacado!",
-    highlight_comment_success_description: "Tu comentario será destacado durante 24 horas",
+    highlight_comment_success_description: "Tu comentario será destacado durante 4 horas",
     highlight_comment_error: "Error al destacar comentario",
     highlight_comment_features: "Características de Destacado:",
     highlight_comment_feature_1: "Borde y fondo dorado",
     highlight_comment_feature_2: "Se mantiene en la parte superior de comentarios",
-    highlight_comment_feature_3: "Activo durante 24 horas",
+    highlight_comment_feature_3: "Activo durante 4 horas",
     highlight_comment_cost: "Costo: {cost} monedas",
+    highlight_comment_active_badge: "Destacado activo",
+    highlight_comment_time_left: "Quedan {time}",
+    highlight_comment_active_note: "Podrás destacarlo de nuevo cuando el contador llegue a cero ({time}).",
     highlight_now: "Destacar Ahora",
     ai_makeover: "Transformación IA",
     ai_makeover_description: "Deja que la IA mejore tu confesión con mejor redacción, claridad e impacto emocional.",
@@ -5734,8 +5761,17 @@ export const translations: Record<Language, Translations> = {
     contact_support_name_label: "Nombre",
     contact_support_email_label: "Correo electrónico",
     contact_support_issue_label: "Detalles del problema",
-    contact_support_button: "Enviar correo",
+    contact_support_button: "Enviar solicitud",
+    contact_support_button_sending: "Enviando...",
     contact_support_email_footer: "Enviado desde la app ConfessAI.",
+    contact_support_success_title: "Mensaje recibido",
+    contact_support_success_body: "Nuestro equipo te responderá en menos de 24 horas.",
+    contact_support_error_title: "Algo salió mal",
+    contact_support_error_body: "No pudimos enviar tu solicitud. Intenta de nuevo.",
+    contact_support_success_toast_title: "Solicitud enviada",
+    contact_support_success_toast_body: "Gracias, te contactaremos por correo muy pronto.",
+    contact_support_error_toast_title: "No se pudo enviar",
+    contact_support_error_toast_body: "Revisa tu conexión e inténtalo otra vez.",
     
     // Additional Loading States
     loading_content: "Cargando contenido",
@@ -6811,7 +6847,7 @@ export const translations: Record<Language, Translations> = {
     coins_confession_created: "Neues Geständnis",
     coins_how_to_spend: "💎 Münzen Ausgeben",
     coins_polish_detail: "✨ Geständnis Verbessern (10 Münzen) - KI verbessert deinen Text",
-    coins_boost_detail: "🚀 Geständnis Boosten (15 Münzen) - 24 Stunden hervorheben",
+    coins_boost_detail: "🚀 Geständnis Boosten (25 Münzen) - 24 Stunden hervorheben",
     coins_flairs_detail: "🎨 Profil-Abzeichen (30 Münzen) - 5 Tage aktiv",
     badge_expires_in: "Läuft ab in",
     badge_expired: "Abgelaufen",
@@ -6828,7 +6864,7 @@ export const translations: Record<Language, Translations> = {
     boost_success_description: "Dein Geständnis wird 24 Stunden hervorgehoben",
     boost_error: "Fehler beim Boosten des Geständnisses",
     boost_confirmation_description: "Booste dieses Geständnis, um es 24 Stunden lang sichtbarer zu machen.",
-    boost_cost: "Kosten: 15 Münzen",
+    boost_cost: "Kosten: {cost} Münzen",
     boost_now: "Jetzt Boosten",
     
     customize_profile: "Profil Anpassen",
@@ -6856,15 +6892,18 @@ export const translations: Record<Language, Translations> = {
     insufficient_coins: "Nicht genug Münzen",
     
     highlight_comment: "Kommentar Hervorheben",
-    highlight_comment_description: "Hebe deinen Kommentar mit einer goldenen Hervorhebung für 24 Stunden hervor.",
+    highlight_comment_description: "Hebe deinen Kommentar mit einer goldenen Hervorhebung für 4 Stunden hervor.",
     highlight_comment_success_title: "Kommentar Hervorgehoben!",
-    highlight_comment_success_description: "Dein Kommentar wird 24 Stunden hervorgehoben",
+    highlight_comment_success_description: "Dein Kommentar wird 4 Stunden hervorgehoben",
     highlight_comment_error: "Fehler beim Hervorheben des Kommentars",
     highlight_comment_features: "Hervorhebungs-Funktionen:",
     highlight_comment_feature_1: "Goldener Rahmen und Hintergrund",
     highlight_comment_feature_2: "Bleibt oben in den Kommentaren",
-    highlight_comment_feature_3: "24 Stunden aktiv",
+    highlight_comment_feature_3: "4 Stunden aktiv",
     highlight_comment_cost: "Kosten: {cost} Münzen",
+    highlight_comment_active_badge: "Highlight aktiv",
+    highlight_comment_time_left: "{time} verbleiben",
+    highlight_comment_active_note: "Du kannst erneut hervorheben, sobald der Timer abgelaufen ist ({time}).",
     highlight_now: "Jetzt Hervorheben",
     ai_makeover: "KI-Verbesserung",
     ai_makeover_description: "Lass KI dein Geständnis mit besserer Schreibweise, Klarheit und emotionaler Wirkung verbessern.",
@@ -7675,8 +7714,17 @@ export const translations: Record<Language, Translations> = {
     contact_support_name_label: "Name",
     contact_support_email_label: "E-Mail",
     contact_support_issue_label: "Problemdetails",
-    contact_support_button: "E-Mail senden",
+    contact_support_button: "Anfrage senden",
+    contact_support_button_sending: "Wird gesendet...",
     contact_support_email_footer: "Gesendet aus der ConfessAI App.",
+    contact_support_success_title: "Nachricht erhalten",
+    contact_support_success_body: "Unser Team meldet sich innerhalb von 24 Stunden.",
+    contact_support_error_title: "Etwas ist schiefgelaufen",
+    contact_support_error_body: "Deine Anfrage konnte nicht zugestellt werden. Bitte versuche es erneut.",
+    contact_support_success_toast_title: "Support-Anfrage gesendet",
+    contact_support_success_toast_body: "Danke! Wir melden uns bald per E-Mail.",
+    contact_support_error_toast_title: "Senden fehlgeschlagen",
+    contact_support_error_toast_body: "Prüfe deine Verbindung und versuche es erneut.",
     
     // Additional Loading States
     loading_content: "Inhalt wird geladen",

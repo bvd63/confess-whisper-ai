@@ -1,15 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mail } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle2, Loader2, Mail } from 'lucide-react';
 import AppLayout from '@/components/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { buildContactSupportMailto } from '@/lib/support';
+import { useToast } from '@/hooks/use-toast';
+import { getSupabase } from '@/lib/supabaseClient';
 
 interface ContactFormState {
   name: string;
@@ -23,6 +25,8 @@ const ContactSupport = () => {
   const navigate = useNavigate();
   const { user, isLoading } = useCurrentUser();
   const { t, language } = useLanguage();
+  const supabase = getSupabase();
+  const { toast } = useToast();
   const [formState, setFormState] = useState<ContactFormState>({
     name: '',
     email: '',
@@ -30,6 +34,9 @@ const ContactSupport = () => {
   });
   const [touched, setTouched] = useState({ name: false, email: false, issue: false });
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [serverError, setServerError] = useState('');
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -75,24 +82,52 @@ const ContactSupport = () => {
     setFormState((prev) => ({ ...prev, [field]: event.target.value }));
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSubmitted(true);
     setTouched({ name: true, email: true, issue: true });
+    setServerError('');
 
-    if (!isFormValid) {
+    if (!isFormValid || isSubmitting) {
       return;
     }
 
-    const mailto = buildContactSupportMailto({
-      language,
-      name: trimmedName,
-      email: trimmedEmail,
-      issue: trimmedIssue,
-    });
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
 
-    if (typeof window !== 'undefined') {
-      window.location.href = mailto;
+    try {
+      const { error } = await supabase.functions.invoke('contact-support', {
+        body: {
+          name: trimmedName,
+          email: trimmedEmail,
+          issue: trimmedIssue,
+          language,
+        },
+      });
+
+      if (error) {
+        throw new Error(error.message || 'Failed to send support request');
+      }
+
+      setSubmitStatus('success');
+      setFormState((prev) => ({ ...prev, issue: '' }));
+      setTouched({ name: false, email: false, issue: false });
+      setSubmitted(false);
+      toast({
+        title: t.contact_support_success_toast_title,
+        description: t.contact_support_success_toast_body,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to send support request';
+      setSubmitStatus('error');
+      setServerError(message);
+      toast({
+        title: t.contact_support_error_toast_title,
+        description: t.contact_support_error_toast_body,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -129,6 +164,26 @@ const ContactSupport = () => {
 
         <Card className="mx-4 mt-4 p-6 rounded-2xl">
           <form className="space-y-5" onSubmit={handleSubmit} noValidate>
+            {submitStatus === 'success' && (
+              <Alert className="border-green-200 bg-green-50 text-green-900">
+                <CheckCircle2 className="h-5 w-5 text-green-600" />
+                <AlertTitle>{t.contact_support_success_title}</AlertTitle>
+                <AlertDescription>{t.contact_support_success_body}</AlertDescription>
+              </Alert>
+            )}
+
+            {submitStatus === 'error' && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-5 w-5" />
+                <AlertTitle>{t.contact_support_error_title}</AlertTitle>
+                <AlertDescription>
+                  {t.contact_support_error_body}
+                  {serverError && (
+                    <span className="block text-xs text-muted-foreground mt-1 break-words">{serverError}</span>
+                  )}
+                </AlertDescription>
+              </Alert>
+            )}
             <div className="space-y-2">
               <Label htmlFor="contact-name">{t.contact_support_name_label}</Label>
               <Input
@@ -175,8 +230,15 @@ const ContactSupport = () => {
               )}
             </div>
 
-            <Button type="submit" className="w-full sm:w-auto" disabled={!isFormValid}>
-              {t.contact_support_button}
+            <Button type="submit" className="w-full sm:w-auto" disabled={!isFormValid || isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {t.contact_support_button_sending}
+                </>
+              ) : (
+                t.contact_support_button
+              )}
             </Button>
           </form>
         </Card>

@@ -18,7 +18,7 @@ All coin-based features have been fully implemented, optimized, and tested acros
   - Optimized error handling with proper HTTP status codes
   - Performance logging (sub-second response time)
   
-### 2. **Boost Confession** (15 coins)
+### 2. **Boost Confession** (25 coins)
 - **Location**: `src/components/BoostConfessionButton.tsx`
 - **Edge Function**: `supabase/functions/boost-confession/index.ts`
 - **Features**:

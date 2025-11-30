@@ -177,11 +177,11 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
       return;
     }
 
-    const BOOST_COST = 15;
+    const BOOST_COST = 25;
     if (balance < BOOST_COST) {
       toast({
-        title: t.insufficient_coins,
-        description: `You need ${BOOST_COST} coins to boost this confession.`,
+        title: t.boost_not_enough,
+        description: t.boost_cost.replace('{cost}', BOOST_COST.toString()),
         variant: "destructive",
       });
       return;
@@ -220,6 +220,7 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
 
       const endsAtFromResponse = boostResponse?.boost?.endsAt ?? addTwentyFourHours();
       setBoostEndsAt(endsAtFromResponse);
+      setBoostStatus(getBoostStatus(endsAtFromResponse));
 
       onLikeChange?.(); // Refresh to show boosted status
     } catch (error) {

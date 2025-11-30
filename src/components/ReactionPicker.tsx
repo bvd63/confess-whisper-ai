@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, memo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -25,6 +25,34 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
     { type: 'thinking', emoji: '🤔', label: t.reaction_thinking, color: 'text-purple-500' },
   ];
 
+  const loadReactions = useCallback(async () => {
+    try {
+      const { data: allReactions, error } = await supabase
+        .from('confession_reactions')
+        .select('reaction_type, user_id')
+        .eq('confession_id', confessionId);
+
+      if (error) throw error;
+
+      if (allReactions && Array.isArray(allReactions)) {
+        const counts: Record<string, number> = {};
+        const userSet = new Set<string>();
+
+        allReactions.forEach(r => {
+          counts[r.reaction_type] = (counts[r.reaction_type] || 0) + 1;
+          if (userId && r.user_id === userId) {
+            userSet.add(r.reaction_type);
+          }
+        });
+
+        setReactionCounts(counts);
+        setUserReactions(userSet);
+      }
+    } catch (error) {
+      logError('Error loading reactions', error as Error);
+    }
+  }, [confessionId, userId]);
+
   useEffect(() => {
     loadReactions();
 
@@ -48,30 +76,7 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [confessionId, userId]);
-
-  const loadReactions = async () => {
-    // Load all reactions for this confession
-    const { data: allReactions } = await supabase
-      .from('confession_reactions')
-      .select('reaction_type, user_id')
-      .eq('confession_id', confessionId);
-
-    if (allReactions && Array.isArray(allReactions)) {
-      const counts: Record<string, number> = {};
-      const userSet = new Set<string>();
-
-      allReactions.forEach(r => {
-        counts[r.reaction_type] = (counts[r.reaction_type] || 0) + 1;
-        if (userId && r.user_id === userId) {
-          userSet.add(r.reaction_type);
-        }
-      });
-
-      setReactionCounts(counts);
-      setUserReactions(userSet);
-    }
-  };
+  }, [confessionId, loadReactions]);
 
   const toggleReaction = async (reactionType: string) => {
     if (!userId) {
@@ -169,26 +174,33 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
             key={type}
             onClick={() => toggleReaction(type)}
             disabled={isLoading}
+            aria-pressed={isActive}
             className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200",
-              "touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
-              isActive 
-                ? "bg-primary/15 border border-primary/30 hover:bg-primary/20 active:bg-primary/25" 
-                : "bg-muted/40 border border-border/50 hover:bg-muted/60 hover:scale-105 active:scale-100",
+              "flex items-center gap-2 px-3.5 py-2 rounded-2xl border transition-all duration-200",
+              "touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+              isActive
+                ? "bg-white/80 text-primary border-primary/40 shadow-lg shadow-primary/15"
+                : "bg-muted/30 border-border/50 hover:bg-muted/50 hover:border-border hover:shadow-md",
               "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
             title={label}
             aria-label={`${label}${count > 0 ? ` (${displayCount})` : ''}`}
           >
-            <span className="text-lg leading-none">{emoji}</span>
-            {count > 0 && (
-              <span className={cn(
-                "text-xs font-medium leading-none",
-                isActive ? "text-foreground" : "text-foreground/70"
-              )}>
-                {displayCount}
-              </span>
-            )}
+            <span className="text-2xl leading-none drop-shadow-sm">{emoji}</span>
+            <span className={cn(
+              "hidden sm:inline text-xs font-semibold tracking-tight",
+              isActive ? "text-primary" : "text-foreground/70"
+            )}>
+              {label}
+            </span>
+            <span
+              className={cn(
+                "text-[11px] font-bold rounded-full px-2 py-0.5",
+                isActive ? "bg-primary/10 text-primary" : "bg-background/60 text-foreground/80"
+              )}
+            >
+              {displayCount}
+            </span>
           </button>
         );
       })}

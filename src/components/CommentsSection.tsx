@@ -45,6 +45,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const [isAnonymous, setIsAnonymous] = useState(true);
   const [currentUserProfile, setCurrentUserProfile] = useState<{ nickname?: string | null } | null>(null);
+  const [now, setNow] = useState(() => Date.now());
   const { user } = useCurrentUser();
   const { toast } = useToast();
   const { t, language } = useLanguage();
@@ -64,9 +65,11 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
         throw error;
       }
       
-      // Generate aliases and fetch profile data
+      const rawComments = data || [];
+
+      // Generate aliases, profile data, and normalize highlight state
       const commentsWithData = await Promise.all(
-        (data || []).map(async (comment): Promise<Comment> => {
+        rawComments.map(async (comment): Promise<Comment> => {
           const commentWithData: Comment = {
             id: comment.id,
             content: comment.content,
@@ -77,6 +80,11 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
             alias: comment.alias,
             is_anonymous: comment.is_anonymous,
           };
+
+          if (comment.highlight_expires_at) {
+            const expiresAt = new Date(comment.highlight_expires_at).getTime();
+            commentWithData.is_highlighted = Boolean(comment.is_highlighted && expiresAt > Date.now());
+          }
 
           // Generate alias for anonymous comments
           if (comment.is_anonymous !== false && !comment.alias && comment.user_id) {
@@ -104,7 +112,11 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
           return commentWithData;
         })
       );
-      
+
+      commentsWithData.sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+
       setComments(commentsWithData);
     } catch (error) {
       logError('Error loading comments', error instanceof Error ? error : undefined);
@@ -122,6 +134,12 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
     }
   }, [isExpanded, confessionId]);
 
+  useEffect(() => {
+    if (!isExpanded) return;
+    const interval = setInterval(() => setNow(Date.now()), 60 * 1000);
+    return () => clearInterval(interval);
+  }, [isExpanded]);
+
   // Real-time subscription for new comments
   useEffect(() => {
     if (!isExpanded) return;
@@ -138,6 +156,11 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
         },
         async (payload) => {
           const newComment = payload.new as Comment;
+
+          if (newComment.highlight_expires_at) {
+            const expiresAt = new Date(newComment.highlight_expires_at).getTime();
+            newComment.is_highlighted = Boolean(newComment.is_highlighted && expiresAt > Date.now());
+          }
           
           // Generate alias if anonymous and not already set
           if (newComment.is_anonymous !== false && !newComment.alias && newComment.user_id) {
@@ -312,7 +335,6 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
 
       // Clear input and reset state
       setNewComment("");
-      setCooldownSeconds(10); // Start cooldown internally
       onCommentChange?.();
       
       toast({
@@ -407,7 +429,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 className="min-h-[60px] sm:min-h-[80px] resize-none border-primary/20 focus:border-primary/40 bg-background/50 text-xs sm:text-sm"
-                disabled={isSubmitting || cooldownSeconds > 0}
+                disabled={isSubmitting}
                 maxLength={500}
               />
               
@@ -460,6 +482,11 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                     </>
                   )}
                 </Button>
+                {cooldownSeconds > 0 && (
+                  <span className="text-[10px] sm:text-xs text-muted-foreground">
+                    {t.comments_error_cooldown} ({cooldownSeconds}s)
+                  </span>
+                )}
               </div>
             </div>
           )}
@@ -472,7 +499,12 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
               </p>
             ) : (
               comments.map((comment) => {
-                const isHighlighted = comment.is_highlighted;
+                const highlightExpiresAt = comment.highlight_expires_at || null;
+                const isHighlightActive = Boolean(
+                  comment.is_highlighted &&
+                  highlightExpiresAt &&
+                  new Date(highlightExpiresAt).getTime() > now
+                );
                 const isCommentOwner = user?.id === comment.user_id;
                 const isAnonymousComment = comment.is_anonymous !== false; // Default to true for backward compatibility
                 
@@ -480,9 +512,6 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                 const displayName = isAnonymousComment 
                   ? (comment.alias || 'Anonymous')
                   : `@${comment.profiles?.nickname || 'User'}`;
-                
-                // Check if highlight is currently active
-                const isHighlightActive = isHighlighted && comment.highlight_expires_at && new Date(comment.highlight_expires_at) > new Date();
                 
                 return (
                   <div
@@ -509,7 +538,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                           <div className="flex items-center gap-1 bg-vip-gold/20 border border-vip-gold/40 rounded-full px-2 py-0.5 ml-1">
                             <span className="text-xs">⭐</span>
                             <ExpiryTimer 
-                              expiresAt={comment.highlight_expires_at} 
+                              expiresAt={highlightExpiresAt || undefined}
                               className="text-[10px] sm:text-xs"
                               showIcon={false}
                             />
@@ -521,8 +550,14 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                           <HighlightCommentButton
                             commentId={comment.id}
                             isOwner={isCommentOwner}
-                            isHighlighted={isHighlighted}
-                            highlightExpiresAt={comment.highlight_expires_at}
+                            highlightExpiresAt={highlightExpiresAt}
+                            onHighlightActivated={(expiresAt) => {
+                              setComments(prev => prev.map(existing =>
+                                existing.id === comment.id
+                                  ? { ...existing, is_highlighted: true, highlight_expires_at: expiresAt }
+                                  : existing
+                              ));
+                            }}
                           />
                         )}
                         {(user?.id === comment.user_id || user?.id === confessionOwnerId) && (

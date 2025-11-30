@@ -76,6 +76,20 @@ VITE_TURNSTILE_SITE_KEY=1x00000000000000000000AA
 - **Fallback behavior**: Forms work without CAPTCHA
 - **Setup**: Register at Cloudflare Turnstile
 
+### Support Inbox + Resend Email
+
+```env
+# Supabase Edge Function secrets (Lovable Cloud)
+RESEND_API_KEY=re_your_key
+SUPPORT_EMAIL=support@confessai.com
+SUPPORT_FROM_EMAIL="ConfessAI Support <support@confessai.com>"
+```
+
+- **Required for**: `/contact-support` form submissions
+- **Fallback behavior**: Requests fail with "Unable to send" and users are prompted to retry
+- **Setup**: Create a [Resend](https://resend.com) API key, verify your sending domain, then store the secrets in Lovable Cloud → Project → Settings → Cloud → Secrets
+- **Notes**: `SUPPORT_FROM_EMAIL` must match a verified sender identity. `SUPPORT_EMAIL` is where support tickets are delivered and can be the same as the `from` address.
+
 ## Environment Validation
 
 The application validates environment variables on startup using `src/lib/env.ts`:
