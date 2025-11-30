@@ -54,37 +54,64 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
     try {
       const { data, error } = await supabase
         .from('comments')
-        .select(`
-          *,
-          profiles!comments_user_id_fkey (
-            nickname,
-            avatar_url
-          )
-        `)
+        .select('*')
         .eq('confession_id', confessionId)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        logError('Error loading comments', error);
+        throw error;
+      }
       
-      // Generate aliases for anonymous comments that don't have them
-      const commentsWithAliases = await Promise.all(
-        (data || []).map(async (comment) => {
-          // Only generate alias for anonymous comments
+      // Generate aliases and fetch profile data
+      const commentsWithData = await Promise.all(
+        (data || []).map(async (comment): Promise<Comment> => {
+          const commentWithData: Comment = {
+            id: comment.id,
+            content: comment.content,
+            user_id: comment.user_id,
+            created_at: comment.created_at,
+            is_highlighted: comment.is_highlighted,
+            highlight_expires_at: comment.highlight_expires_at,
+            alias: comment.alias,
+            is_anonymous: comment.is_anonymous,
+          };
+
+          // Generate alias for anonymous comments
           if (comment.is_anonymous !== false && !comment.alias && comment.user_id) {
             const { data: aliasData } = await supabase
               .rpc('generate_comment_alias', {
                 p_user_id: comment.user_id,
                 p_confession_id: confessionId
               });
-            return { ...comment, alias: aliasData || 'Anonymous' };
+            commentWithData.alias = aliasData || 'Anonymous';
           }
-          return comment;
+          
+          // Fetch profile data for public comments
+          if (comment.is_anonymous === false && comment.user_id) {
+            const { data: profileData } = await supabase
+              .from('profiles')
+              .select('nickname, avatar_url')
+              .eq('user_id', comment.user_id)
+              .maybeSingle();
+            
+            if (profileData) {
+              commentWithData.profiles = profileData;
+            }
+          }
+          
+          return commentWithData;
         })
       );
       
-      setComments(commentsWithAliases as Comment[]);
+      setComments(commentsWithData);
     } catch (error) {
       logError('Error loading comments', error instanceof Error ? error : undefined);
+      toast({
+        title: t.error_generic,
+        description: t.error_generic,
+        variant: "destructive",
+      });
     }
   };
 
@@ -122,12 +149,12 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
           }
           
           // Fetch profile data for public comments
-          if (newComment.is_anonymous === false) {
+          if (newComment.is_anonymous === false && newComment.user_id) {
             const { data: profileData } = await supabase
               .from('profiles')
               .select('nickname, avatar_url')
               .eq('user_id', newComment.user_id)
-              .single();
+              .maybeSingle();
             
             if (profileData) {
               newComment.profiles = profileData;
@@ -157,7 +184,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
         .from('profiles')
         .select('nickname')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
       
       setCurrentUserProfile(data);
     };
@@ -264,16 +291,19 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
           is_anonymous: isAnonymous,
         })
         .select()
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        logError('Error inserting comment', error);
+        throw error;
+      }
 
       // Optimistic update - add comment immediately to UI
       if (insertedComment) {
         const optimisticComment: Comment = {
           ...insertedComment,
           alias: isAnonymous ? alias : null,
-          profiles: !isAnonymous ? currentUserProfile : undefined,
+          profiles: !isAnonymous && currentUserProfile ? currentUserProfile : undefined,
         };
         
         setComments(prev => [optimisticComment, ...prev]);
@@ -290,6 +320,10 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
       });
     } catch (error) {
       logError('Error posting comment', error instanceof Error ? error : undefined);
+      
+      // Check if it's a specific error we can handle better
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
       toast({
         title: t.error_generic,
         description: t.error_submit,
@@ -413,8 +447,17 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                   size="sm"
                   className="bg-gradient-to-r from-primary to-primary/80 text-xs sm:text-sm"
                 >
-                  <Send className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                  {t.comments_submit}
+                  {isSubmitting ? (
+                    <>
+                      <span className="inline-block animate-spin mr-1 sm:mr-2">⏳</span>
+                      {t.comments_submit}
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                      {t.comments_submit}
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
