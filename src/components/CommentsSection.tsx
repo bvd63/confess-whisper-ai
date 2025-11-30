@@ -22,6 +22,11 @@ interface Comment {
   is_highlighted?: boolean;
   highlight_expires_at?: string | null;
   alias?: string | null;
+  is_anonymous?: boolean;
+  profiles?: {
+    nickname?: string | null;
+    avatar_url?: string | null;
+  };
 }
 
 interface CommentsSectionProps {
@@ -37,6 +42,8 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
+  const [isAnonymous, setIsAnonymous] = useState(true);
+  const [currentUserProfile, setCurrentUserProfile] = useState<{ nickname?: string | null } | null>(null);
   const { user } = useCurrentUser();
   const { toast } = useToast();
   const { t, language } = useLanguage();
@@ -47,16 +54,23 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
     try {
       const { data, error } = await supabase
         .from('comments')
-        .select('*')
+        .select(`
+          *,
+          profiles!comments_user_id_fkey (
+            nickname,
+            avatar_url
+          )
+        `)
         .eq('confession_id', confessionId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
       
-      // Generate aliases for comments that don't have them
+      // Generate aliases for anonymous comments that don't have them
       const commentsWithAliases = await Promise.all(
         (data || []).map(async (comment) => {
-          if (!comment.alias && comment.user_id) {
+          // Only generate alias for anonymous comments
+          if (comment.is_anonymous !== false && !comment.alias && comment.user_id) {
             const { data: aliasData } = await supabase
               .rpc('generate_comment_alias', {
                 p_user_id: comment.user_id,
@@ -68,7 +82,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
         })
       );
       
-      setComments(commentsWithAliases);
+      setComments(commentsWithAliases as Comment[]);
     } catch (error) {
       logError('Error loading comments', error instanceof Error ? error : undefined);
     }
@@ -80,6 +94,23 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isExpanded, confessionId]);
+
+  // Load current user profile for public comment display
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from('profiles')
+        .select('nickname')
+        .eq('user_id', user.id)
+        .single();
+      
+      setCurrentUserProfile(data);
+    };
+    
+    loadUserProfile();
+  }, [user]);
 
   // Cooldown timer effect
   useEffect(() => {
@@ -176,7 +207,8 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
           confession_id: confessionId,
           user_id: user.id,
           content: sanitizedContent,
-          alias: alias,
+          alias: isAnonymous ? alias : null,
+          is_anonymous: isAnonymous,
         });
 
       if (error) throw error;
@@ -277,6 +309,34 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                 disabled={isSubmitting || cooldownSeconds > 0}
                 maxLength={500}
               />
+              
+              {/* Visibility Selector */}
+              <div className="flex items-center gap-2 px-1">
+                <span className="text-[10px] sm:text-xs text-muted-foreground">
+                  {t.comments_post_as_label}:
+                </span>
+                <div className="flex gap-1">
+                  <Button
+                    type="button"
+                    variant={isAnonymous ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setIsAnonymous(true)}
+                    className="h-7 px-2 sm:px-3 text-[10px] sm:text-xs"
+                  >
+                    {t.comments_post_as_anonymous}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={!isAnonymous ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setIsAnonymous(false)}
+                    className="h-7 px-2 sm:px-3 text-[10px] sm:text-xs"
+                  >
+                    {t.comments_post_as_public.replace('{username}', currentUserProfile?.nickname || 'User')}
+                  </Button>
+                </div>
+              </div>
+              
               <div className="flex items-center justify-between">
                 <span className="text-[10px] sm:text-xs text-muted-foreground">
                   {newComment.length}/500
@@ -309,7 +369,12 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
               comments.map((comment) => {
                 const isHighlighted = comment.is_highlighted;
                 const isCommentOwner = user?.id === comment.user_id;
-                const displayAlias = comment.alias || 'Anonymous';
+                const isAnonymousComment = comment.is_anonymous !== false; // Default to true for backward compatibility
+                
+                // Display name logic
+                const displayName = isAnonymousComment 
+                  ? (comment.alias || 'Anonymous')
+                  : `@${comment.profiles?.nickname || 'User'}`;
                 
                 return (
                   <div
@@ -323,7 +388,12 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                   >
                     <div className="flex items-start justify-between mb-1 sm:mb-2">
                       <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground">
-                        <span className="font-medium text-foreground/80">{displayAlias}</span>
+                        <span className={cn(
+                          "font-medium",
+                          isAnonymousComment ? "text-foreground/80" : "text-primary"
+                        )}>
+                          {displayName}
+                        </span>
                         <span>•</span>
                         <span>{timeAgo(comment.created_at)}</span>
                       </div>

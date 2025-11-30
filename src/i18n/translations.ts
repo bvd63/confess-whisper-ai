@@ -685,6 +685,9 @@ type Translations = {
   comments_error_daily_limit: string;
   comments_error_consecutive_limit: string;
   comments_error_cooldown: string;
+  comments_post_as_label: string;
+  comments_post_as_anonymous: string;
+  comments_post_as_public: string;
   
   // Notifications
   notifications_title: string;
@@ -2212,6 +2215,9 @@ export const translations: Record<Language, Translations> = {
     comments_error_daily_limit: "You've reached your daily comment limit (20/day for FREE users).",
     comments_error_consecutive_limit: "You cannot post more than 3 comments in a row on this confession.",
     comments_error_cooldown: "You are commenting too fast. Please wait a moment.",
+    comments_post_as_label: "Post as",
+    comments_post_as_anonymous: "Anonymous",
+    comments_post_as_public: "Public (@{username})",
     
     // Notifications
     notifications_title: "Notifications",
@@ -4142,6 +4148,9 @@ export const translations: Record<Language, Translations> = {
     comments_error_daily_limit: "Has alcanzado tu límite diario de comentarios (20/día para usuarios FREE).",
     comments_error_consecutive_limit: "No puedes publicar más de 3 comentarios seguidos en esta confesión.",
     comments_error_cooldown: "Estás comentando demasiado rápido. Por favor, espera un momento.",
+    comments_post_as_label: "Publicar como",
+    comments_post_as_anonymous: "Anónimo",
+    comments_post_as_public: "Público (@{username})",
     
     // Notifications
     notifications_title: "Notificaciones",
@@ -6073,6 +6082,9 @@ export const translations: Record<Language, Translations> = {
     comments_error_daily_limit: "Du hast dein tägliches Kommentarlimit erreicht (20/Tag für FREE-Nutzer).",
     comments_error_consecutive_limit: "Du kannst nicht mehr als 3 Kommentare hintereinander zu diesem Geständnis posten.",
     comments_error_cooldown: "Du kommentierst zu schnell. Bitte warte einen Moment.",
+    comments_post_as_label: "Posten als",
+    comments_post_as_anonymous: "Anonym",
+    comments_post_as_public: "Öffentlich (@{username})",
     
     // Notifications
     notifications_title: "Benachrichtigungen",
