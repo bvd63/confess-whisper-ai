@@ -19,6 +19,7 @@ import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import VirtualizedConfessions from "@/components/VirtualizedConfessions";
 import { CommunityManagement } from "@/components/CommunityManagement";
 import { useQueryClient } from "@tanstack/react-query";
+import { attachActiveBoosts } from "@/lib/boosts";
 
 const CommunityDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -61,7 +62,7 @@ const CommunityDetail = () => {
         .limit(50);
 
       if (error) throw error;
-      return data;
+      return attachActiveBoosts(data || []);
     },
     enabled: !!id && (!community?.is_private || isMember),
   });

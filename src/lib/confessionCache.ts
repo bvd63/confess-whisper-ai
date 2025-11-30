@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { attachActiveBoosts } from '@/lib/boosts';
 
 // Cache for confession data with TTL
 interface ConfessionCacheEntry {
@@ -35,7 +36,12 @@ export async function getConfessionCached(confessionId: string): Promise<any> {
 
       if (error) throw error;
 
-      const val = data || null;
+      let val = data || null;
+
+      if (val) {
+        const [withBoost] = await attachActiveBoosts([val]);
+        val = withBoost ?? val;
+      }
       cache.set(confessionId, { value: val, expires: now + CONFESSION_TTL_MS });
       return val;
     } catch (e) {

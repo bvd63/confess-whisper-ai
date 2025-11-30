@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SearchFilters } from "@/components/SearchBar";
 import { logError } from "@/lib/logger";
+import { attachActiveBoosts } from "@/lib/boosts";
 
 export const useConfessionSearch = () => {
   const [confessions, setConfessions] = useState<any[]>([]);
@@ -77,7 +78,8 @@ export const useConfessionSearch = () => {
               filteredData = filteredData.filter(c => c.category === filters.category);
             }
 
-            setConfessions(filteredData);
+            const enrichedTrending = await attachActiveBoosts(filteredData);
+            setConfessions(enrichedTrending);
             setLoading(false);
             return;
           }
@@ -90,7 +92,8 @@ export const useConfessionSearch = () => {
 
       if (error) throw error;
 
-      setConfessions(data || []);
+      const enriched = await attachActiveBoosts(data || []);
+      setConfessions(enriched);
     } catch (error) {
       logError('Error searching confessions', error as Error);
       setConfessions([]);

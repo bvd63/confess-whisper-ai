@@ -37,6 +37,7 @@ import { VIPBadge } from "./VIPBadge";
 import { sanitizeConfession } from "@/lib/security/sanitizer";
 import { logError } from "@/lib/logger";
 import { useCoins } from "@/hooks/useCoins";
+import { addTwentyFourHours, getBoostStatus } from "@/lib/boosts";
 
 interface ConfessionCardProps {
   confession: {
@@ -56,6 +57,7 @@ interface ConfessionCardProps {
     emotional_tone?: string | null;
     is_anonymous?: boolean;
     author_display_name_snapshot?: string | null;
+    boost_expires_at?: string | null;
   };
   isVip: boolean;
   isLiked?: boolean;
@@ -75,8 +77,8 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
   const [isAwardPickerOpen, setIsAwardPickerOpen] = useState(false);
   const [commentsCount, setCommentsCount] = useState(confession.comments_count || 0);
   const [isBoostLoading, setIsBoostLoading] = useState(false);
-  const [boostEndsAt, setBoostEndsAt] = useState<string | null>(null);
-  const [hoursLeft, setHoursLeft] = useState<number>(0);
+  const [boostEndsAt, setBoostEndsAt] = useState<string | null>(confession.boost_expires_at ?? null);
+  const [boostStatus, setBoostStatus] = useState(() => getBoostStatus(confession.boost_expires_at ?? null));
   const { user } = useCurrentUser();
   const { toast } = useToast();
   const { t, language } = useLanguage();
@@ -90,58 +92,29 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
   const noScreenshotEnabled = isVip && isOwner;
   const { balance } = useCoins(user?.id);
 
-  // Fetch active boost status
   useEffect(() => {
-    const fetchBoostStatus = async () => {
-      const { data } = await supabase
-        .from('confession_boosts')
-        .select('ends_at')
-        .eq('confession_id', confession.id)
-        .eq('status', 'ACTIVE')
-        .gte('ends_at', new Date().toISOString())
-        .single();
+    setBoostEndsAt(confession.boost_expires_at ?? null);
+  }, [confession.boost_expires_at, confession.id]);
 
-      if (data?.ends_at) {
-        setBoostEndsAt(data.ends_at);
-      } else {
+  useEffect(() => {
+    const updateStatus = () => {
+      const status = getBoostStatus(boostEndsAt);
+      setBoostStatus(status);
+
+      if (boostEndsAt && !status.isBoosted) {
         setBoostEndsAt(null);
       }
     };
 
-    fetchBoostStatus();
+    updateStatus();
 
-    // Poll every 5 minutes to update boost status
-    const interval = setInterval(fetchBoostStatus, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [confession.id]);
-
-  // Calculate remaining hours
-  useEffect(() => {
     if (!boostEndsAt) {
-      setHoursLeft(0);
       return;
     }
 
-    const calculateHours = () => {
-      const now = new Date().getTime();
-      const end = new Date(boostEndsAt).getTime();
-      const diff = end - now;
-      
-      if (diff <= 0) {
-        setHoursLeft(0);
-        setBoostEndsAt(null);
-      } else {
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        setHoursLeft(hours);
-      }
-    };
-
-    calculateHours();
-    const interval = setInterval(calculateHours, 60 * 1000); // Update every minute
+    const interval = setInterval(updateStatus, 60 * 1000);
     return () => clearInterval(interval);
   }, [boostEndsAt]);
-
-  const isBoosted = boostEndsAt !== null && hoursLeft >= 0;
 
   const handleCopyText = async () => {
     try {
@@ -196,7 +169,7 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
     if (!user || !isOwner) return;
 
     // Block if already boosted
-    if (isBoosted) {
+    if (boostStatus.isBoosted) {
       toast({
         title: t.coins_boost_already_active,
         variant: "destructive",
@@ -224,12 +197,12 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
 
     setIsBoostLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('boost-confession', {
+      const { data: boostResponse, error } = await supabase.functions.invoke('boost-confession', {
         body: { confessionId: confession.id },
       });
 
       // Handle backend response for active boost
-      if (data?.error === 'BOOST_ALREADY_ACTIVE') {
+      if (boostResponse?.error === 'BOOST_ALREADY_ACTIVE') {
         toast({
           title: t.coins_boost_already_active,
           variant: "destructive",
@@ -245,17 +218,8 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
         description: t.boost_success_description,
       });
 
-      // Fetch updated boost status immediately
-      const { data: newBoost } = await supabase
-        .from('confession_boosts')
-        .select('ends_at')
-        .eq('confession_id', confession.id)
-        .eq('status', 'ACTIVE')
-        .single();
-
-      if (newBoost?.ends_at) {
-        setBoostEndsAt(newBoost.ends_at);
-      }
+      const endsAtFromResponse = boostResponse?.boost?.endsAt ?? addTwentyFourHours();
+      setBoostEndsAt(endsAtFromResponse);
 
       onLikeChange?.(); // Refresh to show boosted status
     } catch (error) {
@@ -277,11 +241,13 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
         className="p-5 sm:p-6 mb-4 touch-manipulation transition-all duration-300 hover:shadow-xl bg-card border border-border rounded-3xl animate-slide-up relative"
       >
         {/* Boost Badge - Top Right */}
-        {isBoosted && (
+        {boostStatus.isBoosted && (
           <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-orange-500/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-orange-500/20">
             <span className="text-base">🚀</span>
             <span className="text-xs font-medium text-orange-500">
-              {t.boosted.badge.label} · {hoursLeft >= 1 ? t.boosted.badge.left.replace('{{hours}}', String(hoursLeft)) : t.boosted.badge.lessThanHour}
+              {t.boosted.badge.label} · {boostStatus.lessThanHour
+                ? t.boosted.badge.lessThanHour
+                : t.boosted.badge.left.replace('{{hours}}', String(boostStatus.hoursLeft))}
             </span>
           </div>
         )}
@@ -366,7 +332,7 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
               variant="ghost"
               size="sm"
               onClick={handleBoostConfession}
-              disabled={isBoostLoading || isBoosted}
+              disabled={isBoostLoading || boostStatus.isBoosted}
               className="gap-1.5 text-xs h-9 px-3 rounded-xl hover:bg-orange-500/10 transition-colors disabled:opacity-50"
             >
               {isBoostLoading ? (
@@ -375,7 +341,7 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
                 <span className="text-base">🚀</span>
               )}
               <span className="hidden sm:inline font-medium">
-                {isBoostLoading ? t.processing : (isBoosted ? t.boost_active : t.boost_confession)}
+                {isBoostLoading ? t.processing : (boostStatus.isBoosted ? t.boost_active : t.boost_confession)}
               </span>
             </Button>
         )}

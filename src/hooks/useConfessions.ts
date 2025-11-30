@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useOptimizedQuery } from "./useOptimizedQuery";
 import { primeConfessionBatch } from '@/lib/confessionCache';
 import { primeNicknameCache } from '@/lib/nicknameCache';
+import { attachActiveBoosts } from '@/lib/boosts';
 
 interface Confession {
   id: string;
@@ -53,12 +54,14 @@ export const useConfessions = ({
       const { data, error: queryError } = await query;
       if (queryError) throw queryError;
 
+      const confessionsWithBoosts = await attachActiveBoosts(data || []);
+
       // Prime caches for better performance
-      if (data) {
-        primeConfessionBatch(data);
+      if (confessionsWithBoosts.length > 0) {
+        primeConfessionBatch(confessionsWithBoosts);
         
         // Batch fetch ALL nicknames in a single query (MUCH faster)
-        const uniqueUserIds = [...new Set(data.map(c => c.user_id).filter(Boolean))] as string[];
+        const uniqueUserIds = [...new Set(confessionsWithBoosts.map(c => c.user_id).filter(Boolean))] as string[];
         if (uniqueUserIds.length > 0) {
           try {
             const { data: profiles } = await supabase
@@ -78,7 +81,7 @@ export const useConfessions = ({
         }
       }
 
-      return data || [];
+      return confessionsWithBoosts;
     },
     cacheTTL: 2 * 60 * 1000, // 2 minutes
   });

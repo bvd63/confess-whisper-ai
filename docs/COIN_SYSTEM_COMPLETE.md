@@ -22,7 +22,7 @@ All coin-based features have been fully implemented, optimized, and tested acros
 - **Location**: `src/components/BoostConfessionButton.tsx`
 - **Edge Function**: `supabase/functions/boost-confession/index.ts`
 - **Features**:
-  - 1-hour visibility boost for confessions
+  - 24-hour visibility boost for confessions
   - Confirmation dialog with cost display
   - Owner-only access (only confession authors can boost)
   - Prevents duplicate boosts
@@ -281,7 +281,7 @@ rarity_common, rarity_uncommon, rarity_rare, rarity_epic
 
 ### Known Limitations
 - Polish AI limited to 500 tokens output
-- Boost duration fixed at 1 hour
+- Boost duration fixed at 24 hours
 - Flairs are cosmetic only
 - Minimum coin requirements enforced
 

@@ -11,8 +11,9 @@ import { BookMarked } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import VirtualizedConfessions from "@/components/VirtualizedConfessions";
 import { logError } from "@/lib/logger";
+import { attachActiveBoosts } from "@/lib/boosts";
 
-type Confession = Tables<"confessions">;
+type Confession = Tables<"confessions"> & { boost_expires_at?: string | null };
 
 const UserConfessionsList = () => {
   const { t } = useLanguage();
@@ -39,7 +40,8 @@ const UserConfessionsList = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setConfessions(data || []);
+      const withBoosts = await attachActiveBoosts(data || []);
+      setConfessions(withBoosts);
     } catch (error) {
       logError("Error fetching user confessions", error as Error);
     } finally {

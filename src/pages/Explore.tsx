@@ -25,6 +25,7 @@ import { AdvancedFilters, FilterState } from "@/components/AdvancedFilters";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Loader2 } from "lucide-react";
 import VirtualizedConfessions from "@/components/VirtualizedConfessions";
+import { attachActiveBoosts } from "@/lib/boosts";
 // Communities feature disabled
 // import { CommunitiesSectionExpanded } from "@/components/CommunitiesSectionExpanded";
 
@@ -57,7 +58,7 @@ const Explore = () => {
         limit_count: 20,
       });
       if (error) throw error;
-      return data;
+      return attachActiveBoosts(data || []);
     },
   });
 
@@ -72,7 +73,7 @@ const Explore = () => {
         .order("created_at", { ascending: false })
         .limit(20);
       if (error) throw error;
-      return data;
+      return attachActiveBoosts(data || []);
     },
   });
 
@@ -87,7 +88,7 @@ const Explore = () => {
         .order("likes_count", { ascending: false })
         .limit(20);
       if (error) throw error;
-      return data;
+      return attachActiveBoosts(data || []);
     },
   });
 

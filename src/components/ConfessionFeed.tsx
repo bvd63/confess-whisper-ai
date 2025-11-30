@@ -16,6 +16,7 @@ interface Confession {
   ai_response?: string | null;
   ai_deep_insight?: string | null;
   created_at: string;
+  boost_expires_at?: string | null;
 }
 
 interface ConfessionFeedProps {

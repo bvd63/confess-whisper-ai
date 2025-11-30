@@ -18,6 +18,7 @@ import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import VirtualizedConfessions from "@/components/VirtualizedConfessions";
 import { logError } from "@/lib/logger";
+import { attachActiveBoosts } from "@/lib/boosts";
 
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 
@@ -34,6 +35,7 @@ interface Confession {
   created_at: string;
   is_anonymous?: boolean;
   author_display_name_snapshot?: string | null;
+  boost_expires_at?: string | null;
 }
 
 const Bookmarks = () => {
@@ -91,9 +93,13 @@ const Bookmarks = () => {
 
       if (confessionsError) throw confessionsError;
 
+      const confessionsWithBoosts = await attachActiveBoosts(confessionsData || []);
+
+      const confessionMap = new Map(confessionsWithBoosts.map(confession => [confession.id, confession]));
+
       // Sort by bookmark order
       const sorted = confessionIds
-        .map(id => confessionsData?.find(c => c.id === id))
+        .map(id => confessionMap.get(id))
         .filter(Boolean) as Confession[];
 
       setConfessions(sorted);

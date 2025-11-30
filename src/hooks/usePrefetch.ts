@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { attachActiveBoosts } from '@/lib/boosts';
 
 interface PrefetchOptions {
   enabled?: boolean;
@@ -13,6 +14,16 @@ interface PrefetchOptions {
 export const usePrefetch = () => {
   const queryClient = useQueryClient();
   const prefetchTimeouts = useRef<Map<string, number>>(new Map());
+
+  const fetchExplorePrefetch = async () => {
+    const { supabase } = await import('@/integrations/supabase/client');
+    const { data } = await supabase
+      .from('confessions')
+      .select('*')
+      .order('likes_count', { ascending: false })
+      .limit(10);
+    return attachActiveBoosts(data || []);
+  };
 
   useEffect(() => {
     return () => {
@@ -190,15 +201,7 @@ export const usePrefetch = () => {
             case 'explore':
               queryClient.prefetchQuery({
                 queryKey: ['confessions', 'explore'],
-                queryFn: async () => {
-                  const { supabase } = await import('@/integrations/supabase/client');
-                  const { data } = await supabase
-                    .from('confessions')
-                    .select('*')
-                    .order('likes_count', { ascending: false })
-                    .limit(10);
-                  return data;
-                },
+                queryFn: fetchExplorePrefetch,
                 staleTime: 2 * 60 * 1000,
               });
               break;
@@ -229,15 +232,7 @@ export const usePrefetch = () => {
           case 'explore':
             queryClient.prefetchQuery({
               queryKey: ['confessions', 'explore'],
-              queryFn: async () => {
-                const { supabase } = await import('@/integrations/supabase/client');
-                const { data } = await supabase
-                  .from('confessions')
-                  .select('*')
-                  .order('likes_count', { ascending: false })
-                  .limit(10);
-                return data;
-              },
+              queryFn: fetchExplorePrefetch,
               staleTime: 2 * 60 * 1000,
             });
             break;

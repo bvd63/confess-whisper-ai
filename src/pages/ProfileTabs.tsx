@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FileText, Heart, Bookmark } from 'lucide-react';
 import VirtualizedConfessions from '@/components/VirtualizedConfessions';
+import { attachActiveBoosts } from '@/lib/boosts';
 
 interface ProfileTabsProps {
   userId: string;
@@ -32,7 +33,7 @@ export const ProfileTabs = ({ userId, isOwnProfile, isVip, onUpgradeClick, onIns
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return attachActiveBoosts(data || []);
     },
   });
 
@@ -52,7 +53,8 @@ export const ProfileTabs = ({ userId, isOwnProfile, isVip, onUpgradeClick, onIns
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data?.map(item => item.confessions).filter(Boolean) || [];
+      const confessions = data?.map(item => item.confessions).filter(Boolean) || [];
+      return attachActiveBoosts(confessions);
     },
     enabled: isOwnProfile,
   });
@@ -73,7 +75,8 @@ export const ProfileTabs = ({ userId, isOwnProfile, isVip, onUpgradeClick, onIns
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data?.map(item => item.confessions).filter(Boolean) || [];
+      const confessions = data?.map(item => item.confessions).filter(Boolean) || [];
+      return attachActiveBoosts(confessions);
     },
     enabled: isOwnProfile,
   });

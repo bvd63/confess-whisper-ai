@@ -3017,7 +3017,7 @@ export const translations: Record<Language, Translations> = {
     coins_confession_created: "New confession",
     coins_how_to_spend: "💎 How to Spend Coins",
     coins_polish_detail: "✨ Polish Confession (10 coins) - AI improves your text",
-    coins_boost_detail: "🚀 Boost Confession (15 coins) - Highlight for 1 hour",
+    coins_boost_detail: "🚀 Boost Confession (15 coins) - Highlight for 24 hours",
     coins_flairs_detail: "🎨 Profile Flairs (30 coins) - Active for 5 days",
     badge_expires_in: "Expires in",
     badge_expired: "Expired",
@@ -3031,9 +3031,9 @@ export const translations: Record<Language, Translations> = {
     
     boost_confession: "Boost Confession",
     boost_success_title: "Confession Boosted!",
-    boost_success_description: "Your confession will be highlighted for 1 hour",
+    boost_success_description: "Your confession will be highlighted for 24 hours",
     boost_error: "Failed to boost confession",
-    boost_confirmation_description: "Boost this confession to make it more visible for 1 hour.",
+    boost_confirmation_description: "Boost this confession to make it more visible for 24 hours.",
     boost_cost: "Cost: 15 coins",
     boost_now: "Boost Now",
     
@@ -4847,7 +4847,7 @@ export const translations: Record<Language, Translations> = {
     coins_confession_created: "Nueva confesión",
     coins_how_to_spend: "💎 Cómo Gastar Monedas",
     coins_polish_detail: "✨ Mejorar Confesión (10 monedas) - IA mejora tu texto",
-    coins_boost_detail: "🚀 Impulsar Confesión (15 monedas) - Destacar por 1 hora",
+    coins_boost_detail: "🚀 Impulsar Confesión (15 monedas) - Destacar por 24 horas",
     coins_flairs_detail: "🎨 Insignias de Perfil (30 monedas) - Activas por 5 días",
     badge_expires_in: "Expira en",
     badge_expired: "Expirado",
@@ -4861,9 +4861,9 @@ export const translations: Record<Language, Translations> = {
     
     boost_confession: "Impulsar Confesión",
     boost_success_title: "¡Confesión Impulsada!",
-    boost_success_description: "Tu confesión será destacada durante 1 hora",
+    boost_success_description: "Tu confesión será destacada durante 24 horas",
     boost_error: "Error al impulsar confesión",
-    boost_confirmation_description: "Impulsa esta confesión para hacerla más visible durante 1 hora.",
+    boost_confirmation_description: "Impulsa esta confesión para hacerla más visible durante 24 horas.",
     boost_cost: "Costo: 15 monedas",
     boost_now: "Impulsar Ahora",
     
@@ -6778,7 +6778,7 @@ export const translations: Record<Language, Translations> = {
     coins_confession_created: "Neues Geständnis",
     coins_how_to_spend: "💎 Münzen Ausgeben",
     coins_polish_detail: "✨ Geständnis Verbessern (10 Münzen) - KI verbessert deinen Text",
-    coins_boost_detail: "🚀 Geständnis Boosten (15 Münzen) - 1 Stunde hervorheben",
+    coins_boost_detail: "🚀 Geständnis Boosten (15 Münzen) - 24 Stunden hervorheben",
     coins_flairs_detail: "🎨 Profil-Abzeichen (30 Münzen) - 5 Tage aktiv",
     badge_expires_in: "Läuft ab in",
     badge_expired: "Abgelaufen",
@@ -6792,9 +6792,9 @@ export const translations: Record<Language, Translations> = {
     
     boost_confession: "Geständnis Boosten",
     boost_success_title: "Geständnis Geboostet!",
-    boost_success_description: "Dein Geständnis wird 1 Stunde hervorgehoben",
+    boost_success_description: "Dein Geständnis wird 24 Stunden hervorgehoben",
     boost_error: "Fehler beim Boosten des Geständnisses",
-    boost_confirmation_description: "Booste dieses Geständnis, um es 1 Stunde lang sichtbarer zu machen.",
+    boost_confirmation_description: "Booste dieses Geständnis, um es 24 Stunden lang sichtbarer zu machen.",
     boost_cost: "Kosten: 15 Münzen",
     boost_now: "Jetzt Boosten",
     

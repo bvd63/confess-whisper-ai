@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Geolocation } from "@capacitor/geolocation";
+import { attachActiveBoosts } from "@/lib/boosts";
 
 interface NearbyConfessionsOptions {
   radiusKm?: number;
@@ -63,7 +64,7 @@ export const useNearbyConfessions = (options: NearbyConfessionsOptions = {}) => 
         .sort((a, b) => a!.distance - b!.distance)
         .slice(0, limit);
 
-      return confessionsWithDistance;
+      return attachActiveBoosts(confessionsWithDistance as any[]);
     },
     retry: false,
   });
