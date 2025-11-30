@@ -70,13 +70,14 @@ const AppHeader = ({
     }
   };
   const isActive = (path: string) => location.pathname === path;
-  return <header className="sticky top-0 z-50 bg-gradient-to-r from-blue-900/90 via-purple-900/90 to-blue-900/90 backdrop-blur-xl border-b border-white/10">
+  return (
+    <header className="sticky top-0 z-50 bg-gradient-to-r from-blue-900/90 via-purple-900/90 to-blue-900/90 backdrop-blur-xl border-b border-white/10">
       <div className="w-full">
         <div className="flex items-center justify-between px-4 sm:px-6 py-4 max-w-7xl mx-auto">
           {/* Centered App Name */}
           <div className="flex-1" />
           <h1 className="text-xl sm:text-2xl font-bold text-white cursor-pointer tracking-tight" onClick={() => navigate('/')}>
-            Confess<span className="text-primary-glow">AI</span>
+            ConfessAI
           </h1>
           
           {/* Right: Coins (or Login) */}
@@ -97,6 +98,7 @@ const AppHeader = ({
           </div>
         </div>
       </div>
-    </header>;
+    </header>
+  );
 };
 export default AppHeader;
