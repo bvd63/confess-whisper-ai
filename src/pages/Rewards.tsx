@@ -21,6 +21,12 @@ interface Flair {
   cost: number;
 }
 
+interface UserFlair {
+  flair_id: string;
+  is_equipped: boolean;
+  expires_at: string | null;
+}
+
 const Rewards = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
@@ -30,6 +36,7 @@ const Rewards = () => {
   const { subscriptionTier } = useSubscription();
   const [flairsShopOpen, setFlairsShopOpen] = useState(false);
   const [featuredFlairs, setFeaturedFlairs] = useState<Flair[]>([]);
+  const [userFlairs, setUserFlairs] = useState<UserFlair[]>([]);
   const [showCoinsHistory, setShowCoinsHistory] = useState(false);
 
   // Navigate to auth if no user
@@ -39,25 +46,54 @@ const Rewards = () => {
     }
   }, [isLoading, user, navigate]);
 
-  // Load featured flairs (first 6)
+  // Load featured flairs (first 6) and user's owned flairs
   useEffect(() => {
-    const loadFeaturedFlairs = async () => {
+    const loadData = async () => {
+      if (!user) return;
+      
       try {
-        const { data, error } = await supabase
-          .from('profile_flairs')
-          .select('id, name_key, icon, cost')
-          .eq('is_active', true)
-          .order('cost', { ascending: true })
-          .limit(6);
+        // Load featured flairs and user flairs in parallel
+        const [flairsRes, userFlairsRes] = await Promise.all([
+          supabase
+            .from('profile_flairs')
+            .select('id, name_key, icon, cost')
+            .eq('is_active', true)
+            .order('cost', { ascending: true })
+            .limit(6),
+          supabase
+            .from('user_flairs')
+            .select('flair_id, is_equipped, expires_at')
+            .eq('user_id', user.id)
+        ]);
         
-        if (error) throw error;
-        setFeaturedFlairs(data || []);
+        if (flairsRes.error) throw flairsRes.error;
+        if (userFlairsRes.error) throw userFlairsRes.error;
+        
+        setFeaturedFlairs(flairsRes.data || []);
+        setUserFlairs(userFlairsRes.data || []);
       } catch (error) {
-        logError('Error loading featured flairs', error as Error);
+        logError('Error loading flairs data', error as Error);
       }
     };
-    loadFeaturedFlairs();
-  }, []);
+    loadData();
+  }, [user]);
+
+  // Helper to check flair ownership status
+  const getFlairStatus = (flairId: string): 'owned' | 'equipped' | 'expired' | 'available' => {
+    const userFlair = userFlairs.find(uf => uf.flair_id === flairId);
+    if (!userFlair) return 'available';
+    
+    const now = new Date();
+    const expiryDate = userFlair.expires_at ? new Date(userFlair.expires_at) : null;
+    
+    // Check if expired
+    if (expiryDate && expiryDate < now) return 'expired';
+    
+    // Check if equipped
+    if (userFlair.is_equipped) return 'equipped';
+    
+    return 'owned';
+  };
 
   if (isLoading || !user) {
     return null;
@@ -208,19 +244,35 @@ const Rewards = () => {
             </div>
             
             <div className="grid grid-cols-3 gap-3">
-              {featuredFlairs.slice(0, 6).map((flair) => (
-                <div 
-                  key={flair.id}
-                  className="glass-card p-4 rounded-2xl border border-white/10 flex flex-col items-center gap-2 hover:border-purple-500/30 transition-all cursor-pointer"
-                  onClick={() => setFlairsShopOpen(true)}
-                >
-                  <div className="text-4xl">{flair.icon}</div>
-                  <div className="flex items-center gap-1 text-amber-400 text-sm font-medium">
-                    <span>🪙</span>
-                    <span>{flair.cost}</span>
+              {featuredFlairs.slice(0, 6).map((flair) => {
+                const status = getFlairStatus(flair.id);
+                const isOwned = status === 'owned' || status === 'equipped';
+                
+                return (
+                  <div 
+                    key={flair.id}
+                    className={`glass-card p-4 rounded-2xl border flex flex-col items-center gap-2 transition-all cursor-pointer ${
+                      isOwned 
+                        ? 'border-green-500/30 bg-green-500/5' 
+                        : 'border-white/10 hover:border-purple-500/30'
+                    }`}
+                    onClick={() => setFlairsShopOpen(true)}
+                  >
+                    <div className="text-4xl">{flair.icon}</div>
+                    {isOwned ? (
+                      <div className="flex items-center gap-1 text-green-400 text-xs font-medium">
+                        <span>✓</span>
+                        <span>{status === 'equipped' ? 'Equipped' : 'Owned'}</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1 text-amber-400 text-sm font-medium">
+                        <span>🪙</span>
+                        <span>{flair.cost}</span>
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             
             {/* View all flairs button */}
