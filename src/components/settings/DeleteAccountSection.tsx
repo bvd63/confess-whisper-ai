@@ -72,58 +72,57 @@ export const DeleteAccountSection = ({ userId, userEmail }: DeleteAccountSection
   };
 
   return (
-    <div className="p-4 bg-destructive/10 rounded-lg border border-destructive/20">
-      <h4 className="font-semibold text-destructive mb-2 flex items-center gap-2">
-        <Trash2 className="w-4 h-4" />
-        {t.delete_account || 'Delete Account'}
-      </h4>
-      <p className="text-sm text-muted-foreground mb-4">
-        {t.delete_warning}
-      </p>
-      
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogTrigger asChild>
-          <Button variant="destructive" className="w-full">
-            {t.delete_account || 'Delete Account'}
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Are you absolutely sure?</DialogTitle>
-            <DialogDescription>
-              {t.delete_account_description}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-2 my-4">
-            <Label htmlFor="confirm-delete">
-              Type DELETE to confirm
-            </Label>
-            <Input
-              id="confirm-delete"
-              value={confirmText}
-              onChange={(e) => setConfirmText(e.target.value)}
-              placeholder="DELETE"
-            />
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <DialogTrigger asChild>
+        <button
+          className="w-full px-4 py-3.5 flex items-center justify-between rounded-xl transition-all duration-200 bg-gradient-to-r from-red-600/25 to-red-700/20 hover:from-red-600/35 hover:to-red-700/30 border border-red-600/30"
+        >
+          <div className="flex items-center gap-3">
+            <Trash2 className="h-4 w-4 text-red-500" />
+            <span className="text-sm font-medium text-red-500">{t.delete_account || 'Delete Account'}</span>
           </div>
+          <div className="w-6 h-6 rounded-md bg-red-500/20 flex items-center justify-center">
+            <Trash2 className="h-3 w-3 text-red-500" />
+          </div>
+        </button>
+      </DialogTrigger>
+      <DialogContent className="glass-card border-border/50">
+        <DialogHeader>
+          <DialogTitle className="text-foreground">Are you absolutely sure?</DialogTitle>
+          <DialogDescription className="text-muted-foreground">
+            {t.delete_account_description}
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-2 my-4">
+          <Label htmlFor="confirm-delete" className="text-foreground">
+            Type DELETE to confirm
+          </Label>
+          <Input
+            id="confirm-delete"
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+            placeholder="DELETE"
+            className="glass border-border/50"
+          />
+        </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setConfirmText('');
-              setIsDialogOpen(false);
-            }}>
-              {t.cancel || 'Cancel'}
-            </Button>
-            <Button
-              onClick={handleDeleteAccount}
-              disabled={isDeleting || confirmText !== 'DELETE'}
-              variant="destructive"
-            >
-              {isDeleting ? t.deleting || 'Deleting...' : t.delete_account || 'Delete Account'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => {
+            setConfirmText('');
+            setIsDialogOpen(false);
+          }}>
+            {t.cancel || 'Cancel'}
+          </Button>
+          <Button
+            onClick={handleDeleteAccount}
+            disabled={isDeleting || confirmText !== 'DELETE'}
+            variant="destructive"
+          >
+            {isDeleting ? t.deleting || 'Deleting...' : t.delete_account || 'Delete Account'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };

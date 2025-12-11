@@ -1,4 +1,3 @@
-import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -32,15 +31,14 @@ export const LogoutSection = () => {
   };
 
   return (
-    <div className="p-4 bg-card rounded-lg border">
-      <Button
-        onClick={handleLogout}
-        variant="destructive"
-        className="w-full"
-      >
-        <LogOut className="w-4 h-4 mr-2" />
-        {t.logout || 'Logout'}
-      </Button>
-    </div>
+    <button
+      onClick={handleLogout}
+      className="w-full px-4 py-3.5 flex items-center justify-between rounded-xl transition-all duration-200 bg-gradient-to-r from-red-500/20 to-red-600/15 hover:from-red-500/30 hover:to-red-600/25 border border-red-500/25"
+    >
+      <div className="flex items-center gap-3">
+        <LogOut className="h-4 w-4 text-red-400" />
+        <span className="text-sm font-medium text-red-400">{t.logout || 'Logout'}</span>
+      </div>
+    </button>
   );
 };

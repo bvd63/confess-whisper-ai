@@ -275,29 +275,10 @@ const SettingsActivity = () => {
                   passwordChangedAt={passwordChangedAt} 
                 />
                 
-                {/* Logout - Red gradient */}
-                <button
-                  className="w-full px-4 py-3.5 flex items-center justify-between rounded-xl transition-all duration-200 bg-gradient-to-r from-red-500/20 to-red-600/15 hover:from-red-500/30 hover:to-red-600/25 border border-red-500/25"
-                >
-                  <div className="flex items-center gap-3">
-                    <LogOut className="h-4 w-4 text-red-400" />
-                    <span className="text-sm font-medium text-red-400">Logout</span>
-                  </div>
-                </button>
+                {/* Logout */}
                 <LogoutSection />
 
-                {/* Delete Account - Danger */}
-                <button
-                  className="w-full px-4 py-3.5 flex items-center justify-between rounded-xl transition-all duration-200 bg-gradient-to-r from-red-600/25 to-red-700/20 hover:from-red-600/35 hover:to-red-700/30 border border-red-600/30"
-                >
-                  <div className="flex items-center gap-3">
-                    <Trash2 className="h-4 w-4 text-red-500" />
-                    <span className="text-sm font-medium text-red-500">Delete Account</span>
-                  </div>
-                  <div className="w-6 h-6 rounded-md bg-red-500/20 flex items-center justify-center">
-                    <Trash2 className="h-3 w-3 text-red-500" />
-                  </div>
-                </button>
+                {/* Delete Account */}
                 <DeleteAccountSection userId={user.id} userEmail={user.email || ''} />
               </div>
             )}
