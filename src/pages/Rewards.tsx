@@ -1,53 +1,36 @@
-import { ArrowLeft, Trophy, Flame, Gift, Award, Star, Coins as CoinsIcon } from 'lucide-react';
+import { ArrowLeft, Zap, Star, Crown, Bell, Coins as CoinsIcon, ChevronRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/contexts/LanguageContext';
 import AppLayout from '@/components/AppLayout';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { StreakDisplay } from '@/components/StreakDisplay';
 import { useStreakManager } from '@/hooks/useStreakManager';
-import { useConfessionLimits } from '@/hooks/useConfessionLimits';
-import ReferralSystem from '@/components/ReferralSystem';
-import BadgesDisplay from '@/components/BadgesDisplay';
-import { FlairsShopButton } from '@/components/FlairsShopButton';
+import { useCoins } from '@/hooks/useCoins';
 import { FlairsShop } from '@/components/FlairsShop';
-import CoinsDisplay from '@/components/CoinsDisplay';
 import { useSubscription } from '@/state/SubscriptionProvider';
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { cn } from '@/lib/utils';
 import { logError } from '@/lib/logger';
+import CoinsDisplay from '@/components/CoinsDisplay';
+
+interface Flair {
+  id: string;
+  name_key: string;
+  icon: string;
+  cost: number;
+}
+
 const Rewards = () => {
   const navigate = useNavigate();
-  const {
-    t
-  } = useLanguage();
-  const {
-    user,
-    isLoading
-  } = useCurrentUser();
-  const {
-    canPost,
-    currentCount,
-    dailyLimit,
-    remaining,
-    tier
-  } = useConfessionLimits();
-  const {
-    streakData
-  } = useStreakManager();
-  const {
-    subscriptionTier
-  } = useSubscription();
-  const [searchParams] = useSearchParams();
-  const initialTab = searchParams.get('tab') || 'overview';
+  const { t } = useLanguage();
+  const { user, isLoading } = useCurrentUser();
+  const { streakData } = useStreakManager();
+  const { balance: coinsBalance } = useCoins(user?.id);
+  const { subscriptionTier } = useSubscription();
   const [flairsShopOpen, setFlairsShopOpen] = useState(false);
-  const [badgesCount, setBadgesCount] = useState(0);
-  const [referralsCount, setReferralsCount] = useState(0);
+  const [featuredFlairs, setFeaturedFlairs] = useState<Flair[]>([]);
+  const [showCoinsHistory, setShowCoinsHistory] = useState(false);
 
   // Navigate to auth if no user
   useEffect(() => {
@@ -56,209 +39,212 @@ const Rewards = () => {
     }
   }, [isLoading, user, navigate]);
 
-  // Load badges count
+  // Load featured flairs (first 6)
   useEffect(() => {
-    const loadBadgesCount = async () => {
-      if (!user?.id) return;
+    const loadFeaturedFlairs = async () => {
       try {
-        const {
-          count
-        } = await supabase.from('user_badges').select('*', {
-          count: 'exact',
-          head: true
-        }).eq('user_id', user.id).or('expires_at.is.null,expires_at.gt.now()');
-        setBadgesCount(count || 0);
+        const { data, error } = await supabase
+          .from('profile_flairs')
+          .select('id, name_key, icon, cost')
+          .eq('is_active', true)
+          .order('cost', { ascending: true })
+          .limit(6);
+        
+        if (error) throw error;
+        setFeaturedFlairs(data || []);
       } catch (error) {
-        logError('Error loading badges count', error as Error);
+        logError('Error loading featured flairs', error as Error);
       }
     };
-    loadBadgesCount();
-  }, [user?.id]);
+    loadFeaturedFlairs();
+  }, []);
 
-  // Load referrals count
-  useEffect(() => {
-    const loadReferralsCount = async () => {
-      if (!user?.id) return;
-      try {
-        const {
-          count
-        } = await supabase.from('referrals').select('*', {
-          count: 'exact',
-          head: true
-        }).eq('referrer_user_id', user.id).eq('status', 'completed');
-        setReferralsCount(count || 0);
-      } catch (error) {
-        logError('Error loading referrals count', error as Error);
-      }
-    };
-    loadReferralsCount();
-  }, [user?.id]);
-  if (isLoading) {
+  if (isLoading || !user) {
     return null;
   }
-  if (!user) {
-    return null;
-  }
+
   const isVIP = subscriptionTier === 'vip';
-  return <AppLayout>
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 pb-24">
-        {/* Header */}
-        <div className="sticky top-0 z-10 -mx-4 sm:-mx-6 mb-6 glass-strong border-b border-border">
-          <div className="flex items-center justify-between px-4 sm:px-6 py-5">
+  const currentStreak = streakData?.currentStreak || 0;
+  
+  // Calculate streak progress (progress to next milestone)
+  const getNextMilestone = (current: number): number => {
+    const milestones = [3, 7, 14, 30];
+    return milestones.find(m => m > current) || 30;
+  };
+  
+  const getStreakProgress = () => {
+    const next = getNextMilestone(currentStreak);
+    const prev = [0, 3, 7, 14].reverse().find(m => m <= currentStreak) || 0;
+    return ((currentStreak - prev) / (next - prev)) * 100;
+  };
+
+  // Boost cost (from app config)
+  const BOOST_COST = 25;
+  const HIGHLIGHT_COST = 15;
+
+  return (
+    <AppLayout>
+      <div className="min-h-screen bg-gradient-to-b from-[#0a0a12] via-[#0d0d18] to-[#0a0a12]">
+        {/* Premium Header */}
+        <div className="sticky top-0 z-20 glass-strong border-b border-white/10">
+          <div className="flex items-center justify-between px-4 py-4">
+            {/* Left - Logo */}
+            <div className="flex items-center gap-2">
+              <span className="text-xl font-bold text-white">Confess</span>
+              <span className="text-xl font-bold text-purple-400">AI</span>
+            </div>
+            
+            {/* Right - Crown (VIP) + Coins + Bell */}
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="hover:bg-muted rounded-2xl h-12 w-12">
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-flame to-warning flex items-center justify-center shadow-lg shadow-flame/25 text-background bg-background">
-                  <Trophy className="h-5 w-5 text-white" />
-                </div>
-                <h1 className="text-2xl font-bold text-foreground">Rewards Hub</h1>
-              </div>
+              {/* Crown - Opens Manage Subscription */}
+              <button 
+                onClick={() => navigate('/manage-subscription')}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-500/30"
+              >
+                <Crown className="w-4 h-4 text-amber-400" />
+                <span className="text-xs font-semibold text-amber-400">VIP</span>
+              </button>
+              
+              {/* Coins - Opens Coin Shop */}
+              <CoinsDisplay userId={user.id} variant="compact" />
+              
+              {/* Bell - Opens Notifications */}
+              <button 
+                onClick={() => navigate('/notifications')}
+                className="w-9 h-9 rounded-full flex items-center justify-center bg-white/5 border border-white/10"
+              >
+                <Bell className="w-4 h-4 text-white/70" />
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Tabs */}
-        <Tabs defaultValue={initialTab} className="py-6">
-          <TabsList className="grid w-full grid-cols-4 mb-8 h-14 rounded-2xl bg-muted p-1.5 gap-1.5">
-            <TabsTrigger value="overview" className="text-sm rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg font-medium">
-              <Star className="w-4 h-4 mr-1.5" />
-              <span className="hidden sm:inline">Overview</span>
-            </TabsTrigger>
-            <TabsTrigger value="achievements" className="text-sm rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg font-medium">
-              <Award className="w-4 h-4 mr-1.5" />
-              <span className="hidden xs:inline">Badges</span>
-            </TabsTrigger>
-            <TabsTrigger value="daily" className="text-sm rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg font-medium">
-              <Flame className="w-4 h-4 mr-1.5" />
-              <span className="hidden xs:inline">Daily</span>
-            </TabsTrigger>
-            <TabsTrigger value="referrals" className="text-sm rounded-lg">
-              <Gift className="w-4 h-4 mr-1" />
-              <span className="hidden xs:inline">Refer</span>
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-5">
-            {/* Coins Balance */}
-            <CoinsDisplay userId={user.id} variant="full" />
-
-            {/* Quick Stats Grid */}
-            <div className="grid grid-cols-2 gap-4">
-              <Card className="p-5 rounded-2xl">
-                <div className="flex items-center gap-2 mb-2">
-                  <Award className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground font-medium">Badges</span>
-                </div>
-                <p className="text-2xl font-bold text-amber-500">
-                  {badgesCount}
-                </p>
-              </Card>
-
-              <Card className="p-5 rounded-2xl">
-                <div className="flex items-center gap-2 mb-2">
-                  <Gift className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground font-medium">Referrals</span>
-                </div>
-                <p className="text-2xl font-bold text-green-500">
-                  {referralsCount}
-                </p>
-              </Card>
+        {/* Content */}
+        <div className="px-4 py-6 space-y-4 pb-24">
+          
+          {/* Coins Overview Card */}
+          <div 
+            onClick={() => setShowCoinsHistory(true)}
+            className="glass-card p-6 rounded-2xl border border-white/10 cursor-pointer hover:border-white/20 transition-all"
+          >
+            <h3 className="text-center text-white/80 font-medium mb-4">Coins Overview</h3>
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <div className="text-4xl">🪙</div>
+              <span className="text-4xl font-bold text-white">{coinsBalance.toLocaleString()}</span>
             </div>
-          </TabsContent>
+            <p className="text-center text-white/50 text-sm">Tap to see history</p>
+          </div>
 
-          {/* Achievements Tab */}
-          <TabsContent value="achievements" className="space-y-4">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold">Your Badges</h2>
-                {isVIP && <FlairsShopButton onClick={() => setFlairsShopOpen(true)} tier="vip" />}
+          {/* Daily Streak Card */}
+          <div className="p-5 rounded-2xl bg-gradient-to-r from-purple-600/80 to-blue-600/80 border border-purple-400/30 shadow-lg shadow-purple-500/20">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">Daily Streak</span>
+                <span className="text-2xl">🔥</span>
               </div>
-              
-              <BadgesDisplay userId={user.id} variant="full" />
+              <Button 
+                size="sm"
+                className="bg-white/20 hover:bg-white/30 text-white border-0 rounded-full px-4"
+              >
+                Claim reward
+              </Button>
             </div>
-          </TabsContent>
-
-          {/* Daily Rewards Tab */}
-          <TabsContent value="daily" className="space-y-4">
-            {/* Current Streak & Milestones */}
-            <div>
-              <h3 className="font-semibold mb-3 text-lg">Current Streak & Rewards</h3>
-              <StreakDisplay />
+            <p className="text-3xl font-bold text-white mb-4">{currentStreak} days</p>
+            <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-white rounded-full transition-all duration-500"
+                style={{ width: `${getStreakProgress()}%` }}
+              />
             </div>
+          </div>
 
-            {/* Daily Confession Limit */}
-            <div>
-              <h3 className="font-semibold mb-3 text-lg">Daily Confession Limit</h3>
-              <div className="p-5 rounded-2xl border bg-card">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-medium text-muted-foreground">
-                    {tier === 'vip' ? 'Unlimited' : 'Confessions Today'}
-                  </span>
-                  <span className="text-sm font-semibold">
-                    {tier === 'vip' ? '∞' : `${currentCount}/${dailyLimit}`}
-                  </span>
+          {/* How to Earn Coins */}
+          <div className="glass-card p-5 rounded-2xl border border-white/10">
+            <h3 className="text-white font-semibold mb-3">How to earn coins</h3>
+            <div className="space-y-2 text-white/70 text-sm">
+              <p>+2 coins per confession</p>
+              <p>+10 streak bonus</p>
+              <p>Referral rewards</p>
+            </div>
+          </div>
+
+          {/* Boost & Highlight Actions */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* Boost Confession */}
+            <div className="glass-card p-4 rounded-2xl border border-white/10 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                <Zap className="w-5 h-5 text-amber-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-white font-medium text-sm">Boost Confession</p>
+                <div className="flex items-center gap-1 text-white/60 text-xs">
+                  <span>Cost:</span>
+                  <span className="text-amber-400">🪙</span>
+                  <span>{BOOST_COST}</span>
                 </div>
-                {tier !== 'vip' && (
-                  <Progress 
-                    value={(currentCount / dailyLimit) * 100} 
-                    className="h-2"
-                  />
-                )}
-                <p className="text-xs text-muted-foreground mt-3">
-                  {tier === 'vip' 
-                    ? 'As a VIP member, you have unlimited confessions!' 
-                    : `You have ${remaining} confession${remaining !== 1 ? 's' : ''} remaining today.`}
-                </p>
               </div>
             </div>
 
-            {/* Info Card */}
-            <Card className="p-4 bg-muted/30">
-              <h4 className="font-semibold mb-2 flex items-center gap-2">
-                <Flame className="w-4 h-4 text-orange-500" />
-                Streak Milestones
-              </h4>
-              <p className="text-xs text-muted-foreground mb-3">
-                Keep your streak alive and earn bonus coins automatically!
-              </p>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-center justify-between p-2 bg-background rounded-md">
-                  <span className="flex items-center gap-2">
-                    <span className="text-lg">🔥</span>
-                    <span>3 days streak</span>
-                  </span>
-                  <span className="font-semibold text-amber-500">+10 coins</span>
-                </li>
-                <li className="flex items-center justify-between p-2 bg-background rounded-md">
-                  <span className="flex items-center gap-2">
-                    <span className="text-lg">🔥🔥</span>
-                    <span>5 days streak</span>
-                  </span>
-                  <span className="font-semibold text-orange-500">+20 coins</span>
-                </li>
-                <li className="flex items-center justify-between p-2 bg-background rounded-md">
-                  <span className="flex items-center gap-2">
-                    <span className="text-lg">🔥🔥🔥</span>
-                    <span>7 days streak</span>
-                  </span>
-                  <span className="font-semibold text-red-500">+50 coins</span>
-                </li>
-              </ul>
-            </Card>
-          </TabsContent>
+            {/* Highlight Comment */}
+            <div className="glass-card p-4 rounded-2xl border border-white/10 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                <Star className="w-5 h-5 text-purple-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-white font-medium text-sm">Highlight Comment</p>
+                <div className="flex items-center gap-1 text-white/60 text-xs">
+                  <span>Cost:</span>
+                  <span className="text-amber-400">🪙</span>
+                  <span>{HIGHLIGHT_COST}</span>
+                </div>
+              </div>
+            </div>
+          </div>
 
-          {/* Referrals Tab */}
-          <TabsContent value="referrals" className="space-y-4">
-            <ReferralSystem userId={user.id} />
-          </TabsContent>
-        </Tabs>
+          {/* Featured Flairs */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-white font-semibold text-lg">Featured Flairs</h3>
+            </div>
+            
+            <div className="grid grid-cols-3 gap-3">
+              {featuredFlairs.slice(0, 6).map((flair) => (
+                <div 
+                  key={flair.id}
+                  className="glass-card p-4 rounded-2xl border border-white/10 flex flex-col items-center gap-2 hover:border-purple-500/30 transition-all cursor-pointer"
+                  onClick={() => setFlairsShopOpen(true)}
+                >
+                  <div className="text-4xl">{flair.icon}</div>
+                  <div className="flex items-center gap-1 text-amber-400 text-sm font-medium">
+                    <span>🪙</span>
+                    <span>{flair.cost}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* View all flairs button */}
+            <button 
+              onClick={() => setFlairsShopOpen(true)}
+              className="w-full flex items-center justify-center gap-2 py-3 text-purple-400 hover:text-purple-300 transition-colors"
+            >
+              <span className="text-sm font-medium">View all flairs</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
 
         {/* Flairs Shop Dialog */}
-        {flairsShopOpen && <FlairsShop userId={user.id} open={flairsShopOpen} onOpenChange={setFlairsShopOpen} />}
+        {flairsShopOpen && (
+          <FlairsShop 
+            userId={user.id} 
+            open={flairsShopOpen} 
+            onOpenChange={setFlairsShopOpen} 
+          />
+        )}
       </div>
-    </AppLayout>;
+    </AppLayout>
+  );
 };
+
 export default Rewards;
