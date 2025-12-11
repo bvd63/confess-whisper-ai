@@ -549,7 +549,7 @@ type Translations = {
   faq_title: string;
   faq_q1: string;
   faq_a1: string;
-    faq_a1: string;
+  faq_q2: string;
   faq_a2: string;
   faq_q3: string;
   faq_a3: string;

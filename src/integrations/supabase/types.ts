@@ -2509,15 +2509,6 @@ export type Database = {
       award_coins:
         | {
             Args: {
-              p_amount: number
-              p_description?: string
-              p_session_id: string
-              p_user_id: string
-            }
-            Returns: Json
-          }
-        | {
-            Args: {
               _amount: number
               _description?: string
               _reference_id?: string
@@ -2525,6 +2516,15 @@ export type Database = {
               _user_id: string
             }
             Returns: undefined
+          }
+        | {
+            Args: {
+              p_amount: number
+              p_description?: string
+              p_session_id: string
+              p_user_id: string
+            }
+            Returns: Json
           }
       calculate_trending_score: {
         Args: {

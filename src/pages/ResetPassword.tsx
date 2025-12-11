@@ -28,7 +28,7 @@ export default function ResetPassword() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [tokenValid, setTokenValid] = useState(true);
-  const redirectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const redirectTimeoutRef = useRef<number | null>(null);
 
   const passwordValidation = usePasswordValidation(password);
   const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
