@@ -173,17 +173,9 @@ const Rewards = () => {
 
           {/* Daily Streak Card */}
           <div className="p-5 rounded-2xl bg-gradient-to-r from-purple-600/80 to-blue-600/80 border border-purple-400/30 shadow-lg shadow-purple-500/20">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <span className="text-xl">Daily Streak</span>
-                <span className="text-2xl">🔥</span>
-              </div>
-              <Button 
-                size="sm"
-                className="bg-white/20 hover:bg-white/30 text-white border-0 rounded-full px-4"
-              >
-                Claim reward
-              </Button>
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-xl">Daily Streak</span>
+              <span className="text-2xl">🔥</span>
             </div>
             <p className="text-3xl font-bold text-white mb-4">{currentStreak} days</p>
             <div className="h-2 bg-white/20 rounded-full overflow-hidden">
