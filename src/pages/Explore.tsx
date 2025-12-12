@@ -11,7 +11,6 @@ import { ConfessionCardSkeleton } from "@/components/skeletons/ConfessionCardSke
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrendingUp, Flame, Clock } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
@@ -215,8 +214,6 @@ const Explore = () => {
           </TabsContent>
         </Tabs>
       </div>
-      
-      <InstagramBottomNav />
     </AppLayout>
     
     <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />

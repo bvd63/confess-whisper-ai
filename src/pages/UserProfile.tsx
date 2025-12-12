@@ -6,7 +6,6 @@ import { ProfileHeader } from "@/components/ProfileHeader";
 import { ProfileTabs } from "@/pages/ProfileTabs";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useVipStatus } from "@/hooks/usePremiumStatus";
-import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { Skeleton } from "@/components/ui/skeleton";
 import { logError } from "@/lib/logger";
 import { TierProfileCard } from "@/components/TierProfileCard";
@@ -83,7 +82,6 @@ const UserProfile = () => {
           <Skeleton className="h-32 w-full mb-4 sm:mb-6" />
           <Skeleton className="h-64 w-full" />
         </div>
-        <InstagramBottomNav />
       </AppLayout>
       <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
       </>
@@ -97,7 +95,6 @@ const UserProfile = () => {
         <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 text-center pb-24">
           <p className="text-sm sm:text-base text-muted-foreground">User not found</p>
         </div>
-        <InstagramBottomNav />
       </AppLayout>
       <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
       </>
@@ -141,8 +138,6 @@ const UserProfile = () => {
           />
         </div>
       </div>
-      
-      <InstagramBottomNav />
     </AppLayout>
     <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
     <GiftCoinsDialog 

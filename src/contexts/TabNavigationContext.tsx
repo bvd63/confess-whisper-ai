@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { sessionManager } from '@/lib/sessionManager';
 import { logDebug, logError, logWarn } from '@/lib/logger';
 
-type TabId = 'home' | 'explore' | 'messages' | 'profile';
+export type TabId = 'home' | 'explore' | 'messages' | 'profile';
 
 interface TabStack {
   path: string;
@@ -23,11 +23,33 @@ interface TabNavigationContextType {
 const TabNavigationContext = createContext<TabNavigationContextType | undefined>(undefined);
 
 // Map tab IDs to their root paths
-const TAB_ROUTES: Record<TabId, string> = {
+export const TAB_ROUTES: Record<TabId, string> = {
   home: '/',
   explore: '/explore',
   messages: '/messages',
   profile: '/profile',
+};
+
+export const deriveTabFromPath = (path: string): TabId | null => {
+  if (path === '/' || path.startsWith('/home') || path.startsWith('/nearby')) {
+    return 'home';
+  }
+  if (path.startsWith('/explore') || path.startsWith('/search-users')) {
+    return 'explore';
+  }
+  if (path.startsWith('/messages')) {
+    return 'messages';
+  }
+  if (
+    path.startsWith('/profile') ||
+    path.startsWith('/bookmarks') ||
+    path.startsWith('/following') ||
+    path.startsWith('/u/') ||
+    path.startsWith('/user/')
+  ) {
+    return 'profile';
+  }
+  return null;
 };
 
 // Store last active tab in sessionStorage for app resume
@@ -95,23 +117,11 @@ export const TabNavigationProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Determine active tab based on current route
   useEffect(() => {
-    const path = location.pathname;
-    let newTab: TabId | null = null;
-
-    if (path === '/' || path.startsWith('/nearby')) {
-      newTab = 'home';
-    } else if (path.startsWith('/explore') || path.startsWith('/search-users')) {
-      newTab = 'explore';
-    } else if (path.startsWith('/messages')) {
-      newTab = 'messages';
-    } else if (path.startsWith('/profile') || path.startsWith('/bookmarks') || path.startsWith('/following') || path.startsWith('/u/') || path.startsWith('/user/')) {
-      newTab = 'profile';
-    }
-
+    const newTab = deriveTabFromPath(location.pathname);
     if (newTab && newTab !== activeTab) {
       setActiveTab(newTab);
     }
-  }, [location.pathname]);
+  }, [location.pathname, activeTab]);
 
   // Restore last active tab and its last path on resume (sessionStorage present)
   const restoredRef = React.useRef(false);

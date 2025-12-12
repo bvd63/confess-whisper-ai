@@ -1,67 +1,158 @@
-import { Home, Search, Plus, MessageSquare, User } from "lucide-react";
+import { Home, Search, Plus, MessageSquare, User, type LucideIcon } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useUnreadCount } from "@/hooks/useUnreadCount";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { useTabNavigation } from "@/contexts/TabNavigationContext";
+import { useTabNavigation, deriveTabFromPath, type TabId } from "@/contexts/TabNavigationContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { createPortal } from "react-dom";
 import { usePrefetch } from "@/hooks/usePrefetch";
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useMemo, memo } from "react";
+import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 
 /**
  * Bottom navigation bar matching the design reference
  * Fully keyboard accessible with ARIA support
  */
+type NavTarget = TabId | 'compose';
+
+interface NavItem {
+  tabId: NavTarget;
+  icon: LucideIcon;
+  label: string;
+  isActive: boolean;
+  shortcut: string;
+  badge?: number;
+}
+
+interface NavButtonProps {
+  icon: LucideIcon;
+  active: boolean;
+  badge?: number;
+  ariaLabel: string;
+  shortcut: string;
+  tabIndex: number;
+  onClick: () => void;
+  onKeyDown: (event: ReactKeyboardEvent<HTMLButtonElement>) => void;
+  onMouseEnter?: () => void;
+}
+
+const NavButton = memo(({
+  icon: Icon,
+  active,
+  badge,
+  ariaLabel,
+  shortcut,
+  tabIndex,
+  onClick,
+  onKeyDown,
+  onMouseEnter,
+}: NavButtonProps) => {
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      aria-current={active ? "page" : undefined}
+      aria-label={`${ariaLabel} (Alt+${shortcut})`}
+      tabIndex={tabIndex}
+      onClick={onClick}
+      onKeyDown={onKeyDown}
+      onMouseEnter={onMouseEnter}
+      className={cn(
+        "relative flex items-center justify-center w-12 h-12 transition-colors duration-200",
+        "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-0"
+      )}
+    >
+      <Icon
+        className={cn(
+          "w-6 h-6 transition-all duration-200",
+          active ? "text-primary" : "text-muted-foreground"
+        )}
+        strokeWidth={1.5}
+        aria-hidden="true"
+      />
+
+      {badge !== undefined && badge > 0 && (
+        <span 
+          className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold rounded-full text-white bg-destructive"
+          aria-label={`${badge} unread ${badge === 1 ? 'message' : 'messages'}`}
+          role="status"
+        >
+          {badge >= 10 ? "9+" : badge}
+        </span>
+      )}
+    </button>
+  );
+});
+
+NavButton.displayName = 'NavButton';
+
+const KEYBOARD_SHORTCUTS: Record<string, NavTarget> = {
+  '1': 'home',
+  '2': 'explore',
+  'N': 'compose',
+  '3': 'messages',
+  '4': 'profile',
+};
+
 export const InstagramBottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { switchTab, activeTab } = useTabNavigation();
+  const { switchTab } = useTabNavigation();
   const { user } = useCurrentUser();
   const { totalUnread } = useUnreadCount(user?.id || null);
   const { t } = useLanguage();
   const { prefetchPage } = usePrefetch();
   const navRef = useRef<HTMLDivElement>(null);
 
-  const navItems = [
-    { tabId: "home" as const, icon: Home, label: t.nav_home, isActive: activeTab === "home", shortcut: "1" },
-    { tabId: "explore" as const, icon: Search, label: t.nav_explore, isActive: activeTab === "explore", shortcut: "2" },
-    { tabId: "compose" as const, icon: Plus, label: "Create", isActive: location.pathname === "/compose", shortcut: "N", isCenter: true },
-    { tabId: "messages" as const, icon: MessageSquare, label: t.nav_messages, badge: totalUnread, isActive: activeTab === "messages", shortcut: "3" },
-    { tabId: "profile" as const, icon: User, label: t.nav_profile, isActive: activeTab === "profile", shortcut: "4" },
-  ];
+  const derivedTab = useMemo(() => deriveTabFromPath(location.pathname), [location.pathname]);
+  const isComposeActive = location.pathname.startsWith('/compose');
 
-  const handleTabClick = useCallback((tabId: "home" | "explore" | "messages" | "profile" | "compose") => {
-    if (tabId === "compose") {
-      // Compose is not a tab, navigate directly without switching tabs
-      navigate("/compose");
+  const navItems = useMemo<NavItem[]>(() => [
+    { tabId: 'home', icon: Home, label: t.nav_home, isActive: derivedTab === 'home', shortcut: '1' },
+    { tabId: 'explore', icon: Search, label: t.nav_explore, isActive: derivedTab === 'explore', shortcut: '2' },
+    { tabId: 'compose', icon: Plus, label: 'Create', isActive: isComposeActive, shortcut: 'N' },
+    { tabId: 'messages', icon: MessageSquare, label: t.nav_messages, badge: totalUnread, isActive: derivedTab === 'messages', shortcut: '3' },
+    { tabId: 'profile', icon: User, label: t.nav_profile, isActive: derivedTab === 'profile', shortcut: '4' },
+  ], [derivedTab, isComposeActive, t, totalUnread]);
+
+  const handleTabClick = useCallback((target: NavTarget) => {
+    if (target === 'compose') {
+      navigate('/compose');
       return;
     }
-    
-    // Special handling for home button when on compose route
-    if (tabId === "home" && location.pathname === "/compose") {
-      navigate("/");
+
+    if (target === 'home' && isComposeActive) {
+      navigate('/');
       return;
     }
-    
-    // Always switch tab immediately, even if in a conversation
-    switchTab(tabId);
-  }, [navigate, location.pathname, switchTab]);
+
+    switchTab(target);
+  }, [navigate, switchTab, isComposeActive]);
+
+  const navClickHandlers = useMemo<Record<NavTarget, () => void>>(() => ({
+    home: () => handleTabClick('home'),
+    explore: () => handleTabClick('explore'),
+    compose: () => handleTabClick('compose'),
+    messages: () => handleTabClick('messages'),
+    profile: () => handleTabClick('profile'),
+  }), [handleTabClick]);
+
+  const navPrefetchHandlers = useMemo<Record<NavTarget, () => void>>(() => ({
+    home: () => prefetchPage('home'),
+    explore: () => prefetchPage('explore'),
+    compose: () => prefetchPage('compose'),
+    messages: () => prefetchPage('messages'),
+    profile: () => prefetchPage('profile'),
+  }), [prefetchPage]);
 
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       // Alt + number for navigation
       if (e.altKey && !e.ctrlKey && !e.shiftKey && !e.metaKey) {
-        const shortcuts: Record<string, typeof navItems[number]['tabId']> = {
-          '1': 'home',
-          '2': 'explore',
-          'N': 'compose',
-          '3': 'messages',
-          '4': 'profile',
-        };
-        
-        const tabId = shortcuts[e.key.toUpperCase()];
+        const tabId = KEYBOARD_SHORTCUTS[e.key.toUpperCase()];
         if (tabId) {
           e.preventDefault();
           handleTabClick(tabId);
@@ -73,7 +164,7 @@ export const InstagramBottomNav = () => {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [handleTabClick]);
 
-  const handleKeyDown = (e: React.KeyboardEvent, tabId: typeof navItems[number]['tabId'], index: number) => {
+  const handleKeyDown = (e: ReactKeyboardEvent<HTMLButtonElement>, index: number) => {
     const buttons = navRef.current?.querySelectorAll('button');
     if (!buttons) return;
 
@@ -112,46 +203,19 @@ export const InstagramBottomNav = () => {
             role="tablist"
           >
             {navItems.map((item, index) => {
-              const Icon = item.icon;
-              const active = item.isActive;
-              const isCenter = 'isCenter' in item && item.isCenter;
-
               return (
-                <button
+                <NavButton
                   key={item.tabId}
-                  type="button"
-                  role="tab"
-                  aria-selected={active}
-                  aria-current={active ? "page" : undefined}
-                  aria-label={`${item.label} (Alt+${item.shortcut})`}
-                  tabIndex={active ? 0 : -1}
-                  onClick={() => handleTabClick(item.tabId)}
-                  onKeyDown={(e) => handleKeyDown(e, item.tabId, index)}
-                  onMouseEnter={() => prefetchPage(item.tabId)}
-                  className={cn(
-                    "relative flex items-center justify-center w-12 h-12 transition-colors duration-200",
-                    "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-0"
-                  )}
-                >
-                  <Icon
-                    className={cn(
-                      "w-6 h-6 transition-all duration-200",
-                      active ? "text-primary" : "text-muted-foreground"
-                    )}
-                    strokeWidth={1.5}
-                    aria-hidden="true"
-                  />
-                  
-                  {item.badge !== undefined && item.badge > 0 && (
-                    <span 
-                      className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold rounded-full text-white bg-destructive"
-                      aria-label={`${item.badge} unread ${item.badge === 1 ? 'message' : 'messages'}`}
-                      role="status"
-                    >
-                      {item.badge >= 10 ? "9+" : item.badge}
-                    </span>
-                  )}
-                </button>
+                  icon={item.icon}
+                  active={item.isActive}
+                  badge={item.badge}
+                  ariaLabel={item.label}
+                  shortcut={item.shortcut}
+                  tabIndex={item.isActive ? 0 : -1}
+                  onClick={navClickHandlers[item.tabId]}
+                  onKeyDown={(event) => handleKeyDown(event, index)}
+                  onMouseEnter={navPrefetchHandlers[item.tabId]}
+                />
               );
             })}
           </div>

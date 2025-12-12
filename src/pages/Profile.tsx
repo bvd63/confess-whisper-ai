@@ -28,7 +28,6 @@ import CoinsDisplay from "@/components/CoinsDisplay";
 
 import { useUserRole } from "@/hooks/useUserRole";
 import { useToast } from "@/hooks/use-toast";
-import { InstagramBottomNav } from "@/components/InstagramBottomNav";
 import { FlairsShop } from "@/components/FlairsShop";
 import { FlairsShopButton } from "@/components/FlairsShopButton";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
@@ -251,8 +250,6 @@ const Profile = () => {
             </TabsContent>}
         </Tabs>
       </div>
-      
-      <InstagramBottomNav />
 
       <UnifiedShopDialog
         open={manageSubDialogOpen} 
