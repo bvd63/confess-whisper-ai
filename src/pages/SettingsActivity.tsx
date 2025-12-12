@@ -246,6 +246,7 @@ const SettingsActivity = () => {
                 <PasswordChange 
                   userId={user.id} 
                   passwordChangedAt={passwordChangedAt} 
+                  onPasswordChanged={(timestamp) => setPasswordChangedAt(timestamp)}
                 />
                 
                 {/* Logout */}
@@ -305,7 +306,7 @@ const SettingsActivity = () => {
               <SubMenuItem
                 icon={Mail}
                 title={t.contact_support_title}
-                onClick={() => navigate('/settings/support/ai')}
+                onClick={() => navigate('/settings/support/contact')}
               />
               <SubMenuItem
                 icon={FileText}

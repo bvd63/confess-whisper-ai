@@ -2,6 +2,7 @@ import { Bell, Flame } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useState, useEffect, useMemo } from 'react';
 import { NotificationService } from '@/services/notificationService';
+import { initializeOneSignal, requestNotificationPermission, getOneSignalPlayerId, savePlayerIdToProfile } from '@/services/onesignal';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -125,14 +126,39 @@ export const NotificationSettings = () => {
       return;
     }
 
-    const result = await Notification.requestPermission();
-    setPermission(result);
-    
-    if (result === 'granted') {
-      toast.success(t.enable_notifications || 'Notifications enabled');
+    setIsSaving(true);
+    try {
+      const initialized = await initializeOneSignal();
+      if (!initialized) {
+        toast.error(t.save_failed || 'Unable to initialize push notifications');
+        return;
+      }
+
+      const granted = await requestNotificationPermission();
+      const latestPermission = Notification.permission;
+      setPermission(latestPermission);
+
+      if (!granted || latestPermission !== 'granted') {
+        toast.error(t.blocked_notice || 'Please enable notifications first');
+        return;
+      }
+
+      if (user?.id) {
+        const playerId = await getOneSignalPlayerId();
+        if (playerId) {
+          await savePlayerIdToProfile(user.id, playerId);
+        } else if (import.meta.env.DEV) {
+          console.warn('[NotificationSettings] Permission granted but no OneSignal player ID was returned');
+        }
+      }
+
       await NotificationService.getInstance().initialize(user?.id ?? undefined);
-    } else {
-      toast.error(t.save_failed || 'Notification permission denied');
+      toast.success(t.enable_notifications || 'Notifications enabled');
+    } catch (error) {
+      logError('Failed to enable push notifications', error as Error);
+      toast.error(t.save_failed || 'Failed to save settings');
+    } finally {
+      setIsSaving(false);
     }
   };
 

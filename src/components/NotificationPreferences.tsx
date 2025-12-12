@@ -96,7 +96,7 @@ export const NotificationPreferences = () => {
     
     setTestingSending(true);
     try {
-      const { error } = await supabase.functions.invoke('send-notification', {
+      const { data, error } = await supabase.functions.invoke('send-notification', {
         body: {
           userId: user.id,
           type: 'like',
@@ -106,8 +106,22 @@ export const NotificationPreferences = () => {
       });
 
       if (error) throw error;
-      
-      toast.success("Test notification sent! Check your device.");
+
+      if (import.meta.env.DEV) {
+        console.info('[NotificationPreferences] Test notification response', data);
+      }
+
+      const isSuccessful = Boolean(data?.success) && Number(data?.recipients) > 0;
+
+      if (!isSuccessful) {
+        const message = typeof data?.message === 'string'
+          ? data.message
+          : 'Failed to send test notification';
+        toast.error(message);
+        return;
+      }
+
+      toast.success('Test notification sent! Check your device.');
     } catch (error) {
       logError("Error sending test notification", error as Error);
       toast.error("Failed to send test notification");

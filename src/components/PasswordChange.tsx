@@ -12,9 +12,10 @@ import { logError } from "@/lib/logger";
 interface PasswordChangeProps {
   userId: string;
   passwordChangedAt: string | null;
+  onPasswordChanged?: (timestamp: string) => void;
 }
 
-export const PasswordChange = ({ userId, passwordChangedAt }: PasswordChangeProps) => {
+export const PasswordChange = ({ userId, passwordChangedAt, onPasswordChanged }: PasswordChangeProps) => {
   const { t } = useLanguage();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -85,9 +86,7 @@ export const PasswordChange = ({ userId, passwordChangedAt }: PasswordChangeProp
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      
-      // Trigger parent to reload the password_changed_at
-      window.location.reload();
+      onPasswordChanged?.(now);
     } catch (error: any) {
       logError('Error changing password', error);
       toast.error(error.message || t.error_generic);

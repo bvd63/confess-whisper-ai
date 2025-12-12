@@ -74,8 +74,9 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     
     try {
       await persistenceManager.saveLanguage(validLang);
-      // Force full reload to ensure complete language switch with no mixed strings
-      window.location.reload();
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('language:changed', { detail: validLang }));
+      }
     } catch (error) {
       logError('[LanguageContext] Error saving language', error instanceof Error ? error : undefined);
     }

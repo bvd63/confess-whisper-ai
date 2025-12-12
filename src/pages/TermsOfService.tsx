@@ -1,34 +1,20 @@
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, FileText } from "lucide-react";
+import { FileText } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import AppLayout from "@/components/AppLayout";
 
 const TermsOfService = () => {
-  const navigate = useNavigate();
   const { t } = useLanguage();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-      <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-lg border-b border-border/50">
-        <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/settings/activity")}
-            className="gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            {t.common_back}
-          </Button>
-        </div>
-      </header>
-
-      <main className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
-        <Card className="p-4 sm:p-6 md:p-8 bg-card border-border/50 shadow-[var(--shadow-soft)]">
-          <div className="flex items-center gap-3 mb-6">
-            <FileText className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl font-bold">{t.terms_title}</h1>
-          </div>
+    <AppLayout>
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
+        <main className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
+          <Card className="p-4 sm:p-6 md:p-8 bg-card border-border/50 shadow-[var(--shadow-soft)]">
+            <div className="flex items-center gap-3 mb-6">
+              <FileText className="w-8 h-8 text-primary" />
+              <h1 className="text-3xl font-bold">{t.terms_title}</h1>
+            </div>
 
           <div className="space-y-6 text-muted-foreground">
             <section>
@@ -85,9 +71,10 @@ const TermsOfService = () => {
               <p>{t.terms_last_updated}</p>
             </div>
           </div>
-        </Card>
-      </main>
-    </div>
+          </Card>
+        </main>
+      </div>
+    </AppLayout>
   );
 };
 
