@@ -129,11 +129,8 @@ export const InstagramBottomNav = () => {
                   onKeyDown={(e) => handleKeyDown(e, item.tabId, index)}
                   onMouseEnter={() => prefetchPage(item.tabId)}
                   className={cn(
-                    "relative flex items-center justify-center transition-all duration-200",
-                    "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-0",
-                    "w-11 h-11 rounded-full",
-                    active && "ring-2 ring-primary/70",
-                    !active && "text-muted-foreground hover:text-foreground"
+                    "relative flex items-center justify-center w-12 h-12 transition-colors duration-200",
+                    "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-0"
                   )}
                 >
                   <Icon
