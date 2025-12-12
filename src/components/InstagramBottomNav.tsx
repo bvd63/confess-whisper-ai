@@ -131,20 +131,17 @@ export const InstagramBottomNav = () => {
                   className={cn(
                     "relative flex items-center justify-center transition-all duration-200",
                     "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-0",
-                    isCenter 
-                      ? "w-10 h-10 rounded-full border-2 border-muted-foreground/30"
-                      : "w-12 h-12 rounded-full",
-                    active && !isCenter && "text-primary",
-                    !active && !isCenter && "text-muted-foreground hover:text-foreground"
+                    "w-11 h-11 rounded-full",
+                    active && "ring-2 ring-primary/70",
+                    !active && "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   <Icon
                     className={cn(
-                      "transition-all duration-200",
-                      isCenter ? "w-5 h-5 text-muted-foreground" : "w-6 h-6",
-                      active && !isCenter && "fill-primary"
+                      "w-6 h-6 transition-all duration-200",
+                      active ? "text-primary" : "text-muted-foreground"
                     )}
-                    strokeWidth={active && !isCenter ? 2.5 : 1.5}
+                    strokeWidth={1.5}
                     aria-hidden="true"
                   />
                   
