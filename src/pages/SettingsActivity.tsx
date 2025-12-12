@@ -113,7 +113,7 @@ const SubMenuItem = ({ icon: Icon, title, onClick, variant = 'default', rightIco
         {title}
       </span>
     </div>
-    {rightIcon || <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+    {rightIcon}
   </button>
 );
 
