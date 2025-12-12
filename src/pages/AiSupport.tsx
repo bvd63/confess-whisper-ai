@@ -61,10 +61,10 @@ const AiSupport = () => {
     <AppLayout>
       <div className="max-w-2xl mx-auto pb-24 pt-4">
 
-        {/* AI Support Title - Large Gradient Text */}
+        {/* Contact Support Title - Large Gradient Text */}
         <div className="px-4 pt-8 pb-6">
           <h1 className="text-4xl font-bold text-center bg-gradient-to-r from-primary via-primary/80 to-neon-blue bg-clip-text text-transparent">
-            AI Support
+            {t.contact_support_title}
           </h1>
         </div>
 

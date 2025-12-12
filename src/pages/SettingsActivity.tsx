@@ -1,4 +1,4 @@
-import { ChevronRight, User, Bell, HelpCircle, UserX, FileText, Shield, Mail, Globe, Lock, Trophy, Bot, Sun } from 'lucide-react';
+import { ChevronRight, User, Bell, HelpCircle, UserX, FileText, Shield, Mail, Globe, Lock, Trophy, Sun } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 
@@ -303,8 +303,8 @@ const SettingsActivity = () => {
           >
             <div className="space-y-3">
               <SubMenuItem
-                icon={Bot}
-                title={t.support_ai_label}
+                icon={Mail}
+                title={t.contact_support_title}
                 onClick={() => navigate('/settings/support/ai')}
               />
               <SubMenuItem
@@ -316,11 +316,6 @@ const SettingsActivity = () => {
                 icon={Shield}
                 title={t.privacy_policy}
                 onClick={() => navigate('/privacy')}
-              />
-              <SubMenuItem
-                icon={Mail}
-                title={t.support_contact_email}
-                onClick={() => navigate('/settings/support/contact')}
               />
             </div>
           </GlassMenuItem>
