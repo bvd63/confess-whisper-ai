@@ -9,7 +9,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { buildSupportMailto } from '@/lib/support';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { toast } from 'sonner';
-import CoinsDisplay from '@/components/CoinsDisplay';
+
 
 const AiSupport = () => {
   const navigate = useNavigate();
@@ -59,19 +59,7 @@ const AiSupport = () => {
 
   return (
     <AppLayout>
-      <div className="max-w-2xl mx-auto pb-24">
-        {/* Premium Header with Glassmorphism - Leonardo Design */}
-        <div className="sticky top-0 z-10 glass-strong border-b border-border/30">
-          <div className="header-gradient">
-            <div className="flex items-center justify-between px-4 py-5">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl font-bold">Confess</span>
-                <span className="text-2xl font-bold text-primary">AI</span>
-              </div>
-              <CoinsDisplay userId={user.id} variant="compact" />
-            </div>
-          </div>
-        </div>
+      <div className="max-w-2xl mx-auto pb-24 pt-4">
 
         {/* AI Support Title - Large Gradient Text */}
         <div className="px-4 pt-8 pb-6">

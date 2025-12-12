@@ -1,7 +1,7 @@
-import { ArrowLeft, ChevronRight, User, Bell, HelpCircle, UserX, FileText, Shield, Mail, Globe, Lock, LogOut, Trash2, Trophy, Bot, Sun } from 'lucide-react';
+import { ChevronRight, User, Bell, HelpCircle, UserX, FileText, Shield, Mail, Globe, Lock, Trophy, Bot, Sun } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+
 import { useLanguage } from '@/contexts/LanguageContext';
 import AppLayout from '@/components/AppLayout';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -14,7 +14,6 @@ import { LogoutSection } from '@/components/settings/LogoutSection';
 import { DeleteAccountSection } from '@/components/settings/DeleteAccountSection';
 import BlockedUsers from '@/components/BlockedUsers';
 import { LanguageSelector } from '@/components/LanguageSelector';
-import CoinsDisplay from '@/components/CoinsDisplay';
 import ThemeToggle from '@/components/ThemeToggle';
 import { UnifiedShopDialog } from '@/components/UnifiedShopDialog';
 import { logError } from '@/lib/logger';
@@ -199,34 +198,7 @@ const SettingsActivity = () => {
 
   return (
     <AppLayout>
-      <div className="max-w-2xl mx-auto pb-24">
-        {/* Premium Header with Glassmorphism */}
-        <div className="sticky top-0 z-10 glass-strong border-b border-border/30">
-          <div className="header-gradient">
-            <div className="flex items-center justify-between px-4 py-5">
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate(-1)}
-                  className="glass-card h-10 w-10 hover:bg-white/10"
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                </Button>
-                <h1 className="text-2xl font-bold">{t.settings_activity_title}</h1>
-              </div>
-              <div className="flex items-center gap-2">
-                <CoinsDisplay userId={user.id} variant="compact" />
-                <Button
-                  onClick={() => setShopDialogOpen(true)}
-                  className="btn-gradient h-9 px-4 rounded-xl text-sm font-semibold"
-                >
-                  Manage Subscription
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="max-w-2xl mx-auto pb-24 pt-4">
 
         {/* Content */}
         <div className="px-4 py-6 space-y-3">

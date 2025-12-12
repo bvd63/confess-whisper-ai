@@ -181,26 +181,7 @@ const NotificationHistory = () => {
 
   return (
     <AppLayout>
-      <div className="max-w-2xl mx-auto pb-24">
-        {/* Premium Header */}
-        <div className="sticky top-0 z-10 glass-strong border-b border-border/30">
-          <div className="header-gradient">
-            <div className="flex items-center justify-between px-4 py-5">
-              <h1 className="text-2xl font-bold">Notifications</h1>
-              {unreadCount > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={markAllAsRead}
-                  className="text-sm text-primary hover:bg-primary/10"
-                >
-                  <Check className="w-4 h-4 mr-2" />
-                  Mark all read
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
+      <div className="max-w-2xl mx-auto pb-24 pt-4">
 
         {/* Notifications List */}
         <div className="px-4 py-6 space-y-4">
