@@ -121,40 +121,6 @@ const Rewards = () => {
   return (
     <AppLayout>
       <div className="min-h-screen bg-gradient-to-b from-[#0a0a12] via-[#0d0d18] to-[#0a0a12]">
-        {/* Premium Header */}
-        <div className="sticky top-0 z-20 glass-strong border-b border-white/10">
-          <div className="flex items-center justify-between px-4 py-4">
-            {/* Left - Logo */}
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-bold text-white">Confess</span>
-              <span className="text-xl font-bold text-purple-400">AI</span>
-            </div>
-            
-            {/* Right - Crown (VIP) + Coins + Bell */}
-            <div className="flex items-center gap-3">
-              {/* Crown - Opens Manage Subscription */}
-              <button 
-                onClick={() => navigate('/manage-subscription')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-500/30"
-              >
-                <Crown className="w-4 h-4 text-amber-400" />
-                <span className="text-xs font-semibold text-amber-400">VIP</span>
-              </button>
-              
-              {/* Coins - Opens Coin Shop */}
-              <CoinsDisplay userId={user.id} variant="compact" />
-              
-              {/* Bell - Opens Notifications */}
-              <button 
-                onClick={() => navigate('/notifications')}
-                className="w-9 h-9 rounded-full flex items-center justify-center bg-white/5 border border-white/10"
-              >
-                <Bell className="w-4 h-4 text-white/70" />
-              </button>
-            </div>
-          </div>
-        </div>
-
         {/* Content */}
         <div className="px-4 py-6 space-y-4 pb-24">
           

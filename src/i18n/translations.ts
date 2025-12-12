@@ -2092,8 +2092,8 @@ type Translations = {
 
 export const translations: Record<Language, Translations> = {
   en: {
-    app_name: "Confess+",
-    welcome_title: "Welcome to Confess+",
+    app_name: "ConfessAI",
+    welcome_title: "Welcome to ConfessAI",
     welcome_description: "A safe space where you can share anything anonymously.",
     anonymous_secure: "100% Anonymous & Secure",
     anonymous_description: "Your identity remains completely confidential. We don't store any personal information.",
@@ -4045,8 +4045,8 @@ export const translations: Record<Language, Translations> = {
     },
   },
   es: {
-    app_name: "Confess+",
-    welcome_title: "Bienvenido a Confess+",
+    app_name: "ConfessAI",
+    welcome_title: "Bienvenido a ConfessAI",
     welcome_description: "Un espacio seguro donde puedes compartir cualquier cosa de forma anónima.",
     anonymous_secure: "100% Anónimo y Seguro",
     anonymous_description: "Tu identidad permanece completamente confidencial. No almacenamos información personal.",
@@ -5999,8 +5999,8 @@ export const translations: Record<Language, Translations> = {
     },
   },
   de: {
-    app_name: "Confess+",
-    welcome_title: "Willkommen bei Confess+",
+    app_name: "ConfessAI",
+    welcome_title: "Willkommen bei ConfessAI",
     welcome_description: "Ein sicherer Ort, an dem du anonym alles teilen kannst.",
     anonymous_secure: "100% Anonym & Sicher",
     anonymous_description: "Deine Identität bleibt vollständig vertraulich. Wir speichern keine persönlichen Informationen.",
