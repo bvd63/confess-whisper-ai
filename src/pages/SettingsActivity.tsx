@@ -1,4 +1,4 @@
-import { ArrowLeft, ChevronRight, User, Bell, HelpCircle, UserX, FileText, Shield, Mail, Globe, Lock, LogOut, Trash2, Trophy, Bot } from 'lucide-react';
+import { ArrowLeft, ChevronRight, User, Bell, HelpCircle, UserX, FileText, Shield, Mail, Globe, Lock, LogOut, Trash2, Trophy, Bot, Sun } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,7 @@ import { DeleteAccountSection } from '@/components/settings/DeleteAccountSection
 import BlockedUsers from '@/components/BlockedUsers';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import CoinsDisplay from '@/components/CoinsDisplay';
+import ThemeToggle from '@/components/ThemeToggle';
 import { UnifiedShopDialog } from '@/components/UnifiedShopDialog';
 import { logError } from '@/lib/logger';
 
@@ -290,25 +291,17 @@ const SettingsActivity = () => {
             title="Display & Language"
             expanded={expandedSection === 'display'}
             onClick={() => toggleSection('display')}
-            rightElement={
-              <div className="flex items-center gap-1">
-                {['EN', 'ES', 'DE'].map((lang) => (
-                  <span 
-                    key={lang}
-                    className={cn(
-                      "px-2 py-1 text-xs font-semibold rounded-lg transition-colors",
-                      language.toUpperCase() === lang 
-                        ? "bg-primary text-primary-foreground" 
-                        : "bg-muted/50 text-muted-foreground"
-                    )}
-                  >
-                    {lang}
-                  </span>
-                ))}
-              </div>
-            }
           >
-            <div className="space-y-4">
+            <div className="space-y-3">
+              {/* Change Display / Theme */}
+              <div className="flex items-center justify-between p-3 bg-muted/30 rounded-xl border border-border/30">
+                <div className="flex items-center gap-3">
+                  <Sun className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Change Display</span>
+                </div>
+                <ThemeToggle />
+              </div>
+              {/* Select Language */}
               <div className="flex items-center justify-between p-3 bg-muted/30 rounded-xl border border-border/30">
                 <div className="flex items-center gap-3">
                   <Globe className="h-4 w-4 text-muted-foreground" />
