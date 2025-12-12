@@ -325,11 +325,6 @@ const SettingsActivity = () => {
             title={t.blocked_users_title}
             expanded={expandedSection === 'blocking'}
             onClick={() => toggleSection('blocking')}
-            rightElement={
-              <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
-                <Bell className="h-4 w-4 text-primary" />
-              </div>
-            }
           >
             <BlockedUsers userId={user.id} />
           </GlassMenuItem>
