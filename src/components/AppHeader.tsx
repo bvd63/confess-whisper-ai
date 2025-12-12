@@ -2,7 +2,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { EnhancedButton } from "@/components/EnhancedButton";
 
-import { Heart, PlusCircle, LogOut, Crown, User, LogIn, BookMarked, Users, Home, Sparkles, Search, MessageCircle, Settings } from "lucide-react";
+import { Heart, PlusCircle, LogOut, Crown, User, LogIn, BookMarked, Users, Home, Sparkles, Search, MessageCircle, Settings, ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationsDropdown from "@/components/NotificationsDropdown";
 import CoinsDisplay from "@/components/CoinsDisplay";
@@ -70,10 +70,43 @@ const AppHeader = ({
     }
   };
   const isActive = (path: string) => location.pathname === path;
+  
+  // Define back button navigation for sub-pages
+  const getBackNavigation = (): { show: boolean; target: string } => {
+    const path = location.pathname;
+    
+    // Settings -> Profile
+    if (path === '/settings/activity') return { show: true, target: '/profile' };
+    
+    // Rewards -> Settings
+    if (path === '/rewards') return { show: true, target: '/settings/activity' };
+    
+    // Privacy & Terms -> Settings
+    if (path === '/privacy') return { show: true, target: '/settings/activity' };
+    if (path === '/terms') return { show: true, target: '/settings/activity' };
+    
+    // Support pages -> Settings
+    if (path.startsWith('/settings/support')) return { show: true, target: '/settings/activity' };
+    
+    return { show: false, target: '/' };
+  };
+  
+  const backNav = getBackNavigation();
+  
   return <header className="sticky top-0 z-50 glass-strong border-b border-border">
       <div className="w-full">
         <div className="flex items-center justify-between px-4 sm:px-6 py-4 max-w-7xl mx-auto">
           <div className="flex items-center gap-3">
+            {backNav.show && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate(backNav.target)}
+                className="h-10 w-10 rounded-xl hover:bg-muted"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+            )}
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary via-primary-hover to-primary-pressed flex items-center justify-center shadow-lg shadow-primary/25">
               <Heart className="w-5 h-5 text-white" fill="currentColor" />
             </div>

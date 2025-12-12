@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, ArrowLeft, CheckCircle2, Loader2, Mail } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Loader2, Mail } from 'lucide-react';
 import AppLayout from '@/components/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -139,28 +139,7 @@ const ContactSupport = () => {
 
   return (
     <AppLayout>
-      <div className="max-w-2xl mx-auto pb-16">
-        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/50">
-          <div className="flex items-center gap-3 px-4 py-5">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-              className="hover:bg-accent rounded-xl h-10 w-10"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold flex items-center gap-2">
-                <Mail className="h-5 w-5 text-muted-foreground" />
-                {t.contact_support_title}
-              </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                {t.contact_support_description}
-              </p>
-            </div>
-          </div>
-        </div>
+      <div className="max-w-2xl mx-auto pb-16 pt-4">
 
         <Card className="mx-4 mt-4 p-6 rounded-2xl">
           <form className="space-y-5" onSubmit={handleSubmit} noValidate>
