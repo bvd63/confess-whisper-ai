@@ -14,7 +14,7 @@ const PrivacyPolicy = () => {
         <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <Button
             variant="ghost"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/settings/activity")}
             className="gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
