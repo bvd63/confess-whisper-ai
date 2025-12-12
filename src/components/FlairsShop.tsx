@@ -346,11 +346,6 @@ export const FlairsShop = ({
             </p>}
         </div>
         
-        <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20">
-          <div className="text-lg">🪙</div>
-          <span className="text-base font-bold">{flair.cost}</span>
-        </div>
-
         {owned && !expired ? equipped ? <Button size="lg" variant="outline" disabled className="w-full gap-2 rounded-xl h-12">
               <Check className="w-5 h-5" />
               <span className="font-semibold">{t.equipped}</span>
@@ -362,10 +357,14 @@ export const FlairsShop = ({
             </Button> : isLocked ? <Button size="sm" disabled className="w-full gap-1.5 rounded-xl" variant="outline">
             <Lock className="w-4 h-4" />
             <span className="font-medium">{t.upgrade_required}</span>
-          </Button> : <Button size="sm" onClick={() => handlePurchase(flair)} disabled={purchasing === flair.id || coinsBalance < flair.cost} className="w-full gap-1.5 rounded-xl font-medium">
-            <Coins className="w-4 h-4" />
-            {flair.cost}
-          </Button>}
+          </Button> : <button 
+            onClick={() => handlePurchase(flair)} 
+            disabled={purchasing === flair.id || coinsBalance < flair.cost}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 hover:from-amber-500/30 hover:to-orange-500/30 hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 w-full"
+          >
+            <div className="text-lg">🪙</div>
+            <span className="text-base font-bold">{flair.cost}</span>
+          </button>}
       </Card>;
   };
   return <Dialog open={open} onOpenChange={onOpenChange}>
