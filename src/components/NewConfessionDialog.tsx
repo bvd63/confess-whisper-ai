@@ -415,14 +415,12 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
           transition: 'margin-bottom 0.3s ease-out'
         }}
       >
-        {/* Custom Header to avoid X overlap */}
-        <div className="flex items-start justify-between gap-4 pb-2">
-          <div className="flex flex-col gap-1">
-            <h2 className="text-2xl font-bold text-foreground">{t.new_confession}</h2>
-            <DialogDescription className="sr-only">
-              {t.placeholder_confession}
-            </DialogDescription>
-          </div>
+        {/* Custom Header - with right padding to avoid X button overlap */}
+        <div className="flex items-start justify-between gap-4 pb-2 pr-8">
+          <h2 className="text-2xl font-bold text-foreground">{t.new_confession}</h2>
+          <DialogDescription className="sr-only">
+            {t.placeholder_confession}
+          </DialogDescription>
           {!limitsLoading && (
             <div className="flex-shrink-0">
               {dailyLimit !== Infinity ? (
