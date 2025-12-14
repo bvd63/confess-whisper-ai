@@ -409,7 +409,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto glass-strong border-primary/20 rounded-2xl"
+        className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto bg-background/95 backdrop-blur-xl border-primary/20 rounded-3xl shadow-2xl"
         style={{
           marginBottom: isKeyboardVisible ? `${keyboardHeight}px` : '0',
           transition: 'margin-bottom 0.3s ease-out'
@@ -417,35 +417,28 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
       >
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            <span className="text-xl sm:text-2xl text-gradient-hero">{t.new_confession}</span>
+            <span className="text-2xl font-bold text-foreground">{t.new_confession}</span>
             {!limitsLoading && (
               dailyLimit !== Infinity ? (
-                <Badge variant={remaining > 2 ? "default" : "destructive"} className="ml-2 rounded-lg">
+                <Badge 
+                  variant={remaining > 2 ? "default" : "destructive"} 
+                  className="ml-2 px-3 py-1 rounded-full text-sm font-medium"
+                >
                   {remaining}/{dailyLimit}
                 </Badge>
               ) : (
-                <Badge className="bg-gradient-to-r from-amber-400 to-yellow-500 text-white border-0 ml-2 rounded-lg">
+                <Badge className="bg-gradient-to-r from-amber-400 to-yellow-500 text-white border-0 ml-2 px-3 py-1 rounded-full text-sm font-medium">
                   ∞
                 </Badge>
               )
             )}
           </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground">
+          <DialogDescription className="sr-only">
             {t.placeholder_confession}
           </DialogDescription>
-          {/* Confession Quota Display */}
-          {!limitsLoading && dailyLimit !== Infinity && (
-            <div className="mt-3 p-3 glass rounded-xl border border-border/50">
-              <p className="text-xs text-muted-foreground text-center">
-                {remaining === Infinity 
-                  ? t.limit_confessions_unlimited
-                  : t.limit_confessions_remaining.replace('{count}', remaining.toString())}
-              </p>
-            </div>
-          )}
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-5 py-4">
           {user && (
             <DraftManager
               userId={user.id}
@@ -463,31 +456,37 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
             />
           )}
 
+          {/* Main Confession Text Area - Glassmorphism Card */}
+          <div className="relative rounded-2xl overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background/80 to-primary/5 backdrop-blur-sm" />
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5" />
+            <Textarea
+              placeholder={t.placeholder_confession}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              className="relative min-h-[180px] resize-none bg-transparent border-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-base text-foreground placeholder:text-muted-foreground/60 p-5 rounded-2xl"
+              disabled={isSubmitting}
+            />
+          </div>
+
+          {/* Category Selector */}
           <div className="space-y-2">
-            <Label htmlFor="category" className="text-sm font-medium">
+            <Label htmlFor="category" className="text-sm font-medium text-foreground/80">
               {t.select_category}
             </Label>
             <Select value={category} onValueChange={setCategory} disabled={isSubmitting}>
-              <SelectTrigger className="border-primary/20 focus:border-primary/40 bg-background/50 h-11 rounded-xl">
+              <SelectTrigger className="border-primary/20 focus:border-primary/40 bg-muted/30 backdrop-blur-sm h-12 rounded-xl">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="rounded-xl">
+              <SelectContent className="rounded-xl bg-background/95 backdrop-blur-xl border-primary/20">
                 {categories.map((cat) => (
-                  <SelectItem key={cat.value} value={cat.value}>
+                  <SelectItem key={cat.value} value={cat.value} className="rounded-lg">
                     {cat.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-
-          <Textarea
-            placeholder={t.placeholder_confession}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="min-h-[150px] resize-none border-primary/20 focus:border-primary/40 bg-background/50 text-sm rounded-xl"
-            disabled={isSubmitting}
-          />
 
           <ImageUpload
             onImageUploaded={(url) => setImageUrl(url)}
@@ -496,50 +495,35 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
             disabled={isSubmitting}
           />
 
-          {/* Communities feature disabled */}
-          {/* <div className="space-y-2">
-            <Label className="text-sm font-medium">{t.location_community_optional}</Label>
-            <Select value={communityId || "none"} onValueChange={(v) => setCommunityId(v === "none" ? null : v)} disabled={isSubmitting}>
-              <SelectTrigger className="border-primary/20 focus:border-primary/40 bg-background/50">
-                <SelectValue placeholder={t.location_select_community} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">{t.location_no_community}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div> */}
-
-          <div className="pt-2">
+          <div className="pt-1">
             <MoodTracker 
               onMoodSelect={(moodValue, intensity) => setMood({ mood: moodValue, intensity })}
             />
           </div>
 
-          {/* Anonymity Toggle */}
-          <div className="space-y-2 p-3 glass rounded-lg border border-primary/20">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="anonymous-toggle" className="text-sm font-medium cursor-pointer">
+          {/* Anonymous Toggle - Premium Style */}
+          <div className="flex items-center justify-between p-4 bg-muted/30 backdrop-blur-sm rounded-2xl border border-primary/10">
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="anonymous-toggle" className="text-sm font-medium cursor-pointer text-foreground">
                 {t.confession_anonymous_label}
               </Label>
-              <Switch
-                id="anonymous-toggle"
-                checked={isAnonymous}
-                onCheckedChange={setIsAnonymous}
-                disabled={isSubmitting}
-              />
+              {!isAnonymous && userNickname && (
+                <p className="text-xs text-primary font-medium">
+                  {t.confession_anonymous_preview.replace('{name}', `@${userNickname}`)}
+                </p>
+              )}
             </div>
-            <p className="text-xs text-muted-foreground">
-              {isAnonymous ? t.confession_anonymous_help_on : t.confession_anonymous_help_off}
-            </p>
-            {!isAnonymous && userNickname && (
-              <p className="text-xs text-primary font-medium">
-                {t.confession_anonymous_preview.replace('{name}', `@${userNickname}`)}
-              </p>
-            )}
+            <Switch
+              id="anonymous-toggle"
+              checked={isAnonymous}
+              onCheckedChange={setIsAnonymous}
+              disabled={isSubmitting}
+              className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground/30"
+            />
           </div>
 
           {aiResponse && (
-            <div className="p-4 glass rounded-xl border border-primary/20 animate-slide-up">
+            <div className="p-4 bg-primary/5 backdrop-blur-sm rounded-2xl border border-primary/20 animate-slide-up">
               <div className="flex items-center gap-2 mb-2 text-primary">
                 <Sparkles className="w-4 h-4 animate-pulse-glow" />
                 <span className="text-sm font-medium">{t.ai_reply_title}</span>
@@ -578,32 +562,33 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
             </div>
           )}
 
-          <div className="flex gap-2">
-            <PolishConfessionButton 
-              confessionText={content}
-              onPolishedTextReceived={(polished) => setContent(polished)}
-              disabled={isSubmitting}
-            />
-            <EnhancedButton
+          {/* Action Buttons */}
+          <div className="flex flex-col gap-3 pt-2">
+            <div className="flex justify-start">
+              <PolishConfessionButton 
+                confessionText={content}
+                onPolishedTextReceived={(polished) => setContent(polished)}
+                disabled={isSubmitting}
+              />
+            </div>
+            
+            <button
               onClick={handleSubmit}
               disabled={isSubmitting || !content.trim() || !canPost || (dailyLimit !== Infinity && remaining === 0)}
-              className="w-full rounded-xl h-11"
-              glow
-              shine
-              lift
+              className="w-full h-14 rounded-2xl font-semibold text-base text-white bg-gradient-to-r from-primary via-primary/90 to-purple-500 hover:from-primary/90 hover:to-purple-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-5 h-5 animate-spin" />
                   {t.submitting}
                 </>
               ) : (
                 <>
-                  <Send className="w-4 h-4 mr-2" />
+                  <Send className="w-5 h-5" />
                   {t.submit}
                 </>
               )}
-            </EnhancedButton>
+            </button>
           </div>
         </div>
       </DialogContent>
@@ -612,14 +597,6 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
         isOpen={showCrisisDialog}
         onClose={() => setShowCrisisDialog(false)}
       />
-      
-      {/* <UpgradeModal
-        open={showUpgradeModal}
-        onOpenChange={setShowUpgradeModal}
-        currentTier={tier}
-        currentCount={currentCount}
-        dailyLimit={dailyLimit === Infinity ? 0 : dailyLimit}
-      /> */}
     </Dialog>
   );
 };
