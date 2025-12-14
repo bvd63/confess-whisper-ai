@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { logError } from "@/lib/logger";
+import { cn } from "@/lib/utils";
 
 interface PolishConfessionButtonProps {
   confessionText: string;
@@ -70,29 +71,42 @@ export const PolishConfessionButton = ({
     }
   };
 
+  const isDisabled = disabled || isPolishing || !confessionText?.trim();
+  const actionLabel = isPolishing ? t.polishing : (t.polish_enhance_ai || t.polish_confession);
+  const costLabel = t.polish_costs_coins || "Costs 10 coins";
+
   return (
-    <button
+    <Button
       type="button"
+      variant="outline"
+      size="sm"
       onClick={handlePolish}
-      disabled={disabled || isPolishing || !confessionText?.trim()}
-      className="group flex items-center gap-3 px-4 py-3 rounded-2xl bg-gradient-to-r from-primary/10 via-purple-500/10 to-primary/10 border border-primary/20 backdrop-blur-sm hover:from-primary/15 hover:via-purple-500/15 hover:to-primary/15 hover:border-primary/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-primary/10"
+      disabled={isDisabled}
+      className={cn(
+        "group flex items-center gap-3 px-4 py-3 rounded-2xl border border-primary/20",
+        "bg-gradient-to-r from-primary/10 via-purple-500/10 to-primary/10 backdrop-blur-sm",
+        "hover:from-primary/15 hover:via-purple-500/15 hover:to-primary/15 hover:border-primary/30",
+        "transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-primary/10",
+        "self-start sm:self-auto",
+        isDisabled && "opacity-60"
+      )}
     >
-      <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 group-hover:from-primary/30 group-hover:to-purple-500/30 transition-all">
+      <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 group-hover:from-primary/30 group-hover:to-purple-500/30 transition-all">
         {isPolishing ? (
           <Loader2 className="w-4 h-4 text-primary animate-spin" />
         ) : (
           <Sparkles className="w-4 h-4 text-primary" />
         )}
       </div>
-      <div className="flex flex-col items-start">
-        <span className="text-sm font-medium text-foreground">
-          {isPolishing ? t.polishing : t.polish_enhance_ai || "Enhance with AI"}
+      <div className="flex flex-col items-start text-left">
+        <span className="text-sm font-semibold text-foreground">
+          {actionLabel}
         </span>
         <span className="flex items-center gap-1 text-xs text-muted-foreground">
           <Coins className="w-3 h-3 text-amber-500" />
-          <span>{t.polish_costs_coins || "Costs 10 coins"}</span>
+          <span>{costLabel}</span>
         </span>
       </div>
-    </button>
+    </Button>
   );
 };

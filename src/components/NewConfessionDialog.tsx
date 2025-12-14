@@ -408,25 +408,58 @@ const NewConfessionDialog = ({
       setIsSubmitting(false);
     }
   };
-  return <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto bg-background/95 backdrop-blur-xl border-primary/20 rounded-3xl shadow-2xl" style={{
-      marginBottom: isKeyboardVisible ? `${keyboardHeight}px` : '0',
-      transition: 'margin-bottom 0.3s ease-out'
-    }}>
-        {/* Custom Header - with right padding to avoid X button overlap */}
-        <div className="flex items-start justify-between gap-4 pb-2 pr-8">
-          <h2 className="text-2xl font-bold text-foreground">{t.new_confession}</h2>
-          <DialogDescription className="sr-only">
+  const isUnlimited = dailyLimit === Infinity;
+  const quotaHelperText = isUnlimited
+    ? t.limit_confessions_unlimited
+    : t.limit_confessions_remaining.replace('{count}', remaining.toString());
+  const primaryCtaLabel = t.post_confession || t.submit;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent 
+        className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto bg-background/95 backdrop-blur-xl border-primary/20 rounded-3xl shadow-2xl"
+        style={{
+          marginBottom: isKeyboardVisible ? `${keyboardHeight}px` : '0',
+          transition: 'margin-bottom 0.3s ease-out'
+        }}
+      >
+        <DialogHeader className="space-y-3">
+          <div className="flex items-start gap-3 pr-10 sm:pr-14">
+            <DialogTitle className="flex-1 text-2xl font-bold text-foreground">
+              {t.new_confession}
+            </DialogTitle>
+            {!limitsLoading && (
+              !isUnlimited ? (
+                <Badge
+                  variant={remaining > 2 ? "default" : "destructive"}
+                  className="shrink-0 rounded-full px-3 py-1.5 text-sm font-semibold border border-border/60 bg-background/80 shadow-[var(--shadow-soft)]"
+                  aria-live="polite"
+                  aria-label={quotaHelperText}
+                >
+                  {remaining}/{dailyLimit}
+                </Badge>
+              ) : (
+                <Badge
+                  className="shrink-0 rounded-full px-3 py-1.5 text-sm font-semibold bg-gradient-to-r from-amber-400 to-yellow-500 text-white border-0 shadow-[var(--shadow-soft)]"
+                  aria-live="polite"
+                  aria-label={quotaHelperText}
+                >
+                  ∞
+                </Badge>
+              )
+            )}
+          </div>
+          <DialogDescription className="text-sm text-muted-foreground pr-6">
             {t.placeholder_confession}
           </DialogDescription>
-          {!limitsLoading && <div className="flex-shrink-0">
-              {dailyLimit !== Infinity ? <Badge variant={remaining > 2 ? "default" : "destructive"} className="px-3 py-1.5 rounded-full text-sm font-semibold">
-                  {remaining}/{dailyLimit}
-                </Badge> : <Badge className="bg-gradient-to-r from-amber-400 to-yellow-500 text-white border-0 px-3 py-1.5 rounded-full text-sm font-semibold shadow-sm mx-[18px]">
-                  ∞ VIP
-                </Badge>}
-            </div>}
-        </div>
+          {!limitsLoading && !isUnlimited && (
+            <div className="p-3 bg-muted/30 backdrop-blur-sm rounded-xl border border-border/50" aria-live="polite">
+              <p className="text-xs text-muted-foreground text-center">
+                {quotaHelperText}
+              </p>
+            </div>
+          )}
+        </DialogHeader>
 
         <div className="space-y-5 py-4">
           {user && <DraftManager userId={user.id} onSelectDraft={draft => {
@@ -517,24 +550,39 @@ const NewConfessionDialog = ({
           }} />
             </div>}
 
-          {/* Action Buttons */}
-          <div className="flex flex-col gap-4 pt-3">
-            <PolishConfessionButton confessionText={content} onPolishedTextReceived={polished => setContent(polished)} disabled={isSubmitting} />
-            
-            <button onClick={handleSubmit} disabled={isSubmitting || !content.trim() || !canPost || dailyLimit !== Infinity && remaining === 0} className="w-full h-14 rounded-2xl font-semibold text-base text-white bg-gradient-to-r from-primary/95 via-purple-600/90 to-primary/95 hover:from-primary hover:via-purple-500 hover:to-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/25 flex items-center justify-center gap-2">
-              {isSubmitting ? <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center pt-3">
+            <PolishConfessionButton 
+              confessionText={content}
+              onPolishedTextReceived={(polished) => setContent(polished)}
+              disabled={isSubmitting}
+            />
+            <EnhancedButton
+              onClick={handleSubmit}
+              disabled={isSubmitting || !content.trim() || !canPost || (!isUnlimited && remaining === 0)}
+              className="w-full h-14 rounded-2xl font-semibold text-base text-white bg-gradient-to-r from-primary/95 via-purple-600/90 to-primary/95 hover:from-primary hover:via-purple-500 hover:to-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/25"
+              glow
+              shine
+              lift
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                   {t.submitting}
-                </> : <>
-                  <Send className="w-5 h-5" />
-                  {t.post_confession || "Post Confession"}
-                </>}
-            </button>
+                </>
+              ) : (
+                <>
+                  <Send className="w-5 h-5 mr-2" />
+                  {primaryCtaLabel}
+                </>
+              )}
+            </EnhancedButton>
           </div>
         </div>
       </DialogContent>
       
       <CrisisDialog isOpen={showCrisisDialog} onClose={() => setShowCrisisDialog(false)} />
-    </Dialog>;
+    </Dialog>
+  );
 };
+
 export default NewConfessionDialog;
