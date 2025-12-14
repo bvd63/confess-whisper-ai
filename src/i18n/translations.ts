@@ -1111,11 +1111,14 @@ type Translations = {
   
   // Polish Confession
   polish_confession: string;
+  polish_enhance_ai: string;
+  polish_costs_coins: string;
   polishing: string;
   polish_success_title: string;
   polish_success_description: string;
   polish_error: string;
   polish_empty_error: string;
+  post_confession: string;
   
   // Flairs Shop
   flairs_shop: string;
@@ -3133,11 +3136,14 @@ export const translations: Record<Language, Translations> = {
     apply_background: "Apply Background",
     
     polish_confession: "Polish Confession",
+    polish_enhance_ai: "Enhance with AI",
+    polish_costs_coins: "Costs 10 coins",
     polishing: "Polishing...",
     polish_success_title: "Confession Polished!",
     polish_success_description: "Your confession has been improved by AI",
     polish_error: "Failed to polish confession",
     polish_empty_error: "Please write your confession first",
+    post_confession: "Post Confession",
     
     flairs_shop: "Flairs Shop",
     flair_shop_description: "Customize your profile with unique flairs and badges",
@@ -4986,11 +4992,14 @@ export const translations: Record<Language, Translations> = {
     apply_background: "Aplicar Fondo",
     
     polish_confession: "Mejorar Confesión",
+    polish_enhance_ai: "Mejorar con IA",
+    polish_costs_coins: "Cuesta 10 monedas",
     polishing: "Mejorando...",
     polish_success_title: "¡Confesión Mejorada!",
     polish_success_description: "Tu confesión ha sido mejorada por IA",
     polish_error: "Error al mejorar confesión",
     polish_empty_error: "Por favor escribe tu confesión primero",
+    post_confession: "Publicar Confesión",
     
     flairs_shop: "Tienda de Insignias",
     flair_shop_description: "Personaliza tu perfil con insignias y emblemas únicos",
@@ -6940,11 +6949,14 @@ export const translations: Record<Language, Translations> = {
     apply_background: "Hintergrund Anwenden",
     
     polish_confession: "Geständnis Verbessern",
+    polish_enhance_ai: "Mit KI verbessern",
+    polish_costs_coins: "Kostet 10 Münzen",
     polishing: "Verbessern...",
     polish_success_title: "Geständnis Verbessert!",
     polish_success_description: "Dein Geständnis wurde von KI verbessert",
     polish_error: "Fehler beim Verbessern des Geständnisses",
     polish_empty_error: "Bitte schreibe zuerst dein Geständnis",
+    post_confession: "Geständnis Posten",
     
     flairs_shop: "Abzeichen-Shop",
     flair_shop_description: "Personalisiere dein Profil mit einzigartigen Abzeichen und Emblemen",

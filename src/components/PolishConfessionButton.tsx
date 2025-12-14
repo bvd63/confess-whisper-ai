@@ -71,26 +71,28 @@ export const PolishConfessionButton = ({
   };
 
   return (
-    <Button
+    <button
       type="button"
-      variant="outline"
-      size="sm"
       onClick={handlePolish}
       disabled={disabled || isPolishing || !confessionText?.trim()}
-      className="gap-2"
+      className="group flex items-center gap-3 px-4 py-3 rounded-2xl bg-gradient-to-r from-primary/10 via-purple-500/10 to-primary/10 border border-primary/20 backdrop-blur-sm hover:from-primary/15 hover:via-purple-500/15 hover:to-primary/15 hover:border-primary/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-primary/10"
     >
-      {isPolishing ? (
-        <Loader2 className="w-4 h-4 animate-spin" />
-      ) : (
-        <Sparkles className="w-4 h-4 text-purple-500" />
-      )}
-      <span className="hidden sm:inline">
-        {isPolishing ? t.polishing : t.polish_confession}
-      </span>
-      <span className="flex items-center gap-1 text-yellow-600 text-xs">
-        <Coins className="w-3 h-3" />
-        10
-      </span>
-    </Button>
+      <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 group-hover:from-primary/30 group-hover:to-purple-500/30 transition-all">
+        {isPolishing ? (
+          <Loader2 className="w-4 h-4 text-primary animate-spin" />
+        ) : (
+          <Sparkles className="w-4 h-4 text-primary" />
+        )}
+      </div>
+      <div className="flex flex-col items-start">
+        <span className="text-sm font-medium text-foreground">
+          {isPolishing ? t.polishing : t.polish_enhance_ai || "Enhance with AI"}
+        </span>
+        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+          <Coins className="w-3 h-3 text-amber-500" />
+          <span>{t.polish_costs_coins || "Costs 10 coins"}</span>
+        </span>
+      </div>
+    </button>
   );
 };
