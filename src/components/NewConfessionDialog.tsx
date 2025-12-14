@@ -415,28 +415,31 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
           transition: 'margin-bottom 0.3s ease-out'
         }}
       >
-        <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <span className="text-2xl font-bold text-foreground">{t.new_confession}</span>
-            {!limitsLoading && (
-              dailyLimit !== Infinity ? (
+        {/* Custom Header to avoid X overlap */}
+        <div className="flex items-start justify-between gap-4 pb-2">
+          <div className="flex flex-col gap-1">
+            <h2 className="text-2xl font-bold text-foreground">{t.new_confession}</h2>
+            <DialogDescription className="sr-only">
+              {t.placeholder_confession}
+            </DialogDescription>
+          </div>
+          {!limitsLoading && (
+            <div className="flex-shrink-0">
+              {dailyLimit !== Infinity ? (
                 <Badge 
                   variant={remaining > 2 ? "default" : "destructive"} 
-                  className="ml-2 px-3 py-1 rounded-full text-sm font-medium"
+                  className="px-3 py-1.5 rounded-full text-sm font-semibold"
                 >
                   {remaining}/{dailyLimit}
                 </Badge>
               ) : (
-                <Badge className="bg-gradient-to-r from-amber-400 to-yellow-500 text-white border-0 ml-2 px-3 py-1 rounded-full text-sm font-medium">
-                  ∞
+                <Badge className="bg-gradient-to-r from-amber-400 to-yellow-500 text-white border-0 px-3 py-1.5 rounded-full text-sm font-semibold shadow-sm">
+                  ∞ VIP
                 </Badge>
-              )
-            )}
-          </DialogTitle>
-          <DialogDescription className="sr-only">
-            {t.placeholder_confession}
-          </DialogDescription>
-        </DialogHeader>
+              )}
+            </div>
+          )}
+        </div>
 
         <div className="space-y-5 py-4">
           {user && (
@@ -563,19 +566,17 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
           )}
 
           {/* Action Buttons */}
-          <div className="flex flex-col gap-3 pt-2">
-            <div className="flex justify-start">
-              <PolishConfessionButton 
-                confessionText={content}
-                onPolishedTextReceived={(polished) => setContent(polished)}
-                disabled={isSubmitting}
-              />
-            </div>
+          <div className="flex flex-col gap-4 pt-3">
+            <PolishConfessionButton 
+              confessionText={content}
+              onPolishedTextReceived={(polished) => setContent(polished)}
+              disabled={isSubmitting}
+            />
             
             <button
               onClick={handleSubmit}
               disabled={isSubmitting || !content.trim() || !canPost || (dailyLimit !== Infinity && remaining === 0)}
-              className="w-full h-14 rounded-2xl font-semibold text-base text-white bg-gradient-to-r from-primary via-primary/90 to-purple-500 hover:from-primary/90 hover:to-purple-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 flex items-center justify-center gap-2"
+              className="w-full h-14 rounded-2xl font-semibold text-base text-white bg-gradient-to-r from-primary/95 via-purple-600/90 to-primary/95 hover:from-primary hover:via-purple-500 hover:to-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/25 flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>
@@ -585,7 +586,7 @@ const NewConfessionDialog = ({ open, onOpenChange, onConfessionCreated, initialC
               ) : (
                 <>
                   <Send className="w-5 h-5" />
-                  {t.submit}
+                  {t.post_confession || "Post Confession"}
                 </>
               )}
             </button>
