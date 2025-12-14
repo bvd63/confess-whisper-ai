@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import AppLayout from "@/components/AppLayout";
@@ -24,6 +24,7 @@ import { attachActiveBoosts } from "@/lib/boosts";
 const CommunityDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
   
   const { user } = useCurrentUser();
@@ -33,6 +34,10 @@ const CommunityDetail = () => {
   const { t } = useLanguage();
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const [manageCommunityOpen, setManageCommunityOpen] = useState(false);
+
+  const openCompose = () => {
+    navigate('/compose', { state: { communityId: id, from: `${location.pathname}${location.search}` } });
+  };
 
   const { data: community, isLoading: loadingCommunity } = useQuery({
     queryKey: ['community', id],
@@ -236,7 +241,7 @@ const CommunityDetail = () => {
             {isMember && (
               <Button 
                 size="sm"
-                onClick={() => navigate('/compose', { state: { communityId: id } })}
+                onClick={openCompose}
               >
                 <Plus className="w-4 h-4 mr-2" />
                 {t.new_confession}
@@ -284,7 +289,7 @@ const CommunityDetail = () => {
               </p>
               {isMember && (
                 <Button 
-                  onClick={() => navigate('/compose', { state: { communityId: id } })} 
+                  onClick={openCompose} 
                   className="mt-4"
                 >
                   {t.communities_create_confession}
