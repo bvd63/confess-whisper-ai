@@ -273,6 +273,146 @@ body {
   box-shadow: 0 0 30px rgba(178, 102, 255, 0.15);
 }
 
+/* Unified Content Card - Premium Glassmorphism (Leonardo Design) */
+.content-card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(248, 250, 252, 0.75) 100%
+  );
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 1.5rem;
+  box-shadow: 
+    0 4px 24px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark .content-card {
+  background: linear-gradient(
+    135deg,
+    rgba(35, 35, 45, 0.85) 0%,
+    rgba(25, 25, 35, 0.75) 50%,
+    rgba(30, 30, 45, 0.8) 100%
+  );
+  border: 1px solid rgba(178, 102, 255, 0.15);
+  box-shadow: 
+    0 4px 32px rgba(0, 0, 0, 0.3),
+    0 0 40px rgba(100, 80, 180, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.content-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.dark .content-card:hover {
+  box-shadow: 
+    0 8px 40px rgba(0, 0, 0, 0.4),
+    0 0 50px rgba(140, 100, 200, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Content Card Highlighted Variant */
+.content-card-highlight {
+  background: linear-gradient(
+    135deg,
+    rgba(156, 39, 255, 0.08) 0%,
+    rgba(120, 80, 200, 0.05) 50%,
+    rgba(80, 100, 220, 0.08) 100%
+  );
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(156, 39, 255, 0.2);
+  border-radius: 1.5rem;
+  box-shadow: 
+    0 4px 24px rgba(156, 39, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.dark .content-card-highlight {
+  background: linear-gradient(
+    135deg,
+    rgba(80, 50, 140, 0.4) 0%,
+    rgba(60, 40, 100, 0.35) 50%,
+    rgba(50, 60, 120, 0.4) 100%
+  );
+  border: 1px solid rgba(178, 102, 255, 0.35);
+  box-shadow: 
+    0 4px 32px rgba(156, 39, 255, 0.2),
+    0 0 50px rgba(140, 100, 200, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Notification Card Variant */
+.notification-card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.8) 0%,
+    rgba(248, 250, 252, 0.7) 100%
+  );
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.dark .notification-card {
+  background: linear-gradient(
+    135deg,
+    rgba(40, 40, 55, 0.75) 0%,
+    rgba(30, 30, 45, 0.65) 50%,
+    rgba(35, 40, 60, 0.7) 100%
+  );
+  border: 1px solid rgba(178, 102, 255, 0.12);
+  box-shadow: 
+    0 2px 16px rgba(0, 0, 0, 0.2),
+    0 0 30px rgba(100, 80, 180, 0.06);
+}
+
+.notification-card:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(248, 250, 252, 0.8) 100%
+  );
+}
+
+.dark .notification-card:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(50, 50, 65, 0.8) 0%,
+    rgba(40, 40, 55, 0.7) 50%,
+    rgba(45, 50, 70, 0.75) 100%
+  );
+  border-color: rgba(178, 102, 255, 0.2);
+}
+
+/* Notification Card Unread */
+.notification-card-unread {
+  border-left: 3px solid hsl(277 91% 71%);
+}
+
+.dark .notification-card-unread {
+  background: linear-gradient(
+    135deg,
+    rgba(80, 50, 120, 0.35) 0%,
+    rgba(50, 40, 80, 0.3) 50%,
+    rgba(40, 50, 90, 0.35) 100%
+  );
+  border: 1px solid rgba(178, 102, 255, 0.25);
+  border-left: 3px solid hsl(277 91% 71%);
+  box-shadow: 
+    0 4px 24px rgba(156, 39, 255, 0.15),
+    0 0 40px rgba(140, 100, 200, 0.1);
+}
+
 /* Gradient backgrounds for Leonardo design */
 .bg-gradient-purple-blue {
   background: linear-gradient(135deg, hsl(277 91% 71% / 0.2) 0%, hsl(217 91% 60% / 0.2) 100%);

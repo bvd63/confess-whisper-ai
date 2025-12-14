@@ -140,15 +140,19 @@ export const NotificationItem = ({ notification, onMarkAsRead, onDelete }: Notif
   return (
     <div
       onClick={handleClick}
-      className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors group ${
-        !notification.is_read ? 'bg-primary/5' : 'hover:bg-muted/50'
+      className={`notification-card flex items-center gap-4 p-4 cursor-pointer group ${
+        !notification.is_read ? 'notification-card-unread' : ''
       }`}
     >
-      <div className="flex-shrink-0 mt-1">{getIcon()}</div>
+      {/* Icon Container */}
+      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-background/50 dark:bg-background/30 flex items-center justify-center border border-border/50">
+        {getIcon()}
+      </div>
       
+      {/* Content */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm">
-          <span className={!notification.is_read ? 'font-medium' : ''}>
+        <p className="text-sm text-foreground leading-relaxed">
+          <span className={!notification.is_read ? 'font-medium' : 'font-normal'}>
             {getMessage()}
           </span>
         </p>
@@ -157,19 +161,22 @@ export const NotificationItem = ({ notification, onMarkAsRead, onDelete }: Notif
             {notification.comment_content}
           </p>
         )}
-        <p className="text-xs text-muted-foreground mt-1">
-          {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
-        </p>
       </div>
 
-      <Button
-        variant="ghost"
-        size="icon"
-        className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
-        onClick={handleDelete}
-      >
-        <X className="h-4 w-4" />
-      </Button>
+      {/* Timestamp - Right aligned */}
+      <div className="flex-shrink-0 flex items-center gap-2">
+        <p className="text-xs text-muted-foreground whitespace-nowrap">
+          {formatDistanceToNow(new Date(notification.created_at), { addSuffix: false })}
+        </p>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 rounded-full"
+          onClick={handleDelete}
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
   );
 };

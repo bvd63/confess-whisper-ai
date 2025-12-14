@@ -1,5 +1,4 @@
 import { useState, useEffect, memo } from "react";
-import { AnimatedCard } from "@/components/AnimatedCard";
 import { EnhancedButton } from "@/components/EnhancedButton";
 import { MessageCircle, Sparkles, Crown, Award, Wand2, Loader2 } from "lucide-react";
 import DeepInsightDialog from "./DeepInsightDialog";
@@ -237,13 +236,10 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
 
   return (
     <NoScreenshotMode enabled={noScreenshotEnabled}>
-      <AnimatedCard 
-        hover="lift"
-        className="p-5 sm:p-6 mb-4 touch-manipulation transition-all duration-300 hover:shadow-xl bg-card border border-border rounded-3xl animate-slide-up relative"
-      >
+      <div className="content-card p-5 sm:p-6 mb-4 touch-manipulation relative">
         {/* Boost Badge - Top Right */}
         {boostStatus.isBoosted && (
-          <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-orange-500/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-orange-500/20">
+          <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-orange-500/15 backdrop-blur-sm px-3 py-1.5 rounded-full border border-orange-500/25">
             <span className="text-base">🚀</span>
             <span className="text-xs font-medium text-orange-500">
               {t.boosted.badge.label} · {boostStatus.lessThanHour
@@ -422,7 +418,7 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
         onOpenChange={setIsAwardPickerOpen}
         confessionId={confession.id}
       />
-      </AnimatedCard>
+      </div>
     </NoScreenshotMode>
   );
 };
