@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Crown, Shield, User as UserIcon, Zap, Clock3, ArrowLeft } from "lucide-react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { Crown, Shield, User as UserIcon, Zap, Clock3, ArrowLeft, MoreVertical, Trash2 } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { useSensitiveContent } from "@/hooks/useSensitiveContent";
+import { useConfirm } from "@/contexts/ConfirmContext";
 import { supabase } from "@/integrations/supabase/client";
 import { sanitizeConfession } from "@/lib/security/sanitizer";
 import { getBoostStatus } from "@/lib/boosts";
@@ -15,9 +16,16 @@ import { NoScreenshotMode } from "@/components/NoScreenshotMode";
 import AppLayout from "@/components/AppLayout";
 import CommentsSection from "@/components/CommentsSection";
 import ReactionPicker from "@/components/ReactionPicker";
+import { BoostConfessionButton } from "@/components/coins/BoostConfessionButton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/lib/logger";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Confession {
   id: string;
@@ -36,6 +44,8 @@ interface Confession {
 const ConfessionDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const confirm = useConfirm();
   const { user } = useCurrentUser();
   const { t } = useLanguage();
   const { toast } = useToast();
@@ -80,7 +90,16 @@ const ConfessionDetail = () => {
 
         setConfession(data);
         setCommentsCount(data.comments_count || 0);
-        setBoostExpiresAt(data.boost_expires_at || null);
+
+        // Load boost status from confession_boosts table
+        const { data: boostData } = await supabase
+          .from('confession_boosts')
+          .select('ends_at')
+          .eq('confession_id', id)
+          .eq('status', 'ACTIVE')
+          .maybeSingle();
+        
+        setBoostExpiresAt(boostData?.ends_at || null);
 
         // Check if user has liked this confession
         if (user) {
@@ -170,6 +189,55 @@ const ConfessionDetail = () => {
     setIsBookmarked(!!data);
   };
 
+  const handleDeleteConfession = async () => {
+    if (!confession || !user) return;
+
+    const confirmed = await confirm({
+      titleKey: 'confirm.deleteConfession.title',
+      messageKey: 'confirm.deleteConfession.message',
+      variant: 'danger',
+    });
+
+    if (!confirmed) return;
+
+    try {
+      const { error } = await supabase
+        .from('confessions')
+        .delete()
+        .eq('id', confession.id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: t.success_deleted,
+      });
+
+      // Navigate based on where the user came from
+      const from = (location.state as any)?.from;
+      if (from === 'profile_my_confessions') {
+        navigate('/profile', { state: { tab: 'my_confessions' } });
+      } else {
+        navigate('/');
+      }
+    } catch (error) {
+      logError('Error deleting confession', error as Error);
+      toast({
+        title: t.error_delete,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleBackClick = () => {
+    const from = (location.state as any)?.from;
+    if (from === 'profile_my_confessions') {
+      navigate('/profile', { state: { tab: 'my_confessions' } });
+    } else {
+      navigate(-1);
+    }
+  };
+
   if (loading) {
     return (
       <AppLayout onNewConfession={() => {}} onManageSubscription={() => {}}>
@@ -177,7 +245,7 @@ const ConfessionDetail = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate(-1)}
+            onClick={handleBackClick}
             className="mb-4 -ml-2"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -200,7 +268,7 @@ const ConfessionDetail = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate(-1)}
+            onClick={handleBackClick}
             className="mb-4 -ml-2"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -240,6 +308,24 @@ const ConfessionDetail = () => {
                   <span>{visibilityLabel}</span>
                 </div>
               </div>
+              {user?.id === confession.user_id && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-white/70 hover:text-white">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="bg-[#1a1a2e] border-white/10">
+                    <DropdownMenuItem
+                      onClick={handleDeleteConfession}
+                      className="text-red-400 hover:text-red-300 hover:bg-red-500/10 cursor-pointer"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      {t.delete || 'Delete'}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </div>
 
             <SensitiveContentWarning isSensitive={isSensitive}>
@@ -250,6 +336,15 @@ const ConfessionDetail = () => {
 
             <div className="rounded-2xl border border-white/8 bg-white/5 p-3 shadow-inner">
               <ReactionPicker confessionId={confession.id} userId={user?.id} />
+            </div>
+
+            <div className="flex justify-center">
+              <BoostConfessionButton
+                confessionId={confession.id}
+                isOwner={user?.id === confession.user_id}
+                boostExpiresAt={boostExpiresAt}
+                onBoostActivated={(expiresAt) => setBoostExpiresAt(expiresAt)}
+              />
             </div>
 
             <CommentsSection

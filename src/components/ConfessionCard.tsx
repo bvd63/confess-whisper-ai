@@ -43,9 +43,10 @@ interface ConfessionCardProps {
   onLikeChange?: () => void;
   onCommentChange?: () => void;
   onBookmarkChange?: () => void;
+  from?: string;
 }
 
-const ConfessionCard = ({ confession, isVip: _isVip, onUpgradeClick: _onUpgradeClick, onInsightGenerated: _onInsightGenerated, onCommentChange: _onCommentChange, isLiked, isBookmarked, onLikeChange, onBookmarkChange }: ConfessionCardProps) => {
+const ConfessionCard = ({ confession, isVip: _isVip, onUpgradeClick: _onUpgradeClick, onInsightGenerated: _onInsightGenerated, onCommentChange: _onCommentChange, isLiked, isBookmarked, onLikeChange, onBookmarkChange, from }: ConfessionCardProps) => {
   const navigate = useNavigate();
   const [boostExpiresAt, setBoostExpiresAt] = useState<string | null>(confession.boost_expires_at || null);
   const [shareOpen, setShareOpen] = useState(false);
@@ -53,6 +54,12 @@ const ConfessionCard = ({ confession, isVip: _isVip, onUpgradeClick: _onUpgradeC
   const { t } = useLanguage();
   const { subscriptionTier } = useVipStatus(confession.user_id || null);
   const { isSensitive } = useSensitiveContent(confession.content);
+
+  const noScreenshotEnabled = subscriptionTier === 'vip' && user?.id === confession.user_id;
+
+  const handleCardClick = () => {
+    navigate(`/confession/${confession.id}`, { state: from ? { from } : undefined });
+  };
 
   const noScreenshotEnabled = subscriptionTier === 'vip' && user?.id === confession.user_id;
 
@@ -89,7 +96,7 @@ const ConfessionCard = ({ confession, isVip: _isVip, onUpgradeClick: _onUpgradeC
 
   return (
     <NoScreenshotMode enabled={noScreenshotEnabled}>
-      <Card className="w-full overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#2a2e5c] via-[#19192f] to-[#0d0d1b] p-5 sm:p-6 space-y-5 shadow-[0_20px_50px_rgba(0,0,0,0.45)] cursor-pointer hover:border-white/20 transition-colors" onClick={() => navigate(`/confession/${confession.id}`)}>
+      <Card className="w-full overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#2a2e5c] via-[#19192f] to-[#0d0d1b] p-5 sm:p-6 space-y-5 shadow-[0_20px_50px_rgba(0,0,0,0.45)] cursor-pointer hover:border-white/20 transition-colors" onClick={handleCardClick}>
         <div className="flex items-start gap-3">
             <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/70 via-primary/60 to-accent/70 flex items-center justify-center shadow-lg shadow-primary/30">
               <AvatarIcon className="w-4 h-4 text-white" />

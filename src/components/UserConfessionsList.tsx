@@ -107,6 +107,7 @@ const UserConfessionsList = () => {
           onLikeChange={handleLikeChange}
           onCommentChange={handleCommentChange}
           onBookmarkChange={handleBookmarkChange}
+          from="profile_my_confessions"
         />
       ))}
     </div>
