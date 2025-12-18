@@ -216,7 +216,7 @@ const ConfessionDetail = () => {
       // Navigate based on where the user came from
       const from = (location.state as any)?.from;
       if (from === 'profile_my_confessions') {
-        navigate('/profile', { state: { tab: 'my_confessions' } });
+        navigate('/profile', { state: { tab: 'confessions' } });
       } else {
         navigate('/');
       }
@@ -232,7 +232,7 @@ const ConfessionDetail = () => {
   const handleBackClick = () => {
     const from = (location.state as any)?.from;
     if (from === 'profile_my_confessions') {
-      navigate('/profile', { state: { tab: 'my_confessions' } });
+      navigate('/profile', { state: { tab: 'confessions' } });
     } else {
       navigate(-1);
     }

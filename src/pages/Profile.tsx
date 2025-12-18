@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, Suspense, lazy, memo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { EnhancedButton } from "@/components/EnhancedButton";
 import { AnimatedCard } from "@/components/AnimatedCard";
@@ -39,6 +39,7 @@ import { logError } from "@/lib/logger";
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 const Profile = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     t
   } = useLanguage();
@@ -71,6 +72,18 @@ const Profile = () => {
   const {
     toast
   } = useToast();
+  
+  // Get the tab from location state, default to "statistics"
+  const initialTab = (location.state as any)?.tab || "statistics";
+  const [activeTab, setActiveTab] = useState(initialTab);
+  
+  // Update active tab when location state changes
+  useEffect(() => {
+    const newTab = (location.state as any)?.tab;
+    if (newTab) {
+      setActiveTab(newTab);
+    }
+  }, [location.state]);
   
   // Check for trial expiry and show notification
   useTrialExpiryCheck(user?.id || null, isOnTrial);
@@ -207,7 +220,7 @@ const Profile = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="statistics" className="space-y-8 mt-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8 mt-8">
           <TabsList className={`grid w-full ${isModerator ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2'} h-14 rounded-2xl bg-muted p-1.5 gap-1.5`}>
             <TabsTrigger value="statistics" className="text-sm font-medium rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg">{t.profile_statistics}</TabsTrigger>
             <TabsTrigger value="confessions" className="text-sm font-medium rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg">{t.profile_my_confessions}</TabsTrigger>

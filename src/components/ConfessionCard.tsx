@@ -61,8 +61,6 @@ const ConfessionCard = ({ confession, isVip: _isVip, onUpgradeClick: _onUpgradeC
     navigate(`/confession/${confession.id}`, { state: from ? { from } : undefined });
   };
 
-  const noScreenshotEnabled = subscriptionTier === 'vip' && user?.id === confession.user_id;
-
   const displayName = useMemo(() => {
     if (confession.is_anonymous !== undefined) {
       return confession.is_anonymous
