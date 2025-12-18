@@ -9,7 +9,7 @@ const ConfessionSkeleton = ({ count = 1 }: ConfessionSkeletonProps) => {
   return (
     <>
       {Array.from({ length: count }).map((_, index) => (
-        <Card key={index} className="p-3 sm:p-4 space-y-2 sm:space-y-3 animate-pulse">
+        <Card key={index} variant="glow" className="p-4 sm:p-5 space-y-3 sm:space-y-4 animate-pulse">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-1.5 sm:gap-2">
@@ -27,7 +27,7 @@ const ConfessionSkeleton = ({ count = 1 }: ConfessionSkeletonProps) => {
       </div>
 
       {/* AI Response */}
-      <div className="pt-2 sm:pt-3 space-y-1.5 sm:space-y-2 border-t border-border/50">
+      <div className="pt-2 sm:pt-3 space-y-1.5 sm:space-y-2 border-t border-border/60">
         <Skeleton className="h-3 w-24 sm:h-4 sm:w-32" />
         <Skeleton className="h-3 w-full sm:h-4" />
         <Skeleton className="h-3 w-5/6 sm:h-4" />
@@ -36,10 +36,10 @@ const ConfessionSkeleton = ({ count = 1 }: ConfessionSkeletonProps) => {
       {/* Actions */}
       <div className="flex items-center justify-between pt-1.5 sm:pt-2">
         <div className="flex gap-1.5 sm:gap-2">
-          <Skeleton className="h-7 w-16 sm:h-9 sm:w-20 rounded" />
-          <Skeleton className="h-7 w-16 sm:h-9 sm:w-20 rounded" />
+          <Skeleton className="h-8 w-16 sm:h-9 sm:w-20 rounded-xl" />
+          <Skeleton className="h-8 w-16 sm:h-9 sm:w-20 rounded-xl" />
         </div>
-        <Skeleton className="h-7 w-20 sm:h-9 sm:w-28 rounded" />
+        <Skeleton className="h-8 w-20 sm:h-9 sm:w-28 rounded-xl" />
       </div>
         </Card>
       ))}

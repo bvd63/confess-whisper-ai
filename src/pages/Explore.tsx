@@ -161,10 +161,10 @@ const Explore = () => {
 
       <div 
         ref={containerRef}
-        className="container max-w-4xl mx-auto px-4 py-6 pb-24"
+        className="container max-w-3xl mx-auto px-4 sm:px-5 py-6 pb-28 space-y-6"
       >
-        <div className="mb-6 animate-fade-in">
-          <h1 className="text-3xl font-bold mb-2">
+        <div className="space-y-2 animate-fade-in">
+          <h1 className="text-3xl font-bold">
             <GradientText variant="hero">{t.explore}</GradientText>
           </h1>
           <p className="text-base text-muted-foreground">{t.recommended_for_you}</p>
@@ -186,16 +186,16 @@ const Explore = () => {
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3 mb-6 h-11 rounded-xl">
-            <TabsTrigger value="trending" className="gap-2 text-sm rounded-lg">
+          <TabsList className="grid w-full grid-cols-3 mb-6 h-11 rounded-xl glass border border-border/60 shadow-sm">
+            <TabsTrigger value="trending" className="gap-2 text-sm rounded-lg data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
               <Flame className="w-4 h-4" />
               <span className="hidden xs:inline">{t.search_trending}</span>
             </TabsTrigger>
-            <TabsTrigger value="popular" className="gap-2 text-sm rounded-lg">
+            <TabsTrigger value="popular" className="gap-2 text-sm rounded-lg data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
               <TrendingUp className="w-4 h-4" />
               <span className="hidden xs:inline">{t.ui_popular}</span>
             </TabsTrigger>
-            <TabsTrigger value="recent" className="gap-2 text-sm rounded-lg">
+            <TabsTrigger value="recent" className="gap-2 text-sm rounded-lg data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
               <Clock className="w-4 h-4" />
               <span className="hidden xs:inline">{t.ui_recent}</span>
             </TabsTrigger>

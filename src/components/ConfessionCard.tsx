@@ -37,6 +37,7 @@ import { sanitizeConfession } from "@/lib/security/sanitizer";
 import { logError } from "@/lib/logger";
 import { useCoins } from "@/hooks/useCoins";
 import { addTwentyFourHours, getBoostStatus } from "@/lib/boosts";
+import { Card } from "@/components/ui/card";
 
 interface ConfessionCardProps {
   confession: {
@@ -236,10 +237,10 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
 
   return (
     <NoScreenshotMode enabled={noScreenshotEnabled}>
-      <div className="content-card p-5 sm:p-6 mb-4 touch-manipulation relative">
+      <Card variant="glow" className="relative p-5 sm:p-6 space-y-5 touch-manipulation overflow-hidden">
         {/* Boost Badge - Top Right */}
         {boostStatus.isBoosted && (
-          <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-orange-500/15 backdrop-blur-sm px-3 py-1.5 rounded-full border border-orange-500/25">
+          <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-amber-500/15 backdrop-blur-sm px-3 py-1.5 rounded-full border border-amber-500/25 shadow-[0_8px_24px_hsl(var(--warning)/0.18)]">
             <span className="text-base">🚀</span>
             <span className="text-xs font-medium text-orange-500">
               {t.boosted.badge.label} · {boostStatus.lessThanHour
@@ -249,7 +250,7 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
           </div>
         )}
 
-        <div className="mb-4">
+        <div className="space-y-3">
           <ConfessionHeader
             category={confession.category} 
             createdAt={confession.created_at}
@@ -260,20 +261,20 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
             userId={confession.user_id}
             subscriptionTier={subscriptionTier}
           />
+
+          <SensitiveContentWarning isSensitive={isSensitive}>
+            <p className="text-base leading-relaxed text-foreground/90 break-words">
+              {sanitizeConfession(confession.content)}
+            </p>
+          </SensitiveContentWarning>
         </div>
 
-        <SensitiveContentWarning isSensitive={isSensitive}>
-          <p className="text-base leading-relaxed text-foreground mb-4 break-words">
-            {sanitizeConfession(confession.content)}
-          </p>
-        </SensitiveContentWarning>
-
       {confession.image_url && (
-        <div className="mb-5">
+        <div className="rounded-2xl border border-border/60 bg-muted/30 backdrop-blur-sm p-1 shadow-inner">
           <OptimizedImage
             src={confession.image_url}
             alt={t.ui_confession_image}
-            className={`w-full h-auto object-cover max-h-[400px] rounded-2xl ${
+            className={`w-full h-auto object-cover max-h-[400px] rounded-xl ${
               confession.image_blurred ? 'blur-lg' : ''
             }`}
             width={800}
@@ -283,20 +284,20 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
       )}
 
       {confession.emotional_tone && (
-        <div className="mb-4">
+        <div className="rounded-xl bg-muted/40 border border-border/60 px-3 py-2">
           <EmotionalTone tone={confession.emotional_tone} size="sm" />
         </div>
       )}
 
-      <div className="mb-4">
+      <div className="rounded-xl bg-muted/30 border border-border/60 px-3 py-2 shadow-inner">
         <AwardDisplay confessionId={confession.id} />
       </div>
 
-      <div className="mb-4">
+      <div className="rounded-xl bg-muted/30 border border-border/60 px-3 py-2">
         <ReactionPicker confessionId={confession.id} userId={user?.id} />
       </div>
 
-      <div className="flex items-center gap-2 flex-wrap mb-4">
+      <div className="flex items-center gap-2 flex-wrap rounded-xl bg-card/60 border border-border/60 px-3 py-2">
         <ConfessionActions
           confessionId={confession.id}
           confessionUserId={confession.user_id}
@@ -317,7 +318,7 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
             variant="ghost"
             size="sm"
             onClick={() => setIsAwardPickerOpen(true)}
-            className="gap-1.5 text-xs h-9 px-3 rounded-xl hover:bg-vip-gold/10 transition-colors"
+            className="gap-1.5 text-xs h-9 px-3 rounded-xl hover:bg-muted/60 transition-colors"
           >
             <Award className="w-4 h-4 text-vip-gold" />
             <span className="hidden sm:inline font-medium">Award</span>
@@ -330,7 +331,7 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
               size="sm"
               onClick={handleBoostConfession}
               disabled={isBoostLoading || boostStatus.isBoosted}
-              className="gap-1.5 text-xs h-9 px-3 rounded-xl hover:bg-orange-500/10 transition-colors disabled:opacity-50"
+              className="gap-1.5 text-xs h-9 px-3 rounded-xl hover:bg-muted/60 transition-colors disabled:opacity-50"
             >
               {isBoostLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
@@ -349,8 +350,8 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
           <div className={cn(
             "mt-5 rounded-2xl transition-all",
             subscriptionTier === 'vip' 
-              ? "p-5 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 shadow-lg shadow-primary/10" 
-              : "p-4 bg-muted/60 border border-border"
+              ? "p-5 bg-gradient-to-br from-primary/12 via-primary/8 to-accent/5 border border-primary/25 shadow-[0_12px_30px_hsl(var(--primary)/0.18)]" 
+              : "p-4 bg-muted/60 border border-border/70 shadow-inner"
           )}>
             {subscriptionTier === 'vip' && (
               <div className="flex items-center gap-2 mb-3">
@@ -418,7 +419,7 @@ const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmark
         onOpenChange={setIsAwardPickerOpen}
         confessionId={confession.id}
       />
-      </div>
+      </Card>
     </NoScreenshotMode>
   );
 };

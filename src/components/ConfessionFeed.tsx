@@ -52,7 +52,7 @@ const ConfessionFeed = memo(({
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
         <ConfessionCardSkeleton />
         <ConfessionCardSkeleton />
         <ConfessionCardSkeleton />
@@ -86,7 +86,7 @@ const ConfessionFeed = memo(({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
       {confessions.map((confession) => (
         <ConfessionCard
           key={confession.id}
