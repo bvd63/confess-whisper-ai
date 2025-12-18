@@ -142,14 +142,12 @@ export function HighlightCommentButton({
         variant="ghost"
         size="sm"
         onClick={() => setIsOpen(true)}
-        className="gap-1"
+        data-highlight-btn={commentId}
+        className="gap-1 h-8 px-2 rounded-lg hover:bg-vip-gold/10"
       >
         <span className="text-sm">⭐</span>
-        <span className="text-xs font-medium">
-          {isActive ? t.highlight_comment_active_badge : t.highlight_comment}
-        </span>
         {isActive && (
-          <span className="text-[10px] text-yellow-600 font-semibold">
+          <span className="text-[10px] text-vip-gold font-semibold">
             {formattedTimeLeft}
           </span>
         )}
