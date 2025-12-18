@@ -279,19 +279,19 @@ const ConfessionActions = ({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex items-center gap-2 flex-wrap min-w-0">
         <Button
           variant={localIsLiked ? "default" : "ghost"}
           size="sm"
           onClick={handleLike}
           disabled={isLiking}
-          className="h-10 px-3 rounded-full bg-white/5 border border-white/10 text-white/80 hover:bg-white/10"
+          className="h-10 px-3 rounded-full bg-white/5 border border-white/10 text-white/80 hover:bg-white/10 flex-shrink-0"
         >
           <Heart className={`w-4 h-4 ${localIsLiked ? 'fill-white text-white' : ''}`} />
           <span className="ml-2 text-sm font-semibold">{localLikesCount}</span>
         </Button>
 
-        <div className="flex items-center gap-1 px-3 h-10 rounded-full bg-white/5 border border-white/10 text-white/80 text-sm">
+        <div className="flex items-center gap-1 px-3 h-10 rounded-full bg-white/5 border border-white/10 text-white/80 text-sm flex-shrink-0">
           <MessageCircle className="w-4 h-4" />
           <span className="font-semibold">{commentsCount ?? 0}</span>
         </div>
@@ -301,7 +301,7 @@ const ConfessionActions = ({
           size="sm"
           onClick={handleBookmark}
           disabled={isBookmarking}
-          className="h-10 px-3 rounded-full bg-white/5 border border-white/10 text-white/80 hover:bg-white/10"
+          className="h-10 px-3 rounded-full bg-white/5 border border-white/10 text-white/80 hover:bg-white/10 flex-shrink-0"
         >
           <Bookmark className={`w-4 h-4 ${localIsBookmarked ? 'fill-white text-white' : ''}`} />
           <span className="ml-2 text-sm hidden sm:inline">{localIsBookmarked ? t.bookmarks_saved : t.bookmarks_add}</span>
@@ -311,34 +311,34 @@ const ConfessionActions = ({
           variant="ghost"
           size="sm"
           onClick={handleShare}
-          className="h-10 px-3 rounded-full bg-white/5 border border-white/10 text-white/80 hover:bg-white/10"
+          className="h-10 px-3 rounded-full bg-white/5 border border-white/10 text-white/80 hover:bg-white/10 flex-shrink-0"
         >
           <Share2 className="w-4 h-4" />
           <span className="ml-2 text-sm hidden sm:inline">{t.share}</span>
         </Button>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-2 flex-wrap min-w-0">
           {isOwner && (
             <Button
               variant={boostStatus.isBoosted ? "secondary" : "default"}
               size="sm"
               onClick={handleBoost}
               disabled={isBoosting}
-              className="h-10 px-3 rounded-full bg-gradient-to-r from-primary/90 via-primary to-accent text-primary-foreground shadow-[0_10px_30px_rgba(99,102,241,0.35)] hover:shadow-[0_12px_34px_rgba(99,102,241,0.45)]"
+              className="h-10 px-3 rounded-full bg-gradient-to-r from-primary/90 via-primary to-accent text-primary-foreground shadow-[0_10px_30px_rgba(99,102,241,0.35)] hover:shadow-[0_12px_34px_rgba(99,102,241,0.45)] flex-shrink-0"
             >
               <Rocket className="w-4 h-4 mr-2" />
-              <span className="text-sm font-semibold">
+              <span className="text-sm font-semibold whitespace-nowrap">
                 {boostStatus.isBoosted
                   ? t.boost_active
                   : t.boost_cta}
               </span>
               {!boostStatus.isBoosted && (
-                <span className="ml-2 text-[12px] text-white/80">
+                <span className="ml-2 text-[12px] text-white/80 whitespace-nowrap">
                   {t.boost_price?.replace('{price}', BOOST_COST.toString())}
                 </span>
               )}
               {boostStatus.isBoosted && (
-                <span className="ml-2 inline-flex items-center text-[12px] text-primary-foreground/80">
+                <span className="ml-2 inline-flex items-center text-[12px] text-primary-foreground/80 whitespace-nowrap">
                   <Clock3 className="w-3.5 h-3.5 mr-1" />
                   {boostStatus.lessThanHour ? '<1h' : `${boostStatus.hoursLeft}h`}
                 </span>
