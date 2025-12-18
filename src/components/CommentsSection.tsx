@@ -1,7 +1,6 @@
 import { useState, useEffect, memo } from "react";
 import { useCachePurgeOnDelete } from "@/hooks/useCachePurgeOnDelete";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { MessageSquare, Trash2, Send, ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -403,98 +402,32 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
   };
 
   return (
-    <div className="mt-3 sm:mt-4 border-t border-border/50 pt-3 sm:pt-4">
+    <div className="mt-4 border-t border-border/30 pt-4">
+      {/* Comments Header */}
       <Button
         variant="ghost"
         size="sm"
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full justify-between text-muted-foreground hover:text-foreground px-2 sm:px-4 min-h-[48px]"
+        className="w-full justify-between text-foreground hover:bg-muted/30 px-3 min-h-[48px] rounded-xl"
       >
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          <MessageSquare className="w-4 h-4 sm:w-4 sm:h-4" />
-          <span className="text-xs sm:text-sm">
-            {commentsCount} {t.comments_title}
+        <div className="flex items-center gap-2">
+          <MessageSquare className="w-4 h-4" />
+          <span className="text-sm font-semibold">
+            {t.comments_title}
           </span>
+          {commentsCount > 0 && (
+            <span className="text-xs text-muted-foreground">({commentsCount})</span>
+          )}
         </div>
-        {isExpanded ? <ChevronUp className="w-4 h-4 sm:w-4 sm:h-4" /> : <ChevronDown className="w-4 h-4 sm:w-4 sm:h-4" />}
+        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
       </Button>
 
       {isExpanded && (
-        <div className="mt-3 sm:mt-4 space-y-3 sm:space-y-4 animate-fade-in">
-          {/* Add Comment Form */}
-          {user && (
-            <div className="space-y-2">
-              <Textarea
-                placeholder={t.comments_anonymous_placeholder}
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                className="min-h-[60px] sm:min-h-[80px] resize-none border-primary/20 focus:border-primary/40 bg-background/50 text-xs sm:text-sm"
-                disabled={isSubmitting}
-                maxLength={500}
-              />
-              
-              {/* Visibility Selector */}
-              <div className="flex items-center gap-2 px-1">
-                <span className="text-[10px] sm:text-xs text-muted-foreground">
-                  {t.comments_post_as_label}:
-                </span>
-                <div className="flex gap-1">
-                  <Button
-                    type="button"
-                    variant={isAnonymous ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setIsAnonymous(true)}
-                    className="h-7 px-2 sm:px-3 text-[10px] sm:text-xs"
-                  >
-                    {t.comments_post_as_anonymous}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={!isAnonymous ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setIsAnonymous(false)}
-                    className="h-7 px-2 sm:px-3 text-[10px] sm:text-xs"
-                  >
-                    {t.comments_post_as_public.replace('{username}', currentUserProfile?.nickname || 'User')}
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] sm:text-xs text-muted-foreground">
-                  {newComment.length}/500
-                </span>
-                <Button
-                  onClick={handleSubmit}
-                  disabled={isSubmitting || !newComment.trim() || cooldownSeconds > 0}
-                  size="sm"
-                  className="bg-gradient-to-r from-primary to-primary/80 text-xs sm:text-sm"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <span className="inline-block animate-spin mr-1 sm:mr-2">⏳</span>
-                      {t.comments_submit}
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                      {t.comments_submit}
-                    </>
-                  )}
-                </Button>
-                {cooldownSeconds > 0 && (
-                  <span className="text-[10px] sm:text-xs text-muted-foreground">
-                    {t.comments_error_cooldown} ({cooldownSeconds}s)
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
-
+        <div className="mt-4 space-y-4 animate-fade-in">
           {/* Comments List */}
-          <div className="space-y-2 sm:space-y-3">
+          <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
             {comments.length === 0 ? (
-              <p className="text-xs sm:text-sm text-muted-foreground text-center py-3 sm:py-4">
+              <p className="text-sm text-muted-foreground text-center py-6">
                 {t.comments_empty}
               </p>
             ) : (
@@ -506,9 +439,8 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                   new Date(highlightExpiresAt).getTime() > now
                 );
                 const isCommentOwner = user?.id === comment.user_id;
-                const isAnonymousComment = comment.is_anonymous !== false; // Default to true for backward compatibility
+                const isAnonymousComment = comment.is_anonymous !== false;
                 
-                // Display name logic
                 const displayName = isAnonymousComment 
                   ? (comment.alias || 'Anonymous')
                   : `@${comment.profiles?.nickname || 'User'}`;
@@ -517,34 +449,69 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                   <div
                     key={comment.id}
                     className={cn(
-                      "p-2 sm:p-3 rounded-lg border",
+                      "relative p-4 rounded-2xl transition-all duration-300",
                       isHighlightActive
-                        ? "bg-vip-gold/10 border-vip-gold/30 shadow-md"
-                        : "bg-muted/30 border-border/50"
+                        ? "bg-gradient-to-br from-vip-gold/15 via-vip-gold/10 to-transparent border border-vip-gold/30 shadow-lg shadow-vip-gold/10"
+                        : "bg-muted/40 backdrop-blur-sm border border-border/30"
                     )}
                   >
-                    <div className="flex items-start justify-between mb-1 sm:mb-2">
-                      <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground">
+                    {/* Highlight Star Badge - Top Right */}
+                    {isHighlightActive && (
+                      <div className="absolute top-3 right-3">
+                        <span className="text-xl">⭐</span>
+                      </div>
+                    )}
+
+                    {/* Highlight Badge - Top of Card */}
+                    {isHighlightActive && (
+                      <div className="inline-flex items-center gap-2 mb-3 px-3 py-1.5 bg-vip-gold/20 border border-vip-gold/40 rounded-full">
+                        <span className="text-xs font-medium text-vip-gold">
+                          {t.highlight_comment_active_badge}
+                        </span>
+                        <span className="text-xs text-vip-gold/80">·</span>
+                        <ExpiryTimer 
+                          expiresAt={highlightExpiresAt || undefined}
+                          className="text-xs text-vip-gold"
+                          showIcon={false}
+                        />
+                      </div>
+                    )}
+
+                    {/* Comment Content */}
+                    <p className="text-sm text-foreground leading-relaxed mb-3 pr-8">
+                      {sanitizeComment(comment.content)}
+                    </p>
+
+                    {/* Comment Footer */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {/* Avatar Indicator */}
+                        <div className={cn(
+                          "w-6 h-6 rounded-full flex items-center justify-center text-xs",
+                          isAnonymousComment 
+                            ? "bg-primary/20 text-primary" 
+                            : "bg-neon-blue/20 text-neon-blue"
+                        )}>
+                          {isAnonymousComment ? '👤' : displayName.charAt(1).toUpperCase()}
+                        </div>
                         <span className={cn(
-                          "font-medium",
+                          "text-xs font-medium",
                           isAnonymousComment ? "text-foreground/80" : "text-primary"
                         )}>
                           {displayName}
                         </span>
-                        <span>•</span>
-                        <span>{timeAgo(comment.created_at)}</span>
-                        {/* Highlight Timer Badge - Inline */}
-                        {isHighlightActive && (
-                          <div className="flex items-center gap-1 bg-vip-gold/20 border border-vip-gold/40 rounded-full px-2 py-0.5 ml-1">
-                            <span className="text-xs">⭐</span>
-                            <ExpiryTimer 
-                              expiresAt={highlightExpiresAt || undefined}
-                              className="text-[10px] sm:text-xs"
-                              showIcon={false}
-                            />
-                          </div>
+                        {/* VIP Badge for public comments - check if user has VIP */}
+                        {!isAnonymousComment && (
+                          <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-vip-gold/20 text-vip-gold rounded">
+                            VIP
+                          </span>
                         )}
+                        <span className="text-xs text-muted-foreground">
+                          · {timeAgo(comment.created_at)}
+                        </span>
                       </div>
+
+                      {/* Actions */}
                       <div className="flex items-center gap-1">
                         {isCommentOwner && (
                           <HighlightCommentButton
@@ -565,19 +532,102 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDelete(comment.id)}
-                            className="min-h-[44px] min-w-[44px] px-2 text-muted-foreground hover:text-destructive"
+                            className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive rounded-full"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3.5 h-3.5" />
                           </Button>
                         )}
                       </div>
                     </div>
-                    <p className="text-xs sm:text-sm text-foreground leading-relaxed">{sanitizeComment(comment.content)}</p>
+
+                    {/* Highlight CTA for Owner (below comment) */}
+                    {isCommentOwner && !isHighlightActive && (
+                      <div className="mt-3 pt-3 border-t border-border/30">
+                        <button
+                          onClick={() => {
+                            const btn = document.querySelector(`[data-highlight-btn="${comment.id}"]`) as HTMLButtonElement;
+                            btn?.click();
+                          }}
+                          className="text-xs text-primary hover:underline"
+                        >
+                          {t.highlight_comment} · <span className="text-vip-gold font-medium">15 coins</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 );
               })
             )}
           </div>
+
+          {/* Comment Composer - Bottom Fixed Style */}
+          {user && (
+            <div className="mt-4 p-4 bg-muted/30 backdrop-blur-sm border border-border/30 rounded-2xl">
+              <div className="flex items-center gap-3">
+                {/* Input Field */}
+                <div className="flex-1 relative">
+                  <input
+                    type="text"
+                    placeholder={t.comments_anonymous_placeholder}
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey && !isSubmitting && newComment.trim()) {
+                        e.preventDefault();
+                        handleSubmit();
+                      }
+                    }}
+                    disabled={isSubmitting}
+                    maxLength={500}
+                    className="w-full h-12 px-4 bg-background/60 border border-border/40 rounded-xl text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
+                  />
+                </div>
+
+                {/* Anonymous/Username Toggle */}
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                    {isAnonymous ? t.comments_post_as_anonymous : (currentUserProfile?.nickname || 'Username')}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsAnonymous(!isAnonymous)}
+                    className={cn(
+                      "relative w-10 h-6 rounded-full transition-colors duration-200",
+                      isAnonymous ? "bg-primary" : "bg-muted-foreground/30"
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "absolute top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-sm",
+                        isAnonymous ? "left-5" : "left-1"
+                      )}
+                    />
+                  </button>
+                </div>
+
+                {/* Send Button */}
+                <Button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting || !newComment.trim() || cooldownSeconds > 0}
+                  size="icon"
+                  className="h-12 w-12 rounded-xl bg-primary hover:bg-primary-hover disabled:opacity-50 transition-all"
+                >
+                  {isSubmitting ? (
+                    <span className="animate-spin">⏳</span>
+                  ) : (
+                    <Send className="w-5 h-5" />
+                  )}
+                </Button>
+              </div>
+
+              {/* Character count */}
+              <div className="flex justify-end mt-2">
+                <span className="text-[10px] text-muted-foreground">
+                  {newComment.length}/500
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
