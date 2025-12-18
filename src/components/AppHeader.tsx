@@ -93,7 +93,7 @@ const AppHeader = ({
   
   const backNav = getBackNavigation();
   
-  return <header className="sticky top-0 z-50 glass-strong border-b border-border">
+  return <header className="sticky top-0 z-50 glass-strong border-b border-border/60 shadow-[0_10px_30px_hsl(var(--background)/0.25)]">
       <div className="w-full">
         <div className="flex items-center justify-between px-4 sm:px-6 py-4 max-w-7xl mx-auto">
           <div className="flex items-center gap-3">
@@ -107,8 +107,8 @@ const AppHeader = ({
                 <ArrowLeft className="h-5 w-5" />
               </Button>
             )}
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary via-primary-hover to-primary-pressed flex items-center justify-center shadow-lg shadow-primary/25">
-              <Heart className="w-5 h-5 text-white" fill="currentColor" />
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-accent flex items-center justify-center shadow-[0_12px_32px_hsl(var(--primary)/0.24)]">
+              <Heart className="w-5 h-5 text-primary-foreground" fill="currentColor" />
             </div>
             <h1 className="text-xl md:text-2xl font-bold text-foreground cursor-pointer" onClick={() => navigate('/')}>
               {t.app_name}
@@ -131,8 +131,8 @@ const AppHeader = ({
                   className={cn(
                     "h-10 px-4 rounded-2xl font-semibold transition-all",
                     subscriptionTier === 'free' 
-                      ? "bg-primary hover:bg-primary-hover text-white shadow-lg shadow-primary/25" 
-                      : "border-border bg-card hover:bg-muted"
+                      ? "bg-gradient-to-r from-primary via-primary/90 to-accent text-primary-foreground shadow-[0_12px_32px_hsl(var(--primary)/0.24)]" 
+                      : "border-border/70 bg-card/70 text-foreground backdrop-blur-sm hover:border-primary/40 hover:bg-card/80"
                   )}
                 >
                   <Crown className="w-4 h-4" />
@@ -142,7 +142,7 @@ const AppHeader = ({
                 </Button>
                 <CoinsDisplay userId={user.id} variant="compact" />
                 <NotificationsDropdown />
-              </> : <Button onClick={() => navigate('/auth')} variant="outline" size="sm" className="h-10 px-4 rounded-2xl border-border bg-card hover:bg-muted font-medium">
+              </> : <Button onClick={() => navigate('/auth')} variant="outline" size="sm" className="h-10 px-4 rounded-2xl border-border/70 bg-card/70 hover:bg-card/80 font-medium backdrop-blur-sm">
                 <LogIn className="w-4 h-4 sm:mr-2" />
                 <span className="hidden sm:inline text-sm">{t.login}</span>
               </Button>}

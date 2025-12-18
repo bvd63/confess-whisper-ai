@@ -60,8 +60,8 @@ const NavButton = memo(({
       onKeyDown={onKeyDown}
       onMouseEnter={onMouseEnter}
       className={cn(
-        "relative flex items-center justify-center w-12 h-12 transition-colors duration-200",
-        "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-0"
+        "relative flex items-center justify-center w-12 h-12 rounded-2xl transition-colors duration-200",
+        "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-0 hover:bg-muted/40"
       )}
     >
       <Icon
@@ -75,7 +75,7 @@ const NavButton = memo(({
 
       {badge !== undefined && badge > 0 && (
         <span 
-          className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold rounded-full text-white bg-destructive"
+          className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold rounded-full text-destructive-foreground bg-destructive shadow-[0_6px_16px_hsl(var(--destructive)/0.3)]"
           aria-label={`${badge} unread ${badge === 1 ? 'message' : 'messages'}`}
           role="status"
         >
@@ -199,7 +199,7 @@ export const InstagramBottomNav = () => {
         >
           <div 
             ref={navRef} 
-            className="flex items-center justify-around h-14 w-full px-4 bg-[#1a1a1f]/95 backdrop-blur-xl border-t border-white/10" 
+            className="flex items-center justify-around h-14 w-full px-4 glass-strong border-t border-border/60 shadow-[0_-10px_30px_hsl(var(--background)/0.3)]" 
             role="tablist"
           >
             {navItems.map((item, index) => {
