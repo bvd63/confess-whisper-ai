@@ -1,7 +1,7 @@
 import { useState, useEffect, memo } from "react";
 import { useCachePurgeOnDelete } from "@/hooks/useCachePurgeOnDelete";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Trash2, Send, ChevronDown, ChevronUp } from "lucide-react";
+import { MessageSquare, Trash2, Send, ChevronDown, ChevronUp, Shield, User as UserIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -402,13 +402,13 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
   };
 
   return (
-    <div className="mt-4 border-t border-border/30 pt-4">
+    <div className="mt-4 space-y-3">
       {/* Comments Header */}
       <Button
         variant="ghost"
         size="sm"
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full justify-between text-foreground hover:bg-muted/30 px-3 min-h-[48px] rounded-xl"
+        className="w-full justify-between text-foreground bg-card/70 hover:bg-card/80 border border-border/60 rounded-2xl shadow-sm backdrop-blur-sm min-h-[52px] px-3"
       >
         <div className="flex items-center gap-2">
           <MessageSquare className="w-4 h-4" />
@@ -423,9 +423,9 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
       </Button>
 
       {isExpanded && (
-        <div className="mt-4 space-y-4 animate-fade-in">
+        <div className="space-y-4 animate-fade-in">
           {/* Comments List */}
-          <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+          <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
             {comments.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-6">
                 {t.comments_empty}
@@ -449,10 +449,10 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                   <div
                     key={comment.id}
                     className={cn(
-                      "relative p-4 rounded-2xl transition-all duration-300",
+                      "relative p-4 sm:p-5 rounded-2xl transition-all duration-300 backdrop-blur-md shadow-sm",
                       isHighlightActive
-                        ? "bg-gradient-to-br from-vip-gold/15 via-vip-gold/10 to-transparent border border-vip-gold/30 shadow-lg shadow-vip-gold/10"
-                        : "bg-muted/40 backdrop-blur-sm border border-border/30"
+                        ? "bg-gradient-to-br from-vip-gold/18 via-vip-gold/12 to-transparent border border-vip-gold/30 shadow-[0_12px_28px_rgba(255,215,0,0.18)]"
+                        : "bg-card/70 border border-border/60"
                     )}
                   >
                     {/* Highlight Star Badge - Top Right */}
@@ -464,7 +464,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
 
                     {/* Highlight Badge - Top of Card */}
                     {isHighlightActive && (
-                      <div className="inline-flex items-center gap-2 mb-3 px-3 py-1.5 bg-vip-gold/20 border border-vip-gold/40 rounded-full">
+                      <div className="inline-flex items-center gap-2 mb-3 px-3 py-1.5 bg-vip-gold/18 border border-vip-gold/35 rounded-full shadow-sm">
                         <span className="text-xs font-medium text-vip-gold">
                           {t.highlight_comment_active_badge}
                         </span>
@@ -487,22 +487,22 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                       <div className="flex items-center gap-2">
                         {/* Avatar Indicator */}
                         <div className={cn(
-                          "w-6 h-6 rounded-full flex items-center justify-center text-xs",
+                          "w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold shadow-inner",
                           isAnonymousComment 
-                            ? "bg-primary/20 text-primary" 
-                            : "bg-neon-blue/20 text-neon-blue"
+                            ? "bg-muted/70 text-foreground" 
+                            : "bg-primary/15 text-primary"
                         )}>
-                          {isAnonymousComment ? '👤' : displayName.charAt(1).toUpperCase()}
+                          {isAnonymousComment ? <Shield className="w-3.5 h-3.5" /> : <UserIcon className="w-3.5 h-3.5" />}
                         </div>
                         <span className={cn(
-                          "text-xs font-medium",
+                          "text-sm font-semibold",
                           isAnonymousComment ? "text-foreground/80" : "text-primary"
                         )}>
                           {displayName}
                         </span>
                         {/* VIP Badge for public comments - check if user has VIP */}
                         {!isAnonymousComment && (
-                          <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-vip-gold/20 text-vip-gold rounded">
+                          <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-vip-gold/18 text-vip-gold rounded-full border border-vip-gold/35">
                             VIP
                           </span>
                         )}
@@ -532,7 +532,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDelete(comment.id)}
-                            className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive rounded-full"
+                            className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-muted/50 rounded-full"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </Button>
@@ -549,69 +549,85 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
 
           {/* Comment Composer - Bottom Fixed Style */}
           {user && (
-            <div className="mt-4 p-4 bg-muted/30 backdrop-blur-sm border border-border/30 rounded-2xl">
-              <div className="flex items-center gap-3">
-                {/* Input Field */}
-                <div className="flex-1 relative">
-                  <input
-                    type="text"
-                    placeholder={t.comments_anonymous_placeholder}
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey && !isSubmitting && newComment.trim()) {
-                        e.preventDefault();
-                        handleSubmit();
-                      }
-                    }}
-                    disabled={isSubmitting}
-                    maxLength={500}
-                    className="w-full h-12 px-4 bg-background/60 border border-border/40 rounded-xl text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
-                  />
-                </div>
-
-                {/* Anonymous/Username Toggle - matches reference */}
+            <div className="p-4 sm:p-5 bg-card/70 border border-border/60 backdrop-blur-sm rounded-2xl space-y-3 shadow-sm">
+              <div className="flex flex-col gap-3">
+                {/* Post as selector */}
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-muted-foreground whitespace-nowrap leading-tight text-right">
-                    {t.comments_post_as_anonymous}<br />/ Username
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setIsAnonymous(!isAnonymous)}
-                    className={cn(
-                      "relative w-10 h-6 rounded-full transition-colors duration-200",
-                      isAnonymous ? "bg-primary" : "bg-muted-foreground/30"
-                    )}
-                  >
-                    <span
+                  <span className="text-sm font-medium text-foreground/80">{t.comments_post_as_label}</span>
+                  <div className="flex gap-2 bg-card/70 border border-border/60 rounded-xl p-1">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={isAnonymous ? "default" : "ghost"}
                       className={cn(
-                        "absolute top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-sm",
-                        isAnonymous ? "left-5" : "left-1"
+                        "h-9 px-3 rounded-lg text-sm",
+                        isAnonymous
+                          ? "bg-primary text-primary-foreground shadow-[0_6px_18px_hsl(var(--primary)/0.35)]"
+                          : "text-foreground hover:bg-muted/60"
                       )}
-                    />
-                  </button>
+                      onClick={() => setIsAnonymous(true)}
+                    >
+                      <Shield className="w-4 h-4 mr-2" />
+                      {t.comments_post_as_anonymous}
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={!isAnonymous ? "default" : "ghost"}
+                      className={cn(
+                        "h-9 px-3 rounded-lg text-sm",
+                        !isAnonymous
+                          ? "bg-primary text-primary-foreground shadow-[0_6px_18px_hsl(var(--primary)/0.35)]"
+                          : "text-foreground hover:bg-muted/60"
+                      )}
+                      onClick={() => setIsAnonymous(false)}
+                    >
+                      <UserIcon className="w-4 h-4 mr-2" />
+                      {t.comments_post_as_public.replace('{username}', currentUserProfile?.nickname || t.user_anonymous)}
+                    </Button>
+                  </div>
                 </div>
 
-                {/* Send Button */}
-                <Button
-                  onClick={handleSubmit}
-                  disabled={isSubmitting || !newComment.trim() || cooldownSeconds > 0}
-                  size="icon"
-                  className="h-12 w-12 rounded-xl bg-primary hover:bg-primary-hover disabled:opacity-50 transition-all"
-                >
-                  {isSubmitting ? (
-                    <span className="animate-spin">⏳</span>
-                  ) : (
-                    <Send className="w-5 h-5" />
-                  )}
-                </Button>
-              </div>
+                {/* Input Row */}
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 relative">
+                    <input
+                      type="text"
+                      placeholder={t.comments_anonymous_placeholder}
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey && !isSubmitting && newComment.trim()) {
+                          e.preventDefault();
+                          handleSubmit();
+                        }
+                      }}
+                      disabled={isSubmitting}
+                      maxLength={500}
+                      className="w-full h-12 px-4 bg-card/70 border border-border/60 rounded-xl text-sm placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all shadow-inner"
+                    />
+                  </div>
 
-              {/* Character count */}
-              <div className="flex justify-end mt-2">
-                <span className="text-[10px] text-muted-foreground">
-                  {newComment.length}/500
-                </span>
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={isSubmitting || !newComment.trim() || cooldownSeconds > 0}
+                    size="icon"
+                    className="h-12 w-12 rounded-xl bg-gradient-to-r from-primary via-primary/90 to-accent text-primary-foreground shadow-[0_10px_26px_hsl(var(--primary)/0.28)] hover:shadow-[0_12px_30px_hsl(var(--primary)/0.32)] disabled:opacity-50 transition-all"
+                  >
+                    {isSubmitting ? (
+                      <span className="animate-spin">⏳</span>
+                    ) : (
+                      <Send className="w-5 h-5" />
+                    )}
+                  </Button>
+                </div>
+
+                {/* Character count */}
+                <div className="flex justify-end">
+                  <span className="text-[10px] text-muted-foreground">
+                    {newComment.length}/500
+                  </span>
+                </div>
               </div>
             </div>
           )}
