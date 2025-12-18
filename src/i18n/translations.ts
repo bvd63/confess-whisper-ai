@@ -57,11 +57,6 @@ type Translations = {
   skip: string;
   next: string;
   home_title: string;
-  home_header_title: string;
-  home_header_subtitle: string;
-  home_popular_label: string;
-  home_popular_caption: string;
-  home_refresh_button: string;
   new_confession: string;
   vip_upgrade: string;
   placeholder_confession: string;
@@ -694,8 +689,6 @@ type Translations = {
   comments_post_as_label: string;
   comments_post_as_anonymous: string;
   comments_post_as_public: string;
-  comments_live_label: string;
-  comments_highlight_empty: string;
   
   // Notifications
   notifications_title: string;
@@ -2114,11 +2107,6 @@ export const translations: Record<Language, Translations> = {
     next: "Next",
     
     home_title: "Anonymous Confessions",
-    home_header_title: "Your Confession Feed",
-    home_header_subtitle: "Realtime anonymous stories",
-    home_popular_label: "Popular Confessions 🔥",
-    home_popular_caption: "Stories the community is resonating with right now",
-    home_refresh_button: "Refresh feed",
     new_confession: "New Confession",
     vip_upgrade: "Upgrade to VIP",
     
@@ -2253,8 +2241,6 @@ export const translations: Record<Language, Translations> = {
     comments_post_as_label: "Post as",
     comments_post_as_anonymous: "Anonymous",
     comments_post_as_public: "Public (@{username})",
-    comments_live_label: "Live Now",
-    comments_highlight_empty: "No highlighted comment yet",
     
     // Notifications
     notifications_title: "Notifications",
@@ -4077,11 +4063,6 @@ export const translations: Record<Language, Translations> = {
     next: "Siguiente",
     
     home_title: "Confesiones Anónimas",
-    home_header_title: "Tu feed de confesiones",
-    home_header_subtitle: "Historias anónimas en tiempo real",
-    home_popular_label: "Confesiones populares 🔥",
-    home_popular_caption: "Historias que están resonando con la comunidad ahora mismo",
-    home_refresh_button: "Actualizar feed",
     new_confession: "Nueva Confesión",
     vip_upgrade: "Actualizar a VIP",
     
@@ -4216,8 +4197,6 @@ export const translations: Record<Language, Translations> = {
     comments_post_as_label: "Publicar como",
     comments_post_as_anonymous: "Anónimo",
     comments_post_as_public: "Público (@{username})",
-    comments_live_label: "En vivo",
-    comments_highlight_empty: "Aún no hay comentarios destacados",
     
     // Notifications
     notifications_title: "Notificaciones",
@@ -6041,11 +6020,6 @@ export const translations: Record<Language, Translations> = {
     next: "Weiter",
     
     home_title: "Anonyme Geständnisse",
-    home_header_title: "Dein Beicht-Feed",
-    home_header_subtitle: "Anonyme Geschichten in Echtzeit",
-    home_popular_label: "Beliebte Beichten 🔥",
-    home_popular_caption: "Geschichten, über die die Community gerade spricht",
-    home_refresh_button: "Feed aktualisieren",
     new_confession: "Neues Geständnis",
     vip_upgrade: "Auf VIP Upgraden",
     
@@ -6180,8 +6154,6 @@ export const translations: Record<Language, Translations> = {
     comments_post_as_label: "Posten als",
     comments_post_as_anonymous: "Anonym",
     comments_post_as_public: "Öffentlich (@{username})",
-    comments_live_label: "Live",
-    comments_highlight_empty: "Noch kein hervorgehobener Kommentar",
     
     // Notifications
     notifications_title: "Benachrichtigungen",

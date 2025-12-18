@@ -4,8 +4,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Star } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import {
   Dialog,
   DialogContent,
@@ -144,22 +142,15 @@ export function HighlightCommentButton({
         variant="ghost"
         size="sm"
         onClick={() => setIsOpen(true)}
-        className={cn(
-          "h-9 gap-1.5 rounded-full border px-3 text-xs font-semibold transition-colors",
-          isActive
-            ? "border-amber-300/70 bg-amber-500/15 text-amber-700"
-            : "border-border/60 bg-background/70 text-muted-foreground hover:border-amber-300/70 hover:text-foreground"
-        )}
+        data-highlight-btn={commentId}
+        className="gap-1 h-8 px-2 rounded-lg hover:bg-vip-gold/10"
       >
-        <Star className="h-3.5 w-3.5" />
-        <span>
-          {isActive ? t.highlight_comment_active_badge : t.highlight_comment}
-        </span>
-        <span className="text-[10px] text-muted-foreground">
-          {isActive
-            ? formattedTimeLeft
-            : t.highlight_comment_cost.replace('{cost}', HIGHLIGHT_COST.toString())}
-        </span>
+        <span className="text-sm">⭐</span>
+        {isActive && (
+          <span className="text-[10px] text-vip-gold font-semibold">
+            {formattedTimeLeft}
+          </span>
+        )}
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
