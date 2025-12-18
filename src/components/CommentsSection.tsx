@@ -417,7 +417,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
     : t.comments_post_as_preview.replace('{name}', currentUserProfile?.nickname ? `@${currentUserProfile.nickname}` : t.user_anonymous);
 
   return (
-    <div className="mt-4 space-y-3">
+    <div className="mt-3 space-y-2.5">
       <div className="flex items-center gap-2 text-foreground">
         <MessageSquare className="w-4 h-4" />
         <span className="text-sm font-semibold">{t.comments_title}</span>
@@ -541,19 +541,19 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
       </div>
 
       {user && (
-        <div className="p-4 sm:p-5 bg-[#0f0f1a]/85 border border-border/60 backdrop-blur-md rounded-2xl space-y-3 shadow-sm">
-          <div className="flex items-center justify-between">
+        <div className="p-3.5 sm:p-5 bg-[#0f0f1a]/85 border border-border/60 backdrop-blur-md rounded-2xl space-y-3 shadow-sm">
+          <div className="flex items-center justify-between gap-2">
             <span className="text-sm font-semibold text-foreground/90">{t.comments_post_as_label}</span>
-            <span className="text-[11px] text-muted-foreground">{postAsPreview}</span>
+            <span className="text-[11px] text-muted-foreground line-clamp-1">{postAsPreview}</span>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button
               type="button"
               size="sm"
               variant={isAnonymous ? "default" : "ghost"}
               className={cn(
-                "h-9 px-3 rounded-lg text-sm flex-1",
+                "h-8 px-3 rounded-full text-xs sm:text-sm flex-1",
                 isAnonymous
                   ? "bg-primary text-primary-foreground shadow-[0_6px_18px_hsl(var(--primary)/0.35)]"
                   : "text-foreground hover:bg-muted/60"
@@ -568,7 +568,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
               size="sm"
               variant={!isAnonymous ? "default" : "ghost"}
               className={cn(
-                "h-9 px-3 rounded-lg text-sm flex-1",
+                "h-8 px-3 rounded-full text-xs sm:text-sm flex-1",
                 !isAnonymous
                   ? "bg-primary text-primary-foreground shadow-[0_6px_18px_hsl(var(--primary)/0.35)]"
                   : "text-foreground hover:bg-muted/60"
@@ -595,7 +595,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                 }}
                 disabled={isSubmitting}
                 maxLength={500}
-                className="w-full h-12 px-4 bg-white/5 border border-white/10 rounded-full text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all shadow-inner"
+                className="w-full h-11 px-3.5 bg-white/5 border border-white/10 rounded-full text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all shadow-inner"
               />
             </div>
 
@@ -603,7 +603,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
               onClick={handleSubmit}
               disabled={isSubmitting || !newComment.trim() || cooldownSeconds > 0}
               size="icon"
-              className="h-12 w-12 rounded-full bg-gradient-to-r from-primary via-primary/90 to-accent text-primary-foreground shadow-[0_10px_26px_hsl(var(--primary)/0.28)] hover:shadow-[0_12px_30px_hsl(var(--primary)/0.32)] disabled:opacity-50 transition-all"
+              className="h-11 w-11 rounded-full bg-gradient-to-r from-primary via-primary/90 to-accent text-primary-foreground shadow-[0_10px_26px_hsl(var(--primary)/0.28)] hover:shadow-[0_12px_30px_hsl(var(--primary)/0.32)] disabled:opacity-50 transition-all"
             >
               {isSubmitting ? (
                 <span className="animate-spin">⏳</span>
