@@ -60,28 +60,40 @@ const NavButton = memo(({
       onKeyDown={onKeyDown}
       onMouseEnter={onMouseEnter}
       className={cn(
-        "relative flex items-center justify-center w-12 h-12 transition-colors duration-200",
-        "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-0"
+        "relative flex flex-col items-center gap-1 rounded-2xl px-3 py-2 text-xs font-medium uppercase tracking-wide transition",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
+        active
+          ? "text-white"
+          : "text-white/60 hover:text-white"
       )}
     >
-      <Icon
+      <div
         className={cn(
-          "w-6 h-6 transition-all duration-200",
-          active ? "text-primary" : "text-muted-foreground"
+          "relative flex h-11 w-11 items-center justify-center rounded-2xl border border-white/5 transition-all",
+          active
+            ? "bg-white text-slate-900 shadow-[0_12px_30px_rgba(5,6,15,0.35)]"
+            : "bg-white/5 text-white/70"
         )}
-        strokeWidth={1.5}
-        aria-hidden="true"
-      />
+      >
+        <Icon
+          className={cn("h-5 w-5", active ? "text-slate-900" : "text-white/70")}
+          strokeWidth={1.5}
+          aria-hidden="true"
+        />
 
-      {badge !== undefined && badge > 0 && (
-        <span 
-          className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold rounded-full text-white bg-destructive"
-          aria-label={`${badge} unread ${badge === 1 ? 'message' : 'messages'}`}
-          role="status"
-        >
-          {badge >= 10 ? "9+" : badge}
-        </span>
-      )}
+        {badge !== undefined && badge > 0 && (
+          <span
+            className="absolute -top-1 -right-1 flex min-w-[18px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-white"
+            aria-label={`${badge} unread ${badge === 1 ? 'message' : 'messages'}`}
+            role="status"
+          >
+            {badge >= 10 ? "9+" : badge}
+          </span>
+        )}
+      </div>
+      <span className="text-[10px] font-semibold tracking-[0.2em]">
+        {ariaLabel}
+      </span>
     </button>
   );
 });
@@ -192,18 +204,18 @@ export const InstagramBottomNav = () => {
 
   return (typeof document !== 'undefined'
     ? createPortal(
-        <nav 
-          role="navigation" 
+        <nav
+          role="navigation"
           aria-label="Main navigation"
-          className="fixed bottom-0 left-0 right-0 z-[9999] pointer-events-auto pb-[env(safe-area-inset-bottom)]"
+          className="fixed bottom-0 left-0 right-0 z-[9999] pointer-events-auto pb-[calc(env(safe-area-inset-bottom)+1.5rem)] px-4"
         >
-          <div 
-            ref={navRef} 
-            className="flex items-center justify-around h-14 w-full px-4 bg-[#1a1a1f]/95 backdrop-blur-xl border-t border-white/10" 
-            role="tablist"
-          >
-            {navItems.map((item, index) => {
-              return (
+          <div className="mx-auto max-w-lg">
+            <div
+              ref={navRef}
+              className="flex items-center justify-between gap-1 rounded-[30px] border border-white/10 bg-[#05050c]/90 px-4 py-3 shadow-[0_-15px_45px_rgba(2,3,12,0.85)] backdrop-blur-2xl"
+              role="tablist"
+            >
+              {navItems.map((item, index) => (
                 <NavButton
                   key={item.tabId}
                   icon={item.icon}
@@ -216,8 +228,8 @@ export const InstagramBottomNav = () => {
                   onKeyDown={(event) => handleKeyDown(event, index)}
                   onMouseEnter={navPrefetchHandlers[item.tabId]}
                 />
-              );
-            })}
+              ))}
+            </div>
           </div>
         </nav>,
         document.body

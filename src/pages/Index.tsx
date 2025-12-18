@@ -1,66 +1,48 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
-import { GradientText } from "@/components/GradientText";
-import { Sparkles, TrendingUp, Bell } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { Flame, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import AppLayout from "@/components/AppLayout";
-import DailyPrompt from "@/components/DailyPrompt";
-import Leaderboard from "@/components/Leaderboard";
-import { QuoteOfTheDay } from "@/components/QuoteOfTheDay";
-import QuoteOfTheDaySkeleton from "@/components/QuoteOfTheDaySkeleton";
-import { useToast } from "@/hooks/use-toast";
-import { useAnalytics } from "@/hooks/useAnalytics";
-import StreakCounter from "@/components/StreakCounter";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { useMessageNotifications } from "@/hooks/useMessageNotifications";
-import { useVipStatus } from "@/hooks/usePremiumStatus";
-import { useSubscriptionCheck } from "@/hooks/useSubscriptionCheck";
 import SEOHead from "@/components/SEOHead";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useAnalytics } from "@/hooks/useAnalytics";
+import { useToast } from "@/hooks/use-toast";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useSubscriptionCheck } from "@/hooks/useSubscriptionCheck";
+import { useMessageNotifications } from "@/hooks/useMessageNotifications";
 import { usePerformanceBudget } from "@/hooks/usePerformanceBudget";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
-import { Card } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
-import { OneSignalBanner } from "@/components/OneSignalBanner";
-import { oneSignalBannerI18n } from "@/i18n/onesignal";
-import { requestNotificationPermission } from "@/services/onesignal";
-
-
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
-import { Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import ConfessionFeed from "@/components/ConfessionFeed";
+import { useConfessions } from "@/hooks/useConfessions";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
-// Lazy load heavy components
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
-
 const OnboardingDialog = lazy(() => import("@/components/OnboardingDialog"));
-const TrustBadges = lazy(() => import("@/components/TrustBadges"));
-const FAQ = lazy(() => import("@/components/FAQ"));
 
 const Index = () => {
   const navigate = useNavigate();
   const { trackEvent } = useAnalytics();
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
+  const { toast } = useToast();
   const { user } = useCurrentUser();
-  const { isVip } = useVipStatus(user?.id);
+  const isMobile = useIsMobile();
   useSubscriptionCheck(user?.id);
   useMessageNotifications({ userId: user?.id });
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
-  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission | 'unsupported'>('default');
-  const [bannerDismissed, setBannerDismissed] = useState(false);
-  
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const [dialogDefaultTab, setDialogDefaultTab] = useState<'subscriptions' | 'coins'>('subscriptions');
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [showSecondaryContent, setShowSecondaryContent] = useState(false);
-  const { toast } = useToast();
-  const isMobile = useIsMobile();
+  const [isManualRefreshing, setIsManualRefreshing] = useState(false);
+
+  const { confessions, isLoading, reload } = useConfessions({ sortBy: 'popular', limit: 40 });
   
   // Pull to refresh
   const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
     onRefresh: async () => {
-      // Reload data
-      window.location.reload();
+      await reload();
     },
     threshold: 80,
   });
@@ -71,17 +53,6 @@ const Index = () => {
   useEffect(() => {
     // Track page view
     trackEvent('page_view', { page: 'index' });
-    
-    // Check notification permission
-    if ('Notification' in window) {
-      setNotificationPermission(Notification.permission);
-    } else {
-      setNotificationPermission('unsupported');
-    }
-    
-    // Check if banner was dismissed
-    const dismissed = localStorage.getItem('onesignal-banner-dismissed') === 'true';
-    setBannerDismissed(dismissed);
     
     // Check if user is new (show onboarding)
     const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
@@ -138,11 +109,8 @@ const Index = () => {
       window.history.replaceState({}, '', '/');
     }
 
-    // Stagger secondary content loading for better perceived performance
-    const timer = setTimeout(() => setShowSecondaryContent(true), 300);
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return undefined;
+  }, [t, toast, trackEvent]);
 
   const handleNewConfession = () => {
     if (!user) {
@@ -191,79 +159,64 @@ const Index = () => {
       )}
 
       {/* Main Content */}
-      <main 
+      <main
         ref={containerRef}
-        className="container max-w-2xl mx-auto px-4 py-6"
+        className="container mx-auto max-w-2xl px-4 py-6"
       >
-        {/* OneSignal Notification Banner */}
-        {user && !bannerDismissed && (
-          <div className="mb-4 sm:mb-6">
-            <OneSignalBanner
-              permission={notificationPermission}
-              onEnable={async () => {
-                const granted = await requestNotificationPermission();
-                if (granted) {
-                  setNotificationPermission('granted');
-                  toast({
-                    title: t.common_success,
-                    description: "Notifications enabled successfully",
-                  });
-                }
-              }}
-              onDismiss={() => {
-                localStorage.setItem('onesignal-banner-dismissed', 'true');
-                setBannerDismissed(true);
-              }}
-              i18n={oneSignalBannerI18n[language as 'en' | 'es' | 'de'] || oneSignalBannerI18n.en}
-            />
+        <section className="space-y-4">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-sm font-semibold text-white/80 shadow-lg shadow-black/20">
+            <Flame className="h-4 w-4 text-primary" />
+            {t.home_popular_label}
           </div>
-        )}
 
-        {/* Welcome Section */}
-        <div className="mb-12 text-center animate-fade-in">
-          <div className="inline-flex items-center gap-3 mb-6 px-6 py-3 glass rounded-full border border-primary/15 shadow-lg shadow-primary/5">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-pressed flex items-center justify-center shadow-lg shadow-primary/25">
-              <Sparkles className="w-5 h-5 text-white" />
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h2 className="text-4xl font-bold text-foreground sm:text-5xl">
+                {t.home_header_title}
+              </h2>
+              <p className="mt-2 text-base text-foreground-secondary">
+                {t.home_popular_caption}
+              </p>
             </div>
-            <span className="text-sm text-primary font-semibold">{t.anonymous_secure}</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={async () => {
+                setIsManualRefreshing(true);
+                await reload();
+                setIsManualRefreshing(false);
+              }}
+              className="h-11 rounded-full border border-white/10 bg-white/5 px-4 text-white hover:bg-white/15"
+            >
+              <Loader2 className={cn(
+                "mr-2 h-4 w-4",
+                (isManualRefreshing || isLoading) && "animate-spin"
+              )} />
+              {isManualRefreshing || isLoading ? t.ui_refreshing : t.home_refresh_button}
+            </Button>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 px-4 text-foreground">
-            {t.home_title}
-          </h2>
-          <p className="text-lg text-foreground-secondary max-w-xl mx-auto px-4 leading-relaxed">
-            {t.welcome_description}
-          </p>
-        </div>
+        </section>
 
-
-        {/* Quote of the Day */}
-        {user && (
-          <Suspense fallback={<QuoteOfTheDaySkeleton />}>
-            <QuoteOfTheDay />
-          </Suspense>
-        )}
-
-        {/* Daily Prompt */}
-        {user && <DailyPrompt onOpenNewConfession={handleNewConfession} />}
-
-        {/* Leaderboard */}
-        {showSecondaryContent && (
-          <div className="my-6">
-            <Leaderboard />
-          </div>
-        )}
-
+        <section className="mt-8">
+          <ConfessionFeed
+            confessions={confessions}
+            isLoading={isLoading}
+            currentUserId={user?.id}
+            onNewConfession={handleNewConfession}
+          />
+        </section>
       </main>
 
-      {/* Dialogs with Suspense for lazy loading */}
-      <Suspense fallback={
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm text-muted-foreground">{t.ui_loading}</p>
+      <Suspense
+        fallback={
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+            <div className="flex flex-col items-center gap-3">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              <p className="text-sm text-muted-foreground">{t.ui_loading}</p>
+            </div>
           </div>
-        </div>
-      }>
+        }
+      >
         <NewConfessionDialog
           open={isNewConfessionOpen}
           onOpenChange={setIsNewConfessionOpen}
@@ -280,47 +233,6 @@ const Index = () => {
           }}
         />
       </Suspense>
-      
-      {/* FAQ Section with Suspense */}
-      <Suspense fallback={
-        <div className="mt-16 animate-pulse space-y-4">
-          <div className="h-8 bg-muted rounded w-1/3 mx-auto" />
-          <div className="h-32 bg-muted rounded" />
-        </div>
-      }>
-        <div id="faq-section" className="mt-16">
-          <FAQ />
-        </div>
-      </Suspense>
-
-      {/* Footer with trust badges */}
-      <Suspense fallback={
-        <div className="mt-16 h-64 bg-muted/20 rounded animate-pulse" />
-      }>
-        <footer className="mt-16">
-          <TrustBadges />
-        
-        <div className="text-center py-6 border-t border-border/50">
-          <div className="flex justify-center gap-4 sm:gap-6 text-sm text-muted-foreground">
-            <button
-              onClick={() => navigate('/privacy')}
-              className="hover:text-primary transition-colors"
-            >
-              {t.privacy_policy}
-            </button>
-            <button
-              onClick={() => navigate('/terms')}
-              className="hover:text-primary transition-colors"
-            >
-              {t.terms_of_service}
-            </button>
-          </div>
-          <p className="text-xs text-muted-foreground mt-3">
-            © 2025 {t.app_name}. {t.all_rights_reserved}
-          </p>
-        </div>
-      </footer>
-      </Suspense>
 
       <UnifiedShopDialog
         open={manageSubDialogOpen}
@@ -328,7 +240,6 @@ const Index = () => {
         defaultTab={dialogDefaultTab}
       />
 
-      
       </AppLayout>
     </>
   );

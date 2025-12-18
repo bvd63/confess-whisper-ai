@@ -1,10 +1,9 @@
 import { memo } from "react";
-import ConfessionCard from "./ConfessionCard";
-import { ConfessionCardSkeleton } from "./skeletons/ConfessionCardSkeleton";
+import { memo } from "react";
 import EmptyState from "./EmptyState";
 import { Heart } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import VirtualizedConfessions from "@/components/VirtualizedConfessions";
+import HomeFeedCard from "./HomeFeedCard";
 
 interface Confession {
   id: string;
@@ -17,46 +16,37 @@ interface Confession {
   ai_deep_insight?: string | null;
   created_at: string;
   boost_expires_at?: string | null;
+  author_nickname_snapshot?: string | null;
+  author_visibility_snapshot?: string | null;
+  author_display_name_snapshot?: string | null;
+  is_anonymous?: boolean;
 }
 
 interface ConfessionFeedProps {
   confessions: Confession[];
   isLoading: boolean;
-  isVip: boolean;
-  likedConfessions: Set<string>;
-  bookmarkedConfessions: Set<string>;
-  onReport?: (id: string) => void;
-  onUpgradeClick: () => void;
-  onInsightGenerated: () => void;
-  onLikeChange: () => void;
-  onCommentChange: () => void;
-  onBookmarkChange: () => void;
+  currentUserId?: string | null;
   onNewConfession?: () => void;
 }
+
+const FeedCardSkeleton = () => (
+  <div className="rounded-[32px] border border-white/10 bg-gradient-to-br from-[#1c1343]/60 via-[#0b0d1f]/60 to-[#05060f]/60 p-6 animate-pulse h-[220px]" />
+);
 
 const ConfessionFeed = memo(({
   confessions,
   isLoading,
-  isVip,
-  likedConfessions,
-  bookmarkedConfessions,
-  onReport,
-  onUpgradeClick,
-  onInsightGenerated,
-  onLikeChange,
-  onCommentChange,
-  onBookmarkChange,
+  currentUserId,
   onNewConfession,
 }: ConfessionFeedProps) => {
   const { t } = useLanguage();
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-        <ConfessionCardSkeleton />
-        <ConfessionCardSkeleton />
-        <ConfessionCardSkeleton />
-        <ConfessionCardSkeleton />
+      <div className="space-y-4">
+        <FeedCardSkeleton />
+        <FeedCardSkeleton />
+        <FeedCardSkeleton />
       </div>
     );
   }
@@ -73,33 +63,13 @@ const ConfessionFeed = memo(({
     );
   }
 
-  // Use virtual scrolling for large lists
-  if (confessions.length > 15) {
-    return (
-      <VirtualizedConfessions
-        confessions={confessions}
-        isVip={isVip}
-        onUpgradeClick={onUpgradeClick}
-        onInsightGenerated={onInsightGenerated}
-      />
-    );
-  }
-
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+    <div className="space-y-4">
       {confessions.map((confession) => (
-        <ConfessionCard
+        <HomeFeedCard
           key={confession.id}
           confession={confession}
-          isVip={isVip}
-          isLiked={likedConfessions.has(confession.id)}
-          isBookmarked={bookmarkedConfessions.has(confession.id)}
-          onReport={onReport}
-          onUpgradeClick={onUpgradeClick}
-          onInsightGenerated={onInsightGenerated}
-          onLikeChange={onLikeChange}
-          onCommentChange={onCommentChange}
-          onBookmarkChange={onBookmarkChange}
+          currentUserId={currentUserId}
         />
       ))}
     </div>

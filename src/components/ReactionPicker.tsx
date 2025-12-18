@@ -9,9 +9,10 @@ import { logError } from "@/lib/logger";
 interface ReactionPickerProps {
   confessionId: string;
   userId: string | undefined;
+  variant?: "default" | "feed";
 }
 
-const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
+const ReactionPicker = ({ confessionId, userId, variant = "default" }: ReactionPickerProps) => {
   const { toast } = useToast();
   const { t } = useLanguage();
   const [userReactions, setUserReactions] = useState<Set<string>>(new Set());
@@ -163,7 +164,12 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
   };
 
   return (
-    <div className="flex flex-wrap gap-3">
+    <div
+      className={cn(
+        "flex flex-wrap gap-3",
+        variant === "feed" && "grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3"
+      )}
+    >
       {reactions.map(({ type, emoji, label }) => {
         const count = reactionCounts[type] || 0;
         const isActive = userReactions.has(type);
@@ -178,24 +184,48 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
             className={cn(
               "group flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm transition-all duration-200",
               "touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 disabled:cursor-not-allowed disabled:opacity-50",
-              isActive
-                ? "border-primary/50 bg-primary/10 text-primary shadow-lg shadow-primary/20"
-                : "border-border/70 bg-background/80 text-foreground/80 hover:border-primary/40 hover:text-primary"
+              variant === "feed"
+                ? cn(
+                    "w-full bg-white/5 text-white/80 border-white/10 shadow-[0_18px_35px_rgba(4,5,15,0.35)]",
+                    "backdrop-blur-md",
+                    "hover:border-white/30 hover:text-white",
+                    isActive && "bg-white text-slate-900 border-white text-sm font-semibold"
+                  )
+                : isActive
+                  ? "border-primary/50 bg-primary/10 text-primary shadow-lg shadow-primary/20"
+                  : "border-border/70 bg-background/80 text-foreground/80 hover:border-primary/40 hover:text-primary"
             )}
             title={label}
             aria-label={`${label}${count > 0 ? ` (${displayCount})` : ''}`}
           >
             <span className="text-2xl leading-none drop-shadow-sm">{emoji}</span>
-            <span className={cn(
-              "hidden sm:inline text-xs font-semibold tracking-tight transition-colors",
-              isActive ? "text-primary" : "text-foreground/70 group-hover:text-primary"
-            )}>
+            <span
+              className={cn(
+                "hidden sm:inline text-xs font-semibold tracking-tight transition-colors",
+                variant === "feed"
+                  ? cn(
+                      "text-white/70",
+                      isActive && "text-slate-900",
+                      !isActive && "group-hover:text-white"
+                    )
+                  : isActive
+                    ? "text-primary"
+                    : "text-foreground/70 group-hover:text-primary"
+              )}
+            >
               {label}
             </span>
             <span
               className={cn(
                 "text-[11px] font-bold rounded-full px-2 py-0.5",
-                isActive ? "bg-primary/20 text-primary" : "bg-background text-foreground/70"
+                variant === "feed"
+                  ? cn(
+                      "bg-white/10 text-white",
+                      isActive && "bg-slate-900/10 text-slate-900"
+                    )
+                  : isActive
+                    ? "bg-primary/20 text-primary"
+                    : "bg-background text-foreground/70"
               )}
             >
               {displayCount}
