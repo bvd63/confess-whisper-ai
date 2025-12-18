@@ -689,6 +689,8 @@ type Translations = {
   comments_post_as_label: string;
   comments_post_as_anonymous: string;
   comments_post_as_public: string;
+  comments_live_label: string;
+  comments_highlight_empty: string;
   
   // Notifications
   notifications_title: string;
@@ -2241,6 +2243,8 @@ export const translations: Record<Language, Translations> = {
     comments_post_as_label: "Post as",
     comments_post_as_anonymous: "Anonymous",
     comments_post_as_public: "Public (@{username})",
+    comments_live_label: "Live Now",
+    comments_highlight_empty: "No highlighted comment yet",
     
     // Notifications
     notifications_title: "Notifications",
@@ -4197,6 +4201,8 @@ export const translations: Record<Language, Translations> = {
     comments_post_as_label: "Publicar como",
     comments_post_as_anonymous: "Anónimo",
     comments_post_as_public: "Público (@{username})",
+    comments_live_label: "En vivo",
+    comments_highlight_empty: "Aún no hay comentarios destacados",
     
     // Notifications
     notifications_title: "Notificaciones",
@@ -6154,6 +6160,8 @@ export const translations: Record<Language, Translations> = {
     comments_post_as_label: "Posten als",
     comments_post_as_anonymous: "Anonym",
     comments_post_as_public: "Öffentlich (@{username})",
+    comments_live_label: "Live",
+    comments_highlight_empty: "Noch kein hervorgehobener Kommentar",
     
     // Notifications
     notifications_title: "Benachrichtigungen",

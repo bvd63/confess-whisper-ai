@@ -1,11 +1,9 @@
 import { memo, useMemo } from "react";
-import { Button } from "@/components/ui/button";
-import { MessageCircle, Tag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getUserDisplayName } from "@/lib/userDisplayName";
-import BadgesDisplay from "./BadgesDisplay";
-import { VIPBadge } from "./VIPBadge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Crown, Tag } from "lucide-react";
 
 interface ConfessionHeaderProps {
   category: string;
@@ -38,6 +36,17 @@ const ConfessionHeader = memo(({
     // Fallback to old behavior for backward compatibility
     return getUserDisplayName(authorNicknameSnapshot, authorVisibilitySnapshot, t.user_anonymous);
   }, [isAnonymous, authorDisplayName, authorNicknameSnapshot, authorVisibilitySnapshot, t]);
+
+  const initials = useMemo(() => {
+    const safeName = displayName.replace('@', '').trim();
+    if (!safeName) return 'A';
+    return safeName
+      .split(' ')
+      .slice(0, 2)
+      .map((part) => part.charAt(0))
+      .join('')
+      .toUpperCase();
+  }, [displayName]);
   
   const getCategoryLabel = useMemo(() => {
     const categoryMap: Record<string, string> = {
@@ -62,20 +71,33 @@ const ConfessionHeader = memo(({
     return `${Math.floor(diffInMinutes / 1440)}${t.time_days}`;
   }, [createdAt, t]);
 
+  const visibilityLabel = isAnonymous ? t.confession_visibility_anonymous : t.confession_visibility_public;
+
   return (
-    <div className="flex items-center gap-2 text-muted-foreground text-sm flex-wrap">
-      <div className="flex items-center gap-1 flex-wrap">
-        <span>{displayName}</span>
-        {userId && !isAnonymous && (
-          <>
-            <VIPBadge tier={subscriptionTier as 'free' | 'vip'} size="sm" />
-            <BadgesDisplay userId={userId} variant="compact" />
-          </>
-        )}
-        <span>• {timeAgo}</span>
+    <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center gap-3">
+        <Avatar className="h-12 w-12 border border-white/10 bg-white/5">
+          <AvatarFallback className="bg-gradient-to-br from-primary/40 via-purple-500/30 to-indigo-500/30 text-white font-semibold">
+            {initials}
+          </AvatarFallback>
+        </Avatar>
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-white">
+            <span className="font-semibold leading-none">{displayName}</span>
+            {!isAnonymous && subscriptionTier === 'vip' && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/15 px-2 py-0.5 text-[11px] font-semibold text-amber-200">
+                <Crown className="h-3 w-3" />
+                VIP
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-white/70">
+            {timeAgo} · {visibilityLabel}
+          </p>
+        </div>
       </div>
-      <Badge variant="secondary" className="text-xs gap-1 bg-primary/10 text-primary border-primary/20">
-        <Tag className="w-3 h-3" />
+      <Badge variant="secondary" className="gap-1 rounded-full border-white/10 bg-white/5 text-xs text-white/80">
+        <Tag className="h-3 w-3" />
         {getCategoryLabel}
       </Badge>
     </div>
