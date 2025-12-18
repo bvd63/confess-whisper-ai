@@ -59,6 +59,7 @@ const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCanceled = lazy(() => import("./pages/PaymentCanceled"));
 const CoinPurchaseSuccess = lazy(() => import("./pages/coins/Success"));
 const CoinPurchaseCancel = lazy(() => import("./pages/coins/Cancel"));
+const ConfessionDetail = lazy(() => import("./pages/ConfessionDetail"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const NotFound = lazy(() => import("./pages/NotFound"));
