@@ -134,7 +134,7 @@ export function HighlightCommentButton({
     },
   });
 
-  if (!isOwner) return null;
+  if (!isOwner || isActive) return null;
 
   return (
     <>
@@ -143,14 +143,11 @@ export function HighlightCommentButton({
         size="sm"
         onClick={() => setIsOpen(true)}
         data-highlight-btn={commentId}
-        className="gap-2 h-8 px-3 rounded-lg hover:bg-vip-gold/10"
+        aria-label={t.highlight_comment || 'Highlight comment'}
+        title={t.highlight_comment_cta?.replace('{cost}', HIGHLIGHT_COST.toString()) || `Highlight comment · ${HIGHLIGHT_COST} coins`}
+        className="h-8 w-8 p-0 rounded-full hover:bg-vip-gold/10 flex-shrink-0"
       >
-        <span className="text-sm">⭐</span>
-        <span className="text-[11px] font-semibold text-foreground/80">
-          {isActive
-            ? formattedTimeLeft
-            : t.highlight_comment_cta.replace('{cost}', HIGHLIGHT_COST.toString())}
-        </span>
+        <span className="text-base">⭐</span>
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>

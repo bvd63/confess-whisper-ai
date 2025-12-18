@@ -527,13 +527,6 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                     )}
                   </div>
                 </div>
-
-                {isCommentOwner && !isHighlightActive && (
-                  <div className="mt-2 flex items-center gap-1 text-[11px] text-white/70 flex-wrap">
-                    <span>⭐</span>
-                    <span className="break-words">{t.highlight_comment_cta.replace('{cost}', highlightCost.toString())}</span>
-                  </div>
-                )}
               </div>
             );
           })

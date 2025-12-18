@@ -15,8 +15,6 @@ import { NoScreenshotMode } from "@/components/NoScreenshotMode";
 import AppLayout from "@/components/AppLayout";
 import CommentsSection from "@/components/CommentsSection";
 import ReactionPicker from "@/components/ReactionPicker";
-import ConfessionActions from "@/components/ConfessionActions";
-import ShareDialog from "@/components/ShareDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/lib/logger";
@@ -45,7 +43,6 @@ const ConfessionDetail = () => {
   const [loading, setLoading] = useState(true);
   const [commentsCount, setCommentsCount] = useState(0);
   const [boostExpiresAt, setBoostExpiresAt] = useState<string | null>(null);
-  const [shareOpen, setShareOpen] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
@@ -255,21 +252,6 @@ const ConfessionDetail = () => {
               <ReactionPicker confessionId={confession.id} userId={user?.id} />
             </div>
 
-            <ConfessionActions
-              confessionId={confession.id}
-              confessionUserId={confession.user_id}
-              currentUserId={user?.id || null}
-              likesCount={confession.likes_count || 0}
-              isLiked={isLiked}
-              isBookmarked={isBookmarked}
-              onLikeChange={reloadLikes}
-              onBookmarkChange={reloadBookmarks}
-              onShare={() => setShareOpen(true)}
-              commentsCount={commentsCount}
-              boostExpiresAt={boostExpiresAt}
-              onBoostSuccess={(endsAt) => setBoostExpiresAt(endsAt)}
-            />
-
             <CommentsSection
               confessionId={confession.id}
               confessionOwnerId={confession.user_id || ''}
@@ -280,7 +262,6 @@ const ConfessionDetail = () => {
             />
           </Card>
         </main>
-        <ShareDialog open={shareOpen} onOpenChange={setShareOpen} confessionId={confession.id} />
       </NoScreenshotMode>
     </AppLayout>
   );
