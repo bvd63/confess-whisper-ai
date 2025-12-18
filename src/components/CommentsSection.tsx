@@ -540,20 +540,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                       </div>
                     </div>
 
-                    {/* Highlight CTA for Owner (below comment) */}
-                    {isCommentOwner && !isHighlightActive && (
-                      <div className="mt-3 pt-3 border-t border-border/30">
-                        <button
-                          onClick={() => {
-                            const btn = document.querySelector(`[data-highlight-btn="${comment.id}"]`) as HTMLButtonElement;
-                            btn?.click();
-                          }}
-                          className="text-xs text-primary hover:underline"
-                        >
-                          {t.highlight_comment} · <span className="text-vip-gold font-medium">15 coins</span>
-                        </button>
-                      </div>
-                    )}
+                    {/* Highlight action available via star button in Actions row above */}
                   </div>
                 );
               })
@@ -583,10 +570,10 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                   />
                 </div>
 
-                {/* Anonymous/Username Toggle */}
+                {/* Anonymous/Username Toggle - matches reference */}
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-muted-foreground whitespace-nowrap">
-                    {isAnonymous ? t.comments_post_as_anonymous : (currentUserProfile?.nickname || 'Username')}
+                  <span className="text-[10px] text-muted-foreground whitespace-nowrap leading-tight text-right">
+                    {t.comments_post_as_anonymous}<br />/ Username
                   </span>
                   <button
                     type="button"
