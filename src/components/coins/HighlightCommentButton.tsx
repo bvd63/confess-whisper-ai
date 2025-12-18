@@ -143,14 +143,14 @@ export function HighlightCommentButton({
         size="sm"
         onClick={() => setIsOpen(true)}
         data-highlight-btn={commentId}
-        className="gap-1 h-8 px-2 rounded-lg hover:bg-vip-gold/10"
+        className="gap-2 h-8 px-3 rounded-lg hover:bg-vip-gold/10"
       >
         <span className="text-sm">⭐</span>
-        {isActive && (
-          <span className="text-[10px] text-vip-gold font-semibold">
-            {formattedTimeLeft}
-          </span>
-        )}
+        <span className="text-[11px] font-semibold text-foreground/80">
+          {isActive
+            ? formattedTimeLeft
+            : t.highlight_comment_cta.replace('{cost}', HIGHLIGHT_COST.toString())}
+        </span>
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>

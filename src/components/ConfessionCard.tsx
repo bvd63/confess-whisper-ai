@@ -1,42 +1,14 @@
-import { useState, useEffect, memo } from "react";
-import { EnhancedButton } from "@/components/EnhancedButton";
-import { MessageCircle, Sparkles, Crown, Award, Wand2, Loader2 } from "lucide-react";
-import DeepInsightDialog from "./DeepInsightDialog";
-import ShareDialog from "./ShareDialog";
-import ReportDialog from "./ReportDialog";
+import { useState, memo, useMemo } from "react";
+import { Crown, Shield, User as UserIcon } from "lucide-react";
 import CommentsSection from "./CommentsSection";
-import ConfessionActions from "./ConfessionActions";
-import ConfessionHeader from "./ConfessionHeader";
-import { OptimizedImage } from "./OptimizedImage";
 import ReactionPicker from "./ReactionPicker";
-import BadgesDisplay from "./BadgesDisplay";
-import FollowButton from "./FollowButton";
-import StreakCounter from "./StreakCounter";
-import { BadgeDisplay } from "./BadgeDisplay";
-import { AwardPicker } from "./coins/AwardPicker";
-import { AwardDisplay } from "./coins/AwardDisplay";
 import { useVipStatus } from "@/hooks/usePremiumStatus";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useConfirm } from "@/contexts/ConfirmContext";
-import { notify } from "@/lib/notifications";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { useCachePurgeOnDelete } from "@/hooks/useCachePurgeOnDelete";
-import { Copy } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useEditDeleteWindow } from "@/hooks/useEditDeleteWindow";
-import { useHaptic } from "@/hooks/useHaptic";
 import { useSensitiveContent } from "@/hooks/useSensitiveContent";
 import { SensitiveContentWarning } from "./SensitiveContentWarning";
 import { NoScreenshotMode } from "./NoScreenshotMode";
-import { EmotionalTone } from "./EmotionalTone";
-import { VIPBadge } from "./VIPBadge";
 import { sanitizeConfession } from "@/lib/security/sanitizer";
-import { logError } from "@/lib/logger";
-import { useCoins } from "@/hooks/useCoins";
-import { addTwentyFourHours, getBoostStatus } from "@/lib/boosts";
 import { Card } from "@/components/ui/card";
 
 interface ConfessionCardProps {
@@ -70,355 +42,81 @@ interface ConfessionCardProps {
   onBookmarkChange?: () => void;
 }
 
-const ConfessionCard = ({ confession, isVip, isLiked: initialIsLiked, isBookmarked: initialIsBookmarked, onReport, onUpgradeClick, onInsightGenerated, onLikeChange, onCommentChange, onBookmarkChange }: ConfessionCardProps) => {
-  const [isDeepInsightOpen, setIsDeepInsightOpen] = useState(false);
-  const [isShareOpen, setIsShareOpen] = useState(false);
-  const [isReportOpen, setIsReportOpen] = useState(false);
-  const [isAwardPickerOpen, setIsAwardPickerOpen] = useState(false);
+const ConfessionCard = ({ confession, isVip: _isVip, onUpgradeClick: _onUpgradeClick, onInsightGenerated: _onInsightGenerated, onCommentChange }: ConfessionCardProps) => {
   const [commentsCount, setCommentsCount] = useState(confession.comments_count || 0);
-  const [isBoostLoading, setIsBoostLoading] = useState(false);
-  const [boostEndsAt, setBoostEndsAt] = useState<string | null>(confession.boost_expires_at ?? null);
-  const [boostStatus, setBoostStatus] = useState(() => getBoostStatus(confession.boost_expires_at ?? null));
   const { user } = useCurrentUser();
-  const { toast } = useToast();
-  const { t, language } = useLanguage();
-  const confirm = useConfirm();
-  const { purgeConfession } = useCachePurgeOnDelete();
+  const { t } = useLanguage();
   const { subscriptionTier } = useVipStatus(confession.user_id || null);
-  const isOwner = user?.id === confession.user_id;
-  const { canDelete, deleteTimeLeft } = useEditDeleteWindow(confession.created_at);
-  const { vibrate } = useHaptic();
   const { isSensitive } = useSensitiveContent(confession.content);
-  const noScreenshotEnabled = isVip && isOwner;
-  const { balance } = useCoins(user?.id);
 
-  useEffect(() => {
-    setBoostEndsAt(confession.boost_expires_at ?? null);
-  }, [confession.boost_expires_at, confession.id]);
+  const noScreenshotEnabled = subscriptionTier === 'vip' && user?.id === confession.user_id;
 
-  useEffect(() => {
-    const updateStatus = () => {
-      const status = getBoostStatus(boostEndsAt);
-      setBoostStatus(status);
-
-      if (boostEndsAt && !status.isBoosted) {
-        setBoostEndsAt(null);
-      }
-    };
-
-    updateStatus();
-
-    if (!boostEndsAt) {
-      return;
+  const displayName = useMemo(() => {
+    if (confession.is_anonymous !== undefined) {
+      return confession.is_anonymous
+        ? t.confession_author_anonymous
+        : `@${confession.author_display_name_snapshot || confession.author_nickname_snapshot || t.user_anonymous}`;
     }
+    return confession.author_display_name_snapshot || confession.author_nickname_snapshot || t.user_anonymous;
+  }, [confession.author_display_name_snapshot, confession.author_nickname_snapshot, confession.is_anonymous, t]);
 
-    const interval = setInterval(updateStatus, 60 * 1000);
-    return () => clearInterval(interval);
-  }, [boostEndsAt]);
+  const timeAgo = useMemo(() => {
+    const now = new Date();
+    const confessionDate = new Date(confession.created_at);
+    const diffInMinutes = Math.floor((now.getTime() - confessionDate.getTime()) / 60000);
+    if (diffInMinutes < 1) return t.time_now;
+    if (diffInMinutes < 60) return `${diffInMinutes}${t.time_minutes}`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}${t.time_hours}`;
+    return `${Math.floor(diffInMinutes / 1440)}${t.time_days}`;
+  }, [confession.created_at, t]);
 
-  const handleCopyText = async () => {
-    try {
-      await navigator.clipboard.writeText(confession.content);
-      vibrate('light');
-      toast({
-        title: t.text_copied,
-        duration: 2000,
-      });
-    } catch (error) {
-      logError('Failed to copy text', error instanceof Error ? error : undefined);
-    }
-  };
-
-  const handleDeleteConfession = async () => {
-    if (!user || confession.user_id !== user.id) return;
-
-    const confirmed = await confirm({
-      titleKey: 'confirm.deleteConfession.title',
-      messageKey: 'confirm.deleteConfession.message',
-      variant: 'danger',
-    });
-    
-    if (!confirmed) return;
-
-    try {
-      const { error } = await supabase
-        .from('confessions')
-        .delete()
-        .eq('id', confession.id);
-
-      if (error) throw error;
-
-      // Immediately purge cache
-      purgeConfession(confession.id);
-
-      notify.success('notifications.confessionDeleted', language);
-
-      // Refresh the page or notify parent component
-      onLikeChange?.();
-    } catch (error) {
-      logError('Error deleting confession', error instanceof Error ? error : undefined);
-      toast({
-        title: t.error_generic,
-        description: t.error_delete,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleBoostConfession = async () => {
-    if (!user || !isOwner) return;
-
-    // Block if already boosted
-    if (boostStatus.isBoosted) {
-      toast({
-        title: t.coins_boost_already_active,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const BOOST_COST = 25;
-    if (balance < BOOST_COST) {
-      toast({
-        title: t.boost_not_enough,
-        description: t.boost_cost.replace('{cost}', BOOST_COST.toString()),
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const confirmed = await confirm({
-      titleKey: 'confirm.boostConfession.title',
-      messageKey: 'confirm.boostConfession.message',
-      variant: 'default',
-    });
-    
-    if (!confirmed) return;
-
-    setIsBoostLoading(true);
-    try {
-      const { data: boostResponse, error } = await supabase.functions.invoke('boost-confession', {
-        body: { confessionId: confession.id },
-      });
-
-      // Handle backend response for active boost
-      if (boostResponse?.error === 'BOOST_ALREADY_ACTIVE') {
-        toast({
-          title: t.coins_boost_already_active,
-          variant: "destructive",
-        });
-        setIsBoostLoading(false);
-        return;
-      }
-
-      if (error) throw error;
-
-      toast({
-        title: t.boost_success_title,
-        description: t.boost_success_description,
-      });
-
-      const endsAtFromResponse = boostResponse?.boost?.endsAt ?? addTwentyFourHours();
-      setBoostEndsAt(endsAtFromResponse);
-      setBoostStatus(getBoostStatus(endsAtFromResponse));
-
-      onLikeChange?.(); // Refresh to show boosted status
-    } catch (error) {
-      logError('Error boosting confession', error instanceof Error ? error : undefined);
-      toast({
-        title: t.error_generic,
-        description: 'Failed to boost confession. Please try again.',
-        variant: "destructive",
-      });
-    } finally {
-      setIsBoostLoading(false);
-    }
-  };
+  const visibilityLabel = t.profile_privacy_public || 'Public';
+  const AvatarIcon = confession.is_anonymous ? Shield : UserIcon;
 
   return (
     <NoScreenshotMode enabled={noScreenshotEnabled}>
-      <Card variant="glow" className="relative p-5 sm:p-6 space-y-5 touch-manipulation overflow-hidden">
-        {/* Boost Badge - Top Right */}
-        {boostStatus.isBoosted && (
-          <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-amber-500/15 backdrop-blur-sm px-3 py-1.5 rounded-full border border-amber-500/25 shadow-[0_8px_24px_hsl(var(--warning)/0.18)]">
-            <span className="text-base">🚀</span>
-            <span className="text-xs font-medium text-orange-500">
-              {t.boosted.badge.label} · {boostStatus.lessThanHour
-                ? t.boosted.badge.lessThanHour
-                : t.boosted.badge.left.replace('{{hours}}', String(boostStatus.hoursLeft))}
-            </span>
+      <Card className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#2a2e5c] via-[#19192f] to-[#0d0d1b] p-5 sm:p-6 space-y-5 shadow-[0_20px_50px_rgba(0,0,0,0.45)]">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/70 via-primary/60 to-accent/70 flex items-center justify-center shadow-lg shadow-primary/30">
+            <AvatarIcon className="w-4 h-4 text-white" />
           </div>
-        )}
-
-        <div className="space-y-3">
-          <ConfessionHeader
-            category={confession.category} 
-            createdAt={confession.created_at}
-            authorNicknameSnapshot={confession.author_nickname_snapshot}
-            authorVisibilitySnapshot={confession.author_visibility_snapshot}
-            isAnonymous={confession.is_anonymous}
-            authorDisplayName={confession.author_display_name_snapshot}
-            userId={confession.user_id}
-            subscriptionTier={subscriptionTier}
-          />
-
-          <SensitiveContentWarning isSensitive={isSensitive}>
-            <p className="text-base leading-relaxed text-foreground/90 break-words">
-              {sanitizeConfession(confession.content)}
-            </p>
-          </SensitiveContentWarning>
-        </div>
-
-      {confession.image_url && (
-        <div className="rounded-2xl border border-border/60 bg-muted/30 backdrop-blur-sm p-1 shadow-inner">
-          <OptimizedImage
-            src={confession.image_url}
-            alt={t.ui_confession_image}
-            className={`w-full h-auto object-cover max-h-[400px] rounded-xl ${
-              confession.image_blurred ? 'blur-lg' : ''
-            }`}
-            width={800}
-            height={400}
-          />
-        </div>
-      )}
-
-      {confession.emotional_tone && (
-        <div className="rounded-xl bg-muted/40 border border-border/60 px-3 py-2">
-          <EmotionalTone tone={confession.emotional_tone} size="sm" />
-        </div>
-      )}
-
-      <div className="rounded-xl bg-muted/30 border border-border/60 px-3 py-2 shadow-inner">
-        <AwardDisplay confessionId={confession.id} />
-      </div>
-
-      <div className="rounded-xl bg-muted/30 border border-border/60 px-3 py-2">
-        <ReactionPicker confessionId={confession.id} userId={user?.id} />
-      </div>
-
-      <div className="flex items-center gap-2 flex-wrap rounded-xl bg-card/60 border border-border/60 px-3 py-2">
-        <ConfessionActions
-          confessionId={confession.id}
-          confessionUserId={confession.user_id}
-          currentUserId={user?.id || null}
-          likesCount={confession.likes_count || 0}
-          isLiked={initialIsLiked || false}
-          isBookmarked={initialIsBookmarked || false}
-          onLikeChange={onLikeChange || (() => {})}
-          onBookmarkChange={onBookmarkChange || (() => {})}
-          onShare={() => setIsShareOpen(true)}
-          onReport={() => setIsReportOpen(true)}
-          onDelete={handleDeleteConfession}
-        />
-        
-        {/* Coin-Spending Features */}
-        {!isOwner && user && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsAwardPickerOpen(true)}
-            className="gap-1.5 text-xs h-9 px-3 rounded-xl hover:bg-muted/60 transition-colors"
-          >
-            <Award className="w-4 h-4 text-vip-gold" />
-            <span className="hidden sm:inline font-medium">Award</span>
-          </Button>
-        )}
-        
-        {isOwner && (
-          <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleBoostConfession}
-              disabled={isBoostLoading || boostStatus.isBoosted}
-              className="gap-1.5 text-xs h-9 px-3 rounded-xl hover:bg-muted/60 transition-colors disabled:opacity-50"
-            >
-              {isBoostLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
-              ) : (
-                <span className="text-base">🚀</span>
-              )}
-              <span className="hidden sm:inline font-medium">
-                {isBoostLoading ? t.processing : (boostStatus.isBoosted ? t.boost_active : t.boost_confession)}
-              </span>
-            </Button>
-        )}
-      </div>
-
-      {confession.ai_response && (
-        <>
-          <div className={cn(
-            "mt-5 rounded-2xl transition-all",
-            subscriptionTier === 'vip' 
-              ? "p-5 bg-gradient-to-br from-primary/12 via-primary/8 to-accent/5 border border-primary/25 shadow-[0_12px_30px_hsl(var(--primary)/0.18)]" 
-              : "p-4 bg-muted/60 border border-border/70 shadow-inner"
-          )}>
-            {subscriptionTier === 'vip' && (
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-primary animate-pulse" />
-                </div>
-                <span className="text-sm font-bold text-primary uppercase tracking-wide">
-                  VIP AI Response
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-sm font-semibold text-white">
+              <span>{displayName}</span>
+              {subscriptionTier === 'vip' && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 border border-white/20 text-[11px] uppercase tracking-wide">
+                  <Crown className="w-3.5 h-3.5 text-vip-gold" />
+                  VIP
                 </span>
-              </div>
-            )}
-            <p className="text-sm leading-relaxed text-foreground-secondary">
-              {confession.ai_response}
-            </p>
+              )}
+            </div>
+            <div className="flex items-center gap-1 text-xs text-white/70">
+              <span>{timeAgo}</span>
+              <span>·</span>
+              <span>{visibilityLabel}</span>
+            </div>
           </div>
+        </div>
 
-          <EnhancedButton
-            onClick={() => setIsDeepInsightOpen(true)}
-            variant="outline"
-            className="w-full mt-4 h-12 rounded-2xl border-primary/20 text-primary hover:bg-primary/5 font-medium"
-            glow
-            shine
-          >
-            <Sparkles className="w-5 h-5 mr-2" />
-            {confession.ai_deep_insight ? t.deep_insight_title : t.generate_insight}
-          </EnhancedButton>
-        </>
-      )}
+        <SensitiveContentWarning isSensitive={isSensitive}>
+          <p className="text-base leading-relaxed text-white/90 break-words">
+            {sanitizeConfession(confession.content)}
+          </p>
+        </SensitiveContentWarning>
 
-      {/* Comments Section */}
-      <CommentsSection
-        confessionId={confession.id}
-        confessionOwnerId={confession.user_id || ''}
-        commentsCount={commentsCount}
-        onCommentChange={() => {
-          setCommentsCount(prev => prev + 1);
-          onCommentChange?.();
-        }}
-      />
+        <div className="rounded-2xl border border-white/8 bg-white/5 p-3 shadow-inner">
+          <ReactionPicker confessionId={confession.id} userId={user?.id} />
+        </div>
 
-      <DeepInsightDialog
-        open={isDeepInsightOpen}
-        onOpenChange={setIsDeepInsightOpen}
-        confession={confession}
-        isVip={isVip}
-        onUpgradeClick={onUpgradeClick}
-        onInsightGenerated={onInsightGenerated}
-      />
-
-      <ShareDialog
-        open={isShareOpen}
-        onOpenChange={setIsShareOpen}
-        confessionId={confession.id}
-      />
-
-      <ReportDialog
-        open={isReportOpen}
-        onOpenChange={setIsReportOpen}
-        confessionId={confession.id}
-        userId={user?.id || null}
-      />
-
-      <AwardPicker
-        open={isAwardPickerOpen}
-        onOpenChange={setIsAwardPickerOpen}
-        confessionId={confession.id}
-      />
+        <CommentsSection
+          confessionId={confession.id}
+          confessionOwnerId={confession.user_id || ''}
+          commentsCount={commentsCount}
+          onCommentChange={() => {
+            setCommentsCount(prev => prev + 1);
+            onCommentChange?.();
+          }}
+        />
       </Card>
     </NoScreenshotMode>
   );

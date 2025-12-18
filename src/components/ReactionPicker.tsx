@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { useState, useEffect, memo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -19,10 +18,10 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
   const [isLoading, setIsLoading] = useState(false);
   
   const reactions = [
-    { type: 'heart', emoji: '❤️', label: t.reaction_heart, color: 'text-red-500' },
-    { type: 'sad', emoji: '🥺', label: t.reaction_sad, color: 'text-blue-500' },
-    { type: 'strong', emoji: '💪', label: t.reaction_strong, color: 'text-yellow-500' },
-    { type: 'thinking', emoji: '🤔', label: t.reaction_thinking, color: 'text-purple-500' },
+    { type: 'heart', emoji: '❤️', label: t.reaction_heart },
+    { type: 'sad', emoji: '🥺', label: t.reaction_sad },
+    { type: 'strong', emoji: '💪', label: t.reaction_strong },
+    { type: 'thinking', emoji: '🤔', label: t.reaction_thinking },
   ];
 
   const loadReactions = useCallback(async () => {
@@ -88,20 +87,16 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
       return;
     }
 
-    // Store previous state for rollback on error
     const previousUserReactions = new Set(userReactions);
     const previousReactionCounts = { ...reactionCounts };
 
-    // Optimistic update: immediately update UI
     const newUserReactions = new Set(userReactions);
     const newReactionCounts = { ...reactionCounts };
 
     if (userReactions.has(reactionType)) {
-      // Removing reaction
       newUserReactions.delete(reactionType);
       newReactionCounts[reactionType] = Math.max(0, (newReactionCounts[reactionType] || 0) - 1);
     } else {
-      // Changing/adding reaction: remove old one, add new one
       userReactions.forEach(oldType => {
         newUserReactions.delete(oldType);
         newReactionCounts[oldType] = Math.max(0, (newReactionCounts[oldType] || 0) - 1);
@@ -115,7 +110,6 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
     setIsLoading(true);
 
     try {
-      // If clicking on already selected reaction, remove it
       if (previousUserReactions.has(reactionType)) {
         const { error } = await supabase
           .from('confession_reactions')
@@ -126,7 +120,6 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
 
         if (error) throw error;
       } else {
-        // Remove all existing reactions for this user on this confession
         const { error: deleteError } = await supabase
           .from('confession_reactions')
           .delete()
@@ -135,7 +128,6 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
 
         if (deleteError) throw deleteError;
 
-        // Add the new reaction
         const { error: insertError } = await supabase
           .from('confession_reactions')
           .insert({
@@ -147,7 +139,6 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
         if (insertError) throw insertError;
       }
     } catch (error) {
-      // Revert optimistic update on error
       setUserReactions(previousUserReactions);
       setReactionCounts(previousReactionCounts);
       
@@ -176,31 +167,18 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
             disabled={isLoading}
             aria-pressed={isActive}
             className={cn(
-              "flex items-center gap-2 px-3.5 py-2 rounded-2xl border transition-all duration-200",
+              "flex items-center gap-2 px-3.5 py-2 rounded-full border transition-all duration-200",
               "touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
               isActive
-                ? "bg-white/80 text-primary border-primary/40 shadow-lg shadow-primary/15"
-                : "bg-muted/30 border-border/50 hover:bg-muted/50 hover:border-border hover:shadow-md",
+                ? "bg-gradient-to-r from-primary/70 via-primary/60 to-accent/70 text-white border-primary/40 shadow-[0_10px_30px_rgba(124,58,237,0.25)]"
+                : "bg-white/5 border-white/10 hover:bg-white/8 hover:border-white/20 text-white/80",
               "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
             title={label}
             aria-label={`${label}${count > 0 ? ` (${displayCount})` : ''}`}
           >
-            <span className="text-2xl leading-none drop-shadow-sm">{emoji}</span>
-            <span className={cn(
-              "hidden sm:inline text-xs font-semibold tracking-tight",
-              isActive ? "text-primary" : "text-foreground/70"
-            )}>
-              {label}
-            </span>
-            <span
-              className={cn(
-                "text-[11px] font-bold rounded-full px-2 py-0.5",
-                isActive ? "bg-primary/10 text-primary" : "bg-background/60 text-foreground/80"
-              )}
-            >
-              {displayCount}
-            </span>
+            <span className="text-xl leading-none drop-shadow-sm">{emoji}</span>
+            <span className="text-xs font-semibold">{displayCount}</span>
           </button>
         );
       })}

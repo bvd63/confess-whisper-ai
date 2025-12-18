@@ -689,6 +689,7 @@ type Translations = {
   comments_post_as_label: string;
   comments_post_as_anonymous: string;
   comments_post_as_public: string;
+  comments_post_as_preview: string;
   
   // Notifications
   notifications_title: string;
@@ -1078,6 +1079,7 @@ type Translations = {
   highlight_comment_active_badge: string;
   highlight_comment_time_left: string;
   highlight_comment_active_note: string;
+  highlight_comment_cta: string;
   highlight_now: string;
   ai_makeover: string;
   ai_makeover_description: string;
@@ -2241,6 +2243,7 @@ export const translations: Record<Language, Translations> = {
     comments_post_as_label: "Post as",
     comments_post_as_anonymous: "Anonymous",
     comments_post_as_public: "Public (@{username})",
+    comments_post_as_preview: "Will appear as: {name}",
     
     // Notifications
     notifications_title: "Notifications",
@@ -3104,6 +3107,7 @@ export const translations: Record<Language, Translations> = {
     highlight_comment_active_badge: "Highlight active",
     highlight_comment_time_left: "{time} left",
     highlight_comment_active_note: "You'll be able to highlight again when the timer ends ({time}).",
+    highlight_comment_cta: "Highlight comment · {cost} coins",
     highlight_now: "Highlight Now",
     ai_makeover: "AI Makeover",
     ai_makeover_description: "Let AI improve your confession with better writing, clarity, and emotional impact.",
@@ -4197,6 +4201,7 @@ export const translations: Record<Language, Translations> = {
     comments_post_as_label: "Publicar como",
     comments_post_as_anonymous: "Anónimo",
     comments_post_as_public: "Público (@{username})",
+    comments_post_as_preview: "Aparecerá como: {name}",
     
     // Notifications
     notifications_title: "Notificaciones",
@@ -4960,6 +4965,7 @@ export const translations: Record<Language, Translations> = {
     highlight_comment_active_badge: "Destacado activo",
     highlight_comment_time_left: "Quedan {time}",
     highlight_comment_active_note: "Podrás destacarlo de nuevo cuando el contador llegue a cero ({time}).",
+    highlight_comment_cta: "Destacar comentario · {cost} monedas",
     highlight_now: "Destacar Ahora",
     ai_makeover: "Transformación IA",
     ai_makeover_description: "Deja que la IA mejore tu confesión con mejor redacción, claridad e impacto emocional.",
@@ -6154,6 +6160,7 @@ export const translations: Record<Language, Translations> = {
     comments_post_as_label: "Posten als",
     comments_post_as_anonymous: "Anonym",
     comments_post_as_public: "Öffentlich (@{username})",
+    comments_post_as_preview: "Wird angezeigt als: {name}",
     
     // Notifications
     notifications_title: "Benachrichtigungen",
@@ -6917,6 +6924,7 @@ export const translations: Record<Language, Translations> = {
     highlight_comment_active_badge: "Highlight aktiv",
     highlight_comment_time_left: "{time} verbleiben",
     highlight_comment_active_note: "Du kannst erneut hervorheben, sobald der Timer abgelaufen ist ({time}).",
+    highlight_comment_cta: "Kommentar hervorheben · {cost} Münzen",
     highlight_now: "Jetzt Hervorheben",
     ai_makeover: "KI-Verbesserung",
     ai_makeover_description: "Lass KI dein Geständnis mit besserer Schreibweise, Klarheit und emotionaler Wirkung verbessern.",
