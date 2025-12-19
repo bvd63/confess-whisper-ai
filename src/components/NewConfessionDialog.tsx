@@ -456,25 +456,24 @@ const NewConfessionDialog = ({
       setTurnstileError(false);
       setCaptchaRenderKey(key => key + 1);
 
-      toast({
-        title: t.success_sent,
-        description: t.ai_reply_title
-      });
-
       if (currentDraftId) {
         await supabase.from('confession_drafts').delete().eq('id', currentDraftId);
       }
 
-      setTimeout(() => {
-        onConfessionCreated();
-        onOpenChange(false);
-        setContent("");
-        setCategory("other");
-        setImageUrl(null);
-        setPreview(null);
-        setAiResponse(null);
-        setCurrentDraftId(null);
-      }, 3000);
+      // Reset form fields but keep modal open to display AI response
+      setContent("");
+      setCategory("other");
+      setImageUrl(null);
+      setPreview(null);
+      setCurrentDraftId(null);
+
+      toast({
+        title: t.success_sent,
+        description: responseText ? t.ai_reply_title : undefined
+      });
+
+      // Notify parent about the new confession
+      onConfessionCreated();
     } catch (error) {
       logError('Error submitting confession', error as Error);
       toast({
@@ -674,6 +673,19 @@ const NewConfessionDialog = ({
               <p className="text-sm text-foreground/90 leading-relaxed italic">
                 {aiResponse}
               </p>
+              <div className="flex justify-end mt-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setAiResponse(null);
+                    onOpenChange(false);
+                  }}
+                  className="text-xs text-primary hover:text-primary/80 hover:bg-primary/10"
+                >
+                  {t.common_close || t.ui_close || 'Close'}
+                </Button>
+              </div>
             </div>
           )}
 
