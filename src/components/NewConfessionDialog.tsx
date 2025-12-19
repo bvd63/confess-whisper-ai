@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import ImageUpload from "@/components/ImageUpload";
 import DraftManager from "@/components/DraftManager";
 import { CrisisDialog } from "@/components/CrisisDialog";
-import { PostAnonymousSwitch } from "@/components/ui/PostAnonymousSwitch";
+import { Switch } from "@/components/ui/switch";
 import { useModerationStatus } from "@/hooks/useModerationStatus";
 // Communities feature disabled
 // import { useCommunities } from "@/hooks/useCommunities";
@@ -471,11 +471,12 @@ const NewConfessionDialog = ({
               <Label htmlFor="anonymous-toggle" className="text-sm font-medium cursor-pointer text-foreground">
                 {t.confession_anonymous_label}
               </Label>
-              <PostAnonymousSwitch 
+              <Switch 
                 id="anonymous-toggle" 
                 checked={isAnonymous} 
                 onCheckedChange={setIsAnonymous} 
                 disabled={isSubmitting} 
+                className="data-[state=checked]:bg-purple-500 data-[state=unchecked]:bg-muted-foreground/30" 
               />
             </div>
 
