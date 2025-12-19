@@ -648,10 +648,15 @@ const Compose = () => {
               onCheckedChange={setIsAnonymous}
               disabled={isBusy}
               className={cn(
-                "h-9 w-16 rounded-full",
+                "h-[18px] w-10 rounded-full p-[2px]",
                 "data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-primary data-[state=checked]:to-accent",
                 "data-[state=unchecked]:bg-white/15",
                 "shadow-[0_0_18px_rgba(124,77,255,0.35)] ring-1 ring-white/10 transition-all duration-300",
+              )}
+              thumbClassName={cn(
+                "h-[14px] w-[14px] rounded-full bg-[hsl(0_0%_100%)]",
+                "shadow-[0_1px_2px_rgba(0,0,0,0.28),0_2px_10px_rgba(0,0,0,0.14)]",
+                "data-[state=unchecked]:translate-x-0 data-[state=checked]:translate-x-[22px]",
               )}
             />
           </div>
