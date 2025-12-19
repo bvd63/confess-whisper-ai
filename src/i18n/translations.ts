@@ -197,6 +197,9 @@ type Translations = {
   boost_reboost: string;
   boost_not_enough: string;
   boost_error_active: string;
+  boost_benefits_title: string;
+  boost_benefit_visibility: string;
+  boost_benefit_duration: string;
   
   // Subscription Management (new keys only)
   subscription_tier_free: string;
@@ -2137,6 +2140,9 @@ export const translations: Record<Language, Translations> = {
     boost_reboost: "Reboost",
     boost_not_enough: "Not enough coins to boost.",
     boost_error_active: "A boost is already active for this confession.",
+    boost_benefits_title: "Benefits",
+    boost_benefit_visibility: "Boost makes your confession more visible for 24h.",
+    boost_benefit_duration: "Shown higher in the feed for 24 hours.",
     
   subscription_tier_free: "Free",
   subscription_tier_vip: "VIP",
@@ -4096,6 +4102,9 @@ export const translations: Record<Language, Translations> = {
     boost_reboost: "Reimpulsar",
     boost_not_enough: "No tienes monedas suficientes.",
     boost_error_active: "Ya hay un impulso activo para esta confesión.",
+    boost_benefits_title: "Beneficios",
+    boost_benefit_visibility: "El boost hace tu confesión más visible durante 24h.",
+    boost_benefit_duration: "Se muestra más arriba en el feed por 24 horas.",
     
   subscription_tier_free: "Free",
   subscription_tier_vip: "VIP",
@@ -6056,6 +6065,9 @@ export const translations: Record<Language, Translations> = {
     boost_reboost: "Erneut boosten",
     boost_not_enough: "Nicht genug Münzen.",
     boost_error_active: "Für diese Beichte ist bereits ein aktiver Boost vorhanden.",
+    boost_benefits_title: "Vorteile",
+    boost_benefit_visibility: "Boost macht deine Beichte für 24h sichtbarer.",
+    boost_benefit_duration: "Steht 24 Stunden weiter oben im Feed.",
     
   subscription_tier_free: "Free",
   subscription_tier_vip: "VIP",
