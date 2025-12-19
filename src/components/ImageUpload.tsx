@@ -124,7 +124,7 @@ const ImageUpload = ({ onImageUploaded, onImageRemoved, currentImage, disabled }
           ) : (
             <>
               <ImageIcon className="w-4 h-4" />
-              {t.image_add || "Add image"}
+              {t.image_add_optional}
             </>
           )}
         </Button>
