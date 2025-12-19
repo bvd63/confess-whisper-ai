@@ -1252,6 +1252,7 @@ type Translations = {
   image_invalid_file_desc: string;
   image_too_large: string;
   image_uploading: string;
+  image_add: string;
   image_add_optional: string;
   
   // Moderation Panel
@@ -2113,7 +2114,7 @@ export const translations: Record<Language, Translations> = {
     new_confession: "New Confession",
     vip_upgrade: "Upgrade to VIP",
     
-  placeholder_confession: "Share what's on your mind... (10-2000 characters)",
+  placeholder_confession: "What's on your mind...",
   submit: "Submit confession",
   submitting: "Submitting...",
     
@@ -3271,6 +3272,7 @@ export const translations: Record<Language, Translations> = {
     image_invalid_file_desc: "Please select an image (JPEG, PNG, GIF or WebP)",
     image_too_large: "File Too Large",
     image_uploading: "Uploading...",
+    image_add: "Add image",
     image_add_optional: "Add image (optional)",
     
     moderation_no_permissions: "You don't have moderation permissions",
@@ -4072,7 +4074,7 @@ export const translations: Record<Language, Translations> = {
     new_confession: "Nueva Confesión",
     vip_upgrade: "Actualizar a VIP",
     
-  placeholder_confession: "Comparte lo que piensas... (10-2000 caracteres)",
+  placeholder_confession: "¿Qué tienes en mente...?",
   submit: "Enviar confesión",
   submitting: "Enviando...",
     
@@ -5130,6 +5132,7 @@ export const translations: Record<Language, Translations> = {
     image_invalid_file_desc: "Por favor selecciona una imagen (JPEG, PNG, GIF o WebP)",
     image_too_large: "Archivo Demasiado Grande",
     image_uploading: "Subiendo...",
+    image_add: "Agregar imagen",
     image_add_optional: "Agregar imagen (opcional)",
     
     moderation_no_permissions: "No tienes permisos de moderación",
@@ -6032,7 +6035,7 @@ export const translations: Record<Language, Translations> = {
     new_confession: "Neues Geständnis",
     vip_upgrade: "Auf VIP Upgraden",
     
-  placeholder_confession: "Teile, was dich bewegt... (10-2000 Zeichen)",
+  placeholder_confession: "Was geht dir durch den Kopf...",
   submit: "Geständnis absenden",
   submitting: "Wird gesendet...",
     
@@ -7090,6 +7093,7 @@ export const translations: Record<Language, Translations> = {
     image_invalid_file_desc: "Bitte wähle ein Bild (JPEG, PNG, GIF oder WebP)",
     image_too_large: "Datei Zu Groß",
     image_uploading: "Wird hochgeladen...",
+    image_add: "Bild hinzufügen",
     image_add_optional: "Bild hinzufügen (optional)",
     
     moderation_no_permissions: "Du hast keine Moderationsrechte",

@@ -12,7 +12,6 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import MoodTracker from "@/components/MoodTracker";
 import ImageUpload from "@/components/ImageUpload";
 import DraftManager from "@/components/DraftManager";
 import { CrisisDialog } from "@/components/CrisisDialog";
@@ -55,10 +54,6 @@ const NewConfessionDialog = ({
 }: NewConfessionDialogProps) => {
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("other");
-  const [mood, setMood] = useState<{
-    mood: string;
-    intensity: number;
-  } | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAnonymous, setIsAnonymous] = useState(true);
@@ -144,8 +139,6 @@ const NewConfessionDialog = ({
           await supabase.from('confession_drafts').update({
             content: content.trim(),
             category,
-            mood: mood?.mood,
-            mood_intensity: mood?.intensity,
             image_url: imageUrl
           }).eq('id', currentDraftId);
         } else {
@@ -156,8 +149,6 @@ const NewConfessionDialog = ({
             user_id: user.id,
             content: content.trim(),
             category,
-            mood: mood?.mood,
-            mood_intensity: mood?.intensity,
             image_url: imageUrl
           }).select().single();
           if (data) {
@@ -169,7 +160,7 @@ const NewConfessionDialog = ({
       }
     }, 5000);
     return () => clearTimeout(timer);
-  }, [content, category, mood, imageUrl, user, currentDraftId]);
+  }, [content, category, imageUrl, user, currentDraftId]);
   const categories = [{
     value: 'relationships',
     label: t.category_relationships
@@ -209,7 +200,6 @@ const NewConfessionDialog = ({
       imageUrl,
       isAnonymous,
       aiResponse: aiResponse ?? undefined,
-      mood,
       captchaToken,
       authorDisplayName: isAnonymous ? null : userNickname
     });
@@ -423,115 +413,80 @@ const NewConfessionDialog = ({
           transition: 'margin-bottom 0.3s ease-out'
         }}
       >
-        <DialogHeader className="space-y-3">
-          <div className="flex items-start gap-3 pr-10 sm:pr-14">
-            <DialogTitle className="flex-1 text-2xl font-bold text-foreground">
+        <DialogHeader className="space-y-0">
+          <div className="flex items-center justify-between pr-10">
+            <DialogTitle className="text-xl font-semibold text-foreground">
               {t.new_confession}
             </DialogTitle>
-            {!limitsLoading && (
-              !isUnlimited ? (
-                <Badge
-                  variant={remaining > 2 ? "default" : "destructive"}
-                  className="shrink-0 rounded-full px-3 py-1.5 text-sm font-semibold border border-border/60 bg-background/80 shadow-[var(--shadow-soft)]"
-                  aria-live="polite"
-                  aria-label={quotaHelperText}
-                >
-                  {remaining}/{dailyLimit}
-                </Badge>
-              ) : (
-                <Badge
-                  className="shrink-0 rounded-full px-3 py-1.5 text-sm font-semibold bg-gradient-to-r from-amber-400 to-yellow-500 text-white border-0 shadow-[var(--shadow-soft)]"
-                  aria-live="polite"
-                  aria-label={quotaHelperText}
-                >
-                  ∞
-                </Badge>
-              )
-            )}
           </div>
-          <DialogDescription className="text-sm text-muted-foreground pr-6">
-            {t.placeholder_confession}
-          </DialogDescription>
-          {!limitsLoading && !isUnlimited && (
-            <div className="p-3 bg-muted/30 backdrop-blur-sm rounded-xl border border-border/50" aria-live="polite">
-              <p className="text-xs text-muted-foreground text-center">
-                {quotaHelperText}
-              </p>
-            </div>
-          )}
         </DialogHeader>
 
-        <div className="space-y-5 py-4">
+        <div className="space-y-4 py-4">
           {user && <DraftManager userId={user.id} onSelectDraft={draft => {
           setContent(draft.content);
           setCategory(draft.category);
           setCurrentDraftId(draft.id);
-          if (draft.mood_intensity) {
-            setMood({
-              mood: draft.mood || 'neutral',
-              intensity: draft.mood_intensity
-            });
-          }
           if (draft.image_url) {
             setImageUrl(draft.image_url);
           }
         }} />}
 
           {/* Main Confession Text Area - Glassmorphism Card */}
-          <div className="relative rounded-2xl overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background/80 to-primary/5 backdrop-blur-sm" />
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5" />
-            <Textarea placeholder={t.placeholder_confession} value={content} onChange={e => setContent(e.target.value)} className="relative min-h-[180px] resize-none bg-transparent border-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-base text-foreground placeholder:text-muted-foreground/60 p-5 rounded-2xl" disabled={isSubmitting} />
+          <div className="relative rounded-3xl overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-600/10 to-purple-500/10 backdrop-blur-md" />
+            <Textarea 
+              placeholder="What's on your mind..." 
+              value={content} 
+              onChange={e => setContent(e.target.value)} 
+              className="relative min-h-[240px] resize-none bg-transparent border-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-base text-foreground placeholder:text-muted-foreground/50 p-6 rounded-3xl" 
+              disabled={isSubmitting} 
+            />
           </div>
 
-          {/* Category Selector */}
-          <div className="space-y-2">
-            <Label htmlFor="category" className="text-sm font-medium text-foreground/80">
-              {t.select_category}
-            </Label>
-            <Select value={category} onValueChange={setCategory} disabled={isSubmitting}>
-              <SelectTrigger className="border-primary/20 focus:border-primary/40 bg-muted/30 backdrop-blur-sm h-12 rounded-xl">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="rounded-xl bg-background/95 backdrop-blur-xl border-primary/20">
-                {categories.map(cat => <SelectItem key={cat.value} value={cat.value} className="rounded-lg">
-                    {cat.label}
-                  </SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
+          {/* Controls Panel - Compact Action Cluster */}
+          <div className="space-y-3">
+            {/* Category and Add Image - Same Row */}
+            <div className="flex gap-2.5">
+              <Select value={category} onValueChange={setCategory} disabled={isSubmitting}>
+                <SelectTrigger className="flex-1 border-white/10 bg-white/5 backdrop-blur-sm h-11 rounded-xl text-sm">
+                  <SelectValue placeholder={t.select_category} />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl bg-background/95 backdrop-blur-xl border-white/10">
+                  {categories.map(cat => <SelectItem key={cat.value} value={cat.value} className="rounded-lg">
+                      {cat.label}
+                    </SelectItem>)}
+                </SelectContent>
+              </Select>
+              
+              <ImageUpload 
+                onImageUploaded={url => setImageUrl(url)} 
+                onImageRemoved={() => setImageUrl(null)} 
+                currentImage={imageUrl} 
+                disabled={isSubmitting} 
+              />
+            </div>
 
-          <ImageUpload onImageUploaded={url => setImageUrl(url)} onImageRemoved={() => setImageUrl(null)} currentImage={imageUrl} disabled={isSubmitting} />
-
-          <div className="pt-1">
-            <MoodTracker onMoodSelect={(moodValue, intensity) => setMood({
-            mood: moodValue,
-            intensity
-          })} />
-          </div>
-
-          {/* Anonymous Toggle - Premium Style */}
-          <div className="flex items-center justify-between p-4 bg-muted/30 backdrop-blur-sm rounded-2xl border border-primary/10">
-            <div className="flex flex-col gap-1">
+            {/* Post Anonymously Toggle */}
+            <div className="flex items-center justify-between px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
               <Label htmlFor="anonymous-toggle" className="text-sm font-medium cursor-pointer text-foreground">
                 {t.confession_anonymous_label}
               </Label>
-              {!isAnonymous && userNickname && <p className="text-xs text-primary font-medium">
-                  {t.confession_anonymous_preview.replace('{name}', `@${userNickname}`)}
-                </p>}
+              <Switch 
+                id="anonymous-toggle" 
+                checked={isAnonymous} 
+                onCheckedChange={setIsAnonymous} 
+                disabled={isSubmitting} 
+                className="data-[state=checked]:bg-purple-500 data-[state=unchecked]:bg-muted-foreground/30" 
+              />
             </div>
-            <Switch id="anonymous-toggle" checked={isAnonymous} onCheckedChange={setIsAnonymous} disabled={isSubmitting} className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground/30" />
-          </div>
 
-          {aiResponse && <div className="p-4 bg-primary/5 backdrop-blur-sm rounded-2xl border border-primary/20 animate-slide-up">
-              <div className="flex items-center gap-2 mb-2 text-primary">
-                <Sparkles className="w-4 h-4 animate-pulse-glow" />
-                <span className="text-sm font-medium">{t.ai_reply_title}</span>
-              </div>
-              <p className="text-sm text-foreground/90 leading-relaxed italic">
-                {aiResponse}
-              </p>
-            </div>}
+            {/* Enhance with AI Button */}
+            <PolishConfessionButton 
+              confessionText={content}
+              onPolishedTextReceived={(polished) => setContent(polished)}
+              disabled={isSubmitting}
+            />
+          </div>
 
           {env.features.confessionTurnstileRequired && <div className="space-y-2">
               {turnstileError && <p className="text-xs text-destructive">{t.auth_captcha_failed || 'CAPTCHA failed, please try again.'}</p>}
@@ -550,12 +505,8 @@ const NewConfessionDialog = ({
           }} />
             </div>}
 
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center pt-3">
-            <PolishConfessionButton 
-              confessionText={content}
-              onPolishedTextReceived={(polished) => setContent(polished)}
-              disabled={isSubmitting}
-            />
+          {/* Primary CTA - Post Confession */}
+          <div className="pt-4">
             <EnhancedButton
               onClick={handleSubmit}
               disabled={isSubmitting || !content.trim() || !canPost || (!isUnlimited && remaining === 0)}
