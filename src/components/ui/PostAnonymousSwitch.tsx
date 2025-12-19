@@ -15,7 +15,7 @@ export const PostAnonymousSwitch = React.forwardRef<
     <SwitchPrimitives.Root
       ref={ref}
       className={cn(
-        "inline-flex h-[28px] w-[52px] items-center rounded-full border-0 bg-white/20",
+        "inline-flex h-[52px] w-[52px] items-center rounded-full border-0 bg-white/20",
         "data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-primary data-[state=checked]:to-accent",
         "transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
         className,
