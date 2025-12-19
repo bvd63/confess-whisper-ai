@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/translated-dialog";
 import { EnhancedButton } from "@/components/EnhancedButton";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Send, Sparkles, AlertTriangle } from "lucide-react";
+import { Loader2, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
@@ -11,7 +11,6 @@ import { sanitizeConfession } from "@/lib/security/sanitizer";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import ImageUpload from "@/components/ImageUpload";
 import DraftManager from "@/components/DraftManager";
 import { CrisisDialog } from "@/components/CrisisDialog";
@@ -431,61 +430,63 @@ const NewConfessionDialog = ({
           }
         }} />}
 
-          {/* Main Confession Text Area - Glassmorphism Card */}
-          <div className="relative rounded-3xl overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-600/10 to-purple-500/10 backdrop-blur-md" />
-            <Textarea 
-              placeholder="What's on your mind..." 
-              value={content} 
-              onChange={e => setContent(e.target.value)} 
-              className="relative min-h-[240px] resize-none bg-transparent border-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-base text-foreground placeholder:text-muted-foreground/50 p-6 rounded-3xl" 
-              disabled={isSubmitting} 
-            />
-          </div>
-
-          {/* Controls Panel - Compact Action Cluster */}
           <div className="space-y-3">
-            {/* Category and Add Image - Same Row */}
-            <div className="flex gap-2.5">
-              <Select value={category} onValueChange={setCategory} disabled={isSubmitting}>
-                <SelectTrigger className="flex-1 border-white/10 bg-white/5 backdrop-blur-sm h-11 rounded-xl text-sm">
-                  <SelectValue placeholder={t.select_category} />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl bg-background/95 backdrop-blur-xl border-white/10">
-                  {categories.map(cat => <SelectItem key={cat.value} value={cat.value} className="rounded-lg">
-                      {cat.label}
-                    </SelectItem>)}
-                </SelectContent>
-              </Select>
-              
-              <ImageUpload 
-                onImageUploaded={url => setImageUrl(url)} 
-                onImageRemoved={() => setImageUrl(null)} 
-                currentImage={imageUrl} 
+            {/* Main Confession Text Area - Glassmorphism Card */}
+            <div className="relative rounded-3xl overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-600/10 to-purple-500/10 backdrop-blur-md" />
+              <Textarea 
+                placeholder="What's on your mind..." 
+                value={content} 
+                onChange={e => setContent(e.target.value)} 
+                className="relative min-h-[240px] resize-none bg-transparent border-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-base text-foreground placeholder:text-muted-foreground/50 p-6 rounded-3xl" 
                 disabled={isSubmitting} 
               />
             </div>
 
-            {/* Post Anonymously Toggle */}
-            <div className="flex items-center justify-between px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
-              <Label htmlFor="anonymous-toggle" className="text-sm font-medium cursor-pointer text-foreground">
-                {t.confession_anonymous_label}
-              </Label>
-              <Switch 
-                id="anonymous-toggle" 
-                checked={isAnonymous} 
-                onCheckedChange={setIsAnonymous} 
-                disabled={isSubmitting} 
-                className="data-[state=checked]:bg-purple-500 data-[state=unchecked]:bg-muted-foreground/30" 
+            {/* Controls Panel - Compact Action Cluster */}
+            <div className="space-y-3">
+              {/* Category and Add Image - Same Row */}
+              <div className="flex gap-2.5">
+                <Select value={category} onValueChange={setCategory} disabled={isSubmitting}>
+                  <SelectTrigger className="flex-1 border-white/10 bg-white/5 backdrop-blur-sm h-11 rounded-xl text-sm">
+                    <SelectValue placeholder={t.select_category} />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl bg-background/95 backdrop-blur-xl border-white/10">
+                    {categories.map(cat => <SelectItem key={cat.value} value={cat.value} className="rounded-lg">
+                        {cat.label}
+                      </SelectItem>)}
+                  </SelectContent>
+                </Select>
+                
+                <ImageUpload 
+                  onImageUploaded={url => setImageUrl(url)} 
+                  onImageRemoved={() => setImageUrl(null)} 
+                  currentImage={imageUrl} 
+                  disabled={isSubmitting} 
+                />
+              </div>
+
+              {/* Post Anonymously Toggle */}
+              <div className="flex items-center justify-between px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
+                <Label htmlFor="anonymous-toggle" className="text-sm font-medium cursor-pointer text-foreground">
+                  {t.confession_anonymous_label}
+                </Label>
+                <Switch 
+                  id="anonymous-toggle" 
+                  checked={isAnonymous} 
+                  onCheckedChange={setIsAnonymous} 
+                  disabled={isSubmitting} 
+                  className="data-[state=checked]:bg-purple-500 data-[state=unchecked]:bg-muted-foreground/30" 
+                />
+              </div>
+
+              {/* Enhance with AI Button */}
+              <PolishConfessionButton 
+                confessionText={content}
+                onPolishedTextReceived={(polished) => setContent(polished)}
+                disabled={isSubmitting}
               />
             </div>
-
-            {/* Enhance with AI Button */}
-            <PolishConfessionButton 
-              confessionText={content}
-              onPolishedTextReceived={(polished) => setContent(polished)}
-              disabled={isSubmitting}
-            />
           </div>
 
           {env.features.confessionTurnstileRequired && <div className="space-y-2">
