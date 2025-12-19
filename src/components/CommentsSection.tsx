@@ -520,7 +520,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(comment.id)}
-                        className="h-8 w-8 p-0 text-white/70 hover:text-destructive hover:bg-white/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="h-8 w-8 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-full"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </Button>
