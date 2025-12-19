@@ -4,7 +4,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Loader2, Send, Coins, ChevronRight, Image as ImageIcon, X } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Loader2, Send, Coins, ChevronRight, Image as ImageIcon, X, Sparkles } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -60,7 +61,8 @@ const Compose = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGeneratingResponse, setIsGeneratingResponse] = useState(false);
+  const [isPosting, setIsPosting] = useState(false);
   const [isAnonymous, setIsAnonymous] = useState(true);
   const [userNickname, setUserNickname] = useState<string | null>(null);
   const [aiResponse, setAiResponse] = useState<string | null>(null);
@@ -145,6 +147,10 @@ const Compose = () => {
     }
   }, [content, checkForCrisis]);
 
+  useEffect(() => {
+    setAiResponse((current) => (current ? null : current));
+  }, [content]);
+
   const handleClose = () => {
     navigate("/");
   };
@@ -224,6 +230,10 @@ const Compose = () => {
       return;
     }
 
+    if (aiResponse) {
+      setAiResponse(null);
+    }
+
     setIsPolishing(true);
     try {
       const { data, error } = await supabase.functions.invoke("polish-confession", {
@@ -263,11 +273,87 @@ const Compose = () => {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleGenerateAiResponse = async () => {
     if (!canPost) {
       toast({
         title: t.error_generic,
         description: dailyLimit !== Infinity ? t.limit_confessions_remaining.replace("{count}", "0") : t.error_submit,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!content.trim()) {
+      toast({
+        title: t.error_generic,
+        description: t.polish_empty_error,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGeneratingResponse(true);
+    try {
+      const { data: moderationData, error: moderationError } = await supabase.functions.invoke("ai-moderation", {
+        body: { content, language, captchaToken },
+      });
+      if (moderationError) {
+        logError("Moderation error", moderationError as Error);
+      }
+      if (moderationData && !moderationData.is_safe) {
+        toast({
+          title: t.toast_flagged,
+          description: moderationData.reason || t.toast_flagged,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const locale: AiLocale = language === "en" || language === "es" || language === "de" ? (language as AiLocale) : "en";
+      const responseText = await getAiReply({
+        text: content.trim(),
+        isVip,
+        locale,
+        userId: user?.id || "anonymous",
+        confessionId: "temp",
+      });
+
+      if (!responseText) {
+        toast({
+          title: t.error_generic,
+          description: t.error_submit,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setAiResponse(responseText);
+    } catch (error) {
+      logError("Error generating AI response", error as Error);
+      toast({
+        title: t.error_generic,
+        description: t.error_submit,
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingResponse(false);
+    }
+  };
+
+  const handlePostConfession = async () => {
+    if (!canPost) {
+      toast({
+        title: t.error_generic,
+        description: dailyLimit !== Infinity ? t.limit_confessions_remaining.replace("{count}", "0") : t.error_submit,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!aiResponse) {
+      toast({
+        title: t.error_generic,
+        description: t.error_submit,
         variant: "destructive",
       });
       return;
@@ -279,7 +365,7 @@ const Compose = () => {
       communityId: initialCommunityId,
       imageUrl,
       isAnonymous,
-      aiResponse: aiResponse ?? undefined,
+      aiResponse,
       mood: null,
       captchaToken,
       authorDisplayName: isAnonymous ? null : userNickname,
@@ -311,7 +397,7 @@ const Compose = () => {
       hasCaptchaToken: Boolean(normalizedPayload.captchaToken),
     });
 
-    setIsSubmitting(true);
+    setIsPosting(true);
     try {
       if (env.features.confessionTurnstileRequired && !captchaToken) {
         toast({
@@ -319,7 +405,6 @@ const Compose = () => {
           description: t.auth_captcha_failed || "Please complete the CAPTCHA before submitting.",
           variant: "destructive",
         });
-        setIsSubmitting(false);
         return;
       }
 
@@ -335,24 +420,7 @@ const Compose = () => {
           description: moderationData.reason || t.toast_flagged,
           variant: "destructive",
         });
-        setIsSubmitting(false);
         return;
-      }
-
-      let responseText: string | null = null;
-      try {
-        const locale: AiLocale = language === "en" || language === "es" || language === "de" ? (language as AiLocale) : "en";
-        responseText = await getAiReply({
-          text: content.trim(),
-          isVip,
-          locale,
-          userId: user?.id || "anonymous",
-          confessionId: "temp",
-        });
-        setAiResponse(responseText);
-      } catch (aiError) {
-        logError("AI response error", aiError as Error);
-        responseText = null;
       }
 
       if (!user) {
@@ -367,7 +435,7 @@ const Compose = () => {
       const creationResponse = await supabase.functions.invoke("create-confession", {
         body: {
           ...normalizedPayload,
-          aiResponse: responseText ?? normalizedPayload.aiResponse,
+          aiResponse,
         },
       });
 
@@ -430,16 +498,17 @@ const Compose = () => {
       setTurnstileError(false);
       setCaptchaRenderKey((key) => key + 1);
 
+      const responseForToast = aiResponse;
       toast({
         title: t.success_sent,
-        description: responseText ? t.ai_reply_title : undefined,
+        description: responseForToast ? t.ai_reply_title : undefined,
       });
 
       setContent("");
       setCategory("other");
       setImageUrl(null);
       setPreview(null);
-      setAiResponse(responseText);
+      setAiResponse(null);
     } catch (error) {
       logError("Error submitting confession", error as Error);
       toast({
@@ -448,14 +517,22 @@ const Compose = () => {
         variant: "destructive",
       });
     } finally {
-      setIsSubmitting(false);
+      setIsPosting(false);
     }
   };
 
   const quotaHelperText = dailyLimit === Infinity
     ? t.limit_confessions_unlimited
     : t.limit_confessions_remaining.replace("{count}", remaining.toString());
-
+  const isDraft = !aiResponse;
+  const isBusy = isGeneratingResponse || isPosting;
+  const primaryLabel = isDraft
+    ? t.compose_get_ai_response || "Get AI response"
+    : t.post_confession || t.submit;
+  const isPrimaryLoading = isDraft ? isGeneratingResponse : isPosting;
+  const primaryDisabled = isDraft
+    ? isBusy || isPolishing || !content.trim() || !canPost || (dailyLimit !== Infinity && remaining === 0)
+    : isBusy || isPolishing || !content.trim() || !canPost || (dailyLimit !== Infinity && remaining === 0) || (env.features.confessionTurnstileRequired && !captchaToken);
   return (
     <div
       className="min-h-screen bg-gradient-to-br from-[#0f0a23] via-[#0a0f2e] to-[#12072d] text-foreground"
@@ -486,7 +563,7 @@ const Compose = () => {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             className="relative min-h-[260px] resize-none bg-white/5 backdrop-blur-lg border border-white/10 focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-0 text-base text-white placeholder:text-white/60 p-6 rounded-[28px] shadow-inner"
-            disabled={isSubmitting}
+            disabled={isBusy}
           />
         </div>
 
@@ -498,7 +575,7 @@ const Compose = () => {
               variant="ghost"
               size="icon"
               onClick={handleRemoveImage}
-              disabled={isSubmitting}
+              disabled={isBusy}
               className="absolute top-3 right-3 h-9 w-9 rounded-full bg-black/50 text-white hover:bg-black/60"
             >
               <X className="w-4 h-4" />
@@ -512,12 +589,12 @@ const Compose = () => {
           accept="image/*"
           onChange={handleFileSelect}
           className="hidden"
-          disabled={isSubmitting || uploading}
+          disabled={isBusy || uploading}
         />
 
         <div className="space-y-3 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-lg p-3 shadow-[0_18px_60px_rgba(40,22,82,0.45)]">
           <div className="flex items-center gap-2">
-            <Select value={category} onValueChange={setCategory} disabled={isSubmitting}>
+            <Select value={category} onValueChange={setCategory} disabled={isBusy}>
               <SelectTrigger className="flex-1 h-10 rounded-full text-xs font-medium px-3 bg-white/5 border-white/15 text-white">
                 <SelectValue placeholder={t.select_category} />
               </SelectTrigger>
@@ -534,7 +611,7 @@ const Compose = () => {
               type="button"
               variant="outline"
               onClick={() => fileInputRef.current?.click()}
-              disabled={isSubmitting || uploading}
+              disabled={isBusy || uploading}
               className="h-10 px-3 rounded-full text-xs font-medium gap-1.5 whitespace-nowrap border-white/20 bg-white/5 text-white"
             >
               {uploading ? (
@@ -551,8 +628,8 @@ const Compose = () => {
             </Button>
           </div>
 
-          {/* Premium iOS-style Post anonymously toggle */}
-          <div className="flex items-center justify-between px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white">
+          {/* Premium anonymous toggle */}
+          <div className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white">
             <div className="flex flex-col gap-0.5">
               <Label htmlFor="anonymous-toggle" className="text-sm font-semibold cursor-pointer text-white">
                 {t.confession_anonymous_label}
@@ -565,42 +642,31 @@ const Compose = () => {
                     : t.confession_posting_as_user}
               </span>
             </div>
-            <button
+            <Switch
               id="anonymous-toggle"
-              type="button"
-              role="switch"
-              aria-checked={isAnonymous}
-              onClick={() => !isSubmitting && setIsAnonymous(!isAnonymous)}
-              disabled={isSubmitting}
+              checked={isAnonymous}
+              onCheckedChange={setIsAnonymous}
+              disabled={isBusy}
               className={cn(
-                "relative inline-flex h-2.5 w-14 shrink-0 cursor-pointer items-center rounded-xl transition-all duration-300",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                "disabled:cursor-not-allowed disabled:opacity-50",
-                isAnonymous
-                  ? "bg-gradient-to-r from-primary via-primary/90 to-accent shadow-[0_0_16px_rgba(124,77,255,0.4)]"
-                  : "bg-muted-foreground/30"
+                "h-9 w-16 rounded-full",
+                "data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-primary data-[state=checked]:to-accent",
+                "data-[state=unchecked]:bg-white/15",
+                "shadow-[0_0_18px_rgba(124,77,255,0.35)] ring-1 ring-white/10 transition-all duration-300",
               )}
-            >
-              <span
-                className={cn(
-                  "pointer-events-none block h-4 w-4 rounded-md bg-white shadow-lg ring-0 transition-all duration-300",
-                  isAnonymous ? "translate-x-9" : "translate-x-0.5"
-                )}
-              />
-            </button>
+            />
           </div>
 
           {/* Enhance with AI row - opens confirmation dialog */}
           <button
             type="button"
             onClick={() => setShowEnhanceDialog(true)}
-            disabled={isSubmitting || isPolishing || !content?.trim()}
+            disabled={isBusy || isPolishing || !content?.trim()}
             className={cn(
               "w-full flex items-center justify-between px-4 py-3 rounded-full",
               "bg-gradient-to-r from-primary/20 via-white/10 to-accent/20 border border-white/10 backdrop-blur-md",
               "shadow-[0_12px_30px_rgba(78,46,176,0.25)] hover:shadow-[0_16px_40px_rgba(78,46,176,0.3)]",
               "transition-all duration-300",
-              (isSubmitting || isPolishing || !content?.trim()) && "opacity-50 cursor-not-allowed",
+              (isBusy || isPolishing || !content?.trim()) && "opacity-50 cursor-not-allowed",
             )}
           >
             <div className="flex items-center gap-3">
@@ -674,19 +740,19 @@ const Compose = () => {
         {/* Post Confession button - static, no shimmer/animation */}
         <div className="space-y-2">
           <Button
-            onClick={handleSubmit}
-            disabled={isSubmitting || !content.trim() || !canPost || (dailyLimit !== Infinity && remaining === 0)}
-            className="w-full h-14 rounded-full font-semibold text-base bg-gradient-to-r from-primary via-primary/90 to-accent text-primary-foreground shadow-[0_10px_30px_hsl(var(--primary)/0.28)] hover:shadow-[0_16px_40px_hsl(var(--primary)/0.32)] hover:saturate-[1.05] transition-all duration-200"
+            onClick={isDraft ? handleGenerateAiResponse : handlePostConfession}
+            disabled={primaryDisabled}
+            className="w-full h-14 rounded-full font-semibold text-base bg-gradient-to-r from-primary to-accent text-white shadow-[0_18px_50px_rgba(78,46,176,0.35)] border border-white/10 transition-none"
           >
-            {isSubmitting ? (
+            {isPrimaryLoading ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                 {t.submitting}
               </>
             ) : (
               <>
-                <Send className="w-5 h-5 mr-2" />
-                {t.post_confession || t.submit}
+                {isDraft ? <Sparkles className="w-5 h-5 mr-2" /> : <Send className="w-5 h-5 mr-2" />}
+                {primaryLabel}
               </>
             )}
           </Button>
@@ -737,7 +803,7 @@ const Compose = () => {
                 setShowEnhanceDialog(false);
                 handlePolish();
               }}
-              disabled={isPolishing}
+              disabled={isBusy || isPolishing || !content?.trim()}
             >
               {isPolishing ? t.submitting : enhanceModalCopy.confirm}
             </Button>

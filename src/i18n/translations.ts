@@ -1124,6 +1124,7 @@ type Translations = {
   polish_error: string;
   polish_empty_error: string;
   post_confession: string;
+  compose_get_ai_response: string;
   enhance_modal_title: string;
   enhance_modal_subtitle: string;
   enhance_modal_benefit_1: string;
@@ -3163,6 +3164,7 @@ export const translations: Record<Language, Translations> = {
     polish_error: "Failed to polish confession",
     polish_empty_error: "Please write your confession first",
     post_confession: "Post Confession",
+    compose_get_ai_response: "Get AI response",
     enhance_modal_title: "Enhance with AI",
     enhance_modal_subtitle: "Unlock a refined, empathic version before you post.",
     enhance_modal_benefit_1: "Warmer, clearer tone that still sounds like you.",
@@ -5033,6 +5035,7 @@ export const translations: Record<Language, Translations> = {
     polish_error: "Error al mejorar confesión",
     polish_empty_error: "Por favor escribe tu confesión primero",
     post_confession: "Publicar Confesión",
+    compose_get_ai_response: "Obtener respuesta IA",
     enhance_modal_title: "Mejorar con IA",
     enhance_modal_subtitle: "Obtén una versión más clara y empática antes de publicar.",
     enhance_modal_benefit_1: "Tono más cálido y claro que sigue sonando a ti.",
@@ -7004,6 +7007,7 @@ export const translations: Record<Language, Translations> = {
     polish_error: "Fehler beim Verbessern des Geständnisses",
     polish_empty_error: "Bitte schreibe zuerst dein Geständnis",
     post_confession: "Geständnis Posten",
+    compose_get_ai_response: "KI-Antwort erhalten",
     enhance_modal_title: "Mit KI verbessern",
     enhance_modal_subtitle: "Hol dir eine klarere, empathische Version vor dem Posten.",
     enhance_modal_benefit_1: "Wärmerer, klarerer Ton, der trotzdem nach dir klingt.",
