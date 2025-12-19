@@ -44,7 +44,7 @@ const UserProfile = () => {
     try {
       // Load profile data
       const { data: profileData, error: profileError } = await supabase
-        .from("profiles_public")
+        .from("profiles")
         .select("nickname")
         .eq("user_id", userId)
         .single();
