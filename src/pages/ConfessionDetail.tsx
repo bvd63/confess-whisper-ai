@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { Crown, Shield, User as UserIcon, Zap, Clock3, ArrowLeft, Trash2 } from "lucide-react";
+import { Shield, User as UserIcon, Zap, Clock3, ArrowLeft, Trash2 } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useVipStatus } from "@/hooks/usePremiumStatus";
@@ -278,10 +278,7 @@ const ConfessionDetail = () => {
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm font-semibold text-white truncate">{displayName}</span>
                   {subscriptionTier === 'vip' && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 border border-white/20 text-[11px] uppercase tracking-wide flex-shrink-0">
-                      <Crown className="w-3.5 h-3.5 text-vip-gold" />
-                      VIP
-                    </span>
+                    <span className="text-base drop-shadow-[0_0_4px_rgba(234,179,8,0.6)]" title="VIP">👑</span>
                   )}
                   {isBoosted && (
                     <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-400/90 via-amber-500 to-orange-500 text-[12px] font-semibold text-black shadow-lg border border-amber-200/70 flex-shrink-0">

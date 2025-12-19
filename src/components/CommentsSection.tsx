@@ -491,9 +491,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                       {displayName}
                     </span>
                     {!isAnonymousComment && (
-                      <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-white/10 text-vip-gold rounded-full border border-vip-gold/35">
-                        VIP
-                      </span>
+                      <span className="text-sm drop-shadow-[0_0_4px_rgba(234,179,8,0.6)]" title="VIP">👑</span>
                     )}
                     <span className="text-xs text-white/70">
                       · {timeAgo(comment.created_at)}

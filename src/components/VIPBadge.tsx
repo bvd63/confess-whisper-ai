@@ -29,16 +29,15 @@ export const VIPBadge = ({
   };
 
   return (
-    <div
+    <span
       className={cn(
-        "inline-flex items-center rounded-full bg-gradient-to-r from-yellow-500/20 to-amber-500/20 font-semibold transition-transform hover:scale-105",
-        showLabel && containerSizeClasses[size],
+        "inline-flex items-center justify-center",
+        textSizeClasses[size],
         className
       )}
       title="VIP"
     >
-      <span className={cn(textSizeClasses[size], "animate-pulse")}>👑</span>
-      {showLabel && <span className="text-yellow-600">VIP</span>}
-    </div>
+      <span className="text-vip-gold drop-shadow-[0_0_4px_rgba(234,179,8,0.6)]">👑</span>
+    </span>
   );
 };
