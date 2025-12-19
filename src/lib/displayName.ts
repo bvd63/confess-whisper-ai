@@ -69,7 +69,7 @@ export function truncateNickname(nickname: string, maxLength: number = 24): stri
 export async function fetchUserDisplayInfo(userId: string): Promise<UserDisplayInfo | null> {
   try {
     const { data, error } = await supabase
-      .from('profiles')
+      .from('profiles_public')
       .select('nickname, is_nickname_public, user_id')
       .eq('user_id', userId)
       .maybeSingle();

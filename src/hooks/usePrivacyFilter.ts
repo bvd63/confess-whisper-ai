@@ -5,7 +5,10 @@ export const usePrivacyFilter = (targetUserId: string | null, currentUserId: str
   const { data: privacySettings, isLoading } = useOptimizedQuery({
     queryKey: ['privacy-settings', targetUserId],
     queryFn: async () => {
-      if (!targetUserId) return null;
+      if (!targetUserId || !currentUserId) return null;
+
+      // Only allow owner fetches from profiles; visibility enforcement happens server-side
+      if (targetUserId !== currentUserId) return null;
 
       const { data, error } = await supabase
         .from('profiles')
@@ -21,7 +24,7 @@ export const usePrivacyFilter = (targetUserId: string | null, currentUserId: str
     useCircuitBreaker: true,
     useRetry: true,
     useDedupe: true,
-    enabled: !!targetUserId,
+    enabled: !!targetUserId && targetUserId === currentUserId,
   });
 
   const { data: isFollowing } = useOptimizedQuery({

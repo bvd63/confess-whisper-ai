@@ -29,7 +29,7 @@ export async function getNicknameCached(userId: string): Promise<string | null> 
     try {
       // 1) Try direct select first (fast path; allowed by RLS when nickname is not null)
       const { data: prof } = await supabase
-        .from('profiles')
+        .from('profiles_public')
         .select('nickname')
         .eq('user_id', userId)
         .maybeSingle();
