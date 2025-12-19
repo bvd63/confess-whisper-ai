@@ -467,7 +467,7 @@ const NewConfessionDialog = ({
             </div>
 
             {/* Post Anonymously Toggle */}
-            <div className="flex items-center justify-between px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
+            <div className="flex items-center justify-between gap-3">
               <Label htmlFor="anonymous-toggle" className="text-sm font-medium cursor-pointer text-foreground">
                 {t.confession_anonymous_label}
               </Label>
