@@ -196,14 +196,14 @@ export function BoostConfessionButton({
             </div>
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsOpen(false)} disabled={boostMutation.isPending}>
+          <DialogFooter className="flex flex-row gap-3 sm:gap-3">
+            <Button variant="outline" onClick={() => setIsOpen(false)} disabled={boostMutation.isPending} className="flex-1">
               {t.cancel || 'Cancel'}
             </Button>
             <Button
               onClick={handleConfirm}
               disabled={boostMutation.isPending}
-              className="inline-flex items-center justify-center whitespace-nowrap"
+              className="flex-1 inline-flex items-center justify-center whitespace-nowrap"
             >
               {boostMutation.isPending ? (t.processing || 'Processing...') : (t.boost_confirm_button || 'Boost confession')}
             </Button>

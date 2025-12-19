@@ -204,13 +204,14 @@ export function HighlightCommentButton({
             )}
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsOpen(false)}>
+          <DialogFooter className="flex flex-row gap-3 sm:gap-3">
+            <Button variant="outline" onClick={() => setIsOpen(false)} className="flex-1">
               {t.cancel}
             </Button>
             <Button
               onClick={() => highlightMutation.mutate()}
               disabled={isActive || highlightMutation.isPending}
+              className="flex-1"
             >
               {isActive
                 ? t.highlight_comment_active_badge
