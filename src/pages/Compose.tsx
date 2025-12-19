@@ -2,10 +2,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { EnhancedButton } from "@/components/EnhancedButton";
+import { Loader2, Send, Coins, ChevronRight, Image as ImageIcon, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +13,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, Send, Sparkles, Coins, ChevronRight, Image as ImageIcon, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -74,6 +72,49 @@ const Compose = () => {
   const [showEnhanceDialog, setShowEnhanceDialog] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Enhance with AI confirmation card copy
+  const enhanceModalCopy = useMemo(() => {
+    const copyByLang = {
+      en: {
+        title: "Enhance with AI",
+        subtitle: "Preview quick improvements before posting.",
+        bullets: [
+          "Polishes wording while keeping your intent clear",
+          "Keeps tone empathetic and respectful",
+          "Quick suggestions without revealing identity",
+        ],
+        cost: "Cost: 10 coins",
+        cancel: "Cancel",
+        confirm: "Confirm",
+      },
+      es: {
+        title: "Mejorar con IA",
+        subtitle: "Revisa mejoras rápidas antes de publicar.",
+        bullets: [
+          "Pulimos el texto sin perder tu intención",
+          "Mantenemos un tono empático y respetuoso",
+          "Sugerencias rápidas sin revelar tu identidad",
+        ],
+        cost: "Costo: 10 monedas",
+        cancel: "Cancelar",
+        confirm: "Confirmar",
+      },
+      de: {
+        title: "Mit KI verfeinern",
+        subtitle: "Sieh dir schnelle Verbesserungen vor dem Posten an.",
+        bullets: [
+          "Formuliert klarer, ohne deine Absicht zu ändern",
+          "Hält den Ton einfühlsam und respektvoll",
+          "Schnelle Tipps, ohne deine Identität zu zeigen",
+        ],
+        cost: "Kosten: 10 Münzen",
+        cancel: "Abbrechen",
+        confirm: "Bestätigen",
+      },
+    };
+    return copyByLang[language] || copyByLang.en;
+  }, [language]);
 
   const categories = useMemo(
     () => [
@@ -415,53 +456,6 @@ const Compose = () => {
     ? t.limit_confessions_unlimited
     : t.limit_confessions_remaining.replace("{count}", remaining.toString());
 
-  const enhanceModalCopy = useMemo(() => {
-    const copyByLang = {
-      en: {
-        title: "Enhance with AI",
-        subtitle: "Preview quick improvements before posting.",
-        bullets: [
-          "Polishes wording while keeping your intent clear",
-          "Keeps tone empathetic and respectful",
-          "Quick suggestions without revealing identity",
-        ],
-        cost: "Cost: 10 coins",
-        cancel: "Cancel",
-        confirm: "Confirm",
-      },
-      es: {
-        title: "Mejorar con IA",
-        subtitle: "Revisa mejoras rápidas antes de publicar.",
-        bullets: [
-          "Pulimos el texto sin perder tu intención",
-          "Mantenemos un tono empático y respetuoso",
-          "Sugerencias rápidas sin revelar tu identidad",
-        ],
-        cost: "Costo: 10 monedas",
-        cancel: "Cancelar",
-        confirm: "Confirmar",
-      },
-      de: {
-        title: "Mit KI verfeinern",
-        subtitle: "Sieh dir schnelle Verbesserungen vor dem Posten an.",
-        bullets: [
-          "Formuliert klarer, ohne deine Absicht zu ändern",
-          "Hält den Ton einfühlsam und respektvoll",
-          "Schnelle Tipps, ohne deine Identität zu zeigen",
-        ],
-        cost: "Kosten: 10 Münzen",
-        cancel: "Abbrechen",
-        confirm: "Bestätigen",
-      },
-    } as const;
-
-    if (language === "es" || language === "de" || language === "en") {
-      return copyByLang[language];
-    }
-
-    return copyByLang.en;
-  }, [language]);
-
   return (
     <div
       className="min-h-screen bg-gradient-to-br from-[#0f0a23] via-[#0a0f2e] to-[#12072d] text-foreground"
@@ -557,7 +551,8 @@ const Compose = () => {
             </Button>
           </div>
 
-          <div className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white">
+          {/* Premium iOS-style Post anonymously toggle */}
+          <div className="flex items-center justify-between px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white">
             <div className="flex flex-col gap-0.5">
               <Label htmlFor="anonymous-toggle" className="text-sm font-semibold cursor-pointer text-white">
                 {t.confession_anonymous_label}
@@ -570,20 +565,32 @@ const Compose = () => {
                     : t.confession_posting_as_user}
               </span>
             </div>
-            <Switch
+            <button
               id="anonymous-toggle"
-              checked={isAnonymous}
-              onCheckedChange={setIsAnonymous}
+              type="button"
+              role="switch"
+              aria-checked={isAnonymous}
+              onClick={() => !isSubmitting && setIsAnonymous(!isAnonymous)}
               disabled={isSubmitting}
               className={cn(
-                "h-9 w-16 rounded-full",
-                "data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-primary data-[state=checked]:to-accent",
-                "data-[state=unchecked]:bg-white/15",
-                "shadow-[0_0_18px_rgba(124,77,255,0.35)] ring-1 ring-white/10 transition-all duration-300",
+                "relative inline-flex h-8 w-14 shrink-0 cursor-pointer items-center rounded-full transition-all duration-300",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                "disabled:cursor-not-allowed disabled:opacity-50",
+                isAnonymous
+                  ? "bg-gradient-to-r from-primary via-primary/90 to-accent shadow-[0_0_16px_rgba(124,77,255,0.4)]"
+                  : "bg-muted-foreground/30"
               )}
-            />
+            >
+              <span
+                className={cn(
+                  "pointer-events-none block h-6 w-6 rounded-full bg-white shadow-lg ring-0 transition-all duration-300",
+                  isAnonymous ? "translate-x-7" : "translate-x-1"
+                )}
+              />
+            </button>
           </div>
 
+          {/* Enhance with AI row - opens confirmation dialog */}
           <button
             type="button"
             onClick={() => setShowEnhanceDialog(true)}
@@ -601,12 +608,10 @@ const Compose = () => {
                 {isPolishing ? (
                   <Loader2 className="w-4 h-4 text-white animate-spin" />
                 ) : (
-                  <span className="text-lg leading-none">✨</span>
+                  <span className="text-lg">✨</span>
                 )}
               </div>
-              <div className="flex items-center gap-2 text-white">
-                <span className="text-sm font-semibold">Enhance with AI</span>
-              </div>
+              <span className="text-sm font-semibold text-white">{t.polish_enhance_ai}</span>
             </div>
             <ChevronRight className="w-4 h-4 text-white/70" />
           </button>
@@ -618,7 +623,7 @@ const Compose = () => {
             <div className="relative p-4 space-y-3">
               <div className="flex items-center gap-2">
                 <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-white/15">
-                  <Sparkles className="w-4 h-4 text-white" />
+                  <span className="text-lg">✨</span>
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-white">{t.ai_reply_title}</h3>
@@ -668,11 +673,12 @@ const Compose = () => {
           </div>
         )}
 
+        {/* Post Confession button - static, no shimmer/animation */}
         <div className="space-y-2">
           <Button
             onClick={handleSubmit}
             disabled={isSubmitting || !content.trim() || !canPost || (dailyLimit !== Infinity && remaining === 0)}
-            className="w-full h-14 rounded-full font-semibold text-base bg-gradient-to-r from-primary to-accent text-white shadow-[0_18px_50px_rgba(78,46,176,0.35)] border border-white/10 transition-none"
+            className="w-full h-14 rounded-full font-semibold text-base bg-gradient-to-r from-primary via-primary/90 to-accent text-primary-foreground shadow-[0_10px_30px_hsl(var(--primary)/0.28)] hover:shadow-[0_16px_40px_hsl(var(--primary)/0.32)] hover:saturate-[1.05] transition-all duration-200"
           >
             {isSubmitting ? (
               <>
@@ -692,41 +698,48 @@ const Compose = () => {
 
       <CrisisDialog isOpen={showCrisisDialog} onClose={() => setShowCrisisDialog(false)} />
 
+      {/* Enhance with AI Confirmation Dialog */}
       <Dialog open={showEnhanceDialog} onOpenChange={setShowEnhanceDialog}>
-        <DialogContent className="max-w-[420px] bg-white/10 backdrop-blur-xl border border-white/15 text-white rounded-3xl shadow-[0_24px_70px_rgba(78,46,176,0.45)]">
+        <DialogContent className="sm:max-w-md bg-gradient-to-br from-[#2a2e5c] via-[#19192f] to-[#0d0d1b] border-white/10">
           <DialogHeader>
-            <DialogTitle className="text-lg font-semibold">{enhanceModalCopy.title}</DialogTitle>
-            <DialogDescription className="text-sm text-white/70">
+            <DialogTitle className="flex items-center gap-2 text-white">
+              <span className="text-xl">✨</span>
+              {enhanceModalCopy.title}
+            </DialogTitle>
+            <DialogDescription className="text-white/70">
               {enhanceModalCopy.subtitle}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-2 text-sm text-white/90">
-            {enhanceModalCopy.bullets.slice(0, 3).map((benefit, index) => (
-              <div key={benefit} className="flex items-start gap-2">
-                <span className="text-base leading-none pt-0.5">{index === 0 ? "✨" : index === 1 ? "🔒" : "⚡"}</span>
+          <div className="space-y-3 py-4">
+            {enhanceModalCopy.bullets.map((benefit, index) => (
+              <div key={index} className="flex items-start gap-3 text-sm text-white/90">
+                <span className="text-base leading-none pt-0.5">
+                  {index === 0 ? "✨" : index === 1 ? "🔒" : "⚡"}
+                </span>
                 <span>{benefit}</span>
               </div>
             ))}
-            <div className="mt-3 px-3 py-2 rounded-2xl bg-white/10 border border-white/15 flex items-center gap-2 text-sm font-semibold">
+            <div className="mt-4 px-4 py-3 rounded-2xl bg-white/10 border border-white/15 flex items-center gap-2 text-sm font-semibold text-white">
               <Coins className="w-4 h-4 text-amber-300" />
               <span>{enhanceModalCopy.cost}</span>
             </div>
           </div>
-          <DialogFooter className="flex gap-2 sm:gap-3">
+          <DialogFooter className="flex flex-row gap-3 sm:gap-3">
             <Button
               variant="outline"
-              className="w-full rounded-full border-white/30 bg-white/5 text-white hover:bg-white/10"
+              className="flex-1 rounded-full border-white/30 bg-white/5 text-white hover:bg-white/10"
               onClick={() => setShowEnhanceDialog(false)}
+              disabled={isPolishing}
             >
               {enhanceModalCopy.cancel}
             </Button>
             <Button
-              className="w-full rounded-full"
+              className="flex-1 rounded-full bg-gradient-to-r from-primary via-primary/90 to-accent text-primary-foreground"
               onClick={() => {
                 setShowEnhanceDialog(false);
                 handlePolish();
               }}
-              disabled={isSubmitting || isPolishing || !content?.trim()}
+              disabled={isPolishing}
             >
               {isPolishing ? t.submitting : enhanceModalCopy.confirm}
             </Button>
