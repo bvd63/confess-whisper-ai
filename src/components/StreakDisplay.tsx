@@ -59,9 +59,9 @@ export const StreakDisplay = () => {
 
       {/* VIP Double Rewards Badge */}
       {streakData.isVIP && (
-        <div className="mt-3 flex items-center gap-2 text-xs text-purple-400">
-          <span>✨</span>
-          <span>VIP 2x rewards active</span>
+        <div className="mt-3 flex items-center gap-2 text-xs text-vip-gold">
+          <span className="drop-shadow-[0_0_4px_rgba(234,179,8,0.6)]">👑</span>
+          <span>{t.vip_double_rewards_active}</span>
         </div>
       )}
     </div>

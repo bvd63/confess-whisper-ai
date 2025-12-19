@@ -3933,7 +3933,7 @@ export const translations: Record<Language, Translations> = {
     // Streaks & Rewards
     current_streak: "Current Streak",
     next_milestone: "Next milestone",
-    vip_double_rewards_active: "VIP 2x rewards active",
+    vip_double_rewards_active: "2x rewards active",
     streak_continued: "🔥 {days} day streak! +{points} points",
     streak_at_risk: "Don't lose your streak!",
     streak_reminder_message: "You have {hours} hours left to keep your streak alive. Share a confession now!",
@@ -5893,7 +5893,7 @@ export const translations: Record<Language, Translations> = {
     // Streaks & Rewards
     current_streak: "Racha Actual",
     next_milestone: "Próximo hito",
-    vip_double_rewards_active: "Recompensas VIP 2x activas",
+    vip_double_rewards_active: "Recompensas 2x activas",
     streak_continued: "🔥 ¡Racha de {days} días! +{points} puntos",
     streak_at_risk: "¡No pierdas tu racha!",
     streak_reminder_message: "Te quedan {hours} horas para mantener tu racha. ¡Comparte una confesión ahora!",
@@ -7853,7 +7853,7 @@ export const translations: Record<Language, Translations> = {
     // Streaks & Rewards
     current_streak: "Aktuelle Serie",
     next_milestone: "Nächster Meilenstein",
-    vip_double_rewards_active: "VIP 2x Belohnungen Aktiv",
+    vip_double_rewards_active: "2x Belohnungen aktiv",
     streak_continued: "🔥 {days} Tage Serie! +{points} Punkte",
     streak_at_risk: "Verliere nicht deine Serie!",
     streak_reminder_message: "Du hast noch {hours} Stunden um deine Serie am Leben zu erhalten. Teile jetzt ein Geständnis!",

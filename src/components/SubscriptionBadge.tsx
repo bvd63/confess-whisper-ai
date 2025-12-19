@@ -1,4 +1,4 @@
-import { Crown, Zap } from "lucide-react";
+
 import { Badge } from "@/components/ui/badge";
 import { useSubscription } from "@/state/SubscriptionProvider";
 import { cn } from "@/lib/utils";
@@ -29,10 +29,10 @@ export const SubscriptionBadge = ({
 
   const config = {
     vip: {
-      icon: Crown,
-      label: 'VIP',
-      className: 'bg-gradient-to-r from-yellow-500 to-yellow-300 text-black border-yellow-400/50',
-      glow: 'shadow-[0_0_25px_rgba(234,179,8,0.6)]'
+      icon: null,
+      label: '👑',
+      className: 'bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-vip-gold border-vip-gold/30',
+      glow: 'shadow-[0_0_8px_rgba(234,179,8,0.4)]'
     }
   };
 
@@ -63,8 +63,7 @@ export const SubscriptionBadge = ({
         className
       )}
     >
-      <Icon className={iconSizes[size]} />
-      {showLabel && tierConfig.label}
+      {tierConfig.label}
     </Badge>
   );
 };
