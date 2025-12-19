@@ -628,27 +628,35 @@ const Compose = () => {
             </Button>
           </div>
 
-          {/* Slim anonymous toggle - iOS style */}
-          <div className="flex items-center justify-between py-2 text-white">
-            <Label htmlFor="anonymous-toggle" className="text-sm font-medium cursor-pointer text-white/90">
-              {t.confession_anonymous_label}
-            </Label>
+          {/* Premium anonymous toggle */}
+          <div className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white">
+            <div className="flex flex-col gap-0.5">
+              <Label htmlFor="anonymous-toggle" className="text-sm font-semibold cursor-pointer text-white">
+                {t.confession_anonymous_label}
+              </Label>
+              <span className="text-xs text-white/70">
+                {isAnonymous
+                  ? t.confession_posting_as_anonymous
+                  : userNickname
+                    ? t.confession_anonymous_preview.replace("{name}", userNickname)
+                    : t.confession_posting_as_user}
+              </span>
+            </div>
             <Switch
               id="anonymous-toggle"
               checked={isAnonymous}
               onCheckedChange={setIsAnonymous}
               disabled={isBusy}
               className={cn(
-                "h-[22px] w-[42px] rounded-full p-[2px] border-0",
+                "h-7 w-12 rounded-full p-[3px]",
                 "data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-primary data-[state=checked]:to-accent",
-                "data-[state=unchecked]:bg-white/15",
-                "transition-colors duration-200",
+                "data-[state=unchecked]:bg-white/20",
+                "shadow-[0_0_18px_rgba(124,77,255,0.35)] ring-1 ring-white/10 transition-all duration-300",
               )}
               thumbClassName={cn(
-                "h-[18px] w-[18px] rounded-full bg-white",
-                "shadow-[0_1px_2px_rgba(0,0,0,0.15)]",
+                "h-[22px] w-[22px] rounded-full bg-white",
+                "shadow-[0_2px_4px_rgba(0,0,0,0.2),0_1px_10px_rgba(0,0,0,0.1)]",
                 "data-[state=unchecked]:translate-x-0 data-[state=checked]:translate-x-[20px]",
-                "transition-transform duration-200",
               )}
             />
           </div>
