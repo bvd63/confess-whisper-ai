@@ -2461,23 +2461,6 @@ export type Database = {
         }
         Relationships: []
       }
-      profiles_public: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          followers_count: number | null
-          following_count: number | null
-          handle: string | null
-          is_nickname_public: boolean | null
-          nickname: string | null
-          nickname_visibility:
-            | Database["public"]["Enums"]["nickname_visibility_enum"]
-            | null
-          posts_count: number | null
-          user_id: string | null
-        }
-        Relationships: []
-      }
       user_post_counts: {
         Row: {
           post_count: number | null
@@ -2523,23 +2506,6 @@ export type Database = {
     }
     Functions: {
       activate_trial: { Args: { _user_id: string }; Returns: Json }
-      get_profiles_public: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          user_id: string
-          nickname: string | null
-          handle: string | null
-          avatar_url: string | null
-          bio: string | null
-          is_nickname_public: boolean | null
-          nickname_visibility:
-            | Database["public"]["Enums"]["nickname_visibility_enum"]
-            | null
-          followers_count: number | null
-          following_count: number | null
-          posts_count: number | null
-        }[]
-      }
       award_coins:
         | {
             Args: {
