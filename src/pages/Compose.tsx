@@ -604,13 +604,11 @@ const Compose = () => {
             )}
           >
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-9 h-9 rounded-full bg-white/15">
-                {isPolishing ? (
-                  <Loader2 className="w-4 h-4 text-white animate-spin" />
-                ) : (
-                  <span className="text-lg">✨</span>
-                )}
-              </div>
+              {isPolishing ? (
+                <Loader2 className="w-4 h-4 text-white animate-spin" />
+              ) : (
+                <span className="text-lg">✨</span>
+              )}
               <span className="text-sm font-semibold text-white">{t.polish_enhance_ai}</span>
             </div>
             <ChevronRight className="w-4 h-4 text-white/70" />
