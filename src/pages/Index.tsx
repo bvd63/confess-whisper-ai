@@ -222,9 +222,6 @@ const Index = () => {
         {/* Welcome Section */}
         <div className="mb-12 text-center animate-fade-in">
           <div className="inline-flex items-center gap-3 mb-6 px-6 py-3 glass rounded-full border border-primary/15 shadow-lg shadow-primary/5">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-pressed flex items-center justify-center shadow-lg shadow-primary/25">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
             <span className="text-sm text-primary font-semibold">{t.anonymous_secure}</span>
           </div>
           <h2 className="text-4xl md:text-5xl font-bold mb-4 px-4 text-foreground">
