@@ -575,17 +575,14 @@ const NewConfessionDialog = ({
           />
 
           {/* Compact Action Cluster */}
-          <div className="space-y-3 bg-muted/20 backdrop-blur-sm rounded-xl p-3 border border-border/30">
+          <div className="space-y-3 bg-gradient-to-br from-purple-500/5 via-background/50 to-purple-500/5 backdrop-blur-sm rounded-xl p-3 border border-purple-500/10">
             {/* Row 1: Category + Add Image */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <Select value={category} onValueChange={setCategory} disabled={isSubmitting}>
-                <SelectTrigger className="flex-1 h-10 border-border/40 bg-background/50 hover:bg-background/70 rounded-lg text-sm">
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">{t.select_category}</span>
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                  </div>
+                <SelectTrigger className="flex-1 h-9 border-purple-500/20 bg-purple-500/5 hover:bg-purple-500/10 rounded-full text-xs font-medium px-3">
+                  <SelectValue placeholder={t.select_category} />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl bg-background/95 backdrop-blur-xl border-border/40">
+                <SelectContent className="rounded-xl bg-background/95 backdrop-blur-xl border-purple-500/20">
                   {categories.map(cat => (
                     <SelectItem key={cat.value} value={cat.value} className="rounded-lg">
                       {cat.label}
@@ -599,33 +596,38 @@ const NewConfessionDialog = ({
                 variant="outline"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isSubmitting || uploading}
-                className="h-10 px-4 border-border/40 bg-background/50 hover:bg-background/70 rounded-lg text-sm gap-2"
+                className="h-9 px-3 border-purple-500/20 bg-purple-500/5 hover:bg-purple-500/10 rounded-full text-xs font-medium gap-1.5 whitespace-nowrap"
               >
                 {uploading ? (
                   <>
-                    <Upload className="w-4 h-4 animate-pulse" />
+                    <Upload className="w-3.5 h-3.5 animate-pulse" />
                     {t.image_uploading}
                   </>
                 ) : (
                   <>
-                    <ImageIcon className="w-4 h-4" />
-                    {t.image_add_optional}
+                    <ImageIcon className="w-3.5 h-3.5" />
+                    {t.image_add}
                   </>
                 )}
               </Button>
             </div>
 
             {/* Row 2: Post Anonymously Toggle */}
-            <div className="flex items-center justify-between py-2">
-              <Label htmlFor="anonymous-toggle" className="text-sm font-medium cursor-pointer text-foreground">
-                {t.confession_anonymous_label}
-              </Label>
+            <div className="flex items-center justify-between py-2.5 px-1">
+              <div className="flex flex-col gap-0.5">
+                <Label htmlFor="anonymous-toggle" className="text-sm font-semibold cursor-pointer text-foreground">
+                  {t.confession_anonymous_label}
+                </Label>
+                <span className="text-xs text-muted-foreground/80">
+                  {isAnonymous ? t.confession_posting_as_anonymous : (userNickname ? t.confession_anonymous_preview.replace('{name}', userNickname) : t.confession_posting_as_user)}
+                </span>
+              </div>
               <Switch 
                 id="anonymous-toggle" 
                 checked={isAnonymous} 
                 onCheckedChange={setIsAnonymous} 
                 disabled={isSubmitting} 
-                className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground/30" 
+                className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-600 data-[state=checked]:to-purple-500 data-[state=checked]:shadow-lg data-[state=checked]:shadow-purple-500/30 data-[state=unchecked]:bg-muted-foreground/30" 
               />
             </div>
 
@@ -665,26 +667,37 @@ const NewConfessionDialog = ({
 
           {/* AI Response Display */}
           {aiResponse && (
-            <div className="p-4 bg-primary/5 backdrop-blur-sm rounded-2xl border border-primary/20 animate-slide-up">
-              <div className="flex items-center gap-2 mb-2 text-primary">
-                <Sparkles className="w-4 h-4 animate-pulse-glow" />
-                <span className="text-sm font-medium">{t.ai_reply_title}</span>
-              </div>
-              <p className="text-sm text-foreground/90 leading-relaxed italic">
-                {aiResponse}
-              </p>
-              <div className="flex justify-end mt-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setAiResponse(null);
-                    onOpenChange(false);
-                  }}
-                  className="text-xs text-primary hover:text-primary/80 hover:bg-primary/10"
-                >
-                  {t.common_close || t.ui_close || 'Close'}
-                </Button>
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-900/20 via-purple-800/10 to-blue-900/20 backdrop-blur-md border border-purple-500/30 shadow-xl shadow-purple-500/10 animate-slide-up">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5" />
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-400/50 to-transparent" />
+              <div className="relative p-5 space-y-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-600/20 border border-purple-400/20">
+                    <Sparkles className="w-4 h-4 text-purple-400 animate-pulse-glow" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-bold text-purple-200">{t.ai_reply_title}</h3>
+                    <p className="text-xs text-purple-300/60">AI-powered support</p>
+                  </div>
+                </div>
+                <div className="bg-black/20 rounded-xl p-4 border border-purple-500/10">
+                  <p className="text-sm text-purple-100/90 leading-relaxed">
+                    {aiResponse}
+                  </p>
+                </div>
+                <div className="flex justify-end">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setAiResponse(null);
+                      onOpenChange(false);
+                    }}
+                    className="h-9 px-4 rounded-full text-xs font-semibold text-purple-200 hover:text-white bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 hover:border-purple-400/30 transition-all"
+                  >
+                    {t.common_close || t.ui_close || 'Close'}
+                  </Button>
+                </div>
               </div>
             </div>
           )}

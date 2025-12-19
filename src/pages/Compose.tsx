@@ -23,8 +23,8 @@ const Compose = () => {
   };
 
   const handleConfessionCreated = () => {
-    setOpen(false);
-    navigate("/");
+    // Keep dialog open to show AI response
+    // Navigation happens only when user explicitly closes the dialog
   };
 
   return (

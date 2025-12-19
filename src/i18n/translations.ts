@@ -791,6 +791,8 @@ type Translations = {
   confession_anonymous_help_on: string;
   confession_anonymous_help_off: string;
   confession_anonymous_preview: string;
+  confession_posting_as_anonymous: string;
+  confession_posting_as_user: string;
   confession_author_anonymous: string;
   time_now: string;
   time_minutes: string;
@@ -1256,6 +1258,7 @@ type Translations = {
   image_too_large: string;
   image_uploading: string;
   image_add_optional: string;
+  image_add: string;
   
   // Moderation Panel
   moderation_no_permissions: string;
@@ -2353,6 +2356,8 @@ export const translations: Record<Language, Translations> = {
     confession_anonymous_help_on: "Your identity will remain hidden. Only you can see your confessions.",
     confession_anonymous_help_off: "Your username will be visible to others.",
     confession_anonymous_preview: "Posting as: {name}",
+    confession_posting_as_anonymous: "Posting as Anonymous",
+    confession_posting_as_user: "Posting with username",
     confession_author_anonymous: "Anonymous",
     time_now: "now",
     time_minutes: "m",
@@ -3278,6 +3283,7 @@ export const translations: Record<Language, Translations> = {
     image_too_large: "File Too Large",
     image_uploading: "Uploading...",
     image_add_optional: "Add image (optional)",
+    image_add: "Add image",
     
     moderation_no_permissions: "You don't have moderation permissions",
     moderation_loading: "Loading...",
@@ -4711,6 +4717,8 @@ export const translations: Record<Language, Translations> = {
     confession_anonymous_help_on: "Tu identidad permanecerá oculta. Solo tú puedes ver tus confesiones.",
     confession_anonymous_help_off: "Tu nombre de usuario será visible para otros.",
     confession_anonymous_preview: "Publicando como: {name}",
+    confession_posting_as_anonymous: "Publicando como Anónimo",
+    confession_posting_as_user: "Publicando con nombre de usuario",
     confession_author_anonymous: "Anónimo",
     time_now: "ahora",
     time_minutes: "m",
@@ -5140,6 +5148,7 @@ export const translations: Record<Language, Translations> = {
     image_too_large: "Archivo Demasiado Grande",
     image_uploading: "Subiendo...",
     image_add_optional: "Agregar imagen (opcional)",
+    image_add: "Agregar imagen",
     
     moderation_no_permissions: "No tienes permisos de moderación",
     moderation_loading: "Cargando...",
@@ -6674,6 +6683,8 @@ export const translations: Record<Language, Translations> = {
     confession_anonymous_help_on: "Deine Identität bleibt verborgen. Nur du kannst deine Geständnisse sehen.",
     confession_anonymous_help_off: "Dein Benutzername wird für andere sichtbar sein.",
     confession_anonymous_preview: "Posten als: {name}",
+    confession_posting_as_anonymous: "Posten als Anonym",
+    confession_posting_as_user: "Posten mit Benutzernamen",
     confession_author_anonymous: "Anonym",
     time_now: "jetzt",
     time_minutes: "Min",
@@ -7103,6 +7114,7 @@ export const translations: Record<Language, Translations> = {
     image_too_large: "Datei Zu Groß",
     image_uploading: "Wird hochgeladen...",
     image_add_optional: "Bild hinzufügen (optional)",
+    image_add: "Bild hinzufügen",
     
     moderation_no_permissions: "Du hast keine Moderationsrechte",
     moderation_loading: "Laden...",
