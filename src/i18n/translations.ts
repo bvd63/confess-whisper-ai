@@ -788,6 +788,8 @@ type Translations = {
   confession_anonymous_help_on: string;
   confession_anonymous_help_off: string;
   confession_anonymous_preview: string;
+  confession_posting_as_anonymous: string;
+  confession_posting_as_user: string;
   confession_author_anonymous: string;
   time_now: string;
   time_minutes: string;
@@ -2348,6 +2350,8 @@ export const translations: Record<Language, Translations> = {
     confession_anonymous_help_on: "Your identity will remain hidden. Only you can see your confessions.",
     confession_anonymous_help_off: "Your username will be visible to others.",
     confession_anonymous_preview: "Posting as: {name}",
+    confession_posting_as_anonymous: "Your identity will be hidden",
+    confession_posting_as_user: "Your username will be visible",
     confession_author_anonymous: "Anonymous",
     time_now: "now",
     time_minutes: "m",
@@ -4704,6 +4708,8 @@ export const translations: Record<Language, Translations> = {
     confession_anonymous_help_on: "Tu identidad permanecerá oculta. Solo tú puedes ver tus confesiones.",
     confession_anonymous_help_off: "Tu nombre de usuario será visible para otros.",
     confession_anonymous_preview: "Publicando como: {name}",
+    confession_posting_as_anonymous: "Tu identidad será oculta",
+    confession_posting_as_user: "Tu nombre de usuario será visible",
     confession_author_anonymous: "Anónimo",
     time_now: "ahora",
     time_minutes: "m",
@@ -6665,6 +6671,8 @@ export const translations: Record<Language, Translations> = {
     confession_anonymous_help_on: "Deine Identität bleibt verborgen. Nur du kannst deine Geständnisse sehen.",
     confession_anonymous_help_off: "Dein Benutzername wird für andere sichtbar sein.",
     confession_anonymous_preview: "Posten als: {name}",
+    confession_posting_as_anonymous: "Deine Identität wird verborgen",
+    confession_posting_as_user: "Dein Benutzername wird sichtbar sein",
     confession_author_anonymous: "Anonym",
     time_now: "jetzt",
     time_minutes: "Min",
