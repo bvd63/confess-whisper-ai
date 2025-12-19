@@ -415,6 +415,53 @@ const Compose = () => {
     ? t.limit_confessions_unlimited
     : t.limit_confessions_remaining.replace("{count}", remaining.toString());
 
+  const enhanceModalCopy = useMemo(() => {
+    const copyByLang = {
+      en: {
+        title: "Enhance with AI",
+        subtitle: "Preview quick improvements before posting.",
+        bullets: [
+          "Polishes wording while keeping your intent clear",
+          "Keeps tone empathetic and respectful",
+          "Quick suggestions without revealing identity",
+        ],
+        cost: "Cost: 10 coins",
+        cancel: "Cancel",
+        confirm: "Confirm",
+      },
+      es: {
+        title: "Mejorar con IA",
+        subtitle: "Revisa mejoras rápidas antes de publicar.",
+        bullets: [
+          "Pulimos el texto sin perder tu intención",
+          "Mantenemos un tono empático y respetuoso",
+          "Sugerencias rápidas sin revelar tu identidad",
+        ],
+        cost: "Costo: 10 monedas",
+        cancel: "Cancelar",
+        confirm: "Confirmar",
+      },
+      de: {
+        title: "Mit KI verfeinern",
+        subtitle: "Sieh dir schnelle Verbesserungen vor dem Posten an.",
+        bullets: [
+          "Formuliert klarer, ohne deine Absicht zu ändern",
+          "Hält den Ton einfühlsam und respektvoll",
+          "Schnelle Tipps, ohne deine Identität zu zeigen",
+        ],
+        cost: "Kosten: 10 Münzen",
+        cancel: "Abbrechen",
+        confirm: "Bestätigen",
+      },
+    } as const;
+
+    if (language === "es" || language === "de" || language === "en") {
+      return copyByLang[language];
+    }
+
+    return copyByLang.en;
+  }, [language]);
+
   return (
     <div
       className="min-h-screen bg-gradient-to-br from-[#0f0a23] via-[#0a0f2e] to-[#12072d] text-foreground"
@@ -529,9 +576,10 @@ const Compose = () => {
               onCheckedChange={setIsAnonymous}
               disabled={isSubmitting}
               className={cn(
-                "h-7 w-12 data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-primary data-[state=checked]:to-accent",
-                "data-[state=unchecked]:bg-muted-foreground/30",
-                "transition-all duration-300 shadow-[0_0_12px_rgba(124,77,255,0.25)]",
+                "h-9 w-16 rounded-full",
+                "data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-primary data-[state=checked]:to-accent",
+                "data-[state=unchecked]:bg-white/15",
+                "shadow-[0_0_18px_rgba(124,77,255,0.35)] ring-1 ring-white/10 transition-all duration-300",
               )}
             />
           </div>
@@ -557,7 +605,7 @@ const Compose = () => {
                 )}
               </div>
               <div className="flex items-center gap-2 text-white">
-                <span className="text-sm font-semibold">{t.polish_enhance_ai}</span>
+                <span className="text-sm font-semibold">Enhance with AI</span>
               </div>
             </div>
             <ChevronRight className="w-4 h-4 text-white/70" />
@@ -624,7 +672,7 @@ const Compose = () => {
           <Button
             onClick={handleSubmit}
             disabled={isSubmitting || !content.trim() || !canPost || (dailyLimit !== Infinity && remaining === 0)}
-            className="w-full h-14 rounded-full font-semibold text-base"
+            className="w-full h-14 rounded-full font-semibold text-base bg-gradient-to-r from-primary to-accent text-white shadow-[0_18px_50px_rgba(78,46,176,0.35)] border border-white/10 transition-none"
           >
             {isSubmitting ? (
               <>
@@ -647,27 +695,21 @@ const Compose = () => {
       <Dialog open={showEnhanceDialog} onOpenChange={setShowEnhanceDialog}>
         <DialogContent className="max-w-[420px] bg-white/10 backdrop-blur-xl border border-white/15 text-white rounded-3xl shadow-[0_24px_70px_rgba(78,46,176,0.45)]">
           <DialogHeader>
-            <DialogTitle className="text-lg font-semibold">{t.enhance_modal_title}</DialogTitle>
+            <DialogTitle className="text-lg font-semibold">{enhanceModalCopy.title}</DialogTitle>
             <DialogDescription className="text-sm text-white/70">
-              {t.enhance_modal_subtitle}
+              {enhanceModalCopy.subtitle}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 text-sm text-white/90">
-            <div className="flex items-start gap-2">
-              <span className="text-base leading-none pt-0.5">✨</span>
-              <span>{t.enhance_modal_benefit_1}</span>
-            </div>
-            <div className="flex items-start gap-2">
-              <span className="text-base leading-none pt-0.5">🔒</span>
-              <span>{t.enhance_modal_benefit_2}</span>
-            </div>
-            <div className="flex items-start gap-2">
-              <span className="text-base leading-none pt-0.5">⚡</span>
-              <span>{t.enhance_modal_benefit_3}</span>
-            </div>
+            {enhanceModalCopy.bullets.slice(0, 3).map((benefit, index) => (
+              <div key={benefit} className="flex items-start gap-2">
+                <span className="text-base leading-none pt-0.5">{index === 0 ? "✨" : index === 1 ? "🔒" : "⚡"}</span>
+                <span>{benefit}</span>
+              </div>
+            ))}
             <div className="mt-3 px-3 py-2 rounded-2xl bg-white/10 border border-white/15 flex items-center gap-2 text-sm font-semibold">
               <Coins className="w-4 h-4 text-amber-300" />
-              <span>{t.enhance_modal_cost}</span>
+              <span>{enhanceModalCopy.cost}</span>
             </div>
           </div>
           <DialogFooter className="flex gap-2 sm:gap-3">
@@ -676,7 +718,7 @@ const Compose = () => {
               className="w-full rounded-full border-white/30 bg-white/5 text-white hover:bg-white/10"
               onClick={() => setShowEnhanceDialog(false)}
             >
-              {t.enhance_modal_cancel}
+              {enhanceModalCopy.cancel}
             </Button>
             <Button
               className="w-full rounded-full"
@@ -686,7 +728,7 @@ const Compose = () => {
               }}
               disabled={isSubmitting || isPolishing || !content?.trim()}
             >
-              {isPolishing ? t.submitting : t.enhance_modal_confirm}
+              {isPolishing ? t.submitting : enhanceModalCopy.confirm}
             </Button>
           </DialogFooter>
         </DialogContent>
