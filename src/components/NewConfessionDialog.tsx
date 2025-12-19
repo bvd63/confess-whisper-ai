@@ -443,10 +443,10 @@ const NewConfessionDialog = ({
             />
           </div>
 
-          {/* Controls Panel - Grouped below textarea */}
+          {/* Controls Panel - Compact Action Cluster */}
           <div className="space-y-3">
             {/* Category and Add Image - Same Row */}
-            <div className="flex gap-3">
+            <div className="flex gap-2.5">
               <Select value={category} onValueChange={setCategory} disabled={isSubmitting}>
                 <SelectTrigger className="flex-1 border-white/10 bg-white/5 backdrop-blur-sm h-11 rounded-xl text-sm">
                   <SelectValue placeholder={t.select_category} />
