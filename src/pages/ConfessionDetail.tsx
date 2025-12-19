@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { Crown, Shield, User as UserIcon, Zap, Clock3, ArrowLeft, MoreVertical, Trash2 } from "lucide-react";
+import { Crown, Shield, User as UserIcon, Zap, Clock3, ArrowLeft, Trash2 } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useVipStatus } from "@/hooks/usePremiumStatus";
@@ -20,12 +20,6 @@ import { BoostConfessionButton } from "@/components/coins/BoostConfessionButton"
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { logError } from "@/lib/logger";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 interface Confession {
   id: string;
@@ -309,22 +303,14 @@ const ConfessionDetail = () => {
                 </div>
               </div>
               {user?.id === confession.user_id && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-white/70 hover:text-white">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="bg-[#1a1a2e] border-white/10">
-                    <DropdownMenuItem
-                      onClick={handleDeleteConfession}
-                      className="text-red-400 hover:text-red-300 hover:bg-red-500/10 cursor-pointer"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      {t.delete || 'Delete'}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleDeleteConfession}
+                  className="h-8 w-8 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               )}
             </div>
 
