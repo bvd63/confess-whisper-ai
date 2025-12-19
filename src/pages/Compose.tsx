@@ -647,16 +647,6 @@ const Compose = () => {
               checked={isAnonymous}
               onCheckedChange={setIsAnonymous}
               disabled={isBusy}
-              className={cn(
-                "h-[18px] w-[36px] rounded-full px-[2px] border-0",
-                "data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-primary data-[state=checked]:to-accent",
-                "data-[state=unchecked]:bg-white/20",
-                "transition-all duration-300",
-              )}
-              thumbClassName={cn(
-                "h-[14px] w-[14px] rounded-full bg-white shadow-sm",
-                "data-[state=unchecked]:translate-x-0 data-[state=checked]:translate-x-[18px]",
-              )}
             />
           </div>
 
