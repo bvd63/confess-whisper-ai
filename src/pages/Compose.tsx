@@ -648,17 +648,15 @@ const Compose = () => {
               onCheckedChange={setIsAnonymous}
               disabled={isBusy}
               className={cn(
-                "h-8 w-[52px] rounded-full p-[2px]",
-                "data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-[#7C4DFF] data-[state=checked]:via-[#9D6FFF] data-[state=checked]:to-[#4CC9F0]",
+                "h-7 w-12 rounded-full p-[3px]",
+                "data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-primary data-[state=checked]:to-accent",
                 "data-[state=unchecked]:bg-white/20",
-                "shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)]",
-                "transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
+                "shadow-[0_0_18px_rgba(124,77,255,0.35)] ring-1 ring-white/10 transition-all duration-300",
               )}
               thumbClassName={cn(
-                "h-7 w-7 rounded-full bg-white",
-                "shadow-[0_3px_8px_rgba(0,0,0,0.2),0_1px_3px_rgba(0,0,0,0.12)]",
-                "transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
-                "data-[state=unchecked]:translate-x-0 data-[state=checked]:translate-x-5",
+                "h-[22px] w-[22px] rounded-full bg-white",
+                "shadow-[0_2px_4px_rgba(0,0,0,0.2),0_1px_10px_rgba(0,0,0,0.1)]",
+                "data-[state=unchecked]:translate-x-0 data-[state=checked]:translate-x-[20px]",
               )}
             />
           </div>
