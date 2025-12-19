@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
+import { PostAnonymousSwitch } from "@/components/ui/PostAnonymousSwitch";
 import { Loader2, Send, Coins, ChevronRight, Image as ImageIcon, X, Sparkles } from "lucide-react";
 import {
   Dialog,
@@ -642,22 +642,11 @@ const Compose = () => {
                     : t.confession_posting_as_user}
               </span>
             </div>
-            <Switch
+            <PostAnonymousSwitch
               id="anonymous-toggle"
               checked={isAnonymous}
               onCheckedChange={setIsAnonymous}
               disabled={isBusy}
-              className={cn(
-                "h-7 w-12 rounded-full p-[3px]",
-                "data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-primary data-[state=checked]:to-accent",
-                "data-[state=unchecked]:bg-white/20",
-                "shadow-[0_0_18px_rgba(124,77,255,0.35)] ring-1 ring-white/10 transition-all duration-300",
-              )}
-              thumbClassName={cn(
-                "h-[22px] w-[22px] rounded-full bg-white",
-                "shadow-[0_2px_4px_rgba(0,0,0,0.2),0_1px_10px_rgba(0,0,0,0.1)]",
-                "data-[state=unchecked]:translate-x-0 data-[state=checked]:translate-x-[20px]",
-              )}
             />
           </div>
 
