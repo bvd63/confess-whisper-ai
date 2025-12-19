@@ -37,6 +37,20 @@ export const ProfileTierBadge = ({
   const Icon = config.icon;
   const isCompact = variant === "compact";
 
+  if (tier === "vip") {
+    return (
+      <span 
+        className={cn(
+          "inline-flex items-center justify-center text-vip-gold drop-shadow-[0_0_4px_rgba(234,179,8,0.6)]",
+          isCompact ? "text-sm" : "text-base",
+          className
+        )}
+      >
+        👑
+      </span>
+    );
+  }
+
   return (
     <Badge 
       className={cn(
