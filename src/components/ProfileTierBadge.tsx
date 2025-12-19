@@ -28,7 +28,7 @@ export const ProfileTierBadge = ({
         return {
           label: "👑",
           icon: null,
-          className: "bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-vip-gold border-vip-gold/30 shadow-[0_0_8px_rgba(234,179,8,0.4)]",
+          className: "bg-transparent border-none shadow-none text-vip-gold drop-shadow-[0_0_4px_rgba(234,179,8,0.6)]",
         };
     }
   };
