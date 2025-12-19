@@ -204,26 +204,19 @@ export function HighlightCommentButton({
             )}
           </div>
 
-          <DialogFooter className="flex-row gap-2 sm:gap-2">
-            <Button
-              variant="ghost"
-              onClick={() => setIsOpen(false)}
-              className="flex-1 min-h-[44px] text-white/70 hover:text-white hover:bg-white/10 inline-flex items-center justify-center px-4 py-2 text-sm font-medium leading-none"
-            >
-              <span className="truncate">{t.cancel}</span>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsOpen(false)}>
+              {t.cancel}
             </Button>
             <Button
               onClick={() => highlightMutation.mutate()}
               disabled={isActive || highlightMutation.isPending}
-              className="flex-1 min-h-[44px] bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 text-white font-semibold hover:from-amber-500 hover:via-amber-600 hover:to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center px-4 py-2 text-sm leading-none transition-all"
             >
-              <span className="truncate">
-                {isActive
-                  ? t.highlight_comment_active_badge
-                  : highlightMutation.isPending
-                    ? t.processing
-                    : t.highlight_now}
-              </span>
+              {isActive
+                ? t.highlight_comment_active_badge
+                : highlightMutation.isPending
+                  ? t.processing
+                  : t.highlight_now}
             </Button>
           </DialogFooter>
         </DialogContent>
