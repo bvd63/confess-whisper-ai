@@ -192,6 +192,7 @@ type Translations = {
   boost_active: string;
   boost_badge: string;
   boost_confirm: string;
+  boost_confirm_button: string;
   boost_expiry_in: string;
   boost_reboost: string;
   boost_not_enough: string;
@@ -2131,6 +2132,7 @@ export const translations: Record<Language, Translations> = {
     boost_active: "Boost active",
     boost_badge: "Boosted",
     boost_confirm: "Your confession was boosted for 24h.",
+    boost_confirm_button: "Boost confession",
     boost_expiry_in: "Expires in {time}",
     boost_reboost: "Reboost",
     boost_not_enough: "Not enough coins to boost.",
@@ -4089,6 +4091,7 @@ export const translations: Record<Language, Translations> = {
     boost_active: "Impulso activo",
     boost_badge: "Impulsada",
     boost_confirm: "Tu confesión fue impulsada por 24h.",
+    boost_confirm_button: "Impulsar confesión",
     boost_expiry_in: "Expira en {time}",
     boost_reboost: "Reimpulsar",
     boost_not_enough: "No tienes monedas suficientes.",
@@ -6048,6 +6051,7 @@ export const translations: Record<Language, Translations> = {
     boost_active: "Boost aktiv",
     boost_badge: "Geboostet",
     boost_confirm: "Deine Beichte wurde für 24h geboostet.",
+    boost_confirm_button: "Beichte boosten",
     boost_expiry_in: "Läuft ab in {time}",
     boost_reboost: "Erneut boosten",
     boost_not_enough: "Nicht genug Münzen.",
