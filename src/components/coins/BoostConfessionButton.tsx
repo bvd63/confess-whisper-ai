@@ -188,10 +188,10 @@ export function BoostConfessionButton({
             </div>
 
             <div className="space-y-2 text-sm text-white/80">
-              <p className="font-medium text-white">{t.boost_benefits_title}</p>
+              <p className="font-medium text-white">Benefits:</p>
               <ul className="space-y-1 pl-4">
-                <li className="list-disc">{t.boost_benefit_visibility}</li>
-                <li className="list-disc">{t.boost_benefit_duration}</li>
+                <li className="list-disc">More visibility in the feed</li>
+                <li className="list-disc">Shown higher for 24 hours</li>
               </ul>
             </div>
           </div>
@@ -205,7 +205,7 @@ export function BoostConfessionButton({
               disabled={boostMutation.isPending}
               className="flex-1 inline-flex items-center justify-center whitespace-nowrap"
             >
-              <span className="truncate">{boostMutation.isPending ? (t.processing || 'Processing...') : (t.boost_confirm_button || 'Boost confession')}</span>
+              {boostMutation.isPending ? (t.processing || 'Processing...') : (t.boost_confirm_button || 'Boost confession')}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -197,9 +197,6 @@ type Translations = {
   boost_reboost: string;
   boost_not_enough: string;
   boost_error_active: string;
-  boost_benefits_title: string;
-  boost_benefit_visibility: string;
-  boost_benefit_duration: string;
   
   // Subscription Management (new keys only)
   subscription_tier_free: string;
@@ -791,8 +788,6 @@ type Translations = {
   confession_anonymous_help_on: string;
   confession_anonymous_help_off: string;
   confession_anonymous_preview: string;
-  confession_posting_as_anonymous: string;
-  confession_posting_as_user: string;
   confession_author_anonymous: string;
   time_now: string;
   time_minutes: string;
@@ -1258,7 +1253,6 @@ type Translations = {
   image_too_large: string;
   image_uploading: string;
   image_add_optional: string;
-  image_add: string;
   
   // Moderation Panel
   moderation_no_permissions: string;
@@ -2143,9 +2137,6 @@ export const translations: Record<Language, Translations> = {
     boost_reboost: "Reboost",
     boost_not_enough: "Not enough coins to boost.",
     boost_error_active: "A boost is already active for this confession.",
-    boost_benefits_title: "Benefits",
-    boost_benefit_visibility: "Boost makes your confession more visible for 24h.",
-    boost_benefit_duration: "Shown higher in the feed for 24 hours.",
     
   subscription_tier_free: "Free",
   subscription_tier_vip: "VIP",
@@ -2356,8 +2347,6 @@ export const translations: Record<Language, Translations> = {
     confession_anonymous_help_on: "Your identity will remain hidden. Only you can see your confessions.",
     confession_anonymous_help_off: "Your username will be visible to others.",
     confession_anonymous_preview: "Posting as: {name}",
-    confession_posting_as_anonymous: "Posting as Anonymous",
-    confession_posting_as_user: "Posting with username",
     confession_author_anonymous: "Anonymous",
     time_now: "now",
     time_minutes: "m",
@@ -3283,7 +3272,6 @@ export const translations: Record<Language, Translations> = {
     image_too_large: "File Too Large",
     image_uploading: "Uploading...",
     image_add_optional: "Add image (optional)",
-    image_add: "Add image",
     
     moderation_no_permissions: "You don't have moderation permissions",
     moderation_loading: "Loading...",
@@ -4108,9 +4096,6 @@ export const translations: Record<Language, Translations> = {
     boost_reboost: "Reimpulsar",
     boost_not_enough: "No tienes monedas suficientes.",
     boost_error_active: "Ya hay un impulso activo para esta confesión.",
-    boost_benefits_title: "Beneficios",
-    boost_benefit_visibility: "El boost hace tu confesión más visible durante 24h.",
-    boost_benefit_duration: "Se muestra más arriba en el feed por 24 horas.",
     
   subscription_tier_free: "Free",
   subscription_tier_vip: "VIP",
@@ -4717,8 +4702,6 @@ export const translations: Record<Language, Translations> = {
     confession_anonymous_help_on: "Tu identidad permanecerá oculta. Solo tú puedes ver tus confesiones.",
     confession_anonymous_help_off: "Tu nombre de usuario será visible para otros.",
     confession_anonymous_preview: "Publicando como: {name}",
-    confession_posting_as_anonymous: "Publicando como Anónimo",
-    confession_posting_as_user: "Publicando con nombre de usuario",
     confession_author_anonymous: "Anónimo",
     time_now: "ahora",
     time_minutes: "m",
@@ -5148,7 +5131,6 @@ export const translations: Record<Language, Translations> = {
     image_too_large: "Archivo Demasiado Grande",
     image_uploading: "Subiendo...",
     image_add_optional: "Agregar imagen (opcional)",
-    image_add: "Agregar imagen",
     
     moderation_no_permissions: "No tienes permisos de moderación",
     moderation_loading: "Cargando...",
@@ -6074,9 +6056,6 @@ export const translations: Record<Language, Translations> = {
     boost_reboost: "Erneut boosten",
     boost_not_enough: "Nicht genug Münzen.",
     boost_error_active: "Für diese Beichte ist bereits ein aktiver Boost vorhanden.",
-    boost_benefits_title: "Vorteile",
-    boost_benefit_visibility: "Boost macht deine Beichte für 24h sichtbarer.",
-    boost_benefit_duration: "Steht 24 Stunden weiter oben im Feed.",
     
   subscription_tier_free: "Free",
   subscription_tier_vip: "VIP",
@@ -6683,8 +6662,6 @@ export const translations: Record<Language, Translations> = {
     confession_anonymous_help_on: "Deine Identität bleibt verborgen. Nur du kannst deine Geständnisse sehen.",
     confession_anonymous_help_off: "Dein Benutzername wird für andere sichtbar sein.",
     confession_anonymous_preview: "Posten als: {name}",
-    confession_posting_as_anonymous: "Posten als Anonym",
-    confession_posting_as_user: "Posten mit Benutzernamen",
     confession_author_anonymous: "Anonym",
     time_now: "jetzt",
     time_minutes: "Min",
@@ -7114,7 +7091,6 @@ export const translations: Record<Language, Translations> = {
     image_too_large: "Datei Zu Groß",
     image_uploading: "Wird hochgeladen...",
     image_add_optional: "Bild hinzufügen (optional)",
-    image_add: "Bild hinzufügen",
     
     moderation_no_permissions: "Du hast keine Moderationsrechte",
     moderation_loading: "Laden...",
