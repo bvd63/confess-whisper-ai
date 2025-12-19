@@ -202,16 +202,16 @@ export function BoostConfessionButton({
               variant="ghost"
               onClick={() => setIsOpen(false)}
               disabled={boostMutation.isPending}
-              className="flex-1 text-white/70 hover:text-white hover:bg-white/10"
+              className="flex-1 min-h-[44px] text-white/70 hover:text-white hover:bg-white/10 inline-flex items-center justify-center px-4 py-2 text-sm font-medium leading-none"
             >
-              {t.cancel || 'Cancel'}
+              <span className="truncate">{t.cancel || 'Cancel'}</span>
             </Button>
             <Button
               onClick={handleConfirm}
               disabled={boostMutation.isPending}
-              className="flex-1 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 text-white font-semibold hover:from-amber-500 hover:via-amber-600 hover:to-orange-600 px-4 py-2 whitespace-nowrap"
+              className="flex-1 min-h-[44px] bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 text-white font-semibold hover:from-amber-500 hover:via-amber-600 hover:to-orange-600 inline-flex items-center justify-center px-4 py-2 text-sm leading-none transition-all"
             >
-              {boostMutation.isPending ? (t.processing || 'Processing...') : (t.boost_confirm || 'Confirm Boost')}
+              <span className="truncate">{boostMutation.isPending ? (t.processing || 'Processing...') : (t.boost_confirm || 'Confirm Boost')}</span>
             </Button>
           </DialogFooter>
         </DialogContent>
