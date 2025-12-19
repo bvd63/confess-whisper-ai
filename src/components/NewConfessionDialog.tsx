@@ -559,7 +559,7 @@ const NewConfessionDialog = ({
             <EnhancedButton
               onClick={handleSubmit}
               disabled={isSubmitting || !content.trim() || !canPost || (!isUnlimited && remaining === 0)}
-              className="w-full h-14 rounded-2xl font-semibold text-base text-white bg-gradient-to-r from-primary/95 via-purple-600/90 to-primary/95 hover:from-primary hover:via-purple-500 hover:to-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/25"
+              className="w-full h-14 rounded-2xl font-semibold text-base"
               glow
               shine
               lift
