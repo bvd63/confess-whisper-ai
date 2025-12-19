@@ -29,6 +29,8 @@ export interface Translations {
   confession_anonymous: string;
   confession_submit: string;
   confession_content: string;
+  confession_posting_as_anonymous: string;
+  confession_posting_as_user: string;
 
   // Errors
   error_generic: string;
