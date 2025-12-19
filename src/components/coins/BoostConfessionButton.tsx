@@ -209,7 +209,7 @@ export function BoostConfessionButton({
             <Button
               onClick={handleConfirm}
               disabled={boostMutation.isPending}
-              className="flex-1 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 text-black font-semibold hover:from-amber-500 hover:via-amber-600 hover:to-orange-600"
+              className="flex-1 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 text-white font-semibold hover:from-amber-500 hover:via-amber-600 hover:to-orange-600 px-4 py-2 whitespace-nowrap"
             >
               {boostMutation.isPending ? (t.processing || 'Processing...') : (t.boost_confirm || 'Confirm Boost')}
             </Button>
