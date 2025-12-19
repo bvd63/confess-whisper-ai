@@ -31,11 +31,15 @@ import { useMobileKeyboard } from "@/hooks/useMobileKeyboard";
 import { cn } from "@/lib/utils";
 
 const confessionSchema = z.object({
-  content: z.string().trim().min(10, {
-    message: "Confession must be at least 10 characters",
-  }).max(2000, {
-    message: "Confession cannot exceed 2000 characters",
-  }),
+  content: z
+    .string()
+    .trim()
+    .min(10, {
+      message: "Confession must be at least 10 characters",
+    })
+    .max(2000, {
+      message: "Confession cannot exceed 2000 characters",
+    }),
 });
 
 const isFunctionInvokeError = (value: unknown): value is { status?: number; message?: string } =>
@@ -173,7 +177,9 @@ const Compose = () => {
 
     setUploading(true);
     try {
-      const { data: { user: authUser } } = await supabase.auth.getUser();
+      const {
+        data: { user: authUser },
+      } = await supabase.auth.getUser();
       if (!authUser) throw new Error("Not authenticated");
 
       const fileExt = file.name.split(".").pop();
@@ -341,7 +347,8 @@ const Compose = () => {
 
       let responseText: string | null = null;
       try {
-        const locale: AiLocale = language === "en" || language === "es" || language === "de" ? (language as AiLocale) : "en";
+        const locale: AiLocale =
+          language === "en" || language === "es" || language === "de" ? (language as AiLocale) : "en";
         responseText = await getAiReply({
           text: content.trim(),
           isVip,
@@ -373,9 +380,11 @@ const Compose = () => {
 
       if (creationResponse.error) {
         const rawError = creationResponse.error;
-        const errorStatus = isFunctionInvokeError(rawError) && typeof rawError.status === "number" ? rawError.status : 400;
+        const errorStatus =
+          isFunctionInvokeError(rawError) && typeof rawError.status === "number" ? rawError.status : 400;
         let messageKey: string | undefined;
-        let serverMessage = isFunctionInvokeError(rawError) && typeof rawError.message === "string" ? rawError.message : undefined;
+        let serverMessage =
+          isFunctionInvokeError(rawError) && typeof rawError.message === "string" ? rawError.message : undefined;
 
         if (serverMessage) {
           try {
@@ -396,7 +405,8 @@ const Compose = () => {
         }
 
         const translationKey = messageKey?.replace(/\./g, "_");
-        const localizedMessage = translationKey && translationKey in t ? (t[translationKey as keyof typeof t] as string) : undefined;
+        const localizedMessage =
+          translationKey && translationKey in t ? (t[translationKey as keyof typeof t] as string) : undefined;
         const fallbackMessage = localizedMessage || serverMessage || t.error_submit;
 
         if (errorStatus === 429 || messageKey === "common.rate_limit") {
@@ -452,9 +462,10 @@ const Compose = () => {
     }
   };
 
-  const quotaHelperText = dailyLimit === Infinity
-    ? t.limit_confessions_unlimited
-    : t.limit_confessions_remaining.replace("{count}", remaining.toString());
+  const quotaHelperText =
+    dailyLimit === Infinity
+      ? t.limit_confessions_unlimited
+      : t.limit_confessions_remaining.replace("{count}", remaining.toString());
 
   return (
     <div
@@ -578,13 +589,13 @@ const Compose = () => {
                 "disabled:cursor-not-allowed disabled:opacity-50",
                 isAnonymous
                   ? "bg-gradient-to-r from-primary via-primary/90 to-accent shadow-[0_0_16px_rgba(124,77,255,0.4)]"
-                  : "bg-muted-foreground/30"
+                  : "bg-muted-foreground/30",
               )}
             >
               <span
                 className={cn(
                   "pointer-events-none block h-4 w-4 rounded-md bg-white shadow-lg ring-0 transition-all duration-300",
-                  isAnonymous ? "translate-x-9" : "translate-x-0.5"
+                  isAnonymous ? "translate-x-9" : "translate-x-0.5",
                 )}
               />
             </button>
@@ -704,16 +715,12 @@ const Compose = () => {
               <span className="text-xl">✨</span>
               {enhanceModalCopy.title}
             </DialogTitle>
-            <DialogDescription className="text-white/70">
-              {enhanceModalCopy.subtitle}
-            </DialogDescription>
+            <DialogDescription className="text-white/70">{enhanceModalCopy.subtitle}</DialogDescription>
           </DialogHeader>
           <div className="space-y-3 py-4">
             {enhanceModalCopy.bullets.map((benefit, index) => (
               <div key={index} className="flex items-start gap-3 text-sm text-white/90">
-                <span className="text-base leading-none pt-0.5">
-                  {index === 0 ? "✨" : index === 1 ? "🔒" : "⚡"}
-                </span>
+                <span className="text-base leading-none pt-0.5">{index === 0 ? "✨" : index === 1 ? "🔒" : "⚡"}</span>
                 <span>{benefit}</span>
               </div>
             ))}
