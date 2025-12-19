@@ -6,6 +6,14 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { EnhancedButton } from "@/components/EnhancedButton";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Loader2, Send, Sparkles, Coins, ChevronRight, Image as ImageIcon, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -63,6 +71,7 @@ const Compose = () => {
   const [captchaRenderKey, setCaptchaRenderKey] = useState(0);
   const [showCrisisDialog, setShowCrisisDialog] = useState(false);
   const [isPolishing, setIsPolishing] = useState(false);
+  const [showEnhanceDialog, setShowEnhanceDialog] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -520,15 +529,16 @@ const Compose = () => {
               onCheckedChange={setIsAnonymous}
               disabled={isSubmitting}
               className={cn(
-                "data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-primary data-[state=checked]:to-accent",
+                "h-7 w-12 data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-primary data-[state=checked]:to-accent",
                 "data-[state=unchecked]:bg-muted-foreground/30",
+                "transition-all duration-300 shadow-[0_0_12px_rgba(124,77,255,0.25)]",
               )}
             />
           </div>
 
           <button
             type="button"
-            onClick={handlePolish}
+            onClick={() => setShowEnhanceDialog(true)}
             disabled={isSubmitting || isPolishing || !content?.trim()}
             className={cn(
               "w-full flex items-center justify-between px-4 py-3 rounded-full",
@@ -543,15 +553,11 @@ const Compose = () => {
                 {isPolishing ? (
                   <Loader2 className="w-4 h-4 text-white animate-spin" />
                 ) : (
-                  <Sparkles className="w-4 h-4 text-white" />
+                  <span className="text-lg leading-none">✨</span>
                 )}
               </div>
               <div className="flex items-center gap-2 text-white">
                 <span className="text-sm font-semibold">{t.polish_enhance_ai}</span>
-                <span className="text-xs text-amber-400 font-semibold flex items-center gap-1">
-                  <Coins className="w-3 h-3" />
-                  {t.polish_costs_coins || "10 coins"}
-                </span>
               </div>
             </div>
             <ChevronRight className="w-4 h-4 text-white/70" />
@@ -615,13 +621,10 @@ const Compose = () => {
         )}
 
         <div className="space-y-2">
-          <EnhancedButton
+          <Button
             onClick={handleSubmit}
             disabled={isSubmitting || !content.trim() || !canPost || (dailyLimit !== Infinity && remaining === 0)}
             className="w-full h-14 rounded-full font-semibold text-base"
-            glow
-            shine
-            lift
           >
             {isSubmitting ? (
               <>
@@ -634,12 +637,60 @@ const Compose = () => {
                 {t.post_confession || t.submit}
               </>
             )}
-          </EnhancedButton>
+          </Button>
           <p className="text-center text-xs text-white/60">{quotaHelperText}</p>
         </div>
       </div>
 
       <CrisisDialog isOpen={showCrisisDialog} onClose={() => setShowCrisisDialog(false)} />
+
+      <Dialog open={showEnhanceDialog} onOpenChange={setShowEnhanceDialog}>
+        <DialogContent className="max-w-[420px] bg-white/10 backdrop-blur-xl border border-white/15 text-white rounded-3xl shadow-[0_24px_70px_rgba(78,46,176,0.45)]">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold">{t.enhance_modal_title}</DialogTitle>
+            <DialogDescription className="text-sm text-white/70">
+              {t.enhance_modal_subtitle}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 text-sm text-white/90">
+            <div className="flex items-start gap-2">
+              <span className="text-base leading-none pt-0.5">✨</span>
+              <span>{t.enhance_modal_benefit_1}</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="text-base leading-none pt-0.5">🔒</span>
+              <span>{t.enhance_modal_benefit_2}</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="text-base leading-none pt-0.5">⚡</span>
+              <span>{t.enhance_modal_benefit_3}</span>
+            </div>
+            <div className="mt-3 px-3 py-2 rounded-2xl bg-white/10 border border-white/15 flex items-center gap-2 text-sm font-semibold">
+              <Coins className="w-4 h-4 text-amber-300" />
+              <span>{t.enhance_modal_cost}</span>
+            </div>
+          </div>
+          <DialogFooter className="flex gap-2 sm:gap-3">
+            <Button
+              variant="outline"
+              className="w-full rounded-full border-white/30 bg-white/5 text-white hover:bg-white/10"
+              onClick={() => setShowEnhanceDialog(false)}
+            >
+              {t.enhance_modal_cancel}
+            </Button>
+            <Button
+              className="w-full rounded-full"
+              onClick={() => {
+                setShowEnhanceDialog(false);
+                handlePolish();
+              }}
+              disabled={isSubmitting || isPolishing || !content?.trim()}
+            >
+              {isPolishing ? t.submitting : t.enhance_modal_confirm}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

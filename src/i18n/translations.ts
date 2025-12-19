@@ -1124,6 +1124,14 @@ type Translations = {
   polish_error: string;
   polish_empty_error: string;
   post_confession: string;
+  enhance_modal_title: string;
+  enhance_modal_subtitle: string;
+  enhance_modal_benefit_1: string;
+  enhance_modal_benefit_2: string;
+  enhance_modal_benefit_3: string;
+  enhance_modal_cost: string;
+  enhance_modal_confirm: string;
+  enhance_modal_cancel: string;
   
   // Flairs Shop
   flairs_shop: string;
@@ -3155,6 +3163,14 @@ export const translations: Record<Language, Translations> = {
     polish_error: "Failed to polish confession",
     polish_empty_error: "Please write your confession first",
     post_confession: "Post Confession",
+    enhance_modal_title: "Enhance with AI",
+    enhance_modal_subtitle: "Unlock a refined, empathic version before you post.",
+    enhance_modal_benefit_1: "Warmer, clearer tone that still sounds like you.",
+    enhance_modal_benefit_2: "Keeps you anonymous while polishing wording.",
+    enhance_modal_benefit_3: "Optimizes flow so readers feel the intent instantly.",
+    enhance_modal_cost: "Cost: 10 coins",
+    enhance_modal_confirm: "Spend 10 coins",
+    enhance_modal_cancel: "Cancel",
     
     flairs_shop: "Flairs Shop",
     flair_shop_description: "Customize your profile with unique flairs and badges",
@@ -5017,6 +5033,14 @@ export const translations: Record<Language, Translations> = {
     polish_error: "Error al mejorar confesión",
     polish_empty_error: "Por favor escribe tu confesión primero",
     post_confession: "Publicar Confesión",
+    enhance_modal_title: "Mejorar con IA",
+    enhance_modal_subtitle: "Obtén una versión más clara y empática antes de publicar.",
+    enhance_modal_benefit_1: "Tono más cálido y claro que sigue sonando a ti.",
+    enhance_modal_benefit_2: "Mantiene tu anonimato mientras pule el texto.",
+    enhance_modal_benefit_3: "Optimiza el flujo para que se entienda al instante.",
+    enhance_modal_cost: "Costo: 10 monedas",
+    enhance_modal_confirm: "Gastar 10 monedas",
+    enhance_modal_cancel: "Cancelar",
     
     flairs_shop: "Tienda de Insignias",
     flair_shop_description: "Personaliza tu perfil con insignias y emblemas únicos",
@@ -6980,6 +7004,14 @@ export const translations: Record<Language, Translations> = {
     polish_error: "Fehler beim Verbessern des Geständnisses",
     polish_empty_error: "Bitte schreibe zuerst dein Geständnis",
     post_confession: "Geständnis Posten",
+    enhance_modal_title: "Mit KI verbessern",
+    enhance_modal_subtitle: "Hol dir eine klarere, empathische Version vor dem Posten.",
+    enhance_modal_benefit_1: "Wärmerer, klarerer Ton, der trotzdem nach dir klingt.",
+    enhance_modal_benefit_2: "Bewahrt deine Anonymität, während der Text verfeinert wird.",
+    enhance_modal_benefit_3: "Optimiert den Fluss, damit die Absicht sofort ankommt.",
+    enhance_modal_cost: "Kosten: 10 Münzen",
+    enhance_modal_confirm: "10 Münzen ausgeben",
+    enhance_modal_cancel: "Abbrechen",
     
     flairs_shop: "Abzeichen-Shop",
     flair_shop_description: "Personalisiere dein Profil mit einzigartigen Abzeichen und Emblemen",
