@@ -203,8 +203,9 @@ export function BoostConfessionButton({
             <Button
               onClick={handleConfirm}
               disabled={boostMutation.isPending}
+              className="inline-flex items-center justify-center whitespace-nowrap"
             >
-              {boostMutation.isPending ? (t.processing || 'Processing...') : (t.boost_confirm || 'Confirm Boost')}
+              {boostMutation.isPending ? (t.processing || 'Processing...') : (t.boost_confirm_button || 'Boost confession')}
             </Button>
           </DialogFooter>
         </DialogContent>
