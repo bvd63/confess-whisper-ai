@@ -28,8 +28,8 @@ export async function getProfileCached(userId: string): Promise<any> {
   const inflight = (async () => {
     try {
       const { data, error } = await supabase
-        .from('profiles_public')
-        .select('user_id, nickname, handle, avatar_url, bio, is_nickname_public, nickname_visibility, followers_count, following_count, posts_count')
+        .from('profiles')
+        .select('*')
         .eq('user_id', userId)
         .maybeSingle();
 

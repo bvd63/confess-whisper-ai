@@ -7,12 +7,6 @@ export const useShadowBan = (userId: string | null) => {
     queryFn: async () => {
       if (!userId) return false;
 
-      const {
-        data: { user: authUser },
-      } = await supabase.auth.getUser();
-
-      if (!authUser || authUser.id !== userId) return false;
-
       const { data, error } = await supabase
         .from('profiles')
         .select('is_shadow_banned')

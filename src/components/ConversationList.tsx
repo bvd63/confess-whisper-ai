@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { getNicknameCached } from "@/lib/nicknameCache";
 import { toast } from "sonner";
 import { UserDisplayName } from "@/components/UserDisplayName";
+import { BadgeDisplay } from "@/components/BadgeDisplay";
+import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { logError } from "@/lib/logger";
 import {
   AlertDialog,
@@ -40,6 +42,7 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
   const [loading, setLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [conversationToDelete, setConversationToDelete] = useState<string | null>(null);
+  const [otherUserTiers, setOtherUserTiers] = useState<Record<string, string>>({});
   const { t } = useLanguage();
   const navigate = useNavigate();
 
@@ -165,14 +168,21 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
         partnerResults.map(r => r.otherUserId).filter(Boolean) as string[]
       )];
       const { data: profiles, error: profilesError } = await supabase
-        .from('profiles_public')
-        .select('user_id, nickname')
+        .from('profiles')
+        .select('user_id, nickname, subscription_tier')
         .in('user_id', uniqueOtherUserIds);
 
       if (profilesError) {
         logError('Error loading profiles', profilesError);
         // Continue without profiles rather than throwing
       }
+
+      // Build tier mapping
+      const tierMap: Record<string, string> = {};
+      profiles?.forEach(p => {
+        tierMap[p.user_id] = p.subscription_tier || 'free';
+      });
+      setOtherUserTiers(tierMap);
 
       // Get last messages (exclude soft-deleted)
       const { data: messages, error: messagesError } = await supabase

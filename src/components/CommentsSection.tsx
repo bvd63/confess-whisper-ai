@@ -97,7 +97,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
           // Fetch profile data for public comments
           if (comment.is_anonymous === false && comment.user_id) {
             const { data: profileData } = await supabase
-              .from('profiles_public')
+              .from('profiles')
               .select('nickname, avatar_url')
               .eq('user_id', comment.user_id)
               .maybeSingle();
@@ -168,7 +168,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
           // Fetch profile data for public comments
           if (newComment.is_anonymous === false && newComment.user_id) {
             const { data: profileData } = await supabase
-              .from('profiles_public')
+              .from('profiles')
               .select('nickname, avatar_url')
               .eq('user_id', newComment.user_id)
               .maybeSingle();
@@ -198,7 +198,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
       if (!user) return;
       
       const { data } = await supabase
-        .from('profiles_public')
+        .from('profiles')
         .select('nickname')
         .eq('user_id', user.id)
         .maybeSingle();

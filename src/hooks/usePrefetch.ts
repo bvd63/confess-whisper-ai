@@ -57,8 +57,8 @@ export const usePrefetch = () => {
             queryFn: async () => {
               const { supabase } = await import('@/integrations/supabase/client');
               const { data } = await supabase
-                .from('profiles_public')
-                .select('user_id, nickname, handle, avatar_url, bio, is_nickname_public, nickname_visibility, followers_count, following_count, posts_count')
+                .from('profiles')
+                .select('*')
                 .eq('user_id', userId)
                 .single();
               return data;
@@ -78,8 +78,8 @@ export const usePrefetch = () => {
           queryFn: async () => {
             const { supabase } = await import('@/integrations/supabase/client');
             const { data } = await supabase
-              .from('profiles_public')
-              .select('user_id, nickname, handle, avatar_url, bio, is_nickname_public, nickname_visibility, followers_count, following_count, posts_count')
+              .from('profiles')
+              .select('*')
               .eq('user_id', userId)
               .single();
             return data;

@@ -476,8 +476,7 @@ const NewConfessionDialog = ({
                 checked={isAnonymous} 
                 onCheckedChange={setIsAnonymous} 
                 disabled={isSubmitting} 
-                className="h-[18px] w-[36px] border-0 px-[2px] data-[state=checked]:bg-gradient-to-r from-primary via-purple-500 to-primary data-[state=unchecked]:bg-muted-foreground/30" 
-                thumbClassName="h-[14px] w-[14px] data-[state=checked]:translate-x-[18px] data-[state=unchecked]:translate-x-0 shadow-sm" 
+                className="data-[state=checked]:bg-purple-500 data-[state=unchecked]:bg-muted-foreground/30" 
               />
             </div>
 

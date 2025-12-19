@@ -14,14 +14,6 @@ export const useVipStatus = (userId: string | null | undefined) => {
     queryFn: async () => {
       if (!userId) return null;
 
-      const {
-        data: { user: authUser },
-      } = await supabase.auth.getUser();
-
-      if (!authUser || authUser.id !== userId) {
-        return null;
-      }
-
       // Optimized: Single query to profiles (entitlements are fallback only)
       const { data: profile, error } = await supabase
         .from('profiles')
@@ -61,40 +53,27 @@ export const useVipStatus = (userId: string | null | undefined) => {
 
   // Real-time subscription to profile changes
   useEffect(() => {
-    let channel: ReturnType<typeof supabase.channel> | null = null;
+    if (!userId) return;
 
-    const setupSubscription = async () => {
-      if (!userId) return;
-      const {
-        data: { user: authUser },
-      } = await supabase.auth.getUser();
-
-      if (!authUser || authUser.id !== userId) return;
-
-      channel = supabase
-        .channel(`profile-changes-${userId}`)
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'profiles',
-            filter: `user_id=eq.${userId}`,
-          },
-          () => {
-            logDebug('[useVipStatus] Profile updated, refetching');
-            refetch();
-          }
-        )
-        .subscribe();
-    };
-
-    setupSubscription();
+    const channel = supabase
+      .channel(`profile-changes-${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `user_id=eq.${userId}`,
+        },
+        () => {
+          logDebug('[useVipStatus] Profile updated, refetching');
+          refetch();
+        }
+      )
+      .subscribe();
 
     return () => {
-      if (channel) {
-        supabase.removeChannel(channel);
-      }
+      supabase.removeChannel(channel);
     };
   }, [userId, refetch]);
 
