@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Zap, Clock3 } from 'lucide-react';
+import { Clock3 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -145,12 +145,12 @@ export function BoostConfessionButton({
         variant="outline"
         size="sm"
         disabled
-        className="bg-gradient-to-r from-amber-400/20 via-amber-500/20 to-orange-500/20 border-amber-200/30 text-amber-200 cursor-not-allowed"
+        className="bg-primary/20 border-primary/30 text-primary-foreground cursor-not-allowed inline-flex items-center justify-center gap-2"
       >
-        <Zap className="w-4 h-4 mr-2" />
+        <span className="text-base leading-none">⚡</span>
         <span className="font-semibold">{t.boost_active}</span>
-        <Clock3 className="w-3.5 h-3.5 ml-2" />
-        <span className="ml-1">{formattedTimeLeft}</span>
+        <Clock3 className="w-3.5 h-3.5" />
+        <span>{formattedTimeLeft}</span>
       </Button>
     );
   }
@@ -158,14 +158,13 @@ export function BoostConfessionButton({
   return (
     <>
       <Button
-        variant="outline"
         size="sm"
         onClick={() => setIsOpen(true)}
-        className="bg-gradient-to-r from-amber-400/10 via-amber-500/10 to-orange-500/10 border-amber-200/20 text-amber-200 hover:bg-amber-500/20"
+        className="inline-flex items-center justify-center gap-2"
       >
-        <Zap className="w-4 h-4 mr-2" />
+        <span className="text-base leading-none">⚡</span>
         <span className="font-semibold">{t.boost_cta}</span>
-        <span className="mx-1">·</span>
+        <span>·</span>
         <span>{BOOST_COST} {t.coins_title?.toLowerCase() || 'coins'}</span>
       </Button>
 
@@ -173,7 +172,7 @@ export function BoostConfessionButton({
         <DialogContent className="sm:max-w-md bg-gradient-to-br from-[#2a2e5c] via-[#19192f] to-[#0d0d1b] border-white/10">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-white">
-              <Zap className="w-5 h-5 text-amber-400" />
+              <span className="text-xl">⚡</span>
               {t.confirm?.boostConfession?.title || 'Boost Confession'}
             </DialogTitle>
             <DialogDescription className="text-white/70">
