@@ -648,16 +648,17 @@ const Compose = () => {
               onCheckedChange={setIsAnonymous}
               disabled={isBusy}
               className={cn(
-                "h-[31px] w-[51px] rounded-full p-[2px]",
-                "data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-primary data-[state=checked]:to-accent",
-                "data-[state=unchecked]:bg-[rgba(120,120,128,0.32)]",
-                "transition-colors duration-200 ease-in-out",
+                "h-8 w-[52px] rounded-full p-[2px]",
+                "data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-[#7C4DFF] data-[state=checked]:via-[#9D6FFF] data-[state=checked]:to-[#4CC9F0]",
+                "data-[state=unchecked]:bg-white/20",
+                "shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)]",
+                "transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
               )}
               thumbClassName={cn(
-                "h-[27px] w-[27px] rounded-full bg-white",
-                "shadow-[0_3px_8px_rgba(0,0,0,0.15),0_1px_1px_rgba(0,0,0,0.16),0_3px_1px_rgba(0,0,0,0.1)]",
-                "transition-transform duration-200 ease-in-out",
-                "data-[state=unchecked]:translate-x-0 data-[state=checked]:translate-x-[20px]",
+                "h-7 w-7 rounded-full bg-white",
+                "shadow-[0_3px_8px_rgba(0,0,0,0.2),0_1px_3px_rgba(0,0,0,0.12)]",
+                "transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
+                "data-[state=unchecked]:translate-x-0 data-[state=checked]:translate-x-5",
               )}
             />
           </div>
