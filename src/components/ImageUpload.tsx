@@ -114,17 +114,17 @@ const ImageUpload = ({ onImageUploaded, onImageRemoved, currentImage, disabled }
           variant="outline"
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled || uploading}
-          className="w-full gap-1.5 sm:gap-2 border-primary/20 hover:border-primary/40 h-9 sm:h-10 text-xs sm:text-sm"
+          className="gap-2 border-white/10 bg-white/5 backdrop-blur-sm hover:bg-white/10 h-11 px-4 text-sm whitespace-nowrap rounded-xl"
         >
           {uploading ? (
             <>
-              <Upload className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-pulse" />
-              {t.image_uploading}
+              <Upload className="w-4 h-4 animate-pulse" />
+              {t.image_uploading || "Uploading..."}
             </>
           ) : (
             <>
-              <ImageIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              {t.image_add_optional}
+              <ImageIcon className="w-4 h-4" />
+              {t.image_add || "Add image"}
             </>
           )}
         </Button>

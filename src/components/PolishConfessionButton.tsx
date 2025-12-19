@@ -78,35 +78,33 @@ export const PolishConfessionButton = ({
   return (
     <Button
       type="button"
-      variant="outline"
-      size="sm"
+      variant="ghost"
       onClick={handlePolish}
       disabled={isDisabled}
       className={cn(
-        "group flex items-center gap-3 px-4 py-3 rounded-2xl border border-primary/20",
-        "bg-gradient-to-r from-primary/10 via-purple-500/10 to-primary/10 backdrop-blur-sm",
-        "hover:from-primary/15 hover:via-purple-500/15 hover:to-primary/15 hover:border-primary/30",
-        "transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-primary/10",
-        "self-start sm:self-auto",
-        isDisabled && "opacity-60"
+        "w-full flex items-center justify-between px-4 py-3 h-auto rounded-xl",
+        "bg-white/5 backdrop-blur-sm border border-white/10",
+        "hover:bg-white/10 transition-all duration-200",
+        isDisabled && "opacity-50 cursor-not-allowed"
       )}
     >
-      <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 group-hover:from-primary/30 group-hover:to-purple-500/30 transition-all">
+      <div className="flex items-center gap-3">
         {isPolishing ? (
-          <Loader2 className="w-4 h-4 text-primary animate-spin" />
+          <Loader2 className="w-4 h-4 text-purple-400 animate-spin" />
         ) : (
-          <Sparkles className="w-4 h-4 text-primary" />
+          <Sparkles className="w-4 h-4 text-purple-400" />
         )}
-      </div>
-      <div className="flex flex-col items-start text-left">
-        <span className="text-sm font-semibold text-foreground">
-          {actionLabel}
+        <span className="text-sm font-medium text-foreground">
+          {t.polish_enhance_ai || "Enhance with AI"}
         </span>
-        <span className="flex items-center gap-1 text-xs text-muted-foreground">
-          <Coins className="w-3 h-3 text-amber-500" />
-          <span>{costLabel}</span>
+        <span className="text-sm text-muted-foreground">·</span>
+        <span className="text-sm text-muted-foreground">
+          10 {t.coins_title?.toLowerCase() || "coins"}
         </span>
       </div>
+      <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+      </svg>
     </Button>
   );
 };
