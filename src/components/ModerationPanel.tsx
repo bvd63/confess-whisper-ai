@@ -114,8 +114,6 @@ const ModerationPanel = ({ userId }: ModerationPanelProps) => {
           moderation_status: action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : 'flagged',
           moderated_by: userId,
           moderated_at: new Date().toISOString(),
-          is_hidden: action !== 'approve',
-          moderation_reason: reason || null,
           is_reported: false, // Clear reported flag
         })
         .eq('id', confessionId);

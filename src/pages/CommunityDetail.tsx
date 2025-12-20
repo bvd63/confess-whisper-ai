@@ -62,7 +62,6 @@ const CommunityDetail = () => {
         .select('*')
         .eq('community_id', id)
         .eq('moderation_status', 'approved')
-        .eq('is_hidden', false)
         .eq('is_draft', false)
         .order('created_at', { ascending: false })
         .limit(50);

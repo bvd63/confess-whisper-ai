@@ -56,8 +56,7 @@ const UserProfile = () => {
         .from("confessions")
         .select("*", { count: "exact", head: true })
         .eq("user_id", userId)
-        .eq("moderation_status", "approved")
-        .eq("is_hidden", false);
+        .eq("moderation_status", "approved");
 
       if (countError) throw countError;
 

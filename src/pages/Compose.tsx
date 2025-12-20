@@ -294,6 +294,21 @@ const Compose = () => {
 
     setIsGeneratingResponse(true);
     try {
+      const { data: moderationData, error: moderationError } = await supabase.functions.invoke("ai-moderation", {
+        body: { content, language, captchaToken },
+      });
+      if (moderationError) {
+        logError("Moderation error", moderationError as Error);
+      }
+      if (moderationData && !moderationData.is_safe) {
+        toast({
+          title: t.toast_flagged,
+          description: moderationData.reason || t.toast_flagged,
+          variant: "destructive",
+        });
+        return;
+      }
+
       const locale: AiLocale = language === "en" || language === "es" || language === "de" ? (language as AiLocale) : "en";
       const responseText = await getAiReply({
         text: content.trim(),
@@ -392,6 +407,22 @@ const Compose = () => {
         });
         return;
       }
+
+      const { data: moderationData, error: moderationError } = await supabase.functions.invoke("ai-moderation", {
+        body: { content, language, captchaToken },
+      });
+      if (moderationError) {
+        logError("Moderation error", moderationError as Error);
+      }
+      if (moderationData && !moderationData.is_safe) {
+        toast({
+          title: t.toast_flagged,
+          description: moderationData.reason || t.toast_flagged,
+          variant: "destructive",
+        });
+        return;
+      }
+
       if (!user) {
         toast({
           title: t.error_auth,

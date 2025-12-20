@@ -30,7 +30,6 @@ export const ProfileTabs = ({ userId, isOwnProfile, isVip, onUpgradeClick, onIns
         .eq('user_id', userId)
         .eq('is_draft', false)
         .eq('moderation_status', 'approved')
-        .eq('is_hidden', false)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -54,7 +53,7 @@ export const ProfileTabs = ({ userId, isOwnProfile, isVip, onUpgradeClick, onIns
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      const confessions = data?.map(item => item.confessions).filter(confession => confession && confession.moderation_status === 'approved' && confession.is_hidden !== true) || [];
+      const confessions = data?.map(item => item.confessions).filter(Boolean) || [];
       return attachActiveBoosts(confessions);
     },
     enabled: isOwnProfile,
@@ -76,7 +75,7 @@ export const ProfileTabs = ({ userId, isOwnProfile, isVip, onUpgradeClick, onIns
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      const confessions = data?.map(item => item.confessions).filter(confession => confession && confession.moderation_status === 'approved' && confession.is_hidden !== true) || [];
+      const confessions = data?.map(item => item.confessions).filter(Boolean) || [];
       return attachActiveBoosts(confessions);
     },
     enabled: isOwnProfile,

@@ -20,7 +20,6 @@ export const TrendingHashtags = ({ onHashtagClick }: TrendingHashtagsProps) => {
         .from("confessions")
         .select("content")
         .eq("moderation_status", "approved")
-        .eq("is_hidden", false)
         .order("created_at", { ascending: false })
         .limit(100);
 

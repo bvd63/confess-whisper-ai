@@ -51,7 +51,6 @@ const applyQueryGuards = (tab: ExploreTab, cursor?: string | null, currentUserId
     .from("confessions")
     .select("*")
     .eq("moderation_status", "approved")
-    .eq("is_hidden", false)
     .not("is_draft", "eq", true)
     .not("is_private", "eq", true)
     .not("is_reported", "eq", true);
@@ -120,7 +119,6 @@ const passesClientFilters = (confession: ConfessionRow, currentUserId?: string |
   if (confession.is_private) return false;
   if (confession.is_draft) return false;
   if (confession.is_reported) return false;
-  if (confession.is_hidden) return false;
   if (confession.moderation_status && confession.moderation_status !== "approved") return false;
   if (currentUserId && confession.user_id === currentUserId) return false;
 

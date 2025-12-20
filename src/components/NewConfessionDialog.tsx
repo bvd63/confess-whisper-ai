@@ -240,7 +240,35 @@ const NewConfessionDialog = ({
         return;
       }
 
-      // Get AI response (with VIP priority) – moderation now handled asynchronously
+      // Step 1: Moderate content first. Include captchaToken when available so server-side
+      // code (if extended) can verify the token before accepting a confession.
+      const {
+        data: moderationData,
+        error: moderationError
+      } = await supabase.functions.invoke('ai-moderation', {
+        body: {
+          content,
+          language,
+          captchaToken
+        }
+      });
+      if (moderationError) {
+        logError('Moderation error', moderationError as Error);
+        // Continue even if moderation fails
+      }
+
+      // Check if content is safe
+      if (moderationData && !moderationData.is_safe) {
+        toast({
+          title: t.toast_flagged,
+          description: moderationData.reason || t.toast_flagged,
+          variant: "destructive"
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Step 2: Get AI response (with VIP priority)
       let responseText: string | null = null;
       try {
         const locale = language === 'en' || language === 'es' || language === 'de' ? language as AiLocale : 'en';
@@ -379,9 +407,8 @@ const NewConfessionDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto border-primary/20 rounded-3xl shadow-2xl overflow-hidden"
+        className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto bg-background/95 backdrop-blur-xl border-primary/20 rounded-3xl shadow-2xl"
         style={{
-          background: `linear-gradient(to bottom right, hsl(var(--background)), hsl(var(--background-secondary)), hsl(var(--background)))`,
           marginBottom: isKeyboardVisible ? `${keyboardHeight}px` : '0',
           transition: 'margin-bottom 0.3s ease-out'
         }}

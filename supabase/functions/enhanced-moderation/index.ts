@@ -158,9 +158,7 @@ serve(async (req) => {
       await serviceClient
         .from('confessions')
         .update({ 
-          moderation_status: level === 'unsafe' ? 'rejected' : 'pending',
-          is_hidden: level === 'unsafe',
-          moderation_reason: reason ?? null,
+          moderation_status: level === 'unsafe' ? 'rejected' : 'pending' 
         })
         .eq('id', confessionId);
       
@@ -170,7 +168,7 @@ serve(async (req) => {
       log('info', '[ENHANCED-MODERATION] Content approved', { requestId, confessionId });
       await serviceClient
         .from('confessions')
-        .update({ moderation_status: 'approved', is_hidden: false, moderation_reason: null })
+        .update({ moderation_status: 'approved' })
         .eq('id', confessionId);
     }
 
