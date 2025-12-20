@@ -4,12 +4,14 @@ interface UsePullToRefreshOptions {
   onRefresh: () => Promise<void>;
   threshold?: number;
   disabled?: boolean;
+  container?: HTMLElement | null;
 }
 
 export const usePullToRefresh = ({
   onRefresh,
   threshold = 80,
   disabled = false,
+  container,
 }: UsePullToRefreshOptions) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
@@ -18,12 +20,11 @@ export const usePullToRefresh = ({
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (disabled || !containerRef.current) return;
-
-    const container = containerRef.current;
+    const target = container ?? containerRef.current;
+    if (disabled || !target) return;
     let touchStartY = 0;
 
-    const atTop = () => container.scrollTop <= 2;
+    const atTop = () => target.scrollTop <= 2;
 
     const handleTouchStart = (e: TouchEvent) => {
       if (!atTop()) {
@@ -70,16 +71,16 @@ export const usePullToRefresh = ({
       hasActivePull.current = false;
     };
 
-    container.addEventListener("touchstart", handleTouchStart, { passive: true });
-    container.addEventListener("touchmove", handleTouchMove, { passive: false });
-    container.addEventListener("touchend", handleTouchEnd);
+    target.addEventListener("touchstart", handleTouchStart, { passive: true });
+    target.addEventListener("touchmove", handleTouchMove, { passive: false });
+    target.addEventListener("touchend", handleTouchEnd);
 
     return () => {
-      container.removeEventListener("touchstart", handleTouchStart);
-      container.removeEventListener("touchmove", handleTouchMove);
-      container.removeEventListener("touchend", handleTouchEnd);
+      target.removeEventListener("touchstart", handleTouchStart);
+      target.removeEventListener("touchmove", handleTouchMove);
+      target.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [disabled, isRefreshing, onRefresh, pullDistance, threshold]);
+  }, [container, disabled, isRefreshing, onRefresh, pullDistance, threshold]);
 
   return {
     containerRef,

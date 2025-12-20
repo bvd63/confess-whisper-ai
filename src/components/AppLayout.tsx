@@ -32,6 +32,7 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
       
       {/* Content layer */}
       <div
+        data-app-scroll
         className="relative z-10 min-h-[100dvh] overflow-y-auto pb-[env(safe-area-inset-bottom)]"
         style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}
       >

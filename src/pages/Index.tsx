@@ -58,6 +58,7 @@ const Index = () => {
   const { isVip } = useVipStatus(user?.id);
   useSubscriptionCheck(user?.id);
   useMessageNotifications({ userId: user?.id });
+  const [scrollContainer, setScrollContainer] = useState<HTMLDivElement | null>(null);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const [dialogDefaultTab, setDialogDefaultTab] = useState<'subscriptions' | 'coins'>('subscriptions');
@@ -137,7 +138,13 @@ const Index = () => {
       await refetch();
     },
     threshold: 80,
+    container: scrollContainer,
   });
+
+  useEffect(() => {
+    const el = document.querySelector('[data-app-scroll]') as HTMLDivElement | null;
+    if (el) setScrollContainer(el);
+  }, []);
 
   // Memoized callbacks to prevent unnecessary ConfessionCard rerenders
   const handleUpgradeClick = useCallback(() => {
