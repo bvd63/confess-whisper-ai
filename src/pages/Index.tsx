@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, lazy, Suspense } from "react";
+import { useState, useEffect, useCallback, lazy, Suspense, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import AppLayout from "@/components/AppLayout";
@@ -14,7 +14,7 @@ import SEOHead from "@/components/SEOHead";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import { supabase } from "@/integrations/supabase/client";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient, InfiniteData } from "@tanstack/react-query";
 import { attachActiveBoosts } from "@/lib/boosts";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { useScrollHeader } from "@/hooks/useScrollHeader";
@@ -63,6 +63,8 @@ const Index = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const PAGE_SIZE = 30;
+  const queryClient = useQueryClient();
+  const optimisticCommentDeltas = useRef<Record<string, number>>({});
   
   // Scroll header behavior for Home Feed
   const isHeaderVisible = useScrollHeader({ threshold: 12, topOffset: 30 });
@@ -74,7 +76,7 @@ const Index = () => {
     queryFn: async ({ pageParam }) => {
       let query = supabase
         .from("confessions")
-        .select("*")
+        .select("*, comments(count)")
         .eq("moderation_status", "approved")
         .or("is_draft.is.null,is_draft.eq.false")
         .order("created_at", { ascending: false })
@@ -91,7 +93,14 @@ const Index = () => {
         throw error;
       }
 
-      return attachActiveBoosts(confessionsData || []);
+      const normalizedConfessions = (confessionsData || []).map((item: any) => {
+        const aggregated = Array.isArray(item.comments) ? item.comments[0]?.count : null;
+        const commentsCount = typeof aggregated === 'number' ? aggregated : item.comments_count ?? 0;
+        const { comments, ...rest } = item;
+        return { ...rest, comments_count: commentsCount } as FeedConfession;
+      });
+
+      return attachActiveBoosts(normalizedConfessions);
     },
     getNextPageParam: (lastPage) => {
       if (!lastPage || lastPage.length < PAGE_SIZE) return null;
@@ -104,6 +113,21 @@ const Index = () => {
   });
 
   const confessions = data?.pages.flat() ?? [];
+
+  const applyCommentDelta = useCallback((confessionId: string, delta: number) => {
+    if (!confessionId || !delta) return;
+    queryClient.setQueryData<InfiniteData<FeedConfession[]> | undefined>(["home-feed", user?.id], (old) => {
+      if (!old) return old;
+      const updatedPages = old.pages.map((page) =>
+        page.map((confession) =>
+          confession.id === confessionId
+            ? { ...confession, comments_count: Math.max(0, (confession.comments_count ?? 0) + delta) }
+            : confession
+        )
+      );
+      return { ...old, pages: updatedPages };
+    });
+  }, [queryClient, user?.id]);
 
   // Pull to refresh
   const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
@@ -154,6 +178,62 @@ const Index = () => {
       supabase.removeChannel(channel);
     };
   }, [refetch]);
+
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const detail = (event as CustomEvent<{ confessionId: string; delta: number }>).detail;
+      if (!detail?.confessionId || !detail.delta) return;
+      optimisticCommentDeltas.current[detail.confessionId] = (optimisticCommentDeltas.current[detail.confessionId] || 0) + detail.delta;
+      applyCommentDelta(detail.confessionId, detail.delta);
+    };
+
+    window.addEventListener('confession-comments-changed', handler as EventListener);
+    return () => window.removeEventListener('confession-comments-changed', handler as EventListener);
+  }, [applyCommentDelta]);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('home-comments-counts')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'comments',
+      }, (payload) => {
+        const confessionId = (payload.new as { confession_id?: string }).confession_id;
+        if (!confessionId) return;
+        const pending = optimisticCommentDeltas.current[confessionId] || 0;
+        if (pending > 0) {
+          optimisticCommentDeltas.current[confessionId] = pending - 1;
+          if (optimisticCommentDeltas.current[confessionId] === 0) {
+            delete optimisticCommentDeltas.current[confessionId];
+          }
+          return;
+        }
+        applyCommentDelta(confessionId, 1);
+      })
+      .on('postgres_changes', {
+        event: 'DELETE',
+        schema: 'public',
+        table: 'comments',
+      }, (payload) => {
+        const confessionId = (payload.old as { confession_id?: string }).confession_id;
+        if (!confessionId) return;
+        const pending = optimisticCommentDeltas.current[confessionId] || 0;
+        if (pending < 0) {
+          optimisticCommentDeltas.current[confessionId] = pending + 1;
+          if (optimisticCommentDeltas.current[confessionId] === 0) {
+            delete optimisticCommentDeltas.current[confessionId];
+          }
+          return;
+        }
+        applyCommentDelta(confessionId, -1);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [applyCommentDelta]);
 
   useEffect(() => {
     // Track page view

@@ -33,7 +33,7 @@ interface CommentsSectionProps {
   confessionId: string;
   commentsCount: number;
   confessionOwnerId: string;
-  onCommentChange?: () => void;
+  onCommentChange?: (delta: number) => void;
 }
 
 const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCommentChange }: CommentsSectionProps) => {
@@ -49,6 +49,13 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
   const { t, language } = useLanguage();
   const confirm = useConfirm();
   const { purgeComment } = useCachePurgeOnDelete();
+
+  const emitCommentDelta = (delta: number) => {
+    if (!delta) return;
+    window.dispatchEvent(new CustomEvent('confession-comments-changed', {
+      detail: { confessionId, delta }
+    }));
+  };
 
   const loadComments = async () => {
     try {
@@ -178,11 +185,18 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
             }
           }
           
+          let added = false;
           setComments(prev => {
             // Avoid duplicates
             if (prev.some(c => c.id === newComment.id)) return prev;
+            added = true;
             return [newComment, ...prev];
           });
+
+          if (added) {
+            onCommentChange?.(1);
+            emitCommentDelta(1);
+          }
         }
       )
       .on(
@@ -224,7 +238,17 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
         },
         (payload) => {
           const deletedComment = payload.old as { id: string };
-          setComments(prev => prev.filter(comment => comment.id !== deletedComment.id));
+          let removed = false;
+          setComments(prev => {
+            const next = prev.filter(comment => comment.id !== deletedComment.id);
+            removed = next.length !== prev.length;
+            return next;
+          });
+
+          if (removed) {
+            onCommentChange?.(-1);
+            emitCommentDelta(-1);
+          }
         }
       )
       .subscribe();
@@ -366,11 +390,12 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
         };
         
         setComments(prev => [optimisticComment, ...prev]);
+        onCommentChange?.(1);
+        emitCommentDelta(1);
       }
 
       // Clear input and reset state
       setNewComment("");
-      onCommentChange?.();
       
       toast({
         title: t.success_sent,
@@ -414,7 +439,8 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
 
       // Optimistically remove from UI (real-time will handle it, but this is faster)
       setComments(prev => prev.filter(comment => comment.id !== commentId));
-      onCommentChange?.();
+      onCommentChange?.(-1);
+      emitCommentDelta(-1);
       
       notify.success('notifications.commentDeleted', language);
     } catch (error) {

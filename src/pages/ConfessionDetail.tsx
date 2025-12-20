@@ -334,8 +334,8 @@ const ConfessionDetail = () => {
               confessionId={confession.id}
               confessionOwnerId={confession.user_id || ''}
               commentsCount={commentsCount}
-              onCommentChange={() => {
-                setCommentsCount(prev => prev + 1);
+              onCommentChange={(delta) => {
+                setCommentsCount(prev => Math.max(0, prev + delta));
               }}
             />
           </Card>
