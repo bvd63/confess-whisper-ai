@@ -648,6 +648,10 @@ type Translations = {
   // Index Page
   index_no_confessions_title: string;
   index_no_confessions_desc: string;
+  index_empty_feed_cta: string;
+  index_end_of_feed_title: string;
+  index_end_of_feed_desc: string;
+  index_end_of_feed_refresh: string;
   
   // Not Found Page
   notfound_404: string;
@@ -2934,7 +2938,11 @@ export const translations: Record<Language, Translations> = {
     terms_last_updated: "Last updated: October 2025",
     
     index_no_confessions_title: "No confessions yet",
-    index_no_confessions_desc: "Be the first to share your thoughts. You'll instantly get an empathetic AI response.",
+    index_no_confessions_desc: "Be the first to share something.",
+    index_empty_feed_cta: "Create a confession",
+    index_end_of_feed_title: "You're all caught up",
+    index_end_of_feed_desc: "Check back later for new confessions.",
+    index_end_of_feed_refresh: "Refresh",
     
     notfound_404: "404",
     notfound_title: "Oops! Page not found",
@@ -4650,7 +4658,11 @@ export const translations: Record<Language, Translations> = {
     terms_last_updated: "Última actualización: Octubre 2025",
     
     index_no_confessions_title: "Aún no hay confesiones",
-    index_no_confessions_desc: "Sé el primero en compartir tus pensamientos. Recibirás instantáneamente una respuesta empática de IA.",
+    index_no_confessions_desc: "Sé el primero en compartir algo.",
+    index_empty_feed_cta: "Crear una confesión",
+    index_end_of_feed_title: "Ya estás al día",
+    index_end_of_feed_desc: "Vuelve más tarde para ver nuevas confesiones.",
+    index_end_of_feed_refresh: "Actualizar",
     
     notfound_404: "404",
     notfound_title: "¡Ups! Página no encontrada",
@@ -6623,7 +6635,11 @@ export const translations: Record<Language, Translations> = {
     terms_last_updated: "Zuletzt aktualisiert: Oktober 2025",
     
     index_no_confessions_title: "Noch keine Geständnisse",
-    index_no_confessions_desc: "Sei der Erste, der seine Gedanken teilt. Du erhältst sofort eine empathische KI-Antwort.",
+    index_no_confessions_desc: "Sei der Erste, der etwas teilt.",
+    index_empty_feed_cta: "Geständnis erstellen",
+    index_end_of_feed_title: "Du bist auf dem neuesten Stand",
+    index_end_of_feed_desc: "Schau später wieder vorbei.",
+    index_end_of_feed_refresh: "Aktualisieren",
     
     notfound_404: "404",
     notfound_title: "Hoppla! Seite nicht gefunden",
