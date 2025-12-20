@@ -44,7 +44,7 @@ const UserProfile = () => {
     try {
       // Load profile data
       const { data: profileData, error: profileError } = await supabase
-        .from<UserProfileData>("public_profiles")
+        .from("public_profiles")
         .select("nickname, bio")
         .eq("user_id", userId)
         .maybeSingle();
@@ -60,7 +60,7 @@ const UserProfile = () => {
 
       if (countError) throw countError;
 
-      setProfile(profileData);
+      setProfile(profileData as UserProfileData | null);
       setConfessionsCount(count || 0);
     } catch (error) {
       logError("Error loading profile", error as Error);
