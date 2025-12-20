@@ -116,9 +116,6 @@ const computePopularScore = (confession: ConfessionRow) => {
 const passesClientFilters = (confession: ConfessionRow, currentUserId?: string | null) => {
   if (!confession) return false;
 
-  const contentLength = confession.content?.trim().length ?? 0;
-  if (contentLength < MIN_CONTENT_LENGTH) return false;
-
   if (confession.is_private) return false;
   if (confession.is_draft) return false;
   if (confession.is_reported) return false;
@@ -128,7 +125,13 @@ const passesClientFilters = (confession: ConfessionRow, currentUserId?: string |
   return true;
 };
 
-const applySelectionRules = (candidates: ConfessionRow[], loadedCount = 0) => {
+type SelectionRules = {
+  minContentLength: number | null;
+  applyCategoryCap: boolean;
+  applyAuthorCooldown: boolean;
+};
+
+const applySelectionRules = (candidates: ConfessionRow[], loadedCount = 0, rules: SelectionRules) => {
   const selected: ConfessionRow[] = [];
   const categoryCounts = new Map<string, number>();
   const authorTimestamps = new Map<string, number>();
@@ -139,21 +142,30 @@ const applySelectionRules = (candidates: ConfessionRow[], loadedCount = 0) => {
     const createdAtMs = new Date(candidate.created_at).getTime();
     if (Number.isNaN(createdAtMs)) continue;
 
-    const authorId = candidate.user_id ?? "unknown";
-    const lastIncludedAt = authorTimestamps.get(authorId);
-    if (lastIncludedAt && Math.abs(createdAtMs - lastIncludedAt) < AUTHOR_COOLDOWN_MS) {
+    const contentLength = candidate.content?.trim().length ?? 0;
+    if (rules.minContentLength !== null && contentLength < rules.minContentLength) {
       continue;
     }
 
-    const category = candidate.category ?? "other";
-    const categoryCount = categoryCounts.get(category) ?? 0;
-    if (categoryCount >= CATEGORY_CAP_PER_PAGE) {
-      continue;
+    if (rules.applyAuthorCooldown) {
+      const authorId = candidate.user_id ?? "unknown";
+      const lastIncludedAt = authorTimestamps.get(authorId);
+      if (lastIncludedAt && Math.abs(createdAtMs - lastIncludedAt) < AUTHOR_COOLDOWN_MS) {
+        continue;
+      }
+      authorTimestamps.set(authorId, createdAtMs);
+    }
+
+    if (rules.applyCategoryCap) {
+      const category = candidate.category ?? "other";
+      const categoryCount = categoryCounts.get(category) ?? 0;
+      if (categoryCount >= CATEGORY_CAP_PER_PAGE) {
+        continue;
+      }
+      categoryCounts.set(category, categoryCount + 1);
     }
 
     selected.push(candidate);
-    categoryCounts.set(category, categoryCount + 1);
-    authorTimestamps.set(authorId, createdAtMs);
   }
 
   const hasMore = selected.length === PAGE_SIZE && loadedCount + selected.length < HARD_CAP;
@@ -195,13 +207,38 @@ const buildTabResult = async (
   const withBoosts = await attachActiveBoosts((data as ConfessionRow[]) || []);
   const filtered = withBoosts.filter((confession) => passesClientFilters(confession, currentUserId));
   const sorted = sortCandidates(tab, filtered);
-  const { selected, hasMore, nextCursor } = applySelectionRules(sorted, loadedCount);
+
+  const baseRules: SelectionRules = {
+    minContentLength: tab === "recent" ? 10 : MIN_CONTENT_LENGTH,
+    applyCategoryCap: tab !== "recent",
+    applyAuthorCooldown: tab === "trending",
+  };
+
+  const stages: SelectionRules[] = [
+    baseRules,
+    { ...baseRules, applyCategoryCap: false },
+    { ...baseRules, applyCategoryCap: false, applyAuthorCooldown: false },
+    { ...baseRules, applyCategoryCap: false, applyAuthorCooldown: false, minContentLength: null },
+  ];
+
+  let selection = applySelectionRules(sorted, loadedCount, stages[0]);
+
+  for (let i = 1; i < stages.length; i++) {
+    if (selection.selected.length >= PAGE_SIZE || loadedCount + selection.selected.length >= HARD_CAP) {
+      break;
+    }
+
+    const relaxed = applySelectionRules(sorted, loadedCount, stages[i]);
+    if (relaxed.selected.length > selection.selected.length) {
+      selection = relaxed;
+    }
+  }
 
   return {
-    items: selected,
+    items: selection.selected,
     source: tab,
-    nextCursor,
-    hasMore,
+    nextCursor: selection.nextCursor,
+    hasMore: selection.hasMore,
   };
 };
 
