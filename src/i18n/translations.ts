@@ -1253,6 +1253,12 @@ type Translations = {
   explore_search_card_unfollow: string;
   explore_search_card_message: string;
   explore_search_card_no_results: string;
+  
+  // Explore Page Discovery
+  explore_subtitle: string;
+  explore_search_confessions_placeholder: string;
+  explore_no_confessions: string;
+  explore_trending_confessions: string;
 
   // Home - Communities
   home_communities_title: string;
@@ -3292,6 +3298,12 @@ export const translations: Record<Language, Translations> = {
     explore_search_card_message: "Message",
     explore_search_card_no_results: "No users found",
     
+    // Explore Page Discovery
+    explore_subtitle: "Recommended for you",
+    explore_search_confessions_placeholder: "Search confessions...",
+    explore_no_confessions: "No confessions yet",
+    explore_trending_confessions: "Trending Confessions",
+    
     // Home - Communities
     home_communities_title: "Communities",
     home_communities_join: "Join",
@@ -5167,6 +5179,12 @@ export const translations: Record<Language, Translations> = {
     explore_search_card_unfollow: "Dejar de seguir",
     explore_search_card_message: "Mensaje",
     explore_search_card_no_results: "No se encontraron usuarios",
+    
+    // Explore Page Discovery
+    explore_subtitle: "Recomendado para ti",
+    explore_search_confessions_placeholder: "Buscar confesiones...",
+    explore_no_confessions: "Aún no hay confesiones",
+    explore_trending_confessions: "Confesiones Trending",
     
     // Home - Communities
     home_communities_title: "Comunidades",
@@ -7144,6 +7162,12 @@ export const translations: Record<Language, Translations> = {
     explore_search_card_unfollow: "Nicht mehr folgen",
     explore_search_card_message: "Nachricht",
     explore_search_card_no_results: "Keine Benutzer gefunden",
+    
+    // Explore Page Discovery
+    explore_subtitle: "Empfohlen für dich",
+    explore_search_confessions_placeholder: "Beichten suchen...",
+    explore_no_confessions: "Noch keine Beichten",
+    explore_trending_confessions: "Trending Beichten",
     
     // Home - Communities
     home_communities_title: "Gemeinschaften",
