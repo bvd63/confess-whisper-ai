@@ -173,7 +173,7 @@ const Rewards = () => {
                 <p className="text-white font-medium text-sm">Boost Confession</p>
                 <div className="flex items-center gap-1 text-white/60 text-xs">
                   <span>Cost:</span>
-                  <span className="text-amber-400">🪙</span>
+                  <span>⚡</span>
                   <span>{BOOST_COST}</span>
                 </div>
               </div>
@@ -188,7 +188,7 @@ const Rewards = () => {
                 <p className="text-white font-medium text-sm">Highlight Comment</p>
                 <div className="flex items-center gap-1 text-white/60 text-xs">
                   <span>Cost:</span>
-                  <span className="text-amber-400">🪙</span>
+                  <span>⭐</span>
                   <span>{HIGHLIGHT_COST}</span>
                 </div>
               </div>
