@@ -107,11 +107,6 @@ const Profile = () => {
       logError('Error fetching user stats', error as Error);
     }
   }, [user?.id]);
-      if (import.meta.env.DEV) {
-        logError('Error loading profile data', error as Error);
-      }
-    }
-  }, [user?.id]);
 
   useEffect(() => {
     if (user?.id) {
