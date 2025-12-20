@@ -229,13 +229,6 @@ const Index = () => {
         ref={containerRef}
         className="container max-w-2xl mx-auto px-4 py-6 pb-24"
       >
-        {/* Section Title */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-white">
-            {t.popular_confessions}
-          </h2>
-        </div>
-
         {/* Confession Feed */}
         {isLoading ? (
           <div className="space-y-4">
