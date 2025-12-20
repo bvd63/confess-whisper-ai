@@ -14,7 +14,7 @@ const EndOfFeedState = () => {
           
           {/* Icon */}
           <div className="relative mb-3 flex justify-center">
-            <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-violet-600 to-purple-500 border border-violet-400/30 flex items-center justify-center shadow-lg shadow-purple-500/30">
+            <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-primary/70 via-primary/60 to-accent/70 flex items-center justify-center shadow-lg shadow-primary/30">
               <CheckCircle className="w-5 h-5 text-white" />
             </div>
           </div>
