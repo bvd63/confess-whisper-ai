@@ -254,6 +254,9 @@ serve(async (req: Request) => {
         is_anonymous: payload.isAnonymous,
         ai_response: payload.aiResponse,
         author_display_name_snapshot: payload.isAnonymous ? null : payload.authorDisplayName,
+        moderation_status: "pending",
+        is_hidden: false,
+        moderation_reason: null,
       })
       .select()
       .single();

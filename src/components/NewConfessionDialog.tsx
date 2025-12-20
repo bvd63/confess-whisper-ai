@@ -240,35 +240,7 @@ const NewConfessionDialog = ({
         return;
       }
 
-      // Step 1: Moderate content first. Include captchaToken when available so server-side
-      // code (if extended) can verify the token before accepting a confession.
-      const {
-        data: moderationData,
-        error: moderationError
-      } = await supabase.functions.invoke('ai-moderation', {
-        body: {
-          content,
-          language,
-          captchaToken
-        }
-      });
-      if (moderationError) {
-        logError('Moderation error', moderationError as Error);
-        // Continue even if moderation fails
-      }
-
-      // Check if content is safe
-      if (moderationData && !moderationData.is_safe) {
-        toast({
-          title: t.toast_flagged,
-          description: moderationData.reason || t.toast_flagged,
-          variant: "destructive"
-        });
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Step 2: Get AI response (with VIP priority)
+      // Get AI response (with VIP priority) – moderation now handled asynchronously
       let responseText: string | null = null;
       try {
         const locale = language === 'en' || language === 'es' || language === 'de' ? language as AiLocale : 'en';

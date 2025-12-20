@@ -31,6 +31,9 @@ interface ConfessionCardProps {
     is_anonymous?: boolean;
     author_display_name_snapshot?: string | null;
     boost_expires_at?: string | null;
+    moderation_status?: string | null;
+    is_hidden?: boolean | null;
+    moderation_reason?: string | null;
   };
   isVip: boolean;
   isLiked?: boolean;
@@ -48,9 +51,20 @@ const ConfessionCard = ({ confession, isVip: _isVip, onUpgradeClick: _onUpgradeC
   const navigate = useNavigate();
   const [boostExpiresAt, setBoostExpiresAt] = useState<string | null>(confession.boost_expires_at || null);
   const { user } = useCurrentUser();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { subscriptionTier } = useVipStatus(confession.user_id || null);
   const { isSensitive } = useSensitiveContent(confession.content);
+
+  const statusLabel = useMemo(() => {
+    if (!user || user.id !== confession.user_id) return null;
+    if (confession.moderation_status !== "pending") return null;
+    const map: Record<string, string> = {
+      en: "Checking…",
+      es: "Verificando…",
+      de: "Wird geprüft…",
+    };
+    return map[language] ?? map.en;
+  }, [confession.moderation_status, confession.user_id, language, user]);
 
   const noScreenshotEnabled = subscriptionTier === 'vip' && user?.id === confession.user_id;
 
@@ -104,6 +118,11 @@ const ConfessionCard = ({ confession, isVip: _isVip, onUpgradeClick: _onUpgradeC
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-400/30 text-[10px] font-semibold text-amber-300 backdrop-blur-sm">
                   <Crown className="w-3 h-3" />
                   VIP
+                </span>
+              )}
+              {statusLabel && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 border border-white/20 text-[10px] font-semibold text-white/90 backdrop-blur-sm">
+                  {statusLabel}
                 </span>
               )}
               {isBoosted && (

@@ -33,6 +33,7 @@ export const useNearbyConfessions = (options: NearbyConfessionsOptions = {}) => 
         .select('*')
         .eq('location_enabled', true)
         .eq('moderation_status', 'approved')
+        .eq('is_hidden', false)
         .eq('is_draft', false)
         .gte('location_lat', latitude - latDelta)
         .lte('location_lat', latitude + latDelta)

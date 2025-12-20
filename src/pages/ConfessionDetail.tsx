@@ -82,6 +82,19 @@ const ConfessionDetail = () => {
           return;
         }
 
+        if ((data.moderation_status && data.moderation_status !== 'approved') || data.is_hidden) {
+          const isOwner = user?.id === data.user_id;
+          if (!isOwner) {
+            toast({
+              title: t.error_generic,
+              description: "Confession not available",
+              variant: "destructive",
+            });
+            navigate('/');
+            return;
+          }
+        }
+
         setConfession(data);
         setCommentsCount(data.comments_count || 0);
 

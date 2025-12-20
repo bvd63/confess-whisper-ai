@@ -81,6 +81,7 @@ const Index = () => {
         .from("confessions")
         .select("*, comments(count)")
         .eq("moderation_status", "approved")
+        .eq("is_hidden", false)
         .or("is_draft.is.null,is_draft.eq.false")
         .order("created_at", { ascending: false })
         .limit(PAGE_SIZE);
@@ -173,12 +174,12 @@ const Index = () => {
       .channel('home-mixed-feed')
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'confessions', filter: 'moderation_status=eq.approved' },
+        { event: 'INSERT', schema: 'public', table: 'confessions', filter: 'moderation_status=eq.approved,is_hidden=eq.false' },
         () => refetch()
       )
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'confessions', filter: 'moderation_status=eq.approved' },
+        { event: 'UPDATE', schema: 'public', table: 'confessions', filter: 'moderation_status=eq.approved,is_hidden=eq.false' },
         () => refetch()
       )
       .subscribe();

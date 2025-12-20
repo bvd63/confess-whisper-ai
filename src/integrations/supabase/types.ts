@@ -782,6 +782,7 @@ export type Database = {
           image_url: string | null
           is_anonymous: boolean
           is_draft: boolean | null
+          is_hidden: boolean | null
           is_private: boolean | null
           is_reported: boolean | null
           likes_count: number | null
@@ -792,6 +793,7 @@ export type Database = {
           location_lng: number | null
           moderated_at: string | null
           moderated_by: string | null
+          moderation_reason: string | null
           moderation_status: string | null
           shared_count: number | null
           updated_at: string
@@ -815,6 +817,7 @@ export type Database = {
           image_url?: string | null
           is_anonymous?: boolean
           is_draft?: boolean | null
+          is_hidden?: boolean | null
           is_private?: boolean | null
           is_reported?: boolean | null
           likes_count?: number | null
@@ -825,6 +828,7 @@ export type Database = {
           location_lng?: number | null
           moderated_at?: string | null
           moderated_by?: string | null
+          moderation_reason?: string | null
           moderation_status?: string | null
           shared_count?: number | null
           updated_at?: string
@@ -848,6 +852,7 @@ export type Database = {
           image_url?: string | null
           is_anonymous?: boolean
           is_draft?: boolean | null
+          is_hidden?: boolean | null
           is_private?: boolean | null
           is_reported?: boolean | null
           likes_count?: number | null
@@ -858,6 +863,7 @@ export type Database = {
           location_lng?: number | null
           moderated_at?: string | null
           moderated_by?: string | null
+          moderation_reason?: string | null
           moderation_status?: string | null
           shared_count?: number | null
           updated_at?: string
