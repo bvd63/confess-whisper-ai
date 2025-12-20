@@ -24,6 +24,7 @@ export const usePullToRefresh = ({
   const refreshLockRef = useRef(false);
   const pointerActiveRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const pullDistanceRef = useRef(0);
   const onRefreshRef = useRef(onRefresh);
   const thresholdRef = useRef(threshold);
   const topToleranceRef = useRef(topTolerance);
@@ -79,13 +80,16 @@ export const usePullToRefresh = ({
 
       if (distance > 0) {
         e.preventDefault();
-        setPullDistance(Math.min(distance, thresholdRef.current * 1.5));
+        const next = Math.min(distance, thresholdRef.current * 1.5);
+        pullDistanceRef.current = next;
+        setPullDistance(next);
       }
     };
 
     const handleTouchEnd = async () => {
       if (pointerActiveRef.current) return;
       if (refreshLockRef.current) {
+        pullDistanceRef.current = 0;
         setPullDistance(0);
         return;
       }
@@ -95,7 +99,8 @@ export const usePullToRefresh = ({
         return;
       }
 
-      if (pullDistance >= thresholdRef.current && !refreshingRef.current) {
+      const distance = pullDistanceRef.current;
+      if (distance >= thresholdRef.current && !refreshingRef.current) {
         refreshLockRef.current = true;
         setIsRefreshing(true);
         refreshingRef.current = true;
@@ -107,6 +112,7 @@ export const usePullToRefresh = ({
           refreshLockRef.current = false;
         }
       }
+      pullDistanceRef.current = 0;
       setPullDistance(0);
       hasActivePull.current = false;
       startedAtTopRef.current = false;
@@ -138,7 +144,9 @@ export const usePullToRefresh = ({
       const distance = e.clientY - startY.current;
 
       if (distance > 0) {
-        setPullDistance(Math.min(distance, thresholdRef.current * 1.5));
+        const next = Math.min(distance, thresholdRef.current * 1.5);
+        pullDistanceRef.current = next;
+        setPullDistance(next);
       }
     };
 
@@ -146,6 +154,7 @@ export const usePullToRefresh = ({
       if (!pointerActiveRef.current) return;
 
       if (refreshLockRef.current) {
+        pullDistanceRef.current = 0;
         setPullDistance(0);
         pointerActiveRef.current = false;
         return;
@@ -159,7 +168,8 @@ export const usePullToRefresh = ({
         return;
       }
 
-      if (pullDistance >= thresholdRef.current && !refreshingRef.current) {
+      const distance = pullDistanceRef.current;
+      if (distance >= thresholdRef.current && !refreshingRef.current) {
         refreshLockRef.current = true;
         setIsRefreshing(true);
         refreshingRef.current = true;
@@ -171,6 +181,7 @@ export const usePullToRefresh = ({
           refreshLockRef.current = false;
         }
       }
+      pullDistanceRef.current = 0;
       setPullDistance(0);
       hasActivePull.current = false;
       startedAtTopRef.current = false;
