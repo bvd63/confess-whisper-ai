@@ -19,19 +19,19 @@ const OnboardingDialog = ({ open, onComplete }: OnboardingDialogProps) => {
       icon: Heart,
       title: t.welcome_title,
       description: t.welcome_description,
-      gradient: "from-primary/20 to-primary/10",
+      gradient: "from-primary/20 to-accent/10",
     },
     {
       icon: Shield,
       title: t.anonymous_secure,
       description: t.anonymous_description,
-      gradient: "from-blue-500/20 to-blue-500/10",
+      gradient: "from-accent/20 to-primary/10",
     },
     {
       icon: Sparkles,
       title: t.ai_support,
       description: t.ai_description,
-      gradient: "from-purple-500/20 to-purple-500/10",
+      gradient: "from-primary/20 to-accent/10",
     },
   ];
 

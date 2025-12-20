@@ -84,14 +84,14 @@ export const PolishConfessionButton = ({
       disabled={isDisabled}
       className={cn(
         "group flex items-center gap-3 px-4 py-3 rounded-2xl border border-primary/20",
-        "bg-gradient-to-r from-primary/10 via-purple-500/10 to-primary/10 backdrop-blur-sm",
-        "hover:from-primary/15 hover:via-purple-500/15 hover:to-primary/15 hover:border-primary/30",
+        "bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 backdrop-blur-sm",
+        "hover:from-primary/15 hover:via-accent/15 hover:to-primary/15 hover:border-primary/30",
         "transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-primary/10",
         "self-start sm:self-auto",
         isDisabled && "opacity-60"
       )}
     >
-      <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 group-hover:from-primary/30 group-hover:to-purple-500/30 transition-all">
+      <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 group-hover:from-primary/30 group-hover:to-accent/30 transition-all">
         {isPolishing ? (
           <Loader2 className="w-4 h-4 text-primary animate-spin" />
         ) : (
