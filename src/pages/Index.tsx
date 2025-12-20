@@ -185,9 +185,9 @@ const Index = () => {
             <ConfessionCardSkeleton />
             <ConfessionCardSkeleton />
           </div>
-        ) : (
+        ) : confessions && confessions.length > 0 ? (
           <div className="space-y-4">
-            {confessions?.map((confession) => (
+            {confessions.map((confession) => (
               <ConfessionCard
                 key={confession.id}
                 confession={confession}
@@ -203,6 +203,15 @@ const Index = () => {
                 }}
               />
             ))}
+          </div>
+        ) : (
+          <div className="py-12 text-center">
+            <p className="text-lg font-medium text-white/80 mb-2">
+              {t.index_no_confessions_title}
+            </p>
+            <p className="text-sm text-white/50">
+              {t.index_no_confessions_desc}
+            </p>
           </div>
         )}
       </main>
