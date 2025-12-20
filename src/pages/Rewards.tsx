@@ -182,7 +182,7 @@ const Rewards = () => {
             {/* Highlight Comment */}
             <div className="glass-card p-4 rounded-2xl border border-white/10 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                <Star className="w-5 h-5 text-purple-400" />
+                <Star className="w-5 h-5 text-purple-400 fill-purple-400" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-white font-medium text-sm">Highlight Comment</p>
