@@ -14,7 +14,7 @@ import SEOHead from "@/components/SEOHead";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { attachActiveBoosts } from "@/lib/boosts";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { useScrollHeader } from "@/hooks/useScrollHeader";
@@ -38,6 +38,7 @@ const Index = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const PAGE_SIZE = 30;
   
   // Scroll header behavior for Home Feed
   const isHeaderVisible = useScrollHeader({ threshold: 12, topOffset: 30 });
@@ -50,38 +51,69 @@ const Index = () => {
     threshold: 80,
   });
 
-  // Fetch popular/hot confessions for the feed
-  const { data: confessions, isLoading, error: queryError, refetch } = useQuery({
-    queryKey: ["home-confessions"],
-    queryFn: async () => {
-      // Fetch recent approved confessions to include newly created ones
-      const { data, error } = await supabase
-        .from("confessions")
-        .select("*")
-        .eq("moderation_status", "approved")
-        .order("created_at", { ascending: false })
-        .limit(30);
-      
+  // Fetch mixed feed (following + explore) with adaptive ratios
+  const { data, isLoading, error: queryError, refetch } = useInfiniteQuery({
+    queryKey: ["home-mixed-feed", user?.id],
+    initialPageParam: null as Record<string, unknown> | null,
+    queryFn: async ({ pageParam }) => {
+      const { data, error } = await supabase.rpc("get_mixed_feed", {
+        p_limit: PAGE_SIZE,
+        p_cursor: pageParam,
+      });
+
       if (error) {
-        console.error('Error fetching confessions:', error);
+        console.error('Error fetching mixed feed:', error);
         throw error;
       }
+
       return attachActiveBoosts(data || []);
+    },
+    getNextPageParam: (lastPage) => {
+      if (!lastPage || lastPage.length < PAGE_SIZE) return null;
+      const last = lastPage[lastPage.length - 1];
+      return {
+        mix_order: last.mix_order,
+        score: last.score,
+        created_at: last.created_at,
+        id: last.id,
+      };
     },
     retry: 2,
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60, // 1 minute
   });
 
+  const confessions = data?.pages.flat() ?? [];
+
   // Log query state for debugging
   useEffect(() => {
     console.log('Home Feed Query State:', { 
       isLoading, 
-      hasData: !!confessions, 
-      count: confessions?.length,
+      hasData: confessions.length > 0, 
+      count: confessions.length,
       error: queryError 
     });
   }, [isLoading, confessions, queryError]);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('home-mixed-feed')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'confessions', filter: 'moderation_status=eq.approved' },
+        () => refetch()
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'confessions', filter: 'moderation_status=eq.approved' },
+        () => refetch()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refetch]);
 
   useEffect(() => {
     // Track page view
@@ -212,7 +244,7 @@ const Index = () => {
             <ConfessionCardSkeleton />
             <ConfessionCardSkeleton />
           </div>
-        ) : confessions && confessions.length > 0 ? (
+        ) : confessions.length > 0 ? (
           <div className="space-y-4">
             {confessions.map((confession) => (
               <ConfessionCard

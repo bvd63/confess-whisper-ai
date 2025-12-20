@@ -2610,6 +2610,33 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_mixed_feed: {
+        Args: {
+          p_cursor?: Json | null
+          p_limit?: number
+        }
+        Returns: {
+          ai_deep_insight: string | null
+          ai_response: string | null
+          author_display_name_snapshot: string | null
+          author_nickname_snapshot: string | null
+          author_visibility_snapshot: string | null
+          boost_expires_at: string | null
+          category: string
+          comments_count: number
+          content: string
+          created_at: string
+          id: string
+          image_blurred: boolean | null
+          image_url: string | null
+          is_anonymous: boolean
+          likes_count: number
+          mix_order: number
+          pool: string
+          score: number
+          user_id: string | null
+        }[]
+      }
       get_or_create_conversation: {
         Args: { _user1: string; _user2: string }
         Returns: string
