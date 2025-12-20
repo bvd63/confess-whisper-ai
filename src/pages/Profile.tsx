@@ -11,25 +11,16 @@ import { useMessageNotifications } from "@/hooks/useMessageNotifications";
 import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { useSubscriptionCheck } from "@/hooks/useSubscriptionCheck";
 import UserConfessionsList from "@/components/UserConfessionsList";
-import UserAnalytics from "@/components/UserAnalytics";
 import BadgesDisplay from "@/components/BadgesDisplay";
-import StreakCounter from "@/components/StreakCounter";
-import WordCloudViz from "@/components/WordCloudViz";
-import FollowStats from "@/components/FollowStats";
 import AchievementToast from "@/components/AchievementToast";
 import { ReferralRewardNotification } from "@/components/ReferralRewardNotification";
-import AdvancedAnalytics from "@/components/AdvancedAnalytics";
 import ModerationPanel from "@/components/ModerationPanel";
-import CoinsDisplay from "@/components/CoinsDisplay";
 
 import { useUserRole } from "@/hooks/useUserRole";
 import { useToast } from "@/hooks/use-toast";
 import { FlairsShop } from "@/components/FlairsShop";
-import { FlairsShopButton } from "@/components/FlairsShopButton";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import { useTrialExpiryCheck } from "@/hooks/useTrialExpiryCheck";
-import { SyncSubscriptionButton } from "@/components/SyncSubscriptionButton";
-import { VIPBadge } from "@/components/VIPBadge";
 import { logError } from "@/lib/logger";
 import { LogoutConfirmationDialog } from "@/components/LogoutConfirmationDialog";
 
@@ -294,22 +285,6 @@ const Profile = () => {
         <div className="mb-8">
           <h2 className="text-lg font-semibold text-white/90 mb-4">{t.profile_my_confessions}</h2>
           <UserConfessionsList />
-        </div>
-
-        {/* Detailed Statistics */}
-        <div className="space-y-6">
-          <h2 className="text-lg font-semibold text-white/90">{t.profile_statistics}</h2>
-          
-          <FollowStats userId={user.id} />
-          
-          <UserAnalytics
-            onUpgradeClick={() => {}}
-            onManageSubscription={() => setManageSubDialogOpen(true)}
-          />
-          
-          <AdvancedAnalytics userId={user.id} />
-          
-          <WordCloudViz userId={user.id} />
         </div>
 
         {/* Moderation Panel (if moderator) */}
