@@ -274,7 +274,7 @@ export const UnifiedShopDialog = ({
               variant="ghost"
               size="icon"
               onClick={() => onOpenChange(false)}
-              className="absolute right-0 top-1/2 -translate-y-1/2 h-9 w-9 rounded-xl hover:bg-muted"
+              className="absolute right-0 top-0 h-9 w-9 rounded-xl hover:bg-muted"
             >
               <X className="h-5 w-5" />
             </Button>
