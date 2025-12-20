@@ -154,7 +154,7 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
   };
 
   return (
-    <div className="flex flex-wrap gap-1.5">
+    <div className="flex flex-wrap gap-1">
       {reactions.map(({ type, emoji, label }) => {
         const count = reactionCounts[type] || 0;
         const isActive = userReactions.has(type);
@@ -167,18 +167,29 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
             disabled={isLoading}
             aria-pressed={isActive}
             className={cn(
-              "flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border transition-all duration-200",
-              "touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+              "group flex items-center gap-1 px-2 py-1 rounded-full transition-all duration-200",
+              "touch-manipulation focus:outline-none focus-visible:ring-1 focus-visible:ring-primary/30",
+              "active:scale-95",
               isActive
-                ? "bg-gradient-to-r from-primary/60 via-primary/50 to-accent/60 text-white border-primary/30 shadow-[0_4px_12px_rgba(124,58,237,0.2)]"
-                : "bg-white/[0.03] border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.12] text-white/70",
+                ? "bg-primary/10 text-white"
+                : "bg-transparent hover:bg-white/5 text-white/60 hover:text-white/80",
               "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
             title={label}
             aria-label={`${label}${count > 0 ? ` (${displayCount})` : ''}`}
           >
-            <span className="text-base leading-none">{emoji}</span>
-            <span className="text-[11px] font-semibold">{displayCount}</span>
+            <span className={cn(
+              "text-sm leading-none transition-transform duration-200",
+              isActive && "drop-shadow-[0_0_8px_rgba(139,92,246,0.4)]",
+              "group-active:scale-110"
+            )}>
+              {emoji}
+            </span>
+            {count > 0 && (
+              <span className="text-[10px] font-medium min-w-[12px] text-center">
+                {displayCount}
+              </span>
+            )}
           </button>
         );
       })}

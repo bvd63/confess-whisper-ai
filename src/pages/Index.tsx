@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { attachActiveBoosts } from "@/lib/boosts";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { useScrollHeader } from "@/hooks/useScrollHeader";
 import { Loader2 } from "lucide-react";
 
 // Lazy load heavy components
@@ -37,6 +38,9 @@ const Index = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  
+  // Scroll header behavior for Home Feed
+  const isHeaderVisible = useScrollHeader({ threshold: 12, topOffset: 30 });
   
   // Pull to refresh
   const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
@@ -170,6 +174,8 @@ const Index = () => {
           setDialogDefaultTab(defaultTab);
           setManageSubDialogOpen(true);
         }}
+        hideHeaderOnScroll={true}
+        isHeaderVisible={isHeaderVisible}
       >
       {/* Pull to Refresh Indicator */}
       {pullDistance > 0 && (
