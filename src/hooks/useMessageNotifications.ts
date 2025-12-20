@@ -55,10 +55,10 @@ export const useMessageNotifications = ({ userId, enabled = true }: UseMessageNo
 
           // Get sender's nickname
           const { data: profile } = await supabase
-            .from('profiles')
+            .from('public_profiles')
             .select('nickname')
             .eq('user_id', notification.triggered_by)
-            .single();
+            .maybeSingle();
 
           const senderNickname = profile?.nickname || t.anonymous_user;
           const messagePreview = notification.comment_content?.substring(0, 50) || t.notification_message_new;

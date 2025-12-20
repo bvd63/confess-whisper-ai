@@ -35,9 +35,9 @@ export const PerformanceMetrics = () => {
     const fetchActiveUsers = async () => {
       const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
       const { count } = await supabase
-        .from('profiles')
+        .from('public_profiles')
         .select('*', { count: 'exact', head: true })
-        .gte('updated_at', fiveMinutesAgo);
+        .gte('created_at', fiveMinutesAgo);
       
       setActiveUsers(count || 0);
     };

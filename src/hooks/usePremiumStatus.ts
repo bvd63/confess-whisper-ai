@@ -2,6 +2,7 @@ import { useMemo, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useOptimizedQuery } from "./useOptimizedQuery";
 import { logDebug } from "@/lib/logger";
+import { useCurrentUser } from "./useCurrentUser";
 
 /**
  * Hook to check VIP subscription status for a user.
@@ -9,10 +10,29 @@ import { logDebug } from "@/lib/logger";
  * @deprecated Use isVip instead of isPremium in new code
  */
 export const useVipStatus = (userId: string | null | undefined) => {
+  const { user: currentUser } = useCurrentUser();
   const { data, isLoading, refetch } = useOptimizedQuery<any>({
     queryKey: ['vip-status', userId],
     queryFn: async () => {
       if (!userId) return null;
+
+      const isSelf = currentUser?.id === userId;
+
+      if (!isSelf) {
+        const { data: publicProfile, error: publicError } = await supabase
+          .from('public_profiles')
+          .select('subscription_tier')
+          .eq('user_id', userId)
+          .maybeSingle();
+
+        if (publicError) throw publicError;
+
+        if (!publicProfile) return null;
+
+        return {
+          subscription_tier: publicProfile.subscription_tier || 'free',
+        };
+      }
 
       // Optimized: Single query to profiles (entitlements are fallback only)
       const { data: profile, error } = await supabase
@@ -53,7 +73,7 @@ export const useVipStatus = (userId: string | null | undefined) => {
 
   // Real-time subscription to profile changes
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || currentUser?.id !== userId) return;
 
     const channel = supabase
       .channel(`profile-changes-${userId}`)
@@ -75,7 +95,7 @@ export const useVipStatus = (userId: string | null | undefined) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId, refetch]);
+  }, [userId, currentUser?.id, refetch]);
 
   const vipStatus = useMemo(() => {
     if (!data) {

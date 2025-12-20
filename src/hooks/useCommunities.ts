@@ -104,12 +104,30 @@ export const useCommunityMembers = (communityId: string) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('community_members')
-        .select('*, profiles(*)')
+        .select('*')
         .eq('community_id', communityId)
         .eq('status', 'active');
 
       if (error) throw error;
-      return data;
+
+      const memberIds = Array.from(new Set((data || []).map((m) => m.user_id).filter(Boolean))) as string[];
+
+      if (memberIds.length === 0) return data;
+
+      const { data: profiles, error: profileError } = await supabase
+        .from('public_profiles')
+        .select('user_id, nickname, avatar_url')
+        .in('user_id', memberIds);
+
+      if (profileError) throw profileError;
+
+      const profileMap = new Map<string, any>();
+      profiles?.forEach((p) => profileMap.set(p.user_id, p));
+
+      return (data || []).map((member) => ({
+        ...member,
+        profiles: profileMap.get(member.user_id) || null,
+      }));
     },
     enabled: !!communityId,
   });
@@ -166,12 +184,30 @@ export const useCommunityMembers = (communityId: string) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('community_members')
-        .select('*, profiles(*)')
+        .select('*')
         .eq('community_id', communityId)
         .eq('status', 'pending');
 
       if (error) throw error;
-      return data;
+
+      const memberIds = Array.from(new Set((data || []).map((m) => m.user_id).filter(Boolean))) as string[];
+
+      if (memberIds.length === 0) return data;
+
+      const { data: profiles, error: profileError } = await supabase
+        .from('public_profiles')
+        .select('user_id, nickname, avatar_url')
+        .in('user_id', memberIds);
+
+      if (profileError) throw profileError;
+
+      const profileMap = new Map<string, any>();
+      profiles?.forEach((p) => profileMap.set(p.user_id, p));
+
+      return (data || []).map((member) => ({
+        ...member,
+        profiles: profileMap.get(member.user_id) || null,
+      }));
     },
     enabled: !!communityId && (membership?.role === 'admin' || membership?.role === 'moderator'),
   });

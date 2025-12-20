@@ -43,11 +43,12 @@ const UserProfile = () => {
     setIsLoading(true);
     try {
       // Load profile data
+      const profileSource = isOwnProfile ? "profiles" : "public_profiles";
       const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
+        .from(profileSource)
         .select("nickname, bio")
-        .or(`user_id.eq.${userId},id.eq.${userId}`)
-        .single();
+        .eq("user_id", userId)
+        .maybeSingle();
 
       if (profileError) throw profileError;
 

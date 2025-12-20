@@ -135,14 +135,31 @@ export default function Admin() {
         .from('confession_reports')
         .select(`
           *,
-          confession:confessions(id, content, user_id),
-          reporter:profiles!confession_reports_reporter_id_fkey(nickname)
+          confession:confessions(id, content, user_id)
         `)
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+
+      const reporterIds = Array.from(new Set((data || []).map((report) => report.reporter_id).filter(Boolean))) as string[];
+
+      if (reporterIds.length === 0) return data;
+
+      const { data: reporters, error: reporterError } = await supabase
+        .from('public_profiles')
+        .select('user_id, nickname')
+        .in('user_id', reporterIds);
+
+      if (reporterError) throw reporterError;
+
+      const reporterMap = new Map<string, any>();
+      reporters?.forEach((r) => reporterMap.set(r.user_id, r));
+
+      return (data || []).map((report) => ({
+        ...report,
+        reporter: reporterMap.get(report.reporter_id || ''),
+      }));
     },
     enabled: !!userRole, // Only run if user has role
   });
