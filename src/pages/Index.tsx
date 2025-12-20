@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import AppLayout from "@/components/AppLayout";
@@ -105,6 +105,18 @@ const Index = () => {
     },
     threshold: 80,
   });
+
+  // Memoized callbacks to prevent unnecessary ConfessionCard rerenders
+  const handleUpgradeClick = useCallback(() => {
+    setDialogDefaultTab('subscriptions');
+    setManageSubDialogOpen(true);
+  }, []);
+
+  const handleInsightGenerated = useCallback(() => {
+    toast({
+      title: t.deep_insight_success,
+    });
+  }, [toast, t.deep_insight_success]);
 
   // Log query state for debugging
   useEffect(() => {
@@ -266,15 +278,8 @@ const Index = () => {
                 key={confession.id}
                 confession={confession}
                 isVip={isVip}
-                onUpgradeClick={() => {
-                  setDialogDefaultTab('subscriptions');
-                  setManageSubDialogOpen(true);
-                }}
-                onInsightGenerated={() => {
-                  toast({
-                    title: t.deep_insight_success,
-                  });
-                }}
+                onUpgradeClick={handleUpgradeClick}
+                onInsightGenerated={handleInsightGenerated}
               />
             ))}
           </div>
