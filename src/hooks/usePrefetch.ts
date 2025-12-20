@@ -52,7 +52,7 @@ export const usePrefetch = () => {
             queryFn: async () => {
               const { supabase } = await import('@/integrations/supabase/client');
               const { data } = await supabase
-                .from('public_profiles')
+                .from('profiles')
                 .select('*')
                 .eq('user_id', userId)
                 .maybeSingle();
@@ -73,7 +73,7 @@ export const usePrefetch = () => {
           queryFn: async () => {
             const { supabase } = await import('@/integrations/supabase/client');
             const { data } = await supabase
-              .from('public_profiles')
+              .from('profiles')
               .select('*')
               .eq('user_id', userId)
               .maybeSingle();

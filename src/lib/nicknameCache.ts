@@ -27,9 +27,9 @@ export async function getNicknameCached(userId: string): Promise<string | null> 
   // Create a new in-flight request and store it to de-dupe
   const inflight = (async () => {
     try {
-      // 1) Try direct select from the public view (fast path; limited to safe columns)
+      // 1) Try direct select from the profiles table (fast path)
       const { data: prof } = await supabase
-        .from('public_profiles')
+        .from('profiles')
         .select('nickname')
         .eq('user_id', userId)
         .maybeSingle();

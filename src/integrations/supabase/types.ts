@@ -2398,27 +2398,6 @@ export type Database = {
         }
         Relationships: []
       }
-      public_profiles: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          created_at: string | null
-          followers_count: number | null
-          following_count: number | null
-          handle: string | null
-          is_nickname_public: boolean | null
-          level: number | null
-          nickname: string | null
-          nickname_visibility:
-            | Database["public"]["Enums"]["nickname_visibility_enum"]
-            | null
-          posts_count: number | null
-          subscription_tier: string | null
-          total_points: number | null
-          user_id: string | null
-        }
-        Relationships: []
-      }
       trending_confessions: {
         Row: {
           ai_deep_insight: string | null

@@ -27,7 +27,7 @@ export async function getFollowStatsCached(userId: string): Promise<{ followers_
   // Fetch from database
   try {
     const { data, error } = await supabase
-      .from('public_profiles')
+      .from('profiles')
       .select('followers_count, following_count')
       .eq('user_id', userId)
       .maybeSingle();

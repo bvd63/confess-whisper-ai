@@ -265,7 +265,7 @@ export const useAutoDraft = (
   route: string,
   metadata?: Record<string, any>
 ) => {
-  const timeoutRef = React.useRef<NodeJS.Timeout>();
+  const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   React.useEffect(() => {
     // Debounce auto-save (save after 2 seconds of inactivity)

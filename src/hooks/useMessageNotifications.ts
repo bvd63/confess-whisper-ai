@@ -55,7 +55,7 @@ export const useMessageNotifications = ({ userId, enabled = true }: UseMessageNo
 
           // Get sender's nickname
           const { data: profile } = await supabase
-            .from('public_profiles')
+            .from('profiles')
             .select('nickname')
             .eq('user_id', notification.triggered_by)
             .maybeSingle();
