@@ -196,11 +196,13 @@ export const InstagramBottomNav = () => {
         <nav 
           role="navigation" 
           aria-label="Main navigation"
-          className="fixed bottom-0 left-0 right-0 z-[9999] pointer-events-auto pb-[env(safe-area-inset-bottom)]"
+          className="fixed bottom-0 left-0 right-0 z-[9999] pointer-events-auto"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom)', background: 'transparent' }}
         >
           <div 
             ref={navRef} 
-            className="flex items-center justify-around h-16 w-full px-4 bg-gradient-to-br from-[#1a1a2e]/95 via-[#16213e]/95 to-[#0f1419]/95 backdrop-blur-xl border-t border-white/10 shadow-[0_-8px_32px_rgba(0,0,0,0.4)]" 
+            className="flex items-center justify-around h-16 w-full px-4 backdrop-blur-xl border-t border-white/10" 
+            style={{ background: 'transparent' }}
             role="tablist"
           >
             {navItems.map((item, index) => {
