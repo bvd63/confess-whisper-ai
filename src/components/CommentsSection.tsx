@@ -135,7 +135,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
     return () => clearInterval(interval);
   }, []);
 
-  // Real-time subscription for new comments
+  // Real-time subscription for comment changes (INSERT, UPDATE, DELETE)
   useEffect(() => {
     const channel = supabase
       .channel(`comments:${confessionId}`)
@@ -183,6 +183,48 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
             if (prev.some(c => c.id === newComment.id)) return prev;
             return [newComment, ...prev];
           });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'comments',
+          filter: `confession_id=eq.${confessionId}`,
+        },
+        async (payload) => {
+          const updatedComment = payload.new as Comment;
+
+          if (updatedComment.highlight_expires_at) {
+            const expiresAt = new Date(updatedComment.highlight_expires_at).getTime();
+            updatedComment.is_highlighted = Boolean(updatedComment.is_highlighted && expiresAt > Date.now());
+          }
+
+          // Preserve existing alias and profile data, or fetch if needed
+          setComments(prev => prev.map(comment => {
+            if (comment.id === updatedComment.id) {
+              return {
+                ...updatedComment,
+                alias: updatedComment.alias || comment.alias,
+                profiles: updatedComment.profiles || comment.profiles,
+              };
+            }
+            return comment;
+          }));
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'comments',
+          filter: `confession_id=eq.${confessionId}`,
+        },
+        (payload) => {
+          const deletedComment = payload.old as { id: string };
+          setComments(prev => prev.filter(comment => comment.id !== deletedComment.id));
         }
       )
       .subscribe();
@@ -370,7 +412,8 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
       // Purge cache immediately
       purgeComment(commentId, confessionId);
 
-      await loadComments();
+      // Optimistically remove from UI (real-time will handle it, but this is faster)
+      setComments(prev => prev.filter(comment => comment.id !== commentId));
       onCommentChange?.();
       
       notify.success('notifications.commentDeleted', language);
