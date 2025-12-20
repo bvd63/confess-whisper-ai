@@ -1,13 +1,7 @@
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Button } from "@/components/ui/button";
-import { CheckCircle, RefreshCw } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 
-interface EndOfFeedStateProps {
-  onRefresh: () => void;
-  isRefreshing?: boolean;
-}
-
-const EndOfFeedState = ({ onRefresh, isRefreshing }: EndOfFeedStateProps) => {
+const EndOfFeedState = () => {
   const { t } = useLanguage();
 
   return (
@@ -31,21 +25,9 @@ const EndOfFeedState = ({ onRefresh, isRefreshing }: EndOfFeedStateProps) => {
           </h3>
 
           {/* Description */}
-          <p className="text-xs text-white/45 mb-4">
+          <p className="text-xs text-white/45">
             {t.index_end_of_feed_desc}
           </p>
-
-          {/* Refresh Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onRefresh}
-            disabled={isRefreshing}
-            className="text-xs text-white/60 hover:text-white/80 hover:bg-white/5 gap-1.5 px-3 py-1.5 h-auto"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
-            {t.index_end_of_feed_refresh}
-          </Button>
         </div>
       </div>
     </div>
