@@ -135,6 +135,7 @@ const Index = () => {
   // Pull to refresh
   const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
     onRefresh: async () => {
+      await queryClient.resetQueries({ queryKey: ["home-feed", user?.id] });
       await refetch();
     },
     threshold: 80,

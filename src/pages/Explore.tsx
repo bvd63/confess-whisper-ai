@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import AppLayout from "@/components/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Flame, TrendingUp, Clock, Loader2 } from "lucide-react";
@@ -27,6 +27,8 @@ const Explore = () => {
   useAnalyticsTracking(user?.id || null);
   const { isVip } = useVipStatus(user?.id);
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
+  const [scrollContainer, setScrollContainer] = useState<HTMLDivElement | null>(null);
+  const queryClient = useQueryClient();
 
   // Fetch trending, popular, and recent confessions with scoring and filters
   const { data: trendingResult, isLoading: loadingTrending, refetch: refetchTrending } = useQuery({
@@ -47,13 +49,20 @@ const Explore = () => {
   const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
     onRefresh: async () => {
       try {
+        await queryClient.invalidateQueries({ queryKey: ["explore"] });
         await Promise.allSettled([refetchTrending(), refetchPopular(), refetchRecent()]);
       } finally {
         // ensure pull-to-refresh completes even if a refetch fails
       }
     },
     threshold: 80,
+    container: scrollContainer,
   });
+
+  useEffect(() => {
+    const el = document.querySelector('[data-app-scroll]') as HTMLDivElement | null;
+    if (el) setScrollContainer(el);
+  }, []);
 
   const filterConfessions = (confessions: any[] | undefined) => {
     if (!confessions) return [];
