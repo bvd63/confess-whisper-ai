@@ -1,12 +1,8 @@
 import { useState, useEffect, useCallback, Suspense, lazy, memo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { EnhancedButton } from "@/components/EnhancedButton";
-import { AnimatedCard } from "@/components/AnimatedCard";
-import { GradientText } from "@/components/GradientText";
-import { FloatingElement } from "@/components/FloatingElement";
-import { User, ArrowLeft, Settings, Plus, Crown, MessageCircle, Trophy, LogOut, RefreshCw } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card } from "@/components/ui/card";
+import { User, Settings, LogOut, FileText, MessageCircle, Sparkles } from 'lucide-react';
 import AppLayout from "@/components/AppLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -40,50 +36,22 @@ const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"
 const Profile = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const {
-    t
-  } = useLanguage();
-  const {
-    user
-  } = useCurrentUser();
-  const {
-    subscriptionTier,
-    isVip,
-    isOnTrial,
-    trialEndDate,
-    trialEligible,
-    refetch
-  } = useVipStatus(user?.id);
-  const {
-    checkSubscription
-  } = useSubscriptionCheck(user?.id);
-  useMessageNotifications({
-    userId: user?.id
-  });
+  const { t } = useLanguage();
+  const { user } = useCurrentUser();
+  const { subscriptionTier, isVip, isOnTrial, trialEndDate, trialEligible, refetch } = useVipStatus(user?.id);
+  const { checkSubscription } = useSubscriptionCheck(user?.id);
+  useMessageNotifications({ userId: user?.id });
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [flairsDialogOpen, setFlairsDialogOpen] = useState(false);
-  const [profileData, setProfileData] = useState<{
-    stripe_subscription_id: string | null;
-  } | null>(null);
-  const {
-    isModerator
-  } = useUserRole(user?.id);
-  const {
-    toast
-  } = useToast();
-  
-  // Get the tab from location state, default to "statistics"
-  const initialTab = (location.state as any)?.tab || "statistics";
-  const [activeTab, setActiveTab] = useState(initialTab);
-  
-  // Update active tab when location state changes
-  useEffect(() => {
-    const newTab = (location.state as any)?.tab;
-    if (newTab) {
-      setActiveTab(newTab);
-    }
-  }, [location.state]);
+  const [profileData, setProfileData] = useState<{ stripe_subscription_id: string | null } | null>(null);
+  const [stats, setStats] = useState({
+    totalConfessions: 0,
+    totalReactions: 0,
+    totalHighlights: 0
+  });
+  const { isModerator } = useUserRole(user?.id);
+  const { toast } = useToast();
   
   // Check for trial expiry and show notification
   useTrialExpiryCheck(user?.id || null, isOnTrial);
@@ -91,10 +59,11 @@ const Profile = () => {
   const loadProfileData = useCallback(async () => {
     if (!user?.id) return;
     try {
-      const {
-        data,
-        error
-      } = await supabase.from('profiles').select('stripe_subscription_id').eq('user_id', user.id).single();
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('stripe_subscription_id')
+        .eq('user_id', user.id)
+        .single();
       if (error) throw error;
       setProfileData(data);
     } catch (error) {
@@ -104,11 +73,81 @@ const Profile = () => {
     }
   }, [user?.id]);
 
+  const fetchUserStats = useCallback(async () => {
+    if (!user?.id) return;
+    
+    try {
+      // Fetch total confessions
+      const { count: confessionsCount } = await supabase
+        .from('confessions')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+
+      // Fetch total reactions received on user's confessions
+      const { data: reactionsData } = await supabase
+        .from('confession_reactions')
+        .select('confession_id')
+        .in('confession_id', 
+          supabase.from('confessions').select('id').eq('user_id', user.id)
+        );
+
+      // Fetch total highlights (comments with highlight status)
+      const { count: highlightsCount } = await supabase
+        .from('comments')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('is_highlighted', true);
+
+      setStats({
+        totalConfessions: confessionsCount || 0,
+        totalReactions: reactionsData?.length || 0,
+        totalHighlights: highlightsCount || 0
+      });
+    } catch (error) {
+      logError('Error fetching user stats', error as Error);
+    }
+  }, [user?.id]);
+      if (import.meta.env.DEV) {
+        logError('Error loading profile data', error as Error);
+      }
+    }
+  }, [user?.id]);
+
   useEffect(() => {
     if (user?.id) {
       loadProfileData();
+      fetchUserStats();
     }
-  }, [user?.id, loadProfileData]);
+  }, [user?.id, loadProfileData, fetchUserStats]);
+
+  // Set up real-time updates for stats
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const channel = supabase
+      .channel('profile-stats-updates')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'confessions',
+        filter: `user_id=eq.${user.id}`
+      }, () => {
+        fetchUserStats();
+      })
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'comments',
+        filter: `user_id=eq.${user.id}`
+      }, () => {
+        fetchUserStats();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, fetchUserStats]);
 
   const handleManageSubscription = async () => {
     try {
@@ -168,38 +207,35 @@ const Profile = () => {
   }, [checkSubscription, refetch]);
 
   if (!user) return null;
-  return <AppLayout onNewConfession={() => setIsNewConfessionOpen(true)} onManageSubscription={() => setManageSubDialogOpen(true)}>
+
+  return (
+    <AppLayout onNewConfession={() => setIsNewConfessionOpen(true)} onManageSubscription={() => setManageSubDialogOpen(true)}>
       <AchievementToast userId={user.id} />
       <ReferralRewardNotification userId={user.id} />
       
-      <div className="container mx-auto px-4 py-6 max-w-4xl pb-24">
-        <div className="flex items-center gap-3 mb-8 animate-fade-in">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary-pressed flex items-center justify-center shadow-lg shadow-primary/25">
-            <User className="h-6 w-6 text-white" />
-          </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold text-foreground">
-                {t.profile_title}
-              </h1>
+      <div className="container mx-auto px-4 py-6 max-w-2xl pb-24">
+        {/* Profile Header */}
+        <div className="flex items-start justify-between mb-6 animate-fade-in">
+          <div className="flex items-center gap-4">
+            {/* Avatar - NO VIP crown or badge */}
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/70 via-primary/60 to-accent/70 flex items-center justify-center shadow-lg flex-shrink-0">
+              <User className="w-7 h-7 text-white" />
             </div>
-            <div className="mt-3">
-              <BadgesDisplay 
-                userId={user.id} 
-                variant="compact"
-              />
+            <div>
+              <h1 className="text-2xl font-bold text-white/95">{t.profile_title}</h1>
+              <BadgesDisplay userId={user.id} variant="compact" />
             </div>
           </div>
+          
+          {/* Settings & Logout */}
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="sm"
-              className="h-12 w-12 p-0 hover:bg-muted rounded-2xl"
-              aria-label={t.settings}
-              title={t.settings}
+              className="h-10 w-10 p-0 hover:bg-white/10 rounded-xl"
               onClick={() => navigate('/settings/activity')}
             >
-              <Settings className="h-5 w-5 text-foreground-muted hover:text-foreground transition-colors" />
+              <Settings className="h-5 w-5 text-white/70" />
             </Button>
             <Button
               onClick={async () => {
@@ -210,58 +246,65 @@ const Profile = () => {
                   description: t.success_logout
                 });
               }} 
-              variant="outline" 
+              variant="ghost" 
               size="sm" 
-              className="border-border bg-card hover:bg-muted h-12 px-5 rounded-2xl font-medium"
+              className="h-10 px-4 hover:bg-white/10 rounded-xl text-white/70"
             >
-              <LogOut className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline text-sm">{t.logout}</span>
+              <LogOut className="w-4 h-4" />
             </Button>
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8 mt-8">
-          <TabsList className={`grid w-full ${isModerator ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2'} h-14 rounded-2xl bg-muted p-1.5 gap-1.5`}>
-            <TabsTrigger value="statistics" className="text-sm font-medium rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg">{t.profile_statistics}</TabsTrigger>
-            <TabsTrigger value="confessions" className="text-sm font-medium rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg">{t.profile_my_confessions}</TabsTrigger>
-            {isModerator && <TabsTrigger value="moderation" className="text-sm font-medium rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg">{t.profile_moderation}</TabsTrigger>}
-          </TabsList>
+        {/* Quick Stats Row */}
+        <div className="grid grid-cols-3 gap-3 mb-8">
+          <Card className="bg-white/[0.03] border-white/10 backdrop-blur-md p-4 text-center">
+            <FileText className="w-5 h-5 text-white/60 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-white/95">{stats.totalConfessions}</div>
+            <div className="text-xs text-white/50 mt-1">{t.profile_confessions || 'Confessions'}</div>
+          </Card>
+          
+          <Card className="bg-white/[0.03] border-white/10 backdrop-blur-md p-4 text-center">
+            <MessageCircle className="w-5 h-5 text-white/60 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-white/95">{stats.totalReactions}</div>
+            <div className="text-xs text-white/50 mt-1">{t.profile_reactions || 'Reactions'}</div>
+          </Card>
+          
+          <Card className="bg-white/[0.03] border-white/10 backdrop-blur-md p-4 text-center">
+            <Sparkles className="w-5 h-5 text-white/60 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-white/95">{stats.totalHighlights}</div>
+            <div className="text-xs text-white/50 mt-1">{t.profile_highlights || 'Highlights'}</div>
+          </Card>
+        </div>
 
-          <TabsContent value="statistics" className="space-y-6">
-            <FollowStats userId={user.id} />
-            <UserAnalytics
-              onUpgradeClick={() => {}}
-              onManageSubscription={() => setManageSubDialogOpen(true)}
-            />
-            
-            <AdvancedAnalytics userId={user.id} />
-            
-            <WordCloudViz userId={user.id} />
-            
-            {/* Link to Rewards Hub */}
-            <div className="flex justify-center pt-4">
-              <Button 
-                onClick={() => navigate('/rewards?tab=achievements')}
-                variant="outline"
-                className="gap-2"
-              >
-                <Trophy className="w-4 h-4" />
-                View All Achievements
-              </Button>
-            </div>
-          </TabsContent>
+        {/* My Confessions */}
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold text-white/90 mb-4">{t.profile_my_confessions}</h2>
+          <UserConfessionsList />
+        </div>
 
-          <TabsContent value="confessions" className="space-y-6">
-            <UserConfessionsList />
-          </TabsContent>
+        {/* Detailed Statistics */}
+        <div className="space-y-6">
+          <h2 className="text-lg font-semibold text-white/90">{t.profile_statistics}</h2>
+          
+          <FollowStats userId={user.id} />
+          
+          <UserAnalytics
+            onUpgradeClick={() => {}}
+            onManageSubscription={() => setManageSubDialogOpen(true)}
+          />
+          
+          <AdvancedAnalytics userId={user.id} />
+          
+          <WordCloudViz userId={user.id} />
+        </div>
 
-          {/* Achievements tab removed - now in Rewards Hub */}
-
-
-          {isModerator && <TabsContent value="moderation" className="space-y-6">
-              <ModerationPanel userId={user.id} />
-            </TabsContent>}
-        </Tabs>
+        {/* Moderation Panel (if moderator) */}
+        {isModerator && (
+          <div className="mt-8 space-y-6">
+            <h2 className="text-lg font-semibold text-white/90">{t.profile_moderation}</h2>
+            <ModerationPanel userId={user.id} />
+          </div>
+        )}
       </div>
 
       <UnifiedShopDialog
@@ -275,6 +318,7 @@ const Profile = () => {
       <Suspense fallback={null}>
         <NewConfessionDialog open={isNewConfessionOpen} onOpenChange={setIsNewConfessionOpen} onConfessionCreated={() => {}} />
       </Suspense>
-    </AppLayout>;
+    </AppLayout>
+  );
 };
 export default memo(Profile);
