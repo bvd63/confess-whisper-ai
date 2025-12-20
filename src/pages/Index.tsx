@@ -38,13 +38,6 @@ const Index = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   
-  const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
-  const [dialogDefaultTab, setDialogDefaultTab] = useState<'subscriptions' | 'coins'>('subscriptions');
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const [showSecondaryContent, setShowSecondaryContent] = useState(false);
-  const { toast } = useToast();
-  const isMobile = useIsMobile();
-  
   // Pull to refresh
   const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
     onRefresh: async () => {
