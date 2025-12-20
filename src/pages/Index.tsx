@@ -43,30 +43,12 @@ const Index = () => {
   // Scroll header behavior for Home Feed
   const isHeaderVisible = useScrollHeader({ threshold: 12, topOffset: 30 });
   
-  // Fetch mixed feed (following + explore) with adaptive ratios
+  // Fetch confessions feed
   const { data, isLoading, isFetching, error: queryError, refetch } = useInfiniteQuery({
-    queryKey: ["home-mixed-feed", user?.id],
-    initialPageParam: null as Record<string, unknown> | null,
+    queryKey: ["home-feed", user?.id],
+    initialPageParam: null as string | null,
     queryFn: async ({ pageParam }) => {
-      try {
-        const { data, error } = await supabase.rpc("get_mixed_feed", {
-          p_limit: PAGE_SIZE,
-          p_cursor: pageParam,
-        });
-
-        if (error) {
-          throw error;
-        }
-
-        if (data && data.length > 0) {
-          return attachActiveBoosts(data);
-        }
-      } catch (rpcError) {
-        console.error('Error fetching mixed feed:', rpcError);
-      }
-
-      // Safe fallback: revert to simple public feed when mixed feed errors or returns empty
-      const { data: fallbackData, error: fallbackError } = await supabase
+      let query = supabase
         .from("confessions")
         .select("*")
         .eq("moderation_status", "approved")
@@ -74,22 +56,23 @@ const Index = () => {
         .order("created_at", { ascending: false })
         .limit(PAGE_SIZE);
 
-      if (fallbackError) {
-        console.error('Fallback feed error:', fallbackError);
-        throw fallbackError;
+      if (pageParam) {
+        query = query.lt("created_at", pageParam);
       }
 
-      return attachActiveBoosts(fallbackData || []);
+      const { data: feedData, error } = await query;
+
+      if (error) {
+        console.error('Feed error:', error);
+        throw error;
+      }
+
+      return attachActiveBoosts(feedData || []);
     },
     getNextPageParam: (lastPage) => {
       if (!lastPage || lastPage.length < PAGE_SIZE) return null;
       const last = lastPage[lastPage.length - 1];
-      return {
-        mix_order: last.mix_order,
-        score: last.score,
-        created_at: last.created_at,
-        id: last.id,
-      };
+      return last.created_at;
     },
     retry: 2,
     refetchOnWindowFocus: false,
@@ -130,7 +113,7 @@ const Index = () => {
 
   useEffect(() => {
     const channel = supabase
-      .channel('home-mixed-feed')
+      .channel('home-feed')
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'confessions', filter: 'moderation_status=eq.approved' },
