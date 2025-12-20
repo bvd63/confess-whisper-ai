@@ -1,45 +1,29 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import AppLayout from "@/components/AppLayout";
-import ConfessionCard from "@/components/ConfessionCard";
-import { AnimatedCard } from "@/components/AnimatedCard";
-import { GradientText } from "@/components/GradientText";
-import { SearchUsersCard } from "@/components/SearchUsersCard";
-import { ConfessionCardSkeleton } from "@/components/skeletons/ConfessionCardSkeleton";
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TrendingUp, Flame, Clock } from "lucide-react";
+import { Flame, TrendingUp, Clock, Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
-import { useToast } from "@/hooks/use-toast";
-// Communities feature disabled
-// import { useCommunities } from "@/hooks/useCommunities";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
-import { TrendingHashtags } from "@/components/TrendingHashtags";
-import { useNavigate } from "react-router-dom";
-import { AdvancedFilters, FilterState } from "@/components/AdvancedFilters";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
-import { Loader2 } from "lucide-react";
-import VirtualizedConfessions from "@/components/VirtualizedConfessions";
 import { attachActiveBoosts } from "@/lib/boosts";
-// Communities feature disabled
-// import { CommunitiesSectionExpanded } from "@/components/CommunitiesSectionExpanded";
+import { TrendingConfessionsCarousel } from "@/components/explore/TrendingConfessionsCarousel";
+import { ExploreSearchBar } from "@/components/explore/ExploreSearchBar";
+import ExploreConfessionCard from "@/components/explore/ExploreConfessionCard";
+import { ConfessionCardSkeleton } from "@/components/skeletons/ConfessionCardSkeleton";
 
 const Explore = () => {
   const { t } = useLanguage();
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("trending");
-  const [filters, setFilters] = useState<FilterState>({ sortBy: 'newest' });
+  const [searchQuery, setSearchQuery] = useState("");
   const { user } = useCurrentUser();
   useAnalyticsTracking(user?.id || null);
   const { isVip } = useVipStatus(user?.id);
-  const { toast } = useToast();
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
-  // Communities feature disabled
-  // const { communities } = useCommunities();
 
   // Pull to refresh
   const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
@@ -54,10 +38,10 @@ const Explore = () => {
     queryKey: ["hot-confessions"],
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_hot_confessions", {
-        limit_count: 20,
+        limit_count: 30,
       });
       if (error) throw error;
-      return attachActiveBoosts(data || []);
+      return await attachActiveBoosts(data || []);
     },
   });
 
@@ -70,9 +54,9 @@ const Explore = () => {
         .select("*")
         .eq("moderation_status", "approved")
         .order("created_at", { ascending: false })
-        .limit(20);
+        .limit(30);
       if (error) throw error;
-      return attachActiveBoosts(data || []);
+      return await attachActiveBoosts(data || []);
     },
   });
 
@@ -85,13 +69,29 @@ const Explore = () => {
         .select("*")
         .eq("moderation_status", "approved")
         .order("likes_count", { ascending: false })
-        .limit(20);
+        .limit(30);
       if (error) throw error;
-      return attachActiveBoosts(data || []);
+      return await attachActiveBoosts(data || []);
     },
   });
 
-  const renderConfessions = (confessions: any[] | undefined, loading: boolean) => {
+  // Filter confessions based on search query
+  const filterConfessions = (confessions: any[] | undefined) => {
+    if (!confessions) return [];
+    if (!searchQuery.trim()) return confessions;
+    
+    const query = searchQuery.toLowerCase();
+    return confessions.filter(confession => 
+      confession.content.toLowerCase().includes(query) ||
+      confession.category.toLowerCase().includes(query)
+    );
+  };
+
+  const filteredHot = useMemo(() => filterConfessions(hotConfessions), [hotConfessions, searchQuery]);
+  const filteredRecent = useMemo(() => filterConfessions(recentConfessions), [recentConfessions, searchQuery]);
+  const filteredPopular = useMemo(() => filterConfessions(popularConfessions), [popularConfessions, searchQuery]);
+
+  const renderConfessions = (confessions: any[], loading: boolean) => {
     if (loading) {
       return (
         <div className="space-y-4">
@@ -102,121 +102,104 @@ const Explore = () => {
       );
     }
 
-    if (!confessions || confessions.length === 0) {
+    if (confessions.length === 0) {
       return (
-        <AnimatedCard className="p-6 sm:p-8 text-center" hover="none">
-          <p className="text-sm sm:text-base text-muted-foreground">{t.ui_no_confessions}</p>
-        </AnimatedCard>
+        <div className="flex flex-col items-center justify-center py-16 px-4">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/60 via-primary/50 to-accent/60 flex items-center justify-center mb-4 shadow-lg shadow-primary/20">
+            <Flame className="w-7 h-7 text-white" />
+          </div>
+          <p className="text-base text-white/60 text-center">{t.explore_no_confessions}</p>
+        </div>
       );
     }
 
-    // Use virtual scrolling for large lists
-    if (confessions.length > 15) {
-      return (
-        <VirtualizedConfessions
-          confessions={confessions}
-          isVip={isVip}
-          onUpgradeClick={() => {}}
-          onInsightGenerated={() => {
-            toast({
-              title: t.deep_insight_success,
-            });
-          }}
-        />
-      );
-    }
-
-    return confessions.map((confession) => (
-      <ConfessionCard
-        key={confession.id}
-        confession={confession}
-        isVip={isVip}
-        onUpgradeClick={() => {}}
-        onInsightGenerated={() => {
-          toast({
-            title: t.deep_insight_success,
-          });
-        }}
-      />
-    ));
+    return (
+      <div className="space-y-4">
+        {confessions.map((confession) => (
+          <ExploreConfessionCard key={confession.id} confession={confession} />
+        ))}
+      </div>
+    );
   };
 
   return (
     <>
-    <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
-      {/* Pull to Refresh Indicator */}
-      {pullDistance > 0 && (
-        <div 
-          className="fixed top-16 left-0 right-0 z-50 flex justify-center pointer-events-none"
-          style={{ 
-            transform: `translateY(${Math.min(pullDistance - 80, 0)}px)`,
-            opacity: Math.min(pullDistance / 80, 1)
-          }}
-        >
-          <div className="bg-primary/10 backdrop-blur-sm rounded-full p-2">
-            <Loader2 className={`h-5 w-5 text-primary ${isRefreshing || isTriggered ? 'animate-spin' : ''}`} />
+      <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
+        {/* Pull to Refresh Indicator */}
+        {pullDistance > 0 && (
+          <div 
+            className="fixed top-16 left-0 right-0 z-50 flex justify-center pointer-events-none"
+            style={{ 
+              transform: `translateY(${Math.min(pullDistance - 80, 0)}px)`,
+              opacity: Math.min(pullDistance / 80, 1)
+            }}
+          >
+            <div className="bg-primary/10 backdrop-blur-sm rounded-full p-2">
+              <Loader2 className={`h-5 w-5 text-primary ${isRefreshing || isTriggered ? 'animate-spin' : ''}`} />
+            </div>
           </div>
+        )}
+
+        <div 
+          ref={containerRef}
+          className="container max-w-2xl mx-auto px-4 sm:px-5 py-6 pb-28 space-y-5"
+        >
+          {/* Header */}
+          <div className="space-y-1 animate-fade-in">
+            <h1 className="text-2xl font-bold text-white">{t.explore}</h1>
+            <p className="text-sm text-white/50">{t.explore_subtitle}</p>
+          </div>
+
+          {/* Search Bar */}
+          <ExploreSearchBar value={searchQuery} onChange={setSearchQuery} />
+
+          {/* Trending Carousel - Only show if not searching */}
+          {!searchQuery && <TrendingConfessionsCarousel />}
+
+          {/* Sticky Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <div className="sticky top-14 z-40 bg-background/80 backdrop-blur-md py-2 -mx-4 px-4 sm:-mx-5 sm:px-5">
+              <TabsList className="grid w-full grid-cols-3 h-11 rounded-xl bg-white/5 border border-white/10">
+                <TabsTrigger 
+                  value="trending" 
+                  className="gap-2 text-sm rounded-lg text-white/60 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/80 data-[state=active]:to-accent/80 data-[state=active]:text-white data-[state=active]:shadow-lg"
+                >
+                  <Flame className="w-4 h-4" />
+                  <span className="hidden xs:inline">{t.search_trending}</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="popular" 
+                  className="gap-2 text-sm rounded-lg text-white/60 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/80 data-[state=active]:to-accent/80 data-[state=active]:text-white data-[state=active]:shadow-lg"
+                >
+                  <TrendingUp className="w-4 h-4" />
+                  <span className="hidden xs:inline">{t.ui_popular}</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="recent" 
+                  className="gap-2 text-sm rounded-lg text-white/60 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/80 data-[state=active]:to-accent/80 data-[state=active]:text-white data-[state=active]:shadow-lg"
+                >
+                  <Clock className="w-4 h-4" />
+                  <span className="hidden xs:inline">{t.ui_recent}</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
+
+            <TabsContent value="trending" className="mt-4">
+              {renderConfessions(filteredHot, loadingHot)}
+            </TabsContent>
+
+            <TabsContent value="popular" className="mt-4">
+              {renderConfessions(filteredPopular, loadingPopular)}
+            </TabsContent>
+
+            <TabsContent value="recent" className="mt-4">
+              {renderConfessions(filteredRecent, loadingRecent)}
+            </TabsContent>
+          </Tabs>
         </div>
-      )}
-
-      <div 
-        ref={containerRef}
-        className="container max-w-3xl mx-auto px-4 sm:px-5 py-6 pb-28 space-y-6"
-      >
-        <div className="space-y-2 animate-fade-in">
-          <h1 className="text-3xl font-bold">
-            <GradientText variant="hero">{t.explore}</GradientText>
-          </h1>
-          <p className="text-base text-muted-foreground">{t.recommended_for_you}</p>
-        </div>
-
-        <SearchUsersCard />
-
-        {/* Communities feature disabled */}
-        
-        {/* Trending Hashtags */}
-        <div className="mb-4 sm:mb-5">
-          <TrendingHashtags />
-        </div>
-
-        {/* Advanced Filters - Communities disabled */}
-        <AdvancedFilters
-          onFilterChange={setFilters}
-          communities={[]}
-        />
-
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3 mb-6 h-11 rounded-xl glass border border-border/60 shadow-sm">
-            <TabsTrigger value="trending" className="gap-2 text-sm rounded-lg data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
-              <Flame className="w-4 h-4" />
-              <span className="hidden xs:inline">{t.search_trending}</span>
-            </TabsTrigger>
-            <TabsTrigger value="popular" className="gap-2 text-sm rounded-lg data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
-              <TrendingUp className="w-4 h-4" />
-              <span className="hidden xs:inline">{t.ui_popular}</span>
-            </TabsTrigger>
-            <TabsTrigger value="recent" className="gap-2 text-sm rounded-lg data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
-              <Clock className="w-4 h-4" />
-              <span className="hidden xs:inline">{t.ui_recent}</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="trending" className="space-y-4">
-            {renderConfessions(hotConfessions, loadingHot)}
-          </TabsContent>
-
-          <TabsContent value="popular" className="space-y-4">
-            {renderConfessions(popularConfessions, loadingPopular)}
-          </TabsContent>
-
-          <TabsContent value="recent" className="space-y-4">
-            {renderConfessions(recentConfessions, loadingRecent)}
-          </TabsContent>
-        </Tabs>
-      </div>
-    </AppLayout>
-    
-    <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+      </AppLayout>
+      
+      <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
     </>
   );
 };
