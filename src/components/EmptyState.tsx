@@ -26,21 +26,21 @@ const EmptyState = ({
         className
       )}
     >
-      {/* Icon with soft glass circle and accent gradient glow */}
+      {/* Icon with avatar-style circle and accent gradient border */}
       <div className="relative mb-8">
-        {/* Accent gradient ambient glow - increased opacity and scale */}
-        <div className="absolute -inset-4 blur-3xl opacity-40 scale-150">
+        {/* Accent gradient ambient glow */}
+        <div className="absolute -inset-4 blur-3xl opacity-30 scale-125">
           <div className="w-40 h-40 rounded-full bg-gradient-to-r from-primary to-accent" />
         </div>
         
-        {/* Glass circle container with gradient border */}
-        <div className="relative flex items-center justify-center w-32 h-32 rounded-full bg-white/[0.03] backdrop-blur-md border-2 border-transparent shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
+        {/* Avatar-style circle with gradient border */}
+        <div className="relative flex items-center justify-center w-32 h-32 rounded-full bg-gradient-to-br from-primary/70 via-primary/60 to-accent/70 border-2 border-transparent shadow-lg"
              style={{
-               backgroundImage: 'linear-gradient(hsl(var(--background)), hsl(var(--background))), linear-gradient(to right, hsl(var(--primary)), hsl(var(--accent)))',
+               backgroundImage: 'linear-gradient(to bottom right, hsl(var(--primary) / 0.7), hsl(var(--primary) / 0.6), hsl(var(--accent) / 0.7)), linear-gradient(to right, hsl(var(--primary)), hsl(var(--accent)))',
                backgroundOrigin: 'border-box',
                backgroundClip: 'padding-box, border-box'
              }}>
-          <Icon className="w-12 h-12 text-white/60" strokeWidth={1.5} />
+          <Icon className="w-12 h-12 text-white/80" strokeWidth={1.5} />
         </div>
       </div>
       
