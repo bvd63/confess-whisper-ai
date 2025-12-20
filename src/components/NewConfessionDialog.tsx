@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/translated-dialog";
 import { EnhancedButton } from "@/components/EnhancedButton";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,6 +30,7 @@ import { Turnstile } from "@marsidev/react-turnstile";
 import { env } from "@/lib/env";
 import { logError, logWarn, logInfo } from "@/lib/logger";
 import { normalizeCreateConfessionPayload } from "../../supabase/functions/create-confession/utils";
+import type { InfiniteData } from "@tanstack/react-query";
 const confessionSchema = z.object({
   content: z.string().trim().min(10, {
     message: "Confession must be at least 10 characters"
@@ -97,6 +99,7 @@ const NewConfessionDialog = ({
     subscriptionTier
   } = useVipStatus(user?.id || null);
   const isVip = subscriptionTier === 'vip';
+  const queryClient = useQueryClient();
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [turnstileError, setTurnstileError] = useState(false);
   const [captchaRenderKey, setCaptchaRenderKey] = useState(0);
@@ -180,6 +183,32 @@ const NewConfessionDialog = ({
     value: 'other',
     label: t.category_other
   }];
+  const withTimeout = async <T,>(promise: Promise<T>, ms: number, label: string): Promise<T> => {
+    let timeoutId: number | undefined;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timeoutId = window.setTimeout(() => {
+        reject(new Error(label));
+      }, ms);
+    });
+    try {
+      return await Promise.race([promise, timeoutPromise]);
+    } finally {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    }
+  };
+
+  const prependHomeFeed = (confession: any) => {
+    if (!confession) return;
+    queryClient.setQueryData<InfiniteData<any[]> | undefined>(["home-feed", user?.id], (old) => {
+      if (!old) return old;
+      const firstPage = old.pages[0] ?? [];
+      const updatedFirstPage = [confession, ...firstPage].slice(0, 30);
+      return { ...old, pages: [updatedFirstPage, ...old.pages.slice(1)] };
+    });
+  };
+
   const handleSubmit = async () => {
     // Check confession limits first
     if (!canPost) {
@@ -236,7 +265,6 @@ const NewConfessionDialog = ({
           description: t.auth_captcha_failed || "Please complete the CAPTCHA before submitting.",
           variant: "destructive"
         });
-        setIsSubmitting(false);
         return;
       }
 
@@ -245,13 +273,17 @@ const NewConfessionDialog = ({
       const {
         data: moderationData,
         error: moderationError
-      } = await supabase.functions.invoke('ai-moderation', {
-        body: {
-          content,
-          language,
-          captchaToken
-        }
-      });
+      } = await withTimeout(
+        supabase.functions.invoke('ai-moderation', {
+          body: {
+            content,
+            language,
+            captchaToken
+          }
+        }),
+        20000,
+        t.error_submit_timeout
+      );
       if (moderationError) {
         logError('Moderation error', moderationError as Error);
         // Continue even if moderation fails
@@ -272,13 +304,17 @@ const NewConfessionDialog = ({
       let responseText: string | null = null;
       try {
         const locale = language === 'en' || language === 'es' || language === 'de' ? language as AiLocale : 'en';
-        responseText = await getAiReply({
-          text: content.trim(),
-          isVip,
-          locale,
-          userId: user.id,
-          confessionId: 'temp' // Will be replaced with actual ID after creation
-        });
+        responseText = await withTimeout(
+          getAiReply({
+            text: content.trim(),
+            isVip,
+            locale,
+            userId: user.id,
+            confessionId: 'temp' // Will be replaced with actual ID after creation
+          }),
+          20000,
+          t.error_submit_timeout
+        );
         setAiResponse(responseText);
       } catch (aiError) {
         logError('AI response error', aiError as Error);
@@ -296,12 +332,16 @@ const NewConfessionDialog = ({
       logInfo('Invoking create-confession function', {
         hasSupabaseFunctions: Boolean((supabase as any).functions)
       });
-      const creationResponse = await supabase.functions.invoke('create-confession', {
-        body: {
-          ...normalizedPayload,
-          aiResponse: responseText ?? normalizedPayload.aiResponse
-        }
-      });
+      const creationResponse = await withTimeout(
+        supabase.functions.invoke('create-confession', {
+          body: {
+            ...normalizedPayload,
+            aiResponse: responseText ?? normalizedPayload.aiResponse
+          }
+        }),
+        20000,
+        t.error_submit_timeout
+      );
       if (creationResponse.error) {
         const rawError = creationResponse.error;
         const errorStatus = isFunctionInvokeError(rawError) && typeof rawError.status === 'number' ? rawError.status : 400;
@@ -379,6 +419,7 @@ const NewConfessionDialog = ({
 
       // Wait a bit to show the AI response
       setTimeout(() => {
+        prependHomeFeed(confessionData);
         onConfessionCreated();
         onOpenChange(false);
         setContent("");
@@ -391,7 +432,7 @@ const NewConfessionDialog = ({
       logError('Error submitting confession', error as Error);
       toast({
         title: t.error_generic,
-        description: t.error_submit,
+        description: (error as Error)?.message === t.error_submit_timeout ? t.error_submit_timeout : t.error_submit,
         variant: "destructive"
       });
     } finally {
