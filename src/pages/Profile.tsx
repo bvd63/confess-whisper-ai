@@ -59,7 +59,7 @@ const Profile = () => {
   const [flairsDialogOpen, setFlairsDialogOpen] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [profileData, setProfileData] = useState<{ stripe_subscription_id: string | null; bio: string | null } | null>(null);
+  const [profileData, setProfileData] = useState<{ stripe_subscription_id: string | null; bio: string | null; nickname: string | null } | null>(null);
   const [stats, setStats] = useState<ProfileStats>({
     totalConfessions: 0,
     totalReactions: 0,
@@ -76,7 +76,7 @@ const Profile = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('stripe_subscription_id, bio')
+        .select('stripe_subscription_id, bio, nickname')
         .or(`user_id.eq.${user.id},id.eq.${user.id}`)
         .single();
       if (error) throw error;
@@ -146,11 +146,13 @@ const Profile = () => {
         table: 'profiles',
         filter: `user_id=eq.${user.id}`
       }, (payload) => {
-        const newBio = (payload.new as { bio?: string | null; stripe_subscription_id?: string | null })?.bio ?? null;
-        const newSub = (payload.new as { bio?: string | null; stripe_subscription_id?: string | null })?.stripe_subscription_id ?? null;
+        const newBio = (payload.new as { bio?: string | null; stripe_subscription_id?: string | null; nickname?: string | null })?.bio ?? null;
+        const newSub = (payload.new as { bio?: string | null; stripe_subscription_id?: string | null; nickname?: string | null })?.stripe_subscription_id ?? null;
+        const newNickname = (payload.new as { bio?: string | null; stripe_subscription_id?: string | null; nickname?: string | null })?.nickname ?? null;
         setProfileData((prev) => ({
           stripe_subscription_id: newSub ?? prev?.stripe_subscription_id ?? null,
           bio: newBio,
+          nickname: newNickname ?? prev?.nickname ?? null,
         }));
       })
       .on('postgres_changes', {
@@ -266,10 +268,26 @@ const Profile = () => {
       setProfileData((prev) => ({
         stripe_subscription_id: prev?.stripe_subscription_id ?? null,
         bio: detail.bio ?? null,
+        nickname: prev?.nickname ?? null,
       }));
     };
     window.addEventListener('profile-bio-updated', handler as EventListener);
     return () => window.removeEventListener('profile-bio-updated', handler as EventListener);
+  }, []);
+
+  // Listen for local nickname updates to refresh header instantly
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const detail = (event as CustomEvent<{ nickname?: string | null }>).detail;
+      if (!detail) return;
+      setProfileData((prev) => ({
+        stripe_subscription_id: prev?.stripe_subscription_id ?? null,
+        bio: prev?.bio ?? null,
+        nickname: detail.nickname ?? null,
+      }));
+    };
+    window.addEventListener('profile-nickname-updated', handler as EventListener);
+    return () => window.removeEventListener('profile-nickname-updated', handler as EventListener);
   }, []);
 
   if (!user) return null;
@@ -290,8 +308,8 @@ const Profile = () => {
             <div>
               <h1 className="text-2xl font-bold text-white/95">{t.profile_title}</h1>
               <BadgesDisplay userId={user.id} variant="compact" />
-              <p className={`text-sm mt-2 max-w-xl line-clamp-2 ${profileData?.bio?.trim() ? 'text-white/60' : 'text-white/35'}`}>
-                {profileData?.bio?.trim() || t.profile_bio_placeholder}
+              <p className="text-sm mt-2 max-w-xl line-clamp-1 text-white/70">
+                @{profileData?.nickname?.trim() || t.nickname_placeholder}
               </p>
             </div>
           </div>

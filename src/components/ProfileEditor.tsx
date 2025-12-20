@@ -114,6 +114,7 @@ export const ProfileEditor = ({
         title: t.profile_nickname_updated,
         description: t.profile_nickname_update_success
       });
+      window.dispatchEvent(new CustomEvent('profile-nickname-updated', { detail: { nickname: updateData.nickname ?? nickname.trim() } }));
       onUpdate();
     } catch (error) {
       logError('Error updating profile', error as Error);
