@@ -84,12 +84,20 @@ const Profile = () => {
         .eq('user_id', user.id);
 
       // Fetch total reactions received on user's confessions
-      const { data: reactionsData } = await supabase
-        .from('confession_reactions')
-        .select('confession_id')
-        .in('confession_id', 
-          supabase.from('confessions').select('id').eq('user_id', user.id)
-        );
+      // First get user's confession IDs
+      const { data: userConfessions } = await supabase
+        .from('confessions')
+        .select('id')
+        .eq('user_id', user.id);
+      
+      const confessionIds = userConfessions?.map(c => c.id) || [];
+      
+      const { data: reactionsData } = confessionIds.length > 0 
+        ? await supabase
+            .from('confession_reactions')
+            .select('confession_id')
+            .in('confession_id', confessionIds)
+        : { data: [] };
 
       // Fetch total highlights (comments with highlight status)
       const { count: highlightsCount } = await supabase
@@ -255,19 +263,19 @@ const Profile = () => {
           <Card className="bg-white/[0.03] border-white/10 backdrop-blur-md p-4 text-center">
             <FileText className="w-5 h-5 text-white/60 mx-auto mb-2" />
             <div className="text-2xl font-bold text-white/95">{stats.totalConfessions}</div>
-            <div className="text-xs text-white/50 mt-1">{t.profile_confessions || 'Confessions'}</div>
+            <div className="text-xs text-white/50 mt-1">Confessions</div>
           </Card>
           
           <Card className="bg-white/[0.03] border-white/10 backdrop-blur-md p-4 text-center">
             <MessageCircle className="w-5 h-5 text-white/60 mx-auto mb-2" />
             <div className="text-2xl font-bold text-white/95">{stats.totalReactions}</div>
-            <div className="text-xs text-white/50 mt-1">{t.profile_reactions || 'Reactions'}</div>
+            <div className="text-xs text-white/50 mt-1">Reactions</div>
           </Card>
           
           <Card className="bg-white/[0.03] border-white/10 backdrop-blur-md p-4 text-center">
             <Sparkles className="w-5 h-5 text-white/60 mx-auto mb-2" />
             <div className="text-2xl font-bold text-white/95">{stats.totalHighlights}</div>
-            <div className="text-xs text-white/50 mt-1">{t.profile_highlights || 'Highlights'}</div>
+            <div className="text-xs text-white/50 mt-1">Highlights</div>
           </Card>
         </div>
 
