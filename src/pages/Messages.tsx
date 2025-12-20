@@ -118,7 +118,7 @@ const Messages = () => {
 
       // Fallback to direct select (should also work with policies)
       const { data, error } = await supabase
-        .from('profiles')
+        .from('public_profiles')
         .select('nickname')
         .eq('user_id', userId)
         .maybeSingle();

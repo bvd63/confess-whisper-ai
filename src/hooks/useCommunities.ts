@@ -115,7 +115,7 @@ export const useCommunityMembers = (communityId: string) => {
       if (memberIds.length === 0) return data;
 
       const { data: profiles, error: profileError } = await supabase
-        .from('profiles')
+        .from('public_profiles')
         .select('user_id, nickname, avatar_url')
         .in('user_id', memberIds);
 
@@ -195,7 +195,7 @@ export const useCommunityMembers = (communityId: string) => {
       if (memberIds.length === 0) return data;
 
       const { data: profiles, error: profileError } = await supabase
-        .from('profiles')
+        .from('public_profiles')
         .select('user_id, nickname, avatar_url')
         .in('user_id', memberIds);
 

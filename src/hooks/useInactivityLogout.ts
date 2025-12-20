@@ -17,7 +17,7 @@ export const useInactivityLogout = ({
 }: UseInactivityLogoutOptions) => {
   const { toast } = useToast();
   const { t } = useLanguage();
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout>();
   const lastActivityRef = useRef<number>(Date.now());
 
   useEffect(() => {

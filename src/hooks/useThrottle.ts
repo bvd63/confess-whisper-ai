@@ -33,7 +33,7 @@ export function useThrottledCallback<T extends (...args: any[]) => any>(
   interval: number = 100
 ): T {
   const lastRan = useRef<number>(Date.now());
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     return () => {

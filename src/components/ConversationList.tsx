@@ -168,7 +168,7 @@ export const ConversationList = ({ currentUserId, onConversationSelect, markAsRe
         partnerResults.map(r => r.otherUserId).filter(Boolean) as string[]
       )];
       const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
+        .from('public_profiles')
         .select('user_id, nickname, subscription_tier')
         .in('user_id', uniqueOtherUserIds);
 
