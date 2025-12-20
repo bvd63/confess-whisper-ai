@@ -43,14 +43,6 @@ const Index = () => {
   // Scroll header behavior for Home Feed
   const isHeaderVisible = useScrollHeader({ threshold: 12, topOffset: 30 });
   
-  // Pull to refresh
-  const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
-    onRefresh: async () => {
-      window.location.reload();
-    },
-    threshold: 80,
-  });
-
   // Fetch mixed feed (following + explore) with adaptive ratios
   const { data, isLoading, error: queryError, refetch } = useInfiniteQuery({
     queryKey: ["home-mixed-feed", user?.id],
@@ -105,6 +97,14 @@ const Index = () => {
   });
 
   const confessions = data?.pages.flat() ?? [];
+
+  // Pull to refresh
+  const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
+    onRefresh: async () => {
+      await refetch();
+    },
+    threshold: 80,
+  });
 
   // Log query state for debugging
   useEffect(() => {
