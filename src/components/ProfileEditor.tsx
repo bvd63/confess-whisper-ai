@@ -103,7 +103,7 @@ export const ProfileEditor = ({
       const { error } = await supabase
         .from('profiles')
         .update(updateData)
-        .eq('user_id', userId);
+        .or(`user_id.eq.${userId},id.eq.${userId}`);
       
       if (error) {
         logError('Profile update error', error);
@@ -138,7 +138,7 @@ export const ProfileEditor = ({
       const { error } = await supabase
         .from('profiles')
         .update(updateData)
-        .eq('user_id', userId);
+        .or(`user_id.eq.${userId},id.eq.${userId}`);
       
       if (error) {
         logError('Profile update error', error);

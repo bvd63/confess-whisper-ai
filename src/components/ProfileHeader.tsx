@@ -84,7 +84,9 @@ export const ProfileHeader = ({
         {stats.isFollowedBy && !isOwnProfile && (
           <span className="text-xs text-muted-foreground">{t.profile_follows_you || "Follows you"}</span>
         )}
-        {bio && <p className="text-sm mt-2 text-muted-foreground">{bio}</p>}
+        <p className="text-sm mt-2 text-muted-foreground">
+          {bio?.trim() || t.profile_bio_placeholder}
+        </p>
       </div>
 
       {/* Action Buttons */}

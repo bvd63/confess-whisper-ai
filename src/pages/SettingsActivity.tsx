@@ -145,7 +145,7 @@ const SettingsActivity = () => {
         const { data, error } = await supabase
           .from('profiles')
           .select('nickname, bio, handle, privacy_mode, nickname_updated_at, password_changed_at')
-          .eq('user_id', user.id)
+          .or(`user_id.eq.${user.id},id.eq.${user.id}`)
           .single();
         if (error) throw error;
         setProfileData({
@@ -176,7 +176,7 @@ const SettingsActivity = () => {
       const { data, error } = await supabase
         .from('profiles')
         .select('nickname, bio, handle, privacy_mode, nickname_updated_at, password_changed_at')
-        .eq('user_id', user.id)
+        .or(`user_id.eq.${user.id},id.eq.${user.id}`)
         .single();
       if (error) throw error;
       setProfileData({

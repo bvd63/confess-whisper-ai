@@ -45,8 +45,8 @@ const UserProfile = () => {
       // Load profile data
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
-        .select("nickname")
-        .eq("user_id", userId)
+        .select("nickname, bio")
+        .or(`user_id.eq.${userId},id.eq.${userId}`)
         .single();
 
       if (profileError) throw profileError;
@@ -110,6 +110,7 @@ const UserProfile = () => {
             userId={userId!}
             currentUserId={currentUser.id}
             nickname={profile.nickname}
+            bio={profile.bio}
             confessionsCount={confessionsCount}
           />
           

@@ -77,7 +77,7 @@ const Profile = () => {
       const { data, error } = await supabase
         .from('profiles')
         .select('stripe_subscription_id, bio')
-        .eq('user_id', user.id)
+        .or(`user_id.eq.${user.id},id.eq.${user.id}`)
         .single();
       if (error) throw error;
       setProfileData(data);
