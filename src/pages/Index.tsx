@@ -372,7 +372,7 @@ const Index = () => {
               />
             ))}
             {/* End of feed indicator */}
-            <EndOfFeedState onRefresh={() => refetch()} isRefreshing={isFetching} />
+            <EndOfFeedState />
           </div>
         ) : (
           <EmptyFeedState onCreateConfession={handleNewConfession} />
