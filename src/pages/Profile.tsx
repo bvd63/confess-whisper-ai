@@ -311,6 +311,11 @@ const Profile = () => {
               <p className="text-sm mt-2 max-w-xl line-clamp-1 text-white/70">
                 @{profileData?.nickname?.trim() || t.nickname_placeholder}
               </p>
+              {(profileData?.bio?.trim() || t.profile_bio_placeholder) && (
+                <p className="text-sm mt-1 max-w-xl line-clamp-2 text-white/50">
+                  {profileData?.bio?.trim() || t.profile_bio_placeholder}
+                </p>
+              )}
             </div>
           </div>
           
