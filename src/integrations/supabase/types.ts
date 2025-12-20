@@ -2853,11 +2853,3 @@ export const Constants = {
     },
   },
 } as const
-
-// Custom types for RPC functions
-export type MixedFeedConfession = Database['public']['Tables']['confessions']['Row'] & {
-  mix_order?: number;
-  pool?: string;
-  score?: number;
-  boost_expires_at?: string | null;
-};

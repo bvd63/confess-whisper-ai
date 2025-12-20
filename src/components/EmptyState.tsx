@@ -22,32 +22,39 @@ const EmptyState = ({
   return (
     <div 
       className={cn(
-        // Negative margins to break out of parent container padding
-        "-mx-6 -my-6",
-        // Full-screen centered layout
-        "flex flex-col items-center justify-center min-h-[70vh] px-6 py-12",
+        // Fullscreen centered layout - break out of parent constraints
+        "absolute inset-0 flex flex-col items-center justify-center",
+        "bg-transparent",
         "animate-fade-in",
         className
       )}
     >
-      {/* Icon with soft glass circle and ambient glow */}
-      <div className="relative mb-8">
-        {/* Ambient glow layer - using primary gradient from "Get AI response" */}
-        <div className="absolute inset-0 -z-10 blur-3xl opacity-30 scale-150">
-          <div className="w-40 h-40 rounded-full bg-gradient-to-r from-primary to-accent" />
-        </div>
+      {/* Icon with 3D glass sphere and ambient glow */}
+      <div className="relative mb-10">
+        {/* Bottom ambient glow - subtle purple reflection */}
+        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-28 h-8 rounded-full bg-gradient-to-r from-primary/40 via-accent/30 to-primary/40 blur-xl opacity-60" />
         
-        {/* Glass circle container */}
-        <div className="relative flex items-center justify-center w-40 h-40 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/[0.15] shadow-[0_20px_70px_rgba(124,58,237,0.3)]">
-          <Icon className="w-16 h-16 text-white/60" strokeWidth={1.5} />
+        {/* Glass sphere container */}
+        <div className="relative flex items-center justify-center w-32 h-32 rounded-full">
+          {/* Outer glass ring - creates 3D depth */}
+          <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/[0.12] via-white/[0.04] to-transparent" />
+          <div className="absolute inset-0 rounded-full border border-white/[0.08]" />
+          
+          {/* Inner sphere highlight - top light reflection */}
+          <div className="absolute inset-2 rounded-full bg-gradient-to-b from-white/[0.08] to-transparent opacity-60" />
+          
+          {/* Subtle inner shadow for depth */}
+          <div className="absolute inset-0 rounded-full shadow-[inset_0_-20px_40px_rgba(0,0,0,0.3)]" />
+          
+          <Icon className="w-12 h-12 text-white/50" strokeWidth={1.2} />
         </div>
       </div>
       
-      <h3 className="text-2xl font-semibold text-white/95 mb-4 tracking-tight">
+      <h3 className="text-xl font-semibold text-white/90 mb-3 tracking-tight text-center">
         {title}
       </h3>
       
-      <p className="text-base text-white/60 max-w-sm mx-auto text-center leading-relaxed">
+      <p className="text-[15px] text-white/50 max-w-[260px] mx-auto text-center leading-relaxed">
         {description}
       </p>
       
