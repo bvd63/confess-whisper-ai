@@ -47,16 +47,31 @@ const Index = () => {
   });
 
   // Fetch popular/hot confessions for the feed
-  const { data: confessions, isLoading } = useQuery({
+  const { data: confessions, isLoading, error: queryError } = useQuery({
     queryKey: ["home-confessions"],
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_hot_confessions", {
         limit_count: 30,
       });
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching confessions:', error);
+        throw error;
+      }
       return attachActiveBoosts(data || []);
     },
+    retry: 2,
+    refetchOnWindowFocus: false,
   });
+
+  // Log query state for debugging
+  useEffect(() => {
+    console.log('Home Feed Query State:', { 
+      isLoading, 
+      hasData: !!confessions, 
+      count: confessions?.length,
+      error: queryError 
+    });
+  }, [isLoading, confessions, queryError]);
 
   useEffect(() => {
     // Track page view
