@@ -379,8 +379,9 @@ const NewConfessionDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto bg-background/95 backdrop-blur-xl border-primary/20 rounded-3xl shadow-2xl"
+        className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto border-primary/20 rounded-3xl shadow-2xl overflow-hidden"
         style={{
+          background: `linear-gradient(to bottom right, hsl(var(--background)), hsl(var(--background-secondary)), hsl(var(--background)))`,
           marginBottom: isKeyboardVisible ? `${keyboardHeight}px` : '0',
           transition: 'margin-bottom 0.3s ease-out'
         }}
