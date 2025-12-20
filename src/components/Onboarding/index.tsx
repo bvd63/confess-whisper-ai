@@ -16,7 +16,7 @@ interface OnboardingProps {
 
 const translations = {
   en: {
-    welcome_title: "Welcome to Confess! 🎉",
+    welcome_title: "Welcome to ConfessAI! 🎉",
     welcome_desc: "Share your thoughts anonymously and connect with others in a safe space.",
     welcome_next: "Get Started",
     confession_title: "Share Your First Thought",
@@ -32,7 +32,7 @@ const translations = {
     error_save: "Failed to save. Please try again."
   },
   es: {
-    welcome_title: "¡Bienvenido a Confess! 🎉",
+    welcome_title: "¡Bienvenido a ConfessAI! 🎉",
     welcome_desc: "Comparte tus pensamientos anónimamente y conéctate con otros en un espacio seguro.",
     welcome_next: "Comenzar",
     confession_title: "Comparte Tu Primer Pensamiento",
@@ -48,7 +48,7 @@ const translations = {
     error_save: "Error al guardar. Inténtalo de nuevo."
   },
   de: {
-    welcome_title: "Willkommen bei Confess! 🎉",
+    welcome_title: "Willkommen bei ConfessAI! 🎉",
     welcome_desc: "Teile deine Gedanken anonym und verbinde dich mit anderen in einem sicheren Raum.",
     welcome_next: "Loslegen",
     confession_title: "Teile Deinen Ersten Gedanken",

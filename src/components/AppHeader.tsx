@@ -1,6 +1,7 @@
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { EnhancedButton } from "@/components/EnhancedButton";
+import { AppLogo } from "@/components/AppLogo";
 
 import { Heart, PlusCircle, LogOut, Crown, User, LogIn, BookMarked, Users, Home, Sparkles, Search, MessageCircle, Settings, ArrowLeft, Coins } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -120,7 +121,7 @@ const AppHeader = ({
             "text-lg font-bold text-white cursor-pointer flex-1 text-center",
             backNav.show && "ml-8"
           )} onClick={() => navigate('/')}>
-            Confess<span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
+            <AppLogo />
           </h1>
           
           <div className="flex items-center gap-2">
