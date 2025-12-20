@@ -28,27 +28,31 @@ const Explore = () => {
   const { isVip } = useVipStatus(user?.id);
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
 
-  const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
-    onRefresh: async () => {
-      window.location.reload();
-    },
-    threshold: 80,
-  });
-
   // Fetch trending, popular, and recent confessions with scoring and filters
-  const { data: trendingResult, isLoading: loadingTrending } = useQuery({
+  const { data: trendingResult, isLoading: loadingTrending, refetch: refetchTrending } = useQuery({
     queryKey: ["explore", "trending", user?.id],
     queryFn: () => fetchTrendingConfessions({ currentUserId: user?.id ?? null }),
   });
 
-  const { data: recentResult, isLoading: loadingRecent } = useQuery({
+  const { data: recentResult, isLoading: loadingRecent, refetch: refetchRecent } = useQuery({
     queryKey: ["explore", "recent", user?.id],
     queryFn: () => fetchRecentConfessions({ currentUserId: user?.id ?? null }),
   });
 
-  const { data: popularResult, isLoading: loadingPopular } = useQuery({
+  const { data: popularResult, isLoading: loadingPopular, refetch: refetchPopular } = useQuery({
     queryKey: ["explore", "popular", user?.id],
     queryFn: () => fetchPopularConfessions({ currentUserId: user?.id ?? null }),
+  });
+
+  const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
+    onRefresh: async () => {
+      try {
+        await Promise.allSettled([refetchTrending(), refetchPopular(), refetchRecent()]);
+      } finally {
+        // ensure pull-to-refresh completes even if a refetch fails
+      }
+    },
+    threshold: 80,
   });
 
   const filterConfessions = (confessions: any[] | undefined) => {
