@@ -1,41 +1,27 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
-import { GradientText } from "@/components/GradientText";
-import { Sparkles, TrendingUp, Bell } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import AppLayout from "@/components/AppLayout";
-import DailyPrompt from "@/components/DailyPrompt";
-import Leaderboard from "@/components/Leaderboard";
-import { QuoteOfTheDay } from "@/components/QuoteOfTheDay";
-import QuoteOfTheDaySkeleton from "@/components/QuoteOfTheDaySkeleton";
+import ConfessionCard from "@/components/ConfessionCard";
+import { ConfessionCardSkeleton } from "@/components/skeletons/ConfessionCardSkeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import StreakCounter from "@/components/StreakCounter";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useMessageNotifications } from "@/hooks/useMessageNotifications";
 import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { useSubscriptionCheck } from "@/hooks/useSubscriptionCheck";
 import SEOHead from "@/components/SEOHead";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { usePerformanceBudget } from "@/hooks/usePerformanceBudget";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
-import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { OneSignalBanner } from "@/components/OneSignalBanner";
-import { oneSignalBannerI18n } from "@/i18n/onesignal";
-import { requestNotificationPermission } from "@/services/onesignal";
-
-
+import { useQuery } from "@tanstack/react-query";
+import { attachActiveBoosts } from "@/lib/boosts";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 // Lazy load heavy components
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
-
 const OnboardingDialog = lazy(() => import("@/components/OnboardingDialog"));
-const TrustBadges = lazy(() => import("@/components/TrustBadges"));
-const FAQ = lazy(() => import("@/components/FAQ"));
 
 const Index = () => {
   const navigate = useNavigate();
@@ -46,8 +32,11 @@ const Index = () => {
   useSubscriptionCheck(user?.id);
   useMessageNotifications({ userId: user?.id });
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
-  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission | 'unsupported'>('default');
-  const [bannerDismissed, setBannerDismissed] = useState(false);
+  const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
+  const [dialogDefaultTab, setDialogDefaultTab] = useState<'subscriptions' | 'coins'>('subscriptions');
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const { toast } = useToast();
+  const isMobile = useIsMobile();
   
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const [dialogDefaultTab, setDialogDefaultTab] = useState<'subscriptions' | 'coins'>('subscriptions');
@@ -59,29 +48,26 @@ const Index = () => {
   // Pull to refresh
   const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
     onRefresh: async () => {
-      // Reload data
       window.location.reload();
     },
     threshold: 80,
   });
-  
-  // Monitor performance budget
-  usePerformanceBudget();
+
+  // Fetch popular/hot confessions for the feed
+  const { data: confessions, isLoading } = useQuery({
+    queryKey: ["home-confessions"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("get_hot_confessions", {
+        limit_count: 30,
+      });
+      if (error) throw error;
+      return attachActiveBoosts(data || []);
+    },
+  });
 
   useEffect(() => {
     // Track page view
     trackEvent('page_view', { page: 'index' });
-    
-    // Check notification permission
-    if ('Notification' in window) {
-      setNotificationPermission(Notification.permission);
-    } else {
-      setNotificationPermission('unsupported');
-    }
-    
-    // Check if banner was dismissed
-    const dismissed = localStorage.getItem('onesignal-banner-dismissed') === 'true';
-    setBannerDismissed(dismissed);
     
     // Check if user is new (show onboarding)
     const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
@@ -138,9 +124,6 @@ const Index = () => {
       window.history.replaceState({}, '', '/');
     }
 
-    // Stagger secondary content loading for better perceived performance
-    const timer = setTimeout(() => setShowSecondaryContent(true), 300);
-    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -163,7 +146,6 @@ const Index = () => {
       setIsNewConfessionOpen(true);
     }
   };
-
 
   return (
     <>
@@ -190,35 +172,11 @@ const Index = () => {
         </div>
       )}
 
-      {/* Main Content */}
+      {/* Main Feed */}
       <main 
         ref={containerRef}
         className="container max-w-2xl mx-auto px-4 py-6 pb-24"
       >
-        {/* OneSignal Notification Banner */}
-        {user && !bannerDismissed && (
-          <div className="mb-4 sm:mb-6">
-            <OneSignalBanner
-              permission={notificationPermission}
-              onEnable={async () => {
-                const granted = await requestNotificationPermission();
-                if (granted) {
-                  setNotificationPermission('granted');
-                  toast({
-                    title: t.common_success,
-                    description: "Notifications enabled successfully",
-                  });
-                }
-              }}
-              onDismiss={() => {
-                localStorage.setItem('onesignal-banner-dismissed', 'true');
-                setBannerDismissed(true);
-              }}
-              i18n={oneSignalBannerI18n[language as 'en' | 'es' | 'de'] || oneSignalBannerI18n.en}
-            />
-          </div>
-        )}
-
         {/* Section Title */}
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-white">
@@ -226,32 +184,34 @@ const Index = () => {
           </h2>
         </div>
 
-        {/* Quote of the Day */}
-        {user && (
-          <div className="mb-6">
-            <Suspense fallback={<QuoteOfTheDaySkeleton />}>
-              <QuoteOfTheDay />
-            </Suspense>
+        {/* Confession Feed */}
+        {isLoading ? (
+          <div className="space-y-4">
+            <ConfessionCardSkeleton />
+            <ConfessionCardSkeleton />
+            <ConfessionCardSkeleton />
+            <ConfessionCardSkeleton />
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {confessions?.map((confession) => (
+              <ConfessionCard
+                key={confession.id}
+                confession={confession}
+                isVip={isVip}
+                onUpgradeClick={() => {
+                  setDialogDefaultTab('subscriptions');
+                  setManageSubDialogOpen(true);
+                }}
+                onInsightGenerated={() => {
+                  toast({
+                    title: t.deep_insight_success,
+                  });
+                }}
+              />
+            ))}
           </div>
         )}
-
-        {/* Daily Prompt */}
-        {user && <div className="mb-6"><DailyPrompt onOpenNewConfession={handleNewConfession} /></div>}
-
-        {/* Confession Feed would go here - placeholder for now */}
-        <div className="space-y-4">
-          <Card className="p-8 text-center border-white/10 bg-gradient-to-br from-[#2a2e5c]/90 via-[#19192f]/90 to-[#0d0d1b]/90 backdrop-blur-md">
-            <p className="text-white/70">Feed coming soon...</p>
-          </Card>
-        </div>
-
-        {/* Leaderboard */}
-        {showSecondaryContent && (
-          <div className="mt-8">
-            <Leaderboard />
-          </div>
-        )}
-
       </main>
 
       {/* Dialogs with Suspense for lazy loading */}
@@ -279,47 +239,6 @@ const Index = () => {
           }}
         />
       </Suspense>
-      
-      {/* FAQ Section with Suspense */}
-      <Suspense fallback={
-        <div className="mt-16 animate-pulse space-y-4">
-          <div className="h-8 bg-muted rounded w-1/3 mx-auto" />
-          <div className="h-32 bg-muted rounded" />
-        </div>
-      }>
-        <div id="faq-section" className="mt-16">
-          <FAQ />
-        </div>
-      </Suspense>
-
-      {/* Footer with trust badges */}
-      <Suspense fallback={
-        <div className="mt-16 h-64 bg-muted/20 rounded animate-pulse" />
-      }>
-        <footer className="mt-16">
-          <TrustBadges />
-        
-        <div className="text-center py-6 border-t border-border/50">
-          <div className="flex justify-center gap-4 sm:gap-6 text-sm text-muted-foreground">
-            <button
-              onClick={() => navigate('/privacy')}
-              className="hover:text-primary transition-colors"
-            >
-              {t.privacy_policy}
-            </button>
-            <button
-              onClick={() => navigate('/terms')}
-              className="hover:text-primary transition-colors"
-            >
-              {t.terms_of_service}
-            </button>
-          </div>
-          <p className="text-xs text-muted-foreground mt-3">
-            © 2025 {t.app_name}. {t.all_rights_reserved}
-          </p>
-        </div>
-      </footer>
-      </Suspense>
 
       <UnifiedShopDialog
         open={manageSubDialogOpen}
@@ -327,7 +246,6 @@ const Index = () => {
         defaultTab={dialogDefaultTab}
       />
 
-      
       </AppLayout>
     </>
   );
