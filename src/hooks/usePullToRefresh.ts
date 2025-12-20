@@ -24,14 +24,28 @@ export const usePullToRefresh = ({
   const refreshLockRef = useRef(false);
   const pointerActiveRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const onRefreshRef = useRef(onRefresh);
+  const thresholdRef = useRef(threshold);
+  const topToleranceRef = useRef(topTolerance);
+  const disabledRef = useRef(disabled);
+  const refreshingRef = useRef(isRefreshing);
+
+  // Keep refs in sync without re-binding listeners (prevents missed pointer lifecycles mid-pull)
+  useEffect(() => {
+    onRefreshRef.current = onRefresh;
+    thresholdRef.current = threshold;
+    topToleranceRef.current = topTolerance;
+    disabledRef.current = disabled;
+    refreshingRef.current = isRefreshing;
+  }, [onRefresh, threshold, topTolerance, disabled, isRefreshing]);
 
   useEffect(() => {
     const target = container ?? containerRef.current;
-    if (disabled || !target) return;
+    if (!target || disabledRef.current) return;
     let touchStartY = 0;
 
     // Instagram-like gating: only allow pull-to-refresh when the scroll container is at (or extremely near) the top
-    const atTop = () => target.scrollTop <= topTolerance;
+    const atTop = () => target.scrollTop <= topToleranceRef.current;
 
     const handleScroll = () => {
       setIsAtTop(atTop());
@@ -53,7 +67,7 @@ export const usePullToRefresh = ({
 
     const handleTouchMove = (e: TouchEvent) => {
       if (pointerActiveRef.current) return;
-      if (isRefreshing || !hasActivePull.current || refreshLockRef.current) return;
+      if (refreshingRef.current || !hasActivePull.current || refreshLockRef.current) return;
       if (!startedAtTopRef.current) return;
       if (!atTop()) {
         setPullDistance(0);
@@ -65,7 +79,7 @@ export const usePullToRefresh = ({
 
       if (distance > 0) {
         e.preventDefault();
-        setPullDistance(Math.min(distance, threshold * 1.5));
+        setPullDistance(Math.min(distance, thresholdRef.current * 1.5));
       }
     };
 
@@ -81,13 +95,15 @@ export const usePullToRefresh = ({
         return;
       }
 
-      if (pullDistance >= threshold && !isRefreshing) {
+      if (pullDistance >= thresholdRef.current && !refreshingRef.current) {
         refreshLockRef.current = true;
         setIsRefreshing(true);
+        refreshingRef.current = true;
         try {
-          await onRefresh();
+          await onRefreshRef.current();
         } finally {
           setIsRefreshing(false);
+          refreshingRef.current = false;
           refreshLockRef.current = false;
         }
       }
@@ -112,7 +128,7 @@ export const usePullToRefresh = ({
 
     const handlePointerMove = (e: PointerEvent) => {
       if (e.pointerType === 'mouse') return;
-      if (isRefreshing || !hasActivePull.current || refreshLockRef.current) return;
+      if (refreshingRef.current || !hasActivePull.current || refreshLockRef.current) return;
       if (!startedAtTopRef.current) return;
       if (!atTop()) {
         setPullDistance(0);
@@ -122,7 +138,7 @@ export const usePullToRefresh = ({
       const distance = e.clientY - startY.current;
 
       if (distance > 0) {
-        setPullDistance(Math.min(distance, threshold * 1.5));
+        setPullDistance(Math.min(distance, thresholdRef.current * 1.5));
       }
     };
 
@@ -131,6 +147,7 @@ export const usePullToRefresh = ({
 
       if (refreshLockRef.current) {
         setPullDistance(0);
+        pointerActiveRef.current = false;
         return;
       }
 
@@ -142,13 +159,15 @@ export const usePullToRefresh = ({
         return;
       }
 
-      if (pullDistance >= threshold && !isRefreshing) {
+      if (pullDistance >= thresholdRef.current && !refreshingRef.current) {
         refreshLockRef.current = true;
         setIsRefreshing(true);
+        refreshingRef.current = true;
         try {
-          await onRefresh();
+          await onRefreshRef.current();
         } finally {
           setIsRefreshing(false);
+          refreshingRef.current = false;
           refreshLockRef.current = false;
         }
       }
@@ -177,7 +196,7 @@ export const usePullToRefresh = ({
       target.removeEventListener("pointerup", handlePointerEnd);
       target.removeEventListener("pointercancel", handlePointerEnd);
     };
-  }, [container, disabled, isRefreshing, onRefresh, pullDistance, threshold]);
+  }, [container]);
 
   return {
     containerRef,
