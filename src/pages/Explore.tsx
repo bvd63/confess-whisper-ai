@@ -105,8 +105,8 @@ const Explore = () => {
     if (confessions.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center py-10 px-4">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-orange-500 via-orange-400 to-yellow-400 flex items-center justify-center mb-3 shadow-lg shadow-orange-500/30">
-            <Flame className="w-7 h-7 text-white drop-shadow-sm" fill="white" strokeWidth={1.5} />
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/60 via-primary/50 to-accent/60 flex items-center justify-center mb-3 shadow-lg shadow-primary/20">
+            <Flame className="w-6 h-6 text-white" />
           </div>
           <p className="text-sm text-white/60 text-center">{t.explore_no_confessions}</p>
         </div>

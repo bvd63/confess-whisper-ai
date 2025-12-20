@@ -85,7 +85,6 @@ type Translations = {
   
   // Error messages
   error_submit: string;
-  error_submit_timeout: string;
   error_delete: string;
   error_load: string;
   error_auth: string;
@@ -2198,7 +2197,6 @@ export const translations: Record<Language, Translations> = {
     crisis_hint: "If you're in immediate danger, contact local emergency services.",
     
     error_submit: "Could not submit confession. Try again.",
-    error_submit_timeout: "Submission timed out. Please try again.",
     error_delete: "Could not delete confession.",
     error_load: "Could not load confessions.",
     error_auth: "You must be authenticated to post.",
@@ -4182,7 +4180,6 @@ export const translations: Record<Language, Translations> = {
     crisis_hint: "Si estás en peligro inmediato, contacta a los servicios de emergencia locales.",
     
     error_submit: "No se pudo enviar la confesión. Inténtalo de nuevo.",
-    error_submit_timeout: "La publicación tardó demasiado. Inténtalo de nuevo.",
     error_delete: "No se pudo eliminar la confesión.",
     error_load: "No se pudieron cargar las confesiones.",
     error_auth: "Debes estar autenticado para publicar.",
@@ -6167,7 +6164,6 @@ export const translations: Record<Language, Translations> = {
     crisis_hint: "Wenn du in unmittelbarer Gefahr bist, wende dich an den örtlichen Notdienst.",
     
     error_submit: "Geständnis konnte nicht gesendet werden. Bitte erneut versuchen.",
-    error_submit_timeout: "Das Senden hat zu lange gedauert. Bitte versuche es erneut.",
     error_delete: "Geständnis konnte nicht gelöscht werden.",
     error_load: "Geständnisse konnten nicht geladen werden.",
     error_auth: "Du musst angemeldet sein, um zu posten.",
