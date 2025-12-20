@@ -360,6 +360,7 @@ type Translations = {
   ui_share_thoughts: string;
   ui_safe_description: string;
   ui_no_confessions: string;
+  explore_showing_feed: string;
   ui_first_confession_desc: string;
   ui_upgrading: string;
   ui_payment_redirect: string;
@@ -2671,6 +2672,7 @@ export const translations: Record<Language, Translations> = {
     ui_share_thoughts: "Share your thoughts",
     ui_safe_description: "A safe place where you can be yourself. Write anonymously what you feel and get empathetic AI responses.",
     ui_no_confessions: "No confessions yet",
+    explore_showing_feed: "Showing {source} so you don't miss new confessions",
     ui_first_confession_desc: "Be the first to share your thoughts. You'll instantly get an empathetic AI response.",
     ui_upgrading: "Upgrading... 💳",
     ui_payment_redirect: "Redirecting to payment system (Demo)",
@@ -4397,6 +4399,7 @@ export const translations: Record<Language, Translations> = {
     ui_share_thoughts: "Comparte tus pensamientos",
     ui_safe_description: "Un lugar seguro donde puedes ser tú mismo. Escribe anónimamente lo que sientes y recibe respuestas empáticas de IA.",
     ui_no_confessions: "Aún no hay confesiones",
+    explore_showing_feed: "Mostrando {source} para que no te pierdas confesiones",
     ui_first_confession_desc: "Sé el primero en compartir tus pensamientos. Obtendrás instantáneamente una respuesta empática de IA.",
     ui_upgrading: "Actualizando... 💳",
     ui_payment_redirect: "Redirigiendo al sistema de pago (Demo)",
@@ -6380,6 +6383,7 @@ export const translations: Record<Language, Translations> = {
     ui_share_thoughts: "Teile deine Gedanken",
     ui_safe_description: "Ein sicherer Ort, an dem du du selbst sein kannst. Schreibe anonym, was du fühlst und erhalte empathische KI-Antworten.",
     ui_no_confessions: "Noch keine Geständnisse",
+    explore_showing_feed: "Zeige {source}, damit du nichts verpasst",
     ui_first_confession_desc: "Sei der Erste, der seine Gedanken teilt. Du erhältst sofort eine empathische KI-Antwort.",
     ui_upgrading: "Upgrade läuft... 💳",
     ui_payment_redirect: "Weiterleitung zum Zahlungssystem (Demo)",

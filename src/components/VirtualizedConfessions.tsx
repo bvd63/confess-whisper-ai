@@ -19,7 +19,7 @@ const VirtualizedConfessions = ({
   isVip,
   onUpgradeClick,
   onInsightGenerated,
-  itemHeight = 320,
+  itemHeight = 300,
   overscan = 6,
 }: VirtualizedConfessionsProps) => {
   const [containerHeight, setContainerHeight] = useState<number>(
@@ -60,7 +60,7 @@ const VirtualizedConfessions = ({
             <div
               key={confession.id}
               style={{ position: 'absolute', top: offsetTop, left: 0, right: 0, height: itemHeight }}
-              className="px-0.5 pb-4"
+              className="px-0.5 pb-3"
             >
               <ConfessionCard
                 confession={confession}

@@ -91,7 +91,7 @@ const ConfessionCard = ({ confession, isVip: _isVip, onUpgradeClick: _onUpgradeC
 
   return (
     <NoScreenshotMode enabled={noScreenshotEnabled}>
-      <Card className="w-full overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#2a2e5c]/90 via-[#19192f]/90 to-[#0d0d1b]/90 backdrop-blur-md p-5 sm:p-6 space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.45),_inset_0_1px_1px_rgba(255,255,255,0.1)] cursor-pointer hover:border-white/20 hover:shadow-[0_20px_50px_rgba(139,92,246,0.2),_inset_0_1px_1px_rgba(255,255,255,0.15)] transition-all duration-300" onClick={handleCardClick}>
+      <Card className="w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-white/12 bg-gradient-to-br from-[#2f345f]/95 via-[#16162b]/95 to-[#0a0a16]/95 backdrop-blur-xl p-4 sm:p-5 md:p-6 space-y-3 shadow-[0_18px_45px_rgba(0,0,0,0.52),_inset_0_1px_1px_rgba(255,255,255,0.12)] cursor-pointer hover:border-white/20 hover:shadow-[0_24px_55px_rgba(139,92,246,0.26),_inset_0_1px_1px_rgba(255,255,255,0.16)] transition-all duration-300" onClick={handleCardClick}>
         {/* Header: Avatar + Username + VIP Badge */}
         <div className="flex items-start gap-3">
           <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/70 via-primary/60 to-accent/70 flex items-center justify-center shadow-lg shadow-primary/30 flex-shrink-0">
@@ -129,18 +129,21 @@ const ConfessionCard = ({ confession, isVip: _isVip, onUpgradeClick: _onUpgradeC
 
         {/* Confession Content */}
         <SensitiveContentWarning isSensitive={isSensitive}>
-          <p className="text-[15px] leading-relaxed text-white/90 break-words">
+          <p
+            className="text-[15px] leading-relaxed text-white/90 break-words"
+            style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}
+          >
             {sanitizeConfession(confession.content)}
           </p>
         </SensitiveContentWarning>
 
         {/* Reactions Section */}
-        <div className="pt-2" onClick={(e) => e.stopPropagation()}>
+        <div className="pt-1.5" onClick={(e) => e.stopPropagation()}>
           <ReactionPicker confessionId={confession.id} userId={user?.id} />
         </div>
 
         {/* Bottom Actions: Comments */}
-        <div className="flex items-center justify-between pt-2" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between pt-1.5" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center gap-2 text-white/60 text-sm">
             <MessageCircle className="w-4 h-4" />
             <span>{confession.comments_count || 0}</span>

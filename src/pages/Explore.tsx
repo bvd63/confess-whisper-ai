@@ -79,11 +79,11 @@ const Explore = () => {
   const filterConfessions = (confessions: any[] | undefined) => {
     if (!confessions) return [];
     if (!searchQuery.trim()) return confessions;
-    
     const query = searchQuery.toLowerCase();
-    return confessions.filter(confession => 
-      confession.content.toLowerCase().includes(query) ||
-      confession.category.toLowerCase().includes(query)
+    return confessions.filter(
+      (confession) =>
+        confession.content.toLowerCase().includes(query) ||
+        confession.category.toLowerCase().includes(query)
     );
   };
 
@@ -94,7 +94,7 @@ const Explore = () => {
   const renderConfessions = (confessions: any[], loading: boolean) => {
     if (loading) {
       return (
-        <div className="space-y-4">
+        <div className="space-y-3">
           <ConfessionCardSkeleton />
           <ConfessionCardSkeleton />
           <ConfessionCardSkeleton />
@@ -104,17 +104,17 @@ const Explore = () => {
 
     if (confessions.length === 0) {
       return (
-        <div className="flex flex-col items-center justify-center py-16 px-4">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/60 via-primary/50 to-accent/60 flex items-center justify-center mb-4 shadow-lg shadow-primary/20">
-            <Flame className="w-7 h-7 text-white" />
+        <div className="flex flex-col items-center justify-center py-10 px-4">
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/60 via-primary/50 to-accent/60 flex items-center justify-center mb-3 shadow-lg shadow-primary/20">
+            <Flame className="w-6 h-6 text-white" />
           </div>
-          <p className="text-base text-white/60 text-center">{t.explore_no_confessions}</p>
+          <p className="text-sm text-white/60 text-center">{t.explore_no_confessions}</p>
         </div>
       );
     }
 
     return (
-      <div className="space-y-4">
+      <div className="space-y-3">
         {confessions.map((confession) => (
           <ExploreConfessionCard key={confession.id} confession={confession} />
         ))}
@@ -127,22 +127,22 @@ const Explore = () => {
       <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
         {/* Pull to Refresh Indicator */}
         {pullDistance > 0 && (
-          <div 
+          <div
             className="fixed top-16 left-0 right-0 z-50 flex justify-center pointer-events-none"
-            style={{ 
+            style={{
               transform: `translateY(${Math.min(pullDistance - 80, 0)}px)`,
-              opacity: Math.min(pullDistance / 80, 1)
+              opacity: Math.min(pullDistance / 80, 1),
             }}
           >
             <div className="bg-primary/10 backdrop-blur-sm rounded-full p-2">
-              <Loader2 className={`h-5 w-5 text-primary ${isRefreshing || isTriggered ? 'animate-spin' : ''}`} />
+              <Loader2 className={`h-5 w-5 text-primary ${isRefreshing || isTriggered ? "animate-spin" : ""}`} />
             </div>
           </div>
         )}
 
-        <div 
+        <div
           ref={containerRef}
-          className="container max-w-2xl mx-auto px-4 sm:px-5 py-6 pb-28 space-y-5"
+          className="container max-w-4xl mx-auto px-4 sm:px-5 py-5 pb-28 space-y-4"
         >
           {/* Header */}
           <div className="space-y-1 animate-fade-in">
@@ -160,22 +160,22 @@ const Explore = () => {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="sticky top-14 z-40 bg-background/80 backdrop-blur-md py-2 -mx-4 px-4 sm:-mx-5 sm:px-5">
               <TabsList className="grid w-full grid-cols-3 h-11 rounded-xl bg-white/5 border border-white/10">
-                <TabsTrigger 
-                  value="trending" 
+                <TabsTrigger
+                  value="trending"
                   className="gap-2 text-sm rounded-lg text-white/60 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/80 data-[state=active]:to-accent/80 data-[state=active]:text-white data-[state=active]:shadow-lg"
                 >
                   <Flame className="w-4 h-4" />
                   <span className="hidden xs:inline">{t.search_trending}</span>
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="popular" 
+                <TabsTrigger
+                  value="popular"
                   className="gap-2 text-sm rounded-lg text-white/60 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/80 data-[state=active]:to-accent/80 data-[state=active]:text-white data-[state=active]:shadow-lg"
                 >
                   <TrendingUp className="w-4 h-4" />
                   <span className="hidden xs:inline">{t.ui_popular}</span>
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="recent" 
+                <TabsTrigger
+                  value="recent"
                   className="gap-2 text-sm rounded-lg text-white/60 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/80 data-[state=active]:to-accent/80 data-[state=active]:text-white data-[state=active]:shadow-lg"
                 >
                   <Clock className="w-4 h-4" />
@@ -184,21 +184,21 @@ const Explore = () => {
               </TabsList>
             </div>
 
-            <TabsContent value="trending" className="mt-4">
+            <TabsContent value="trending" className="mt-3">
               {renderConfessions(filteredHot, loadingHot)}
             </TabsContent>
 
-            <TabsContent value="popular" className="mt-4">
+            <TabsContent value="popular" className="mt-3">
               {renderConfessions(filteredPopular, loadingPopular)}
             </TabsContent>
 
-            <TabsContent value="recent" className="mt-4">
+            <TabsContent value="recent" className="mt-3">
               {renderConfessions(filteredRecent, loadingRecent)}
             </TabsContent>
           </Tabs>
         </div>
       </AppLayout>
-      
+
       <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
     </>
   );
