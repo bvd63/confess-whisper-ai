@@ -162,21 +162,21 @@ const Explore = () => {
               <TabsList className="grid w-full grid-cols-3 h-11 rounded-xl bg-white/5 border border-white/10">
                 <TabsTrigger
                   value="trending"
-                  className="gap-2 text-sm rounded-lg text-white/60 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/80 data-[state=active]:to-accent/80 data-[state=active]:text-white data-[state=active]:shadow-lg"
+                  className="gap-2 text-sm rounded-lg text-white/60 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white data-[state=active]:shadow-[0_10px_30px_hsl(var(--primary)/0.28)]"
                 >
                   <Flame className="w-4 h-4" />
                   <span className="hidden xs:inline">{t.search_trending}</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="popular"
-                  className="gap-2 text-sm rounded-lg text-white/60 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/80 data-[state=active]:to-accent/80 data-[state=active]:text-white data-[state=active]:shadow-lg"
+                  className="gap-2 text-sm rounded-lg text-white/60 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white data-[state=active]:shadow-[0_10px_30px_hsl(var(--primary)/0.28)]"
                 >
                   <TrendingUp className="w-4 h-4" />
                   <span className="hidden xs:inline">{t.ui_popular}</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="recent"
-                  className="gap-2 text-sm rounded-lg text-white/60 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/80 data-[state=active]:to-accent/80 data-[state=active]:text-white data-[state=active]:shadow-lg"
+                  className="gap-2 text-sm rounded-lg text-white/60 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white data-[state=active]:shadow-[0_10px_30px_hsl(var(--primary)/0.28)]"
                 >
                   <Clock className="w-4 h-4" />
                   <span className="hidden xs:inline">{t.ui_recent}</span>
