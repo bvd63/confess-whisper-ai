@@ -12,7 +12,7 @@ export const ExploreSearchBar = ({ value, onChange }: ExploreSearchBarProps) => 
 
   return (
     <div className="relative">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/70" />
       <Input
         type="text"
         value={value}
