@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, Suspense, lazy, memo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { User, Settings, LogOut, FileText, MessageCircle, Sparkles } from 'lucide-react';
+import { User, Settings, LogOut, FileText, MessageCircle, Heart } from 'lucide-react';
 import AppLayout from "@/components/AppLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -24,6 +24,27 @@ import { useTrialExpiryCheck } from "@/hooks/useTrialExpiryCheck";
 import { logError } from "@/lib/logger";
 import { LogoutConfirmationDialog } from "@/components/LogoutConfirmationDialog";
 
+type ProfileStats = {
+  totalConfessions: number;
+  totalReactions: number;
+  totalComments: number;
+};
+
+const formatCount = (value: number): string => {
+  const abs = Math.abs(value);
+  const format = (divider: number, suffix: string) => {
+    const raw = value / divider;
+    const rounded = raw >= 10 ? Math.round(raw) : Math.round(raw * 10) / 10;
+    const text = Number.isInteger(rounded) ? rounded.toString() : rounded.toFixed(1);
+    return text.replace(/\.0$/, "") + suffix;
+  };
+
+  if (abs >= 1_000_000_000) return format(1_000_000_000, "b");
+  if (abs >= 1_000_000) return format(1_000_000, "m");
+  if (abs >= 1_000) return format(1_000, "k");
+  return value.toString();
+};
+
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 const Profile = () => {
   const navigate = useNavigate();
@@ -39,10 +60,10 @@ const Profile = () => {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [profileData, setProfileData] = useState<{ stripe_subscription_id: string | null } | null>(null);
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<ProfileStats>({
     totalConfessions: 0,
     totalReactions: 0,
-    totalHighlights: 0
+    totalComments: 0
   });
   const { isModerator } = useUserRole(user?.id);
   const { toast } = useToast();
@@ -77,38 +98,34 @@ const Profile = () => {
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id);
 
-      // Fetch total reactions received on user's confessions
-      // First get user's confession IDs
-      const { data: userConfessions } = await supabase
-        .from('confessions')
-        .select('id')
+      // Fetch total reactions added by the user
+      const { count: reactionsCount } = await supabase
+        .from('confession_reactions')
+        .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id);
-      
-      const confessionIds = userConfessions?.map(c => c.id) || [];
-      
-      const { data: reactionsData } = confessionIds.length > 0 
-        ? await supabase
-            .from('confession_reactions')
-            .select('confession_id')
-            .in('confession_id', confessionIds)
-        : { data: [] };
 
-      // Fetch total highlights (comments with highlight status)
-      const { count: highlightsCount } = await supabase
+      // Fetch total comments posted by the user
+      const { count: commentsCount } = await supabase
         .from('comments')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .eq('is_highlighted', true);
+        .eq('user_id', user.id);
 
       setStats({
         totalConfessions: confessionsCount || 0,
-        totalReactions: reactionsData?.length || 0,
-        totalHighlights: highlightsCount || 0
+        totalReactions: reactionsCount || 0,
+        totalComments: commentsCount || 0
       });
     } catch (error) {
       logError('Error fetching user stats', error as Error);
     }
   }, [user?.id]);
+
+  const adjustStat = useCallback((key: keyof ProfileStats, delta: number) => {
+    setStats((prev) => {
+      const nextValue = Math.max(0, (prev[key] ?? 0) + delta);
+      return { ...prev, [key]: nextValue };
+    });
+  }, []);
 
   useEffect(() => {
     if (user?.id) {
@@ -128,23 +145,35 @@ const Profile = () => {
         schema: 'public',
         table: 'confessions',
         filter: `user_id=eq.${user.id}`
-      }, () => {
-        fetchUserStats();
+      }, (payload) => {
+        if (payload.eventType === 'INSERT' || payload.eventType === 'DELETE') {
+          fetchUserStats();
+        }
+      })
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'confession_reactions',
+        filter: `user_id=eq.${user.id}`
+      }, (payload) => {
+        if (payload.eventType === 'INSERT') adjustStat('totalReactions', 1);
+        if (payload.eventType === 'DELETE') adjustStat('totalReactions', -1);
       })
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
         table: 'comments',
         filter: `user_id=eq.${user.id}`
-      }, () => {
-        fetchUserStats();
+      }, (payload) => {
+        if (payload.eventType === 'INSERT') adjustStat('totalComments', 1);
+        if (payload.eventType === 'DELETE') adjustStat('totalComments', -1);
       })
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user?.id, fetchUserStats]);
+  }, [user?.id, adjustStat, fetchUserStats]);
 
   const handleManageSubscription = async () => {
     try {
@@ -264,20 +293,20 @@ const Profile = () => {
         <div className="grid grid-cols-3 gap-3 mb-8">
           <Card className="bg-white/[0.03] border-white/10 backdrop-blur-md p-4 text-center">
             <FileText className="w-5 h-5 text-white/60 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-white/95">{stats.totalConfessions}</div>
-            <div className="text-xs text-white/50 mt-1">Confessions</div>
+            <div className="text-2xl font-bold text-white/95">{formatCount(stats.totalConfessions)}</div>
+            <div className="text-xs text-white/50 mt-1">{t.profile_total_confessions || "Confessions"}</div>
+          </Card>
+          
+          <Card className="bg-white/[0.03] border-white/10 backdrop-blur-md p-4 text-center">
+            <Heart className="w-5 h-5 text-white/60 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-white/95">{formatCount(stats.totalReactions)}</div>
+            <div className="text-xs text-white/50 mt-1">{t.profile_total_likes || "Reactions"}</div>
           </Card>
           
           <Card className="bg-white/[0.03] border-white/10 backdrop-blur-md p-4 text-center">
             <MessageCircle className="w-5 h-5 text-white/60 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-white/95">{stats.totalReactions}</div>
-            <div className="text-xs text-white/50 mt-1">Reactions</div>
-          </Card>
-          
-          <Card className="bg-white/[0.03] border-white/10 backdrop-blur-md p-4 text-center">
-            <Sparkles className="w-5 h-5 text-white/60 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-white/95">{stats.totalHighlights}</div>
-            <div className="text-xs text-white/50 mt-1">Highlights</div>
+            <div className="text-2xl font-bold text-white/95">{formatCount(stats.totalComments)}</div>
+            <div className="text-xs text-white/50 mt-1">{t.profile_total_comments || "Comments"}</div>
           </Card>
         </div>
 
@@ -312,7 +341,11 @@ const Profile = () => {
       />
 
       <Suspense fallback={null}>
-        <NewConfessionDialog open={isNewConfessionOpen} onOpenChange={setIsNewConfessionOpen} onConfessionCreated={() => {}} />
+        <NewConfessionDialog 
+          open={isNewConfessionOpen} 
+          onOpenChange={setIsNewConfessionOpen} 
+          onConfessionCreated={() => adjustStat('totalConfessions', 1)} 
+        />
       </Suspense>
     </AppLayout>
   );
