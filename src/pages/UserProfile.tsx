@@ -58,7 +58,6 @@ const UserProfile = () => {
         .eq("user_id", userId)
         .eq("moderation_status", "approved")
         .eq("is_hidden", false);
-        .eq("is_hidden", false);
 
       if (countError) throw countError;
 
