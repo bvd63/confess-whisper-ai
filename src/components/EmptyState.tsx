@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,23 +20,21 @@ const EmptyState = ({
   className
 }: EmptyStateProps) => {
   return (
-    <Card 
+    <div 
       className={cn(
-        "p-6 sm:p-8 md:p-12 text-center animate-fade-in",
-        "bg-gradient-to-br from-card via-card to-muted/20",
-        "border-border/50",
+        "flex flex-col items-center justify-center py-16 sm:py-24 px-6 animate-fade-in",
         className
       )}
     >
-      <div className="inline-flex p-4 sm:p-5 rounded-full bg-primary/10 mb-4 sm:mb-5 animate-bounce-subtle">
-        <Icon className="w-10 h-10 sm:w-12 sm:h-12 text-primary" />
+      <div className="flex items-center justify-center mb-6">
+        <Icon className="w-12 h-12 sm:w-14 sm:h-14 text-white/20" />
       </div>
       
-      <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-2 sm:mb-3">
+      <h3 className="text-lg sm:text-xl font-semibold text-white/90 mb-2">
         {title}
       </h3>
       
-      <p className="text-xs sm:text-sm md:text-base text-muted-foreground mb-4 sm:mb-6 max-w-md mx-auto">
+      <p className="text-sm sm:text-base text-white/50 max-w-sm mx-auto text-center leading-relaxed">
         {description}
       </p>
       
@@ -45,12 +42,12 @@ const EmptyState = ({
         <Button 
           onClick={onAction}
           size="lg"
-          className="hover-lift"
+          className="mt-8 hover-lift"
         >
           {actionLabel}
         </Button>
       )}
-    </Card>
+    </div>
   );
 };
 
