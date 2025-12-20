@@ -42,15 +42,26 @@ const UserProfile = () => {
     
     setIsLoading(true);
     try {
-      // Load profile data
-      const profileSource = isOwnProfile ? "profiles" : "public_profiles";
-      const { data: profileData, error: profileError } = await supabase
-        .from(profileSource)
-        .select("nickname, bio")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      if (profileError) throw profileError;
+      // Load profile data - use separate queries based on profile type
+      let profileData: UserProfileData | null = null;
+      
+      if (isOwnProfile) {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("nickname, bio")
+          .eq("user_id", userId)
+          .maybeSingle();
+        if (error) throw error;
+        profileData = data;
+      } else {
+        const { data, error } = await supabase
+          .from("public_profiles")
+          .select("nickname, bio")
+          .eq("user_id", userId)
+          .maybeSingle();
+        if (error) throw error;
+        profileData = data;
+      }
 
       // Load confessions count
       const { count, error: countError } = await supabase

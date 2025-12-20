@@ -6,8 +6,8 @@ import { observability } from '@/lib/observability';
  * Automatic JWT token refresh hook
  * Ensures tokens are refreshed before expiry
  */
-export const useAuthRefresh = () => {
-  const refreshTimeoutRef = useRef<NodeJS.Timeout>();
+export const useAuthRefresh = (): void => {
+  const refreshTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     const rotateManagedRefreshToken = async () => {
