@@ -251,7 +251,7 @@ const Index = () => {
         className="container max-w-2xl mx-auto px-4 py-6 pb-24"
       >
         {/* Confession Feed */}
-        {isLoading ? (
+        {(isLoading && !isRefreshing) ? (
           <div className="space-y-4">
             <ConfessionCardSkeleton />
             <ConfessionCardSkeleton />
@@ -277,7 +277,7 @@ const Index = () => {
               />
             ))}
           </div>
-        ) : (
+        ) : !isLoading ? (
           <div className="py-12 text-center">
             <p className="text-lg font-medium text-white/80 mb-2">
               {t.index_no_confessions_title}
@@ -286,7 +286,7 @@ const Index = () => {
               {t.index_no_confessions_desc}
             </p>
           </div>
-        )}
+        ) : null}
       </main>
 
       {/* Dialogs with Suspense for lazy loading */}
