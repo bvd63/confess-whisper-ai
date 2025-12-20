@@ -158,8 +158,8 @@ const Explore = () => {
 
           {/* Sticky Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="sticky top-14 z-40 bg-transparent py-2 -mx-4 px-4 sm:-mx-5 sm:px-5">
-              <TabsList className="grid w-full grid-cols-3 h-11 rounded-xl bg-transparent border border-white/10">
+            <div className="sticky top-14 z-40 bg-background/80 backdrop-blur-md py-2 -mx-4 px-4 sm:-mx-5 sm:px-5">
+              <TabsList className="grid w-full grid-cols-3 h-11 rounded-xl bg-white/5 border border-white/10">
                 <TabsTrigger
                   value="trending"
                   className="gap-2 text-sm rounded-lg text-white/60 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white data-[state=active]:shadow-[0_10px_30px_hsl(var(--primary)/0.28)]"
