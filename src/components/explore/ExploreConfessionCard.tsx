@@ -36,30 +36,30 @@ const ExploreConfessionCard = memo(({ confession }: ExploreConfessionCardProps) 
   return (
     <div
       onClick={() => navigate(`/confession/${confession.id}`)}
-      className="w-full rounded-xl p-3 cursor-pointer 
-        bg-gradient-to-br from-[#2c3258]/85 via-[#1a1c34]/85 to-[#0f1022]/90 
-        backdrop-blur-lg border border-white/12 
-        hover:border-white/20 hover:shadow-[0_18px_42px_rgba(139,92,246,0.16)]
-        transition-all duration-300 space-y-2"
+      className="w-full rounded-2xl p-4 sm:p-5 cursor-pointer 
+        bg-gradient-to-br from-[#2a2e5c]/80 via-[#1d1f3a]/80 to-[#131428]/80 
+        backdrop-blur-md border border-white/10 
+        hover:border-white/20 hover:shadow-[0_15px_40px_rgba(139,92,246,0.15)]
+        transition-all duration-300 space-y-3"
     >
       {/* Content */}
-      <p className="text-sm leading-snug text-white/90 break-words line-clamp-3">
+      <p className="text-[15px] leading-relaxed text-white/90 break-words line-clamp-4">
         {sanitizeConfession(confession.content)}
       </p>
 
       {/* Footer */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 text-white/70">
+      <div className="flex items-center justify-between pt-1">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5 text-white/60">
             <Heart className="w-4 h-4" />
-            <span className="text-[13px] leading-none">{confession.likes_count || 0}</span>
+            <span className="text-sm">{confession.likes_count || 0}</span>
           </div>
-          <div className="flex items-center gap-1.5 text-white/70">
+          <div className="flex items-center gap-1.5 text-white/60">
             <MessageCircle className="w-4 h-4" />
-            <span className="text-[13px] leading-none">{confession.comments_count || 0}</span>
+            <span className="text-sm">{confession.comments_count || 0}</span>
           </div>
         </div>
-
+        
         <Badge 
           variant="outline" 
           className={`text-[10px] px-2 py-0.5 border ${categoryStyle}`}

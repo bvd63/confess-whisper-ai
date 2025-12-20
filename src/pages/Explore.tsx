@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import AppLayout from "@/components/AppLayout";
@@ -22,7 +22,7 @@ const Explore = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { user } = useCurrentUser();
   useAnalyticsTracking(user?.id || null);
-  useVipStatus(user?.id);
+  const { isVip } = useVipStatus(user?.id);
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
 
   // Pull to refresh
@@ -91,41 +91,10 @@ const Explore = () => {
   const filteredRecent = useMemo(() => filterConfessions(recentConfessions), [recentConfessions, searchQuery]);
   const filteredPopular = useMemo(() => filterConfessions(popularConfessions), [popularConfessions, searchQuery]);
 
-  // Check if database has any confessions at all
-  const hasAnyConfessions = useMemo(() => {
-    return (hotConfessions?.length || 0) + (recentConfessions?.length || 0) + (popularConfessions?.length || 0) > 0;
-  }, [hotConfessions, recentConfessions, popularConfessions]);
-
-  // Smart tab fallback: if current tab is empty, switch to one with results
-  const isLoading = loadingHot || loadingRecent || loadingPopular;
-  
-  useEffect(() => {
-    if (isLoading || searchQuery) return;
-    
-    const getCurrentTabData = () => {
-      if (activeTab === "trending") return filteredHot;
-      if (activeTab === "popular") return filteredPopular;
-      return filteredRecent;
-    };
-    
-    const currentData = getCurrentTabData();
-    
-    // If current tab is empty, try to find a tab with data
-    if (currentData.length === 0 && hasAnyConfessions) {
-      if (activeTab !== "trending" && filteredHot.length > 0) {
-        setActiveTab("trending");
-      } else if (activeTab !== "popular" && filteredPopular.length > 0) {
-        setActiveTab("popular");
-      } else if (activeTab !== "recent" && filteredRecent.length > 0) {
-        setActiveTab("recent");
-      }
-    }
-  }, [activeTab, filteredHot, filteredPopular, filteredRecent, isLoading, hasAnyConfessions, searchQuery]);
-
   const renderConfessions = (confessions: any[], loading: boolean) => {
     if (loading) {
       return (
-        <div className="space-y-2">
+        <div className="space-y-3">
           <ConfessionCardSkeleton />
           <ConfessionCardSkeleton />
           <ConfessionCardSkeleton />
@@ -133,8 +102,7 @@ const Explore = () => {
       );
     }
 
-    // Only show empty state if there are truly no confessions in the entire database
-    if (confessions.length === 0 && !hasAnyConfessions) {
+    if (confessions.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center py-10 px-4">
           <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/60 via-primary/50 to-accent/60 flex items-center justify-center mb-3 shadow-lg shadow-primary/20">
@@ -145,13 +113,8 @@ const Explore = () => {
       );
     }
 
-    // If this specific tab is empty but others have data, show nothing (tab will auto-switch)
-    if (confessions.length === 0) {
-      return null;
-    }
-
     return (
-      <div className="space-y-2">
+      <div className="space-y-3">
         {confessions.map((confession) => (
           <ExploreConfessionCard key={confession.id} confession={confession} />
         ))}
@@ -179,7 +142,7 @@ const Explore = () => {
 
         <div
           ref={containerRef}
-          className="container max-w-2xl mx-auto px-4 sm:px-5 py-4 pb-24 space-y-3"
+          className="container max-w-4xl mx-auto px-4 sm:px-5 py-5 pb-28 space-y-4"
         >
           {/* Header */}
           <div className="space-y-1 animate-fade-in">
@@ -221,15 +184,15 @@ const Explore = () => {
               </TabsList>
             </div>
 
-            <TabsContent value="trending" className="mt-2">
+            <TabsContent value="trending" className="mt-3">
               {renderConfessions(filteredHot, loadingHot)}
             </TabsContent>
 
-            <TabsContent value="popular" className="mt-2">
+            <TabsContent value="popular" className="mt-3">
               {renderConfessions(filteredPopular, loadingPopular)}
             </TabsContent>
 
-            <TabsContent value="recent" className="mt-2">
+            <TabsContent value="recent" className="mt-3">
               {renderConfessions(filteredRecent, loadingRecent)}
             </TabsContent>
           </Tabs>
