@@ -1,4 +1,4 @@
-import { ChevronRight, User, Bell, HelpCircle, UserX, FileText, Shield, Mail, Globe, Lock, Trophy, Sun } from 'lucide-react';
+import { ChevronRight, ChevronLeft, User, Bell, HelpCircle, UserX, FileText, Shield, Mail, Globe, Lock, Trophy, Sun } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 
@@ -199,6 +199,16 @@ const SettingsActivity = () => {
   return (
     <AppLayout>
       <div className="max-w-2xl mx-auto pb-24 pt-4">
+        {/* Back Button Header */}
+        <div className="px-4 py-2">
+          <button
+            onClick={() => navigate('/profile')}
+            className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ChevronLeft className="h-5 w-5" />
+            <span className="text-sm font-medium">Back</span>
+          </button>
+        </div>
 
         {/* Content */}
         <div className="px-4 py-6 space-y-3">
