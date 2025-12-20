@@ -159,24 +159,24 @@ const Explore = () => {
           {/* Sticky Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="sticky top-14 z-40 bg-background/80 backdrop-blur-md py-2 -mx-4 px-4 sm:-mx-5 sm:px-5">
-              <TabsList className="grid w-full grid-cols-3 h-11 rounded-xl bg-white/5 border border-white/10">
+              <TabsList className="flex w-full h-11 bg-transparent p-0 gap-3">
                 <TabsTrigger
                   value="trending"
-                  className="gap-2 text-sm rounded-lg text-white/60 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white data-[state=active]:shadow-[0_10px_30px_hsl(var(--primary)/0.28)]"
+                  className="flex-1 gap-2 text-sm px-6 py-2 rounded-full bg-transparent text-white/60 hover:text-white/80 transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white data-[state=active]:shadow-[0_0_18px_hsl(var(--primary)/0.35)]"
                 >
                   <Flame className="w-4 h-4" />
                   <span className="hidden xs:inline">{t.search_trending}</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="popular"
-                  className="gap-2 text-sm rounded-lg text-white/60 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white data-[state=active]:shadow-[0_10px_30px_hsl(var(--primary)/0.28)]"
+                  className="flex-1 gap-2 text-sm px-6 py-2 rounded-full bg-transparent text-white/60 hover:text-white/80 transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white data-[state=active]:shadow-[0_0_18px_hsl(var(--primary)/0.35)]"
                 >
                   <TrendingUp className="w-4 h-4" />
                   <span className="hidden xs:inline">{t.ui_popular}</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="recent"
-                  className="gap-2 text-sm rounded-lg text-white/60 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white data-[state=active]:shadow-[0_10px_30px_hsl(var(--primary)/0.28)]"
+                  className="flex-1 gap-2 text-sm px-6 py-2 rounded-full bg-transparent text-white/60 hover:text-white/80 transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white data-[state=active]:shadow-[0_0_18px_hsl(var(--primary)/0.35)]"
                 >
                   <Clock className="w-4 h-4" />
                   <span className="hidden xs:inline">{t.ui_recent}</span>
