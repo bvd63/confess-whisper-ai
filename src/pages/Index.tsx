@@ -66,7 +66,25 @@ const Index = () => {
         throw error;
       }
 
-      return attachActiveBoosts(data || []);
+      if (data && data.length > 0) {
+        return attachActiveBoosts(data);
+      }
+
+      // Safe fallback: revert to simple public feed when mixed feed returns empty
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from("confessions")
+        .select("*")
+        .eq("moderation_status", "approved")
+        .is("is_draft", false)
+        .order("created_at", { ascending: false })
+        .limit(PAGE_SIZE);
+
+      if (fallbackError) {
+        console.error('Fallback feed error:', fallbackError);
+        throw fallbackError;
+      }
+
+      return attachActiveBoosts(fallbackData || []);
     },
     getNextPageParam: (lastPage) => {
       if (!lastPage || lastPage.length < PAGE_SIZE) return null;
