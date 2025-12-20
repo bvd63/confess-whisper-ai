@@ -22,28 +22,32 @@ const EmptyState = ({
   return (
     <div 
       className={cn(
-        "flex flex-col items-center justify-center min-h-[60vh] px-6 animate-fade-in",
+        // Negative margins to break out of parent container padding
+        "-mx-6 -my-6",
+        // Full-screen centered layout
+        "flex flex-col items-center justify-center min-h-[70vh] px-6 py-12",
+        "animate-fade-in",
         className
       )}
     >
       {/* Icon with soft glass circle and ambient glow */}
       <div className="relative mb-8">
-        {/* Ambient glow layer */}
-        <div className="absolute inset-0 blur-3xl opacity-30">
-          <div className="w-32 h-32 rounded-full bg-gradient-to-r from-primary to-accent" />
+        {/* Ambient glow layer - using primary gradient from "Get AI response" */}
+        <div className="absolute inset-0 -z-10 blur-3xl opacity-30 scale-150">
+          <div className="w-40 h-40 rounded-full bg-gradient-to-r from-primary to-accent" />
         </div>
         
         {/* Glass circle container */}
-        <div className="relative flex items-center justify-center w-32 h-32 rounded-full bg-white/[0.03] backdrop-blur-md border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
-          <Icon className="w-12 h-12 text-white/40" strokeWidth={1.5} />
+        <div className="relative flex items-center justify-center w-40 h-40 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/[0.15] shadow-[0_20px_70px_rgba(124,58,237,0.3)]">
+          <Icon className="w-16 h-16 text-white/60" strokeWidth={1.5} />
         </div>
       </div>
       
-      <h3 className="text-xl font-semibold text-white/95 mb-3 tracking-tight">
+      <h3 className="text-2xl font-semibold text-white/95 mb-4 tracking-tight">
         {title}
       </h3>
       
-      <p className="text-[15px] text-white/50 max-w-xs mx-auto text-center leading-relaxed">
+      <p className="text-base text-white/60 max-w-sm mx-auto text-center leading-relaxed">
         {description}
       </p>
       
