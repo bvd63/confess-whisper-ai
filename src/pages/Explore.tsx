@@ -106,7 +106,7 @@ const Explore = () => {
       return (
         <div className="flex flex-col items-center justify-center py-10 px-4">
           <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/60 via-primary/50 to-accent/60 flex items-center justify-center mb-3 shadow-lg shadow-primary/20">
-            <Flame className="w-6 h-6 text-white" />
+            <Flame className="w-6 h-6 text-white" fill="currentColor" strokeWidth={1.5} />
           </div>
           <p className="text-sm text-white/60 text-center">{t.explore_no_confessions}</p>
         </div>
