@@ -229,6 +229,7 @@ const Index = () => {
         }}
         hideHeaderOnScroll={true}
         isHeaderVisible={isHeaderVisible}
+        showHeader={true}
       >
       {/* Pull to Refresh Indicator */}
       {pullDistance > 0 && (

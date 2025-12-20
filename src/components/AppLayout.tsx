@@ -7,17 +7,20 @@ interface AppLayoutProps {
   onManageSubscription?: (defaultTab?: 'subscriptions' | 'coins') => void;
   hideHeaderOnScroll?: boolean;
   isHeaderVisible?: boolean;
+  showHeader?: boolean;
 }
 
-const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeaderOnScroll, isHeaderVisible }: AppLayoutProps) => {
+const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeaderOnScroll, isHeaderVisible, showHeader = false }: AppLayoutProps) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background-secondary to-background">
-      <AppHeader 
-        onNewConfession={onNewConfession} 
-        onManageSubscription={onManageSubscription}
-        hideOnScroll={hideHeaderOnScroll}
-        isVisible={isHeaderVisible}
-      />
+      {showHeader && (
+        <AppHeader 
+          onNewConfession={onNewConfession} 
+          onManageSubscription={onManageSubscription}
+          hideOnScroll={hideHeaderOnScroll}
+          isVisible={isHeaderVisible}
+        />
+      )}
       {children}
     </div>
   );
