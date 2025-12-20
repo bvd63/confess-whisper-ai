@@ -32,17 +32,36 @@ serve(async (req) => {
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
     logStep("Stripe key verified");
 
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header provided");
+    // Validate auth header early to avoid "missing sub claim" runtime errors
+    const authHeader = req.headers.get("Authorization")?.trim();
+    if (!authHeader || authHeader === "Bearer" || authHeader === "Bearer null" || authHeader === "Bearer undefined") {
+      logStep("Missing or invalid authorization header");
+      return new Response(JSON.stringify({ error: "Unauthorized: missing or invalid token" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401,
+      });
+    }
     logStep("Authorization header found");
 
-    const token = authHeader.replace("Bearer ", "");
+    const token = authHeader.replace("Bearer ", "").trim();
     logStep("Authenticating user with token");
     
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
-    if (userError) throw new Error(`Authentication error: ${userError.message}`);
+    if (userError) {
+      logStep("Authentication error", { message: userError.message });
+      return new Response(JSON.stringify({ error: `Authentication error: ${userError.message}` }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401,
+      });
+    }
     const user = userData.user;
-    if (!user?.email) throw new Error("User not authenticated or email not available");
+    if (!user?.email || !user.id) {
+      logStep("User missing email or id");
+      return new Response(JSON.stringify({ error: "Unauthorized: user not authenticated" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401,
+      });
+    }
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
