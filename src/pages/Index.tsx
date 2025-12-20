@@ -140,6 +140,8 @@ const Index = () => {
     },
     threshold: 80,
     container: scrollContainer,
+    disabled: !scrollContainer,
+    topTolerance: 4,
   });
 
   useEffect(() => {

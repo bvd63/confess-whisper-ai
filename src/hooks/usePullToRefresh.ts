@@ -5,6 +5,7 @@ interface UsePullToRefreshOptions {
   threshold?: number;
   disabled?: boolean;
   container?: HTMLElement | null;
+  topTolerance?: number;
 }
 
 export const usePullToRefresh = ({
@@ -12,6 +13,7 @@ export const usePullToRefresh = ({
   threshold = 80,
   disabled = false,
   container,
+  topTolerance = 4,
 }: UsePullToRefreshOptions) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
@@ -28,7 +30,7 @@ export const usePullToRefresh = ({
     if (disabled || !target) return;
     let touchStartY = 0;
 
-    const atTop = () => target.scrollTop <= 2;
+    const atTop = () => target.scrollTop <= topTolerance;
 
     const handleScroll = () => {
       setIsAtTop(atTop());
