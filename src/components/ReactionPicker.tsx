@@ -154,7 +154,7 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
   };
 
   return (
-    <div className="flex flex-wrap gap-1">
+    <div className="flex flex-wrap gap-2">
       {reactions.map(({ type, emoji, label }) => {
         const count = reactionCounts[type] || 0;
         const isActive = userReactions.has(type);
@@ -171,26 +171,25 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
             disabled={isLoading}
             aria-pressed={isActive}
             className={cn(
-              "group flex items-center gap-1 px-2 py-1 rounded-full transition-all duration-200",
-              "touch-manipulation focus:outline-none focus-visible:ring-1 focus-visible:ring-primary/30",
-              "active:scale-95",
+              "group flex items-center gap-1.5 h-7 px-2.5 rounded-full transition-all duration-200",
+              "backdrop-blur-sm touch-manipulation focus:outline-none focus-visible:ring-1 focus-visible:ring-primary/30",
+              "active:scale-[0.97]",
               isActive
-                ? "bg-primary/10 text-white"
-                : "bg-transparent hover:bg-white/5 text-white/60 hover:text-white/80",
+                ? "bg-white/[0.08] border border-white/20 text-white shadow-[0_0_12px_rgba(139,92,246,0.25)]"
+                : "bg-white/[0.04] border border-white/[0.08] text-white/70 hover:bg-white/[0.06] hover:border-white/15 hover:text-white",
               "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
             title={label}
             aria-label={`${label}${count > 0 ? ` (${displayCount})` : ''}`}
           >
             <span className={cn(
-              "text-sm leading-none transition-transform duration-200",
-              isActive && "drop-shadow-[0_0_8px_rgba(139,92,246,0.4)]",
+              "text-[15px] leading-none transition-transform duration-200",
               "group-active:scale-110"
             )}>
               {emoji}
             </span>
             {count > 0 && (
-              <span className="text-[10px] font-medium min-w-[12px] text-center">
+              <span className="text-[11px] font-medium tabular-nums text-white/90">
                 {displayCount}
               </span>
             )}
