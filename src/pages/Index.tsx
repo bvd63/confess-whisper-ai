@@ -47,12 +47,17 @@ const Index = () => {
   });
 
   // Fetch popular/hot confessions for the feed
-  const { data: confessions, isLoading, error: queryError } = useQuery({
+  const { data: confessions, isLoading, error: queryError, refetch } = useQuery({
     queryKey: ["home-confessions"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_hot_confessions", {
-        limit_count: 30,
-      });
+      // Fetch recent approved confessions to include newly created ones
+      const { data, error } = await supabase
+        .from("confessions")
+        .select("*")
+        .eq("moderation_status", "approved")
+        .order("created_at", { ascending: false })
+        .limit(30);
+      
       if (error) {
         console.error('Error fetching confessions:', error);
         throw error;
@@ -61,6 +66,7 @@ const Index = () => {
     },
     retry: 2,
     refetchOnWindowFocus: false,
+    staleTime: 1000 * 60, // 1 minute
   });
 
   // Log query state for debugging
@@ -245,6 +251,8 @@ const Index = () => {
           onOpenChange={setIsNewConfessionOpen}
           onConfessionCreated={() => {
             trackEvent('confession_created');
+            // Refetch home feed to show newly created confession
+            refetch();
           }}
         />
 
