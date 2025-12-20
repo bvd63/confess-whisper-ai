@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { EnhancedButton } from "@/components/EnhancedButton";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { GradientText } from "@/components/GradientText";
+import { AppLogo } from "@/components/AppLogo";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -275,8 +276,8 @@ const Auth = () => {
           <div className="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-primary via-primary-hover to-primary-pressed shadow-lg shadow-primary/25">
             <Heart className="w-10 h-10 sm:w-12 sm:h-12 text-white" fill="currentColor" />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold mb-3 bg-gradient-to-r from-primary to-primary-hover bg-clip-text text-transparent">
-            Confess
+          <h1 className="text-3xl sm:text-4xl font-bold mb-3">
+            <AppLogo className="bg-gradient-to-r from-primary to-primary-hover bg-clip-text" />
           </h1>
           <p className="text-base text-foreground-muted">
             {isLogin ? t.auth_welcome_back : t.auth_create_account}
