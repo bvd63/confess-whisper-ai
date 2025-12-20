@@ -7,7 +7,7 @@ import { useVipStatus } from "@/hooks/usePremiumStatus";
 import ConfessionCard from "@/components/ConfessionCard";
 import ConfessionSkeleton from "@/components/ConfessionSkeleton";
 import EmptyState from "@/components/EmptyState";
-import { BookMarked } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import VirtualizedConfessions from "@/components/VirtualizedConfessions";
 import { logError } from "@/lib/logger";
@@ -74,7 +74,7 @@ const UserConfessionsList = () => {
   if (confessions.length === 0) {
     return (
       <EmptyState
-        icon={BookMarked}
+        icon={BookOpen}
         title={t.profile_empty_state}
         description={t.profile_empty_description}
       />
