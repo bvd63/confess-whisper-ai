@@ -120,7 +120,7 @@ const AppHeader = ({
             "text-lg font-bold text-white cursor-pointer flex-1 text-center",
             backNav.show && "ml-8"
           )} onClick={() => navigate('/')}>
-            {t.app_name}
+            Confess<span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
           </h1>
           
           <div className="flex items-center gap-2">
