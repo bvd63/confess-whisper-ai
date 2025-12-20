@@ -22,7 +22,7 @@ const Explore = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { user } = useCurrentUser();
   useAnalyticsTracking(user?.id || null);
-  const { isVip } = useVipStatus(user?.id);
+  useVipStatus(user?.id);
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
 
   // Pull to refresh
@@ -91,10 +91,16 @@ const Explore = () => {
   const filteredRecent = useMemo(() => filterConfessions(recentConfessions), [recentConfessions, searchQuery]);
   const filteredPopular = useMemo(() => filterConfessions(popularConfessions), [popularConfessions, searchQuery]);
 
-  const renderConfessions = (confessions: any[], loading: boolean) => {
-    if (loading) {
+  const renderConfessions = (
+    confessions: any[],
+    loading: boolean,
+    fallbackConfessions?: any[]
+  ) => {
+    const activeList = confessions.length > 0 ? confessions : fallbackConfessions || [];
+
+    if (loading && activeList.length === 0) {
       return (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           <ConfessionCardSkeleton />
           <ConfessionCardSkeleton />
           <ConfessionCardSkeleton />
@@ -102,7 +108,7 @@ const Explore = () => {
       );
     }
 
-    if (confessions.length === 0) {
+    if (activeList.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center py-10 px-4">
           <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/60 via-primary/50 to-accent/60 flex items-center justify-center mb-3 shadow-lg shadow-primary/20">
@@ -114,8 +120,8 @@ const Explore = () => {
     }
 
     return (
-      <div className="space-y-3">
-        {confessions.map((confession) => (
+      <div className="space-y-2.5">
+        {activeList.map((confession) => (
           <ExploreConfessionCard key={confession.id} confession={confession} />
         ))}
       </div>
@@ -142,7 +148,7 @@ const Explore = () => {
 
         <div
           ref={containerRef}
-          className="container max-w-4xl mx-auto px-4 sm:px-5 py-5 pb-28 space-y-4"
+          className="container max-w-4xl mx-auto px-4 sm:px-5 py-5 pb-24 space-y-3.5"
         >
           {/* Header */}
           <div className="space-y-1 animate-fade-in">
@@ -184,16 +190,16 @@ const Explore = () => {
               </TabsList>
             </div>
 
-            <TabsContent value="trending" className="mt-3">
-              {renderConfessions(filteredHot, loadingHot)}
+            <TabsContent value="trending" className="mt-2.5">
+              {renderConfessions(filteredHot, loadingHot, hotConfessions || [])}
             </TabsContent>
 
-            <TabsContent value="popular" className="mt-3">
-              {renderConfessions(filteredPopular, loadingPopular)}
+            <TabsContent value="popular" className="mt-2.5">
+              {renderConfessions(filteredPopular, loadingPopular, popularConfessions || [])}
             </TabsContent>
 
-            <TabsContent value="recent" className="mt-3">
-              {renderConfessions(filteredRecent, loadingRecent)}
+            <TabsContent value="recent" className="mt-2.5">
+              {renderConfessions(filteredRecent, loadingRecent, recentConfessions || [])}
             </TabsContent>
           </Tabs>
         </div>
