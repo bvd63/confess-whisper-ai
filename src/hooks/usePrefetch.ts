@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { attachActiveBoosts } from '@/lib/boosts';
 
 interface PrefetchOptions {
   enabled?: boolean;
@@ -16,13 +15,9 @@ export const usePrefetch = () => {
   const prefetchTimeouts = useRef<Map<string, number>>(new Map());
 
   const fetchExplorePrefetch = async () => {
-    const { supabase } = await import('@/integrations/supabase/client');
-    const { data } = await supabase
-      .from('confessions')
-      .select('*')
-      .order('likes_count', { ascending: false })
-      .limit(10);
-    return attachActiveBoosts(data || []);
+    const { fetchTrendingConfessions } = await import('@/services/exploreFeedService');
+    const result = await fetchTrendingConfessions();
+    return result.items;
   };
 
   useEffect(() => {
