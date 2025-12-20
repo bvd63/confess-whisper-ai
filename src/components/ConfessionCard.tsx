@@ -10,8 +10,6 @@ import { SensitiveContentWarning } from "./SensitiveContentWarning";
 import { NoScreenshotMode } from "./NoScreenshotMode";
 import { sanitizeConfession } from "@/lib/security/sanitizer";
 import { Card } from "@/components/ui/card";
-import ConfessionActions from "./ConfessionActions";
-import ShareDialog from "./ShareDialog";
 import { getBoostStatus } from "@/lib/boosts";
 
 interface ConfessionCardProps {
@@ -49,7 +47,6 @@ interface ConfessionCardProps {
 const ConfessionCard = ({ confession, isVip: _isVip, onUpgradeClick: _onUpgradeClick, onInsightGenerated: _onInsightGenerated, onCommentChange: _onCommentChange, isLiked, isBookmarked, onLikeChange, onBookmarkChange, from }: ConfessionCardProps) => {
   const navigate = useNavigate();
   const [boostExpiresAt, setBoostExpiresAt] = useState<string | null>(confession.boost_expires_at || null);
-  const [shareOpen, setShareOpen] = useState(false);
   const { user } = useCurrentUser();
   const { t } = useLanguage();
   const { subscriptionTier } = useVipStatus(confession.user_id || null);
@@ -138,43 +135,28 @@ const ConfessionCard = ({ confession, isVip: _isVip, onUpgradeClick: _onUpgradeC
         </SensitiveContentWarning>
 
         {/* Reactions Section */}
-        <div className="pt-2">
+        <div className="pt-2" onClick={(e) => e.stopPropagation()}>
           <ReactionPicker confessionId={confession.id} userId={user?.id} />
         </div>
 
-        {/* Bottom Actions: Comments + Share */}
+        {/* Bottom Actions: Comments */}
         <div className="flex items-center justify-between pt-2" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center gap-2 text-white/60 text-sm">
             <MessageCircle className="w-4 h-4" />
             <span>{confession.comments_count || 0}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/confession/${confession.id}#comments`);
-              }}
-              className="h-8 w-8 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center transition-colors"
-              aria-label="View comments"
-            >
-              <MessageCircle className="w-4 h-4 text-white/70" />
-            </button>
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                setShareOpen(true);
-              }}
-              className="h-8 w-8 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center transition-colors"
-              aria-label="Share"
-            >
-              <svg className="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-              </svg>
-            </button>
-          </div>
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/confession/${confession.id}#comments`);
+            }}
+            className="h-8 w-8 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center transition-colors"
+            aria-label="View comments"
+          >
+            <MessageCircle className="w-4 h-4 text-white/70" />
+          </button>
         </div>
       </Card>
-      <ShareDialog open={shareOpen} onOpenChange={setShareOpen} confessionId={confession.id} />
     </NoScreenshotMode>
   );
 };

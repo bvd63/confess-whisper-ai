@@ -163,7 +163,11 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
         return (
           <button
             key={type}
-            onClick={() => toggleReaction(type)}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              toggleReaction(type);
+            }}
             disabled={isLoading}
             aria-pressed={isActive}
             className={cn(
