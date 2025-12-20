@@ -195,9 +195,19 @@ All colors MUST be HSL.
   letter-spacing: -0.01em;
 }
 
-/* Smooth Scrolling */
+/* Smooth Scrolling & Full Viewport Background */
 html {
   scroll-behavior: smooth;
+  background: hsl(var(--background));
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Ensure body and root cover full viewport with consistent background */
+body, #root {
+  background: hsl(var(--background));
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* Custom Scrollbar */
