@@ -5992,7 +5992,7 @@ export const translations: Record<Language, Translations> = {
     confirm: {
       logout: {
         title: "Confirmar cierre de sesión",
-        message: "Serás desconectado de este dispositivo.",
+        message: "Se cerrará la sesión en este dispositivo.",
       },
       deleteConfession: {
         title: "¿Eliminar confesión?",
@@ -7965,7 +7965,7 @@ export const translations: Record<Language, Translations> = {
     confirm: {
       logout: {
         title: "Abmeldung bestätigen",
-        message: "Du wirst von diesem Gerät abgemeldet.",
+        message: "Du wirst auf diesem Gerät abgemeldet.",
       },
       deleteConfession: {
         title: "Beichte löschen?",

@@ -31,6 +31,7 @@ import { useTrialExpiryCheck } from "@/hooks/useTrialExpiryCheck";
 import { SyncSubscriptionButton } from "@/components/SyncSubscriptionButton";
 import { VIPBadge } from "@/components/VIPBadge";
 import { logError } from "@/lib/logger";
+import { LogoutConfirmationDialog } from "@/components/LogoutConfirmationDialog";
 
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
 const Profile = () => {
@@ -44,6 +45,8 @@ const Profile = () => {
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [flairsDialogOpen, setFlairsDialogOpen] = useState(false);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [profileData, setProfileData] = useState<{ stripe_subscription_id: string | null } | null>(null);
   const [stats, setStats] = useState({
     totalConfessions: 0,
@@ -186,6 +189,21 @@ const Profile = () => {
     }
   };
 
+  const handleLogoutConfirm = async () => {
+    setIsLoggingOut(true);
+    try {
+      await supabase.auth.signOut();
+      navigate('/');
+      toast({
+        title: t.success_logout,
+        description: t.success_logout
+      });
+    } finally {
+      setIsLoggingOut(false);
+      setLogoutDialogOpen(false);
+    }
+  };
+
   const checkAuth = useCallback(async () => {
     const {
       data: {
@@ -241,14 +259,7 @@ const Profile = () => {
               <Settings className="h-5 w-5 text-white/70" />
             </Button>
             <Button
-              onClick={async () => {
-                await supabase.auth.signOut();
-                navigate('/');
-                toast({
-                  title: t.success_logout,
-                  description: t.success_logout
-                });
-              }} 
+              onClick={() => setLogoutDialogOpen(true)} 
               variant="ghost" 
               size="sm" 
               className="h-10 px-4 hover:bg-white/10 rounded-xl text-white/70"
@@ -317,6 +328,13 @@ const Profile = () => {
       />
 
       <FlairsShop open={flairsDialogOpen} onOpenChange={setFlairsDialogOpen} userId={user.id} />
+
+      <LogoutConfirmationDialog
+        open={logoutDialogOpen}
+        onOpenChange={setLogoutDialogOpen}
+        onConfirm={handleLogoutConfirm}
+        isLoading={isLoggingOut}
+      />
 
       <Suspense fallback={null}>
         <NewConfessionDialog open={isNewConfessionOpen} onOpenChange={setIsNewConfessionOpen} onConfessionCreated={() => {}} />
