@@ -14,6 +14,7 @@ export const usePullToRefresh = ({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
   const startY = useRef(0);
+  const hasActivePull = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -22,15 +23,25 @@ export const usePullToRefresh = ({
     const container = containerRef.current;
     let touchStartY = 0;
 
+    const atTop = () => container.scrollTop <= 2;
+
     const handleTouchStart = (e: TouchEvent) => {
-      if (container.scrollTop === 0) {
-        touchStartY = e.touches[0].clientY;
-        startY.current = touchStartY;
+      if (!atTop()) {
+        hasActivePull.current = false;
+        startY.current = 0;
+        return;
       }
+      touchStartY = e.touches[0].clientY;
+      startY.current = touchStartY;
+      hasActivePull.current = true;
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      if (isRefreshing || container.scrollTop > 0) return;
+      if (isRefreshing || !hasActivePull.current) return;
+      if (!atTop()) {
+        setPullDistance(0);
+        return;
+      }
 
       const touchY = e.touches[0].clientY;
       const distance = touchY - startY.current;
@@ -42,6 +53,11 @@ export const usePullToRefresh = ({
     };
 
     const handleTouchEnd = async () => {
+      if (!hasActivePull.current) {
+        setPullDistance(0);
+        return;
+      }
+
       if (pullDistance >= threshold && !isRefreshing) {
         setIsRefreshing(true);
         try {
@@ -51,6 +67,7 @@ export const usePullToRefresh = ({
         }
       }
       setPullDistance(0);
+      hasActivePull.current = false;
     };
 
     container.addEventListener("touchstart", handleTouchStart, { passive: true });

@@ -12,7 +12,10 @@ interface AppLayoutProps {
 
 const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeaderOnScroll, isHeaderVisible, showHeader = false }: AppLayoutProps) => {
   return (
-    <div className="relative min-h-[100dvh] bg-background overflow-hidden">
+    <div
+      className="relative min-h-[100dvh] bg-background overflow-hidden"
+      style={{ overscrollBehaviorY: 'none' }}
+    >
       {/* Base gradient layer */}
       <div className="fixed inset-0 bg-gradient-to-br from-background via-background-secondary to-background pointer-events-none" />
       
