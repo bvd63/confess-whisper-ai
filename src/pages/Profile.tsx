@@ -258,6 +258,20 @@ const Profile = () => {
     })();
   }, [checkSubscription, refetch]);
 
+  // Listen for local bio updates dispatched from Settings/ProfileEditor to update instantly
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const detail = (event as CustomEvent<{ bio?: string | null }>).detail;
+      if (!detail) return;
+      setProfileData((prev) => ({
+        stripe_subscription_id: prev?.stripe_subscription_id ?? null,
+        bio: detail.bio ?? null,
+      }));
+    };
+    window.addEventListener('profile-bio-updated', handler as EventListener);
+    return () => window.removeEventListener('profile-bio-updated', handler as EventListener);
+  }, []);
+
   if (!user) return null;
 
   return (

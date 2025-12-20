@@ -149,6 +149,8 @@ export const ProfileEditor = ({
         title: t.profile_settings_updated,
         description: t.profile_settings_update_success
       });
+      // Broadcast bio update for live consumers (e.g., Profile page)
+      window.dispatchEvent(new CustomEvent('profile-bio-updated', { detail: { bio: updateData.bio ?? null } }));
       onUpdate();
     } catch (error) {
       logError('Error updating profile', error as Error);
