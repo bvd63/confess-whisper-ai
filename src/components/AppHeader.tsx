@@ -2,13 +2,14 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { EnhancedButton } from "@/components/EnhancedButton";
 
-import { Heart, PlusCircle, LogOut, Crown, User, LogIn, BookMarked, Users, Home, Sparkles, Search, MessageCircle, Settings, ArrowLeft } from "lucide-react";
+import { Heart, PlusCircle, LogOut, Crown, User, LogIn, BookMarked, Users, Home, Sparkles, Search, MessageCircle, Settings, ArrowLeft, Coins } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import NotificationsDropdown from "@/components/NotificationsDropdown";
 import CoinsDisplay from "@/components/CoinsDisplay";
 import StreakCounter from "@/components/StreakCounter";
 import { SyncStatusIndicator } from "@/components/SyncStatusIndicator";
 import { Badge } from "@/components/ui/badge";
+import { useCoins } from "@/hooks/useCoins";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,6 +49,7 @@ const AppHeader = ({
     toast
   } = useToast();
   const isMobile = useIsMobile();
+  const { balance: coinBalance } = useCoins(user?.id || null);
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate('/');
@@ -93,58 +95,57 @@ const AppHeader = ({
   
   const backNav = getBackNavigation();
   
-  return <header className="sticky top-0 z-50 glass-strong border-b border-border/60 shadow-[0_10px_30px_hsl(var(--background)/0.25)]">
-      <div className="w-full">
-        <div className="flex items-center justify-between px-4 sm:px-6 py-4 max-w-7xl mx-auto">
-          <div className="flex items-center gap-3">
-            {backNav.show && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate(backNav.target)}
-                className="h-10 w-10 rounded-xl hover:bg-muted"
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-            )}
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-accent flex items-center justify-center shadow-[0_12px_32px_hsl(var(--primary)/0.24)]">
-              <Heart className="w-5 h-5 text-primary-foreground" fill="currentColor" />
-            </div>
-            <h1 className="text-xl md:text-2xl font-bold text-foreground cursor-pointer" onClick={() => navigate('/')}>
-              {t.app_name}
-            </h1>
-          </div>
+  return <header className="sticky top-0 z-50 px-4 sm:px-6 py-3">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-between h-14 px-4 sm:px-6 rounded-full bg-gradient-to-br from-[#1a1a2e]/95 via-[#16213e]/95 to-[#0f1419]/95 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(139,92,246,0.15)]">
+          {backNav.show && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(backNav.target)}
+              className="h-9 w-9 rounded-xl hover:bg-white/10 absolute left-2"
+            >
+              <ArrowLeft className="h-4 w-4 text-white/70" />
+            </Button>
+          )}
           
-          <div className="flex items-center gap-2 sm:gap-3">
+          <h1 className={cn(
+            "text-lg font-bold text-white cursor-pointer flex-1 text-center",
+            backNav.show && "ml-8"
+          )} onClick={() => navigate('/')}>
+            {t.app_name}
+          </h1>
+          
+          <div className="flex items-center gap-2">
             {user ? <>
                 {subscriptionStatus === 'past_due' && (
-                  <Badge variant="destructive" className="h-8 px-3 text-xs font-medium rounded-xl animate-pulse">
-                    Payment Failed
+                  <Badge variant="destructive" className="h-7 px-2 text-[10px] font-medium rounded-lg animate-pulse">
+                    Failed
                   </Badge>
                 )}
                 
                 <Button 
                   data-testid="manage-subscription-btn"
                   onClick={() => onManageSubscription?.()} 
-                  variant={subscriptionTier === 'free' ? 'default' : 'outline'}
+                  variant="ghost"
                   size="sm" 
-                  className={cn(
-                    "h-10 px-4 rounded-2xl font-semibold transition-all",
-                    subscriptionTier === 'free' 
-                      ? "bg-gradient-to-r from-primary via-primary/90 to-accent text-primary-foreground shadow-[0_12px_32px_hsl(var(--primary)/0.24)]" 
-                      : "border-border/70 bg-card/70 text-foreground backdrop-blur-sm hover:border-primary/40 hover:bg-card/80"
-                  )}
+                  className="h-9 w-9 p-0 rounded-xl hover:bg-white/10 transition-all"
                 >
-                  <Crown className="w-4 h-4" />
-                  <span className="hidden sm:inline text-sm ml-2">
-                    {subscriptionTier === 'free' ? 'Upgrade' : 'Manage'}
-                  </span>
+                  <Crown className="w-4 h-4 text-amber-400" />
                 </Button>
-                <CoinsDisplay userId={user.id} variant="compact" />
+                
+                <button
+                  onClick={() => onManageSubscription?.('coins')}
+                  className="flex items-center gap-1.5 h-9 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
+                >
+                  <Coins className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="text-sm font-semibold text-white">{coinBalance ?? 0}</span>
+                </button>
+                
                 <NotificationsDropdown />
-              </> : <Button onClick={() => navigate('/auth')} variant="outline" size="sm" className="h-10 px-4 rounded-2xl border-border/70 bg-card/70 hover:bg-card/80 font-medium backdrop-blur-sm">
-                <LogIn className="w-4 h-4 sm:mr-2" />
-                <span className="hidden sm:inline text-sm">{t.login}</span>
+              </> : <Button onClick={() => navigate('/auth')} variant="ghost" size="sm" className="h-9 px-3 rounded-xl hover:bg-white/10 font-medium text-white/90">
+                <LogIn className="w-4 h-4 sm:mr-1.5" />
+                <span className="hidden sm:inline text-xs">{t.login}</span>
               </Button>}
           </div>
         </div>

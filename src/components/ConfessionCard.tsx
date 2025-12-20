@@ -1,6 +1,6 @@
 import { useState, memo, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Shield, User as UserIcon, Zap, Clock3, MessageCircle } from "lucide-react";
+import { Shield, User as UserIcon, Zap, Clock3, MessageCircle, Crown } from "lucide-react";
 import ReactionPicker from "./ReactionPicker";
 import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -94,55 +94,86 @@ const ConfessionCard = ({ confession, isVip: _isVip, onUpgradeClick: _onUpgradeC
 
   return (
     <NoScreenshotMode enabled={noScreenshotEnabled}>
-      <Card className="w-full overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#2a2e5c] via-[#19192f] to-[#0d0d1b] p-5 sm:p-6 space-y-5 shadow-[0_20px_50px_rgba(0,0,0,0.45)] cursor-pointer hover:border-white/20 transition-colors" onClick={handleCardClick}>
+      <Card className="w-full overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#2a2e5c]/90 via-[#19192f]/90 to-[#0d0d1b]/90 backdrop-blur-md p-5 sm:p-6 space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.45),_inset_0_1px_1px_rgba(255,255,255,0.1)] cursor-pointer hover:border-white/20 hover:shadow-[0_20px_50px_rgba(139,92,246,0.2),_inset_0_1px_1px_rgba(255,255,255,0.15)] transition-all duration-300" onClick={handleCardClick}>
+        {/* Header: Avatar + Username + VIP Badge */}
         <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/70 via-primary/60 to-accent/70 flex items-center justify-center shadow-lg shadow-primary/30">
-              <AvatarIcon className="w-4 h-4 text-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-sm font-semibold text-white truncate">{displayName}</span>
-                {subscriptionTier === 'vip' && (
-                  <span className="text-base drop-shadow-[0_0_4px_rgba(234,179,8,0.6)]" title="VIP">👑</span>
-                )}
-                {isBoosted && (
-                  <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-400/90 via-amber-500 to-orange-500 text-[12px] font-semibold text-black shadow-lg border border-amber-200/70 flex-shrink-0">
-                    <Zap className="w-4 h-4" />
-                    <span>{t.boost_badge}</span>
-                    {boostTimeLabel && (
-                      <span className="inline-flex items-center text-[11px] font-medium text-black/80 flex-shrink-0">
-                        <Clock3 className="w-3.5 h-3.5 mr-1" />
-                        {t.boost_expiry_in?.replace('{time}', boostTimeLabel)}
-                      </span>
-                    )}
-                  </span>
-                )}
-              </div>
-              <div className="mt-1 flex items-center gap-1 text-xs text-white/70">
-                <span>{timeAgo}</span>
-                <span>·</span>
-                <span>{visibilityLabel}</span>
-              </div>
-            </div>
+          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/70 via-primary/60 to-accent/70 flex items-center justify-center shadow-lg shadow-primary/30 flex-shrink-0">
+            <AvatarIcon className="w-4 h-4 text-white" />
           </div>
-
-          <SensitiveContentWarning isSensitive={isSensitive}>
-            <p className="text-base leading-relaxed text-white/90 break-words">
-              {sanitizeConfession(confession.content)}
-            </p>
-          </SensitiveContentWarning>
-
-          <div className="rounded-2xl border border-white/8 bg-white/5 p-3 shadow-inner">
-            <ReactionPicker confessionId={confession.id} userId={user?.id} />
-          </div>
-
-          <div className="flex items-center gap-3 text-white/70 text-sm" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center gap-2">
-              <MessageCircle className="w-4 h-4" />
-              <span>{confession.comments_count || 0} {t.comments_title || 'comments'}</span>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm font-semibold text-white truncate">{displayName}</span>
+              {subscriptionTier === 'vip' && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-400/30 text-[10px] font-semibold text-amber-300 backdrop-blur-sm">
+                  <Crown className="w-3 h-3" />
+                  VIP
+                </span>
+              )}
+              {isBoosted && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-400/90 via-amber-500 to-orange-500 text-[11px] font-semibold text-black shadow-lg border border-amber-200/70 flex-shrink-0">
+                  <Zap className="w-3 h-3" />
+                  <span>{t.boost_badge}</span>
+                  {boostTimeLabel && (
+                    <span className="inline-flex items-center text-[10px] font-medium text-black/80 flex-shrink-0">
+                      <Clock3 className="w-3 h-3 mr-0.5" />
+                      {t.boost_expiry_in?.replace('{time}', boostTimeLabel)}
+                    </span>
+                  )}
+                </span>
+              )}
+            </div>
+            <div className="mt-1 flex items-center gap-1.5 text-xs text-white/60">
+              <span>{timeAgo}</span>
+              <span>•</span>
+              <span>{visibilityLabel}</span>
             </div>
           </div>
-        </Card>
+        </div>
+
+        {/* Confession Content */}
+        <SensitiveContentWarning isSensitive={isSensitive}>
+          <p className="text-[15px] leading-relaxed text-white/90 break-words">
+            {sanitizeConfession(confession.content)}
+          </p>
+        </SensitiveContentWarning>
+
+        {/* Reactions Section */}
+        <div className="pt-2">
+          <ReactionPicker confessionId={confession.id} userId={user?.id} />
+        </div>
+
+        {/* Bottom Actions: Comments + Share */}
+        <div className="flex items-center justify-between pt-2" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center gap-2 text-white/60 text-sm">
+            <MessageCircle className="w-4 h-4" />
+            <span>{confession.comments_count || 0}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/confession/${confession.id}#comments`);
+              }}
+              className="h-8 w-8 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center transition-colors"
+              aria-label="View comments"
+            >
+              <MessageCircle className="w-4 h-4 text-white/70" />
+            </button>
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                setShareOpen(true);
+              }}
+              className="h-8 w-8 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center transition-colors"
+              aria-label="Share"
+            >
+              <svg className="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </Card>
       <ShareDialog open={shareOpen} onOpenChange={setShareOpen} confessionId={confession.id} />
     </NoScreenshotMode>
   );

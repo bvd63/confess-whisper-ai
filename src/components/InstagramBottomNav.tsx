@@ -60,22 +60,23 @@ const NavButton = memo(({
       onKeyDown={onKeyDown}
       onMouseEnter={onMouseEnter}
       className={cn(
-        "relative flex items-center justify-center w-12 h-12 rounded-2xl transition-colors duration-200",
-        "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-0 hover:bg-muted/40"
+        "relative flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-200",
+        "focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-0",
+        active ? "bg-white/10" : "hover:bg-white/5"
       )}
     >
       <Icon
         className={cn(
           "w-6 h-6 transition-all duration-200",
-          active ? "text-primary" : "text-muted-foreground"
+          active ? "text-white scale-110" : "text-white/50"
         )}
-        strokeWidth={1.5}
+        strokeWidth={active ? 2 : 1.5}
         aria-hidden="true"
       />
 
       {badge !== undefined && badge > 0 && (
         <span 
-          className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold rounded-full text-destructive-foreground bg-destructive shadow-[0_6px_16px_hsl(var(--destructive)/0.3)]"
+          className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold rounded-full text-white bg-gradient-to-br from-red-500 to-red-600 shadow-[0_4px_12px_rgba(239,68,68,0.4)] border border-red-400/20"
           aria-label={`${badge} unread ${badge === 1 ? 'message' : 'messages'}`}
           role="status"
         >
@@ -199,7 +200,7 @@ export const InstagramBottomNav = () => {
         >
           <div 
             ref={navRef} 
-            className="flex items-center justify-around h-14 w-full px-4 glass-strong border-t border-border/60 shadow-[0_-10px_30px_hsl(var(--background)/0.3)]" 
+            className="flex items-center justify-around h-16 w-full px-4 bg-gradient-to-br from-[#1a1a2e]/95 via-[#16213e]/95 to-[#0f1419]/95 backdrop-blur-xl border-t border-white/10 shadow-[0_-8px_32px_rgba(0,0,0,0.4)]" 
             role="tablist"
           >
             {navItems.map((item, index) => {

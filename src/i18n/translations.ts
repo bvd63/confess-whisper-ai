@@ -57,6 +57,7 @@ type Translations = {
   skip: string;
   next: string;
   home_title: string;
+  popular_confessions: string;
   new_confession: string;
   vip_upgrade: string;
   placeholder_confession: string;
@@ -2122,6 +2123,7 @@ export const translations: Record<Language, Translations> = {
     next: "Next",
     
     home_title: "Anonymous Confessions",
+    popular_confessions: "Popular Confessions 🔥",
     new_confession: "New Confession",
     vip_upgrade: "Upgrade to VIP",
     
@@ -4093,6 +4095,7 @@ export const translations: Record<Language, Translations> = {
     next: "Siguiente",
     
     home_title: "Confesiones Anónimas",
+    popular_confessions: "Confesiones Populares 🔥",
     new_confession: "Nueva Confesión",
     vip_upgrade: "Actualizar a VIP",
     
@@ -6065,6 +6068,7 @@ export const translations: Record<Language, Translations> = {
     next: "Weiter",
     
     home_title: "Anonyme Geständnisse",
+    popular_confessions: "Beliebte Geständnisse 🔥",
     new_confession: "Neues Geständnis",
     vip_upgrade: "Auf VIP Upgraden",
     

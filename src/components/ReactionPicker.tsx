@@ -154,7 +154,7 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
   };
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-1.5">
       {reactions.map(({ type, emoji, label }) => {
         const count = reactionCounts[type] || 0;
         const isActive = userReactions.has(type);
@@ -167,18 +167,18 @@ const ReactionPicker = ({ confessionId, userId }: ReactionPickerProps) => {
             disabled={isLoading}
             aria-pressed={isActive}
             className={cn(
-              "flex items-center gap-2 px-3.5 py-2 rounded-full border transition-all duration-200",
+              "flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border transition-all duration-200",
               "touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
               isActive
-                ? "bg-gradient-to-r from-primary/70 via-primary/60 to-accent/70 text-white border-primary/40 shadow-[0_10px_30px_rgba(124,58,237,0.25)]"
-                : "bg-white/5 border-white/10 hover:bg-white/8 hover:border-white/20 text-white/80",
+                ? "bg-gradient-to-r from-primary/60 via-primary/50 to-accent/60 text-white border-primary/30 shadow-[0_4px_12px_rgba(124,58,237,0.2)]"
+                : "bg-white/[0.03] border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.12] text-white/70",
               "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
             title={label}
             aria-label={`${label}${count > 0 ? ` (${displayCount})` : ''}`}
           >
-            <span className="text-xl leading-none drop-shadow-sm">{emoji}</span>
-            <span className="text-xs font-semibold">{displayCount}</span>
+            <span className="text-base leading-none">{emoji}</span>
+            <span className="text-[11px] font-semibold">{displayCount}</span>
           </button>
         );
       })}

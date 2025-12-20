@@ -193,7 +193,7 @@ const Index = () => {
       {/* Main Content */}
       <main 
         ref={containerRef}
-        className="container max-w-2xl mx-auto px-4 py-6"
+        className="container max-w-2xl mx-auto px-4 py-6 pb-24"
       >
         {/* OneSignal Notification Banner */}
         {user && !bannerDismissed && (
@@ -219,33 +219,35 @@ const Index = () => {
           </div>
         )}
 
-        {/* Welcome Section */}
-        <div className="mb-12 text-center animate-fade-in">
-          <div className="inline-flex items-center gap-3 mb-6 px-6 py-3 glass rounded-full border border-primary/15 shadow-lg shadow-primary/5">
-            <span className="text-sm text-primary font-semibold">{t.anonymous_secure}</span>
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 px-4 text-foreground">
-            {t.home_title}
+        {/* Section Title */}
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-white">
+            {t.popular_confessions}
           </h2>
-          <p className="text-lg text-foreground-secondary max-w-xl mx-auto px-4 leading-relaxed">
-            {t.welcome_description}
-          </p>
         </div>
-
 
         {/* Quote of the Day */}
         {user && (
-          <Suspense fallback={<QuoteOfTheDaySkeleton />}>
-            <QuoteOfTheDay />
-          </Suspense>
+          <div className="mb-6">
+            <Suspense fallback={<QuoteOfTheDaySkeleton />}>
+              <QuoteOfTheDay />
+            </Suspense>
+          </div>
         )}
 
         {/* Daily Prompt */}
-        {user && <DailyPrompt onOpenNewConfession={handleNewConfession} />}
+        {user && <div className="mb-6"><DailyPrompt onOpenNewConfession={handleNewConfession} /></div>}
+
+        {/* Confession Feed would go here - placeholder for now */}
+        <div className="space-y-4">
+          <Card className="p-8 text-center border-white/10 bg-gradient-to-br from-[#2a2e5c]/90 via-[#19192f]/90 to-[#0d0d1b]/90 backdrop-blur-md">
+            <p className="text-white/70">Feed coming soon...</p>
+          </Card>
+        </div>
 
         {/* Leaderboard */}
         {showSecondaryContent && (
-          <div className="my-6">
+          <div className="mt-8">
             <Leaderboard />
           </div>
         )}
