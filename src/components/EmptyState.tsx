@@ -22,19 +22,28 @@ const EmptyState = ({
   return (
     <div 
       className={cn(
-        "flex flex-col items-center justify-center py-16 sm:py-24 px-6 animate-fade-in",
+        "flex flex-col items-center justify-center min-h-[60vh] px-6 animate-fade-in",
         className
       )}
     >
-      <div className="flex items-center justify-center mb-6">
-        <Icon className="w-12 h-12 sm:w-14 sm:h-14 text-white/20" />
+      {/* Icon with soft glass circle and ambient glow */}
+      <div className="relative mb-8">
+        {/* Ambient glow layer */}
+        <div className="absolute inset-0 blur-3xl opacity-30">
+          <div className="w-32 h-32 rounded-full bg-gradient-to-r from-primary to-accent" />
+        </div>
+        
+        {/* Glass circle container */}
+        <div className="relative flex items-center justify-center w-32 h-32 rounded-full bg-white/[0.03] backdrop-blur-md border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
+          <Icon className="w-12 h-12 text-white/40" strokeWidth={1.5} />
+        </div>
       </div>
       
-      <h3 className="text-lg sm:text-xl font-semibold text-white/90 mb-2">
+      <h3 className="text-xl font-semibold text-white/95 mb-3 tracking-tight">
         {title}
       </h3>
       
-      <p className="text-sm sm:text-base text-white/50 max-w-sm mx-auto text-center leading-relaxed">
+      <p className="text-[15px] text-white/50 max-w-xs mx-auto text-center leading-relaxed">
         {description}
       </p>
       
@@ -42,7 +51,7 @@ const EmptyState = ({
         <Button 
           onClick={onAction}
           size="lg"
-          className="mt-8 hover-lift"
+          className="mt-10 hover-lift"
         >
           {actionLabel}
         </Button>
