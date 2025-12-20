@@ -14,10 +14,10 @@ import { GiftCoinsDialog } from "@/components/coins/GiftCoinsDialog";
 import { Button } from "@/components/ui/button";
 import { Gift } from "lucide-react";
 
-interface UserProfileData {
+type UserProfileData = {
   nickname: string;
-  bio?: string;
-}
+  bio: string | null;
+};
 
 const UserProfile = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -43,9 +43,8 @@ const UserProfile = () => {
     setIsLoading(true);
     try {
       // Load profile data
-      const profileSource = isOwnProfile ? "profiles" : "public_profiles";
       const { data: profileData, error: profileError } = await supabase
-        .from(profileSource)
+        .from<UserProfileData>("public_profiles")
         .select("nickname, bio")
         .eq("user_id", userId)
         .maybeSingle();
