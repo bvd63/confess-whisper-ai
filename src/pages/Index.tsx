@@ -19,6 +19,7 @@ import { attachActiveBoosts } from "@/lib/boosts";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { useScrollHeader } from "@/hooks/useScrollHeader";
 import { Loader2 } from "lucide-react";
+import type { MixedFeedConfession } from "@/integrations/supabase/types";
 
 // Lazy load heavy components
 const NewConfessionDialog = lazy(() => import("@/components/NewConfessionDialog"));
@@ -43,12 +44,31 @@ const Index = () => {
   // Scroll header behavior for Home Feed
   const isHeaderVisible = useScrollHeader({ threshold: 12, topOffset: 30 });
   
-  // Fetch confessions feed
-  const { data, isLoading, isFetching, error: queryError, refetch } = useInfiniteQuery({
-    queryKey: ["home-feed", user?.id],
-    initialPageParam: null as string | null,
+  // Fetch mixed feed (following + explore) with adaptive ratios
+  const { data, isLoading, isFetching, error: queryError, refetch } = useInfiniteQuery<MixedFeedConfession[]>({
+    queryKey: ["home-mixed-feed", user?.id],
+    initialPageParam: null as Record<string, unknown> | null,
     queryFn: async ({ pageParam }) => {
-      let query = supabase
+      try {
+        const { data, error } = await supabase.rpc("get_mixed_feed", {
+          p_limit: PAGE_SIZE,
+          p_cursor: pageParam,
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        if (data && data.length > 0) {
+          // Cast RPC result to our custom type and attach boosts
+          return attachActiveBoosts(data as unknown as MixedFeedConfession[]);
+        }
+      } catch (rpcError) {
+        console.error('Error fetching mixed feed:', rpcError);
+      }
+
+      // Safe fallback: revert to simple public feed when mixed feed errors or returns empty
+      const { data: fallbackData, error: fallbackError } = await supabase
         .from("confessions")
         .select("*")
         .eq("moderation_status", "approved")
@@ -56,23 +76,22 @@ const Index = () => {
         .order("created_at", { ascending: false })
         .limit(PAGE_SIZE);
 
-      if (pageParam) {
-        query = query.lt("created_at", pageParam);
+      if (fallbackError) {
+        console.error('Fallback feed error:', fallbackError);
+        throw fallbackError;
       }
 
-      const { data: feedData, error } = await query;
-
-      if (error) {
-        console.error('Feed error:', error);
-        throw error;
-      }
-
-      return attachActiveBoosts(feedData || []);
+      return attachActiveBoosts(fallbackData || []);
     },
     getNextPageParam: (lastPage) => {
       if (!lastPage || lastPage.length < PAGE_SIZE) return null;
       const last = lastPage[lastPage.length - 1];
-      return last.created_at;
+      return {
+        mix_order: last.mix_order,
+        score: last.score,
+        created_at: last.created_at,
+        id: last.id,
+      };
     },
     retry: 2,
     refetchOnWindowFocus: false,
@@ -113,7 +132,7 @@ const Index = () => {
 
   useEffect(() => {
     const channel = supabase
-      .channel('home-feed')
+      .channel('home-mixed-feed')
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'confessions', filter: 'moderation_status=eq.approved' },
