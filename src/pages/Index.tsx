@@ -56,26 +56,29 @@ const Index = () => {
     queryKey: ["home-mixed-feed", user?.id],
     initialPageParam: null as Record<string, unknown> | null,
     queryFn: async ({ pageParam }) => {
-      const { data, error } = await supabase.rpc("get_mixed_feed", {
-        p_limit: PAGE_SIZE,
-        p_cursor: pageParam,
-      });
+      try {
+        const { data, error } = await supabase.rpc("get_mixed_feed", {
+          p_limit: PAGE_SIZE,
+          p_cursor: pageParam,
+        });
 
-      if (error) {
-        console.error('Error fetching mixed feed:', error);
-        throw error;
+        if (error) {
+          throw error;
+        }
+
+        if (data && data.length > 0) {
+          return attachActiveBoosts(data);
+        }
+      } catch (rpcError) {
+        console.error('Error fetching mixed feed:', rpcError);
       }
 
-      if (data && data.length > 0) {
-        return attachActiveBoosts(data);
-      }
-
-      // Safe fallback: revert to simple public feed when mixed feed returns empty
+      // Safe fallback: revert to simple public feed when mixed feed errors or returns empty
       const { data: fallbackData, error: fallbackError } = await supabase
         .from("confessions")
         .select("*")
         .eq("moderation_status", "approved")
-        .is("is_draft", false)
+        .or("is_draft.is.null,is_draft.eq.false")
         .order("created_at", { ascending: false })
         .limit(PAGE_SIZE);
 
