@@ -19,6 +19,8 @@ import { attachActiveBoosts } from "@/lib/boosts";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { useScrollHeader } from "@/hooks/useScrollHeader";
 import { Loader2 } from "lucide-react";
+import EmptyFeedState from "@/components/feed/EmptyFeedState";
+import EndOfFeedState from "@/components/feed/EndOfFeedState";
 // Define confession type locally since get_mixed_feed may not exist
 type FeedConfession = {
   id: string;
@@ -369,16 +371,11 @@ const Index = () => {
                 onInsightGenerated={handleInsightGenerated}
               />
             ))}
+            {/* End of feed indicator */}
+            <EndOfFeedState onRefresh={() => refetch()} isRefreshing={isFetching} />
           </div>
         ) : (
-          <div className="py-12 text-center">
-            <p className="text-lg font-medium text-white/80 mb-2">
-              {t.index_no_confessions_title}
-            </p>
-            <p className="text-sm text-white/50">
-              {t.index_no_confessions_desc}
-            </p>
-          </div>
+          <EmptyFeedState onCreateConfession={handleNewConfession} />
         )}
       </main>
 
