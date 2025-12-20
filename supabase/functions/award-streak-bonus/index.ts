@@ -21,11 +21,24 @@ serve(async (req) => {
   }
 
   try {
-    const { userId, currentStreak } = await req.json();
-    
-    if (!userId || typeof currentStreak !== 'number') {
+    let body: any;
+    try {
+      body = await req.json();
+    } catch (parseErr) {
       return new Response(
-        JSON.stringify({ ok: false, reason: 'invalid-input' }),
+        JSON.stringify({ ok: false, reason: 'invalid-input', details: 'Expected JSON body with userId (string) and currentStreak (number).' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+
+    const { userId, currentStreak } = body ?? {};
+    const missingFields = [];
+    if (!userId) missingFields.push('userId');
+    if (typeof currentStreak !== 'number') missingFields.push('currentStreak');
+
+    if (missingFields.length > 0) {
+      return new Response(
+        JSON.stringify({ ok: false, reason: 'invalid-input', details: `Missing or invalid: ${missingFields.join(', ')}` }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       );
     }

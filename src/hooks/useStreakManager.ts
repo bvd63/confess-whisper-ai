@@ -68,11 +68,17 @@ export const useStreakManager = () => {
         if ([3, 5, 7].includes(currentStreak)) {
           // Award streak bonus in background
           try {
-            await supabase.functions.invoke('award-streak-bonus', {
-              body: { currentStreak }
+            const { error } = await supabase.functions.invoke('award-streak-bonus', {
+              body: { userId: user.id, currentStreak }
             });
+
+            if (error) {
+              logError('Error awarding streak bonus', error as Error);
+              toast(t?.system_error_occurred || 'Unable to award streak bonus right now.');
+            }
           } catch (err) {
             logError('Error awarding streak bonus', err as Error);
+            toast(t?.system_error_occurred || 'Unable to award streak bonus right now.');
           }
         }
       }
