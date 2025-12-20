@@ -245,7 +245,7 @@ const AppContent = () => {
       <NetworkStatusIndicator />
       <CheckoutStatusHandler />
       <TabNavigationProvider>
-        <Suspense fallback={<PageLoading className="min-h-screen" />}>
+        <Suspense fallback={<PageLoading className="min-h-[100dvh]" />}>
           <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/home" element={<Index />} />
