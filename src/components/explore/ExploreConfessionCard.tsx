@@ -36,19 +36,19 @@ const ExploreConfessionCard = memo(({ confession }: ExploreConfessionCardProps) 
   return (
     <div
       onClick={() => navigate(`/confession/${confession.id}`)}
-      className="w-full rounded-xl sm:rounded-2xl p-3 sm:p-4 cursor-pointer 
+      className="w-full rounded-xl p-3 cursor-pointer 
         bg-gradient-to-br from-[#2c3258]/85 via-[#1a1c34]/85 to-[#0f1022]/90 
         backdrop-blur-lg border border-white/12 
         hover:border-white/20 hover:shadow-[0_18px_42px_rgba(139,92,246,0.16)]
-        transition-all duration-300 space-y-2.5"
+        transition-all duration-300 space-y-2"
     >
       {/* Content */}
-      <p className="text-[15px] leading-relaxed text-white/90 break-words line-clamp-3">
+      <p className="text-sm leading-snug text-white/90 break-words line-clamp-3">
         {sanitizeConfession(confession.content)}
       </p>
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-0.5">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 text-white/70">
             <Heart className="w-4 h-4" />
