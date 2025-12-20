@@ -147,7 +147,7 @@ export default function Admin() {
       if (reporterIds.length === 0) return data;
 
       const { data: reporters, error: reporterError } = await supabase
-        .from('public_profiles')
+        .from('profiles')
         .select('user_id, nickname')
         .in('user_id', reporterIds);
 

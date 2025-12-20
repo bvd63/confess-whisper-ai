@@ -9,7 +9,7 @@ export const useScrollRestoration = (enabled: boolean = true) => {
   const location = useLocation();
   const scrollKey = `scroll_${location.pathname}`;
   const isRestoringRef = useRef(false);
-  const saveTimeoutRef = useRef<NodeJS.Timeout>();
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Restore scroll position on mount
   useEffect(() => {

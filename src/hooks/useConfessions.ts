@@ -65,7 +65,7 @@ export const useConfessions = ({
         if (uniqueUserIds.length > 0) {
           try {
             const { data: profiles } = await supabase
-              .from('public_profiles')
+              .from('profiles')
               .select('user_id, nickname')
               .in('user_id', uniqueUserIds);
             

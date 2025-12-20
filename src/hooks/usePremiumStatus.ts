@@ -20,7 +20,7 @@ export const useVipStatus = (userId: string | null | undefined) => {
 
       if (!isSelf) {
         const { data: publicProfile, error: publicError } = await supabase
-          .from('public_profiles')
+          .from('profiles')
           .select('subscription_tier')
           .eq('user_id', userId)
           .maybeSingle();
