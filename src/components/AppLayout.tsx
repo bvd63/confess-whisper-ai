@@ -12,7 +12,7 @@ interface AppLayoutProps {
 
 const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeaderOnScroll, isHeaderVisible, showHeader = false }: AppLayoutProps) => {
   return (
-    <div className="relative min-h-[100dvh] bg-background">
+    <div className="relative min-h-[100dvh] bg-background overflow-hidden">
       {/* Base gradient layer */}
       <div className="fixed inset-0 bg-gradient-to-br from-background via-background-secondary to-background pointer-events-none" />
       
@@ -28,7 +28,10 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
       />
       
       {/* Content layer */}
-      <div className="relative z-10 min-h-[100dvh]">
+      <div
+        className="relative z-10 min-h-[100dvh] overflow-y-auto pb-[env(safe-area-inset-bottom)]"
+        style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}
+      >
         {showHeader && (
           <AppHeader 
             onNewConfession={onNewConfession} 
