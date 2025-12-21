@@ -11,6 +11,8 @@ const HARD_CAP = 50;
 const TRENDING_WINDOW_HOURS = 48;
 const POPULAR_WINDOW_DAYS = 30;
 const TRENDING_TIME_DECAY_K = 0.6; // Simple linear decay: ~0.6 points per hour of age
+const MIN_ENGAGEMENT_TRENDING = 1;
+const MIN_ENGAGEMENT_POPULAR = 1;
 
 const HOUR_IN_MS = 60 * 60 * 1000;
 const DAY_IN_MS = 24 * HOUR_IN_MS;
@@ -113,6 +115,20 @@ const computePopularScore = (confession: ConfessionRow) => {
   return likes * 1.5 + comments * 2;
 };
 
+const hasEngagement = (confession: ConfessionRow) => (confession.likes_count ?? 0) + (confession.comments_count ?? 0);
+
+const passesEngagementGate = (confession: ConfessionRow, tab: ExploreTab, now: number) => {
+  if (tab === "recent") return true;
+
+  const engaged = hasEngagement(confession);
+  const boosted = isBoosted(confession, now) || isHighlighted(confession, now);
+
+  if (tab === "trending") return boosted || engaged >= MIN_ENGAGEMENT_TRENDING;
+  if (tab === "popular") return boosted || engaged >= MIN_ENGAGEMENT_POPULAR;
+
+  return true;
+};
+
 const passesClientFilters = (confession: ConfessionRow, currentUserId?: string | null) => {
   if (!confession) return false;
 
@@ -204,8 +220,11 @@ const buildTabResult = async (
     throw error;
   }
 
+  const now = Date.now();
   const withBoosts = await attachActiveBoosts((data as ConfessionRow[]) || []);
-  const filtered = withBoosts.filter((confession) => passesClientFilters(confession, currentUserId));
+  const filtered = withBoosts
+    .filter((confession) => passesClientFilters(confession, currentUserId))
+    .filter((confession) => passesEngagementGate(confession, tab, now));
   const sorted = sortCandidates(tab, filtered);
 
   const baseRules: SelectionRules = {
