@@ -29,12 +29,19 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
         return;
       }
 
-      if (Math.abs(delta) < 8) return;
+      // Any upward movement should immediately show the header; apply threshold only for hiding
+      if (delta < 0) {
+        setViewportHeaderVisible(true); // scroll up
+        lastY = currentY;
+        return;
+      }
+
+      if (delta < 8) {
+        return;
+      }
 
       if (delta > 0) {
         setViewportHeaderVisible(false); // scroll down
-      } else {
-        setViewportHeaderVisible(true); // scroll up
       }
 
       lastY = currentY;
