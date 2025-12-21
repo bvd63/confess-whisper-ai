@@ -68,9 +68,11 @@ const Index = () => {
   const PAGE_SIZE = 30;
   const queryClient = useQueryClient();
   const optimisticCommentDeltas = useRef<Record<string, number>>({});
+  const [gestureHeaderVisible, setGestureHeaderVisible] = useState(true);
   
   // Scroll header behavior for Home Feed
-  const isHeaderVisible = useScrollHeader({ threshold: 12, topOffset: 30, container: scrollContainer });
+  const scrollHeaderVisible = useScrollHeader({ threshold: 12, topOffset: 30, container: scrollContainer });
+  const isHeaderVisible = isMobile ? gestureHeaderVisible : scrollHeaderVisible;
   
   // Fetch confessions feed
   const { data, isLoading, isFetching, error: queryError, refetch } = useInfiniteQuery<FeedConfession[]>({
@@ -148,6 +150,71 @@ const Index = () => {
     const el = document.querySelector('[data-app-scroll]') as HTMLDivElement | null;
     if (el) setScrollContainer(el);
   }, []);
+
+  // Touch-priority header visibility for mobile; scroll remains fallback for desktop
+  useEffect(() => {
+    if (!scrollContainer) return;
+
+    let lastTouchY = 0;
+    let isTouching = false;
+    let lastScrollTop = scrollContainer.scrollTop;
+
+    const handleTouchStart = (event: TouchEvent) => {
+      if (!event.touches?.length) return;
+      isTouching = true;
+      lastTouchY = event.touches[0].clientY;
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      if (!isTouching || !event.touches?.length) return;
+      const currentY = event.touches[0].clientY;
+      const deltaY = currentY - lastTouchY;
+
+      if (deltaY > 0) {
+        setGestureHeaderVisible(false);
+      } else if (deltaY < 0) {
+        setGestureHeaderVisible(true);
+      }
+
+      lastTouchY = currentY;
+    };
+
+    const handleTouchEnd = () => {
+      isTouching = false;
+    };
+
+    const handleScroll = () => {
+      if (isTouching) return; // touch gestures take priority
+
+      const currentTop = scrollContainer.scrollTop;
+      if (currentTop < 30) {
+        setGestureHeaderVisible(true);
+        lastScrollTop = currentTop;
+        return;
+      }
+
+      const delta = currentTop - lastScrollTop;
+      if (delta > 0) {
+        setGestureHeaderVisible(false);
+      } else if (delta < 0) {
+        setGestureHeaderVisible(true);
+      }
+
+      lastScrollTop = currentTop;
+    };
+
+    scrollContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
+    scrollContainer.addEventListener('touchmove', handleTouchMove, { passive: true });
+    scrollContainer.addEventListener('touchend', handleTouchEnd, { passive: true });
+    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      scrollContainer.removeEventListener('touchstart', handleTouchStart);
+      scrollContainer.removeEventListener('touchmove', handleTouchMove);
+      scrollContainer.removeEventListener('touchend', handleTouchEnd);
+      scrollContainer.removeEventListener('scroll', handleScroll);
+    };
+  }, [scrollContainer]);
 
   // Memoized callbacks to prevent unnecessary ConfessionCard rerenders
   const handleUpgradeClick = useCallback(() => {
