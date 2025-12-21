@@ -30,7 +30,6 @@ export const usePullToRefresh = ({
     if (disabled || !target) return;
     let touchStartY = 0;
 
-    // Instagram-like gating: only allow pull-to-refresh when the scroll container is at (or extremely near) the top
     const atTop = () => target.scrollTop <= topTolerance;
 
     const handleScroll = () => {
