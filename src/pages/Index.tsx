@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useInfiniteQuery, useQueryClient, InfiniteData } from "@tanstack/react-query";
 import { attachActiveBoosts } from "@/lib/boosts";
 import { useScrollHeader } from "@/hooks/useScrollHeader";
+import { getScrollTop, resolveScrollRoot, scrollToTop } from "@/lib/scrollRoot";
 import { Loader2 } from "lucide-react";
 import EmptyFeedState from "@/components/feed/EmptyFeedState";
 import EndOfFeedState from "@/components/feed/EndOfFeedState";
@@ -193,22 +194,13 @@ const Index = () => {
 
   useEffect(() => {
     const handleHomePressed = () => {
-      const mainEl = document.querySelector('main') as HTMLElement | null;
-      const windowTop = window.scrollY || window.pageYOffset || 0;
-      const mainTop = mainEl ? mainEl.scrollTop : Number.POSITIVE_INFINITY;
-      const nearestTop = Math.min(windowTop, mainTop);
+      const scrollRoot = resolveScrollRoot();
+      const currentTop = getScrollTop(scrollRoot);
 
-      const scrollToTop = () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        if (mainEl) {
-          mainEl.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-      };
-
-      if (nearestTop <= 10) {
+      if (currentTop <= 10) {
         triggerRefresh();
       } else {
-        scrollToTop();
+        scrollToTop(scrollRoot, 'smooth');
       }
     };
 

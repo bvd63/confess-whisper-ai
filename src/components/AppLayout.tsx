@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useState } from "react";
 import AppHeader from "./AppHeader";
+import { getScrollTop, resolveScrollRoot } from "@/lib/scrollRoot";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -17,40 +18,36 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
   useEffect(() => {
     if (!hideHeaderOnScroll) return;
 
-    let lastY = window.pageYOffset;
-    let ticking = false;
-
-    const updateVisibility = () => {
-      const currentY = window.pageYOffset;
-      const delta = currentY - lastY;
-
-      if (currentY < 12) {
-        setViewportHeaderVisible(true);
-        lastY = currentY;
-        ticking = false;
-        return;
-      }
-
-      if (Math.abs(delta) < 10) {
-        ticking = false;
-        return;
-      }
-
-      setViewportHeaderVisible(delta <= 0);
-      lastY = currentY;
-      ticking = false;
-    };
+    const scrollRoot = resolveScrollRoot();
+    let lastY = getScrollTop(scrollRoot);
 
     const onScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(updateVisibility);
-        ticking = true;
+      const currentY = getScrollTop(scrollRoot);
+      const delta = currentY - lastY;
+
+      // Any upward movement should immediately show the header; apply threshold only for hiding
+      if (delta < 0) {
+        setViewportHeaderVisible(true);
+        lastY = currentY;
+        return;
       }
+
+      if (delta < 8) {
+        return;
+      }
+
+      if (delta > 0) {
+        setViewportHeaderVisible(false);
+      }
+
+      lastY = currentY;
     };
-    window.addEventListener("scroll", onScroll, { passive: true });
+
+    const target: HTMLElement | Window = scrollRoot;
+    target.addEventListener("scroll", onScroll, { passive: true } as AddEventListenerOptions);
 
     return () => {
-      window.removeEventListener("scroll", onScroll);
+      target.removeEventListener("scroll", onScroll as EventListener);
     };
   }, [hideHeaderOnScroll]);
 
