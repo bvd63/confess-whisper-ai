@@ -44,8 +44,7 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
   const computedHeaderVisible = hideHeaderOnScroll ? viewportHeaderVisible : (isHeaderVisible ?? true);
   return (
     <div
-      className="relative min-h-[100dvh] bg-background overflow-hidden"
-      style={{ overscrollBehaviorY: 'none' }}
+      className="relative min-h-[100dvh] bg-background"
     >
       {/* Base gradient layer */}
       <div className="fixed inset-0 bg-gradient-to-br from-background via-background-secondary to-background pointer-events-none" />
@@ -64,8 +63,7 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
       {/* Content layer */}
       <div
         data-app-scroll
-        className="relative z-10 min-h-[100dvh] overflow-y-auto pb-[env(safe-area-inset-bottom)]"
-        style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}
+        className="relative z-10 min-h-[100dvh] pb-[env(safe-area-inset-bottom)]"
       >
         {showHeader && (
           <AppHeader 
