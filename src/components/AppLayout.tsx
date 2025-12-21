@@ -8,12 +8,9 @@ interface AppLayoutProps {
   hideHeaderOnScroll?: boolean;
   isHeaderVisible?: boolean;
   showHeader?: boolean;
-  isRefreshing?: boolean;
-  showPullToRefresh?: boolean;
-  isPulling?: boolean;
 }
 
-const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeaderOnScroll, isHeaderVisible, showHeader = false, isRefreshing = false, showPullToRefresh = false, isPulling = false }: AppLayoutProps) => {
+const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeaderOnScroll, isHeaderVisible, showHeader = false }: AppLayoutProps) => {
   const [viewportHeaderVisible, setViewportHeaderVisible] = useState(true);
 
   // Global viewport scroll listener to mirror Instagram/Facebook header behavior
@@ -21,37 +18,23 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
     if (!hideHeaderOnScroll) return;
 
     let lastY = window.pageYOffset;
-    let lastDirection: "up" | "down" | null = null;
 
     const onScroll = () => {
       const currentY = window.pageYOffset;
       const delta = currentY - lastY;
 
-      if (currentY <= 0) {
+      if (window.pageYOffset <= 0) {
         setViewportHeaderVisible(true);
         lastY = 0;
-        lastDirection = null;
         return;
       }
 
-      if (isRefreshing || showPullToRefresh || isPulling) {
-        setViewportHeaderVisible(true);
-        lastY = currentY;
-        lastDirection = null;
-        return;
-      }
+      if (Math.abs(delta) < 8) return;
 
-      if (Math.abs(delta) < 2) return;
-
-      const direction: "up" | "down" = delta > 0 ? "down" : "up";
-
-      if (direction !== lastDirection) {
-        if (direction === "up") {
-          setViewportHeaderVisible(true);
-        } else if (currentY > 24) {
-          setViewportHeaderVisible(false);
-        }
-        lastDirection = direction;
+      if (delta > 0) {
+        setViewportHeaderVisible(false); // scroll down
+      } else {
+        setViewportHeaderVisible(true); // scroll up
       }
 
       lastY = currentY;
@@ -62,7 +45,7 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
     return () => {
       window.removeEventListener("scroll", onScroll);
     };
-  }, [hideHeaderOnScroll, isRefreshing, showPullToRefresh, isPulling]);
+  }, [hideHeaderOnScroll]);
 
   const computedHeaderVisible = hideHeaderOnScroll ? viewportHeaderVisible : (isHeaderVisible ?? true);
   return (

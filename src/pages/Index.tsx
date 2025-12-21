@@ -210,11 +210,10 @@ const Index = () => {
       const currentY = event.touches[0].clientY;
       const deltaY = currentY - lastTouchY;
 
-      // Finger moving down (pulling content down) should reveal the header
       if (deltaY > 0) {
-        setGestureHeaderVisible(true);
-      } else if (deltaY < 0) {
         setGestureHeaderVisible(false);
+      } else if (deltaY < 0) {
+        setGestureHeaderVisible(true);
       }
 
       lastTouchY = currentY;
