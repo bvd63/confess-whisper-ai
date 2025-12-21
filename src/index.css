@@ -200,21 +200,19 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Hide scrollbars globally but keep native scrolling */
-* {
+/* SAFE global scrollbar hiding (Instagram/Facebook style) */
+html,
+body {
   scrollbar-width: none;
   -ms-overflow-style: none;
+  overflow-y: auto;
 }
 
-*::-webkit-scrollbar {
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
   width: 0px;
   height: 0px;
   display: none;
-}
-
-html,
-body {
-  overflow-y: auto;
 }
 
 /* Custom Scrollbar */
