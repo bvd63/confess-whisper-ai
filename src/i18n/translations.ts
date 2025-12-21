@@ -690,6 +690,7 @@ type Translations = {
   comments_show: string;
   comments_hide: string;
   comments_anonymous_placeholder: string;
+  comment_placeholder_public: string;
   comments_error_daily_limit: string;
   comments_error_consecutive_limit: string;
   comments_error_cooldown: string;
@@ -2264,6 +2265,7 @@ export const translations: Record<Language, Translations> = {
     comments_show: "Show comments",
     comments_hide: "Hide comments",
     comments_anonymous_placeholder: "Write a comment…",
+    comment_placeholder_public: "Write a comment…",
     comments_error_daily_limit: "You've reached your daily comment limit (20/day for FREE users).",
     comments_error_consecutive_limit: "You cannot post more than 3 comments in a row on this confession.",
     comments_error_cooldown: "You are commenting too fast. Please wait a moment.",
@@ -4247,6 +4249,7 @@ export const translations: Record<Language, Translations> = {
     comments_show: "Mostrar comentarios",
     comments_hide: "Ocultar comentarios",
     comments_anonymous_placeholder: "Escribe un comentario…",
+    comment_placeholder_public: "Escribe un comentario…",
     comments_error_daily_limit: "Has alcanzado tu límite diario de comentarios (20/día para usuarios FREE).",
     comments_error_consecutive_limit: "No puedes publicar más de 3 comentarios seguidos en esta confesión.",
     comments_error_cooldown: "Estás comentando demasiado rápido. Por favor, espera un momento.",
@@ -6231,6 +6234,7 @@ export const translations: Record<Language, Translations> = {
     comments_show: "Kommentare anzeigen",
     comments_hide: "Kommentare ausblenden",
     comments_anonymous_placeholder: "Schreibe einen Kommentar…",
+    comment_placeholder_public: "Schreibe einen Kommentar…",
     comments_error_daily_limit: "Du hast dein tägliches Kommentarlimit erreicht (20/Tag für FREE-Nutzer).",
     comments_error_consecutive_limit: "Du kannst nicht mehr als 3 Kommentare hintereinander zu diesem Geständnis posten.",
     comments_error_cooldown: "Du kommentierst zu schnell. Bitte warte einen Moment.",

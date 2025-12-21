@@ -26,6 +26,7 @@ interface Comment {
   profiles?: {
     nickname?: string | null;
     avatar_url?: string | null;
+    subscription_tier?: string | null;
   };
 }
 
@@ -105,7 +106,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
           if (comment.is_anonymous === false && comment.user_id) {
             const { data: profileData } = await supabase
               .from('public_profiles')
-              .select('nickname, avatar_url')
+              .select('nickname, avatar_url, subscription_tier')
               .eq('user_id', comment.user_id)
               .maybeSingle();
             
@@ -176,7 +177,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
           if (newComment.is_anonymous === false && newComment.user_id) {
             const { data: profileData } = await supabase
               .from('public_profiles')
-              .select('nickname, avatar_url')
+              .select('nickname, avatar_url, subscription_tier')
               .eq('user_id', newComment.user_id)
               .maybeSingle();
             
@@ -511,6 +512,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
             const displayName = isAnonymousComment 
               ? (comment.alias || 'Anonymous')
               : `@${comment.profiles?.nickname || 'User'}`;
+            const isVipAuthor = !isAnonymousComment && (comment.profiles?.subscription_tier || '').toLowerCase() === 'vip';
 
             return (
               <div
@@ -559,7 +561,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
                     <span className="text-sm font-semibold text-white">
                       {displayName}
                     </span>
-                    {!isAnonymousComment && (
+                    {isVipAuthor && (
                       <span className="text-sm drop-shadow-[0_0_4px_rgba(234,179,8,0.6)]" title="VIP">👑</span>
                     )}
                     <span className="text-xs text-white/70">
@@ -644,7 +646,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
             <div className="flex-1 relative">
               <input
                 type="text"
-                placeholder={t.comments_anonymous_placeholder}
+                placeholder={isAnonymous ? t.comments_anonymous_placeholder : t.comment_placeholder_public}
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 onKeyDown={(e) => {
