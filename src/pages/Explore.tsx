@@ -160,7 +160,7 @@ const Explore = () => {
           </div>
         )}
 
-        <div className="container max-w-4xl mx-auto px-4 sm:px-5 py-5 pb-28 space-y-4">
+        <div className="container max-w-4xl mx-auto px-4 sm:px-5 pt-[env(safe-area-inset-top)] pb-28 space-y-4">
           {/* Header */}
           <div className="space-y-1 animate-fade-in">
             <h1 className="text-2xl font-bold text-white">{t.explore}</h1>

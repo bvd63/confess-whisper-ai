@@ -467,7 +467,7 @@ const Index = () => {
       {/* Main Feed */}
       <main 
         ref={containerRef}
-        className="container max-w-2xl mx-auto px-4 py-6 pb-24"
+        className="container max-w-2xl mx-auto px-4 pt-[env(safe-area-inset-top)] pb-24"
       >
         {/* Confession Feed */}
         {(isLoading || (isFetching && confessions.length === 0)) ? (
