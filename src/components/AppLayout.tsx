@@ -15,6 +15,7 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
   const [viewportHeaderVisible, setViewportHeaderVisible] = useState(true);
   const [isAtTop, setIsAtTop] = useState(true);
   const topSentinelRef = useRef<HTMLDivElement | null>(null);
+  const isAtTopRef = useRef(true);
 
   // Observe visual top using a sentinel so bounce/momentum can't hide the header on mobile
   useEffect(() => {
@@ -28,11 +29,14 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
     const observer = new IntersectionObserver(
       (entries) => {
         if (!entries.length) return;
-        setIsAtTop(entries[0].isIntersecting);
+        const intersecting = entries[0].isIntersecting;
+        isAtTopRef.current = intersecting;
+        setIsAtTop(intersecting);
       },
       {
         root,
-        threshold: 0.01,
+        threshold: 0,
+        rootMargin: "24px 0px 0px 0px",
       }
     );
 
@@ -49,12 +53,12 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
 
     const scrollRoot = resolveScrollRoot();
     let lastY = getScrollTop(scrollRoot);
-    const TOP_STOP = 10;
+    const TOP_STOP = 24;
 
     const onScroll = () => {
       const currentScroll = Math.max(0, getScrollTop(scrollRoot));
 
-      if (isAtTop || currentScroll <= TOP_STOP) {
+      if (isAtTopRef.current || currentScroll <= TOP_STOP) {
         setViewportHeaderVisible(true);
         lastY = currentScroll;
         return;
@@ -86,7 +90,7 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
     return () => {
       target.removeEventListener("scroll", onScroll as EventListener);
     };
-  }, [hideHeaderOnScroll, isAtTop]);
+  }, [hideHeaderOnScroll]);
 
   const computedHeaderVisible = hideHeaderOnScroll ? viewportHeaderVisible : (isHeaderVisible ?? true);
   return (
