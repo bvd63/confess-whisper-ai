@@ -56,6 +56,7 @@ const NewConfessionDialog = ({
   const [category, setCategory] = useState("other");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGeneratingResponse, setIsGeneratingResponse] = useState(false);
   const [isAnonymous, setIsAnonymous] = useState(true);
   const [userNickname, setUserNickname] = useState<string | null>(null);
   const [aiResponse, setAiResponse] = useState<string | null>(null);
@@ -127,6 +128,7 @@ const NewConfessionDialog = ({
     if (content.length > 20 && checkForCrisis(content)) {
       setShowCrisisDialog(true);
     }
+    setAiResponse((current) => (current ? null : current));
   }, [content, checkForCrisis]);
 
   // Auto-save draft every 5 seconds
@@ -180,8 +182,7 @@ const NewConfessionDialog = ({
     value: 'other',
     label: t.category_other
   }];
-  const handleSubmit = async () => {
-    // Check confession limits first
+  const handleGenerateAiResponse = async () => {
     if (!canPost) {
       toast({
         title: t.error_generic,
@@ -192,14 +193,90 @@ const NewConfessionDialog = ({
       return;
     }
 
-    // Validate input
+    if (!content.trim()) {
+      toast({
+        title: t.error_generic,
+        description: t.confession_too_short ?? "Confession must be at least 10 characters long.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsGeneratingResponse(true);
+    try {
+      const { data: moderationData, error: moderationError } = await supabase.functions.invoke('ai-moderation', {
+        body: { content, language, captchaToken }
+      });
+      if (moderationError) {
+        logError('Moderation error', moderationError as Error);
+      }
+      if (moderationData && !moderationData.is_safe) {
+        toast({
+          title: t.toast_flagged,
+          description: moderationData.reason || t.toast_flagged,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const locale = language === 'en' || language === 'es' || language === 'de' ? language as AiLocale : 'en';
+      const responseText = await getAiReply({
+        text: content.trim(),
+        isVip,
+        locale,
+        userId: user?.id || 'anonymous',
+        confessionId: 'temp'
+      });
+
+      if (!responseText) {
+        toast({
+          title: t.error_generic,
+          description: t.error_submit,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setAiResponse(responseText);
+    } catch (aiError) {
+      logError('AI response error', aiError as Error);
+      toast({
+        title: t.error_generic,
+        description: t.error_submit,
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingResponse(false);
+    }
+  };
+
+  const handlePostConfession = async () => {
+    if (!canPost) {
+      toast({
+        title: t.error_generic,
+        description: dailyLimit !== Infinity ? t.limit_confessions_remaining.replace('{count}', '0') : t.error_submit,
+        variant: "destructive"
+      });
+      setShowUpgradeModal(true);
+      return;
+    }
+
+    if (!aiResponse) {
+      toast({
+        title: t.error_generic,
+        description: t.error_submit,
+        variant: "destructive"
+      });
+      return;
+    }
+
     const normalized = normalizeCreateConfessionPayload({
       content,
       category,
       communityId,
       imageUrl,
       isAnonymous,
-      aiResponse: aiResponse ?? undefined,
+      aiResponse,
       captchaToken,
       authorDisplayName: isAnonymous ? null : userNickname
     });
@@ -227,64 +304,33 @@ const NewConfessionDialog = ({
       isAnonymous: normalizedPayload.isAnonymous,
       hasCaptchaToken: Boolean(normalizedPayload.captchaToken)
     });
+
     setIsSubmitting(true);
     try {
-      // If Turnstile is required by feature flag, ensure we have a token
       if (env.features.confessionTurnstileRequired && !captchaToken) {
         toast({
           title: t.error_generic,
           description: t.auth_captcha_failed || "Please complete the CAPTCHA before submitting.",
           variant: "destructive"
         });
-        setIsSubmitting(false);
         return;
       }
 
-      // Step 1: Moderate content first. Include captchaToken when available so server-side
-      // code (if extended) can verify the token before accepting a confession.
-      const {
-        data: moderationData,
-        error: moderationError
-      } = await supabase.functions.invoke('ai-moderation', {
-        body: {
-          content,
-          language,
-          captchaToken
-        }
+      const { data: moderationData, error: moderationError } = await supabase.functions.invoke('ai-moderation', {
+        body: { content, language, captchaToken }
       });
       if (moderationError) {
         logError('Moderation error', moderationError as Error);
-        // Continue even if moderation fails
       }
-
-      // Check if content is safe
       if (moderationData && !moderationData.is_safe) {
         toast({
           title: t.toast_flagged,
           description: moderationData.reason || t.toast_flagged,
           variant: "destructive"
         });
-        setIsSubmitting(false);
         return;
       }
 
-      // Step 2: Get AI response (with VIP priority)
-      let responseText: string | null = null;
-      try {
-        const locale = language === 'en' || language === 'es' || language === 'de' ? language as AiLocale : 'en';
-        responseText = await getAiReply({
-          text: content.trim(),
-          isVip,
-          locale,
-          userId: user.id,
-          confessionId: 'temp' // Will be replaced with actual ID after creation
-        });
-        setAiResponse(responseText);
-      } catch (aiError) {
-        logError('AI response error', aiError as Error);
-        // Continue without AI response - not critical
-        responseText = null;
-      }
       if (!user) {
         toast({
           title: t.error_auth,
@@ -293,13 +339,11 @@ const NewConfessionDialog = ({
         });
         return;
       }
-      logInfo('Invoking create-confession function', {
-        hasSupabaseFunctions: Boolean((supabase as any).functions)
-      });
+
       const creationResponse = await supabase.functions.invoke('create-confession', {
         body: {
           ...normalizedPayload,
-          aiResponse: responseText ?? normalizedPayload.aiResponse
+          aiResponse
         }
       });
       if (creationResponse.error) {
@@ -360,10 +404,8 @@ const NewConfessionDialog = ({
         throw new Error('Confession creation failed');
       }
 
-      // Increment confession count
       await incrementCount();
 
-      // Reset CAPTCHA state after a successful submission
       setCaptchaToken(null);
       setTurnstileError(false);
       setCaptchaRenderKey(key => key + 1);
@@ -372,12 +414,10 @@ const NewConfessionDialog = ({
         description: t.ai_reply_title
       });
 
-      // Delete draft if it exists
       if (currentDraftId) {
         await supabase.from('confession_drafts').delete().eq('id', currentDraftId);
       }
 
-      // Wait a bit to show the AI response
       setTimeout(() => {
         onConfessionCreated();
         onOpenChange(false);
@@ -402,7 +442,9 @@ const NewConfessionDialog = ({
   const quotaHelperText = isUnlimited
     ? t.limit_confessions_unlimited
     : t.limit_confessions_remaining.replace('{count}', remaining.toString());
-  const primaryCtaLabel = t.post_confession || t.submit;
+  const primaryCtaLabel = aiResponse
+    ? (t.post_confession || t.submit)
+    : (t.compose_get_ai_response || "Get AI response");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -435,7 +477,7 @@ const NewConfessionDialog = ({
           <div className="relative rounded-3xl overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-600/10 to-purple-500/10 backdrop-blur-md" />
             <Textarea 
-              placeholder="What's on your mind..." 
+              placeholder={t.placeholder_confession} 
               value={content} 
               onChange={e => setContent(e.target.value)} 
               className="relative min-h-[240px] resize-none bg-transparent border-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-base text-foreground placeholder:text-muted-foreground/50 p-6 rounded-3xl" 
@@ -507,23 +549,37 @@ const NewConfessionDialog = ({
           {/* Primary CTA - Post Confession */}
           <div className="pt-4">
             <EnhancedButton
-              onClick={handleSubmit}
-              disabled={isSubmitting || !content.trim() || !canPost || (!isUnlimited && remaining === 0)}
+              onClick={aiResponse ? handlePostConfession : handleGenerateAiResponse}
+              disabled={(aiResponse ? isSubmitting : isGeneratingResponse) || !content.trim() || !canPost || (!isUnlimited && remaining === 0)}
               className="w-full h-14 rounded-2xl font-semibold text-base text-white bg-gradient-to-r from-primary/95 via-purple-600/90 to-primary/95 hover:from-primary hover:via-purple-500 hover:to-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/25"
               glow
               shine
               lift
             >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  {t.submitting}
-                </>
+              {aiResponse ? (
+                isSubmitting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    {t.submitting}
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-5 h-5 mr-2" />
+                    {primaryCtaLabel}
+                  </>
+                )
               ) : (
-                <>
-                  <Send className="w-5 h-5 mr-2" />
-                  {primaryCtaLabel}
-                </>
+                isGeneratingResponse ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    {t.submitting}
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-5 h-5 mr-2" />
+                    {primaryCtaLabel}
+                  </>
+                )
               )}
             </EnhancedButton>
           </div>
