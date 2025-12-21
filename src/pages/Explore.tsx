@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import AppLayout from "@/components/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,7 +8,6 @@ import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useAnalyticsTracking } from "@/hooks/useAnalyticsTracking";
 import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
-import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { TrendingConfessionsCarousel } from "@/components/explore/TrendingConfessionsCarousel";
 import { ExploreSearchBar } from "@/components/explore/ExploreSearchBar";
 import ExploreConfessionCard from "@/components/explore/ExploreConfessionCard";
@@ -27,7 +26,8 @@ const Explore = () => {
   useAnalyticsTracking(user?.id || null);
   const { isVip } = useVipStatus(user?.id);
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
-  const [scrollContainer, setScrollContainer] = useState<HTMLDivElement | null>(null);
+  const [showPullToRefresh, setShowPullToRefresh] = useState(false);
+  const [pullDistance, setPullDistance] = useState(0);
   const queryClient = useQueryClient();
 
   // Fetch trending, popular, and recent confessions with scoring and filters
@@ -46,25 +46,55 @@ const Explore = () => {
     queryFn: () => fetchPopularConfessions({ currentUserId: user?.id ?? null }),
   });
 
-  const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
-    onRefresh: async () => {
-      try {
-        await queryClient.invalidateQueries({ queryKey: ["explore"] });
-        await Promise.allSettled([refetchTrending(), refetchPopular(), refetchRecent()]);
-      } finally {
-        // ensure pull-to-refresh completes even if a refetch fails
-      }
-    },
-    threshold: 80,
-    container: scrollContainer,
-    disabled: !scrollContainer,
-    topTolerance: 4,
-  });
+  const triggerRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ["explore"] });
+    await Promise.allSettled([refetchTrending(), refetchPopular(), refetchRecent()]);
+  }, [queryClient, refetchTrending, refetchPopular, refetchRecent]);
 
+  // Global pull-to-refresh via window touch events
   useEffect(() => {
-    const el = document.querySelector('[data-app-scroll]') as HTMLDivElement | null;
-    if (el) setScrollContainer(el);
-  }, []);
+    let startY = 0;
+    let isPulling = false;
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (window.scrollY === 0) {
+        startY = e.touches[0].clientY;
+        isPulling = true;
+      }
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!isPulling) return;
+
+      const currentY = e.touches[0].clientY;
+      const diff = currentY - startY;
+
+      setPullDistance(Math.max(0, diff));
+
+      if (diff > 60) {
+        setShowPullToRefresh(true);
+      }
+    };
+
+    const onTouchEnd = async () => {
+      if (showPullToRefresh) {
+        await triggerRefresh();
+      }
+      setShowPullToRefresh(false);
+      setPullDistance(0);
+      isPulling = false;
+    };
+
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
+    window.addEventListener("touchend", onTouchEnd);
+
+    return () => {
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [showPullToRefresh, triggerRefresh]);
 
   const filterConfessions = (confessions: any[] | undefined) => {
     if (!confessions) return [];
@@ -125,12 +155,12 @@ const Explore = () => {
             }}
           >
             <div className="bg-primary/10 backdrop-blur-sm rounded-full p-2">
-              <Loader2 className={`h-5 w-5 text-primary ${isRefreshing || isTriggered ? "animate-spin" : ""}`} />
+              <Loader2 className={`h-5 w-5 text-primary ${showPullToRefresh ? "animate-spin" : ""}`} />
             </div>
           </div>
         )}
 
-        <div ref={containerRef} className="container max-w-4xl mx-auto px-4 sm:px-5 py-5 pb-28 space-y-4">
+        <div className="container max-w-4xl mx-auto px-4 sm:px-5 py-5 pb-28 space-y-4">
           {/* Header */}
           <div className="space-y-1 animate-fade-in">
             <h1 className="text-2xl font-bold text-white">{t.explore}</h1>

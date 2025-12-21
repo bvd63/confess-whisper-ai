@@ -16,7 +16,6 @@ import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useInfiniteQuery, useQueryClient, InfiniteData } from "@tanstack/react-query";
 import { attachActiveBoosts } from "@/lib/boosts";
-import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { useScrollHeader } from "@/hooks/useScrollHeader";
 import { Loader2 } from "lucide-react";
 import EmptyFeedState from "@/components/feed/EmptyFeedState";
@@ -69,6 +68,9 @@ const Index = () => {
   const queryClient = useQueryClient();
   const optimisticCommentDeltas = useRef<Record<string, number>>({});
   const [gestureHeaderVisible, setGestureHeaderVisible] = useState(true);
+  const [showPullToRefresh, setShowPullToRefresh] = useState(false);
+  const [pullDistance, setPullDistance] = useState(0);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   
   // Scroll header behavior for Home Feed
   const scrollHeaderVisible = useScrollHeader({ threshold: 12, topOffset: 30, container: scrollContainer });
@@ -134,17 +136,55 @@ const Index = () => {
     });
   }, [queryClient, user?.id]);
 
-  // Pull to refresh
-  const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
-    onRefresh: async () => {
-      await queryClient.resetQueries({ queryKey: ["home-feed", user?.id] });
-      await refetch();
-    },
-    threshold: 80,
-    container: scrollContainer,
-    disabled: !scrollContainer,
-    topTolerance: 4,
-  });
+  const triggerRefresh = useCallback(async () => {
+    await queryClient.resetQueries({ queryKey: ["home-feed", user?.id] });
+    await refetch();
+  }, [queryClient, refetch, user?.id]);
+
+  // Global pull-to-refresh via window touch events
+  useEffect(() => {
+    let startY = 0;
+    let isPulling = false;
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (window.scrollY === 0) {
+        startY = e.touches[0].clientY;
+        isPulling = true;
+      }
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!isPulling) return;
+
+      const currentY = e.touches[0].clientY;
+      const diff = currentY - startY;
+
+      setPullDistance(Math.max(0, diff));
+
+      if (diff > 60) {
+        setShowPullToRefresh(true);
+      }
+    };
+
+    const onTouchEnd = async () => {
+      if (showPullToRefresh) {
+        await triggerRefresh();
+      }
+      setShowPullToRefresh(false);
+      setPullDistance(0);
+      isPulling = false;
+    };
+
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
+    window.addEventListener("touchend", onTouchEnd);
+
+    return () => {
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [showPullToRefresh, triggerRefresh]);
 
   useEffect(() => {
     const el = document.querySelector('[data-app-scroll]') as HTMLDivElement | null;
@@ -419,7 +459,7 @@ const Index = () => {
           }}
         >
           <div className="bg-primary/10 backdrop-blur-sm rounded-full p-2">
-            <Loader2 className={`h-5 w-5 text-primary ${isRefreshing || isTriggered ? 'animate-spin' : ''}`} />
+            <Loader2 className={`h-5 w-5 text-primary ${showPullToRefresh ? 'animate-spin' : ''}`} />
           </div>
         </div>
       )}
