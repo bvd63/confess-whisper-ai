@@ -88,6 +88,7 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
       <div
         data-app-scroll
         className="relative z-10 min-h-[100dvh] pb-[env(safe-area-inset-bottom)]"
+        style={{ overscrollBehaviorY: "contain", WebkitOverflowScrolling: "touch" }}
       >
         {showHeader && (
           <AppHeader 

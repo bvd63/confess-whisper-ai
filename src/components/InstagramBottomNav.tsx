@@ -202,6 +202,7 @@ export const InstagramBottomNav = () => {
           role="navigation" 
           aria-label="Main navigation"
           className="fixed bottom-0 left-0 right-0 z-[9999] pointer-events-auto"
+          style={{ transform: "translateZ(0)", willChange: "transform" }}
         >
           <div 
             ref={navRef} 
