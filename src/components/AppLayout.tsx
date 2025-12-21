@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import AppHeader from "./AppHeader";
 
 interface AppLayoutProps {
@@ -11,6 +11,37 @@ interface AppLayoutProps {
 }
 
 const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeaderOnScroll, isHeaderVisible, showHeader = false }: AppLayoutProps) => {
+  const [viewportHeaderVisible, setViewportHeaderVisible] = useState(true);
+
+  // Global viewport scroll listener to mirror Instagram/Facebook header behavior
+  useEffect(() => {
+    if (!hideHeaderOnScroll) return;
+
+    let lastY = window.pageYOffset;
+
+    const onScroll = () => {
+      const currentY = window.pageYOffset;
+      const delta = currentY - lastY;
+
+      if (Math.abs(delta) < 8) return;
+
+      if (delta > 0) {
+        setViewportHeaderVisible(false); // scroll down
+      } else {
+        setViewportHeaderVisible(true); // scroll up
+      }
+
+      lastY = currentY;
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, [hideHeaderOnScroll]);
+
+  const computedHeaderVisible = hideHeaderOnScroll ? viewportHeaderVisible : (isHeaderVisible ?? true);
   return (
     <div
       className="relative min-h-[100dvh] bg-background overflow-hidden"
@@ -41,7 +72,7 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
             onNewConfession={onNewConfession} 
             onManageSubscription={onManageSubscription}
             hideOnScroll={hideHeaderOnScroll}
-            isVisible={isHeaderVisible}
+            isVisible={computedHeaderVisible}
           />
         )}
         {children}
