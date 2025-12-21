@@ -14,12 +14,13 @@ export const useScrollHeader = (options: UseScrollHeaderOptions = {}) => {
 
   useEffect(() => {
     const target = container ?? window;
+    const getScrollPosition = () => (container ? container.scrollTop : window.scrollY);
 
     // Initialize last known position from the current scroll container
-    lastScrollY.current = container ? container.scrollTop : window.scrollY;
+    lastScrollY.current = getScrollPosition();
 
     const updateScrollDirection = () => {
-      const scrollY = container ? container.scrollTop : window.scrollY;
+      const scrollY = getScrollPosition();
 
       // Always show header near the top
       if (scrollY < topOffset) {
@@ -29,20 +30,12 @@ export const useScrollHeader = (options: UseScrollHeaderOptions = {}) => {
         return;
       }
 
-      // Check if scroll distance exceeds threshold
       const scrollDelta = scrollY - lastScrollY.current;
-      
-      if (Math.abs(scrollDelta) < threshold) {
-        ticking.current = false;
-        return;
-      }
 
-      // Scrolling down - hide header
-      if (scrollDelta > 0) {
+      // Scrolling down past the threshold hides the header; any upward move shows it immediately
+      if (scrollDelta > threshold) {
         setIsVisible(false);
-      }
-      // Scrolling up - show header
-      else if (scrollDelta < 0) {
+      } else if (scrollDelta < 0) {
         setIsVisible(true);
       }
 
