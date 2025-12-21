@@ -193,11 +193,21 @@ const Index = () => {
 
   useEffect(() => {
     const handleHomePressed = () => {
-      const currentTop = window.scrollY || window.pageYOffset || 0;
+      const scrollElement = document.querySelector('[data-app-scroll]') as HTMLElement | null;
+      const currentTop = scrollElement ? scrollElement.scrollTop : (window.scrollY || window.pageYOffset || 0);
+
+      const scrollToTop = () => {
+        if (scrollElement) {
+          scrollElement.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      };
+
       if (currentTop <= 10) {
         triggerRefresh();
       } else {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToTop();
       }
     };
 
