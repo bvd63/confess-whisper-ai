@@ -12,16 +12,21 @@ import { TrendingConfessionsCarousel } from "@/components/explore/TrendingConfes
 import { ExploreSearchBar } from "@/components/explore/ExploreSearchBar";
 import ExploreConfessionCard from "@/components/explore/ExploreConfessionCard";
 import { ConfessionCardSkeleton } from "@/components/skeletons/ConfessionCardSkeleton";
+import { ExploreUserResults, ExploreUserResult } from "@/components/explore/ExploreUserResults";
 import {
   fetchPopularConfessions,
   fetchRecentConfessions,
   fetchTrendingConfessions,
 } from "@/services/exploreFeedService";
+import { supabase } from "@/integrations/supabase/client";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const Explore = () => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState("trending");
   const [searchQuery, setSearchQuery] = useState("");
+  const [userResults, setUserResults] = useState<ExploreUserResult[]>([]);
+  const debouncedSearch = useDebounce(searchQuery, 300);
   const { user } = useCurrentUser();
   useAnalyticsTracking(user?.id || null);
   const { isVip } = useVipStatus(user?.id);
@@ -45,6 +50,46 @@ const Explore = () => {
     queryKey: ["explore", "popular", user?.id],
     queryFn: () => fetchPopularConfessions({ currentUserId: user?.id ?? null }),
   });
+
+  useEffect(() => {
+    const query = debouncedSearch.trim();
+    if (query.length < 2) {
+      setUserResults([]);
+      return;
+    }
+
+    let isCancelled = false;
+
+    const searchUsers = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("search-users", {
+          body: { nickname: query },
+        });
+
+        if (error) throw error;
+
+        const users = ((data as any)?.users || []).map((u: any) => ({
+          user_id: u.id,
+          nickname: u.nickname ?? null,
+          subscription_tier: u.subscriptionTier,
+        })) as ExploreUserResult[];
+
+        if (!isCancelled) {
+          setUserResults(users);
+        }
+      } catch (error) {
+        if (!isCancelled) {
+          setUserResults([]);
+        }
+      }
+    };
+
+    searchUsers();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [debouncedSearch]);
 
   const triggerRefresh = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ["explore"] });
@@ -118,6 +163,7 @@ const Explore = () => {
   const filteredHot = useMemo(() => filterConfessions(trendingResult?.items), [trendingResult, searchQuery]);
   const filteredRecent = useMemo(() => filterConfessions(recentResult?.items), [recentResult, searchQuery]);
   const filteredPopular = useMemo(() => filterConfessions(popularResult?.items), [popularResult, searchQuery]);
+  const shouldShowUserResults = debouncedSearch.trim().length >= 2 && userResults.length > 0;
 
   const renderConfessions = (confessions: any[], loading: boolean) => {
     if (loading) {
@@ -177,6 +223,10 @@ const Explore = () => {
 
           {/* Search Bar */}
           <ExploreSearchBar value={searchQuery} onChange={setSearchQuery} />
+
+          {shouldShowUserResults && (
+            <ExploreUserResults users={userResults} currentUserId={user?.id ?? null} />
+          )}
 
           {/* Trending Carousel - Only show if not searching */}
           {!searchQuery && <TrendingConfessionsCarousel />}

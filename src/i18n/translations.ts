@@ -1259,6 +1259,7 @@ type Translations = {
   // Explore Page Discovery
   explore_subtitle: string;
   explore_search_confessions_placeholder: string;
+  explore_following_updated_toast: string;
   explore_no_confessions: string;
   explore_trending_confessions: string;
 
@@ -3304,7 +3305,8 @@ export const translations: Record<Language, Translations> = {
     
     // Explore Page Discovery
     explore_subtitle: "Recommended for you",
-    explore_search_confessions_placeholder: "Search confessions...",
+    explore_search_confessions_placeholder: "Search confessions or users...",
+    explore_following_updated_toast: "Following updated. See their confessions in Following.",
     explore_no_confessions: "No confessions yet",
     explore_trending_confessions: "Trending Confessions",
     
@@ -5188,7 +5190,8 @@ export const translations: Record<Language, Translations> = {
     
     // Explore Page Discovery
     explore_subtitle: "Recomendado para ti",
-    explore_search_confessions_placeholder: "Buscar confesiones...",
+    explore_search_confessions_placeholder: "Buscar confesiones o usuarios...",
+    explore_following_updated_toast: "Seguimiento actualizado. Verás sus confesiones en Following.",
     explore_no_confessions: "Aún no hay confesiones",
     explore_trending_confessions: "Confesiones Trending",
     
@@ -7173,7 +7176,8 @@ export const translations: Record<Language, Translations> = {
     
     // Explore Page Discovery
     explore_subtitle: "Empfohlen für dich",
-    explore_search_confessions_placeholder: "Beichten suchen...",
+    explore_search_confessions_placeholder: "Beichten oder Nutzer suchen...",
+    explore_following_updated_toast: "Following aktualisiert. Du siehst ihre Beichten in Following.",
     explore_no_confessions: "Noch keine Beichten",
     explore_trending_confessions: "Trending Beichten",
     
