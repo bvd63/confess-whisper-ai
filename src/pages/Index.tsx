@@ -193,21 +193,11 @@ const Index = () => {
 
   useEffect(() => {
     const handleHomePressed = () => {
-      const scrollElement = document.querySelector('[data-app-scroll]') as HTMLElement | null;
-      const currentTop = scrollElement ? scrollElement.scrollTop : (window.scrollY || window.pageYOffset || 0);
-
-      const scrollToTop = () => {
-        if (scrollElement) {
-          scrollElement.scrollTo({ top: 0, behavior: 'smooth' });
-        } else {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-      };
-
+      const currentTop = window.scrollY || window.pageYOffset || 0;
       if (currentTop <= 10) {
         triggerRefresh();
       } else {
-        scrollToTop();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     };
 
@@ -382,6 +372,12 @@ const Index = () => {
     // Track page view
     trackEvent('page_view', { page: 'index' });
     
+    // Check if user is new (show onboarding)
+    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+    if (!hasSeenOnboarding) {
+      setTimeout(() => setShowOnboarding(true), 1000);
+    }
+    
     // Check for referral code
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get('ref');
@@ -532,15 +528,14 @@ const Index = () => {
             refetch();
           }}
         />
-            {false && (
-              <OnboardingDialog
-                open={showOnboarding}
-                onComplete={() => {
-                  setShowOnboarding(false);
-                  localStorage.setItem('hasSeenOnboarding', 'true');
-                }}
-              />
-            )}
+
+        <OnboardingDialog
+          open={showOnboarding}
+          onComplete={() => {
+            setShowOnboarding(false);
+            localStorage.setItem('hasSeenOnboarding', 'true');
+          }}
+        />
       </Suspense>
 
       <UnifiedShopDialog

@@ -15,42 +15,33 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
 
   // Global viewport scroll listener to mirror Instagram/Facebook header behavior
   useEffect(() => {
-    if (!hideHeaderOnScroll || isHeaderVisible !== undefined) return;
+    if (!hideHeaderOnScroll) return;
 
-    const scrollElement = document.querySelector('[data-app-scroll]') as HTMLElement | null;
-    const target: HTMLElement | Window = scrollElement ?? window;
-    const getScrollY = () => (scrollElement ? scrollElement.scrollTop : window.pageYOffset);
-
-    let lastY = getScrollY();
+    let lastY = window.pageYOffset;
 
     const onScroll = () => {
-      const currentY = getScrollY();
-
-      if (currentY <= 0) {
-        setViewportHeaderVisible(true);
-        lastY = currentY;
-        return;
-      }
-
+      const currentY = window.pageYOffset;
       const delta = currentY - lastY;
 
-      if (Math.abs(delta) < 8) {
-        lastY = currentY;
-        return;
+      if (Math.abs(delta) < 8) return;
+
+      if (delta > 0) {
+        setViewportHeaderVisible(false); // scroll down
+      } else {
+        setViewportHeaderVisible(true); // scroll up
       }
 
-      setViewportHeaderVisible(delta <= 0);
       lastY = currentY;
     };
 
-    target.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
 
     return () => {
-      target.removeEventListener("scroll", onScroll);
+      window.removeEventListener("scroll", onScroll);
     };
-  }, [hideHeaderOnScroll, isHeaderVisible]);
+  }, [hideHeaderOnScroll]);
 
-  const computedHeaderVisible = hideHeaderOnScroll ? (isHeaderVisible ?? viewportHeaderVisible) : (isHeaderVisible ?? true);
+  const computedHeaderVisible = hideHeaderOnScroll ? viewportHeaderVisible : (isHeaderVisible ?? true);
   return (
     <div
       className="relative min-h-[100dvh] bg-background"
