@@ -7,7 +7,7 @@ import { observability } from '@/lib/observability';
  * Ensures tokens are refreshed before expiry
  */
 export const useAuthRefresh = () => {
-  const refreshTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const refreshTimeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     const rotateManagedRefreshToken = async () => {
