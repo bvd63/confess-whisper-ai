@@ -1,6 +1,5 @@
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import AppHeader from "./AppHeader";
-import { getScrollTop, resolveScrollRoot } from "@/lib/scrollRoot";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -13,82 +12,32 @@ interface AppLayoutProps {
 
 const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeaderOnScroll, isHeaderVisible, showHeader = false }: AppLayoutProps) => {
   const [viewportHeaderVisible, setViewportHeaderVisible] = useState(true);
-  const [isAtTop, setIsAtTop] = useState(true);
-  const topSentinelRef = useRef<HTMLDivElement | null>(null);
-  const isAtTopRef = useRef(true);
-
-  // Observe visual top using a sentinel so bounce/momentum can't hide the header on mobile
-  useEffect(() => {
-    if (!hideHeaderOnScroll) return;
-
-    const scrollRoot = resolveScrollRoot();
-    const root = scrollRoot instanceof Window ? null : scrollRoot;
-    const sentinel = topSentinelRef.current;
-    if (!sentinel) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!entries.length) return;
-        const intersecting = entries[0].isIntersecting;
-        isAtTopRef.current = intersecting;
-        setIsAtTop(intersecting);
-      },
-      {
-        root,
-        threshold: 0,
-        rootMargin: "24px 0px 0px 0px",
-      }
-    );
-
-    observer.observe(sentinel);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [hideHeaderOnScroll]);
 
   // Global viewport scroll listener to mirror Instagram/Facebook header behavior
   useEffect(() => {
     if (!hideHeaderOnScroll) return;
 
-    const scrollRoot = resolveScrollRoot();
-    let lastY = getScrollTop(scrollRoot);
-    const TOP_STOP = 24;
+    let lastY = window.pageYOffset;
 
     const onScroll = () => {
-      const currentScroll = Math.max(0, getScrollTop(scrollRoot));
+      const currentY = window.pageYOffset;
+      const delta = currentY - lastY;
 
-      if (isAtTopRef.current || currentScroll <= TOP_STOP) {
-        setViewportHeaderVisible(true);
-        lastY = currentScroll;
-        return;
-      }
-
-      const delta = currentScroll - lastY;
-
-      // Any upward movement should immediately show the header; apply threshold only for hiding
-      if (delta < 0) {
-        setViewportHeaderVisible(true);
-        lastY = currentScroll;
-        return;
-      }
-
-      if (delta < 8) {
-        return;
-      }
+      if (Math.abs(delta) < 8) return;
 
       if (delta > 0) {
-        setViewportHeaderVisible(false);
+        setViewportHeaderVisible(false); // scroll down
+      } else {
+        setViewportHeaderVisible(true); // scroll up
       }
 
-      lastY = currentScroll;
+      lastY = currentY;
     };
 
-    const target: HTMLElement | Window = scrollRoot;
-    target.addEventListener("scroll", onScroll, { passive: true } as AddEventListenerOptions);
+    window.addEventListener("scroll", onScroll, { passive: true });
 
     return () => {
-      target.removeEventListener("scroll", onScroll as EventListener);
+      window.removeEventListener("scroll", onScroll);
     };
   }, [hideHeaderOnScroll]);
 
@@ -116,11 +65,6 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
         data-app-scroll
         className="relative z-10 min-h-[100dvh] pb-[env(safe-area-inset-bottom)]"
       >
-        <div
-          ref={topSentinelRef}
-          className="absolute top-0 left-0 right-0 h-px pointer-events-none"
-          aria-hidden="true"
-        />
         {showHeader && (
           <AppHeader 
             onNewConfession={onNewConfession} 

@@ -83,14 +83,27 @@ const AppContent = () => {
   // Check if onboarding is needed
   useEffect(() => {
     const checkOnboarding = async () => {
-      if (onboardingChecked) return;
-
-      if (user) {
+      if (!user || onboardingChecked) return;
+      
+      try {
+        const { data } = await getSupabase()
+          .from('profiles')
+          .select('onboarding_completed, trial_used, trial_active')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (data && !data.onboarding_completed && !data.trial_used) {
+          // Show VIP onboarding for new users who haven't used trial
+          setShowVIPOnboarding(true);
+        } else if (data && !data.onboarding_completed) {
+          // Show regular onboarding
+          setShowOnboarding(true);
+        }
         setOnboardingChecked(true);
-        return;
+      } catch (error) {
+        logError('Onboarding check failed', error instanceof Error ? error : undefined);
+        setOnboardingChecked(true);
       }
-
-      setOnboardingChecked(true);
     };
     
     checkOnboarding();

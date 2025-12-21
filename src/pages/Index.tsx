@@ -17,7 +17,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useInfiniteQuery, useQueryClient, InfiniteData } from "@tanstack/react-query";
 import { attachActiveBoosts } from "@/lib/boosts";
 import { useScrollHeader } from "@/hooks/useScrollHeader";
-import { getScrollTop, resolveScrollRoot, scrollToTop } from "@/lib/scrollRoot";
 import { Loader2 } from "lucide-react";
 import EmptyFeedState from "@/components/feed/EmptyFeedState";
 import EndOfFeedState from "@/components/feed/EndOfFeedState";
@@ -194,13 +193,20 @@ const Index = () => {
 
   useEffect(() => {
     const handleHomePressed = () => {
-      const scrollRoot = resolveScrollRoot();
-      scrollToTop(scrollRoot, 'smooth');
+      const container = scrollContainer ?? (document.querySelector('[data-app-scroll]') as HTMLDivElement | null);
+      if (!container) return;
+
+      const currentTop = container.scrollTop;
+      if (currentTop <= 10) {
+        triggerRefresh();
+      } else {
+        container.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     };
 
     window.addEventListener('confessai:home-pressed', handleHomePressed);
     return () => window.removeEventListener('confessai:home-pressed', handleHomePressed);
-  }, []);
+  }, [scrollContainer, triggerRefresh]);
 
   // Touch-priority header visibility for mobile; scroll remains fallback for desktop
   useEffect(() => {
