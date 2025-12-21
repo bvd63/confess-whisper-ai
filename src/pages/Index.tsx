@@ -150,6 +150,7 @@ const Index = () => {
       if (window.scrollY === 0) {
         startY = e.touches[0].clientY;
         isPulling = true;
+        window.dispatchEvent(new CustomEvent('confessai:pull-state', { detail: { active: true } }));
       }
     };
 
@@ -166,23 +167,26 @@ const Index = () => {
       }
     };
 
-    const onTouchEnd = async () => {
+    const endPull = async () => {
       if (showPullToRefresh) {
         await triggerRefresh();
       }
       setShowPullToRefresh(false);
       setPullDistance(0);
       isPulling = false;
+      window.dispatchEvent(new CustomEvent('confessai:pull-state', { detail: { active: false } }));
     };
 
     window.addEventListener("touchstart", onTouchStart, { passive: true });
     window.addEventListener("touchmove", onTouchMove, { passive: true });
-    window.addEventListener("touchend", onTouchEnd);
+    window.addEventListener("touchend", endPull);
+    window.addEventListener("touchcancel", endPull);
 
     return () => {
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchmove", onTouchMove);
-      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("touchend", endPull);
+      window.removeEventListener("touchcancel", endPull);
     };
   }, [showPullToRefresh, triggerRefresh]);
 

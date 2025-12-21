@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import AppHeader from "./AppHeader";
 
 interface AppLayoutProps {
@@ -12,6 +12,21 @@ interface AppLayoutProps {
 
 const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeaderOnScroll, isHeaderVisible, showHeader = false }: AppLayoutProps) => {
   const [viewportHeaderVisible, setViewportHeaderVisible] = useState(true);
+  const isPullingRef = useRef(false);
+
+  // Keep header visible while a pull-to-refresh gesture is active
+  useEffect(() => {
+    const handlePullState = (event: Event) => {
+      const active = Boolean((event as CustomEvent<{ active?: boolean }>).detail?.active);
+      isPullingRef.current = active;
+      if (active) {
+        setViewportHeaderVisible(true);
+      }
+    };
+
+    window.addEventListener("confessai:pull-state", handlePullState as EventListener);
+    return () => window.removeEventListener("confessai:pull-state", handlePullState as EventListener);
+  }, []);
 
   // Global viewport scroll listener to mirror Instagram/Facebook header behavior
   useEffect(() => {
@@ -22,6 +37,12 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
     const onScroll = () => {
       const currentY = window.pageYOffset;
       const delta = currentY - lastY;
+
+      if (isPullingRef.current) {
+        setViewportHeaderVisible(true);
+        lastY = currentY;
+        return;
+      }
 
       if (Math.abs(delta) < 8) {
         lastY = currentY;
