@@ -124,13 +124,18 @@ export const InstagramBottomNav = () => {
       return;
     }
 
+    if (target === 'home' && derivedTab === 'home' && !isComposeActive) {
+      window.dispatchEvent(new CustomEvent('confessai:home-pressed', { detail: { source: 'bottom-nav' } }));
+      return;
+    }
+
     if (target === 'home' && isComposeActive) {
       navigate('/');
       return;
     }
 
     switchTab(target);
-  }, [navigate, switchTab, isComposeActive]);
+  }, [navigate, switchTab, isComposeActive, derivedTab]);
 
   const navClickHandlers = useMemo<Record<NavTarget, () => void>>(() => ({
     home: () => handleTabClick('home'),
