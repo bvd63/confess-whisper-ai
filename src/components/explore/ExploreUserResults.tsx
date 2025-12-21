@@ -26,6 +26,8 @@ export const ExploreUserResults = ({ users, currentUserId }: ExploreUserResultsP
   const [followingMap, setFollowingMap] = useState<Record<string, boolean>>({});
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
 
+  if (!currentUserId) return null;
+
   const userIds = useMemo(() => users.map((u) => u.user_id).filter(Boolean), [users]);
 
   const refreshFollowing = useCallback(

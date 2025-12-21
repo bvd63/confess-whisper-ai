@@ -53,6 +53,12 @@ const Explore = () => {
 
   useEffect(() => {
     const query = debouncedSearch.trim();
+
+    if (!user?.id) {
+      setUserResults([]);
+      return;
+    }
+
     if (query.length < 2) {
       setUserResults([]);
       return;
@@ -89,7 +95,7 @@ const Explore = () => {
     return () => {
       isCancelled = true;
     };
-  }, [debouncedSearch]);
+  }, [debouncedSearch, user?.id]);
 
   const triggerRefresh = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ["explore"] });
@@ -163,7 +169,7 @@ const Explore = () => {
   const filteredHot = useMemo(() => filterConfessions(trendingResult?.items), [trendingResult, searchQuery]);
   const filteredRecent = useMemo(() => filterConfessions(recentResult?.items), [recentResult, searchQuery]);
   const filteredPopular = useMemo(() => filterConfessions(popularResult?.items), [popularResult, searchQuery]);
-  const shouldShowUserResults = debouncedSearch.trim().length >= 2 && userResults.length > 0;
+  const shouldShowUserResults = Boolean(user?.id) && debouncedSearch.trim().length >= 2 && userResults.length > 0;
 
   const renderConfessions = (confessions: any[], loading: boolean) => {
     if (loading) {
@@ -224,8 +230,8 @@ const Explore = () => {
           {/* Search Bar */}
           <ExploreSearchBar value={searchQuery} onChange={setSearchQuery} />
 
-          {shouldShowUserResults && (
-            <ExploreUserResults users={userResults} currentUserId={user?.id ?? null} />
+          {shouldShowUserResults && user?.id && (
+            <ExploreUserResults users={userResults} currentUserId={user.id} />
           )}
 
           {/* Trending Carousel - Only show if not searching */}
