@@ -23,12 +23,6 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
       const currentY = window.pageYOffset;
       const delta = currentY - lastY;
 
-      if (window.pageYOffset <= 0) {
-        setViewportHeaderVisible(true);
-        lastY = 0;
-        return;
-      }
-
       if (Math.abs(delta) < 8) return;
 
       if (delta > 0) {

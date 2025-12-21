@@ -200,16 +200,23 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Safe, opt-in scrollbar hiding */
-.scrollbar-hide {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
 }
 
-.scrollbar-hide::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-  display: none;
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.5);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.7);
 }
 
 /* Focus Visible Outlines */
