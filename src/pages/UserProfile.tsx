@@ -16,7 +16,7 @@ import { Gift } from "lucide-react";
 
 interface UserProfileData {
   nickname: string;
-  bio?: string;
+  bio: string | null;
 }
 
 const UserProfile = () => {
@@ -31,6 +31,7 @@ const UserProfile = () => {
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const [giftCoinsOpen, setGiftCoinsOpen] = useState(false);
   const isOwnProfile = currentUser?.id === userId;
+  const profileSource: "public_profiles" = "public_profiles";
 
   useEffect(() => {
     if (!userId) return;
@@ -43,14 +44,23 @@ const UserProfile = () => {
     setIsLoading(true);
     try {
       // Load profile data
-      const profileSource = isOwnProfile ? "profiles" : "public_profiles";
       const { data: profileData, error: profileError } = await supabase
         .from(profileSource)
         .select("nickname, bio")
         .eq("user_id", userId)
         .maybeSingle();
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error(profileError);
+        return;
+      }
+
+      const typedProfile: UserProfileData | null = profileData
+        ? {
+            nickname: profileData.nickname,
+            bio: profileData.bio ?? null,
+          }
+        : null;
 
       // Load confessions count
       const { count, error: countError } = await supabase
@@ -59,9 +69,11 @@ const UserProfile = () => {
         .eq("user_id", userId)
         .eq("moderation_status", "approved");
 
-      if (countError) throw countError;
-
-      setProfile(profileData);
+      if (countError) {
+        console.error(countError);
+        return;
+      }
+      setProfile(typedProfile);
       setConfessionsCount(count || 0);
     } catch (error) {
       logError("Error loading profile", error as Error);

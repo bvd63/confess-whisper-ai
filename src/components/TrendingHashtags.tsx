@@ -28,8 +28,8 @@ export const TrendingHashtags = ({ onHashtagClick }: TrendingHashtagsProps) => {
       // Extract and count hashtags
       const hashtagMap = new Map<string, number>();
       data.forEach(confession => {
-        const hashtags = confession.content.match(/#\w+/g) || [];
-        hashtags.forEach(tag => {
+        const hashtagMatches: string[] = confession.content?.match(/#\w+/g) ?? [];
+        hashtagMatches.forEach(tag => {
           const normalized = tag.toLowerCase();
           hashtagMap.set(normalized, (hashtagMap.get(normalized) || 0) + 1);
         });

@@ -29,7 +29,7 @@ interface EventData {
 
 export const useAnalytics = () => {
   const batchRef = useRef<Array<{ eventType: AnalyticsEvent; eventData?: EventData }>>([]);
-  const timerRef = useRef<NodeJS.Timeout>();
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const flushBatch = useCallback(async () => {
     if (batchRef.current.length === 0) return;
