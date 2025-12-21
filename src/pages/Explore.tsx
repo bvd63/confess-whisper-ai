@@ -85,14 +85,22 @@ const Explore = () => {
       isPulling = false;
     };
 
+    const onTouchCancel = () => {
+      isPulling = false;
+      setShowPullToRefresh(false);
+      setPullDistance(0);
+    };
+
     window.addEventListener("touchstart", onTouchStart, { passive: true });
     window.addEventListener("touchmove", onTouchMove, { passive: true });
     window.addEventListener("touchend", onTouchEnd);
+    window.addEventListener("touchcancel", onTouchCancel);
 
     return () => {
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchmove", onTouchMove);
       window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("touchcancel", onTouchCancel);
     };
   }, [showPullToRefresh, triggerRefresh]);
 
