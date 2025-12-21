@@ -407,7 +407,7 @@ const NewConfessionDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto bg-transparent backdrop-blur-xl border-primary/20 rounded-3xl shadow-2xl"
+        className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto bg-background backdrop-blur-xl border-primary/20 rounded-3xl shadow-2xl"
         style={{
           marginBottom: isKeyboardVisible ? `${keyboardHeight}px` : '0',
           transition: 'margin-bottom 0.3s ease-out'
