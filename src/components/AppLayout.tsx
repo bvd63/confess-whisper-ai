@@ -23,7 +23,10 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
       const currentY = window.pageYOffset;
       const delta = currentY - lastY;
 
-      if (Math.abs(delta) < 8) return;
+      if (Math.abs(delta) < 8) {
+        lastY = currentY;
+        return;
+      }
 
       if (delta > 0) {
         setViewportHeaderVisible(false); // scroll down
