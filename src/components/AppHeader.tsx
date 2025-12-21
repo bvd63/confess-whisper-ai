@@ -104,7 +104,7 @@ const AppHeader = ({
     "sticky top-0 z-50 px-4 sm:px-6 py-3 transition-all duration-300 ease-in-out pointer-events-none",
     hideOnScroll && !isVisible && "transform -translate-y-full opacity-0 pointer-events-none"
   )}>
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto pointer-events-none">
         <div className="flex items-center justify-between h-14 px-4 sm:px-6 rounded-full bg-gradient-to-br from-[#1a1a2e]/95 via-[#16213e]/95 to-[#0f1419]/95 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(139,92,246,0.15)] pointer-events-none">
           {backNav.show && (
             <Button
