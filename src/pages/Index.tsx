@@ -198,6 +198,12 @@ const Index = () => {
   useEffect(() => {
     const handleHomePressed = () => {
       const scrollEl = document.querySelector('[data-app-scroll]') as HTMLElement | null;
+      const currentTop = scrollEl ? scrollEl.scrollTop : (window.scrollY || window.pageYOffset || 0);
+
+      if (currentTop <= 10) {
+        triggerRefresh();
+        return;
+      }
 
       if (scrollEl) {
         scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
@@ -209,7 +215,7 @@ const Index = () => {
 
     window.addEventListener('confessai:home-pressed', handleHomePressed);
     return () => window.removeEventListener('confessai:home-pressed', handleHomePressed);
-  }, []);
+  }, [triggerRefresh]);
 
   // Touch-priority header visibility for mobile; scroll remains fallback for desktop
   useEffect(() => {
