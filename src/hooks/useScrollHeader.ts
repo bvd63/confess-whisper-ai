@@ -3,17 +3,23 @@ import { useState, useEffect, useRef } from 'react';
 interface UseScrollHeaderOptions {
   threshold?: number;
   topOffset?: number;
+  container?: HTMLElement | null;
 }
 
 export const useScrollHeader = (options: UseScrollHeaderOptions = {}) => {
-  const { threshold = 10, topOffset = 30 } = options;
+  const { threshold = 10, topOffset = 30, container = null } = options;
   const [isVisible, setIsVisible] = useState(true);
   const lastScrollY = useRef(0);
   const ticking = useRef(false);
 
   useEffect(() => {
+    const target = container ?? window;
+
+    // Initialize last known position from the current scroll container
+    lastScrollY.current = container ? container.scrollTop : window.scrollY;
+
     const updateScrollDirection = () => {
-      const scrollY = window.scrollY;
+      const scrollY = container ? container.scrollTop : window.scrollY;
 
       // Always show header near the top
       if (scrollY < topOffset) {
@@ -51,12 +57,12 @@ export const useScrollHeader = (options: UseScrollHeaderOptions = {}) => {
       }
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    target.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      target.removeEventListener('scroll', handleScroll);
     };
-  }, [threshold, topOffset]);
+  }, [threshold, topOffset, container]);
 
   return isVisible;
 };

@@ -70,7 +70,7 @@ const Index = () => {
   const optimisticCommentDeltas = useRef<Record<string, number>>({});
   
   // Scroll header behavior for Home Feed
-  const isHeaderVisible = useScrollHeader({ threshold: 12, topOffset: 30 });
+  const isHeaderVisible = useScrollHeader({ threshold: 12, topOffset: 30, container: scrollContainer });
   
   // Fetch confessions feed
   const { data, isLoading, isFetching, error: queryError, refetch } = useInfiniteQuery<FeedConfession[]>({
