@@ -23,20 +23,20 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
     const TOP_STOP = 10;
 
     const onScroll = () => {
-      const currentY = getScrollTop(scrollRoot);
+      const currentScroll = Math.max(0, getScrollTop(scrollRoot));
 
-      if (currentY <= TOP_STOP) {
+      if (currentScroll <= TOP_STOP) {
         setViewportHeaderVisible(true);
-        lastY = currentY;
+        lastY = currentScroll;
         return;
       }
 
-      const delta = currentY - lastY;
+      const delta = currentScroll - lastY;
 
       // Any upward movement should immediately show the header; apply threshold only for hiding
       if (delta < 0) {
         setViewportHeaderVisible(true);
-        lastY = currentY;
+        lastY = currentScroll;
         return;
       }
 
@@ -48,7 +48,7 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
         setViewportHeaderVisible(false);
       }
 
-      lastY = currentY;
+      lastY = currentScroll;
     };
 
     const target: HTMLElement | Window = scrollRoot;
