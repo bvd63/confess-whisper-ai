@@ -20,9 +20,17 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
 
     const scrollRoot = resolveScrollRoot();
     let lastY = getScrollTop(scrollRoot);
+    const TOP_STOP = 10;
 
     const onScroll = () => {
       const currentY = getScrollTop(scrollRoot);
+
+      if (currentY <= TOP_STOP) {
+        setViewportHeaderVisible(true);
+        lastY = currentY;
+        return;
+      }
+
       const delta = currentY - lastY;
 
       // Any upward movement should immediately show the header; apply threshold only for hiding

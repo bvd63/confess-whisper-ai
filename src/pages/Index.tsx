@@ -195,18 +195,12 @@ const Index = () => {
   useEffect(() => {
     const handleHomePressed = () => {
       const scrollRoot = resolveScrollRoot();
-      const currentTop = getScrollTop(scrollRoot);
-
-      if (currentTop <= 10) {
-        triggerRefresh();
-      } else {
-        scrollToTop(scrollRoot, 'smooth');
-      }
+      scrollToTop(scrollRoot, 'smooth');
     };
 
     window.addEventListener('confessai:home-pressed', handleHomePressed);
     return () => window.removeEventListener('confessai:home-pressed', handleHomePressed);
-  }, [triggerRefresh]);
+  }, []);
 
   // Touch-priority header visibility for mobile; scroll remains fallback for desktop
   useEffect(() => {
