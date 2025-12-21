@@ -372,12 +372,6 @@ const Index = () => {
     // Track page view
     trackEvent('page_view', { page: 'index' });
     
-    // Check if user is new (show onboarding)
-    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
-    if (!hasSeenOnboarding) {
-      setTimeout(() => setShowOnboarding(true), 1000);
-    }
-    
     // Check for referral code
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get('ref');
@@ -528,14 +522,15 @@ const Index = () => {
             refetch();
           }}
         />
-
-        <OnboardingDialog
-          open={showOnboarding}
-          onComplete={() => {
-            setShowOnboarding(false);
-            localStorage.setItem('hasSeenOnboarding', 'true');
-          }}
-        />
+            {false && (
+              <OnboardingDialog
+                open={showOnboarding}
+                onComplete={() => {
+                  setShowOnboarding(false);
+                  localStorage.setItem('hasSeenOnboarding', 'true');
+                }}
+              />
+            )}
       </Suspense>
 
       <UnifiedShopDialog
