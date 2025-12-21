@@ -197,20 +197,21 @@ const Index = () => {
 
   useEffect(() => {
     const handleHomePressed = () => {
-      const scrollEl = document.querySelector('[data-app-scroll]') as HTMLElement | null;
+      const scrollEl = (document.querySelector('[data-app-scroll]') as HTMLElement | null)
+        || (document.querySelector('main') as HTMLElement | null);
       const currentTop = scrollEl ? scrollEl.scrollTop : (window.scrollY || window.pageYOffset || 0);
+      const TOP_THRESHOLD = 12;
 
-      if (currentTop <= 10) {
-        triggerRefresh();
+      if (currentTop > TOP_THRESHOLD) {
+        if (scrollEl) {
+          scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
         return;
       }
 
-      if (scrollEl) {
-        scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
-        return;
-      }
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      triggerRefresh();
     };
 
     window.addEventListener('confessai:home-pressed', handleHomePressed);
