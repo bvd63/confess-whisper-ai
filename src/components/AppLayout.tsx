@@ -69,8 +69,7 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
         return;
       }
 
-      if (Math.abs(delta) < 8) {
-        lastY = currentScroll;
+      if (delta < 8) {
         return;
       }
 
