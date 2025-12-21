@@ -193,11 +193,22 @@ const Index = () => {
 
   useEffect(() => {
     const handleHomePressed = () => {
-      const currentTop = window.scrollY || window.pageYOffset || 0;
-      if (currentTop <= 10) {
+      const mainEl = document.querySelector('main') as HTMLElement | null;
+      const windowTop = window.scrollY || window.pageYOffset || 0;
+      const mainTop = mainEl ? mainEl.scrollTop : Number.POSITIVE_INFINITY;
+      const nearestTop = Math.min(windowTop, mainTop);
+
+      const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (mainEl) {
+          mainEl.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      };
+
+      if (nearestTop <= 10) {
         triggerRefresh();
       } else {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToTop();
       }
     };
 

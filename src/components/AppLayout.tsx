@@ -18,22 +18,35 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
     if (!hideHeaderOnScroll) return;
 
     let lastY = window.pageYOffset;
+    let ticking = false;
 
-    const onScroll = () => {
+    const updateVisibility = () => {
       const currentY = window.pageYOffset;
       const delta = currentY - lastY;
 
-      if (Math.abs(delta) < 8) return;
-
-      if (delta > 0) {
-        setViewportHeaderVisible(false); // scroll down
-      } else {
-        setViewportHeaderVisible(true); // scroll up
+      if (currentY < 12) {
+        setViewportHeaderVisible(true);
+        lastY = currentY;
+        ticking = false;
+        return;
       }
 
+      if (Math.abs(delta) < 10) {
+        ticking = false;
+        return;
+      }
+
+      setViewportHeaderVisible(delta <= 0);
       lastY = currentY;
+      ticking = false;
     };
 
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateVisibility);
+        ticking = true;
+      }
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
 
     return () => {
