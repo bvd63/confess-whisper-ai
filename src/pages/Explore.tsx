@@ -26,6 +26,8 @@ const Explore = () => {
   const [activeTab, setActiveTab] = useState("trending");
   const [searchQuery, setSearchQuery] = useState("");
   const [userResults, setUserResults] = useState<ExploreUserResult[]>([]);
+  const [searchedConfessions, setSearchedConfessions] = useState<any[]>([]);
+  const [searchingConfessions, setSearchingConfessions] = useState(false);
   const debouncedSearch = useDebounce(searchQuery, 300);
   const { user } = useCurrentUser();
   useAnalyticsTracking(user?.id || null);
@@ -91,6 +93,63 @@ const Explore = () => {
     };
 
     searchUsers();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [debouncedSearch, user?.id]);
+
+  useEffect(() => {
+    const query = debouncedSearch.trim();
+
+    if (query.length < 2) {
+      setSearchedConfessions([]);
+      setSearchingConfessions(false);
+      return;
+    }
+
+    let isCancelled = false;
+
+    const searchConfessions = async () => {
+      setSearchingConfessions(true);
+      try {
+        let dbQuery = supabase
+          .from("confessions")
+          .select("*")
+          .ilike("content", `%${query}%`)
+          .order("created_at", { ascending: false })
+          .limit(25)
+          .eq("moderation_status", "approved")
+          .not("is_draft", "eq", true)
+          .not("is_private", "eq", true)
+          .not("is_reported", "eq", true);
+
+        if (user?.id) {
+          dbQuery = dbQuery.neq("user_id", user.id);
+        }
+
+        const { data, error } = await dbQuery;
+
+        if (isCancelled) return;
+
+        if (error) {
+          setSearchedConfessions([]);
+          return;
+        }
+
+        setSearchedConfessions(data || []);
+      } catch (_error) {
+        if (!isCancelled) {
+          setSearchedConfessions([]);
+        }
+      } finally {
+        if (!isCancelled) {
+          setSearchingConfessions(false);
+        }
+      }
+    };
+
+    searchConfessions();
 
     return () => {
       isCancelled = true;
@@ -170,6 +229,11 @@ const Explore = () => {
   const filteredRecent = useMemo(() => filterConfessions(recentResult?.items), [recentResult, searchQuery]);
   const filteredPopular = useMemo(() => filterConfessions(popularResult?.items), [popularResult, searchQuery]);
   const shouldShowUserResults = Boolean(user?.id) && debouncedSearch.trim().length >= 2 && userResults.length > 0;
+  const showSearchMode = debouncedSearch.trim().length >= 2;
+
+  const displayedTrending = showSearchMode ? searchedConfessions : filteredHot;
+  const displayedPopular = showSearchMode ? searchedConfessions : filteredPopular;
+  const displayedRecent = showSearchMode ? searchedConfessions : filteredRecent;
 
   const renderConfessions = (confessions: any[], loading: boolean) => {
     if (loading) {
@@ -266,15 +330,15 @@ const Explore = () => {
             </div>
 
             <TabsContent value="trending" className="mt-3">
-              {renderConfessions(filteredHot, loadingTrending)}
+              {renderConfessions(displayedTrending, showSearchMode ? searchingConfessions : loadingTrending)}
             </TabsContent>
 
             <TabsContent value="popular" className="mt-3">
-              {renderConfessions(filteredPopular, loadingPopular)}
+              {renderConfessions(displayedPopular, showSearchMode ? searchingConfessions : loadingPopular)}
             </TabsContent>
 
             <TabsContent value="recent" className="mt-3">
-              {renderConfessions(filteredRecent, loadingRecent)}
+              {renderConfessions(displayedRecent, showSearchMode ? searchingConfessions : loadingRecent)}
             </TabsContent>
           </Tabs>
         </div>
