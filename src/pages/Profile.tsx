@@ -321,25 +321,13 @@ const Profile = () => {
                   {profileData?.bio?.trim() || t.profile_bio_placeholder}
                 </p>
               )}
-              {/* Followers / Following - Inline Text */}
+              {/* Followers / Following - Inline Text (disabled) */}
               <div className="flex items-center gap-2 mt-2 text-xs">
-                <span 
-                  className="text-white/70 cursor-pointer hover:text-white/90 transition-colors"
-                  onClick={() => {
-                    setFollowersDialogTab("followers");
-                    setFollowersDialogOpen(true);
-                  }}
-                >
+                <span className="text-white/70">
                   <span className="font-semibold text-white/90">{formatCount(followStats.followers)}</span> Followers
                 </span>
                 <span className="text-white/40">·</span>
-                <span 
-                  className="text-white/70 cursor-pointer hover:text-white/90 transition-colors"
-                  onClick={() => {
-                    setFollowersDialogTab("following");
-                    setFollowersDialogOpen(true);
-                  }}
-                >
+                <span className="text-white/70">
                   <span className="font-semibold text-white/90">{formatCount(followStats.following)}</span> Following
                 </span>
               </div>
@@ -418,13 +406,7 @@ const Profile = () => {
         isLoading={isLoggingOut}
       />
 
-      <FollowersListDialog
-        open={followersDialogOpen}
-        onOpenChange={setFollowersDialogOpen}
-        userId={user.id}
-        currentUserId={user.id}
-        initialTab={followersDialogTab}
-      />
+      {/* FollowersListDialog temporarily disabled */}
 
       <Suspense fallback={null}>
         <NewConfessionDialog 
