@@ -7,11 +7,22 @@ export const useSubscriptionCheck = (userId: string | undefined) => {
     if (!userId) return null;
 
     try {
-      // 1) Trigger backend verification against Stripe (updates profiles table)
+      // 1) Check for valid session before calling edge function
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        // No valid session, skip edge function call
+        return null;
+      }
+
+      // 2) Trigger backend verification against Stripe (updates profiles table)
       try {
         await supabase.functions.invoke('check-subscription');
       } catch (fnErr) {
-        logError('Error invoking check-subscription function', fnErr as Error);
+        // Silently handle 401 errors (session expired between check and call)
+        const errorMessage = fnErr instanceof Error ? fnErr.message : String(fnErr);
+        if (!errorMessage.includes('401') && !errorMessage.includes('Auth session missing')) {
+          logError('Error invoking check-subscription function', fnErr as Error);
+        }
       }
 
       // 2) Read current entitlements (if table exists)
