@@ -104,7 +104,7 @@ const Explore = () => {
 
     if (query.length < 2) {
       setSearchedConfessions([]);
-      setIsSearchingConfessions(false);
+      setSearchingConfessions(false);
       return;
     }
 
