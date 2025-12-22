@@ -16,7 +16,7 @@ import { ConfessionCardSkeleton } from "@/components/skeletons/ConfessionCardSke
 import { ExploreUserResults, ExploreUserResult } from "@/components/explore/ExploreUserResults";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { fetchPopularConfessions, fetchTrendingConfessions } from "@/services/exploreFeedService";
+import { fetchPopularConfessions, fetchTrendingConfessions, type ExploreResult } from "@/services/exploreFeedService";
 import { supabase } from "@/integrations/supabase/client";
 import { useDebounce } from "@/hooks/useDebounce";
 
@@ -54,18 +54,16 @@ const Explore = () => {
   const canFetchConfessions = authReady && isAuthed;
 
   // Fetch trending and popular confessions with scoring and filters
-  const { data: trendingResult, isLoading: loadingTrending, refetch: refetchTrending } = useQuery({
+  const { data: trendingResult, isLoading: loadingTrending, refetch: refetchTrending } = useQuery<ExploreResult>({
     queryKey: ["explore", "trending", currentUserId],
     queryFn: () => fetchTrendingConfessions({ currentUserId }),
     enabled: canFetchConfessions,
-    onError: notifyAuthError,
   });
 
-  const { data: popularResult, isLoading: loadingPopular, refetch: refetchPopular } = useQuery({
+  const { data: popularResult, isLoading: loadingPopular, refetch: refetchPopular } = useQuery<ExploreResult>({
     queryKey: ["explore", "popular", currentUserId],
     queryFn: () => fetchPopularConfessions({ currentUserId }),
     enabled: canFetchConfessions,
-    onError: notifyAuthError,
   });
 
   useEffect(() => {

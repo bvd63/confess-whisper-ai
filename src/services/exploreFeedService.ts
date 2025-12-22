@@ -38,7 +38,7 @@ type ExploreFetchParams = {
   loadedCount?: number;
 };
 
-type ExploreResult = {
+export type ExploreResult = {
   items: ConfessionRow[];
   source: ExploreSource;
   nextCursor: string | null;
