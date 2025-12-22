@@ -385,11 +385,8 @@ const Index = () => {
     // Track page view
     trackEvent('page_view', { page: 'index' });
     
-    // Check if user is new (show onboarding)
-    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
-    if (!hasSeenOnboarding) {
-      setTimeout(() => setShowOnboarding(true), 1000);
-    }
+    // Onboarding permanently disabled - always mark as seen
+    localStorage.setItem('hasSeenOnboarding', 'true');
     
     // Check for referral code
     const urlParams = new URLSearchParams(window.location.search);
