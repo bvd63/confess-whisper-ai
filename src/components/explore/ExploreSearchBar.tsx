@@ -5,9 +5,10 @@ import { useLanguage } from "@/contexts/LanguageContext";
 interface ExploreSearchBarProps {
   value: string;
   onChange: (value: string) => void;
+  disabled?: boolean;
 }
 
-export const ExploreSearchBar = ({ value, onChange }: ExploreSearchBarProps) => {
+export const ExploreSearchBar = ({ value, onChange, disabled }: ExploreSearchBarProps) => {
   const { t } = useLanguage();
 
   return (
@@ -19,7 +20,8 @@ export const ExploreSearchBar = ({ value, onChange }: ExploreSearchBarProps) => 
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={t.explore_search_confessions_placeholder}
+        placeholder={disabled ? t.explore_search_placeholder_logged_out : t.explore_search_confessions_placeholder}
+        disabled={disabled}
         className="pl-10 h-10 bg-white/5 border-white/10 text-white placeholder:text-white/40 
           rounded-xl focus:border-primary/50 focus:ring-primary/20"
       />

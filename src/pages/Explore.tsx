@@ -27,9 +27,11 @@ const Explore = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [userResults, setUserResults] = useState<ExploreUserResult[]>([]);
   const [searchedConfessions, setSearchedConfessions] = useState<any[]>([]);
-  const [searchingConfessions, setSearchingConfessions] = useState(false);
+  const [isSearchingConfessions, setIsSearchingConfessions] = useState(false);
+  const [, setIsSearchingUsers] = useState(false);
   const debouncedSearch = useDebounce(searchQuery, 300);
   const { user } = useCurrentUser();
+  const isAuthed = Boolean(user?.id);
   useAnalyticsTracking(user?.id || null);
   const { isVip } = useVipStatus(user?.id);
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
@@ -56,8 +58,9 @@ const Explore = () => {
   useEffect(() => {
     const query = debouncedSearch.trim();
 
-    if (!user?.id) {
+    if (!isAuthed) {
       setUserResults([]);
+      setIsSearchingUsers(false);
       return;
     }
 
@@ -69,6 +72,7 @@ const Explore = () => {
     let isCancelled = false;
 
     const searchUsers = async () => {
+      setIsSearchingUsers(true);
       try {
         const { data, error } = await supabase.functions.invoke("search-users", {
           body: { nickname: query },
@@ -89,6 +93,10 @@ const Explore = () => {
         if (!isCancelled) {
           setUserResults([]);
         }
+      } finally {
+        if (!isCancelled) {
+          setIsSearchingUsers(false);
+        }
       }
     };
 
@@ -97,21 +105,37 @@ const Explore = () => {
     return () => {
       isCancelled = true;
     };
-  }, [debouncedSearch, user?.id]);
+  }, [debouncedSearch, isAuthed, user?.id]);
+
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      if (!isAuthed) return;
+      setSearchQuery(value);
+    },
+    [isAuthed]
+  );
 
   useEffect(() => {
     const query = debouncedSearch.trim();
 
+    if (!isAuthed) {
+      setSearchedConfessions([]);
+      setIsSearchingConfessions(false);
+      setIsSearchingUsers(false);
+      setUserResults([]);
+      return;
+    }
+
     if (query.length < 2) {
       setSearchedConfessions([]);
-      setSearchingConfessions(false);
+      setIsSearchingConfessions(false);
       return;
     }
 
     let isCancelled = false;
 
     const searchConfessions = async () => {
-      setSearchingConfessions(true);
+      setIsSearchingConfessions(true);
       try {
         let dbQuery = supabase
           .from("confessions")
@@ -119,14 +143,10 @@ const Explore = () => {
           .ilike("content", `%${query}%`)
           .order("created_at", { ascending: false })
           .limit(25)
-          .eq("moderation_status", "approved")
+          .or("moderation_status.eq.approved,moderation_status.is.null")
           .not("is_draft", "eq", true)
           .not("is_private", "eq", true)
           .not("is_reported", "eq", true);
-
-        if (user?.id) {
-          dbQuery = dbQuery.neq("user_id", user.id);
-        }
 
         const { data, error } = await dbQuery;
 
@@ -144,7 +164,7 @@ const Explore = () => {
         }
       } finally {
         if (!isCancelled) {
-          setSearchingConfessions(false);
+          setIsSearchingConfessions(false);
         }
       }
     };
@@ -154,7 +174,7 @@ const Explore = () => {
     return () => {
       isCancelled = true;
     };
-  }, [debouncedSearch, user?.id]);
+  }, [debouncedSearch, isAuthed, user?.id]);
 
   const triggerRefresh = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ["explore"] });
@@ -216,7 +236,7 @@ const Explore = () => {
 
   const filterConfessions = (confessions: any[] | undefined) => {
     if (!confessions) return [];
-    if (!searchQuery.trim()) return confessions;
+    if (!isAuthed || !searchQuery.trim()) return confessions;
     const query = searchQuery.toLowerCase();
     return confessions.filter(
       (confession) =>
@@ -225,15 +245,16 @@ const Explore = () => {
     );
   };
 
-  const filteredHot = useMemo(() => filterConfessions(trendingResult?.items), [trendingResult, searchQuery]);
-  const filteredRecent = useMemo(() => filterConfessions(recentResult?.items), [recentResult, searchQuery]);
-  const filteredPopular = useMemo(() => filterConfessions(popularResult?.items), [popularResult, searchQuery]);
+  const filteredHot = useMemo(() => filterConfessions(trendingResult?.items), [trendingResult, searchQuery, isAuthed]);
+  const filteredRecent = useMemo(() => filterConfessions(recentResult?.items), [recentResult, searchQuery, isAuthed]);
+  const filteredPopular = useMemo(() => filterConfessions(popularResult?.items), [popularResult, searchQuery, isAuthed]);
+  const filteredSearched = useMemo(() => filterConfessions(searchedConfessions), [searchedConfessions, searchQuery, isAuthed]);
   const shouldShowUserResults = Boolean(user?.id) && debouncedSearch.trim().length >= 2 && userResults.length > 0;
-  const showSearchMode = debouncedSearch.trim().length >= 2;
+  const showSearchMode = isAuthed && debouncedSearch.trim().length >= 2;
 
-  const displayedTrending = showSearchMode ? searchedConfessions : filteredHot;
-  const displayedPopular = showSearchMode ? searchedConfessions : filteredPopular;
-  const displayedRecent = showSearchMode ? searchedConfessions : filteredRecent;
+  const displayedTrending = showSearchMode ? filteredSearched : filteredHot;
+  const displayedPopular = showSearchMode ? filteredSearched : filteredPopular;
+  const displayedRecent = showSearchMode ? filteredSearched : filteredRecent;
 
   const renderConfessions = (confessions: any[], loading: boolean) => {
     if (loading) {
@@ -292,7 +313,11 @@ const Explore = () => {
           </div>
 
           {/* Search Bar */}
-          <ExploreSearchBar value={searchQuery} onChange={setSearchQuery} />
+          <ExploreSearchBar value={searchQuery} onChange={handleSearchChange} disabled={!isAuthed} />
+
+          {!isAuthed && (
+            <p className="text-xs text-white/60">{t.explore_search_login_required}</p>
+          )}
 
           {shouldShowUserResults && user?.id && (
             <ExploreUserResults users={userResults} currentUserId={user.id} />
@@ -330,15 +355,15 @@ const Explore = () => {
             </div>
 
             <TabsContent value="trending" className="mt-3">
-              {renderConfessions(displayedTrending, showSearchMode ? searchingConfessions : loadingTrending)}
+              {renderConfessions(displayedTrending, showSearchMode ? isSearchingConfessions : loadingTrending)}
             </TabsContent>
 
             <TabsContent value="popular" className="mt-3">
-              {renderConfessions(displayedPopular, showSearchMode ? searchingConfessions : loadingPopular)}
+              {renderConfessions(displayedPopular, showSearchMode ? isSearchingConfessions : loadingPopular)}
             </TabsContent>
 
             <TabsContent value="recent" className="mt-3">
-              {renderConfessions(displayedRecent, showSearchMode ? searchingConfessions : loadingRecent)}
+              {renderConfessions(displayedRecent, showSearchMode ? isSearchingConfessions : loadingRecent)}
             </TabsContent>
           </Tabs>
         </div>
