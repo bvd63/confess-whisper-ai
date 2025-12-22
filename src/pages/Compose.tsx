@@ -535,9 +535,12 @@ const Compose = () => {
     : isBusy || isPolishing || !content.trim() || !canPost || (dailyLimit !== Infinity && remaining === 0) || (env.features.confessionTurnstileRequired && !captchaToken);
   return (
     <div
-      className="min-h-[100dvh] pb-20 bg-gradient-to-br from-[#0f0a23] via-[#0a0f2e] to-[#12072d] text-foreground"
+      className="min-h-screen bg-gradient-to-br from-[#0f0a23] via-[#0a0f2e] to-[#12072d] text-foreground"
+      style={{
+        paddingBottom: isKeyboardVisible ? `${keyboardHeight + 24}px` : "24px",
+      }}
     >
-      <div className="max-w-[480px] mx-auto px-4 sm:px-6 pt-6 pb-24 space-y-5">
+      <div className="max-w-[480px] mx-auto px-4 sm:px-6 pt-6 pb-10 space-y-5">
         <div className="flex items-center justify-center relative">
           <h1 className="text-xl font-semibold text-center tracking-tight text-white drop-shadow-lg">
             {t.new_confession}
