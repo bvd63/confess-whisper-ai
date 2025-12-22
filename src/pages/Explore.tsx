@@ -142,7 +142,7 @@ const Explore = () => {
           return;
         }
 
-        const normalized = (data || []).map((item) => ({ ...item, category: item?.category ?? "" }));
+        const normalized = (data || []).map((item) => ({ ...item, category: (item as { category?: string })?.category ?? "" }));
         setSearchedConfessions(normalized);
       } catch (_error) {
         if (!isCancelled) {
