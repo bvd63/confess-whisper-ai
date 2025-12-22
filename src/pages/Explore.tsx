@@ -80,6 +80,18 @@ const Explore = () => {
   });
 
   useEffect(() => {
+    if (!canFetchConfessions || isSearchingConfessions) return;
+
+    if (activeTab === "trending") {
+      refetchTrending();
+    } else if (activeTab === "popular") {
+      refetchPopular();
+    } else if (activeTab === "recent") {
+      refetchRecent();
+    }
+  }, [activeTab, canFetchConfessions, isSearchingConfessions, refetchPopular, refetchRecent, refetchTrending]);
+
+  useEffect(() => {
     const query = debouncedSearch.trim();
 
     if (!canFetchConfessions) {
