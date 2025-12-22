@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,6 +39,9 @@ export const FollowersListDialog = ({
   const [following, setFollowing] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(initialTab);
+  
+  // Track pending optimistic operations to avoid duplicate real-time updates
+  const pendingOps = useRef<Set<string>>(new Set());
 
   // Fetch initial data
   useEffect(() => {
@@ -65,6 +68,15 @@ export const FollowersListDialog = ({
         },
         async (payload) => {
           logDebug("[FOLLOWERS-LIST] INSERT event received:", payload);
+          
+          const opKey = `${payload.new.follower_id}:${payload.new.following_id}`;
+          
+          // Skip if this is a pending optimistic operation (already applied)
+          if (pendingOps.current.has(opKey)) {
+            logDebug("[FOLLOWERS-LIST] → Skipping duplicate (pending op):", opKey);
+            pendingOps.current.delete(opKey);
+            return;
+          }
           
           // If someone followed this user → add to followers list
           if (payload.new.following_id === userId) {
@@ -103,6 +115,15 @@ export const FollowersListDialog = ({
         (payload) => {
           logDebug("[FOLLOWERS-LIST] DELETE event received:", payload);
           
+          const opKey = `${payload.old.follower_id}:${payload.old.following_id}`;
+          
+          // Skip if this is a pending optimistic operation (already applied)
+          if (pendingOps.current.has(opKey)) {
+            logDebug("[FOLLOWERS-LIST] → Skipping duplicate (pending op):", opKey);
+            pendingOps.current.delete(opKey);
+            return;
+          }
+          
           // If someone unfollowed this user → remove from followers list
           if (payload.old.following_id === userId) {
             logDebug("[FOLLOWERS-LIST] → Follower removed:", payload.old.follower_id);
@@ -139,6 +160,81 @@ export const FollowersListDialog = ({
       return null;
     }
   };
+
+  // Optimistic follow: add user to followers list immediately
+  const optimisticFollow = useCallback(async (followerId: string, followingId: string) => {
+    const opKey = `${followerId}:${followingId}`;
+    pendingOps.current.add(opKey);
+    
+    logDebug("[FOLLOWERS-LIST] Optimistic follow:", opKey);
+    
+    // If someone is following the profile we're viewing
+    if (followingId === userId) {
+      const followerProfile = await fetchUserProfile(followerId);
+      if (followerProfile) {
+        setFollowers(prev => {
+          if (prev.some(u => u.user_id === followerId)) return prev;
+          return [followerProfile, ...prev];
+        });
+      }
+    }
+    
+    // If the profile we're viewing is following someone
+    if (followerId === userId) {
+      const followingProfile = await fetchUserProfile(followingId);
+      if (followingProfile) {
+        setFollowing(prev => {
+          if (prev.some(u => u.user_id === followingId)) return prev;
+          return [followingProfile, ...prev];
+        });
+      }
+    }
+    
+    // Clear pending after a short delay (real-time should reconcile)
+    setTimeout(() => pendingOps.current.delete(opKey), 3000);
+  }, [userId]);
+
+  // Optimistic unfollow: remove user from lists immediately
+  const optimisticUnfollow = useCallback((followerId: string, followingId: string) => {
+    const opKey = `${followerId}:${followingId}`;
+    pendingOps.current.add(opKey);
+    
+    logDebug("[FOLLOWERS-LIST] Optimistic unfollow:", opKey);
+    
+    // If someone unfollowed the profile we're viewing
+    if (followingId === userId) {
+      setFollowers(prev => prev.filter(u => u.user_id !== followerId));
+    }
+    
+    // If the profile we're viewing unfollowed someone
+    if (followerId === userId) {
+      setFollowing(prev => prev.filter(u => u.user_id !== followingId));
+    }
+    
+    // Clear pending after a short delay
+    setTimeout(() => pendingOps.current.delete(opKey), 3000);
+  }, [userId]);
+
+  // Expose methods to parent components via window event
+  useEffect(() => {
+    const handleOptimisticFollow = (event: CustomEvent) => {
+      const { followerId, followingId } = event.detail;
+      optimisticFollow(followerId, followingId);
+    };
+    
+    const handleOptimisticUnfollow = (event: CustomEvent) => {
+      const { followerId, followingId } = event.detail;
+      optimisticUnfollow(followerId, followingId);
+    };
+    
+    window.addEventListener('optimistic-follow' as any, handleOptimisticFollow);
+    window.addEventListener('optimistic-unfollow' as any, handleOptimisticUnfollow);
+    
+    return () => {
+      window.removeEventListener('optimistic-follow' as any, handleOptimisticFollow);
+      window.removeEventListener('optimistic-unfollow' as any, handleOptimisticUnfollow);
+    };
+  }, [optimisticFollow, optimisticUnfollow]);
 
   const fetchFollowers = async () => {
     setLoading(true);

@@ -55,9 +55,19 @@ const FollowButton = ({ targetUserId, currentUserId }: FollowButtonProps) => {
     }
 
     setLoading(true);
+    
+    const wasFollowing = isFollowing;
 
     try {
       if (isFollowing) {
+        // Optimistic update
+        setIsFollowing(false);
+        
+        // Trigger optimistic list update
+        window.dispatchEvent(new CustomEvent('optimistic-unfollow', {
+          detail: { followerId: currentUserId, followingId: targetUserId }
+        }));
+        
         // Unfollow
         const { error } = await supabase
           .from('user_follows')
@@ -67,12 +77,19 @@ const FollowButton = ({ targetUserId, currentUserId }: FollowButtonProps) => {
 
         if (error) throw error;
 
-        setIsFollowing(false);
         toast({
           title: t.follow_unfollowed_title,
           description: t.follow_unfollowed_desc,
         });
       } else {
+        // Optimistic update
+        setIsFollowing(true);
+        
+        // Trigger optimistic list update
+        window.dispatchEvent(new CustomEvent('optimistic-follow', {
+          detail: { followerId: currentUserId, followingId: targetUserId }
+        }));
+        
         // Follow
         const { error } = await supabase
           .from('user_follows')
@@ -83,13 +100,26 @@ const FollowButton = ({ targetUserId, currentUserId }: FollowButtonProps) => {
 
         if (error) throw error;
 
-        setIsFollowing(true);
         toast({
           title: t.follow_now_following,
           description: t.follow_now_following_desc,
         });
       }
     } catch (error) {
+      // Rollback on error
+      setIsFollowing(wasFollowing);
+      
+      // Trigger rollback for list
+      if (wasFollowing) {
+        window.dispatchEvent(new CustomEvent('optimistic-follow', {
+          detail: { followerId: currentUserId, followingId: targetUserId }
+        }));
+      } else {
+        window.dispatchEvent(new CustomEvent('optimistic-unfollow', {
+          detail: { followerId: currentUserId, followingId: targetUserId }
+        }));
+      }
+      
       logError('Error toggling follow', error instanceof Error ? error : undefined);
       toast({
         title: t.follow_error,

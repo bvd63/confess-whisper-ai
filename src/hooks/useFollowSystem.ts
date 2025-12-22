@@ -71,6 +71,19 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
     if (!userId || !targetUserId || userId === targetUserId) return;
 
     setIsProcessing(true);
+    
+    // Optimistic update: increment followers count immediately
+    setStats(prev => ({
+      ...prev,
+      followers: prev.followers + 1,
+      isFollowing: true,
+    }));
+    
+    // Trigger optimistic list update
+    window.dispatchEvent(new CustomEvent('optimistic-follow', {
+      detail: { followerId: userId, followingId: targetUserId }
+    }));
+    
     try {
       const { error } = await supabase
         .from('user_follows')
@@ -80,16 +93,22 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
         });
 
       if (error) throw error;
-
-      // Optimistic update: current user is now following someone
-      setStats(prev => ({
-        ...prev,
-        isFollowing: true,
-      }));
       
       // Invalidate cache to force fresh data next time
       invalidateFollowCache(targetUserId);
     } catch (error) {
+      // Rollback optimistic update on error
+      setStats(prev => ({
+        ...prev,
+        followers: prev.followers - 1,
+        isFollowing: false,
+      }));
+      
+      // Trigger optimistic rollback for list
+      window.dispatchEvent(new CustomEvent('optimistic-unfollow', {
+        detail: { followerId: userId, followingId: targetUserId }
+      }));
+      
       logError('Error following user', error as Error);
       throw error;
     } finally {
@@ -101,6 +120,19 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
     if (!userId || !targetUserId) return;
 
     setIsProcessing(true);
+    
+    // Optimistic update: decrement followers count immediately
+    setStats(prev => ({
+      ...prev,
+      followers: prev.followers - 1,
+      isFollowing: false,
+    }));
+    
+    // Trigger optimistic list update
+    window.dispatchEvent(new CustomEvent('optimistic-unfollow', {
+      detail: { followerId: userId, followingId: targetUserId }
+    }));
+    
     try {
       const { error } = await supabase
         .from('user_follows')
@@ -109,16 +141,22 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
         .eq('following_id', targetUserId);
 
       if (error) throw error;
-
-      // Optimistic update: current user is no longer following someone
-      setStats(prev => ({
-        ...prev,
-        isFollowing: false,
-      }));
       
       // Invalidate cache to force fresh data next time
       invalidateFollowCache(targetUserId);
     } catch (error) {
+      // Rollback optimistic update on error
+      setStats(prev => ({
+        ...prev,
+        followers: prev.followers + 1,
+        isFollowing: true,
+      }));
+      
+      // Trigger optimistic rollback for list
+      window.dispatchEvent(new CustomEvent('optimistic-follow', {
+        detail: { followerId: userId, followingId: targetUserId }
+      }));
+      
       logError('Error unfollowing user', error as Error);
       throw error;
     } finally {
