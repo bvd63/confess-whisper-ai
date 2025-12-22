@@ -81,9 +81,9 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
 
       if (error) throw error;
 
+      // Optimistic update: current user is now following someone
       setStats(prev => ({
         ...prev,
-        followers: prev.followers + 1,
         isFollowing: true,
       }));
       
@@ -110,9 +110,9 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
 
       if (error) throw error;
 
+      // Optimistic update: current user is no longer following someone
       setStats(prev => ({
         ...prev,
-        followers: Math.max(0, prev.followers - 1),
         isFollowing: false,
       }));
       
@@ -137,25 +137,85 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
   useEffect(() => {
     loadStats();
 
-    // Subscribe to realtime updates
-    const channel = supabase
-      .channel(`follow-stats-${targetUserId}`)
+    if (!targetUserId) return;
+
+    // Subscribe to realtime updates for BOTH followers and following
+    // Use TWO separate subscriptions to handle both directions
+    const followersChannel = supabase
+      .channel(`follow-stats-followers-${targetUserId}`)
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'INSERT',
           schema: 'public',
           table: 'user_follows',
           filter: `following_id=eq.${targetUserId}`
         },
-        () => {
-          loadStats();
+        (payload) => {
+          console.log('[REALTIME] Follower added:', payload);
+          setStats(prev => ({
+            ...prev,
+            followers: prev.followers + 1
+          }));
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'user_follows',
+          filter: `following_id=eq.${targetUserId}`
+        },
+        (payload) => {
+          console.log('[REALTIME] Follower removed:', payload);
+          setStats(prev => ({
+            ...prev,
+            followers: Math.max(0, prev.followers - 1)
+          }));
+        }
+      )
+      .subscribe();
+
+    const followingChannel = supabase
+      .channel(`follow-stats-following-${targetUserId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'user_follows',
+          filter: `follower_id=eq.${targetUserId}`
+        },
+        (payload) => {
+          console.log('[REALTIME] Following added:', payload);
+          setStats(prev => ({
+            ...prev,
+            following: prev.following + 1
+          }));
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'user_follows',
+          filter: `follower_id=eq.${targetUserId}`
+        },
+        (payload) => {
+          console.log('[REALTIME] Following removed:', payload);
+          setStats(prev => ({
+            ...prev,
+            following: Math.max(0, prev.following - 1)
+          }));
         }
       )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(followersChannel);
+      supabase.removeChannel(followingChannel);
     };
   }, [loadStats, targetUserId]);
 
