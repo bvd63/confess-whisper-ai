@@ -66,6 +66,17 @@ const Explore = () => {
     enabled: canFetchConfessions,
   });
 
+  // TRACE: Log what popularResult contains
+  useEffect(() => {
+    if (popularResult) {
+      console.log("[EXPLORE] popularResult received:", {
+        itemsCount: popularResult.items?.length ?? 0,
+        source: popularResult.source,
+        hasItems: Array.isArray(popularResult.items),
+      });
+    }
+  }, [popularResult]);
+
   useEffect(() => {
     if (!canFetchConfessions || isSearchingConfessions) return;
 

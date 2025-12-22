@@ -346,8 +346,10 @@ const buildPopularFallbackResult = async (
 export const fetchPopularConfessions = async (params: ExploreFetchParams = {}): Promise<ExploreResult> => {
   console.log("[POPULAR] function called");
   const primary = await buildTabResult("popular", params);
+  console.log("[POPULAR] primary items:", primary.items.length);
 
   if (primary.items.length >= PAGE_SIZE) {
+    console.log("[POPULAR] returning primary with", primary.items.length, "items");
     return primary;
   }
 
@@ -359,7 +361,7 @@ export const fetchPopularConfessions = async (params: ExploreFetchParams = {}): 
   const nextCursor = primary.hasMore ? primary.nextCursor : fallback.nextCursor;
 
   const finalItems = mergedItems.slice(0, PAGE_SIZE);
-  console.log("[POPULAR] items count:", finalItems.length);
+  console.log("[POPULAR] merged items count:", finalItems.length);
 
   if (finalItems.length === 0) {
     const { currentUserId } = params;
@@ -388,7 +390,7 @@ export const fetchPopularConfessions = async (params: ExploreFetchParams = {}): 
     const withBoosts = await attachActiveBoosts((data as ConfessionRow[]) || []);
     const filtered = withBoosts.filter((confession) => passesClientFilters(confession, currentUserId));
 
-    console.log("[POPULAR] forced fallback used");
+    console.log("[POPULAR] forced fallback used, returning", filtered.length, "items");
     return {
       items: filtered,
       source: primary.source,
@@ -397,6 +399,7 @@ export const fetchPopularConfessions = async (params: ExploreFetchParams = {}): 
     };
   }
 
+  console.log("[POPULAR] returning final result with", finalItems.length, "items");
   return {
     items: finalItems,
     source: primary.source,
