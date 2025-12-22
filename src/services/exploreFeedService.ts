@@ -344,6 +344,7 @@ const buildPopularFallbackResult = async (
 };
 
 export const fetchPopularConfessions = async (params: ExploreFetchParams = {}): Promise<ExploreResult> => {
+  console.log("[POPULAR] function called");
   const primary = await buildTabResult("popular", params);
 
   if (primary.items.length >= PAGE_SIZE) {
@@ -357,8 +358,47 @@ export const fetchPopularConfessions = async (params: ExploreFetchParams = {}): 
   const hasMore = primary.hasMore || fallback.hasMore;
   const nextCursor = primary.hasMore ? primary.nextCursor : fallback.nextCursor;
 
+  const finalItems = mergedItems.slice(0, PAGE_SIZE);
+  console.log("[POPULAR] items count:", finalItems.length);
+
+  if (finalItems.length === 0) {
+    const { currentUserId } = params;
+    const now = Date.now();
+    let query = supabase
+      .from("confessions")
+      .select("*")
+      .eq("moderation_status", "approved")
+      .not("is_draft", "eq", true)
+      .not("is_private", "eq", true)
+      .not("is_reported", "eq", true)
+      .gte("created_at", new Date(now - POPULAR_WINDOW_DAYS * DAY_IN_MS).toISOString())
+      .order("created_at", { ascending: false })
+      .limit(5);
+
+    if (currentUserId) {
+      query = query.neq("user_id", currentUserId);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      throw error;
+    }
+
+    const withBoosts = await attachActiveBoosts((data as ConfessionRow[]) || []);
+    const filtered = withBoosts.filter((confession) => passesClientFilters(confession, currentUserId));
+
+    console.log("[POPULAR] forced fallback used");
+    return {
+      items: filtered,
+      source: primary.source,
+      nextCursor: null,
+      hasMore: false,
+    };
+  }
+
   return {
-    items: mergedItems.slice(0, PAGE_SIZE),
+    items: finalItems,
     source: primary.source,
     nextCursor,
     hasMore,
