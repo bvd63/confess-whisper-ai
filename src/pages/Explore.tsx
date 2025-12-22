@@ -115,11 +115,11 @@ const Explore = () => {
       try {
         let dbQuery = supabase
           .from("confessions")
-          .select("id, content, created_at")
+          .select("id, content, created_at, category, likes_count, comments_count")
           .ilike("content", `%${query}%`)
           .order("created_at", { ascending: false })
           .limit(25)
-          .eq("moderation_status", "approved")
+          .or("moderation_status.eq.approved,moderation_status.is.null")
           .not("is_draft", "eq", true)
           .not("is_private", "eq", true)
           .not("is_reported", "eq", true);
@@ -129,12 +129,6 @@ const Explore = () => {
         }
 
         const { data, error } = await dbQuery;
-
-        console.log("[Explore search] query", query, "user", Boolean(user?.id), {
-          count: data?.length ?? 0,
-          error: (error as any)?.message,
-        });
-
         if (isCancelled) return;
 
         if (error) {
