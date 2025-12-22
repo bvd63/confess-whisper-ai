@@ -99,7 +99,7 @@ export const VersionIndicator = () => {
       <div className="flex items-center gap-1">
         <Info className="h-3 w-3" />
         <span>v{version}</span>
-        {buildDate && <span className="opacity-60">({buildDate})</span>}
+        
       </div>
       
       {updateAvailable && (
