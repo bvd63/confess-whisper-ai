@@ -23,6 +23,8 @@ import { UnifiedShopDialog } from "@/components/UnifiedShopDialog";
 import { useTrialExpiryCheck } from "@/hooks/useTrialExpiryCheck";
 import { logError } from "@/lib/logger";
 import { LogoutConfirmationDialog } from "@/components/LogoutConfirmationDialog";
+import { useFollowSystem } from "@/hooks/useFollowSystem";
+import { Users, UserPlus } from "lucide-react";
 
 type ProfileStats = {
   totalConfessions: number;
@@ -54,6 +56,7 @@ const Profile = () => {
   const { subscriptionTier, isVip, isOnTrial, trialEndDate, trialEligible, refetch } = useVipStatus(user?.id);
   const { checkSubscription } = useSubscriptionCheck(user?.id);
   useMessageNotifications({ userId: user?.id });
+  const { stats: followStats } = useFollowSystem(user?.id || null, user?.id || null);
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [flairsDialogOpen, setFlairsDialogOpen] = useState(false);
@@ -341,7 +344,19 @@ const Profile = () => {
         </div>
 
         {/* Quick Stats Row */}
-        <div className="grid grid-cols-3 gap-3 mb-8">
+        <div className="grid grid-cols-5 gap-3 mb-8">
+          <Card className="bg-white/[0.03] border-white/10 backdrop-blur-md p-4 text-center">
+            <Users className="w-5 h-5 text-white/60 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-white/95">{formatCount(followStats.followers)}</div>
+            <div className="text-xs text-white/50 mt-1">Followers</div>
+          </Card>
+          
+          <Card className="bg-white/[0.03] border-white/10 backdrop-blur-md p-4 text-center">
+            <UserPlus className="w-5 h-5 text-white/60 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-white/95">{formatCount(followStats.following)}</div>
+            <div className="text-xs text-white/50 mt-1">Following</div>
+          </Card>
+          
           <Card className="bg-white/[0.03] border-white/10 backdrop-blur-md p-4 text-center">
             <FileText className="w-5 h-5 text-white/60 mx-auto mb-2" />
             <div className="text-2xl font-bold text-white/95">{formatCount(stats.totalConfessions)}</div>
