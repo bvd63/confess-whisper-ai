@@ -367,14 +367,8 @@ export const fetchPopularConfessions = async (params: ExploreFetchParams = {}): 
     }
   }
 
-  const hasMore = merged.length < PAGE_SIZE ? fallback.hasMore || primary.hasMore : fallback.hasMore || primary.hasMore;
-  let nextCursor = primary.nextCursor;
-
-  if (merged.length < PAGE_SIZE && fallback.nextCursor) {
-    nextCursor = fallback.nextCursor;
-  } else if (!primary.hasMore && fallback.nextCursor && merged.length === PAGE_SIZE) {
-    nextCursor = fallback.nextCursor;
-  }
+  const hasMore = primary.hasMore || fallback.hasMore;
+  const nextCursor = primary.hasMore ? primary.nextCursor : fallback.nextCursor;
 
   return {
     items: merged,
