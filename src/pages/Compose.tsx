@@ -537,7 +537,7 @@ const Compose = () => {
     <div
       className="min-h-screen bg-gradient-to-br from-[#0f0a23] via-[#0a0f2e] to-[#12072d] text-foreground"
     >
-      <div className="max-w-[480px] mx-auto px-4 sm:px-6 pt-6 pb-6 space-y-5">
+      <div className="max-w-[480px] mx-auto px-4 sm:px-6 pt-6 pb-24 space-y-5">
         <div className="flex items-center justify-center relative">
           <h1 className="text-xl font-semibold text-center tracking-tight text-white drop-shadow-lg">
             {t.new_confession}
