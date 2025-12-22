@@ -36,6 +36,10 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
       };
     },
     enabled: !!targetUserId,
+    staleTime: 3 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   const relationshipQuery = useQuery({
@@ -211,6 +215,7 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
               if (!prev) return prev;
               return { ...prev, followersCount: prev.followersCount + 1 };
             });
+            invalidateFollowCache(targetUserId);
           }
 
           // If this profile followed someone → increment Following
@@ -219,6 +224,7 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
               if (!prev) return prev;
               return { ...prev, followingCount: prev.followingCount + 1 };
             });
+            invalidateFollowCache(targetUserId);
           }
         }
       )
@@ -238,6 +244,7 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
               if (!prev) return prev;
               return { ...prev, followersCount: Math.max(0, prev.followersCount - 1) };
             });
+            invalidateFollowCache(targetUserId);
           }
 
           // If this profile unfollowed someone → decrement Following
@@ -246,6 +253,7 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
               if (!prev) return prev;
               return { ...prev, followingCount: Math.max(0, prev.followingCount - 1) };
             });
+            invalidateFollowCache(targetUserId);
           }
         }
       )
