@@ -1265,6 +1265,7 @@ type Translations = {
   explore_following_updated_toast: string;
   explore_no_confessions: string;
   explore_trending_confessions: string;
+  explore_auth_required_toast: string;
 
   // Home - Communities
   home_communities_title: string;
@@ -3315,6 +3316,7 @@ export const translations: Record<Language, Translations> = {
     explore_following_updated_toast: "Following updated. See their confessions in Following.",
     explore_no_confessions: "No confessions yet",
     explore_trending_confessions: "Trending Confessions",
+    explore_auth_required_toast: "Session required to load confessions. Please log in.",
     
     // Home - Communities
     home_communities_title: "Communities",
@@ -5203,6 +5205,7 @@ export const translations: Record<Language, Translations> = {
     explore_following_updated_toast: "Seguimiento actualizado. Verás sus confesiones en Following.",
     explore_no_confessions: "Aún no hay confesiones",
     explore_trending_confessions: "Confesiones Trending",
+    explore_auth_required_toast: "Se requiere sesión para cargar confesiones. Inicia sesión.",
     
     // Home - Communities
     home_communities_title: "Comunidades",
@@ -7192,6 +7195,7 @@ export const translations: Record<Language, Translations> = {
     explore_following_updated_toast: "Following aktualisiert. Du siehst ihre Beichten in Following.",
     explore_no_confessions: "Noch keine Beichten",
     explore_trending_confessions: "Trending Beichten",
+    explore_auth_required_toast: "Sitzung erforderlich, bitte melde dich an, um Beichten zu laden.",
     
     // Home - Communities
     home_communities_title: "Gemeinschaften",

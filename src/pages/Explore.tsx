@@ -15,6 +15,7 @@ import ExploreConfessionCard from "@/components/explore/ExploreConfessionCard";
 import { ConfessionCardSkeleton } from "@/components/skeletons/ConfessionCardSkeleton";
 import { ExploreUserResults, ExploreUserResult } from "@/components/explore/ExploreUserResults";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import {
   fetchPopularConfessions,
   fetchRecentConfessions,
@@ -32,9 +33,12 @@ const Explore = () => {
   const [isSearchingConfessions, setIsSearchingConfessions] = useState(false);
   const [, setIsSearchingUsers] = useState(false);
   const debouncedSearch = useDebounce(searchQuery, 300);
-  const { user } = useCurrentUser();
-  const isAuthed = Boolean(user?.id);
+  const { user, session, isLoading: authLoading } = useCurrentUser();
+  const isAuthed = Boolean(session?.user?.id);
+  const authReady = !authLoading;
+  const currentUserId = session?.user?.id ?? null;
   const navigate = useNavigate();
+  const { toast } = useToast();
   useAnalyticsTracking(user?.id || null);
   const { isVip } = useVipStatus(user?.id);
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
@@ -47,29 +51,38 @@ const Explore = () => {
     setShowLoginPrompt(!isAuthed);
   }, [isAuthed]);
 
+  const notifyAuthError = useCallback(() => {
+    toast({ title: t.explore_auth_required_toast, variant: "destructive" });
+  }, [t.explore_auth_required_toast, toast]);
+
+  const canFetchConfessions = authReady && isAuthed;
+
   // Fetch trending, popular, and recent confessions with scoring and filters
   const { data: trendingResult, isLoading: loadingTrending, refetch: refetchTrending } = useQuery({
-    queryKey: ["explore", "trending", user?.id],
-    queryFn: () => fetchTrendingConfessions({ currentUserId: user?.id ?? null }),
-    enabled: isAuthed,
+    queryKey: ["explore", "trending", currentUserId],
+    queryFn: () => fetchTrendingConfessions({ currentUserId }),
+    enabled: canFetchConfessions,
+    onError: notifyAuthError,
   });
 
   const { data: recentResult, isLoading: loadingRecent, refetch: refetchRecent } = useQuery({
-    queryKey: ["explore", "recent", user?.id],
-    queryFn: () => fetchRecentConfessions({ currentUserId: user?.id ?? null }),
-    enabled: isAuthed,
+    queryKey: ["explore", "recent", currentUserId],
+    queryFn: () => fetchRecentConfessions({ currentUserId }),
+    enabled: canFetchConfessions,
+    onError: notifyAuthError,
   });
 
   const { data: popularResult, isLoading: loadingPopular, refetch: refetchPopular } = useQuery({
-    queryKey: ["explore", "popular", user?.id],
-    queryFn: () => fetchPopularConfessions({ currentUserId: user?.id ?? null }),
-    enabled: isAuthed,
+    queryKey: ["explore", "popular", currentUserId],
+    queryFn: () => fetchPopularConfessions({ currentUserId }),
+    enabled: canFetchConfessions,
+    onError: notifyAuthError,
   });
 
   useEffect(() => {
     const query = debouncedSearch.trim();
 
-    if (!isAuthed) {
+    if (!canFetchConfessions) {
       setUserResults([]);
       setIsSearchingUsers(false);
       return;
@@ -116,7 +129,7 @@ const Explore = () => {
     return () => {
       isCancelled = true;
     };
-  }, [debouncedSearch, isAuthed, user?.id]);
+  }, [debouncedSearch, canFetchConfessions, currentUserId]);
 
   const handleSearchChange = useCallback(
     (value: string) => {
@@ -129,7 +142,7 @@ const Explore = () => {
   useEffect(() => {
     const query = debouncedSearch.trim();
 
-    if (!isAuthed) {
+    if (!canFetchConfessions) {
       setSearchedConfessions([]);
       setIsSearchingConfessions(false);
       setIsSearchingUsers(false);
@@ -159,11 +172,14 @@ const Explore = () => {
           .not("is_private", "eq", true)
           .not("is_reported", "eq", true);
 
-        const { data, error } = await dbQuery;
+        const { data, error, status } = await dbQuery;
 
         if (isCancelled) return;
 
         if (error) {
+          if (status === 401) {
+            notifyAuthError();
+          }
           setSearchedConfessions([]);
           return;
         }
@@ -185,7 +201,7 @@ const Explore = () => {
     return () => {
       isCancelled = true;
     };
-  }, [debouncedSearch, isAuthed, user?.id]);
+  }, [debouncedSearch, canFetchConfessions, notifyAuthError, currentUserId]);
 
   const triggerRefresh = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ["explore"] });
