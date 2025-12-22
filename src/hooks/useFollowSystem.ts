@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { getFollowStatsCached, invalidateFollowCache } from '@/lib/followCache';
+import { getFollowStatsCached, invalidateFollowCache, primeFollowCache } from '@/lib/followCache';
 import { logError } from '@/lib/logger';
 import {
   applyOptimisticFollow,
@@ -87,7 +87,20 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
         queryClient.cancelQueries({ queryKey: followRelationshipKey(userId, targetUserId) }),
       ]);
 
-      return applyOptimisticFollow(queryClient, { currentUserId: userId, targetUserId });
+      const ctx = applyOptimisticFollow(queryClient, { currentUserId: userId, targetUserId });
+
+      // Prime the followCache with optimistic counts for instant navigation without refresh
+      const currentUserCounts = queryClient.getQueryData<FollowCounts>(followCountsKey(userId));
+      const targetUserCounts = queryClient.getQueryData<FollowCounts>(followCountsKey(targetUserId));
+
+      if (currentUserCounts) {
+        primeFollowCache(userId, currentUserCounts.followersCount, currentUserCounts.followingCount);
+      }
+      if (targetUserCounts) {
+        primeFollowCache(targetUserId, targetUserCounts.followersCount, targetUserCounts.followingCount);
+      }
+
+      return ctx;
     },
     onError: (error, _vars, ctx) => {
       if (!userId || !targetUserId) return;
@@ -96,7 +109,9 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
     },
     onSettled: async () => {
       if (!userId || !targetUserId) return;
+      // Invalidate cache for BOTH users to prevent stale counts
       invalidateFollowCache(targetUserId);
+      invalidateFollowCache(userId);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: followCountsKey(targetUserId) }),
         queryClient.invalidateQueries({ queryKey: followCountsKey(userId) }),
@@ -124,7 +139,20 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
         queryClient.cancelQueries({ queryKey: followRelationshipKey(userId, targetUserId) }),
       ]);
 
-      return applyOptimisticUnfollow(queryClient, { currentUserId: userId, targetUserId });
+      const ctx = applyOptimisticUnfollow(queryClient, { currentUserId: userId, targetUserId });
+
+      // Prime the followCache with optimistic counts for instant navigation without refresh
+      const currentUserCounts = queryClient.getQueryData<FollowCounts>(followCountsKey(userId));
+      const targetUserCounts = queryClient.getQueryData<FollowCounts>(followCountsKey(targetUserId));
+
+      if (currentUserCounts) {
+        primeFollowCache(userId, currentUserCounts.followersCount, currentUserCounts.followingCount);
+      }
+      if (targetUserCounts) {
+        primeFollowCache(targetUserId, targetUserCounts.followersCount, targetUserCounts.followingCount);
+      }
+
+      return ctx;
     },
     onError: (error, _vars, ctx) => {
       if (!userId || !targetUserId) return;
@@ -133,7 +161,9 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
     },
     onSettled: async () => {
       if (!userId || !targetUserId) return;
+      // Invalidate cache for BOTH users to prevent stale counts
       invalidateFollowCache(targetUserId);
+      invalidateFollowCache(userId);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: followCountsKey(targetUserId) }),
         queryClient.invalidateQueries({ queryKey: followCountsKey(userId) }),
