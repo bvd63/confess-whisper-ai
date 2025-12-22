@@ -6,13 +6,14 @@ interface ExploreSearchBarProps {
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;
+  onDisabledClick?: () => void;
 }
 
-export const ExploreSearchBar = ({ value, onChange, disabled }: ExploreSearchBarProps) => {
+export const ExploreSearchBar = ({ value, onChange, disabled, onDisabledClick }: ExploreSearchBarProps) => {
   const { t } = useLanguage();
 
   return (
-    <div className="relative">
+    <div className="relative" onMouseDown={disabled ? onDisabledClick : undefined}>
       <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
         <Search className="h-4 w-4 text-white/45 drop-shadow-[0_0_6px_rgba(255,255,255,0.12)]" />
       </div>

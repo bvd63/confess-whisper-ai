@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Flame, TrendingUp, Clock, Loader2 } from "lucide-react";
@@ -13,6 +14,7 @@ import { ExploreSearchBar } from "@/components/explore/ExploreSearchBar";
 import ExploreConfessionCard from "@/components/explore/ExploreConfessionCard";
 import { ConfessionCardSkeleton } from "@/components/skeletons/ConfessionCardSkeleton";
 import { ExploreUserResults, ExploreUserResult } from "@/components/explore/ExploreUserResults";
+import { Button } from "@/components/ui/button";
 import {
   fetchPopularConfessions,
   fetchRecentConfessions,
@@ -32,27 +34,36 @@ const Explore = () => {
   const debouncedSearch = useDebounce(searchQuery, 300);
   const { user } = useCurrentUser();
   const isAuthed = Boolean(user?.id);
+  const navigate = useNavigate();
   useAnalyticsTracking(user?.id || null);
   const { isVip } = useVipStatus(user?.id);
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
   const [showPullToRefresh, setShowPullToRefresh] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(!isAuthed);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    setShowLoginPrompt(!isAuthed);
+  }, [isAuthed]);
 
   // Fetch trending, popular, and recent confessions with scoring and filters
   const { data: trendingResult, isLoading: loadingTrending, refetch: refetchTrending } = useQuery({
     queryKey: ["explore", "trending", user?.id],
     queryFn: () => fetchTrendingConfessions({ currentUserId: user?.id ?? null }),
+    enabled: isAuthed,
   });
 
   const { data: recentResult, isLoading: loadingRecent, refetch: refetchRecent } = useQuery({
     queryKey: ["explore", "recent", user?.id],
     queryFn: () => fetchRecentConfessions({ currentUserId: user?.id ?? null }),
+    enabled: isAuthed,
   });
 
   const { data: popularResult, isLoading: loadingPopular, refetch: refetchPopular } = useQuery({
     queryKey: ["explore", "popular", user?.id],
     queryFn: () => fetchPopularConfessions({ currentUserId: user?.id ?? null }),
+    enabled: isAuthed,
   });
 
   useEffect(() => {
@@ -313,59 +324,76 @@ const Explore = () => {
           </div>
 
           {/* Search Bar */}
-          <ExploreSearchBar value={searchQuery} onChange={handleSearchChange} disabled={!isAuthed} />
+          <ExploreSearchBar
+            value={searchQuery}
+            onChange={handleSearchChange}
+            disabled={!isAuthed}
+            onDisabledClick={() => setShowLoginPrompt(true)}
+          />
 
           {!isAuthed && (
             <p className="text-xs text-white/60">{t.explore_search_login_required}</p>
           )}
 
-          {shouldShowUserResults && user?.id && (
-            <ExploreUserResults users={userResults} currentUserId={user.id} />
-          )}
-
-          {/* Trending Carousel - Only show if not searching */}
-          {!searchQuery && <TrendingConfessionsCarousel />}
-
-          {/* Sticky Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="py-2 -mx-4 px-4 sm:-mx-5 sm:px-5">
-              <TabsList className="grid w-full grid-cols-3 h-11 bg-transparent p-0 gap-3">
-                <TabsTrigger
-                  value="trending"
-                  className="gap-2 text-sm bg-transparent text-white/60 hover:text-white/80 rounded-full px-6 py-2 transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white data-[state=active]:shadow-[0_0_18px_hsl(var(--primary)/0.35)]"
-                >
-                  <Flame className="w-4 h-4" />
-                  <span className="hidden xs:inline">{t.search_trending}</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="popular"
-                  className="gap-2 text-sm bg-transparent text-white/60 hover:text-white/80 rounded-full px-6 py-2 transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white data-[state=active]:shadow-[0_0_18px_hsl(var(--primary)/0.35)]"
-                >
-                  <TrendingUp className="w-4 h-4" />
-                  <span className="hidden xs:inline">{t.ui_popular}</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="recent"
-                  className="gap-2 text-sm bg-transparent text-white/60 hover:text-white/80 rounded-full px-6 py-2 transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white data-[state=active]:shadow-[0_0_18px_hsl(var(--primary)/0.35)]"
-                >
-                  <Clock className="w-4 h-4" />
-                  <span className="hidden xs:inline">{t.ui_recent}</span>
-                </TabsTrigger>
-              </TabsList>
+          {!isAuthed && showLoginPrompt ? (
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5 mt-2 space-y-3">
+              <p className="text-sm text-white/80">{t.explore_login_prompt}</p>
+              <div className="flex flex-wrap gap-3">
+                <Button size="sm" onClick={() => navigate("/auth")}>{t.auth_login_button}</Button>
+                <Button size="sm" variant="outline" onClick={() => navigate("/auth")}>{t.auth_signup_button}</Button>
+              </div>
             </div>
+          ) : (
+            <>
+              {shouldShowUserResults && user?.id && (
+                <ExploreUserResults users={userResults} currentUserId={user.id} />
+              )}
 
-            <TabsContent value="trending" className="mt-3">
-              {renderConfessions(displayedTrending, showSearchMode ? isSearchingConfessions : loadingTrending)}
-            </TabsContent>
+              {/* Trending Carousel - Only show if not searching */}
+              {!searchQuery && <TrendingConfessionsCarousel />}
 
-            <TabsContent value="popular" className="mt-3">
-              {renderConfessions(displayedPopular, showSearchMode ? isSearchingConfessions : loadingPopular)}
-            </TabsContent>
+              {/* Sticky Tabs */}
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <div className="py-2 -mx-4 px-4 sm:-mx-5 sm:px-5">
+                  <TabsList className="grid w-full grid-cols-3 h-11 bg-transparent p-0 gap-3">
+                    <TabsTrigger
+                      value="trending"
+                      className="gap-2 text-sm bg-transparent text-white/60 hover:text-white/80 rounded-full px-6 py-2 transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white data-[state=active]:shadow-[0_0_18px_hsl(var(--primary)/0.35)]"
+                    >
+                      <Flame className="w-4 h-4" />
+                      <span className="hidden xs:inline">{t.search_trending}</span>
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="popular"
+                      className="gap-2 text-sm bg-transparent text-white/60 hover:text-white/80 rounded-full px-6 py-2 transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white data-[state=active]:shadow-[0_0_18px_hsl(var(--primary)/0.35)]"
+                    >
+                      <TrendingUp className="w-4 h-4" />
+                      <span className="hidden xs:inline">{t.ui_popular}</span>
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="recent"
+                      className="gap-2 text-sm bg-transparent text-white/60 hover:text-white/80 rounded-full px-6 py-2 transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white data-[state=active]:shadow-[0_0_18px_hsl(var(--primary)/0.35)]"
+                    >
+                      <Clock className="w-4 h-4" />
+                      <span className="hidden xs:inline">{t.ui_recent}</span>
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
 
-            <TabsContent value="recent" className="mt-3">
-              {renderConfessions(displayedRecent, showSearchMode ? isSearchingConfessions : loadingRecent)}
-            </TabsContent>
-          </Tabs>
+                <TabsContent value="trending" className="mt-3">
+                  {renderConfessions(displayedTrending, showSearchMode ? isSearchingConfessions : loadingTrending)}
+                </TabsContent>
+
+                <TabsContent value="popular" className="mt-3">
+                  {renderConfessions(displayedPopular, showSearchMode ? isSearchingConfessions : loadingPopular)}
+                </TabsContent>
+
+                <TabsContent value="recent" className="mt-3">
+                  {renderConfessions(displayedRecent, showSearchMode ? isSearchingConfessions : loadingRecent)}
+                </TabsContent>
+              </Tabs>
+            </>
+          )}
         </div>
       </AppLayout>
 
