@@ -25,13 +25,15 @@ interface FollowStats {
 export const useFollowSystem = (userId: string | null, targetUserId: string | null) => {
   const queryClient = useQueryClient();
 
-  // Viewing own profile: allow refetch on mount so counts update after navigating from Explore
-  const isOwnProfile = userId === targetUserId;
-
   const countsQuery = useQuery({
     queryKey: targetUserId ? followCountsKey(targetUserId) : ['follow-counts', 'disabled'],
     queryFn: async () => {
       if (!targetUserId) return { followersCount: 0, followingCount: 0 };
+      
+      // Always invalidate in-memory cache before fetching to ensure fresh data
+      // This prevents stale TTL cache from overwriting optimistic React Query updates
+      invalidateFollowCache(targetUserId);
+      
       const profileStats = await getFollowStatsCached(targetUserId);
       return {
         followersCount: profileStats?.followers_count || 0,
@@ -40,7 +42,8 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
     },
     enabled: !!targetUserId,
     staleTime: 3 * 60 * 1000,
-    refetchOnMount: isOwnProfile ? 'always' : false,
+    // Don't refetch on mount - rely on React Query cache which is updated optimistically
+    refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
