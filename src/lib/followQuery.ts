@@ -44,6 +44,10 @@ export type OptimisticFollowContext = {
   prevTargetFollowers?: MinimalUserProfile[];
   prevCurrentFollowing?: MinimalUserProfile[];
   prevRelationship?: FollowRelationship;
+
+  createdTargetCounts?: boolean;
+  createdCurrentCounts?: boolean;
+  createdRelationship?: boolean;
 };
 
 export const applyOptimisticFollow = (
@@ -58,19 +62,17 @@ export const applyOptimisticFollow = (
   const prevCurrentFollowing = queryClient.getQueryData<MinimalUserProfile[]>(followingListKey(currentUserId));
   const prevRelationship = queryClient.getQueryData<FollowRelationship>(followRelationshipKey(currentUserId, targetUserId));
 
-  if (prevTargetCounts) {
-    queryClient.setQueryData<FollowCounts>(followCountsKey(targetUserId), {
-      ...prevTargetCounts,
-      followersCount: prevTargetCounts.followersCount + 1,
-    });
-  }
+  const nextTargetCounts = {
+    ...(prevTargetCounts ?? { followersCount: 0, followingCount: 0 }),
+    followersCount: (prevTargetCounts?.followersCount ?? 0) + 1,
+  };
+  queryClient.setQueryData<FollowCounts>(followCountsKey(targetUserId), nextTargetCounts);
 
-  if (prevCurrentCounts) {
-    queryClient.setQueryData<FollowCounts>(followCountsKey(currentUserId), {
-      ...prevCurrentCounts,
-      followingCount: prevCurrentCounts.followingCount + 1,
-    });
-  }
+  const nextCurrentCounts = {
+    ...(prevCurrentCounts ?? { followersCount: 0, followingCount: 0 }),
+    followingCount: (prevCurrentCounts?.followingCount ?? 0) + 1,
+  };
+  queryClient.setQueryData<FollowCounts>(followCountsKey(currentUserId), nextCurrentCounts);
 
   if (prevTargetFollowers) {
     queryClient.setQueryData<MinimalUserProfile[]>(followersListKey(targetUserId),
@@ -84,12 +86,10 @@ export const applyOptimisticFollow = (
     );
   }
 
-  if (prevRelationship) {
-    queryClient.setQueryData<FollowRelationship>(followRelationshipKey(currentUserId, targetUserId), {
-      ...prevRelationship,
-      isFollowing: true,
-    });
-  }
+  queryClient.setQueryData<FollowRelationship>(followRelationshipKey(currentUserId, targetUserId), {
+    ...(prevRelationship ?? { isFollowing: false, isFollowedBy: false }),
+    isFollowing: true,
+  });
 
   return {
     prevTargetCounts,
@@ -97,6 +97,10 @@ export const applyOptimisticFollow = (
     prevTargetFollowers,
     prevCurrentFollowing,
     prevRelationship,
+
+    createdTargetCounts: !prevTargetCounts,
+    createdCurrentCounts: !prevCurrentCounts,
+    createdRelationship: !prevRelationship,
   };
 };
 
@@ -112,19 +116,17 @@ export const applyOptimisticUnfollow = (
   const prevCurrentFollowing = queryClient.getQueryData<MinimalUserProfile[]>(followingListKey(currentUserId));
   const prevRelationship = queryClient.getQueryData<FollowRelationship>(followRelationshipKey(currentUserId, targetUserId));
 
-  if (prevTargetCounts) {
-    queryClient.setQueryData<FollowCounts>(followCountsKey(targetUserId), {
-      ...prevTargetCounts,
-      followersCount: Math.max(0, prevTargetCounts.followersCount - 1),
-    });
-  }
+  const nextTargetCounts = {
+    ...(prevTargetCounts ?? { followersCount: 0, followingCount: 0 }),
+    followersCount: Math.max(0, (prevTargetCounts?.followersCount ?? 0) - 1),
+  };
+  queryClient.setQueryData<FollowCounts>(followCountsKey(targetUserId), nextTargetCounts);
 
-  if (prevCurrentCounts) {
-    queryClient.setQueryData<FollowCounts>(followCountsKey(currentUserId), {
-      ...prevCurrentCounts,
-      followingCount: Math.max(0, prevCurrentCounts.followingCount - 1),
-    });
-  }
+  const nextCurrentCounts = {
+    ...(prevCurrentCounts ?? { followersCount: 0, followingCount: 0 }),
+    followingCount: Math.max(0, (prevCurrentCounts?.followingCount ?? 0) - 1),
+  };
+  queryClient.setQueryData<FollowCounts>(followCountsKey(currentUserId), nextCurrentCounts);
 
   if (prevTargetFollowers) {
     queryClient.setQueryData<MinimalUserProfile[]>(followersListKey(targetUserId),
@@ -138,12 +140,10 @@ export const applyOptimisticUnfollow = (
     );
   }
 
-  if (prevRelationship) {
-    queryClient.setQueryData<FollowRelationship>(followRelationshipKey(currentUserId, targetUserId), {
-      ...prevRelationship,
-      isFollowing: false,
-    });
-  }
+  queryClient.setQueryData<FollowRelationship>(followRelationshipKey(currentUserId, targetUserId), {
+    ...(prevRelationship ?? { isFollowing: false, isFollowedBy: false }),
+    isFollowing: false,
+  });
 
   return {
     prevTargetCounts,
@@ -151,6 +151,10 @@ export const applyOptimisticUnfollow = (
     prevTargetFollowers,
     prevCurrentFollowing,
     prevRelationship,
+
+    createdTargetCounts: !prevTargetCounts,
+    createdCurrentCounts: !prevCurrentCounts,
+    createdRelationship: !prevRelationship,
   };
 };
 
@@ -162,10 +166,24 @@ export const rollbackOptimisticFollow = (
   if (!ctx) return;
   const { currentUserId, targetUserId } = args;
 
-  if (ctx.prevTargetCounts) queryClient.setQueryData(followCountsKey(targetUserId), ctx.prevTargetCounts);
-  if (ctx.prevCurrentCounts) queryClient.setQueryData(followCountsKey(currentUserId), ctx.prevCurrentCounts);
+  if (ctx.createdTargetCounts) {
+    queryClient.removeQueries({ queryKey: followCountsKey(targetUserId) });
+  } else if (ctx.prevTargetCounts) {
+    queryClient.setQueryData(followCountsKey(targetUserId), ctx.prevTargetCounts);
+  }
+
+  if (ctx.createdCurrentCounts) {
+    queryClient.removeQueries({ queryKey: followCountsKey(currentUserId) });
+  } else if (ctx.prevCurrentCounts) {
+    queryClient.setQueryData(followCountsKey(currentUserId), ctx.prevCurrentCounts);
+  }
+
   if (ctx.prevTargetFollowers) queryClient.setQueryData(followersListKey(targetUserId), ctx.prevTargetFollowers);
   if (ctx.prevCurrentFollowing) queryClient.setQueryData(followingListKey(currentUserId), ctx.prevCurrentFollowing);
-  if (ctx.prevRelationship)
+
+  if (ctx.createdRelationship) {
+    queryClient.removeQueries({ queryKey: followRelationshipKey(currentUserId, targetUserId) });
+  } else if (ctx.prevRelationship) {
     queryClient.setQueryData(followRelationshipKey(currentUserId, targetUserId), ctx.prevRelationship);
+  }
 };
