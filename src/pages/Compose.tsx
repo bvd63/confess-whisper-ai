@@ -535,7 +535,7 @@ const Compose = () => {
     : isBusy || isPolishing || !content.trim() || !canPost || (dailyLimit !== Infinity && remaining === 0) || (env.features.confessionTurnstileRequired && !captchaToken);
   return (
     <div
-      className="min-h-screen bg-gradient-to-br from-[#0f0a23] via-[#0a0f2e] to-[#12072d] text-foreground"
+      className="fixed inset-0 bg-gradient-to-br from-[#0f0a23] via-[#0a0f2e] to-[#12072d] text-foreground overflow-y-auto"
       style={{
         paddingBottom: isKeyboardVisible ? `${keyboardHeight + 24}px` : "calc(64px + env(safe-area-inset-bottom) + 24px)",
       }}
