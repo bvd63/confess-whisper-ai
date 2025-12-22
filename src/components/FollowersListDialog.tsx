@@ -55,7 +55,7 @@ export const FollowersListDialog = ({
   useEffect(() => {
     if (!open || !userId) return;
 
-    logDebug("[FOLLOWERS-LIST] Setting up realtime subscription for userId:", userId);
+    logDebug("[FOLLOWERS-LIST] Setting up realtime subscription", { userId });
 
     const channel = supabase
       .channel(`follow-list-${userId}`)
@@ -73,7 +73,7 @@ export const FollowersListDialog = ({
           
           // Skip if this is a pending optimistic operation (already applied)
           if (pendingOps.current.has(opKey)) {
-            logDebug("[FOLLOWERS-LIST] → Skipping duplicate (pending op):", opKey);
+            logDebug("[FOLLOWERS-LIST] → Skipping duplicate (pending op)", { opKey });
             pendingOps.current.delete(opKey);
             return;
           }
@@ -119,7 +119,7 @@ export const FollowersListDialog = ({
           
           // Skip if this is a pending optimistic operation (already applied)
           if (pendingOps.current.has(opKey)) {
-            logDebug("[FOLLOWERS-LIST] → Skipping duplicate (pending op):", opKey);
+            logDebug("[FOLLOWERS-LIST] → Skipping duplicate (pending op)", { opKey });
             pendingOps.current.delete(opKey);
             return;
           }
@@ -166,7 +166,7 @@ export const FollowersListDialog = ({
     const opKey = `${followerId}:${followingId}`;
     pendingOps.current.add(opKey);
     
-    logDebug("[FOLLOWERS-LIST] Optimistic follow:", opKey);
+    logDebug("[FOLLOWERS-LIST] Optimistic follow", { opKey });
     
     // If someone is following the profile we're viewing
     if (followingId === userId) {
@@ -199,7 +199,7 @@ export const FollowersListDialog = ({
     const opKey = `${followerId}:${followingId}`;
     pendingOps.current.add(opKey);
     
-    logDebug("[FOLLOWERS-LIST] Optimistic unfollow:", opKey);
+    logDebug("[FOLLOWERS-LIST] Optimistic unfollow", { opKey });
     
     // If someone unfollowed the profile we're viewing
     if (followingId === userId) {
