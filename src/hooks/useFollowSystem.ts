@@ -139,24 +139,38 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
 
     if (!targetUserId) return;
 
-    // Subscribe to realtime updates for BOTH followers and following
-    // Use TWO separate subscriptions to handle both directions
-    const followersChannel = supabase
-      .channel(`follow-stats-followers-${targetUserId}`)
+    // Subscribe to realtime updates on user_follows table
+    // Listen for both INSERT and DELETE events to update counters instantly
+    const channel = supabase
+      .channel(`follow-stats-${targetUserId}`)
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
           table: 'user_follows',
-          filter: `following_id=eq.${targetUserId}`
         },
         (payload) => {
-          console.log('[REALTIME] Follower added:', payload);
-          setStats(prev => ({
-            ...prev,
-            followers: prev.followers + 1
-          }));
+          console.log('[REALTIME] FOLLOW INSERT received:', payload);
+          const newRecord = payload.new as { follower_id: string; following_id: string };
+          
+          // If someone followed this profile → increment Followers
+          if (newRecord.following_id === targetUserId) {
+            console.log('[REALTIME] → Incrementing Followers');
+            setStats(prev => ({
+              ...prev,
+              followers: prev.followers + 1
+            }));
+          }
+          
+          // If this profile followed someone → increment Following
+          if (newRecord.follower_id === targetUserId) {
+            console.log('[REALTIME] → Incrementing Following');
+            setStats(prev => ({
+              ...prev,
+              following: prev.following + 1
+            }));
+          }
         }
       )
       .on(
@@ -165,57 +179,34 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
           event: 'DELETE',
           schema: 'public',
           table: 'user_follows',
-          filter: `following_id=eq.${targetUserId}`
         },
         (payload) => {
-          console.log('[REALTIME] Follower removed:', payload);
-          setStats(prev => ({
-            ...prev,
-            followers: Math.max(0, prev.followers - 1)
-          }));
-        }
-      )
-      .subscribe();
-
-    const followingChannel = supabase
-      .channel(`follow-stats-following-${targetUserId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'user_follows',
-          filter: `follower_id=eq.${targetUserId}`
-        },
-        (payload) => {
-          console.log('[REALTIME] Following added:', payload);
-          setStats(prev => ({
-            ...prev,
-            following: prev.following + 1
-          }));
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'DELETE',
-          schema: 'public',
-          table: 'user_follows',
-          filter: `follower_id=eq.${targetUserId}`
-        },
-        (payload) => {
-          console.log('[REALTIME] Following removed:', payload);
-          setStats(prev => ({
-            ...prev,
-            following: Math.max(0, prev.following - 1)
-          }));
+          console.log('[REALTIME] FOLLOW DELETE received:', payload);
+          const oldRecord = payload.old as { follower_id: string; following_id: string };
+          
+          // If someone unfollowed this profile → decrement Followers
+          if (oldRecord.following_id === targetUserId) {
+            console.log('[REALTIME] → Decrementing Followers');
+            setStats(prev => ({
+              ...prev,
+              followers: Math.max(0, prev.followers - 1)
+            }));
+          }
+          
+          // If this profile unfollowed someone → decrement Following
+          if (oldRecord.follower_id === targetUserId) {
+            console.log('[REALTIME] → Decrementing Following');
+            setStats(prev => ({
+              ...prev,
+              following: Math.max(0, prev.following - 1)
+            }));
+          }
         }
       )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(followersChannel);
-      supabase.removeChannel(followingChannel);
+      supabase.removeChannel(channel);
     };
   }, [loadStats, targetUserId]);
 
