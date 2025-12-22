@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { invalidateFollowCache } from "@/lib/followCache";
 
 export type ExploreUserResult = {
   user_id: string;
@@ -105,7 +106,14 @@ export const ExploreUserResults = ({ users, currentUserId }: ExploreUserResultsP
               >
                 <MessageCircle className="h-4 w-4" />
               </Button>
-              <div onClick={() => setPendingUserId(user.user_id)}>
+              <div
+                onClick={() => {
+                  // Keep follow stats cache consistent across the app (Profile counters)
+                  invalidateFollowCache(currentUserId);
+                  invalidateFollowCache(user.user_id);
+                  setPendingUserId(user.user_id);
+                }}
+              >
                 <FollowButton targetUserId={user.user_id} currentUserId={currentUserId} />
               </div>
             </div>
