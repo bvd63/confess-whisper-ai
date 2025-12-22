@@ -136,7 +136,6 @@ const passesClientFilters = (confession: ConfessionRow, currentUserId?: string |
   if (confession.is_draft) return false;
   if (confession.is_reported) return false;
   if (confession.moderation_status && confession.moderation_status !== "approved") return false;
-  if (currentUserId && confession.user_id === currentUserId) return false;
 
   return true;
 };
