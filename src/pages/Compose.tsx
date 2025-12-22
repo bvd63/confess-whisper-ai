@@ -167,12 +167,9 @@ const Compose = () => {
       });
       return;
     }
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: t.image_too_large,
+          className="min-h-screen bg-gradient-to-br from-[#0f0a23] via-[#0a0f2e] to-[#12072d] text-foreground -mb-16"
         description: t.image_invalid_file_desc,
-        variant: "destructive",
+          <div className="max-w-[480px] mx-auto px-4 sm:px-6 pt-6 pb-6 space-y-5">
       });
       return;
     }
@@ -535,10 +532,14 @@ const Compose = () => {
     : isBusy || isPolishing || !content.trim() || !canPost || (dailyLimit !== Infinity && remaining === 0) || (env.features.confessionTurnstileRequired && !captchaToken);
   return (
     <div
+<<<<<<< HEAD
       className="min-h-screen bg-gradient-to-br from-[#0f0a23] via-[#0a0f2e] to-[#12072d] text-foreground"
       style={{
         paddingBottom: isKeyboardVisible ? `${keyboardHeight + 24}px` : "24px",
       }}
+=======
+      className="min-h-screen bg-gradient-to-br from-[#0f0a23] via-[#0a0f2e] to-[#12072d] text-foreground -mb-16"
+>>>>>>> 220461e (Fix New Confession background flush to nav)
     >
       <div className="max-w-[480px] mx-auto px-4 sm:px-6 pt-6 pb-10 space-y-5">
         <div className="flex items-center justify-center relative">
