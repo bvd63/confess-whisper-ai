@@ -351,27 +351,14 @@ export const fetchPopularConfessions = async (params: ExploreFetchParams = {}): 
   }
 
   const fallback = await buildPopularFallbackResult(params);
-
-  if (fallback.items.length === 0) {
-    return primary;
-  }
-
   const existingIds = new Set(primary.items.map((item) => item.id));
-  const merged: ConfessionRow[] = [...primary.items];
-
-  for (const item of fallback.items) {
-    if (merged.length >= PAGE_SIZE) break;
-    if (!existingIds.has(item.id)) {
-      merged.push(item);
-      existingIds.add(item.id);
-    }
-  }
+  const mergedItems = [...primary.items, ...fallback.items.filter((item) => !existingIds.has(item.id))];
 
   const hasMore = primary.hasMore || fallback.hasMore;
   const nextCursor = primary.hasMore ? primary.nextCursor : fallback.nextCursor;
 
   return {
-    items: merged,
+    items: mergedItems.slice(0, PAGE_SIZE),
     source: primary.source,
     nextCursor,
     hasMore,
