@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,13 +9,15 @@ import { MessageCircle, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import FollowButton from "./FollowButton";
-import { logDebug, logError } from "@/lib/logger";
+import { logDebug } from "@/lib/logger";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { followersListKey, followingListKey, type MinimalUserProfile } from "@/lib/followQuery";
 
-interface UserProfile {
-  user_id: string;
-  nickname: string | null;
-  avatar_url: string | null;
-}
+type UserProfile = MinimalUserProfile;
+
+type FollowRow = {
+  profiles: UserProfile | null;
+};
 
 interface FollowersListDialogProps {
   open: boolean;
@@ -34,24 +36,61 @@ export const FollowersListDialog = ({
 }: FollowersListDialogProps) => {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const queryClient = useQueryClient();
   
-  const [followers, setFollowers] = useState<UserProfile[]>([]);
-  const [following, setFollowing] = useState<UserProfile[]>([]);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(initialTab);
-  
-  // Track pending optimistic operations to avoid duplicate real-time updates
-  const pendingOps = useRef<Set<string>>(new Set());
 
-  // Fetch initial data
-  useEffect(() => {
-    if (open && userId) {
-      fetchFollowers();
-      fetchFollowing();
-    }
-  }, [open, userId]);
+  // React Query keys used for list caches:
+  // - Followers list: ["followers-list", profileUserId]
+  // - Following list: ["following-list", profileUserId]
+  const followersQuery = useQuery({
+    queryKey: followersListKey(userId),
+    queryFn: async () => {
 
-  // Real-time subscription
+      const { data, error } = await supabase
+        .from("user_follows")
+        .select(`
+          follower_id,
+          profiles!user_follows_follower_id_fkey (
+            user_id,
+            nickname,
+            avatar_url
+          )
+        `)
+        .eq("following_id", userId);
+
+      if (error) throw error;
+
+      const rows = (data ?? []) as unknown as FollowRow[];
+      return rows.map((row) => row.profiles).filter((p): p is UserProfile => Boolean(p));
+    },
+    enabled: open && !!userId,
+  });
+
+  const followingQuery = useQuery({
+    queryKey: followingListKey(userId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("user_follows")
+        .select(`
+          following_id,
+          profiles!user_follows_following_id_fkey (
+            user_id,
+            nickname,
+            avatar_url
+          )
+        `)
+        .eq("follower_id", userId);
+
+      if (error) throw error;
+
+      const rows = (data ?? []) as unknown as FollowRow[];
+      return rows.map((row) => row.profiles).filter((p): p is UserProfile => Boolean(p));
+    },
+    enabled: open && !!userId,
+  });
+
+  // Real-time subscription (updates React Query caches)
   useEffect(() => {
     if (!open || !userId) return;
 
@@ -67,41 +106,27 @@ export const FollowersListDialog = ({
           table: "user_follows",
         },
         async (payload) => {
-          logDebug("[FOLLOWERS-LIST] INSERT event received:", payload);
-          
-          const opKey = `${payload.new.follower_id}:${payload.new.following_id}`;
-          
-          // Skip if this is a pending optimistic operation (already applied)
-          if (pendingOps.current.has(opKey)) {
-            logDebug("[FOLLOWERS-LIST] → Skipping duplicate (pending op)", { opKey });
-            pendingOps.current.delete(opKey);
-            return;
+          logDebug("[FOLLOWERS-LIST] INSERT event received", { payload });
+          const newRecord = payload.new as { follower_id: string; following_id: string };
+
+          // Someone followed this profile -> prepend follower to followers list cache
+          if (newRecord.following_id === userId) {
+            queryClient.setQueryData<UserProfile[]>(followersListKey(userId), (prev) => {
+              if (!prev) return prev;
+              const next = prev.filter((u) => u.user_id !== newRecord.follower_id);
+              next.unshift({ user_id: newRecord.follower_id, nickname: null, avatar_url: null });
+              return next;
+            });
           }
-          
-          // If someone followed this user → add to followers list
-          if (payload.new.following_id === userId) {
-            logDebug("[FOLLOWERS-LIST] → New follower detected, fetching user:", payload.new.follower_id);
-            const newFollower = await fetchUserProfile(payload.new.follower_id);
-            if (newFollower) {
-              setFollowers(prev => {
-                // Avoid duplicates
-                if (prev.some(u => u.user_id === newFollower.user_id)) return prev;
-                return [newFollower, ...prev];
-              });
-            }
-          }
-          
-          // If this user followed someone → add to following list
-          if (payload.new.follower_id === userId) {
-            logDebug("[FOLLOWERS-LIST] → New following detected, fetching user:", payload.new.following_id);
-            const newFollowing = await fetchUserProfile(payload.new.following_id);
-            if (newFollowing) {
-              setFollowing(prev => {
-                // Avoid duplicates
-                if (prev.some(u => u.user_id === newFollowing.user_id)) return prev;
-                return [newFollowing, ...prev];
-              });
-            }
+
+          // This profile followed someone -> prepend to following list cache
+          if (newRecord.follower_id === userId) {
+            queryClient.setQueryData<UserProfile[]>(followingListKey(userId), (prev) => {
+              if (!prev) return prev;
+              const next = prev.filter((u) => u.user_id !== newRecord.following_id);
+              next.unshift({ user_id: newRecord.following_id, nickname: null, avatar_url: null });
+              return next;
+            });
           }
         }
       )
@@ -113,27 +138,23 @@ export const FollowersListDialog = ({
           table: "user_follows",
         },
         (payload) => {
-          logDebug("[FOLLOWERS-LIST] DELETE event received:", payload);
-          
-          const opKey = `${payload.old.follower_id}:${payload.old.following_id}`;
-          
-          // Skip if this is a pending optimistic operation (already applied)
-          if (pendingOps.current.has(opKey)) {
-            logDebug("[FOLLOWERS-LIST] → Skipping duplicate (pending op)", { opKey });
-            pendingOps.current.delete(opKey);
-            return;
+          logDebug("[FOLLOWERS-LIST] DELETE event received", { payload });
+          const oldRecord = payload.old as { follower_id: string; following_id: string };
+
+          // Someone unfollowed this profile -> remove follower from followers list cache
+          if (oldRecord.following_id === userId) {
+            queryClient.setQueryData<UserProfile[]>(followersListKey(userId), (prev) => {
+              if (!prev) return prev;
+              return prev.filter((u) => u.user_id !== oldRecord.follower_id);
+            });
           }
-          
-          // If someone unfollowed this user → remove from followers list
-          if (payload.old.following_id === userId) {
-            logDebug("[FOLLOWERS-LIST] → Follower removed:", payload.old.follower_id);
-            setFollowers(prev => prev.filter(u => u.user_id !== payload.old.follower_id));
-          }
-          
-          // If this user unfollowed someone → remove from following list
-          if (payload.old.follower_id === userId) {
-            logDebug("[FOLLOWERS-LIST] → Following removed:", payload.old.following_id);
-            setFollowing(prev => prev.filter(u => u.user_id !== payload.old.following_id));
+
+          // This profile unfollowed someone -> remove from following list cache
+          if (oldRecord.follower_id === userId) {
+            queryClient.setQueryData<UserProfile[]>(followingListKey(userId), (prev) => {
+              if (!prev) return prev;
+              return prev.filter((u) => u.user_id !== oldRecord.following_id);
+            });
           }
         }
       )
@@ -143,159 +164,10 @@ export const FollowersListDialog = ({
       logDebug("[FOLLOWERS-LIST] Cleaning up realtime subscription");
       supabase.removeChannel(channel);
     };
-  }, [open, userId]);
+  }, [open, userId, queryClient]);
 
-  const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("user_id, nickname, avatar_url")
-        .eq("user_id", userId)
-        .single();
-
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      logError("Error fetching user profile:", error instanceof Error ? error : undefined);
-      return null;
-    }
-  };
-
-  // Optimistic follow: add user to followers list immediately
-  const optimisticFollow = useCallback(async (followerId: string, followingId: string) => {
-    const opKey = `${followerId}:${followingId}`;
-    pendingOps.current.add(opKey);
-    
-    logDebug("[FOLLOWERS-LIST] Optimistic follow", { opKey });
-    
-    // If someone is following the profile we're viewing
-    if (followingId === userId) {
-      const followerProfile = await fetchUserProfile(followerId);
-      if (followerProfile) {
-        setFollowers(prev => {
-          if (prev.some(u => u.user_id === followerId)) return prev;
-          return [followerProfile, ...prev];
-        });
-      }
-    }
-    
-    // If the profile we're viewing is following someone
-    if (followerId === userId) {
-      const followingProfile = await fetchUserProfile(followingId);
-      if (followingProfile) {
-        setFollowing(prev => {
-          if (prev.some(u => u.user_id === followingId)) return prev;
-          return [followingProfile, ...prev];
-        });
-      }
-    }
-    
-    // Clear pending after a short delay (real-time should reconcile)
-    setTimeout(() => pendingOps.current.delete(opKey), 3000);
-  }, [userId]);
-
-  // Optimistic unfollow: remove user from lists immediately
-  const optimisticUnfollow = useCallback((followerId: string, followingId: string) => {
-    const opKey = `${followerId}:${followingId}`;
-    pendingOps.current.add(opKey);
-    
-    logDebug("[FOLLOWERS-LIST] Optimistic unfollow", { opKey });
-    
-    // If someone unfollowed the profile we're viewing
-    if (followingId === userId) {
-      setFollowers(prev => prev.filter(u => u.user_id !== followerId));
-    }
-    
-    // If the profile we're viewing unfollowed someone
-    if (followerId === userId) {
-      setFollowing(prev => prev.filter(u => u.user_id !== followingId));
-    }
-    
-    // Clear pending after a short delay
-    setTimeout(() => pendingOps.current.delete(opKey), 3000);
-  }, [userId]);
-
-  // Expose methods to parent components via window event
-  useEffect(() => {
-    const handleOptimisticFollow = (event: CustomEvent) => {
-      const { followerId, followingId } = event.detail;
-      optimisticFollow(followerId, followingId);
-    };
-    
-    const handleOptimisticUnfollow = (event: CustomEvent) => {
-      const { followerId, followingId } = event.detail;
-      optimisticUnfollow(followerId, followingId);
-    };
-    
-    window.addEventListener('optimistic-follow' as any, handleOptimisticFollow);
-    window.addEventListener('optimistic-unfollow' as any, handleOptimisticUnfollow);
-    
-    return () => {
-      window.removeEventListener('optimistic-follow' as any, handleOptimisticFollow);
-      window.removeEventListener('optimistic-unfollow' as any, handleOptimisticUnfollow);
-    };
-  }, [optimisticFollow, optimisticUnfollow]);
-
-  const fetchFollowers = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from("user_follows")
-        .select(`
-          follower_id,
-          profiles!user_follows_follower_id_fkey (
-            user_id,
-            nickname,
-            avatar_url
-          )
-        `)
-        .eq("following_id", userId);
-
-      if (error) throw error;
-
-      const users = data
-        ?.map((item: any) => item.profiles)
-        .filter(Boolean) as UserProfile[];
-      
-      setFollowers(users || []);
-    } catch (error) {
-      logError("Error fetching followers:", error instanceof Error ? error : undefined);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchFollowing = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from("user_follows")
-        .select(`
-          following_id,
-          profiles!user_follows_following_id_fkey (
-            user_id,
-            nickname,
-            avatar_url
-          )
-        `)
-        .eq("follower_id", userId);
-
-      if (error) throw error;
-
-      const users = data
-        ?.map((item: any) => item.profiles)
-        .filter(Boolean) as UserProfile[];
-      
-      setFollowing(users || []);
-    } catch (error) {
-      logError("Error fetching following:", error instanceof Error ? error : undefined);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const renderUserList = (users: UserProfile[]) => {
-    if (loading) {
+  const renderUserList = (users: UserProfile[] | undefined, isLoading: boolean) => {
+    if (isLoading) {
       return (
         <div className="flex justify-center items-center py-8">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -303,7 +175,7 @@ export const FollowersListDialog = ({
       );
     }
 
-    if (users.length === 0) {
+    if (!users || users.length === 0) {
       return (
         <div className="text-center py-8 text-muted-foreground text-sm">
           {activeTab === "followers" ? "No followers yet" : "Not following anyone yet"}
@@ -370,19 +242,19 @@ export const FollowersListDialog = ({
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "followers" | "following")}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="followers">
-              {t.profile_followers || "Followers"} ({followers.length})
+              {t.profile_followers || "Followers"} ({followersQuery.data?.length ?? 0})
             </TabsTrigger>
             <TabsTrigger value="following">
-              {t.profile_following || "Following"} ({following.length})
+              {t.profile_following || "Following"} ({followingQuery.data?.length ?? 0})
             </TabsTrigger>
           </TabsList>
           
           <TabsContent value="followers" className="mt-4 max-h-[400px] overflow-y-auto">
-            {renderUserList(followers)}
+            {renderUserList(followersQuery.data, followersQuery.isLoading)}
           </TabsContent>
           
           <TabsContent value="following" className="mt-4 max-h-[400px] overflow-y-auto">
-            {renderUserList(following)}
+            {renderUserList(followingQuery.data, followingQuery.isLoading)}
           </TabsContent>
         </Tabs>
       </DialogContent>

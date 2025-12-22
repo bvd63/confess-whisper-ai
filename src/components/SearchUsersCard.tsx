@@ -11,6 +11,19 @@ import { useNavigate } from "react-router-dom";
 import { Search, MessageCircle, UserPlus, UserMinus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  applyOptimisticFollow,
+  applyOptimisticUnfollow,
+  followCountsKey,
+  followRelationshipKey,
+  rollbackOptimisticFollow,
+} from "@/lib/followQuery";
+
+// React Query keys touched by follow/unfollow optimistic updates:
+// - ["follow-counts", profileUserId]
+// - ["followers-list", profileUserId]
+// - ["following-list", profileUserId]
+// - ["follow-rel", currentUserId, profileUserId]
 
 interface SearchUser {
   id: string;
@@ -66,15 +79,43 @@ export const SearchUsersCard = () => {
         if (error) throw error;
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-search'] });
+    onMutate: async ({ userId, isFollowing }) => {
+      const currentUserId = (await supabase.auth.getUser()).data.user?.id;
+      if (!currentUserId) return;
+
+      // Cancel caches we might touch
+      await Promise.all([
+        queryClient.cancelQueries({ queryKey: followCountsKey(userId) }),
+        queryClient.cancelQueries({ queryKey: followCountsKey(currentUserId) }),
+        queryClient.cancelQueries({ queryKey: followRelationshipKey(currentUserId, userId) }),
+      ]);
+
+      return isFollowing
+        ? applyOptimisticUnfollow(queryClient, { currentUserId, targetUserId: userId })
+        : applyOptimisticFollow(queryClient, { currentUserId, targetUserId: userId });
     },
-    onError: (error) => {
+    onError: (error, { userId }, ctx) => {
+      supabase.auth.getUser().then(({ data }) => {
+        const currentUserId = data.user?.id;
+        if (!currentUserId) return;
+        rollbackOptimisticFollow(queryClient, { currentUserId, targetUserId: userId }, ctx);
+      });
       toast({
         title: "Error",
         description: error.message,
         variant: "destructive",
       });
+    },
+    onSettled: async (_data, _error, { userId }) => {
+      const currentUserId = (await supabase.auth.getUser()).data.user?.id;
+      if (currentUserId) {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: followCountsKey(userId) }),
+          queryClient.invalidateQueries({ queryKey: followCountsKey(currentUserId) }),
+          queryClient.invalidateQueries({ queryKey: followRelationshipKey(currentUserId, userId) }),
+        ]);
+      }
+      queryClient.invalidateQueries({ queryKey: ['user-search'] });
     },
   });
 

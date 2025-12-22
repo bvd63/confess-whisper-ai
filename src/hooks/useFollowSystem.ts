@@ -1,7 +1,16 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { getFollowStatsCached, invalidateFollowCache } from '@/lib/followCache';
 import { logError } from '@/lib/logger';
+import {
+  applyOptimisticFollow,
+  applyOptimisticUnfollow,
+  type FollowCounts,
+  followCountsKey,
+  followRelationshipKey,
+  rollbackOptimisticFollow,
+} from '@/lib/followQuery';
 
 interface FollowStats {
   followers: number;
@@ -14,167 +23,142 @@ interface FollowStats {
  * Instagram-style follow system hook
  */
 export const useFollowSystem = (userId: string | null, targetUserId: string | null) => {
-  const [stats, setStats] = useState<FollowStats>({
-    followers: 0,
-    following: 0,
-    isFollowing: false,
-    isFollowedBy: false,
-  });
-  const [isLoading, setIsLoading] = useState(true);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const queryClient = useQueryClient();
 
-  const loadStats = useCallback(async () => {
-    if (!targetUserId) return;
-
-    try {
-      // Use cached follow stats (much faster)
+  const countsQuery = useQuery({
+    queryKey: targetUserId ? followCountsKey(targetUserId) : ['follow-counts', 'disabled'],
+    queryFn: async () => {
+      if (!targetUserId) return { followersCount: 0, followingCount: 0 };
       const profileStats = await getFollowStatsCached(targetUserId);
+      return {
+        followersCount: profileStats?.followers_count || 0,
+        followingCount: profileStats?.following_count || 0,
+      };
+    },
+    enabled: !!targetUserId,
+  });
 
-      let isFollowing = false;
-      let isFollowedBy = false;
-
-      if (userId && userId !== targetUserId) {
-        // Batch both follow checks in parallel
-        const [followCheck, followBackCheck] = await Promise.all([
-          supabase
-            .from('user_follows')
-            .select('id')
-            .eq('follower_id', userId)
-            .eq('following_id', targetUserId)
-            .maybeSingle(),
-          supabase
-            .from('user_follows')
-            .select('id')
-            .eq('follower_id', targetUserId)
-            .eq('following_id', userId)
-            .maybeSingle()
-        ]);
-
-        isFollowing = !!followCheck.data;
-        isFollowedBy = !!followBackCheck.data;
+  const relationshipQuery = useQuery({
+    queryKey:
+      userId && targetUserId ? followRelationshipKey(userId, targetUserId) : ['follow-rel', 'disabled'],
+    queryFn: async () => {
+      if (!userId || !targetUserId || userId === targetUserId) {
+        return { isFollowing: false, isFollowedBy: false };
       }
 
-      setStats({
-        followers: profileStats?.followers_count || 0,
-        following: profileStats?.following_count || 0,
-        isFollowing,
-        isFollowedBy,
-      });
-    } catch (error) {
-      logError('Error loading follow stats', error as Error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [userId, targetUserId]);
+      const [followCheck, followBackCheck] = await Promise.all([
+        supabase
+          .from('user_follows')
+          .select('id')
+          .eq('follower_id', userId)
+          .eq('following_id', targetUserId)
+          .maybeSingle(),
+        supabase
+          .from('user_follows')
+          .select('id')
+          .eq('follower_id', targetUserId)
+          .eq('following_id', userId)
+          .maybeSingle(),
+      ]);
 
-  const follow = useCallback(async () => {
-    if (!userId || !targetUserId || userId === targetUserId) return;
+      return {
+        isFollowing: !!followCheck.data,
+        isFollowedBy: !!followBackCheck.data,
+      };
+    },
+    enabled: !!userId && !!targetUserId,
+  });
 
-    setIsProcessing(true);
-    
-    // Optimistic update: increment followers count immediately
-    setStats(prev => ({
-      ...prev,
-      followers: prev.followers + 1,
-      isFollowing: true,
-    }));
-    
-    // Trigger optimistic list update
-    window.dispatchEvent(new CustomEvent('optimistic-follow', {
-      detail: { followerId: userId, followingId: targetUserId }
-    }));
-    
-    try {
+  const followMutation = useMutation({
+    mutationFn: async () => {
+      if (!userId || !targetUserId || userId === targetUserId) return;
       const { error } = await supabase
         .from('user_follows')
-        .insert({
-          follower_id: userId,
-          following_id: targetUserId,
-        });
-
+        .insert({ follower_id: userId, following_id: targetUserId });
       if (error) throw error;
-      
-      // Invalidate cache to force fresh data next time
-      invalidateFollowCache(targetUserId);
-    } catch (error) {
-      // Rollback optimistic update on error
-      setStats(prev => ({
-        ...prev,
-        followers: prev.followers - 1,
-        isFollowing: false,
-      }));
-      
-      // Trigger optimistic rollback for list
-      window.dispatchEvent(new CustomEvent('optimistic-unfollow', {
-        detail: { followerId: userId, followingId: targetUserId }
-      }));
-      
+    },
+    onMutate: async () => {
+      if (!userId || !targetUserId || userId === targetUserId) return;
+
+      // Cancel queries that will be optimistically updated
+      await Promise.all([
+        queryClient.cancelQueries({ queryKey: followCountsKey(targetUserId) }),
+        queryClient.cancelQueries({ queryKey: followCountsKey(userId) }),
+        queryClient.cancelQueries({ queryKey: followRelationshipKey(userId, targetUserId) }),
+      ]);
+
+      return applyOptimisticFollow(queryClient, { currentUserId: userId, targetUserId });
+    },
+    onError: (error, _vars, ctx) => {
+      if (!userId || !targetUserId) return;
+      rollbackOptimisticFollow(queryClient, { currentUserId: userId, targetUserId }, ctx);
       logError('Error following user', error as Error);
-      throw error;
-    } finally {
-      setIsProcessing(false);
-    }
-  }, [userId, targetUserId]);
+    },
+    onSettled: async () => {
+      if (!userId || !targetUserId) return;
+      invalidateFollowCache(targetUserId);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: followCountsKey(targetUserId) }),
+        queryClient.invalidateQueries({ queryKey: followCountsKey(userId) }),
+        queryClient.invalidateQueries({ queryKey: followRelationshipKey(userId, targetUserId) }),
+      ]);
+    },
+  });
 
-  const unfollow = useCallback(async () => {
-    if (!userId || !targetUserId) return;
-
-    setIsProcessing(true);
-    
-    // Optimistic update: decrement followers count immediately
-    setStats(prev => ({
-      ...prev,
-      followers: prev.followers - 1,
-      isFollowing: false,
-    }));
-    
-    // Trigger optimistic list update
-    window.dispatchEvent(new CustomEvent('optimistic-unfollow', {
-      detail: { followerId: userId, followingId: targetUserId }
-    }));
-    
-    try {
+  const unfollowMutation = useMutation({
+    mutationFn: async () => {
+      if (!userId || !targetUserId || userId === targetUserId) return;
       const { error } = await supabase
         .from('user_follows')
         .delete()
         .eq('follower_id', userId)
         .eq('following_id', targetUserId);
-
       if (error) throw error;
-      
-      // Invalidate cache to force fresh data next time
-      invalidateFollowCache(targetUserId);
-    } catch (error) {
-      // Rollback optimistic update on error
-      setStats(prev => ({
-        ...prev,
-        followers: prev.followers + 1,
-        isFollowing: true,
-      }));
-      
-      // Trigger optimistic rollback for list
-      window.dispatchEvent(new CustomEvent('optimistic-follow', {
-        detail: { followerId: userId, followingId: targetUserId }
-      }));
-      
-      logError('Error unfollowing user', error as Error);
-      throw error;
-    } finally {
-      setIsProcessing(false);
-    }
-  }, [userId, targetUserId]);
+    },
+    onMutate: async () => {
+      if (!userId || !targetUserId || userId === targetUserId) return;
 
-  const toggleFollow = useCallback(async () => {
-    if (stats.isFollowing) {
+      await Promise.all([
+        queryClient.cancelQueries({ queryKey: followCountsKey(targetUserId) }),
+        queryClient.cancelQueries({ queryKey: followCountsKey(userId) }),
+        queryClient.cancelQueries({ queryKey: followRelationshipKey(userId, targetUserId) }),
+      ]);
+
+      return applyOptimisticUnfollow(queryClient, { currentUserId: userId, targetUserId });
+    },
+    onError: (error, _vars, ctx) => {
+      if (!userId || !targetUserId) return;
+      rollbackOptimisticFollow(queryClient, { currentUserId: userId, targetUserId }, ctx);
+      logError('Error unfollowing user', error as Error);
+    },
+    onSettled: async () => {
+      if (!userId || !targetUserId) return;
+      invalidateFollowCache(targetUserId);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: followCountsKey(targetUserId) }),
+        queryClient.invalidateQueries({ queryKey: followCountsKey(userId) }),
+        queryClient.invalidateQueries({ queryKey: followRelationshipKey(userId, targetUserId) }),
+      ]);
+    },
+  });
+
+  const follow = async () => {
+    await followMutation.mutateAsync();
+  };
+
+  const unfollow = async () => {
+    await unfollowMutation.mutateAsync();
+  };
+
+  const toggleFollow = async () => {
+    if (relationshipQuery.data?.isFollowing) {
       await unfollow();
     } else {
       await follow();
     }
-  }, [stats.isFollowing, follow, unfollow]);
+  };
 
   useEffect(() => {
-    loadStats();
-
     if (!targetUserId) return;
 
     // Subscribe to realtime updates on user_follows table
@@ -189,25 +173,22 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
           table: 'user_follows',
         },
         (payload) => {
-          console.log('[REALTIME] FOLLOW INSERT received:', payload);
           const newRecord = payload.new as { follower_id: string; following_id: string };
-          
+
           // If someone followed this profile → increment Followers
           if (newRecord.following_id === targetUserId) {
-            console.log('[REALTIME] → Incrementing Followers');
-            setStats(prev => ({
-              ...prev,
-              followers: prev.followers + 1
-            }));
+            queryClient.setQueryData<FollowCounts>(followCountsKey(targetUserId), (prev) => {
+              if (!prev) return prev;
+              return { ...prev, followersCount: prev.followersCount + 1 };
+            });
           }
-          
+
           // If this profile followed someone → increment Following
           if (newRecord.follower_id === targetUserId) {
-            console.log('[REALTIME] → Incrementing Following');
-            setStats(prev => ({
-              ...prev,
-              following: prev.following + 1
-            }));
+            queryClient.setQueryData<FollowCounts>(followCountsKey(targetUserId), (prev) => {
+              if (!prev) return prev;
+              return { ...prev, followingCount: prev.followingCount + 1 };
+            });
           }
         }
       )
@@ -219,25 +200,22 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
           table: 'user_follows',
         },
         (payload) => {
-          console.log('[REALTIME] FOLLOW DELETE received:', payload);
           const oldRecord = payload.old as { follower_id: string; following_id: string };
-          
+
           // If someone unfollowed this profile → decrement Followers
           if (oldRecord.following_id === targetUserId) {
-            console.log('[REALTIME] → Decrementing Followers');
-            setStats(prev => ({
-              ...prev,
-              followers: Math.max(0, prev.followers - 1)
-            }));
+            queryClient.setQueryData<FollowCounts>(followCountsKey(targetUserId), (prev) => {
+              if (!prev) return prev;
+              return { ...prev, followersCount: Math.max(0, prev.followersCount - 1) };
+            });
           }
-          
+
           // If this profile unfollowed someone → decrement Following
           if (oldRecord.follower_id === targetUserId) {
-            console.log('[REALTIME] → Decrementing Following');
-            setStats(prev => ({
-              ...prev,
-              following: Math.max(0, prev.following - 1)
-            }));
+            queryClient.setQueryData<FollowCounts>(followCountsKey(targetUserId), (prev) => {
+              if (!prev) return prev;
+              return { ...prev, followingCount: Math.max(0, prev.followingCount - 1) };
+            });
           }
         }
       )
@@ -246,15 +224,30 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [loadStats, targetUserId]);
+  }, [queryClient, targetUserId]);
+
+  const stats: FollowStats = useMemo(() => {
+    const followers = countsQuery.data?.followersCount ?? 0;
+    const following = countsQuery.data?.followingCount ?? 0;
+    const isFollowing = relationshipQuery.data?.isFollowing ?? false;
+    const isFollowedBy = relationshipQuery.data?.isFollowedBy ?? false;
+    return { followers, following, isFollowing, isFollowedBy };
+  }, [countsQuery.data, relationshipQuery.data]);
 
   return {
     stats,
-    isLoading,
-    isProcessing,
+    isLoading: countsQuery.isLoading || relationshipQuery.isLoading,
+    isProcessing: followMutation.isPending || unfollowMutation.isPending,
     follow,
     unfollow,
     toggleFollow,
-    reload: loadStats,
+    reload: async () => {
+      if (targetUserId) {
+        await queryClient.invalidateQueries({ queryKey: followCountsKey(targetUserId) });
+      }
+      if (userId && targetUserId) {
+        await queryClient.invalidateQueries({ queryKey: followRelationshipKey(userId, targetUserId) });
+      }
+    },
   };
 };
