@@ -24,6 +24,7 @@ import { useTrialExpiryCheck } from "@/hooks/useTrialExpiryCheck";
 import { logError } from "@/lib/logger";
 import { LogoutConfirmationDialog } from "@/components/LogoutConfirmationDialog";
 import { useFollowSystem } from "@/hooks/useFollowSystem";
+import { FollowersListDialog } from "@/components/FollowersListDialog";
 
 type ProfileStats = {
   totalConfessions: number;
@@ -61,6 +62,8 @@ const Profile = () => {
   const [flairsDialogOpen, setFlairsDialogOpen] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [followersDialogOpen, setFollowersDialogOpen] = useState(false);
+  const [followersDialogTab, setFollowersDialogTab] = useState<"followers" | "following">("followers");
   const [profileData, setProfileData] = useState<{ stripe_subscription_id: string | null; bio: string | null; nickname: string | null } | null>(null);
   const [stats, setStats] = useState<ProfileStats>({
     totalConfessions: 0,
@@ -320,11 +323,23 @@ const Profile = () => {
               )}
               {/* Followers / Following - Inline Text */}
               <div className="flex items-center gap-2 mt-2 text-xs">
-                <span className="text-white/70">
+                <span 
+                  className="text-white/70 cursor-pointer hover:text-white/90 transition-colors"
+                  onClick={() => {
+                    setFollowersDialogTab("followers");
+                    setFollowersDialogOpen(true);
+                  }}
+                >
                   <span className="font-semibold text-white/90">{formatCount(followStats.followers)}</span> Followers
                 </span>
                 <span className="text-white/40">·</span>
-                <span className="text-white/70">
+                <span 
+                  className="text-white/70 cursor-pointer hover:text-white/90 transition-colors"
+                  onClick={() => {
+                    setFollowersDialogTab("following");
+                    setFollowersDialogOpen(true);
+                  }}
+                >
                   <span className="font-semibold text-white/90">{formatCount(followStats.following)}</span> Following
                 </span>
               </div>
@@ -401,6 +416,14 @@ const Profile = () => {
         onOpenChange={setLogoutDialogOpen}
         onConfirm={handleLogoutConfirm}
         isLoading={isLoggingOut}
+      />
+
+      <FollowersListDialog
+        open={followersDialogOpen}
+        onOpenChange={setFollowersDialogOpen}
+        userId={user.id}
+        currentUserId={user.id}
+        initialTab={followersDialogTab}
       />
 
       <Suspense fallback={null}>
