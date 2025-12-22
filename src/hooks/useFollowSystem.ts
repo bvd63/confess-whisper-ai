@@ -25,6 +25,9 @@ interface FollowStats {
 export const useFollowSystem = (userId: string | null, targetUserId: string | null) => {
   const queryClient = useQueryClient();
 
+  // Viewing own profile: allow refetch on mount so counts update after navigating from Explore
+  const isOwnProfile = userId === targetUserId;
+
   const countsQuery = useQuery({
     queryKey: targetUserId ? followCountsKey(targetUserId) : ['follow-counts', 'disabled'],
     queryFn: async () => {
@@ -37,7 +40,7 @@ export const useFollowSystem = (userId: string | null, targetUserId: string | nu
     },
     enabled: !!targetUserId,
     staleTime: 3 * 60 * 1000,
-    refetchOnMount: false,
+    refetchOnMount: isOwnProfile ? 'always' : false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
