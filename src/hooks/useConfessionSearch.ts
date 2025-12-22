@@ -17,7 +17,10 @@ export const useConfessionSearch = () => {
       let queryBuilder = supabase
         .from('confessions')
         .select('*')
-        .eq('is_draft', false);
+        .eq('moderation_status', 'approved')
+        .eq('is_draft', false)
+        .eq('is_private', false)
+        .eq('is_reported', false);
 
       // Text search
       if (query.trim()) {
@@ -86,7 +89,9 @@ export const useConfessionSearch = () => {
           break;
       }
 
-      queryBuilder = queryBuilder.limit(50);
+      queryBuilder = queryBuilder
+        .order('created_at', { ascending: false })
+        .limit(25);
 
       const { data, error } = await queryBuilder;
 

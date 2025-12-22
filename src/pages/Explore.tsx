@@ -119,14 +119,10 @@ const Explore = () => {
           .ilike("content", `%${query}%`)
           .order("created_at", { ascending: false })
           .limit(25)
-          .or("moderation_status.eq.approved,moderation_status.is.null")
-          .not("is_draft", "eq", true)
-          .not("is_private", "eq", true)
-          .not("is_reported", "eq", true);
-
-        if (user?.id) {
-          dbQuery = dbQuery.neq("user_id", user.id);
-        }
+          .eq("moderation_status", "approved")
+          .eq("is_draft", false)
+          .eq("is_private", false)
+          .eq("is_reported", false);
 
         const { data, error } = await dbQuery;
         if (isCancelled) return;
