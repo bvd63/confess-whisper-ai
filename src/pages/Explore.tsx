@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Flame, TrendingUp, Clock, Loader2 } from "lucide-react";
+import { Flame, TrendingUp, Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -16,11 +16,7 @@ import { ConfessionCardSkeleton } from "@/components/skeletons/ConfessionCardSke
 import { ExploreUserResults, ExploreUserResult } from "@/components/explore/ExploreUserResults";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import {
-  fetchPopularConfessions,
-  fetchRecentConfessions,
-  fetchTrendingConfessions,
-} from "@/services/exploreFeedService";
+import { fetchPopularConfessions, fetchTrendingConfessions } from "@/services/exploreFeedService";
 import { supabase } from "@/integrations/supabase/client";
 import { useDebounce } from "@/hooks/useDebounce";
 
@@ -57,17 +53,10 @@ const Explore = () => {
 
   const canFetchConfessions = authReady && isAuthed;
 
-  // Fetch trending, popular, and recent confessions with scoring and filters
+  // Fetch trending and popular confessions with scoring and filters
   const { data: trendingResult, isLoading: loadingTrending, refetch: refetchTrending } = useQuery({
     queryKey: ["explore", "trending", currentUserId],
     queryFn: () => fetchTrendingConfessions({ currentUserId }),
-    enabled: canFetchConfessions,
-    onError: notifyAuthError,
-  });
-
-  const { data: recentResult, isLoading: loadingRecent, refetch: refetchRecent } = useQuery({
-    queryKey: ["explore", "recent", currentUserId],
-    queryFn: () => fetchRecentConfessions({ currentUserId }),
     enabled: canFetchConfessions,
     onError: notifyAuthError,
   });
@@ -86,10 +75,8 @@ const Explore = () => {
       refetchTrending();
     } else if (activeTab === "popular") {
       refetchPopular();
-    } else if (activeTab === "recent") {
-      refetchRecent();
     }
-  }, [activeTab, canFetchConfessions, isSearchingConfessions, refetchPopular, refetchRecent, refetchTrending]);
+  }, [activeTab, canFetchConfessions, isSearchingConfessions, refetchPopular, refetchTrending]);
 
   useEffect(() => {
     const query = debouncedSearch.trim();
@@ -217,8 +204,8 @@ const Explore = () => {
 
   const triggerRefresh = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ["explore"] });
-    await Promise.allSettled([refetchTrending(), refetchPopular(), refetchRecent()]);
-  }, [queryClient, refetchTrending, refetchPopular, refetchRecent]);
+    await Promise.allSettled([refetchTrending(), refetchPopular()]);
+  }, [queryClient, refetchTrending, refetchPopular]);
 
   // Global pull-to-refresh via window touch events
   useEffect(() => {
@@ -285,7 +272,6 @@ const Explore = () => {
   };
 
   const filteredHot = useMemo(() => filterConfessions(trendingResult?.items), [trendingResult, searchQuery, isAuthed]);
-  const filteredRecent = useMemo(() => filterConfessions(recentResult?.items), [recentResult, searchQuery, isAuthed]);
   const filteredPopular = useMemo(() => filterConfessions(popularResult?.items), [popularResult, searchQuery, isAuthed]);
   const filteredSearched = useMemo(() => filterConfessions(searchedConfessions), [searchedConfessions, searchQuery, isAuthed]);
   const shouldShowUserResults = Boolean(user?.id) && debouncedSearch.trim().length >= 2 && userResults.length > 0;
@@ -293,7 +279,6 @@ const Explore = () => {
 
   const displayedTrending = showSearchMode ? filteredSearched : filteredHot;
   const displayedPopular = showSearchMode ? filteredSearched : filteredPopular;
-  const displayedRecent = showSearchMode ? filteredSearched : filteredRecent;
 
   const renderConfessions = (confessions: any[], loading: boolean) => {
     if (loading) {
@@ -383,7 +368,7 @@ const Explore = () => {
               {/* Sticky Tabs */}
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <div className="py-2 -mx-4 px-4 sm:-mx-5 sm:px-5">
-                  <TabsList className="grid w-full grid-cols-3 h-11 bg-transparent p-0 gap-3">
+                  <TabsList className="grid w-full grid-cols-2 h-11 bg-transparent p-0 gap-3">
                     <TabsTrigger
                       value="trending"
                       className="gap-2 text-sm bg-transparent text-white/60 hover:text-white/80 rounded-full px-6 py-2 transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white data-[state=active]:shadow-[0_0_18px_hsl(var(--primary)/0.35)]"
@@ -398,13 +383,6 @@ const Explore = () => {
                       <TrendingUp className="w-4 h-4" />
                       <span className="hidden xs:inline">{t.ui_popular}</span>
                     </TabsTrigger>
-                    <TabsTrigger
-                      value="recent"
-                      className="gap-2 text-sm bg-transparent text-white/60 hover:text-white/80 rounded-full px-6 py-2 transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-accent data-[state=active]:text-white data-[state=active]:shadow-[0_0_18px_hsl(var(--primary)/0.35)]"
-                    >
-                      <Clock className="w-4 h-4" />
-                      <span className="hidden xs:inline">{t.ui_recent}</span>
-                    </TabsTrigger>
                   </TabsList>
                 </div>
 
@@ -414,10 +392,6 @@ const Explore = () => {
 
                 <TabsContent value="popular" className="mt-3">
                   {renderConfessions(displayedPopular, showSearchMode ? isSearchingConfessions : loadingPopular)}
-                </TabsContent>
-
-                <TabsContent value="recent" className="mt-3">
-                  {renderConfessions(displayedRecent, showSearchMode ? isSearchingConfessions : loadingRecent)}
                 </TabsContent>
               </Tabs>
             </>

@@ -273,8 +273,115 @@ export const fetchTrendingConfessions = async (params: ExploreFetchParams = {}):
   return { ...fallbackRecent, source: "recent-fallback" };
 };
 
+const buildPopularFallbackResult = async (
+  { cursor = null, currentUserId = null, loadedCount = 0 }: ExploreFetchParams
+): Promise<ExploreResult> => {
+  if (!ensureHardCapAvailable(loadedCount)) {
+    return { items: [], source: "popular", nextCursor: null, hasMore: false };
+  }
+
+  const now = Date.now();
+  let query = supabase
+    .from("confessions")
+    .select("*")
+    .eq("moderation_status", "approved")
+    .not("is_draft", "eq", true)
+    .not("is_private", "eq", true)
+    .not("is_reported", "eq", true)
+    .gte("created_at", new Date(now - POPULAR_WINDOW_DAYS * DAY_IN_MS).toISOString());
+
+  if (currentUserId) {
+    query = query.neq("user_id", currentUserId);
+  }
+
+  if (cursor) {
+    query = query.lt("created_at", cursor);
+  }
+
+  query = query.order("created_at", { ascending: false }).limit(OVERFETCH_LIMIT);
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw error;
+  }
+
+  const withBoosts = await attachActiveBoosts((data as ConfessionRow[]) || []);
+  const filtered = withBoosts.filter((confession) => passesClientFilters(confession, currentUserId));
+  const sorted = sortCandidates("recent", filtered);
+
+  const baseRules: SelectionRules = {
+    minContentLength: MIN_CONTENT_LENGTH,
+    applyCategoryCap: true,
+    applyAuthorCooldown: false,
+  };
+
+  const stages: SelectionRules[] = [
+    baseRules,
+    { ...baseRules, applyCategoryCap: false },
+    { ...baseRules, applyCategoryCap: false, applyAuthorCooldown: false, minContentLength: null },
+  ];
+
+  let selection = applySelectionRules(sorted, loadedCount, stages[0]);
+
+  for (let i = 1; i < stages.length; i++) {
+    if (selection.selected.length >= PAGE_SIZE || loadedCount + selection.selected.length >= HARD_CAP) {
+      break;
+    }
+
+    const relaxed = applySelectionRules(sorted, loadedCount, stages[i]);
+    if (relaxed.selected.length > selection.selected.length) {
+      selection = relaxed;
+    }
+  }
+
+  return {
+    items: selection.selected,
+    source: "popular",
+    nextCursor: selection.nextCursor,
+    hasMore: selection.hasMore,
+  };
+};
+
 export const fetchPopularConfessions = async (params: ExploreFetchParams = {}): Promise<ExploreResult> => {
-  return buildTabResult("popular", params);
+  const primary = await buildTabResult("popular", params);
+
+  if (primary.items.length >= PAGE_SIZE) {
+    return primary;
+  }
+
+  const fallback = await buildPopularFallbackResult(params);
+
+  if (fallback.items.length === 0) {
+    return primary;
+  }
+
+  const existingIds = new Set(primary.items.map((item) => item.id));
+  const merged: ConfessionRow[] = [...primary.items];
+
+  for (const item of fallback.items) {
+    if (merged.length >= PAGE_SIZE) break;
+    if (!existingIds.has(item.id)) {
+      merged.push(item);
+      existingIds.add(item.id);
+    }
+  }
+
+  const hasMore = merged.length < PAGE_SIZE ? fallback.hasMore || primary.hasMore : fallback.hasMore || primary.hasMore;
+  let nextCursor = primary.nextCursor;
+
+  if (merged.length < PAGE_SIZE && fallback.nextCursor) {
+    nextCursor = fallback.nextCursor;
+  } else if (!primary.hasMore && fallback.nextCursor && merged.length === PAGE_SIZE) {
+    nextCursor = fallback.nextCursor;
+  }
+
+  return {
+    items: merged,
+    source: primary.source,
+    nextCursor,
+    hasMore,
+  };
 };
 
 export const fetchRecentConfessions = async (params: ExploreFetchParams = {}): Promise<ExploreResult> => {
