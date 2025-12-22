@@ -206,7 +206,12 @@ export const InstagramBottomNav = () => {
         >
           <div 
             ref={navRef} 
-            className="flex items-center justify-around min-h-16 w-full px-4 pb-[env(safe-area-inset-bottom)] bg-gradient-to-br from-[#1a1a2e]/95 via-[#16213e]/95 to-[#0f1419]/95 backdrop-blur-xl border-t border-white/10 shadow-[0_-8px_32px_rgba(0,0,0,0.4)]" 
+            className={cn(
+              "flex items-center justify-around min-h-16 w-full px-4 pb-[env(safe-area-inset-bottom)]",
+              isComposeActive 
+                ? "bg-transparent" 
+                : "bg-gradient-to-br from-[#1a1a2e]/95 via-[#16213e]/95 to-[#0f1419]/95 backdrop-blur-xl border-t border-white/10 shadow-[0_-8px_32px_rgba(0,0,0,0.4)]"
+            )} 
             role="tablist"
           >
             {navItems.map((item, index) => {
