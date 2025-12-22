@@ -344,7 +344,17 @@ const buildPopularFallbackResult = async (
 };
 
 export const fetchPopularConfessions = async (params: ExploreFetchParams = {}): Promise<ExploreResult> => {
-  console.log("[POPULAR] function called");
+  console.log("[POPULAR] function called with params:", params);
+  
+  // DIAGNOSTIC: Check if ANY confessions exist in DB
+  const { data: allConfessions, error: diagError } = await supabase
+    .from("confessions")
+    .select("id, moderation_status, is_draft, is_private, user_id")
+    .limit(5);
+  
+  console.log("[POPULAR] DIAGNOSTIC - Total confessions in DB (sample):", allConfessions?.length ?? 0);
+  console.log("[POPULAR] DIAGNOSTIC - Sample confessions:", allConfessions);
+  
   const primary = await buildTabResult("popular", params);
   console.log("[POPULAR] primary items:", primary.items.length);
 
