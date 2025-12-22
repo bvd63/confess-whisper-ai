@@ -70,14 +70,13 @@ const AppLayout = ({ children, onNewConfession, onManageSubscription, hideHeader
     <div
       className="relative min-h-[100dvh] bg-background"
     >
-      {/* Base gradient layer - extends beyond safe area */}
-      <div className="fixed inset-0 bg-gradient-to-br from-background via-background-secondary to-background pointer-events-none" style={{ bottom: '-100px' }} />
+      {/* Base gradient layer */}
+      <div className="fixed inset-0 bg-gradient-to-br from-background via-background-secondary to-background pointer-events-none" />
       
-      {/* Subtle premium radial glow overlay - extends beyond safe area */}
+      {/* Subtle premium radial glow overlay */}
       <div 
         className="fixed inset-0 pointer-events-none"
         style={{
-          bottom: '-100px',
           background: `
             radial-gradient(ellipse 80% 50% at 50% 100%, hsl(var(--primary) / 0.08) 0%, transparent 60%),
             radial-gradient(ellipse 60% 40% at 80% 80%, hsl(var(--accent) / 0.05) 0%, transparent 50%)

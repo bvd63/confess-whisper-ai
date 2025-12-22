@@ -115,7 +115,7 @@ const Explore = () => {
       try {
         let dbQuery = supabase
           .from("confessions")
-          .select("id, content, created_at")
+          .select("*")
           .ilike("content", `%${query}%`)
           .order("created_at", { ascending: false })
           .limit(25)
@@ -130,11 +130,6 @@ const Explore = () => {
 
         const { data, error } = await dbQuery;
 
-        console.log("[Explore search] query", query, "user", Boolean(user?.id), {
-          count: data?.length ?? 0,
-          error: (error as any)?.message,
-        });
-
         if (isCancelled) return;
 
         if (error) {
@@ -142,8 +137,7 @@ const Explore = () => {
           return;
         }
 
-        const normalized = (data || []).map((item) => ({ ...item, category: (item as { category?: string })?.category ?? "" }));
-        setSearchedConfessions(normalized);
+        setSearchedConfessions(data || []);
       } catch (_error) {
         if (!isCancelled) {
           setSearchedConfessions([]);
