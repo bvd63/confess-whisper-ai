@@ -294,20 +294,12 @@ const Auth = () => {
   // LOGIN UI - Matches reference image
   if (isLogin) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        {/* Top Header Pill */}
-        <div className="w-full flex justify-center pt-6 px-4">
-          <div className="w-full max-w-sm rounded-2xl bg-gradient-to-b from-[hsl(var(--primary)/0.15)] to-[hsl(var(--primary)/0.05)] border border-primary/20 py-4 px-6 flex items-center justify-center">
-            <span className="text-xl font-bold text-foreground">Confess</span>
-            <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col justify-center px-6 pb-10 max-w-sm mx-auto w-full">
-          {/* Title */}
-          <h1 className="text-3xl font-bold text-foreground mb-8">
-            {t.auth_login_button || "Log in"}
+      <div className="min-h-screen bg-background flex flex-col justify-center px-6 pb-10">
+        <div className="max-w-sm mx-auto w-full">
+          {/* App Name - Simple centered text */}
+          <h1 className="text-3xl font-bold text-center mb-10">
+            <span className="text-foreground">Confess</span>
+            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
           </h1>
 
           <form onSubmit={handleAuth} className="space-y-4">
