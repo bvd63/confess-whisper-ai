@@ -358,8 +358,19 @@ const Auth = () => {
               )}
             </div>
 
-            {/* Forgot Password - Right Aligned */}
-            <div className="flex justify-end">
+            {/* Stay Logged In + Forgot Password Row */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="stay-logged-in-login"
+                  checked={staySignedIn}
+                  onCheckedChange={checked => setStaySignedIn(checked === true)}
+                  disabled={isLoading}
+                />
+                <Label htmlFor="stay-logged-in-login" className="text-sm cursor-pointer select-none text-muted-foreground">
+                  {t.auth_stay_signed_in}
+                </Label>
+              </div>
               <button
                 type="button"
                 onClick={() => navigate('/forgot-password')}
