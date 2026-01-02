@@ -277,7 +277,8 @@ const Auth = () => {
             <Heart className="w-10 h-10 sm:w-12 sm:h-12 text-white" fill="currentColor" />
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold mb-3">
-            <AppLogo className="bg-gradient-to-r from-primary to-primary-hover bg-clip-text" />
+            <span className="text-white">Confess</span>
+            <span className="text-primary">AI</span>
           </h1>
           <p className="text-base text-foreground-muted">
             {isLogin ? t.auth_welcome_back : t.auth_create_account}
@@ -433,7 +434,13 @@ const Auth = () => {
             </div>}
 
           {/* Submit Button */}
-          <EnhancedButton type="submit" className="w-full" disabled={isLoading || !isFormValid()} glow lift shine>
+          <EnhancedButton 
+            type="submit" 
+            className="w-full !bg-primary hover:!bg-primary-hover active:!bg-primary-pressed !bg-none text-white shadow-lg shadow-primary/30" 
+            disabled={isLoading || !isFormValid()} 
+            glow 
+            lift
+          >
             {isLoading ? <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 {isLogin ? t.auth_logging_in : t.auth_creating_account}
