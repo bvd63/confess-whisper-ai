@@ -220,7 +220,7 @@ export default function ResetPassword() {
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <EnhancedButton
                 onClick={() => navigate('/forgot-password')}
-                className="flex-1 !bg-primary hover:!bg-primary-hover active:!bg-primary-pressed !bg-none text-white shadow-lg shadow-primary/30"
+                className="flex-1"
                 glow
               >
                 {t.auth_forgot_password || "Request New Link"}
@@ -252,8 +252,7 @@ export default function ResetPassword() {
             <Heart className="w-6 h-6 sm:w-8 sm:h-8 text-primary animate-heart-beat" fill="currentColor" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold mb-2">
-            <span className="text-white">Confess</span>
-            <span className="text-primary">AI</span>
+            <GradientText variant="hero">{t.auth_reset_password_title}</GradientText>
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
             {t.auth_reset_password_desc}
@@ -367,7 +366,7 @@ export default function ResetPassword() {
             {/* Submit Button */}
             <EnhancedButton
               type="submit"
-              className="w-full !bg-primary hover:!bg-primary-hover active:!bg-primary-pressed !bg-none text-white shadow-lg shadow-primary/30"
+              className="w-full"
               disabled={isLoading || !passwordValidation.allRulesPassed || !passwordsMatch}
               glow
               lift
