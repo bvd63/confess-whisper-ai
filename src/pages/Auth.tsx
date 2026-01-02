@@ -360,14 +360,15 @@ const Auth = () => {
 
             {/* Stay Logged In + Forgot Password Row */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <Checkbox
                   id="stay-logged-in-login"
                   checked={staySignedIn}
                   onCheckedChange={checked => setStaySignedIn(checked === true)}
                   disabled={isLoading}
+                  className="h-3.5 w-3.5 rounded border-muted-foreground/40 data-[state=checked]:border-0"
                 />
-                <Label htmlFor="stay-logged-in-login" className="text-sm cursor-pointer select-none text-muted-foreground">
+                <Label htmlFor="stay-logged-in-login" className="text-xs cursor-pointer select-none text-muted-foreground/80">
                   {t.auth_stay_signed_in}
                 </Label>
               </div>
