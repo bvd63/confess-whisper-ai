@@ -295,7 +295,7 @@ const Auth = () => {
   if (isLogin) {
     return (
       <div className="min-h-screen bg-background flex flex-col justify-center px-6 pb-10">
-        <div className="max-w-sm mx-auto w-full">
+        <div className="max-w-[160px] mx-auto w-full">
           {/* App Name - Simple centered text */}
           <h1 className="text-3xl font-bold text-center mb-10">
             <span className="text-foreground">Confess</span>
