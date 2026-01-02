@@ -566,8 +566,17 @@ const Auth = () => {
 
           {/* Stay Signed In */}
           <div className="flex items-center space-x-2">
-            <Checkbox id="stay-signed-in" checked={staySignedIn} onCheckedChange={checked => setStaySignedIn(checked === true)} disabled={isLoading} />
-            <Label htmlFor="stay-signed-in" className="text-sm cursor-pointer select-none">
+            <Checkbox
+              id="stay-signed-in"
+              checked={staySignedIn}
+              onCheckedChange={checked => setStaySignedIn(checked === true)}
+              disabled={isLoading}
+              className="scale-[0.3] origin-left"
+            />
+            <Label
+              htmlFor="stay-signed-in"
+              className="text-sm cursor-pointer select-none"
+            >
               {t.auth_stay_signed_in}
             </Label>
           </div>
