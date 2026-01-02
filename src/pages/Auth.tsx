@@ -366,7 +366,7 @@ const Auth = () => {
                   checked={staySignedIn}
                   onCheckedChange={checked => setStaySignedIn(checked === true)}
                   disabled={isLoading}
-                  className="h-[5px] w-[5px] rounded border-muted-foreground/40 data-[state=checked]:border-0"
+                  className="h-[2.5px] w-[2.5px] rounded border-muted-foreground/40 data-[state=checked]:border-0"
                 />
                 <Label htmlFor="stay-logged-in-login" className="text-xs cursor-pointer select-none text-muted-foreground/80">
                   {t.auth_stay_signed_in}
