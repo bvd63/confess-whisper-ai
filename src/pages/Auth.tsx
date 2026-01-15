@@ -580,7 +580,7 @@ const Auth = () => {
           </div>
 
           {/* Stay Signed In + Terms Row - Compact */}
-          <div className="space-y-2 pt-1">
+          <div className="space-y-1 pt-1">
             <div className="flex items-center gap-2">
               <Checkbox
                 id="stay-signed-in"
@@ -611,8 +611,8 @@ const Auth = () => {
             </div>
           </div>
 
-          {/* Turnstile CAPTCHA - Compact */}
-          <div className="flex justify-center py-1">
+          {/* Turnstile CAPTCHA - Compact, moved up */}
+          <div className="flex justify-center -mt-1">
             <Turnstile
               siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
               onSuccess={token => {
@@ -656,8 +656,8 @@ const Auth = () => {
           </div>
         </form>
 
-        {/* Bottom Login Link */}
-        <div className="mt-6 text-center">
+        {/* Bottom Login Link - with bottom spacing */}
+        <div className="mt-6 pb-4 text-center">
           <button
             onClick={handleModeSwitch}
             className="text-sm text-muted-foreground"
