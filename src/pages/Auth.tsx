@@ -477,7 +477,7 @@ const Auth = () => {
     <div className="min-h-screen bg-background flex flex-col justify-center px-6 py-6">
       <div className="max-w-sm mx-auto w-full">
         {/* App Name - Same as Login */}
-        <h1 className="text-2xl font-bold text-center mb-6">
+        <h1 className="text-3xl font-bold text-center mb-10">
           <span className="text-foreground">Confess</span>
           <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
         </h1>
