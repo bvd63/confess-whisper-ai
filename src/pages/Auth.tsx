@@ -571,7 +571,7 @@ const Auth = () => {
               checked={staySignedIn}
               onCheckedChange={checked => setStaySignedIn(checked === true)}
               disabled={isLoading}
-              className="scale-[0.3] origin-left"
+              className="h-3 w-3 scale-[0.85]"
             />
             <Label
               htmlFor="stay-signed-in"
