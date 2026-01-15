@@ -579,15 +579,15 @@ const Auth = () => {
             )}
           </div>
 
-          {/* Stay Signed In + Terms - Same Row */}
-          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 pt-1">
+          {/* Stay Signed In + Terms - Grouped Row */}
+          <div className="flex items-center gap-5 pt-1">
             <div className="flex items-center gap-1.5">
               <Checkbox
                 id="stay-signed-in"
                 checked={staySignedIn}
                 onCheckedChange={checked => setStaySignedIn(checked === true)}
                 disabled={isLoading}
-                className="h-4 w-4 rounded-[4px] border-muted-foreground/40 data-[state=checked]:border-0"
+                className="h-3.5 w-3.5 rounded-sm border-muted-foreground/30 data-[state=checked]:border-0"
               />
               <Label htmlFor="stay-signed-in" className="text-xs cursor-pointer select-none text-muted-foreground/80">
                 {t.auth_stay_signed_in}
@@ -600,11 +600,12 @@ const Auth = () => {
                 checked={acceptTerms}
                 onCheckedChange={checked => setAcceptTerms(checked === true)}
                 disabled={isLoading}
-                className="h-4 w-4 rounded-[4px] border-muted-foreground/40 data-[state=checked]:border-0"
+                className="h-3.5 w-3.5 rounded-sm border-muted-foreground/30 data-[state=checked]:border-0"
               />
               <Label htmlFor="accept-terms" className="text-xs cursor-pointer select-none text-muted-foreground/80">
+                I agree to{" "}
                 <a href="/terms" target="_blank" className="text-primary hover:underline">Terms</a>
-                {" "}&{" "}
+                {" & "}
                 <a href="/privacy" target="_blank" className="text-primary hover:underline">Privacy</a>
               </Label>
             </div>
