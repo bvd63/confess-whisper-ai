@@ -579,31 +579,30 @@ const Auth = () => {
             )}
           </div>
 
-          {/* Stay Signed In + Terms Row - Compact */}
-          <div className="space-y-1 pt-1">
-            <div className="flex items-center gap-2">
+          {/* Stay Signed In + Terms - Same Row */}
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 pt-1">
+            <div className="flex items-center gap-1.5">
               <Checkbox
                 id="stay-signed-in"
                 checked={staySignedIn}
                 onCheckedChange={checked => setStaySignedIn(checked === true)}
                 disabled={isLoading}
-                className="h-3.5 w-3.5 rounded border-muted-foreground/40 data-[state=checked]:border-0"
+                className="h-4 w-4 rounded-[4px] border-muted-foreground/40 data-[state=checked]:border-0"
               />
               <Label htmlFor="stay-signed-in" className="text-xs cursor-pointer select-none text-muted-foreground/80">
                 {t.auth_stay_signed_in}
               </Label>
             </div>
 
-            <div className="flex items-start gap-2">
+            <div className="flex items-center gap-1.5">
               <Checkbox
                 id="accept-terms"
                 checked={acceptTerms}
                 onCheckedChange={checked => setAcceptTerms(checked === true)}
                 disabled={isLoading}
-                className="h-3.5 w-3.5 mt-0.5 rounded border-muted-foreground/40 data-[state=checked]:border-0"
+                className="h-4 w-4 rounded-[4px] border-muted-foreground/40 data-[state=checked]:border-0"
               />
-              <Label htmlFor="accept-terms" className="text-xs cursor-pointer select-none text-muted-foreground/80 leading-relaxed">
-                I agree to the{" "}
+              <Label htmlFor="accept-terms" className="text-xs cursor-pointer select-none text-muted-foreground/80">
                 <a href="/terms" target="_blank" className="text-primary hover:underline">Terms</a>
                 {" "}&{" "}
                 <a href="/privacy" target="_blank" className="text-primary hover:underline">Privacy</a>
