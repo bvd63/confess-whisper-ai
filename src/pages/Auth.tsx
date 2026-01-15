@@ -474,17 +474,17 @@ const Auth = () => {
 
   // SIGNUP UI - Identical layout to Login (full-screen, no scroll)
   return (
-    <div className="min-h-screen bg-background flex flex-col justify-center px-6 py-6">
+    <div className="min-h-screen bg-background flex flex-col justify-center px-6 py-4">
       <div className="max-w-sm mx-auto w-full">
         {/* App Name - Same as Login */}
-        <h1 className="text-3xl font-bold text-center mb-10">
+        <h1 className="text-3xl font-bold text-center mb-6">
           <span className="text-foreground">Confess</span>
           <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
         </h1>
 
-        <form onSubmit={handleAuth} className="space-y-3">
+        <form onSubmit={handleAuth} className="space-y-2">
           {/* Email Input - Pill Style (same as Login) */}
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             <Input
               type="email"
               placeholder={t.auth_email_placeholder}
@@ -506,7 +506,7 @@ const Auth = () => {
           </div>
 
           {/* Password Input - Pill Style (same as Login) */}
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             <div className="relative">
               <Input
                 type={showPassword ? "text" : "password"}
@@ -545,7 +545,7 @@ const Auth = () => {
           </div>
 
           {/* Confirm Password Input - Pill Style */}
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             <div className="relative">
               <Input
                 type={showConfirmPassword ? "text" : "password"}
@@ -580,7 +580,7 @@ const Auth = () => {
           </div>
 
           {/* Stay Signed In + Terms - Grouped Row */}
-          <div className="flex items-center gap-5 pt-1">
+          <div className="flex items-center gap-5 py-0.5">
             <div className="flex items-center gap-1.5">
               <Checkbox
                 id="stay-signed-in"
@@ -638,7 +638,7 @@ const Auth = () => {
           )}
 
           {/* Primary Signup Button - Gradient with Glow (same style as Login) */}
-          <div className="pt-2">
+          <div className="pt-1">
             <button
               type="submit"
               disabled={isLoading || !isFormValid()}
@@ -656,7 +656,7 @@ const Auth = () => {
           </div>
 
           {/* OR Divider */}
-          <div className="flex items-center gap-3 py-1">
+          <div className="flex items-center gap-2 py-0.5">
             <div className="flex-1 h-px bg-muted-foreground/20" />
             <span className="text-xs text-muted-foreground/60 uppercase tracking-wide">or</span>
             <div className="flex-1 h-px bg-muted-foreground/20" />
@@ -680,7 +680,7 @@ const Auth = () => {
         </form>
 
         {/* Bottom Login Link - with bottom spacing */}
-        <div className="mt-6 pb-4 text-center">
+        <div className="mt-4 pb-2 text-center">
           <button
             onClick={handleModeSwitch}
             className="text-sm text-muted-foreground"
