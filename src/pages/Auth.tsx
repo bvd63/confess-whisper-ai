@@ -472,203 +472,205 @@ const Auth = () => {
     );
   }
 
-  // SIGNUP UI - Keep existing layout unchanged
-  return <div className="min-h-screen bg-background flex items-center justify-center p-6">
-      <AnimatedCard hover="glow" glass className="w-full max-w-md p-8 sm:p-10 border-primary/20 rounded-2xl">
-        {/* Logo & Title */}
-        <div className="text-center mb-10 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-primary via-primary-hover to-primary-pressed shadow-lg shadow-primary/25">
-            <Heart className="w-10 h-10 sm:w-12 sm:h-12 text-white" fill="currentColor" />
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-bold mb-3">
-            <AppLogo className="bg-gradient-to-r from-primary to-primary-hover bg-clip-text" />
-          </h1>
-          <p className="text-base text-foreground-muted">
-            {t.auth_create_account}
-          </p>
-        </div>
+  // SIGNUP UI - Identical layout to Login (full-screen, no scroll)
+  return (
+    <div className="min-h-screen bg-background flex flex-col justify-center px-6 py-6">
+      <div className="max-w-sm mx-auto w-full">
+        {/* App Name - Same as Login */}
+        <h1 className="text-2xl font-bold text-center mb-6">
+          <span className="text-foreground">Confess</span>
+          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
+        </h1>
 
-        {/* Auth Form */}
-        <form onSubmit={handleAuth} className="space-y-6">
-          {/* Email Field */}
-          <div className="space-y-2">
-            <div className="relative">
-              <Mail className="absolute left-4 top-4 w-5 h-5 text-muted-foreground" />
-              <Input type="email" placeholder={t.auth_email_placeholder} value={email} onChange={e => {
-              setEmail(e.target.value);
-              setErrors(prev => ({
-                ...prev,
-                email: ""
-              }));
-            }} className="pl-12 h-14 rounded-xl text-base" disabled={isLoading} autoComplete="email" />
-            </div>
-            {errors.email && <p className="text-sm text-destructive flex items-center gap-2 mt-2">
-                <AlertCircle className="w-4 h-4" />
+        <form onSubmit={handleAuth} className="space-y-3">
+          {/* Email Input - Pill Style (same as Login) */}
+          <div className="space-y-1">
+            <Input
+              type="email"
+              placeholder={t.auth_email_placeholder}
+              value={email}
+              onChange={e => {
+                setEmail(e.target.value);
+                setErrors(prev => ({ ...prev, email: "" }));
+              }}
+              className="h-12 rounded-full px-6 text-base bg-muted/50 border-muted-foreground/20 focus:border-primary focus:ring-primary/30"
+              disabled={isLoading}
+              autoComplete="email"
+            />
+            {errors.email && (
+              <p className="text-xs text-destructive flex items-center gap-1.5 px-2">
+                <AlertCircle className="w-3 h-3" />
                 {errors.email}
-              </p>}
+              </p>
+            )}
           </div>
 
-          {/* Password Field */}
-          <div className="space-y-2">
+          {/* Password Input - Pill Style (same as Login) */}
+          <div className="space-y-1">
             <div className="relative">
-              <Lock className="absolute left-4 top-4 w-5 h-5 text-muted-foreground" />
-              <Input type={showPassword ? "text" : "password"} placeholder={t.auth_password_placeholder} value={password} onChange={e => {
-              setPassword(e.target.value);
-              setErrors(prev => ({
-                ...prev,
-                password: ""
-              }));
-            }} className="pl-12 pr-12 h-14 rounded-xl text-base" disabled={isLoading} autoComplete="new-password" />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-4 text-muted-foreground hover:text-foreground transition-colors" aria-label={showPassword ? t.auth_hide_password : t.auth_show_password} tabIndex={-1}>
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5 px-0 mx-[10px] my-0 mb-[17px]" />}
+              <Input
+                type={showPassword ? "text" : "password"}
+                placeholder={t.auth_password_placeholder}
+                value={password}
+                onChange={e => {
+                  setPassword(e.target.value);
+                  setErrors(prev => ({ ...prev, password: "" }));
+                }}
+                className="h-12 rounded-full px-6 pr-12 text-base bg-muted/50 border-muted-foreground/20 focus:border-primary focus:ring-primary/30"
+                disabled={isLoading}
+                autoComplete="new-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label={showPassword ? t.auth_hide_password : t.auth_show_password}
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
-            {errors.password && <p className="text-sm text-destructive flex items-center gap-2 mt-2">
-                <AlertCircle className="w-4 h-4" />
+            {errors.password && (
+              <p className="text-xs text-destructive flex items-center gap-1.5 px-2">
+                <AlertCircle className="w-3 h-3" />
                 {errors.password}
-              </p>}
-
-            {/* Password Strength and Rules for Signup */}
-            {password.length > 0 && <div className="space-y-3 pt-2">
+              </p>
+            )}
+            {/* Compact Password Strength - only show if typing */}
+            {password.length > 0 && (
+              <div className="px-2">
                 <PasswordStrengthMeter strength={passwordValidation.strength} strengthScore={passwordValidation.strengthScore} />
-                <PasswordRulesChecklist rules={passwordValidation.rules} />
-              </div>}
-          </div>
-
-          {/* Confirm Password Field */}
-          <div className="space-y-2">
-              <div className="relative">
-                <Lock className="absolute left-4 top-4 w-5 h-5 text-muted-foreground" />
-                <Input type={showConfirmPassword ? "text" : "password"} placeholder={t.auth_confirm_password_placeholder} value={confirmPassword} onChange={e => {
-              setConfirmPassword(e.target.value);
-              setErrors(prev => ({
-                ...prev,
-                confirmPassword: ""
-              }));
-            }} onPaste={e => e.preventDefault()} className="pl-12 pr-12 h-14 rounded-xl text-base" disabled={isLoading} autoComplete="new-password" />
-                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-4 text-muted-foreground hover:text-foreground transition-colors" aria-label={showConfirmPassword ? t.auth_hide_password : t.auth_show_password} tabIndex={-1}>
-                {showConfirmPassword ? <EyeOff className="w-5 h-5 px-0 mx-[10px] my-0 mb-[17px]" /> : <Eye className="w-5 h-5 px-0 mx-[10px] my-0 mb-[17px]" />}
-                </button>
               </div>
-              
-              {/* Password Match Indicator */}
-              {confirmPassword.length > 0 && <p className={cn("text-xs flex items-center gap-1.5", passwordsMatch ? "text-green-600 dark:text-green-500" : "text-destructive")}>
-                  {passwordsMatch ? <>
-                      <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                      {t.auth_password_match_ok}
-                    </> : <>
-                      <span className="w-1.5 h-1.5 rounded-full bg-destructive" />
-                      {t.auth_password_match_fail}
-                    </>}
-                </p>}
-              {errors.confirmPassword && <p className="text-xs text-destructive">{errors.confirmPassword}</p>}
-            </div>
-
-          {/* Stay Signed In */}
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="stay-signed-in"
-              checked={staySignedIn}
-              onCheckedChange={checked => setStaySignedIn(checked === true)}
-              disabled={isLoading}
-              className="!h-3 !w-3"
-            />
-            <Label
-              htmlFor="stay-signed-in"
-              className="text-sm cursor-pointer select-none"
-            >
-              {t.auth_stay_signed_in}
-            </Label>
+            )}
           </div>
 
-          {/* Terms & Privacy */}
-          <div className="flex items-start space-x-2">
-              <Checkbox id="accept-terms" checked={acceptTerms} onCheckedChange={checked => setAcceptTerms(checked === true)} disabled={isLoading} className="mt-0.5" />
-              <Label htmlFor="accept-terms" className="text-xs cursor-pointer select-none text-muted-foreground leading-relaxed">
-                By signing up you agree to our{" "}
-                <a href="/terms" target="_blank" className="text-primary hover:underline">
-                  Terms
-                </a>{" "}
-                and{" "}
-                <a href="/privacy" target="_blank" className="text-primary hover:underline">
-                  Privacy Policy
-                </a>
+          {/* Confirm Password Input - Pill Style */}
+          <div className="space-y-1">
+            <div className="relative">
+              <Input
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder={t.auth_confirm_password_placeholder}
+                value={confirmPassword}
+                onChange={e => {
+                  setConfirmPassword(e.target.value);
+                  setErrors(prev => ({ ...prev, confirmPassword: "" }));
+                }}
+                onPaste={e => e.preventDefault()}
+                className="h-12 rounded-full px-6 pr-12 text-base bg-muted/50 border-muted-foreground/20 focus:border-primary focus:ring-primary/30"
+                disabled={isLoading}
+                autoComplete="new-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label={showConfirmPassword ? t.auth_hide_password : t.auth_show_password}
+                tabIndex={-1}
+              >
+                {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
+            {/* Password Match Indicator */}
+            {confirmPassword.length > 0 && (
+              <p className={cn("text-xs flex items-center gap-1.5 px-2", passwordsMatch ? "text-green-600 dark:text-green-500" : "text-destructive")}>
+                <span className={cn("w-1.5 h-1.5 rounded-full", passwordsMatch ? "bg-green-500" : "bg-destructive")} />
+                {passwordsMatch ? t.auth_password_match_ok : t.auth_password_match_fail}
+              </p>
+            )}
+          </div>
+
+          {/* Stay Signed In + Terms Row - Compact */}
+          <div className="space-y-2 pt-1">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="stay-signed-in"
+                checked={staySignedIn}
+                onCheckedChange={checked => setStaySignedIn(checked === true)}
+                disabled={isLoading}
+                className="h-3.5 w-3.5 rounded border-muted-foreground/40 data-[state=checked]:border-0"
+              />
+              <Label htmlFor="stay-signed-in" className="text-xs cursor-pointer select-none text-muted-foreground/80">
+                {t.auth_stay_signed_in}
               </Label>
             </div>
 
-          {/* Turnstile CAPTCHA */}
-          <div className="space-y-2">
-              {turnstileError && <Alert variant="destructive" className="mb-2">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    {t.auth_captcha_failed}
-                  </AlertDescription>
-                </Alert>}
-              <Turnstile siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"} onSuccess={token => {
-            setCaptchaToken(token);
-            setTurnstileError(false);
-            setErrors(prev => ({
-              ...prev,
-              captcha: ""
-            }));
-          }} onError={() => {
-            setCaptchaToken("");
-            setTurnstileError(true);
-            setErrors(prev => ({
-              ...prev,
-              captcha: t.auth_captcha_failed
-            }));
-          }} onExpire={() => {
-            setCaptchaToken("");
-            setTurnstileError(true);
-            setErrors(prev => ({
-              ...prev,
-              captcha: t.auth_captcha_failed
-            }));
-          }} options={{
-            theme: 'auto',
-            size: 'normal'
-          }} />
-              {errors.captcha && !turnstileError && <p className="text-xs text-destructive">{errors.captcha}</p>}
-            </div>
-
-          {/* Submit Button */}
-          <EnhancedButton type="submit" className="w-full" disabled={isLoading || !isFormValid()} glow lift shine>
-            {isLoading ? <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                {t.auth_creating_account}
-              </> : t.auth_signup_button}
-          </EnhancedButton>
-        </form>
-
-        {/* Toggle Login/Signup */}
-        <div className="mt-6 text-center">
-          <button onClick={handleModeSwitch} className="text-sm text-muted-foreground hover:text-primary transition-colors" disabled={isLoading}>
-            {t.auth_have_account} <span className="text-primary font-medium">{t.auth_login_link}</span>
-          </button>
-        </div>
-
-        {/* Benefits for new users */}
-        <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-border/50">
-            <p className="text-[10px] sm:text-xs text-center text-muted-foreground mb-2 sm:mb-3">
-              {t.auth_benefits_title}
-            </p>
-            <div className="space-y-1.5 sm:space-y-2 text-[10px] sm:text-xs text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
-                <span>{t.auth_benefit_unlimited}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
-                <span>{t.auth_benefit_ai_responses}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
-                <span>{t.auth_benefit_community}</span>
-              </div>
+            <div className="flex items-start gap-2">
+              <Checkbox
+                id="accept-terms"
+                checked={acceptTerms}
+                onCheckedChange={checked => setAcceptTerms(checked === true)}
+                disabled={isLoading}
+                className="h-3.5 w-3.5 mt-0.5 rounded border-muted-foreground/40 data-[state=checked]:border-0"
+              />
+              <Label htmlFor="accept-terms" className="text-xs cursor-pointer select-none text-muted-foreground/80 leading-relaxed">
+                I agree to the{" "}
+                <a href="/terms" target="_blank" className="text-primary hover:underline">Terms</a>
+                {" "}&{" "}
+                <a href="/privacy" target="_blank" className="text-primary hover:underline">Privacy</a>
+              </Label>
             </div>
           </div>
-      </AnimatedCard>
-    </div>;
+
+          {/* Turnstile CAPTCHA - Compact */}
+          <div className="flex justify-center py-1">
+            <Turnstile
+              siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
+              onSuccess={token => {
+                setCaptchaToken(token);
+                setTurnstileError(false);
+                setErrors(prev => ({ ...prev, captcha: "" }));
+              }}
+              onError={() => {
+                setCaptchaToken("");
+                setTurnstileError(true);
+                setErrors(prev => ({ ...prev, captcha: t.auth_captcha_failed }));
+              }}
+              onExpire={() => {
+                setCaptchaToken("");
+                setTurnstileError(true);
+                setErrors(prev => ({ ...prev, captcha: t.auth_captcha_failed }));
+              }}
+              options={{ theme: 'auto', size: 'compact' }}
+            />
+          </div>
+          {(turnstileError || errors.captcha) && (
+            <p className="text-xs text-destructive text-center">{t.auth_captcha_failed}</p>
+          )}
+
+          {/* Primary Signup Button - Gradient with Glow (same style as Login) */}
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={isLoading || !isFormValid()}
+              className="w-full h-12 rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-base shadow-[0_0_30px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_40px_hsl(var(--primary)/0.7)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  {t.auth_creating_account}
+                </span>
+              ) : (
+                t.auth_signup_button
+              )}
+            </button>
+          </div>
+        </form>
+
+        {/* Bottom Login Link */}
+        <div className="mt-6 text-center">
+          <button
+            onClick={handleModeSwitch}
+            className="text-sm text-muted-foreground"
+            disabled={isLoading}
+          >
+            {t.auth_have_account}{" "}
+            <span className="text-primary font-medium hover:underline">
+              {t.auth_login_link}
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 };
 export default Auth;
