@@ -611,8 +611,8 @@ const Auth = () => {
             </div>
           </div>
 
-          {/* Turnstile CAPTCHA - Compact, moved up */}
-          <div className="flex justify-center -mt-1">
+          {/* Turnstile CAPTCHA - Full width, natural height */}
+          <div className="w-full">
             <Turnstile
               siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
               onSuccess={token => {
@@ -630,7 +630,7 @@ const Auth = () => {
                 setTurnstileError(true);
                 setErrors(prev => ({ ...prev, captcha: t.auth_captcha_failed }));
               }}
-              options={{ theme: 'auto', size: 'compact' }}
+              options={{ theme: 'auto', size: 'normal' }}
             />
           </div>
           {(turnstileError || errors.captcha) && (
