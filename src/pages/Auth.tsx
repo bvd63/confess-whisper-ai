@@ -332,12 +332,9 @@ const Auth = () => {
                 disabled={isLoading}
                 autoComplete="email"
               />
-              {errors.email && (
-                <p className="text-sm text-destructive flex items-center gap-2 px-2">
-                  <AlertCircle className="w-4 h-4" />
-                  {errors.email}
-                </p>
-              )}
+              <p className={cn("text-xs px-3 min-h-[1rem] transition-opacity duration-200", errors.email ? "text-rose-500/90 dark:text-rose-400/90 opacity-100" : "opacity-0")}>
+                {errors.email || "\u00A0"}
+              </p>
             </div>
 
             {/* Password Input - Pill Style */}
@@ -365,12 +362,9 @@ const Auth = () => {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              {errors.password && (
-                <p className="text-sm text-destructive flex items-center gap-2 px-2">
-                  <AlertCircle className="w-4 h-4" />
-                  {errors.password}
-                </p>
-              )}
+              <p className={cn("text-xs px-3 min-h-[1rem] transition-opacity duration-200", errors.password ? "text-rose-500/90 dark:text-rose-400/90 opacity-100" : "opacity-0")}>
+                {errors.password || "\u00A0"}
+              </p>
             </div>
 
             {/* Stay Logged In + Forgot Password Row */}
@@ -513,12 +507,9 @@ const Auth = () => {
                 disabled={isLoading}
                 autoComplete="email"
               />
-              {errors.email && (
-                <p className="text-sm text-destructive flex items-center gap-2 px-2">
-                  <AlertCircle className="w-4 h-4" />
-                  {errors.email}
-                </p>
-              )}
+              <p className={cn("text-xs px-3 min-h-[1rem] transition-opacity duration-200", errors.email ? "text-rose-500/90 dark:text-rose-400/90 opacity-100" : "opacity-0")}>
+                {errors.email || "\u00A0"}
+              </p>
             </div>
 
             {/* Password Input */}
@@ -546,12 +537,9 @@ const Auth = () => {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              {errors.password && (
-                <p className="text-sm text-destructive flex items-center gap-2 px-2">
-                  <AlertCircle className="w-4 h-4" />
-                  {errors.password}
-                </p>
-              )}
+              <p className={cn("text-xs px-3 min-h-[1rem] transition-opacity duration-200", errors.password ? "text-rose-500/90 dark:text-rose-400/90 opacity-100" : "opacity-0")}>
+                {errors.password || "\u00A0"}
+              </p>
               {password.length > 0 && (
                 <div className="px-2">
                   <PasswordStrengthMeter strength={passwordValidation.strength} strengthScore={passwordValidation.strengthScore} />
@@ -585,12 +573,9 @@ const Auth = () => {
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              {confirmPassword.length > 0 && (
-                <p className={cn("text-sm flex items-center gap-2 px-2", passwordsMatch ? "text-green-600 dark:text-green-500" : "text-destructive")}>
-                  <span className={cn("w-2 h-2 rounded-full", passwordsMatch ? "bg-green-500" : "bg-destructive")} />
-                  {passwordsMatch ? t.auth_password_match_ok : t.auth_password_match_fail}
-                </p>
-              )}
+              <p className={cn("text-xs px-3 min-h-[1rem] transition-opacity duration-200", confirmPassword.length > 0 ? "opacity-100" : "opacity-0", passwordsMatch ? "text-emerald-600/90 dark:text-emerald-400/80" : "text-rose-500/90 dark:text-rose-400/90")}>
+                {confirmPassword.length > 0 ? (passwordsMatch ? t.auth_password_match_ok : t.auth_password_match_fail) : "\u00A0"}
+              </p>
             </div>
 
             {/* Primary Signup Button */}
