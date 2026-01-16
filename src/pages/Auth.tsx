@@ -306,20 +306,34 @@ const Auth = () => {
     }
   };
 
+  // Shared layout wrapper for consistent positioning
+  const AuthLayout = ({ children }: { children: React.ReactNode }) => (
+    <div className="min-h-screen bg-background flex flex-col px-6">
+      {/* Fixed top spacing for header */}
+      <div className="pt-[15vh]" />
+      
+      {/* Centered header - fixed position relative to top */}
+      <h1 className="text-3xl font-bold text-center mb-8">
+        <span className="text-foreground">Confess</span>
+        <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
+      </h1>
+      
+      {/* Form content */}
+      <div className="max-w-sm mx-auto w-full">
+        {children}
+      </div>
+    </div>
+  );
+
   // LOGIN UI - Matches reference image
   if (isLogin) {
     return (
-      <div className="min-h-screen bg-background flex flex-col justify-center px-6 pb-10">
+      <AuthLayout>
         <div 
           key="login"
-          className="max-w-sm mx-auto w-full animate-[fadeSlideIn_150ms_ease-out]"
+          className="animate-[fadeSlideIn_150ms_ease-out]"
           style={{ '--tw-enter-opacity': '0', '--tw-enter-translate-y': '8px' } as React.CSSProperties}
         >
-          {/* App Name - Simple centered text */}
-          <h1 className="text-3xl font-bold text-center mb-10">
-            <span className="text-foreground">Confess</span>
-            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
-          </h1>
 
           <form onSubmit={handleAuth} className="space-y-4">
             {/* Email Input - Pill Style */}
@@ -468,7 +482,7 @@ const Auth = () => {
           </form>
 
           {/* Bottom Sign Up Link */}
-          <div className="mt-10 text-center">
+          <div className="mt-8 text-center">
             <button
               onClick={handleModeSwitch}
               className="text-sm text-muted-foreground"
@@ -481,24 +495,19 @@ const Auth = () => {
             </button>
           </div>
         </div>
-      </div>
+      </AuthLayout>
     );
   }
 
   // SIGNUP UI - Instagram-style, minimal, premium
   return (
     <>
-      <div className="min-h-screen bg-background flex flex-col justify-center px-6 pb-10">
+      <AuthLayout>
         <div 
           key="signup"
-          className="max-w-sm mx-auto w-full animate-[fadeSlideIn_150ms_ease-out]"
+          className="animate-[fadeSlideIn_150ms_ease-out]"
           style={{ '--tw-enter-opacity': '0', '--tw-enter-translate-y': '8px' } as React.CSSProperties}
         >
-          {/* App Name - Same as Login */}
-          <h1 className="text-3xl font-bold text-center mb-8">
-            <span className="text-foreground">Confess</span>
-            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
-          </h1>
 
           <form onSubmit={handleSignupSubmit} className="space-y-1">
             {/* Email Input */}
@@ -646,7 +655,7 @@ const Auth = () => {
             </button>
           </div>
         </div>
-      </div>
+      </AuthLayout>
 
       {/* Turnstile Captcha Modal - shown after clicking Sign Up */}
       {showSignupCaptcha && (
