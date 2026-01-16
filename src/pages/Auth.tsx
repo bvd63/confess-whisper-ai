@@ -71,6 +71,9 @@ const Auth = () => {
   });
   const [failedLoginAttempts, setFailedLoginAttempts] = useState(0);
   const [showLoginCaptcha, setShowLoginCaptcha] = useState(false);
+  // Blur state tracking for calm validation UX
+  const [passwordBlurred, setPasswordBlurred] = useState(false);
+  const [confirmPasswordBlurred, setConfirmPasswordBlurred] = useState(false);
   const passwordValidation = usePasswordValidation(password);
   const emailSchema = z.string().email(t.auth_invalid_email);
   useEffect(() => {
@@ -297,6 +300,9 @@ const Auth = () => {
     setFailedLoginAttempts(0);
     setShowLoginCaptcha(false);
     setShowSignupCaptcha(false);
+    // Reset blur states on mode switch
+    setPasswordBlurred(false);
+    setConfirmPasswordBlurred(false);
     setErrors({
       email: "",
       password: "",
@@ -544,6 +550,8 @@ const Auth = () => {
                     setPassword(e.target.value);
                     setErrors(prev => ({ ...prev, password: "" }));
                   }}
+                  onBlur={() => setPasswordBlurred(true)}
+                  onFocus={() => setPasswordBlurred(false)}
                   className="h-14 rounded-full px-6 pr-12 text-base bg-muted/50 border-muted-foreground/20 focus:border-primary focus:ring-primary/30"
                   disabled={isLoading}
                   autoComplete="new-password"
@@ -558,10 +566,11 @@ const Auth = () => {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
+              {/* Show strength meter only after blur, or error from submit */}
               <div className="h-3 flex items-center">
                 {errors.password ? (
                   <p className="text-xs px-3 text-rose-500/90 dark:text-rose-400/90">{errors.password}</p>
-                ) : password.length > 0 ? (
+                ) : (passwordBlurred && password.length > 0 && !passwordValidation.allRulesPassed) ? (
                   <div className="px-3 w-full">
                     <PasswordStrengthMeter strength={passwordValidation.strength} strengthScore={passwordValidation.strengthScore} />
                   </div>
@@ -580,6 +589,8 @@ const Auth = () => {
                     setConfirmPassword(e.target.value);
                     setErrors(prev => ({ ...prev, confirmPassword: "" }));
                   }}
+                  onBlur={() => setConfirmPasswordBlurred(true)}
+                  onFocus={() => setConfirmPasswordBlurred(false)}
                   onPaste={e => e.preventDefault()}
                   className="h-14 rounded-full px-6 pr-12 text-base bg-muted/50 border-muted-foreground/20 focus:border-primary focus:ring-primary/30"
                   disabled={isLoading}
@@ -595,8 +606,13 @@ const Auth = () => {
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              <p className={cn("text-xs px-3 h-3 leading-3 transition-opacity duration-200", confirmPassword.length > 0 ? "opacity-100" : "opacity-0", passwordsMatch ? "text-emerald-600/90 dark:text-emerald-400/80" : "text-rose-500/90 dark:text-rose-400/90")}>
-                {confirmPassword.length > 0 ? (passwordsMatch ? t.auth_password_match_ok : t.auth_password_match_fail) : "\u00A0"}
+              {/* Only show match status after blur when both fields have content */}
+              <p className={cn(
+                "text-xs px-3 h-3 leading-3 transition-opacity duration-200",
+                (confirmPasswordBlurred && confirmPassword.length > 0 && password.length > 0) ? "opacity-100" : "opacity-0",
+                passwordsMatch ? "text-emerald-600/90 dark:text-emerald-400/80" : "text-rose-500/90 dark:text-rose-400/90"
+              )}>
+                {(confirmPasswordBlurred && confirmPassword.length > 0) ? (passwordsMatch ? t.auth_password_match_ok : t.auth_password_match_fail) : "\u00A0"}
               </p>
             </div>
 
