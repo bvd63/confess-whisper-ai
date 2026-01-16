@@ -14,9 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Turnstile } from "@marsidev/react-turnstile";
-import { usePasswordValidation, validatePasswordStrength } from "@/hooks/usePasswordValidation";
-import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
-import { PasswordRulesChecklist } from "@/components/PasswordRulesChecklist";
+import { validatePasswordStrength } from "@/hooks/usePasswordValidation";
 import { cn } from "@/lib/utils";
 import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
 import { logError } from "@/lib/logger";
@@ -71,10 +69,6 @@ const Auth = () => {
   });
   const [failedLoginAttempts, setFailedLoginAttempts] = useState(0);
   const [showLoginCaptcha, setShowLoginCaptcha] = useState(false);
-  // Blur state tracking for calm validation UX
-  const [passwordBlurred, setPasswordBlurred] = useState(false);
-  const [confirmPasswordBlurred, setConfirmPasswordBlurred] = useState(false);
-  const passwordValidation = usePasswordValidation(password);
   const emailSchema = z.string().email(t.auth_invalid_email);
   useEffect(() => {
     checkUser();
@@ -126,7 +120,7 @@ const Auth = () => {
       return basicValid;
     }
     // For signup, don't require captcha upfront - it's shown after clicking Sign Up
-    return !!email && passwordValidation.allRulesPassed && passwordsMatch;
+    return !!email && validatePasswordStrength(password) && passwordsMatch;
   };
 
   // Handle signup form submission - show captcha modal first
@@ -300,9 +294,6 @@ const Auth = () => {
     setFailedLoginAttempts(0);
     setShowLoginCaptcha(false);
     setShowSignupCaptcha(false);
-    // Reset blur states on mode switch
-    setPasswordBlurred(false);
-    setConfirmPasswordBlurred(false);
     setErrors({
       email: "",
       password: "",
@@ -550,8 +541,6 @@ const Auth = () => {
                     setPassword(e.target.value);
                     setErrors(prev => ({ ...prev, password: "" }));
                   }}
-                  onBlur={() => setPasswordBlurred(true)}
-                  onFocus={() => setPasswordBlurred(false)}
                   className="h-14 rounded-full px-6 pr-12 text-base bg-muted/50 border-muted-foreground/20 focus:border-primary focus:ring-primary/30"
                   disabled={isLoading}
                   autoComplete="new-password"
@@ -565,16 +554,12 @@ const Auth = () => {
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
-            </div>
-              {/* Helper text area - reserved space, aligned with input padding */}
+              </div>
+              {/* Error only on submit - Instagram style */}
               <div className="min-h-[1rem] mt-1 px-6">
-                {errors.password ? (
-                  <p className="text-xs leading-4 text-rose-500/90 dark:text-rose-400/90">{errors.password}</p>
-                ) : (passwordBlurred && password.length > 0 && !passwordValidation.allRulesPassed) ? (
-                  <div className="w-full">
-                    <PasswordStrengthMeter strength={passwordValidation.strength} strengthScore={passwordValidation.strengthScore} />
-                  </div>
-                ) : null}
+                {errors.password && (
+                  <p className="text-xs leading-4 text-rose-500/80 dark:text-rose-400/70">{errors.password}</p>
+                )}
               </div>
             </div>
 
@@ -589,8 +574,6 @@ const Auth = () => {
                     setConfirmPassword(e.target.value);
                     setErrors(prev => ({ ...prev, confirmPassword: "" }));
                   }}
-                  onBlur={() => setConfirmPasswordBlurred(true)}
-                  onFocus={() => setConfirmPasswordBlurred(false)}
                   onPaste={e => e.preventDefault()}
                   className="h-14 rounded-full px-6 pr-12 text-base bg-muted/50 border-muted-foreground/20 focus:border-primary focus:ring-primary/30"
                   disabled={isLoading}
@@ -606,15 +589,11 @@ const Auth = () => {
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              {/* Helper text area - reserved space, aligned with input padding */}
+              {/* Error only on submit - Instagram style */}
               <div className="min-h-[1rem] mt-1 px-6">
-                <p className={cn(
-                  "text-xs leading-4 transition-opacity duration-200",
-                  (confirmPasswordBlurred && confirmPassword.length > 0 && password.length > 0) ? "opacity-100" : "opacity-0",
-                  passwordsMatch ? "text-emerald-600/90 dark:text-emerald-400/80" : "text-rose-500/90 dark:text-rose-400/90"
-                )}>
-                  {(confirmPasswordBlurred && confirmPassword.length > 0) ? (passwordsMatch ? t.auth_password_match_ok : t.auth_password_match_fail) : "\u00A0"}
-                </p>
+                {errors.confirmPassword && (
+                  <p className="text-xs leading-4 text-rose-500/80 dark:text-rose-400/70">{errors.confirmPassword}</p>
+                )}
               </div>
             </div>
 
