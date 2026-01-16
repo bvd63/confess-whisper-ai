@@ -310,7 +310,11 @@ const Auth = () => {
   if (isLogin) {
     return (
       <div className="min-h-screen bg-background flex flex-col justify-center px-6 pb-10">
-        <div className="max-w-sm mx-auto w-full">
+        <div 
+          key="login"
+          className="max-w-sm mx-auto w-full animate-[fadeSlideIn_150ms_ease-out]"
+          style={{ '--tw-enter-opacity': '0', '--tw-enter-translate-y': '8px' } as React.CSSProperties}
+        >
           {/* App Name - Simple centered text */}
           <h1 className="text-3xl font-bold text-center mb-10">
             <span className="text-foreground">Confess</span>
@@ -485,7 +489,11 @@ const Auth = () => {
   return (
     <>
       <div className="min-h-screen bg-background flex flex-col justify-center px-6 pb-10">
-        <div className="max-w-sm mx-auto w-full">
+        <div 
+          key="signup"
+          className="max-w-sm mx-auto w-full animate-[fadeSlideIn_150ms_ease-out]"
+          style={{ '--tw-enter-opacity': '0', '--tw-enter-translate-y': '8px' } as React.CSSProperties}
+        >
           {/* App Name - Same as Login */}
           <h1 className="text-3xl font-bold text-center mb-10">
             <span className="text-foreground">Confess</span>
