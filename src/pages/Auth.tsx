@@ -565,13 +565,13 @@ const Auth = () => {
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
-              </div>
-              {/* Show strength meter only after blur, or error from submit */}
-              <div className="h-3 flex items-center">
+            </div>
+              {/* Helper text area - reserved space, aligned with input padding */}
+              <div className="min-h-[1rem] mt-1 px-6">
                 {errors.password ? (
-                  <p className="text-xs px-3 text-rose-500/90 dark:text-rose-400/90">{errors.password}</p>
+                  <p className="text-xs leading-4 text-rose-500/90 dark:text-rose-400/90">{errors.password}</p>
                 ) : (passwordBlurred && password.length > 0 && !passwordValidation.allRulesPassed) ? (
-                  <div className="px-3 w-full">
+                  <div className="w-full">
                     <PasswordStrengthMeter strength={passwordValidation.strength} strengthScore={passwordValidation.strengthScore} />
                   </div>
                 ) : null}
@@ -606,14 +606,16 @@ const Auth = () => {
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              {/* Only show match status after blur when both fields have content */}
-              <p className={cn(
-                "text-xs px-3 h-3 leading-3 transition-opacity duration-200",
-                (confirmPasswordBlurred && confirmPassword.length > 0 && password.length > 0) ? "opacity-100" : "opacity-0",
-                passwordsMatch ? "text-emerald-600/90 dark:text-emerald-400/80" : "text-rose-500/90 dark:text-rose-400/90"
-              )}>
-                {(confirmPasswordBlurred && confirmPassword.length > 0) ? (passwordsMatch ? t.auth_password_match_ok : t.auth_password_match_fail) : "\u00A0"}
-              </p>
+              {/* Helper text area - reserved space, aligned with input padding */}
+              <div className="min-h-[1rem] mt-1 px-6">
+                <p className={cn(
+                  "text-xs leading-4 transition-opacity duration-200",
+                  (confirmPasswordBlurred && confirmPassword.length > 0 && password.length > 0) ? "opacity-100" : "opacity-0",
+                  passwordsMatch ? "text-emerald-600/90 dark:text-emerald-400/80" : "text-rose-500/90 dark:text-rose-400/90"
+                )}>
+                  {(confirmPasswordBlurred && confirmPassword.length > 0) ? (passwordsMatch ? t.auth_password_match_ok : t.auth_password_match_fail) : "\u00A0"}
+                </p>
+              </div>
             </div>
 
             {/* Primary Signup Button */}
