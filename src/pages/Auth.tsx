@@ -20,6 +20,26 @@ import { PasswordRulesChecklist } from "@/components/PasswordRulesChecklist";
 import { cn } from "@/lib/utils";
 import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
 import { logError } from "@/lib/logger";
+// Shared layout wrapper for consistent positioning - no scroll, adaptive spacing
+// MUST be defined outside the Auth component to prevent remounting on state changes
+const AuthLayout = ({ children }: { children: React.ReactNode }) => (
+  <div className="h-[100dvh] bg-background flex flex-col px-6 overflow-hidden">
+    {/* Fixed top spacing - reduced and adaptive */}
+    <div className="pt-[8vh] min-[500px]:pt-[10vh]" />
+    
+    {/* Centered header - fixed position relative to top */}
+    <h1 className="text-3xl font-bold text-center mb-5 min-[500px]:mb-6">
+      <span className="text-foreground">Confess</span>
+      <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
+    </h1>
+    
+    {/* Form content - flex grow to fill remaining space */}
+    <div className="max-w-sm mx-auto w-full flex-1 flex flex-col">
+      {children}
+    </div>
+  </div>
+);
+
 const Auth = () => {
   const navigate = useNavigate();
   const {
@@ -305,25 +325,6 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
-
-  // Shared layout wrapper for consistent positioning - no scroll, adaptive spacing
-  const AuthLayout = ({ children }: { children: React.ReactNode }) => (
-    <div className="h-[100dvh] bg-background flex flex-col px-6 overflow-hidden">
-      {/* Fixed top spacing - reduced and adaptive */}
-      <div className="pt-[8vh] min-[500px]:pt-[10vh]" />
-      
-      {/* Centered header - fixed position relative to top */}
-      <h1 className="text-3xl font-bold text-center mb-5 min-[500px]:mb-6">
-        <span className="text-foreground">Confess</span>
-        <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
-      </h1>
-      
-      {/* Form content - flex grow to fill remaining space */}
-      <div className="max-w-sm mx-auto w-full flex-1 flex flex-col">
-        {children}
-      </div>
-    </div>
-  );
 
   // LOGIN UI - Matches reference image
   if (isLogin) {
