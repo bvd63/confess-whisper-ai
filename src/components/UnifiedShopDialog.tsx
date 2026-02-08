@@ -283,16 +283,7 @@ export const UnifiedShopDialog = ({
 
         <div className="px-6 py-6">
           <Tabs key={`${open}-${defaultTab}`} defaultValue={defaultTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-8 h-14 rounded-2xl bg-muted p-1.5 gap-1.5">
-              <TabsTrigger value="subscriptions" className="flex items-center gap-2 text-sm rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg font-semibold">
-                <Crown className="w-5 h-5" />
-                <span>Subscriptions</span>
-              </TabsTrigger>
-              <TabsTrigger value="coins" className="flex items-center gap-2 text-sm rounded-xl h-full data-[state=active]:bg-card data-[state=active]:shadow-lg font-semibold">
-                <Coins className="w-5 h-5" />
-                <span>Coins</span>
-              </TabsTrigger>
-            </TabsList>
+            {/* Tab triggers hidden — navigation handled via defaultTab prop */}
 
           <TabsContent value="subscriptions">
             {loading ? (
