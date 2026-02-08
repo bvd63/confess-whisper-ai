@@ -26,6 +26,7 @@ export const UnifiedShopDialog = ({
   const { user } = useCurrentUser();
   const [currentPlan, setCurrentPlan] = useState<string>('free');
   const [currentInterval, setCurrentInterval] = useState<'monthly' | 'yearly'>('monthly');
+  const [selectedInterval, setSelectedInterval] = useState<'monthly' | 'yearly'>('monthly');
   const [loading, setLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -100,10 +101,10 @@ const newProfile = payload.new as { subscription_tier?: string; subscription_cad
   const handleUpgrade = async () => {
     setIsProcessing(true);
     try {
-      const priceId = STRIPE_PRICE.VIP_MONTHLY;
+      const priceId = selectedInterval === 'yearly' ? STRIPE_PRICE.VIP_YEARLY : STRIPE_PRICE.VIP_MONTHLY;
       
       const { data, error } = await supabase.functions.invoke('billing-buy', {
-        body: { tier: 'vip', cycle: 'monthly' },
+        body: { tier: 'vip', cycle: selectedInterval },
       });
       
       if (error) throw error;
@@ -134,53 +135,95 @@ const newProfile = payload.new as { subscription_tier?: string; subscription_cad
           </DialogTitle>
         </DialogHeader>
 
-        <div className="px-5 py-5 space-y-4">
+        <div className="px-5 py-5 space-y-3">
           {loading ? (
             <div className="flex items-center justify-center py-16">
               <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
             </div>
           ) : (
             <>
-              <div className="rounded-xl bg-muted/30 border border-border/50 p-4">
-                <p className="text-xs font-medium text-muted-foreground mb-1">Current plan – {currentPlan.toUpperCase()}</p>
-                <p className="text-sm text-foreground/60">
-                  {currentPlan === 'free' ? 'Basic text to your owner, with your confessions.' : 'Unlimited confessions and exclusive features.'}
+              {/* Current Plan Card */}
+              <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-border/40 p-4">
+                <p className="text-[15px] font-semibold text-foreground">
+                  {t.manage_sub_current_plan_free}
+                </p>
+                <p className="text-[13px] text-muted-foreground mt-0.5 leading-snug">
+                  {t.manage_sub_current_plan_desc}
                 </p>
               </div>
 
+              {/* Billing Cycle Selector — iOS segmented control */}
               {currentPlan === 'free' && (
-                <div className="rounded-xl bg-muted/30 border border-border/50 p-5 space-y-4">
+                <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-border/40 p-1 flex">
+                  <button
+                    onClick={() => setSelectedInterval('monthly')}
+                    className={`flex-1 py-2 rounded-lg text-[13px] font-medium transition-all ${
+                      selectedInterval === 'monthly'
+                        ? 'bg-primary/15 text-primary'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {t.subscription_monthly}
+                  </button>
+                  <button
+                    onClick={() => setSelectedInterval('yearly')}
+                    className={`flex-1 py-2 rounded-lg text-[13px] font-medium transition-all ${
+                      selectedInterval === 'yearly'
+                        ? 'bg-primary/15 text-primary'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {t.subscription_yearly}
+                  </button>
+                </div>
+              )}
+
+              {/* VIP Plan Card */}
+              {currentPlan === 'free' && (
+                <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-border/40 p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-base font-semibold text-foreground">VIP Plan</span>
+                    <span className="text-[15px] font-semibold text-foreground">{t.manage_sub_vip_plan}</span>
                     <Crown className="w-5 h-5 text-primary" strokeWidth={2} />
                   </div>
 
-                  <div className="space-y-1">
-                    <p className="text-lg font-semibold text-foreground">€6.99<span className="text-sm font-normal text-muted-foreground">/month</span></p>
-                    <p className="text-sm text-muted-foreground">€54.99/year</p>
+                  <div>
+                    {selectedInterval === 'monthly' ? (
+                      <p className="text-2xl font-bold text-foreground">
+                        €6.99<span className="text-[13px] font-normal text-muted-foreground ml-1">/ {t.subscription_per_month}</span>
+                      </p>
+                    ) : (
+                      <>
+                        <p className="text-2xl font-bold text-foreground">
+                          €54.99<span className="text-[13px] font-normal text-muted-foreground ml-1">/ {t.subscription_per_year}</span>
+                        </p>
+                        <p className="text-[12px] text-muted-foreground mt-0.5">
+                          €{(54.99 / 12).toFixed(2)} / {t.subscription_per_month}
+                        </p>
+                      </>
+                    )}
                   </div>
 
-                  <div className="space-y-2 pt-2">
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Benefits</p>
-                    <p className="text-sm text-foreground/80 leading-relaxed">Unlimited daily confessions</p>
-                    <p className="text-sm text-foreground/80 leading-relaxed">VIP crown badge</p>
-                    <p className="text-sm text-foreground/80 leading-relaxed">250 coins bonus on signup</p>
-                    <p className="text-sm text-foreground/80 leading-relaxed">Exclusive VIP badges & flairs</p>
+                  <div className="space-y-1">
+                    <p className="text-[13px] text-muted-foreground leading-snug">Unlimited daily confessions</p>
+                    <p className="text-[13px] text-muted-foreground leading-snug">VIP crown badge</p>
+                    <p className="text-[13px] text-muted-foreground leading-snug">250 coins bonus on signup</p>
+                    <p className="text-[13px] text-muted-foreground leading-snug">Exclusive VIP badges & flairs</p>
                   </div>
                 </div>
               )}
 
+              {/* CTA Button */}
               {currentPlan === 'free' ? (
                 <Button
                   onClick={handleUpgrade}
                   disabled={isProcessing}
-                  className="w-full rounded-full h-12 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-semibold"
+                  className="w-full rounded-full h-11 bg-gradient-to-r from-primary to-primary/80 hover:opacity-90 text-primary-foreground font-semibold text-[15px] transition-opacity"
                 >
-                  {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Upgrade to VIP'}
+                  {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : t.manage_sub_upgrade_to_vip}
                 </Button>
               ) : (
-                <p className="text-center text-sm text-muted-foreground py-4">
-                  You're on the VIP plan. Cancel anytime from account settings.
+                <p className="text-center text-[13px] text-muted-foreground py-4">
+                  {t.subscription_cancel_anytime}
                 </p>
               )}
             </>
