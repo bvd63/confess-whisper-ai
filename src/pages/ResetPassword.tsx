@@ -1,15 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { AnimatedCard } from "@/components/AnimatedCard";
-import { GradientText } from "@/components/GradientText";
-import { EnhancedButton } from "@/components/EnhancedButton";
 import { Input } from "@/components/ui/input";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Heart, Lock, Loader2, Eye, EyeOff, CheckCircle2, AlertCircle } from "lucide-react";
+import { Loader2, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { usePasswordValidation, validatePasswordStrength } from "@/hooks/usePasswordValidation";
-import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
-import { PasswordRulesChecklist } from "@/components/PasswordRulesChecklist";
+import { validatePasswordStrength } from "@/hooks/usePasswordValidation";
 import { supabase } from "@/integrations/supabase/client";
 import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
 import { cn } from "@/lib/utils";
@@ -25,18 +19,16 @@ export default function ResetPassword() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({ password: "", confirmPassword: "" });
   const [success, setSuccess] = useState(false);
   const [tokenValid, setTokenValid] = useState(true);
   const redirectTimeoutRef = useRef<number | null>(null);
 
-  const passwordValidation = usePasswordValidation(password);
   const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
 
   const markResetLinkInvalid = () => {
     setTokenValid(false);
     setSuccess(false);
-    setError(t.auth_reset_token_invalid);
   };
 
   const isExpiredOrInvalidResetError = (err: { message?: string; status?: number; code?: string } | null) => {
@@ -65,9 +57,7 @@ export default function ResetPassword() {
       const hasIncomingSession = Boolean((tokenHash && type === 'recovery') || (accessToken && refreshToken));
 
       if (!hasIncomingSession) {
-        if (isMounted) {
-          markResetLinkInvalid();
-        }
+        if (isMounted) markResetLinkInvalid();
         return;
       }
 
@@ -77,67 +67,58 @@ export default function ResetPassword() {
             access_token: accessToken,
             refresh_token: refreshToken,
           });
-
           if (sessionError) throw sessionError;
-
           window.history.replaceState({}, document.title, `${window.location.pathname}${window.location.search}`);
         } else if (tokenHash && type === 'recovery') {
           const { error: otpError } = await supabase.auth.verifyOtp({
             token_hash: tokenHash,
             type: 'recovery',
           });
-
           if (otpError) throw otpError;
         }
 
         const { data: { session } } = await supabase.auth.getSession();
-
-        if (!session) {
-          throw new Error('missing_recovery_session');
-        }
+        if (!session) throw new Error('missing_recovery_session');
 
         if (isMounted) {
           setTokenValid(true);
-          setError('');
         }
       } catch (sessionError) {
         logError('Password recovery session error', sessionError as Error);
-        if (isMounted) {
-          markResetLinkInvalid();
-        }
+        if (isMounted) markResetLinkInvalid();
       }
     };
 
     establishRecoverySession();
-
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   }, [t, searchParams]);
 
   useEffect(() => {
     return () => {
-      if (redirectTimeoutRef.current) {
-        clearTimeout(redirectTimeoutRef.current);
-      }
+      if (redirectTimeoutRef.current) clearTimeout(redirectTimeoutRef.current);
     };
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const validateForm = (): boolean => {
+    const newErrors = { password: "", confirmPassword: "" };
 
     if (!validatePasswordStrength(password)) {
-      setError(t.auth_password_min);
-      return;
+      newErrors.password = t.auth_password_min;
+    }
+    if (!passwordsMatch) {
+      newErrors.confirmPassword = t.auth_password_match_fail;
     }
 
-    if (!passwordsMatch) {
-      setError(t.auth_password_match_fail);
-      return;
-    }
+    setErrors(newErrors);
+    return !newErrors.password && !newErrors.confirmPassword;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) return;
 
     setIsLoading(true);
-    setError("");
+    setErrors({ password: "", confirmPassword: "" });
 
     try {
       const { data: sessionCheck } = await supabase.auth.getSession();
@@ -166,9 +147,8 @@ export default function ResetPassword() {
       }
 
       setSuccess(true);
-      setError("");
+      setErrors({ password: "", confirmPassword: "" });
 
-      // Redirect to login after 2 seconds
       redirectTimeoutRef.current = window.setTimeout(() => {
         navigate('/auth');
       }, 2000);
@@ -178,211 +158,197 @@ export default function ResetPassword() {
         markResetLinkInvalid();
         return;
       }
-      setError(t.auth_reset_password_error || t.auth_error_generic);
+      setErrors(prev => ({ ...prev, password: t.auth_reset_password_error || t.auth_error_generic }));
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Invalid/expired token state
   if (!tokenValid) {
     return (
-      <div className="min-h-screen bg-gradient-mesh flex items-center justify-center p-3 sm:p-4">
-        <AnimatedCard
-          hover="glow"
-          glass
-          className="w-full max-w-md p-4 sm:p-6 md:p-8 border-primary/20"
-        >
-          <div className="text-center space-y-4 sm:space-y-6 animate-fade-in">
-            <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-destructive/10 mb-2">
-              <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-destructive animate-pulse" />
+      <div className="h-[100dvh] bg-background flex flex-col px-6 overflow-hidden">
+        <div className="pt-[8vh] min-[500px]:pt-[10vh]" />
+        <h1 className="text-3xl font-bold text-center mb-5 min-[500px]:mb-6">
+          <span className="text-foreground">Confess</span>
+          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
+        </h1>
+        <div className="max-w-sm mx-auto w-full flex-1 flex flex-col">
+          <div className="animate-[fadeSlideIn_150ms_ease-out] text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-destructive/10 mb-4">
+              <AlertCircle className="w-8 h-8 text-destructive" />
             </div>
-            
-            <div className="space-y-2">
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                {t.auth_reset_token_invalid || "Invalid or Expired Reset Link"}
-              </h2>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {t.auth_reset_token_expired || "This reset link has expired. Please request a new one."}
-              </p>
-            </div>
+            <h2 className="text-lg font-semibold text-foreground mb-2">
+              {t.auth_reset_token_invalid || "Invalid or Expired Reset Link"}
+            </h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              {t.auth_reset_token_expired || "This reset link has expired. Please request a new one."}
+            </p>
 
-            <Alert className="border-primary/20 bg-primary/5 text-left">
-              <AlertDescription className="text-xs sm:text-sm space-y-2">
-                <p className="font-medium">Reset links expire for security reasons:</p>
-                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                  <li>Links are valid for 1 hour</li>
-                  <li>Each link can only be used once</li>
-                  <li>Request a new link if this one expired</li>
-                </ul>
-              </AlertDescription>
-            </Alert>
-
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
-              <EnhancedButton
+            <div className="space-y-3">
+              <button
                 onClick={() => navigate('/forgot-password')}
-                className="flex-1"
-                glow
+                className="w-full h-14 rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-base shadow-[0_0_30px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_40px_hsl(var(--primary)/0.7)] transition-all duration-300"
               >
                 {t.auth_forgot_password || "Request New Link"}
-              </EnhancedButton>
-              <EnhancedButton
+              </button>
+              <button
                 onClick={() => navigate('/auth')}
-                variant="outline"
-                className="flex-1"
+                className="w-full h-14 rounded-full bg-muted/50 border border-muted-foreground/20 text-foreground font-medium text-base hover:bg-muted/70 transition-colors"
               >
                 {t.auth_back_to_login || "Back to Login"}
-              </EnhancedButton>
+              </button>
             </div>
           </div>
-        </AnimatedCard>
+        </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-mesh flex items-center justify-center p-3 sm:p-4">
-      <AnimatedCard
-        hover="glow"
-        glass
-        className="w-full max-w-md p-4 sm:p-6 md:p-8 border-primary/20"
-      >
-        {/* Logo & Title */}
-        <div className="text-center mb-6 sm:mb-8 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 mb-3 sm:mb-4">
-            <Heart className="w-6 h-6 sm:w-8 sm:h-8 text-primary animate-heart-beat" fill="currentColor" />
+  // Success state
+  if (success) {
+    return (
+      <div className="h-[100dvh] bg-background flex flex-col px-6 overflow-hidden">
+        <div className="pt-[8vh] min-[500px]:pt-[10vh]" />
+        <h1 className="text-3xl font-bold text-center mb-5 min-[500px]:mb-6">
+          <span className="text-foreground">Confess</span>
+          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
+        </h1>
+        <div className="max-w-sm mx-auto w-full flex-1 flex flex-col">
+          <div className="animate-[fadeSlideIn_150ms_ease-out]">
+            <p className="text-sm text-green-600 dark:text-green-400 text-center mb-6">
+              {t.auth_reset_password_success}
+            </p>
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => navigate('/auth')}
+                className="w-full h-14 rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-base shadow-[0_0_30px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_40px_hsl(var(--primary)/0.7)] transition-all duration-300"
+              >
+                {t.auth_back_to_login}
+              </button>
+            </div>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2">
-            <GradientText variant="hero">{t.auth_reset_password_title}</GradientText>
-          </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground">
+        </div>
+      </div>
+    );
+  }
+
+  // Main reset form
+  return (
+    <div className="h-[100dvh] bg-background flex flex-col px-6 overflow-hidden">
+      <div className="pt-[8vh] min-[500px]:pt-[10vh]" />
+      <h1 className="text-3xl font-bold text-center mb-5 min-[500px]:mb-6">
+        <span className="text-foreground">Confess</span>
+        <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
+      </h1>
+      <div className="max-w-sm mx-auto w-full flex-1 flex flex-col">
+        <div className="animate-[fadeSlideIn_150ms_ease-out]">
+          {/* Subtitle */}
+          <p className="text-sm text-muted-foreground text-center mb-6">
             {t.auth_reset_password_desc}
           </p>
-        </div>
 
-        {success ? (
-          <Alert className="border-green-500/20 bg-green-500/10">
-            <CheckCircle2 className="h-4 w-4 text-green-500" />
-            <AlertDescription className="text-green-600 dark:text-green-400">
-              {t.auth_reset_password_success}
-            </AlertDescription>
-          </Alert>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
-            {/* New Password Field */}
-            <div className="space-y-2">
+          <form onSubmit={handleSubmit} className="space-y-1">
+            {/* New Password Input - Pill Style matching Sign Up */}
+            <div>
               <div className="relative">
-                <Lock className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
                 <Input
                   type={showPassword ? "text" : "password"}
                   placeholder={t.auth_reset_password_new}
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
-                    setError("");
+                    setErrors(prev => ({ ...prev, password: "" }));
                   }}
-                  className="pl-10 pr-10"
+                  className="h-14 rounded-full px-6 pr-12 text-base bg-muted/50 border-muted-foreground/20 focus:border-primary focus:ring-primary/30"
                   disabled={isLoading}
                   autoComplete="new-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   aria-label={showPassword ? t.auth_hide_password : t.auth_show_password}
                   tabIndex={-1}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-
-              {/* Password Strength and Rules */}
-              {password.length > 0 && (
-                <div className="space-y-3 pt-2">
-                  <PasswordStrengthMeter
-                    strength={passwordValidation.strength}
-                    strengthScore={passwordValidation.strengthScore}
-                  />
-                  <PasswordRulesChecklist rules={passwordValidation.rules} />
-                </div>
-              )}
+              {/* Error only on submit - Instagram style */}
+              <div className="min-h-[1rem] mt-1 px-6">
+                {errors.password && (
+                  <p className="text-xs leading-4 text-rose-500/80 dark:text-rose-400/70">{errors.password}</p>
+                )}
+              </div>
             </div>
 
-            {/* Confirm Password Field */}
-            <div className="space-y-2">
+            {/* Confirm Password Input - Pill Style matching Sign Up */}
+            <div>
               <div className="relative">
-                <Lock className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
                 <Input
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder={t.auth_reset_password_confirm}
                   value={confirmPassword}
                   onChange={(e) => {
                     setConfirmPassword(e.target.value);
-                    setError("");
+                    setErrors(prev => ({ ...prev, confirmPassword: "" }));
                   }}
                   onPaste={(e) => e.preventDefault()}
-                  className="pl-10 pr-10"
+                  className="h-14 rounded-full px-6 pr-12 text-base bg-muted/50 border-muted-foreground/20 focus:border-primary focus:ring-primary/30"
                   disabled={isLoading}
                   autoComplete="new-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   aria-label={showConfirmPassword ? t.auth_hide_password : t.auth_show_password}
                   tabIndex={-1}
                 >
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-
-              {/* Password Match Indicator */}
-              {confirmPassword.length > 0 && (
-                <p className={cn(
-                  "text-xs flex items-center gap-1.5",
-                  passwordsMatch ? "text-green-600 dark:text-green-500" : "text-destructive"
-                )}>
-                  {passwordsMatch ? (
-                    <>
-                      <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                      {t.auth_password_match_ok}
-                    </>
-                  ) : (
-                    <>
-                      <span className="w-1.5 h-1.5 rounded-full bg-destructive" />
-                      {t.auth_password_match_fail}
-                    </>
-                  )}
-                </p>
-              )}
+              {/* Error only on submit - Instagram style */}
+              <div className="min-h-[1rem] mt-1 px-6">
+                {errors.confirmPassword && (
+                  <p className="text-xs leading-4 text-rose-500/80 dark:text-rose-400/70">{errors.confirmPassword}</p>
+                )}
+              </div>
             </div>
 
-            {/* Submit Button */}
-            <EnhancedButton
-              type="submit"
-              className="w-full"
-              disabled={isLoading || !passwordValidation.allRulesPassed || !passwordsMatch}
-              glow
-              lift
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {t.auth_updating_password}
-                </>
-              ) : (
-                t.auth_reset_password_button
-              )}
-            </EnhancedButton>
+            {/* Primary Button - Gradient matching Login/Sign Up */}
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={isLoading || !password || !confirmPassword}
+                className="w-full h-14 rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-base shadow-[0_0_30px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_40px_hsl(var(--primary)/0.7)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    {t.auth_updating_password}
+                  </span>
+                ) : (
+                  t.auth_reset_password_button
+                )}
+              </button>
+            </div>
           </form>
-        )}
-      </AnimatedCard>
+
+          {/* Back to login link - pushed to bottom like Login/Sign Up */}
+          <div className="flex-1" />
+          <div className="py-4 min-[500px]:py-6 text-center">
+            <button
+              onClick={() => navigate('/auth')}
+              className="text-sm text-muted-foreground"
+              disabled={isLoading}
+            >
+              {t.auth_back_to_login}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
