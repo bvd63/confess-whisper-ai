@@ -23,17 +23,17 @@ import { logError } from "@/lib/logger";
 // MUST be defined outside the Auth component to prevent remounting on state changes
 const AuthLayout = ({ children }: { children: React.ReactNode }) => (
   <div className="h-[100dvh] bg-background flex flex-col px-6 overflow-hidden">
-    {/* Fixed top spacing - reduced and adaptive */}
-    <div className="pt-[8vh] min-[500px]:pt-[10vh]" />
+    {/* Adaptive top spacing - scales down on short screens */}
+    <div className="shrink-0" style={{ height: 'clamp(16px, 5vh, 64px)' }} />
     
     {/* Centered header - fixed position relative to top */}
-    <h1 className="text-3xl font-bold text-center mb-5 min-[500px]:mb-6">
+    <h1 className="text-3xl font-bold text-center shrink-0" style={{ marginBottom: 'clamp(8px, 2vh, 24px)' }}>
       <span className="text-foreground">Confess</span>
       <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
     </h1>
     
     {/* Form content - flex grow to fill remaining space */}
-    <div className="max-w-sm mx-auto w-full flex-1 flex flex-col">
+    <div className="max-w-sm mx-auto w-full flex-1 flex flex-col min-h-0">
       {children}
     </div>
   </div>
@@ -346,7 +346,7 @@ const Auth = () => {
           style={{ '--tw-enter-opacity': '0', '--tw-enter-translate-y': '8px' } as React.CSSProperties}
         >
 
-          <form onSubmit={handleAuth} className="space-y-2 min-[500px]:space-y-3">
+          <form onSubmit={handleAuth} className="space-y-0">
             {/* Email Input - Pill Style */}
             <div>
               <Input
@@ -357,11 +357,12 @@ const Auth = () => {
                   setEmail(e.target.value);
                   setErrors(prev => ({ ...prev, email: "" }));
                 }}
-                className="h-14 rounded-full px-6 text-base bg-muted/50 border-muted-foreground/20 focus:border-primary focus:ring-primary/30"
+                style={{ height: 'clamp(44px, 7vh, 56px)' }}
+                className="rounded-full px-6 text-base bg-muted/50 border-muted-foreground/20 focus:border-primary focus:ring-primary/30"
                 disabled={isLoading}
                 autoComplete="email"
               />
-              <p className={cn("text-xs px-3 h-4 leading-4 transition-opacity duration-200", errors.email ? "text-rose-500/90 dark:text-rose-400/90 opacity-100" : "opacity-0")}>
+              <p className={cn("text-xs px-3 leading-4 transition-opacity duration-200", errors.email ? "text-rose-500/90 dark:text-rose-400/90 opacity-100" : "opacity-0")} style={{ height: 'clamp(12px, 2vh, 16px)' }}>
                 {errors.email || "\u00A0"}
               </p>
             </div>
@@ -377,7 +378,8 @@ const Auth = () => {
                     setPassword(e.target.value);
                     setErrors(prev => ({ ...prev, password: "" }));
                   }}
-                  className="h-14 rounded-full px-6 pr-12 text-base bg-muted/50 border-muted-foreground/20 focus:border-primary focus:ring-primary/30"
+                  style={{ height: 'clamp(44px, 7vh, 56px)' }}
+                  className="rounded-full px-6 pr-12 text-base bg-muted/50 border-muted-foreground/20 focus:border-primary focus:ring-primary/30"
                   disabled={isLoading}
                   autoComplete="current-password"
                 />
@@ -391,7 +393,7 @@ const Auth = () => {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              <p className={cn("text-xs px-3 h-4 leading-4 transition-opacity duration-200", errors.password ? "text-rose-500/90 dark:text-rose-400/90 opacity-100" : "opacity-0")}>
+              <p className={cn("text-xs px-3 leading-4 transition-opacity duration-200", errors.password ? "text-rose-500/90 dark:text-rose-400/90 opacity-100" : "opacity-0")} style={{ height: 'clamp(12px, 2vh, 16px)' }}>
                 {errors.password || "\u00A0"}
               </p>
             </div>
@@ -458,11 +460,12 @@ const Auth = () => {
             )}
 
             {/* Primary Login Button - Gradient with Glow */}
-            <div className="pt-2 min-[500px]:pt-3">
+            <div style={{ paddingTop: 'clamp(4px, 1vh, 12px)' }}>
               <button
                 type="submit"
                 disabled={isLoading || !isFormValid()}
-                className="w-full h-14 rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-base shadow-[0_0_30px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_40px_hsl(var(--primary)/0.7)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ height: 'clamp(44px, 7vh, 56px)' }}
+                className="w-full rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-base shadow-[0_0_30px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_40px_hsl(var(--primary)/0.7)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -477,11 +480,12 @@ const Auth = () => {
 
             {/* Apple Sign In Button (iOS only, coming soon) */}
             {showAppleButton && (
-              <div className="pt-1 min-[500px]:pt-2">
+              <div style={{ paddingTop: 'clamp(4px, 0.8vh, 8px)' }}>
                 <button
                   type="button"
                   onClick={handleAppleComingSoon}
-                  className="w-full h-14 rounded-full bg-muted/50 border border-muted-foreground/20 text-foreground font-medium text-base flex items-center justify-center gap-3 hover:bg-muted/70 transition-colors opacity-70 cursor-pointer"
+                  style={{ height: 'clamp(44px, 7vh, 56px)' }}
+                  className="w-full rounded-full bg-muted/50 border border-muted-foreground/20 text-foreground font-medium text-base flex items-center justify-center gap-3 hover:bg-muted/70 transition-colors opacity-70 cursor-pointer"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
@@ -492,12 +496,13 @@ const Auth = () => {
             )}
 
             {/* Google Sign In Button */}
-            <div className={showAppleButton ? "pt-1" : "pt-1 min-[500px]:pt-2"}>
+            <div style={{ paddingTop: 'clamp(4px, 0.8vh, 8px)' }}>
               <button
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}
-                className="w-full h-14 rounded-full bg-muted/50 border border-muted-foreground/20 text-foreground font-medium text-base flex items-center justify-center gap-3 hover:bg-muted/70 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ height: 'clamp(44px, 7vh, 56px)' }}
+                className="w-full rounded-full bg-muted/50 border border-muted-foreground/20 text-foreground font-medium text-base flex items-center justify-center gap-3 hover:bg-muted/70 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -512,7 +517,7 @@ const Auth = () => {
 
           {/* Bottom Sign Up Link - pushed to bottom */}
           <div className="flex-1" />
-          <div className="py-4 min-[500px]:py-6 text-center">
+          <div style={{ padding: 'clamp(8px, 1.5vh, 24px) 0' }} className="text-center shrink-0">
             <button
               onClick={handleModeSwitch}
               className="text-sm text-muted-foreground"
@@ -539,7 +544,7 @@ const Auth = () => {
           style={{ '--tw-enter-opacity': '0', '--tw-enter-translate-y': '8px' } as React.CSSProperties}
         >
 
-          <form onSubmit={handleSignupSubmit} className="space-y-1">
+          <form onSubmit={handleSignupSubmit} className="space-y-0">
             {/* Email Input */}
             <div>
               <Input
@@ -550,11 +555,12 @@ const Auth = () => {
                   setEmail(e.target.value);
                   setErrors(prev => ({ ...prev, email: "" }));
                 }}
-                className="h-14 rounded-full px-6 text-base bg-muted/50 border-muted-foreground/20 focus:border-primary focus:ring-primary/30"
+                style={{ height: 'clamp(44px, 7vh, 56px)' }}
+                className="rounded-full px-6 text-base bg-muted/50 border-muted-foreground/20 focus:border-primary focus:ring-primary/30"
                 disabled={isLoading}
                 autoComplete="email"
               />
-              <p className={cn("text-xs px-3 h-3 leading-3 transition-opacity duration-200", errors.email ? "text-rose-500/90 dark:text-rose-400/90 opacity-100" : "opacity-0")}>
+              <p className={cn("text-xs px-3 leading-3 transition-opacity duration-200", errors.email ? "text-rose-500/90 dark:text-rose-400/90 opacity-100" : "opacity-0")} style={{ height: 'clamp(10px, 1.5vh, 12px)' }}>
                 {errors.email || "\u00A0"}
               </p>
             </div>
@@ -570,7 +576,8 @@ const Auth = () => {
                     setPassword(e.target.value);
                     setErrors(prev => ({ ...prev, password: "" }));
                   }}
-                  className="h-14 rounded-full px-6 pr-12 text-base bg-muted/50 border-muted-foreground/20 focus:border-primary focus:ring-primary/30"
+                  style={{ height: 'clamp(44px, 7vh, 56px)' }}
+                  className="rounded-full px-6 pr-12 text-base bg-muted/50 border-muted-foreground/20 focus:border-primary focus:ring-primary/30"
                   disabled={isLoading}
                   autoComplete="new-password"
                 />
@@ -585,7 +592,7 @@ const Auth = () => {
                 </button>
               </div>
               {/* Error only on submit - Instagram style */}
-              <div className="min-h-[1rem] mt-1 px-6">
+              <div className="px-6" style={{ minHeight: 'clamp(10px, 1.5vh, 16px)', marginTop: '2px' }}>
                 {errors.password && (
                   <p className="text-xs leading-4 text-rose-500/80 dark:text-rose-400/70">{errors.password}</p>
                 )}
@@ -604,7 +611,8 @@ const Auth = () => {
                     setErrors(prev => ({ ...prev, confirmPassword: "" }));
                   }}
                   onPaste={e => e.preventDefault()}
-                  className="h-14 rounded-full px-6 pr-12 text-base bg-muted/50 border-muted-foreground/20 focus:border-primary focus:ring-primary/30"
+                  style={{ height: 'clamp(44px, 7vh, 56px)' }}
+                  className="rounded-full px-6 pr-12 text-base bg-muted/50 border-muted-foreground/20 focus:border-primary focus:ring-primary/30"
                   disabled={isLoading}
                   autoComplete="new-password"
                 />
@@ -619,7 +627,7 @@ const Auth = () => {
                 </button>
               </div>
               {/* Error only on submit - Instagram style */}
-              <div className="min-h-[1rem] mt-1 px-6">
+              <div className="px-6" style={{ minHeight: 'clamp(10px, 1.5vh, 16px)', marginTop: '2px' }}>
                 {errors.confirmPassword && (
                   <p className="text-xs leading-4 text-rose-500/80 dark:text-rose-400/70">{errors.confirmPassword}</p>
                 )}
@@ -627,11 +635,12 @@ const Auth = () => {
             </div>
 
             {/* Primary Signup Button */}
-            <div className="pt-2">
+            <div style={{ paddingTop: 'clamp(4px, 1vh, 8px)' }}>
               <button
                 type="submit"
                 disabled={isLoading || !isFormValid()}
-                className="w-full h-14 rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-base shadow-[0_0_30px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_40px_hsl(var(--primary)/0.7)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ height: 'clamp(44px, 7vh, 56px)' }}
+                className="w-full rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-base shadow-[0_0_30px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_40px_hsl(var(--primary)/0.7)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -646,11 +655,12 @@ const Auth = () => {
 
             {/* Apple Sign In Button (iOS only, coming soon) */}
             {showAppleButton && (
-              <div className="pt-1">
+              <div style={{ paddingTop: 'clamp(4px, 0.8vh, 8px)' }}>
                 <button
                   type="button"
                   onClick={handleAppleComingSoon}
-                  className="w-full h-14 rounded-full bg-muted/50 border border-muted-foreground/20 text-foreground font-medium text-base flex items-center justify-center gap-3 hover:bg-muted/70 transition-colors opacity-70 cursor-pointer"
+                  style={{ height: 'clamp(44px, 7vh, 56px)' }}
+                  className="w-full rounded-full bg-muted/50 border border-muted-foreground/20 text-foreground font-medium text-base flex items-center justify-center gap-3 hover:bg-muted/70 transition-colors opacity-70 cursor-pointer"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
@@ -661,12 +671,13 @@ const Auth = () => {
             )}
 
             {/* Google Sign In Button */}
-            <div className="pt-1">
+            <div style={{ paddingTop: 'clamp(4px, 0.8vh, 8px)' }}>
               <button
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}
-                className="w-full h-14 rounded-full bg-muted/50 border border-muted-foreground/20 text-foreground font-medium text-base flex items-center justify-center gap-3 hover:bg-muted/70 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ height: 'clamp(44px, 7vh, 56px)' }}
+                className="w-full rounded-full bg-muted/50 border border-muted-foreground/20 text-foreground font-medium text-base flex items-center justify-center gap-3 hover:bg-muted/70 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -680,7 +691,7 @@ const Auth = () => {
           </form>
 
           {/* Terms & Privacy Text */}
-          <p className="text-xs text-muted-foreground/70 text-center mt-3">
+          <p className="text-xs text-muted-foreground/70 text-center shrink-0" style={{ marginTop: 'clamp(4px, 1vh, 12px)' }}>
             By signing up, you agree to our{" "}
             <a href="/terms" target="_blank" className="text-primary hover:underline">Terms</a>
             {" & "}
@@ -689,7 +700,7 @@ const Auth = () => {
 
           {/* Bottom Login Link - pushed to bottom */}
           <div className="flex-1" />
-          <div className="py-4 min-[500px]:py-6 text-center">
+          <div style={{ padding: 'clamp(8px, 1.5vh, 24px) 0' }} className="text-center shrink-0">
             <button
               onClick={handleModeSwitch}
               className="text-sm text-muted-foreground"
