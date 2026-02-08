@@ -886,15 +886,15 @@ serve(async (req) => {
           console.warn('[enhanced-auth] Failed to determine CAPTCHA requirement', err);
         }
 
-          if (captchaRequired && !captchaTokenFromBody) {
-            return new Response(
-              JSON.stringify({
-                captchaRequired: true,
-                messageKey: 'auth.captcha_required',
-              }),
-              { status: 200, headers: responseHeaders }
-            );
-          }
+        if (captchaRequired && !captchaTokenFromBody) {
+          return new Response(
+            JSON.stringify({
+              captchaRequired: true,
+              messageKey: 'auth.captcha_required',
+            }),
+            { status: 200, headers: responseHeaders }
+          );
+        }
 
         if (captchaRequired && captchaTokenFromBody) {
           const turnstileSecret = Deno.env.get('TURNSTILE_SECRET_KEY');
@@ -908,16 +908,16 @@ serve(async (req) => {
 
           if (!SKIP_TURNSTILE_FOR_PASSWORD_RESET) {
             const passwordResetCaptchaResult = await verifyCaptcha(captchaTokenFromBody, clientIp, { requireSecret: true });
-              if (!passwordResetCaptchaResult.success) {
-                return new Response(
-                  JSON.stringify({
-                    captchaFailed: true,
-                    messageKey: 'auth.captcha_failed',
-                    shouldResetCaptcha: true,
-                  }),
-                  { status: 200, headers: responseHeaders }
-                );
-              }
+            if (!passwordResetCaptchaResult.success) {
+              return new Response(
+                JSON.stringify({
+                  captchaFailed: true,
+                  messageKey: 'auth.captcha_failed',
+                  shouldResetCaptcha: true,
+                }),
+                { status: 200, headers: responseHeaders }
+              );
+            }
           } else {
             console.warn('[enhanced-auth] Skipping Turnstile verification for password reset (SKIP_TURNSTILE_FOR_PASSWORD_RESET=true)');
           }
