@@ -1,18 +1,15 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Loader2, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { validatePasswordStrength } from "@/hooks/usePasswordValidation";
-import { supabase } from "@/integrations/supabase/client";
-import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
-import { cn } from "@/lib/utils";
 import { logError } from "@/lib/logger";
+import { completePasswordReset, validateResetToken } from "@/services/passwordReset";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { revokeAllSessions } = useEnhancedAuth();
   const [searchParams] = useSearchParams();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -21,8 +18,9 @@ export default function ResetPassword() {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({ password: "", confirmPassword: "" });
   const [success, setSuccess] = useState(false);
-  const [tokenValid, setTokenValid] = useState(true);
-  const redirectTimeoutRef = useRef<number | null>(null);
+  const [tokenValid, setTokenValid] = useState(false);
+  const [validatingToken, setValidatingToken] = useState(true);
+  const [tokenValue, setTokenValue] = useState("");
 
   const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
 
@@ -31,73 +29,41 @@ export default function ResetPassword() {
     setSuccess(false);
   };
 
-  const isExpiredOrInvalidResetError = (err: { message?: string; status?: number; code?: string } | null) => {
-    if (!err) return false;
-    const messageSource = err.message || (err as any)?.error_description || "";
-    const normalizedMessage = typeof messageSource === "string" ? messageSource.toLowerCase() : "";
-    return normalizedMessage.includes("expired")
-      || normalizedMessage.includes("invalid")
-      || err.code === "expired_token"
-      || err.code === "invalid_token"
-      || err.status === 401
-      || err.status === 410;
+  const translateMessageKey = (messageKey?: string): string => {
+    if (!messageKey) return t.auth_error_generic;
+    const normalizedKey = messageKey.replace(/\./g, "_");
+    const translated = t[normalizedKey as keyof typeof t];
+    return typeof translated === "string" ? translated : t.auth_error_generic;
   };
 
   useEffect(() => {
     let isMounted = true;
+    const tokenParam = searchParams.get('token')?.trim() || '';
+    setTokenValue(tokenParam);
 
-    const establishRecoverySession = async () => {
-      const tokenHash = searchParams.get('token_hash');
-      const type = searchParams.get('type');
-      const hashFragment = window.location.hash;
-      const fragmentParams = new URLSearchParams(hashFragment.replace(/^#/u, ''));
-      const accessToken = fragmentParams.get('access_token');
-      const refreshToken = fragmentParams.get('refresh_token');
+    if (!tokenParam) {
+      setTokenValid(false);
+      setValidatingToken(false);
+      return () => { isMounted = false; };
+    }
 
-      const hasIncomingSession = Boolean((tokenHash && type === 'recovery') || (accessToken && refreshToken));
-
-      if (!hasIncomingSession) {
-        if (isMounted) markResetLinkInvalid();
-        return;
-      }
-
+    const validate = async () => {
       try {
-        if (accessToken && refreshToken) {
-          const { error: sessionError } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
-          });
-          if (sessionError) throw sessionError;
-          window.history.replaceState({}, document.title, `${window.location.pathname}${window.location.search}`);
-        } else if (tokenHash && type === 'recovery') {
-          const { error: otpError } = await supabase.auth.verifyOtp({
-            token_hash: tokenHash,
-            type: 'recovery',
-          });
-          if (otpError) throw otpError;
-        }
-
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) throw new Error('missing_recovery_session');
-
-        if (isMounted) {
-          setTokenValid(true);
-        }
-      } catch (sessionError) {
-        logError('Password recovery session error', sessionError as Error);
-        if (isMounted) markResetLinkInvalid();
+        const result = await validateResetToken(tokenParam);
+        if (!isMounted) return;
+        setTokenValid(result.valid);
+      } catch (err) {
+        logError('Reset token validation failed', err as Error);
+        if (isMounted) setTokenValid(false);
+      } finally {
+        if (isMounted) setValidatingToken(false);
       }
     };
 
-    establishRecoverySession();
-    return () => { isMounted = false; };
-  }, [t, searchParams]);
+    validate();
 
-  useEffect(() => {
-    return () => {
-      if (redirectTimeoutRef.current) clearTimeout(redirectTimeoutRef.current);
-    };
-  }, []);
+    return () => { isMounted = false; };
+  }, [searchParams, t]);
 
   const validateForm = (): boolean => {
     const newErrors = { password: "", confirmPassword: "" };
@@ -117,52 +83,57 @@ export default function ResetPassword() {
     e.preventDefault();
     if (!validateForm()) return;
 
+    if (!tokenValid || !tokenValue) {
+      markResetLinkInvalid();
+      return;
+    }
+
     setIsLoading(true);
     setErrors({ password: "", confirmPassword: "" });
 
     try {
-      const { data: sessionCheck } = await supabase.auth.getSession();
-      if (!sessionCheck.session) {
-        markResetLinkInvalid();
-        return;
-      }
+      const result = await completePasswordReset({ token: tokenValue, password });
 
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: password,
-      });
-
-      if (updateError) {
-        if (isExpiredOrInvalidResetError(updateError)) {
+      if (!result.success) {
+        if (result.invalidToken) {
           markResetLinkInvalid();
           return;
         }
-        throw updateError;
-      }
 
-      // Revoke all existing sessions after password reset for security
-      try {
-        await revokeAllSessions();
-      } catch (revokeError) {
-        logError('Failed to revoke sessions after password reset', revokeError as Error);
+        const message = translateMessageKey(result.messageKey);
+        setErrors(prev => ({ ...prev, password: message }));
+        return;
       }
 
       setSuccess(true);
       setErrors({ password: "", confirmPassword: "" });
-
-      redirectTimeoutRef.current = window.setTimeout(() => {
-        navigate('/auth');
-      }, 2000);
     } catch (err: any) {
       logError("Password update failed", err as Error);
-      if (isExpiredOrInvalidResetError(err)) {
-        markResetLinkInvalid();
-        return;
-      }
       setErrors(prev => ({ ...prev, password: t.auth_reset_password_error || t.auth_error_generic }));
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (validatingToken) {
+    return (
+      <div className="h-[100dvh] bg-background flex flex-col px-6 overflow-hidden">
+        <div className="pt-[8vh] min-[500px]:pt-[10vh]" />
+        <h1 className="text-3xl font-bold text-center mb-5 min-[500px]:mb-6">
+          <span className="text-foreground">Confess</span>
+          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
+        </h1>
+        <div className="max-w-sm mx-auto w-full flex-1 flex flex-col">
+          <div className="animate-[fadeSlideIn_150ms_ease-out] text-center">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-4">
+              <Loader2 className="w-6 h-6 animate-spin" />
+            </div>
+            <p className="text-sm text-muted-foreground">{t.ui_loading}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Invalid/expired token state
   if (!tokenValid) {

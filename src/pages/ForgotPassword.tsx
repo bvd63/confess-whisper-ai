@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
-import { Mail, Loader2, AlertCircle } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { z } from "zod";
@@ -42,17 +42,10 @@ export default function ForgotPassword() {
     }
   };
 
-  // Step 1: User clicks submit → validate email → show captcha modal
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateEmail()) return;
-    setShowCaptchaModal(true);
-  };
-
-  // Step 2: After captcha success → auto-submit reset request
-  const processReset = async (token: string) => {
+  const handleResetRequest = async (token?: string) => {
     setIsLoading(true);
     setError("");
+    setTurnstileError(false);
     setShowCaptchaModal(false);
 
     try {
@@ -61,23 +54,49 @@ export default function ForgotPassword() {
         captchaToken: token,
       });
 
+      if (result.rateLimited) {
+        setError(t.auth_reset_rate_limited || t.common_rate_limit);
+        setCaptchaToken("");
+        return;
+      }
+
+      if (result.captchaRequired) {
+        setShowCaptchaModal(true);
+        setCaptchaToken("");
+        return;
+      }
+
+      if (result.captchaFailed) {
+        setShowCaptchaModal(true);
+        setTurnstileError(true);
+        setCaptchaToken("");
+        return;
+      }
+
       if (!result.success) {
-        const message = result.messageKey === "common.rate_limit"
-          ? t.common_rate_limit
-          : translateMessageKey(result.messageKey);
+        const message = result.messageKey
+          ? translateMessageKey(result.messageKey)
+          : t.auth_error_generic;
         setError(message);
         setCaptchaToken("");
         return;
       }
 
       setSuccess(true);
+      setShowCaptchaModal(false);
       setCaptchaToken("");
     } catch (err: any) {
       logError("Password reset request failed", err as Error);
-      setError(err.message || t.auth_error_generic);
+      setError(t.auth_error_generic);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateEmail()) return;
+    handleResetRequest();
   };
 
   // Success state
@@ -186,15 +205,15 @@ export default function ForgotPassword() {
       {showCaptchaModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
           <div className="bg-card border border-border rounded-2xl p-6 shadow-xl max-w-sm w-full mx-4">
-            <h3 className="text-lg font-semibold text-center mb-4">{t.captcha_verify_human}</h3>
+            <h3 className="text-lg font-semibold text-center mb-2">{t.captcha_verify_human}</h3>
+            <p className="text-sm text-muted-foreground text-center mb-4">{t.auth_captcha_verify_prompt}</p>
             <div className="flex justify-center mb-4">
               <Turnstile
                 siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
                 onSuccess={(token) => {
                   setCaptchaToken(token);
                   setTurnstileError(false);
-                  // Auto-continue after captcha success
-                  setTimeout(() => processReset(token), 100);
+                  handleResetRequest(token);
                 }}
                 onError={() => {
                   setCaptchaToken("");

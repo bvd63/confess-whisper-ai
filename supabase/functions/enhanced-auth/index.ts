@@ -830,19 +830,13 @@ serve(async (req) => {
 
       case 'request-password-reset': {
         const { email, captchaToken }: { email?: string; captchaToken?: string } = await req.json();
+        const normalizedEmail = typeof email === 'string' ? email.toLowerCase().trim() : '';
+        const responseHeaders = { ...corsHeaders, 'Content-Type': 'application/json' } as Record<string, string>;
 
-        const normalizedEmail = email?.toLowerCase().trim();
         if (!normalizedEmail) {
           return new Response(
             JSON.stringify({ error: 'INVALID_REQUEST', messageKey: 'common.invalid_request' }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-
-        if (!captchaToken || typeof captchaToken !== 'string') {
-          return new Response(
-            JSON.stringify({ error: 'CAPTCHA_REQUIRED', messageKey: 'auth.captcha_failed', shouldResetCaptcha: true }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            { status: 400, headers: responseHeaders }
           );
         }
 
@@ -866,88 +860,170 @@ serve(async (req) => {
             userAgent
           );
 
-          const responseHeaders: Record<string, string> = {
-            ...corsHeaders,
-            'Content-Type': 'application/json',
-          };
-          
           if (passwordResetRateLimit.retryAfter) {
             responseHeaders['Retry-After'] = passwordResetRateLimit.retryAfter.toString();
           }
 
           return new Response(
             JSON.stringify({
-              error: 'RATE_LIMIT',
-              messageKey: 'common.rate_limit',
-              retryAfter: passwordResetRateLimit.retryAfter,
+              rate_limited: true,
+              retry_after: passwordResetRateLimit.retryAfter,
+              messageKey: 'auth.reset_rate_limited',
             }),
-            {
-              status: 429,
-              headers: responseHeaders,
-            }
+            { status: 429, headers: responseHeaders }
           );
         }
 
-        if (!SKIP_TURNSTILE_FOR_PASSWORD_RESET) {
-          const passwordResetCaptchaResult = await verifyCaptcha(captchaToken, clientIp, { requireSecret: true });
-          if (!passwordResetCaptchaResult.success) {
-            return new Response(
-              JSON.stringify({
-                error: passwordResetCaptchaResult.error ?? 'auth.captcha_failed',
-                messageKey: passwordResetCaptchaResult.error ?? 'auth.captcha_failed',
-                shouldResetCaptcha: true,
-              }),
-              { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-            );
+        let captchaRequired = false;
+        try {
+          const { data } = await supabaseClient
+            .rpc('is_captcha_required', { _email: normalizedEmail });
+          captchaRequired = Boolean(data);
+        } catch (err) {
+          console.warn('[enhanced-auth] Failed to determine CAPTCHA requirement', err);
+        }
+
+        if (captchaRequired && !captchaToken) {
+          return new Response(
+            JSON.stringify({ captcha_required: true }),
+            { status: 200, headers: responseHeaders }
+          );
+        }
+
+        if (captchaRequired && captchaToken) {
+          if (!SKIP_TURNSTILE_FOR_PASSWORD_RESET) {
+            const passwordResetCaptchaResult = await verifyCaptcha(captchaToken, clientIp, { requireSecret: true });
+            if (!passwordResetCaptchaResult.success) {
+              return new Response(
+                JSON.stringify({
+                  captcha_failed: true,
+                  messageKey: passwordResetCaptchaResult.error ?? 'auth.captcha_failed',
+                }),
+                { status: 403, headers: responseHeaders }
+              );
+            }
+          } else {
+            console.warn('[enhanced-auth] Skipping Turnstile verification for password reset (SKIP_TURNSTILE_FOR_PASSWORD_RESET=true)');
           }
-        } else {
-          console.warn('[enhanced-auth] Skipping Turnstile verification for password reset (SKIP_TURNSTILE_FOR_PASSWORD_RESET=true)');
         }
 
         if (!SUPABASE_SERVICE_ROLE_KEY) {
           console.error('[enhanced-auth] Missing SUPABASE_SERVICE_ROLE_KEY for password reset');
           return new Response(
-            JSON.stringify({ error: 'MISSING_SERVICE_ROLE', messageKey: 'auth.reset_password_failed' }),
-            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            JSON.stringify({ success: true, messageKey: 'auth.forgot_password_success' }),
+            { status: 200, headers: responseHeaders }
           );
         }
 
         const supabaseServiceClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-        if (!APP_URL) {
-          console.error('[enhanced-auth] NEXT_PUBLIC_APP_URL must be configured for password reset redirects');
-          return new Response(
-            JSON.stringify({ error: 'MISSING_APP_URL', messageKey: 'auth.reset_password_failed' }),
-            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
+        const resetTokenTtlMs = 15 * 60 * 1000;
+        const expiresAt = new Date(Date.now() + resetTokenTtlMs).toISOString();
+        const rawToken = generateRefreshToken();
+        const tokenHash = await hashToken(rawToken);
 
-        const redirectTarget = `${APP_URL.replace(/\/$/, '')}/auth/update-password`;
+        let userId: string | null = null;
 
         try {
-          const { error: resetError } = await supabaseServiceClient.auth.resetPasswordForEmail(
-            normalizedEmail,
-            { redirectTo: redirectTarget }
-          );
+          const adminUrl = `${SUPABASE_URL.replace(/\/$/, '')}/auth/v1/admin/users?email=${encodeURIComponent(normalizedEmail)}`;
+          const adminResponse = await fetch(adminUrl, {
+            headers: {
+              apikey: SUPABASE_SERVICE_ROLE_KEY,
+              Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+              'Content-Type': 'application/json',
+            },
+          });
 
-          if (resetError) {
-            console.error('[enhanced-auth] Password reset request failed', resetError);
-            return new Response(
-              JSON.stringify({ error: resetError.message ?? 'auth.reset_password_failed', messageKey: 'auth.reset_password_failed' }),
-              { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-            );
+          if (adminResponse.ok) {
+            const adminBody = await adminResponse.json();
+            const foundUser = Array.isArray(adminBody?.users)
+              ? adminBody.users.find((u: any) => u.email?.toLowerCase() === normalizedEmail)
+              : null;
+            userId = foundUser?.id ?? null;
+          } else {
+            console.warn('[enhanced-auth] Failed admin user lookup for password reset', await adminResponse.text());
           }
-        } catch (error) {
-          console.error('[enhanced-auth] Password reset request threw', error);
-          return new Response(
-            JSON.stringify({ error: error instanceof Error ? error.message : 'auth.reset_password_failed', messageKey: 'auth.reset_password_failed' }),
-            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
+        } catch (err) {
+          console.warn('[enhanced-auth] Exception during user lookup for password reset', err);
+        }
+
+        if (userId) {
+          try {
+            const { error: insertError } = await supabaseServiceClient
+              .from('password_reset_tokens')
+              .insert({
+                user_id: userId,
+                token_hash: tokenHash,
+                expires_at: expiresAt,
+                requested_ip: clientIp,
+              });
+
+            if (insertError) {
+              console.error('[enhanced-auth] Failed to store password reset token', insertError);
+            }
+          } catch (err) {
+            console.error('[enhanced-auth] Exception storing password reset token', err);
+          }
+
+          try {
+            const resendApiKey = Deno.env.get('RESEND_API_KEY');
+            const fromAddress = Deno.env.get('PASSWORD_RESET_FROM_EMAIL')
+              ?? Deno.env.get('SUPPORT_FROM_EMAIL')
+              ?? 'ConfessAI <no-reply@confess.ai>';
+
+            if (!APP_URL) {
+              console.error('[enhanced-auth] NEXT_PUBLIC_APP_URL must be configured for password reset links');
+            } else if (resendApiKey) {
+              const resetLink = `${APP_URL.replace(/\/$/, '')}/reset-password?token=${rawToken}`;
+              const subject = 'Reset your ConfessAI password';
+              const textBody = [
+                'You requested a password reset for ConfessAI.',
+                'Use this link to set a new password (valid for 15 minutes):',
+                resetLink,
+                '',
+                'If you did not request this, you can ignore this email.',
+              ].join('\n\n');
+
+              const htmlBody = `<!doctype html><html><body style="font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; color: #0f172a;">
+                <h2 style="margin: 0 0 12px; font-size: 18px;">Reset your ConfessAI password</h2>
+                <p>Use the link below to set a new password. This link expires in 15 minutes.</p>
+                <p><a href="${resetLink}" style="background: #4f46e5; color: white; padding: 10px 16px; border-radius: 999px; text-decoration: none; display: inline-block;">Reset password</a></p>
+                <p style="margin-top: 12px; word-break: break-all;">If the button doesn’t work, copy and paste this URL into your browser:<br>${resetLink}</p>
+                <p>If you didn’t request this, you can ignore this email.</p>
+              </body></html>`;
+
+              const emailResponse = await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                  Authorization: `Bearer ${resendApiKey}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  from: fromAddress,
+                  to: [normalizedEmail],
+                  subject,
+                  text: textBody,
+                  html: htmlBody,
+                  tags: [
+                    { name: 'source', value: 'password-reset' },
+                  ],
+                }),
+              });
+
+              if (!emailResponse.ok) {
+                console.error('[enhanced-auth] Failed to send password reset email', await emailResponse.text());
+              }
+            } else {
+              console.warn('[enhanced-auth] RESEND_API_KEY not configured; password reset email not sent');
+            }
+          } catch (err) {
+            console.error('[enhanced-auth] Exception sending password reset email', err);
+          }
         }
 
         await logSecurityEvent(
           supabaseClient,
-          null,
+          userId,
           'password_reset_requested',
           { email: normalizedEmail },
           clientIp,
@@ -956,7 +1032,138 @@ serve(async (req) => {
 
         return new Response(
           JSON.stringify({ success: true, messageKey: 'auth.forgot_password_success' }),
-          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 200, headers: responseHeaders }
+        );
+      }
+
+      case 'validate-reset-token': {
+        const { token }: { token?: string } = await req.json();
+        const responseHeaders = { ...corsHeaders, 'Content-Type': 'application/json' } as Record<string, string>;
+        const normalizedToken = typeof token === 'string' ? token.trim() : '';
+
+        if (!normalizedToken || !SUPABASE_SERVICE_ROLE_KEY) {
+          return new Response(
+            JSON.stringify({ valid: false, messageKey: 'auth.reset_token_invalid' }),
+            { status: 400, headers: responseHeaders }
+          );
+        }
+
+        const supabaseServiceClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+        const tokenHash = await hashToken(normalizedToken);
+
+        const { data, error } = await supabaseServiceClient
+          .from('password_reset_tokens')
+          .select('id, user_id, expires_at, used')
+          .eq('token_hash', tokenHash)
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        if (error) {
+          console.error('[enhanced-auth] Failed to validate reset token', error);
+        }
+
+        const tokenRecord = Array.isArray(data) ? data[0] : null;
+        const isExpired = tokenRecord?.expires_at ? new Date(tokenRecord.expires_at).getTime() < Date.now() : true;
+
+        if (!tokenRecord || tokenRecord.used || isExpired) {
+          return new Response(
+            JSON.stringify({ valid: false, messageKey: 'auth.reset_token_invalid' }),
+            { status: 400, headers: responseHeaders }
+          );
+        }
+
+        return new Response(
+          JSON.stringify({ valid: true }),
+          { status: 200, headers: responseHeaders }
+        );
+      }
+
+      case 'complete-password-reset': {
+        const { token, password }: { token?: string; password?: string } = await req.json();
+        const responseHeaders = { ...corsHeaders, 'Content-Type': 'application/json' } as Record<string, string>;
+        const normalizedToken = typeof token === 'string' ? token.trim() : '';
+
+        if (!normalizedToken || typeof password !== 'string') {
+          return new Response(
+            JSON.stringify({ success: false, invalid_token: true, messageKey: 'auth.reset_token_invalid' }),
+            { status: 400, headers: responseHeaders }
+          );
+        }
+
+        const passwordValidation = validatePasswordStrength(password);
+        if (!passwordValidation.valid) {
+          return new Response(
+            JSON.stringify({ success: false, messageKey: passwordValidation.error ?? 'auth.password_weak' }),
+            { status: 400, headers: responseHeaders }
+          );
+        }
+
+        if (!SUPABASE_SERVICE_ROLE_KEY) {
+          console.error('[enhanced-auth] Missing SUPABASE_SERVICE_ROLE_KEY for password reset completion');
+          return new Response(
+            JSON.stringify({ success: false, messageKey: 'auth.reset_password_error' }),
+            { status: 400, headers: responseHeaders }
+          );
+        }
+
+        const supabaseServiceClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+        const tokenHash = await hashToken(normalizedToken);
+
+        const { data, error } = await supabaseServiceClient
+          .from('password_reset_tokens')
+          .select('id, user_id, expires_at, used')
+          .eq('token_hash', tokenHash)
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        if (error) {
+          console.error('[enhanced-auth] Failed to load reset token for completion', error);
+        }
+
+        const tokenRecord = Array.isArray(data) ? data[0] : null;
+        const isExpired = tokenRecord?.expires_at ? new Date(tokenRecord.expires_at).getTime() < Date.now() : true;
+
+        if (!tokenRecord || tokenRecord.used || isExpired || !tokenRecord.user_id) {
+          return new Response(
+            JSON.stringify({ success: false, invalid_token: true, messageKey: 'auth.reset_token_invalid' }),
+            { status: 400, headers: responseHeaders }
+          );
+        }
+
+        const { error: updateError } = await supabaseServiceClient.auth.admin.updateUserById(tokenRecord.user_id, {
+          password,
+        });
+
+        if (updateError) {
+          console.error('[enhanced-auth] Failed to update password via admin API', updateError);
+          return new Response(
+            JSON.stringify({ success: false, messageKey: 'auth.reset_password_error' }),
+            { status: 400, headers: responseHeaders }
+          );
+        }
+
+        const nowIso = new Date().toISOString();
+        const { error: markUsedError } = await supabaseServiceClient
+          .from('password_reset_tokens')
+          .update({ used: true, used_at: nowIso })
+          .eq('id', tokenRecord.id);
+
+        if (markUsedError) {
+          console.warn('[enhanced-auth] Failed to mark reset token as used', markUsedError);
+        }
+
+        await logSecurityEvent(
+          supabaseServiceClient,
+          tokenRecord.user_id,
+          'password_reset_completed',
+          { token_id: tokenRecord.id },
+          clientIp,
+          userAgent
+        );
+
+        return new Response(
+          JSON.stringify({ success: true, messageKey: 'auth.reset_password_success' }),
+          { status: 200, headers: responseHeaders }
         );
       }
 
