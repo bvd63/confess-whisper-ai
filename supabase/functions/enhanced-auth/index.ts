@@ -829,7 +829,10 @@ serve(async (req) => {
       }
 
       case 'request-password-reset': {
-        const { email, captchaToken }: { email?: string; captchaToken?: string } = await req.json();
+        const { email, captchaToken, turnstileToken }: { email?: string; captchaToken?: string; turnstileToken?: string } = await req.json();
+        const captchaTokenFromBody = typeof turnstileToken === 'string' && turnstileToken.trim()
+          ? turnstileToken
+          : captchaToken;
         const normalizedEmail = typeof email === 'string' ? email.toLowerCase().trim() : '';
         const responseHeaders = { ...corsHeaders, 'Content-Type': 'application/json' } as Record<string, string>;
 
@@ -883,7 +886,7 @@ serve(async (req) => {
           console.warn('[enhanced-auth] Failed to determine CAPTCHA requirement', err);
         }
 
-        if (captchaRequired && !captchaToken) {
+        if (captchaRequired && !captchaTokenFromBody) {
           return new Response(
             JSON.stringify({
               captchaRequired: true,
@@ -894,9 +897,18 @@ serve(async (req) => {
           );
         }
 
-        if (captchaRequired && captchaToken) {
+        if (captchaRequired && captchaTokenFromBody) {
+          const turnstileSecret = Deno.env.get('TURNSTILE_SECRET_KEY');
+          if (!turnstileSecret) {
+            console.error('[enhanced-auth] TURNSTILE_SECRET_KEY_MISSING');
+            return new Response(
+              JSON.stringify({ success: false, messageKey: 'auth.reset_password_failed' }),
+              { status: 500, headers: responseHeaders }
+            );
+          }
+
           if (!SKIP_TURNSTILE_FOR_PASSWORD_RESET) {
-            const passwordResetCaptchaResult = await verifyCaptcha(captchaToken, clientIp, { requireSecret: true });
+            const passwordResetCaptchaResult = await verifyCaptcha(captchaTokenFromBody, clientIp, { requireSecret: true });
             if (!passwordResetCaptchaResult.success) {
               return new Response(
                 JSON.stringify({

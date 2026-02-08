@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
@@ -19,6 +19,7 @@ export default function ForgotPassword() {
   const [success, setSuccess] = useState(false);
   const [showCaptchaModal, setShowCaptchaModal] = useState(false);
   const [turnstileError, setTurnstileError] = useState(false);
+  const captchaTokenRef = useRef("");
 
   const emailSchema = z.string().email(t.auth_invalid_email);
 
@@ -43,6 +44,10 @@ export default function ForgotPassword() {
   };
 
   const handleResetRequest = async (token?: string) => {
+    const tokenToSend = token ?? captchaTokenRef.current || undefined;
+    if (import.meta.env.DEV) {
+      console.log("sending_reset_request_with_token_length", tokenToSend?.length ?? 0);
+    }
     setIsLoading(true);
     setError("");
     setTurnstileError(false);
@@ -50,7 +55,7 @@ export default function ForgotPassword() {
     try {
       const result = await requestPasswordReset({
         email: email.trim(),
-        captchaToken: token,
+        captchaToken: tokenToSend,
       });
 
       const captchaRequiredByMessage = result.messageKey === "auth.captcha_required" || result.messageKey === "CAPTCHA_REQUIRED";
@@ -59,6 +64,7 @@ export default function ForgotPassword() {
       if (result.rateLimited) {
         setError(t.auth_reset_rate_limited || t.common_rate_limit);
         setCaptchaToken("");
+        captchaTokenRef.current = "";
         return;
       }
 
@@ -66,6 +72,7 @@ export default function ForgotPassword() {
         setShowCaptchaModal(true);
         setTurnstileError(false);
         setCaptchaToken("");
+        captchaTokenRef.current = "";
         return;
       }
 
@@ -74,6 +81,7 @@ export default function ForgotPassword() {
         setTurnstileError(true);
         if (result.shouldResetCaptcha !== false) {
           setCaptchaToken("");
+          captchaTokenRef.current = "";
         }
         return;
       }
@@ -84,12 +92,14 @@ export default function ForgotPassword() {
           : t.auth_error_generic;
         setError(message);
         setCaptchaToken("");
+        captchaTokenRef.current = "";
         return;
       }
 
       setSuccess(true);
       setShowCaptchaModal(false);
       setCaptchaToken("");
+      captchaTokenRef.current = "";
     } catch (err: any) {
       logError("Password reset request failed", err as Error);
       setError(t.auth_error_generic);
@@ -216,7 +226,11 @@ export default function ForgotPassword() {
               <Turnstile
                 siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
                 onSuccess={(token) => {
+                  if (import.meta.env.DEV) {
+                    console.log("turnstile_success_token_length", token?.length ?? 0);
+                  }
                   setCaptchaToken(token);
+                  captchaTokenRef.current = token;
                   setTurnstileError(false);
                   handleResetRequest(token);
                 }}
