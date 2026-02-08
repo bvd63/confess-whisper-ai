@@ -196,7 +196,7 @@ export const SubscriptionPlansGrid = ({
           {filteredPlans.map((plan: any) => (
             <Card
               key={`${plan.id}-${plan.interval}`}
-              className={`p-10 relative bg-card border-2 transition-all duration-300 hover:scale-[1.02] rounded-2xl ${
+              className={`p-5 relative bg-card border-2 transition-all duration-300 hover:scale-[1.01] rounded-2xl ${
                 plan.id === 'vip'
                   ? 'border-primary/30 hover:border-primary/50 shadow-elegant bg-gradient-to-br from-primary/5 to-primary/10'
                   : 'border-border hover:border-primary/30'
@@ -204,7 +204,7 @@ export const SubscriptionPlansGrid = ({
             >
             {/* Active Badge for VIP if current plan */}
             {isCurrentPlan(plan) && (
-              <Badge className="absolute -top-3 left-6 bg-gradient-to-r from-primary to-primary-hover text-white px-4 py-1.5 font-semibold rounded-full shadow-lg text-sm">
+              <Badge className="absolute -top-3 left-6 bg-gradient-to-r from-primary to-primary-hover text-white px-3 py-1 font-semibold rounded-full shadow-lg text-xs">
                 Active
               </Badge>
             )}
@@ -213,26 +213,25 @@ export const SubscriptionPlansGrid = ({
             {interval === 'yearly' && (
               <div className="absolute -top-3 -right-3">
                 <div className="absolute inset-0 bg-primary/30 blur-xl rounded-full"></div>
-                <Badge className="relative bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-1.5 font-bold rounded-full shadow-lg text-sm">
+                <Badge className="relative bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1 font-bold rounded-full shadow-lg text-xs">
                   Save 34%
                 </Badge>
               </div>
             )}
 
-
             {/* Plan Header */}
-            <div className="mb-8">
-              <div className="flex items-center gap-3 mb-6">
-                <span className="text-4xl">{plan.id === 'vip' ? '👑' : '✨'}</span>
-                <h3 className="text-2xl font-bold">{plan.name}</h3>
+            <div className="mb-4">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-2xl">{plan.id === 'vip' ? '👑' : '✨'}</span>
+                <h3 className="text-xl font-bold">{plan.name}</h3>
               </div>
-              <div className="mb-2">
-                <span className="text-5xl font-bold">
+              <div className="mb-1">
+                <span className="text-3xl font-bold">
                   ${interval === 'yearly' ? (plan.price / 12).toFixed(2) : plan.price}
                 </span>
-                <span className="text-muted-foreground text-lg ml-2">/month</span>
+                <span className="text-muted-foreground text-base ml-1.5">/month</span>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 {interval === 'yearly' 
                   ? `$${plan.price.toFixed(2)}/year (billed annually)`
                   : 'Billed monthly'
@@ -240,21 +239,21 @@ export const SubscriptionPlansGrid = ({
               </p>
             </div>
 
-            {/* Benefits List */}
-            <div className="space-y-4 mb-8">
+            {/* Benefits List — compact */}
+            <div className="space-y-2 mb-5">
               {plan.benefits.map((benefit: string, index: number) => (
-                <div key={index} className="flex items-start gap-3 group/benefit">
-                  <div className="w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/benefit:bg-purple-500/30 transition-colors">
-                    <Check className="w-4 h-4 text-purple-400" />
+                <div key={index} className="flex items-center gap-2.5">
+                  <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-primary" />
                   </div>
-                  <span className="text-sm text-foreground/90 leading-relaxed">{getStringTranslation(t, benefit) || benefit}</span>
+                  <span className="text-sm text-foreground/90 leading-tight">{getStringTranslation(t, benefit) || benefit}</span>
                 </div>
               ))}
             </div>
 
             {/* Debug Warning - visible only when price ID is missing */}
             {!plan.priceId && plan.id !== 'free' && (
-              <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+              <div className="mb-3 p-2 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
                 <p className="text-yellow-500 text-xs font-medium">
                   ⚠️ Configuration Issue: Price ID missing
                 </p>
@@ -267,7 +266,6 @@ export const SubscriptionPlansGrid = ({
             {/* Action Button */}
             <Button
               onClick={() => {
-                // If user has VIP (regardless of interval), open portal to manage/change subscription
                 if (currentPlan === 'vip' && plan.id === 'vip') {
                   handleOpenPortal();
                 } else if (isCurrentPlan(plan)) {
@@ -285,7 +283,7 @@ export const SubscriptionPlansGrid = ({
                 (isLoading || !canChangePlan || (plan.id !== 'free' && !plan.priceId)) && !(currentPlan === 'vip' && plan.id === 'vip') || 
                 portalLoading
               }
-              className="w-full py-6 rounded-xl font-semibold transition-all duration-300 bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-[1.02] disabled:opacity-50 disabled:scale-100"
+              className="w-full py-3.5 rounded-xl font-semibold transition-all duration-300 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground hover:scale-[1.02] disabled:opacity-50 disabled:scale-100"
             >
               {(currentPlan === 'vip' && plan.id === 'vip')
                 ? (portalLoading ? 'Opening Portal...' : 'Manage Subscription') 

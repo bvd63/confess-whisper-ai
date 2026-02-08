@@ -48,14 +48,9 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     isPopular: true,
     benefits: [
       'Unlimited daily confessions',
-      'Priority AI responses & insights',
-      'Double coins for streaks',
+      'VIP crown badge',
       '250 coins bonus on signup',
-      'Private confessions feature',
       'Exclusive VIP badges & flairs',
-      'Advanced analytics dashboard',
-      'Early access to new features',
-      'Priority customer support',
     ],
   },
 ];
