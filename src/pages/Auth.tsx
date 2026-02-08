@@ -462,7 +462,7 @@ const Auth = () => {
             )}
 
             {/* Action buttons area - flex column with responsive gap */}
-            <div className="flex flex-col" style={{ paddingTop: 'clamp(6px, 1.5vh, 16px)', gap: 'clamp(10px, 2vh, 20px)' }}>
+            <div className="flex flex-col" style={{ paddingTop: 'clamp(12px, 3vh, 32px)', gap: 'clamp(10px, 2vh, 20px)' }}>
               {/* Primary Login Button - Gradient with Glow */}
               <button
                 type="submit"
@@ -634,7 +634,7 @@ const Auth = () => {
             </div>
 
             {/* Action buttons area - flex column with responsive gap */}
-            <div className="flex flex-col" style={{ paddingTop: 'clamp(6px, 1.5vh, 12px)', gap: 'clamp(10px, 2vh, 20px)' }}>
+            <div className="flex flex-col" style={{ paddingTop: 'clamp(12px, 3vh, 32px)', gap: 'clamp(10px, 2vh, 20px)' }}>
               {/* Primary Signup Button */}
               <button
                 type="submit"
