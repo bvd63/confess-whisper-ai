@@ -22,15 +22,18 @@ import { logError } from "@/lib/logger";
 // Shared layout wrapper for consistent positioning - no scroll, adaptive spacing
 // MUST be defined outside the Auth component to prevent remounting on state changes
 const AuthLayout = ({ children }: { children: React.ReactNode }) => (
-  <div className="h-[100dvh] bg-background flex flex-col items-center justify-center px-6 overflow-hidden">
-    {/* Centered header */}
+  <div className="h-[100dvh] bg-background flex flex-col px-6 overflow-hidden">
+    {/* Adaptive top spacing */}
+    <div className="shrink-0" style={{ height: 'clamp(12px, 3.5vh, 48px)' }} />
+
+    {/* Title pinned near top */}
     <h1 className="text-3xl font-bold text-center shrink-0" style={{ marginBottom: 'clamp(8px, 2vh, 24px)' }}>
       <span className="text-foreground">Confess</span>
       <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
     </h1>
-    
-    {/* Form content - centered by parent flex */}
-    <div className="max-w-sm w-full flex flex-col min-h-0">
+
+    {/* Form content - centered in remaining space */}
+    <div className="max-w-sm mx-auto w-full flex-1 flex flex-col justify-center min-h-0">
       {children}
     </div>
   </div>
