@@ -1575,6 +1575,12 @@ type Translations = {
   subscription_change_to_plan: string;
   subscription_free: string;
   subscription_trial_available: string;
+  manage_subscription_title: string;
+  manage_sub_current_plan_free: string;
+  manage_sub_current_plan_desc: string;
+  manage_sub_vip_plan: string;
+  manage_sub_benefits: string;
+  manage_sub_upgrade_to_vip: string;
   
   // Subscription Benefits - Free
   subscription_benefits_free_confessions: string;
@@ -3007,6 +3013,12 @@ export const translations: Record<Language, Translations> = {
     subscription_change_to_plan: "Change to {plan}",
     subscription_free: "Free",
     subscription_trial_available: "3-Day Free Trial Available",
+    manage_subscription_title: "Manage Subscription",
+    manage_sub_current_plan_free: "Current plan – FREE",
+    manage_sub_current_plan_desc: "Basic access to your confessions.",
+    manage_sub_vip_plan: "VIP Plan",
+    manage_sub_benefits: "Benefits",
+    manage_sub_upgrade_to_vip: "Upgrade to VIP",
     
     // Subscription Benefits - Free
     subscription_benefits_free_confessions: "Limited confessions per day",
@@ -5374,6 +5386,12 @@ export const translations: Record<Language, Translations> = {
     subscription_change_to_plan: "Cambiar a {plan}",
     subscription_free: "Gratis",
     subscription_trial_available: "Prueba Gratis de 3 Días Disponible",
+    manage_subscription_title: "Gestionar Suscripción",
+    manage_sub_current_plan_free: "Plan actual – GRATIS",
+    manage_sub_current_plan_desc: "Acceso básico a tus confesiones.",
+    manage_sub_vip_plan: "Plan VIP",
+    manage_sub_benefits: "Beneficios",
+    manage_sub_upgrade_to_vip: "Mejorar a VIP",
     
     // Subscription Benefits - Free
     subscription_benefits_free_confessions: "Confesiones limitadas por día",
@@ -7371,6 +7389,12 @@ export const translations: Record<Language, Translations> = {
     subscription_change_to_plan: "Zu {plan} wechseln",
     subscription_free: "Kostenlos",
     subscription_trial_available: "3-Tägige Testversion Verfügbar",
+    manage_subscription_title: "Abo verwalten",
+    manage_sub_current_plan_free: "Aktueller Plan – KOSTENLOS",
+    manage_sub_current_plan_desc: "Grundlegender Zugang zu deinen Beichten.",
+    manage_sub_vip_plan: "VIP Plan",
+    manage_sub_benefits: "Vorteile",
+    manage_sub_upgrade_to_vip: "Auf VIP upgraden",
     
     // Subscription Benefits - Free
     subscription_benefits_free_confessions: "Begrenzte Geständnisse pro Tag",

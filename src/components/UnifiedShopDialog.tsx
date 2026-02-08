@@ -255,33 +255,27 @@ export const UnifiedShopDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
         data-testid="manage-subscription-modal"
-        className="max-w-5xl max-h-[90vh] overflow-y-auto bg-background border-border rounded-3xl p-0"
+        className="max-w-md max-h-[90vh] overflow-y-auto bg-background border-border rounded-3xl p-0"
       >
-        <DialogHeader className="sticky top-0 z-10 glass-strong border-b border-border px-6 py-5">
+        <DialogHeader className="sticky top-0 z-10 glass-strong border-b border-border px-5 py-4">
           <div className="flex items-center gap-3 relative">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-primary-pressed flex items-center justify-center shadow-lg shadow-primary/25">
-              <Crown className="w-5 h-5 text-white" />
-            </div>
             <div className="flex-1">
-              <DialogTitle className="text-2xl font-bold text-foreground">
-                Subscription & Coins
+              <DialogTitle className="text-xl font-bold text-foreground">
+                {t.manage_subscription_title}
               </DialogTitle>
-              <p className="text-sm text-foreground-secondary mt-0.5">
-                Manage your subscription and purchase coins
-              </p>
             </div>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => onOpenChange(false)}
-              className="absolute right-0 top-0 h-9 w-9 rounded-xl hover:bg-muted"
+              className="h-8 w-8 rounded-xl hover:bg-muted"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4" />
             </Button>
           </div>
         </DialogHeader>
 
-        <div className="px-6 py-6">
+        <div className="px-5 py-4">
           <Tabs key={`${open}-${defaultTab}`} defaultValue={defaultTab} className="w-full">
             {/* Tab triggers hidden — navigation handled via defaultTab prop */}
 
@@ -301,7 +295,7 @@ export const UnifiedShopDialog = ({
                   interval={interval}
                   onIntervalChange={setInterval}
                 />
-                <p className="text-center text-sm text-foreground-muted mt-8 px-4">
+                <p className="text-center text-xs text-muted-foreground mt-4">
                   You can cancel anytime from account settings. No long-term commitments.
                 </p>
               </>
