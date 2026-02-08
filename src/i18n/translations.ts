@@ -313,6 +313,7 @@ type Translations = {
   auth_error: string;
   auth_error_generic: string;
   auth_captcha_failed: string;
+  captcha_verify_human: string;
   auth_session_revoked: string;
   auth_all_sessions_revoked: string;
   auth_device_mismatch: string;
@@ -2634,6 +2635,7 @@ export const translations: Record<Language, Translations> = {
     auth_error: "Error",
     auth_error_generic: "An error occurred. Please try again.",
     auth_captcha_failed: "CAPTCHA verification failed. Please try again.",
+    captcha_verify_human: "Verify you're human",
     auth_session_revoked: "Session revoked successfully.",
     auth_all_sessions_revoked: "All sessions revoked. Please log in again.",
     auth_device_mismatch: "Device mismatch detected. Please log in again.",
@@ -4367,6 +4369,7 @@ export const translations: Record<Language, Translations> = {
     auth_error: "Error",
     auth_error_generic: "Ocurrió un error. Por favor, inténtalo de nuevo.",
     auth_captcha_failed: "Verificación CAPTCHA fallida. Por favor, inténtalo de nuevo.",
+    captcha_verify_human: "Verifica que eres humano",
     auth_session_revoked: "Sesión revocada exitosamente.",
     auth_all_sessions_revoked: "Todas las sesiones revocadas. Por favor, inicia sesión nuevamente.",
     auth_device_mismatch: "Dispositivo no coincidente detectado. Por favor, inicia sesión nuevamente.",
@@ -6357,6 +6360,7 @@ export const translations: Record<Language, Translations> = {
     auth_error: "Fehler",
     auth_error_generic: "Ein Fehler ist aufgetreten. Bitte versuche es erneut.",
     auth_captcha_failed: "CAPTCHA-Verifizierung fehlgeschlagen. Bitte versuche es erneut.",
+    captcha_verify_human: "Bestätige, dass du ein Mensch bist",
     auth_session_revoked: "Sitzung erfolgreich widerrufen.",
     auth_all_sessions_revoked: "Alle Sitzungen widerrufen. Bitte melde dich erneut an.",
     auth_device_mismatch: "Gerätekonflikt erkannt. Bitte melde dich erneut an.",

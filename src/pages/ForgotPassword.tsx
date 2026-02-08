@@ -186,7 +186,7 @@ export default function ForgotPassword() {
       {showCaptchaModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
           <div className="bg-card border border-border rounded-2xl p-6 shadow-xl max-w-sm w-full mx-4">
-            <h3 className="text-lg font-semibold text-center mb-4">Verify you're human</h3>
+            <h3 className="text-lg font-semibold text-center mb-4">{t.captcha_verify_human}</h3>
             <div className="flex justify-center mb-4">
               <Turnstile
                 siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
@@ -219,7 +219,7 @@ export default function ForgotPassword() {
               }}
               className="w-full h-10 rounded-full border border-muted-foreground/20 text-muted-foreground text-sm hover:bg-muted/50 transition-colors"
             >
-              Cancel
+              {t.common_cancel}
             </button>
           </div>
         </div>
