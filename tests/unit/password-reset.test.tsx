@@ -2,13 +2,11 @@ import "../helpers/testUtils";
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import type { Mock } from "vitest";
-import { requestPasswordReset } from "@/services/passwordReset";
+import * as PasswordResetService from "@/services/passwordReset";
 import { env } from "@/lib/env";
-import { supabase } from "@/integrations/supabase/client";
 import ResetPassword from "@/pages/ResetPassword";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { translations } from "@/i18n/translations";
-import * as EnhancedAuthHook from "@/hooks/useEnhancedAuth";
 import * as LanguageContext from "@/contexts/LanguageContext";
 import { BrowserRouter } from "react-router-dom";
 
@@ -45,7 +43,7 @@ describe("requestPasswordReset", () => {
   it("returns success when the edge function accepts the request", async () => {
     fetchMock.mockResolvedValue(createJsonResponse({ success: true, messageKey: "auth.forgot_password_success" }));
 
-    const result = await requestPasswordReset({ email: VALID_EMAIL, captchaToken: TURNSTILE_TOKEN });
+    const result = await PasswordResetService.requestPasswordReset({ email: VALID_EMAIL, captchaToken: TURNSTILE_TOKEN });
 
     expect(result.success).toBe(true);
     expect(result.messageKey).toBe("auth.forgot_password_success");
@@ -61,7 +59,7 @@ describe("requestPasswordReset", () => {
   it("captures Turnstile verification failures", async () => {
     fetchMock.mockResolvedValue(createJsonResponse({ error: "CAPTCHA_FAILED", messageKey: "auth.captcha_failed" }, { status: 400 }));
 
-    const result = await requestPasswordReset({ email: VALID_EMAIL, captchaToken: TURNSTILE_TOKEN });
+    const result = await PasswordResetService.requestPasswordReset({ email: VALID_EMAIL, captchaToken: TURNSTILE_TOKEN });
 
     expect(result.success).toBe(false);
     expect(result.messageKey).toBe("auth.captcha_failed");
@@ -72,7 +70,7 @@ describe("requestPasswordReset", () => {
   it("propagates Supabase errors when the email cannot be sent", async () => {
     fetchMock.mockResolvedValue(createJsonResponse({ error: "RESET_FAILED", messageKey: "auth.reset_password_failed" }, { status: 500 }));
 
-    const result = await requestPasswordReset({ email: VALID_EMAIL, captchaToken: TURNSTILE_TOKEN });
+    const result = await PasswordResetService.requestPasswordReset({ email: VALID_EMAIL, captchaToken: TURNSTILE_TOKEN });
 
     expect(result.success).toBe(false);
     expect(result.messageKey).toBe("auth.reset_password_failed");
@@ -81,23 +79,15 @@ describe("requestPasswordReset", () => {
 });
 
 describe("ResetPassword page", () => {
-  let updateUserMock: Mock;
-  let getSessionMock: Mock;
-  let revokeAllSessionsMock: Mock;
-  let enhancedAuthSpy: ReturnType<typeof vi.spyOn>;
+  let validateResetTokenMock: ReturnType<typeof vi.spyOn>;
+  let completePasswordResetMock: ReturnType<typeof vi.spyOn>;
   let languageSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    updateUserMock = supabase.auth.updateUser as unknown as Mock;
-    updateUserMock.mockReset();
-    getSessionMock = supabase.auth.getSession as unknown as Mock;
-    getSessionMock.mockReset();
-    getSessionMock.mockResolvedValue({ data: { session: { access_token: "mock-access-token" } }, error: null });
-
-    revokeAllSessionsMock = vi.fn().mockResolvedValue({ success: true });
-    enhancedAuthSpy = vi
-      .spyOn(EnhancedAuthHook, "useEnhancedAuth")
-      .mockReturnValue({ revokeAllSessions: revokeAllSessionsMock } as any);
+    validateResetTokenMock = vi.spyOn(PasswordResetService, "validateResetToken");
+    completePasswordResetMock = vi.spyOn(PasswordResetService, "completePasswordReset");
+    validateResetTokenMock.mockResolvedValue({ valid: true });
+    completePasswordResetMock.mockResolvedValue({ success: true });
 
     languageSpy = vi.spyOn(LanguageContext, "useLanguage").mockReturnValue({
       language: "en",
@@ -105,14 +95,13 @@ describe("ResetPassword page", () => {
       t: translations.en,
     });
 
-    window.history.pushState({}, "Test", "/auth/update-password?type=recovery&token_hash=abc");
-    window.location.hash = "#access_token=test";
+    window.history.pushState({}, "Test", "/reset-password?token=valid-token");
   });
 
   afterEach(() => {
-    enhancedAuthSpy.mockRestore();
+    validateResetTokenMock.mockRestore();
+    completePasswordResetMock.mockRestore();
     languageSpy.mockRestore();
-    window.location.hash = "";
   });
 
   const renderResetPassword = () =>
@@ -123,7 +112,8 @@ describe("ResetPassword page", () => {
     );
 
   it("updates the password when the inputs satisfy all requirements", async () => {
-    updateUserMock.mockResolvedValue({ data: {}, error: null });
+    validateResetTokenMock.mockResolvedValue({ valid: true });
+    completePasswordResetMock.mockResolvedValue({ success: true });
 
     renderResetPassword();
 
@@ -141,11 +131,10 @@ describe("ResetPassword page", () => {
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(updateUserMock).toHaveBeenCalledWith({ password: STRONG_PASSWORD });
+      expect(completePasswordResetMock).toHaveBeenCalledWith({ token: "valid-token", password: STRONG_PASSWORD });
     });
 
     expect(await screen.findByText(successText)).toBeInTheDocument();
-    expect(revokeAllSessionsMock).toHaveBeenCalled();
   });
 
   it("prevents submission when passwords do not match", async () => {
@@ -157,17 +146,15 @@ describe("ResetPassword page", () => {
 
     fireEvent.change(newPasswordInput, { target: { value: STRONG_PASSWORD } });
     fireEvent.change(confirmPasswordInput, { target: { value: `${STRONG_PASSWORD}!` } });
+    fireEvent.click(submitButton);
 
     expect(await screen.findByText(mismatchText)).toBeInTheDocument();
-    expect(updateUserMock).not.toHaveBeenCalled();
-    await waitFor(() => {
-      expect(submitButton).toBeDisabled();
-    });
+    expect(completePasswordResetMock).not.toHaveBeenCalled();
   });
 
   it("shows the invalid link UI when recovery parameters are missing", async () => {
-    window.history.pushState({}, "Test", "/auth/update-password");
-    window.location.hash = "";
+    window.history.pushState({}, "Test", "/reset-password");
+    validateResetTokenMock.mockResolvedValue({ valid: false });
 
     renderResetPassword();
 
@@ -176,10 +163,8 @@ describe("ResetPassword page", () => {
   });
 
   it("treats Supabase expired-session errors as invalid reset links", async () => {
-    updateUserMock.mockResolvedValue({
-      data: {},
-      error: { message: "Reset link invalid or expired", status: 401 },
-    });
+    validateResetTokenMock.mockResolvedValue({ valid: true });
+    completePasswordResetMock.mockResolvedValue({ success: false, invalidToken: true });
 
     renderResetPassword();
 

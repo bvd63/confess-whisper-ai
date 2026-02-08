@@ -312,6 +312,7 @@ type Translations = {
   auth_signup_success: string;
   auth_error: string;
   auth_error_generic: string;
+  auth_captcha_required: string;
   auth_captcha_failed: string;
   captcha_verify_human: string;
   auth_session_revoked: string;
@@ -2636,6 +2637,7 @@ export const translations: Record<Language, Translations> = {
     auth_signup_success: "Account created successfully! 🎉",
     auth_error: "Error",
     auth_error_generic: "An error occurred. Please try again.",
+    auth_captcha_required: "Please complete verification to continue.",
     auth_captcha_failed: "Verification failed. Please try again.",
     auth_captcha_verify_prompt: "For security reasons, please verify you're human.",
     auth_reset_rate_limited: "You’ve requested too many reset links. Please try again later.",
@@ -4372,6 +4374,7 @@ export const translations: Record<Language, Translations> = {
     auth_signup_success: "¡Cuenta creada exitosamente! 🎉",
     auth_error: "Error",
     auth_error_generic: "Ocurrió un error. Por favor, inténtalo de nuevo.",
+    auth_captcha_required: "Por favor completa la verificación para continuar.",
     auth_captcha_failed: "La verificación falló. Por favor, inténtalo de nuevo.",
     captcha_verify_human: "Verifica que eres humano",
     auth_session_revoked: "Sesión revocada exitosamente.",
@@ -6365,6 +6368,7 @@ export const translations: Record<Language, Translations> = {
     auth_signup_success: "Konto erfolgreich erstellt! 🎉",
     auth_error: "Fehler",
     auth_error_generic: "Ein Fehler ist aufgetreten. Bitte versuche es erneut.",
+    auth_captcha_required: "Bitte schließe die Verifizierung ab, um fortzufahren.",
     auth_captcha_failed: "Die Verifizierung ist fehlgeschlagen. Bitte versuche es erneut.",
     auth_captcha_verify_prompt: "Aus Sicherheitsgründen bestätige bitte, dass du ein Mensch bist.",
     captcha_verify_human: "Bestätige, dass du ein Mensch bist",

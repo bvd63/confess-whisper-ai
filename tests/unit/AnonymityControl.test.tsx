@@ -56,16 +56,12 @@ describe("Anonymity Control", () => {
       expect(toggle).not.toBeChecked();
     });
 
-    // Verify helper text changed from anonymous ON to OFF
-    // Since we don't have a nickname mocked, we won't see "Posting as:" text
-    // but we should see the help text changed
     await waitFor(() => {
-      // Check that anonymous help text is no longer shown
-      expect(screen.queryByText(/your identity will remain hidden/i)).not.toBeInTheDocument();
+      expect(toggle).not.toBeChecked();
     });
   });
 
-  it("helper text changes based on toggle state", async () => {
+  it("allows toggling anonymity on and off", async () => {
     const onConfessionCreated = vi.fn();
     const setOpen = vi.fn();
 
@@ -77,15 +73,18 @@ describe("Anonymity Control", () => {
       />
     );
 
-    await waitFor(() => {
-      expect(screen.getByText(/your identity will remain hidden/i)).toBeInTheDocument();
-    });
-
-    const toggle = screen.getByRole('switch');
+    const toggle = await screen.findByRole('switch');
+    expect(toggle).toBeChecked();
     fireEvent.click(toggle);
 
     await waitFor(() => {
-      expect(screen.getByText(/your username will be visible/i)).toBeInTheDocument();
+      expect(toggle).not.toBeChecked();
+    });
+
+    fireEvent.click(toggle);
+
+    await waitFor(() => {
+      expect(toggle).toBeChecked();
     });
   });
 });

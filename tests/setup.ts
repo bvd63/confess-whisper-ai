@@ -110,16 +110,23 @@ vi.mock('@/integrations/supabase/client', () => {
             select: vi.fn((_cols?: any, _opts?: any) => makeProfilesSelect()),
           } as any;
         }
+        if (table === 'public_profiles') {
+          return {
+            select: vi.fn((_cols?: any, _opts?: any) => ({
+              gte: vi.fn(async () => ({ count: 0, data: null, error: null })),
+            })),
+          } as any;
+        }
         return {
           select: vi.fn(() => ({
             eq: vi.fn(() => ({ maybeSingle: vi.fn(() => mkResolved()), single: vi.fn(() => mkResolved()) })),
             maybeSingle: vi.fn(() => mkResolved()),
             single: vi.fn(() => mkResolved()),
+            gte: vi.fn(async () => ({ count: 0, data: null, error: null })),
           })),
           insert: vi.fn(() => ({ select: vi.fn(() => ({ single: vi.fn(() => mkResolved()) })) })),
           update: vi.fn(() => ({ eq: vi.fn(() => ({ select: vi.fn(() => ({ single: vi.fn(() => mkResolved()) })) })) })),
           delete: vi.fn(() => ({ eq: vi.fn(() => mkResolved()) })),
-          gte: vi.fn(async () => ({ count: 0, data: null, error: null })),
         } as any;
       }),
       channel: vi.fn(() => ({ on: vi.fn(function (this: any) { return this; }), subscribe: vi.fn(() => ({ unsubscribe: vi.fn() })) })),

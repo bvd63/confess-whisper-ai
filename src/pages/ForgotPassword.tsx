@@ -54,22 +54,28 @@ export default function ForgotPassword() {
         captchaToken: token,
       });
 
+      const captchaRequiredByMessage = result.messageKey === "auth.captcha_required" || result.messageKey === "CAPTCHA_REQUIRED";
+      const captchaFailedByMessage = result.messageKey === "auth.captcha_failed";
+
       if (result.rateLimited) {
         setError(t.auth_reset_rate_limited || t.common_rate_limit);
         setCaptchaToken("");
         return;
       }
 
-      if (result.captchaRequired) {
+      if (result.captchaRequired || captchaRequiredByMessage) {
         setShowCaptchaModal(true);
+        setTurnstileError(false);
         setCaptchaToken("");
         return;
       }
 
-      if (result.captchaFailed) {
+      if (result.captchaFailed || captchaFailedByMessage) {
         setShowCaptchaModal(true);
         setTurnstileError(true);
-        setCaptchaToken("");
+        if (result.shouldResetCaptcha !== false) {
+          setCaptchaToken("");
+        }
         return;
       }
 

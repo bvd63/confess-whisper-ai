@@ -117,7 +117,7 @@ vi.mock("@marsidev/react-turnstile", () => ({
   Turnstile: () => null,
 }));
 
-const submitButtonText = /Submit confession/i;
+const submitButtonText = /Get AI response/i;
 const successTitle = "Your confession was sent! 💜";
 const rateLimitMessage = "Too many requests. Please try again later.";
 const moderationMessage = "Content not allowed. Please rephrase.";
@@ -195,7 +195,13 @@ describe("NewConfessionDialog", () => {
 
     await enterConfession();
 
-    fireEvent.click(await screen.findByRole("button", { name: submitButtonText }));
+    const generateButton = await screen.findByRole("button", { name: submitButtonText });
+    fireEvent.click(generateButton);
+
+    await waitFor(() => expect(getAiReplyMock).toHaveBeenCalled());
+
+    const postButton = await screen.findByRole("button", { name: /Post confession/i });
+    fireEvent.click(postButton);
 
     await waitFor(() =>
       expect(functionsInvokeMock).toHaveBeenCalledWith(
@@ -236,7 +242,13 @@ describe("NewConfessionDialog", () => {
     const { onConfessionCreated, onOpenChange } = renderDialog();
 
     await enterConfession();
-    fireEvent.click(await screen.findByRole("button", { name: submitButtonText }));
+  const generateButton = await screen.findByRole("button", { name: submitButtonText });
+  fireEvent.click(generateButton);
+
+  await waitFor(() => expect(getAiReplyMock).toHaveBeenCalled());
+
+  const postButton = await screen.findByRole("button", { name: /Post confession/i });
+  fireEvent.click(postButton);
 
     await waitFor(() =>
       expect(toastMock).toHaveBeenCalledWith(
