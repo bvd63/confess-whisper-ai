@@ -47,6 +47,7 @@ export default function ForgotPassword() {
     const tokenToSend = token || captchaTokenRef.current || undefined;
     if (import.meta.env.DEV) {
       console.log("sending_reset_request_with_token_length", tokenToSend?.length ?? 0);
+      console.log("INVOKING_ENHANCED_AUTH", email.trim());
     }
     setIsLoading(true);
     setError("");
@@ -109,6 +110,9 @@ export default function ForgotPassword() {
   };
 
   const handleSubmit = (e: React.FormEvent) => {
+    if (import.meta.env.DEV) {
+      console.log("FORGOT_PASSWORD_HANDLER_RAN");
+    }
     e.preventDefault();
     if (!validateEmail()) return;
     handleResetRequest();
