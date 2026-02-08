@@ -1,5 +1,6 @@
 import { env } from "@/lib/env";
 import { logError } from "@/lib/logger";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface PasswordResetRequestResult {
   success: boolean;
@@ -21,32 +22,24 @@ export async function requestPasswordReset(
   payload: PasswordResetRequestPayload,
 ): Promise<PasswordResetRequestResult> {
   const { email, captchaToken } = payload;
-  const endpoint = `${env.client.supabaseUrl.replace(/\/$/, "")}/functions/v1/enhanced-auth?action=request-password-reset`;
 
   try {
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: env.client.supabaseAnonKey,
-        Authorization: `Bearer ${env.client.supabaseAnonKey}`,
+    const { data, error } = await supabase.functions.invoke("enhanced-auth", {
+      body: {
+        action: "request-password-reset",
+        email,
+        captchaToken: captchaToken ?? null,
       },
-      body: JSON.stringify({ email, captchaToken }),
     });
 
-    let body: Record<string, unknown> | undefined;
-    try {
-      body = await response.json();
-    } catch (parseError) {
-      console.warn("[passwordReset] Failed to parse response body", parseError);
-    }
-
-    const retryAfterHeader = response.headers.get("Retry-After");
+    const body = (data as Record<string, unknown>) ?? {};
+    const status = (error as any)?.status ?? 200;
+    const retryAfterHeader = (error as any)?.headers?.["Retry-After"] ?? undefined;
     const retryAfter = (body?.retry_after as number | undefined)
       ?? (body?.retryAfter as number | undefined)
       ?? (retryAfterHeader ? Number(retryAfterHeader) : undefined);
 
-    if (response.status === 429 || body?.rate_limited || body?.rateLimited) {
+    if (status === 429 || body?.rate_limited || body?.rateLimited) {
       return {
         success: false,
         rateLimited: true,
@@ -75,18 +68,18 @@ export async function requestPasswordReset(
       };
     }
 
-    if (!response.ok) {
+    if (error) {
       const messageFromBody = typeof body?.messageKey === "string"
         ? body.messageKey
         : typeof body?.error === "string"
           ? body.error
-          : "auth.reset_password_failed";
+          : (error as any)?.message ?? "auth.reset_password_failed";
 
       return {
         success: false,
         messageKey: messageFromBody,
         retryAfter: Number.isFinite(retryAfter) ? Number(retryAfter) : undefined,
-        status: response.status,
+        status,
         shouldResetCaptcha: true,
       };
     }
