@@ -44,7 +44,7 @@ export default function ForgotPassword() {
   };
 
   const handleResetRequest = async (token?: string) => {
-    const tokenToSend = token ?? captchaTokenRef.current || undefined;
+    const tokenToSend = token ?? captchaTokenRef.current ?? undefined;
     if (import.meta.env.DEV) {
       console.log("sending_reset_request_with_token_length", tokenToSend?.length ?? 0);
     }
