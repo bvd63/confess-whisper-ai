@@ -293,6 +293,8 @@ type Translations = {
   auth_logging_in: string;
   auth_sending_reset_link: string;
   auth_creating_account: string;
+  auth_continue_apple: string;
+  auth_apple_coming_soon: string;
   auth_login_button: string;
   auth_signup_button: string;
   auth_no_account: string;
@@ -2619,6 +2621,8 @@ export const translations: Record<Language, Translations> = {
     auth_logging_in: "Logging in...",
     auth_sending_reset_link: "Sending reset link...",
     auth_creating_account: "Creating account...",
+    auth_continue_apple: "Continue with Apple",
+    auth_apple_coming_soon: "Sign in with Apple will be available soon.",
     auth_login_button: "Login",
     auth_signup_button: "Sign Up",
     auth_no_account: "No account?",
@@ -4357,6 +4361,8 @@ export const translations: Record<Language, Translations> = {
     auth_logging_in: "Iniciando sesión...",
     auth_sending_reset_link: "Enviando enlace de restablecimiento...",
     auth_creating_account: "Creando cuenta...",
+    auth_continue_apple: "Continuar con Apple",
+    auth_apple_coming_soon: "Iniciar sesión con Apple estará disponible pronto.",
     auth_login_button: "Iniciar Sesión",
     auth_signup_button: "Registrarse",
     auth_no_account: "¿No tienes cuenta?",
@@ -6352,6 +6358,8 @@ export const translations: Record<Language, Translations> = {
     auth_logging_in: "Anmeldung läuft...",
     auth_sending_reset_link: "Zurücksetz-Link wird gesendet...",
     auth_creating_account: "Konto wird erstellt...",
+    auth_continue_apple: "Mit Apple fortfahren",
+    auth_apple_coming_soon: "Mit Apple anmelden ist bald verfügbar.",
     auth_login_button: "Anmelden",
     auth_signup_button: "Registrieren",
     auth_no_account: "Kein Konto?",
