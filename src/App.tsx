@@ -78,7 +78,22 @@ const AppContent = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showVIPOnboarding, setShowVIPOnboarding] = useState(false);
   const [onboardingChecked, setOnboardingChecked] = useState(false);
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
   const { trialStatus } = useTrialStatus();
+
+  // Detect PASSWORD_RECOVERY auth event and suppress modals
+  useEffect(() => {
+    const supabase = getSupabase();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsPasswordRecovery(true);
+      } else if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
+        // Reset flag on normal auth events (password updated, login, logout)
+        setIsPasswordRecovery(false);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Check if onboarding is needed
   useEffect(() => {
@@ -212,16 +227,16 @@ const AppContent = () => {
       <div data-testid="app-ready" style={{ display: 'none' }} />
       
       
-      {/* Trial banner */}
-      {trialStatus.isActive && trialStatus.daysRemaining !== null && trialStatus.daysRemaining <= 3 && (
+      {/* Trial banner - hidden during password recovery */}
+      {!isPasswordRecovery && trialStatus.isActive && trialStatus.daysRemaining !== null && trialStatus.daysRemaining <= 3 && (
         <TrialBanner 
           daysRemaining={trialStatus.daysRemaining} 
           onUpgrade={() => navigate('/profile?section=subscription')}
         />
       )}
       
-      {/* VIP Onboarding modal for new users */}
-      {onboardingChecked && showVIPOnboarding && user && (
+      {/* VIP Onboarding modal for new users - hidden during password recovery */}
+      {!isPasswordRecovery && onboardingChecked && showVIPOnboarding && user && (
         <VIPOnboardingModal
           open={showVIPOnboarding}
           onOpenChange={setShowVIPOnboarding}
@@ -231,8 +246,8 @@ const AppContent = () => {
         />
       )}
       
-      {/* Regular onboarding overlay for users who skipped VIP trial */}
-      {onboardingChecked && showOnboarding && user && (
+      {/* Regular onboarding overlay for users who skipped VIP trial - hidden during password recovery */}
+      {!isPasswordRecovery && onboardingChecked && showOnboarding && user && (
         <Onboarding
           userId={user.id}
           onComplete={() => {
