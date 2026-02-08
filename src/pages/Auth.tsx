@@ -24,7 +24,7 @@ import { logError } from "@/lib/logger";
 const AuthLayout = ({ children }: { children: React.ReactNode }) => (
   <div className="h-[100dvh] bg-background flex flex-col px-6 overflow-hidden">
     {/* Adaptive top spacing - scales down on short screens */}
-    <div className="shrink-0" style={{ height: 'clamp(16px, 5vh, 64px)' }} />
+    <div className="shrink-0" style={{ height: 'clamp(12px, 3.5vh, 48px)' }} />
     
     {/* Centered header - fixed position relative to top */}
     <h1 className="text-3xl font-bold text-center shrink-0" style={{ marginBottom: 'clamp(8px, 2vh, 24px)' }}>
@@ -459,8 +459,9 @@ const Auth = () => {
               </div>
             )}
 
-            {/* Primary Login Button - Gradient with Glow */}
-            <div style={{ paddingTop: 'clamp(4px, 1vh, 12px)' }}>
+            {/* Action buttons area - flex column with responsive gap */}
+            <div className="flex flex-col" style={{ paddingTop: 'clamp(6px, 1.5vh, 16px)', gap: 'clamp(10px, 2vh, 20px)' }}>
+              {/* Primary Login Button - Gradient with Glow */}
               <button
                 type="submit"
                 disabled={isLoading || !isFormValid()}
@@ -476,11 +477,9 @@ const Auth = () => {
                   t.auth_login_button || "Log in"
                 )}
               </button>
-            </div>
 
-            {/* Apple Sign In Button (iOS only, coming soon) */}
-            {showAppleButton && (
-              <div style={{ paddingTop: 'clamp(4px, 0.8vh, 8px)' }}>
+              {/* Apple Sign In Button (iOS only, coming soon) */}
+              {showAppleButton && (
                 <button
                   type="button"
                   onClick={handleAppleComingSoon}
@@ -492,11 +491,9 @@ const Auth = () => {
                   </svg>
                   {t.auth_continue_apple}
                 </button>
-              </div>
-            )}
+              )}
 
-            {/* Google Sign In Button */}
-            <div style={{ paddingTop: 'clamp(4px, 0.8vh, 8px)' }}>
+              {/* Google Sign In Button */}
               <button
                 type="button"
                 onClick={handleGoogleSignIn}
@@ -634,8 +631,9 @@ const Auth = () => {
               </div>
             </div>
 
-            {/* Primary Signup Button */}
-            <div style={{ paddingTop: 'clamp(4px, 1vh, 8px)' }}>
+            {/* Action buttons area - flex column with responsive gap */}
+            <div className="flex flex-col" style={{ paddingTop: 'clamp(6px, 1.5vh, 12px)', gap: 'clamp(10px, 2vh, 20px)' }}>
+              {/* Primary Signup Button */}
               <button
                 type="submit"
                 disabled={isLoading || !isFormValid()}
@@ -651,11 +649,9 @@ const Auth = () => {
                   t.auth_signup_button
                 )}
               </button>
-            </div>
 
-            {/* Apple Sign In Button (iOS only, coming soon) */}
-            {showAppleButton && (
-              <div style={{ paddingTop: 'clamp(4px, 0.8vh, 8px)' }}>
+              {/* Apple Sign In Button (iOS only, coming soon) */}
+              {showAppleButton && (
                 <button
                   type="button"
                   onClick={handleAppleComingSoon}
@@ -667,11 +663,9 @@ const Auth = () => {
                   </svg>
                   {t.auth_continue_apple}
                 </button>
-              </div>
-            )}
+              )}
 
-            {/* Google Sign In Button */}
-            <div style={{ paddingTop: 'clamp(4px, 0.8vh, 8px)' }}>
+              {/* Google Sign In Button */}
               <button
                 type="button"
                 onClick={handleGoogleSignIn}
