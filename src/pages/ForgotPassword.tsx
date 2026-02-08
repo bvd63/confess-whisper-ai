@@ -1,17 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AnimatedCard } from "@/components/AnimatedCard";
-import { GradientText } from "@/components/GradientText";
-import { EnhancedButton } from "@/components/EnhancedButton";
 import { Input } from "@/components/ui/input";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Heart, Mail, Loader2, ArrowLeft, CheckCircle2, AlertCircle } from "lucide-react";
+import { Mail, Loader2, AlertCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { z } from "zod";
 import { logError } from "@/lib/logger";
 import { requestPasswordReset } from "@/services/passwordReset";
-import { env } from "@/lib/env";
+import { cn } from "@/lib/utils";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
@@ -21,6 +17,8 @@ export default function ForgotPassword() {
   const [captchaToken, setCaptchaToken] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [showCaptchaModal, setShowCaptchaModal] = useState(false);
+  const [turnstileError, setTurnstileError] = useState(false);
 
   const emailSchema = z.string().email(t.auth_invalid_email);
 
@@ -44,21 +42,23 @@ export default function ForgotPassword() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Step 1: User clicks submit → validate email → show captcha modal
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateEmail()) return;
+    setShowCaptchaModal(true);
+  };
 
-    if (!validateEmail() || !captchaToken) {
-      if (!captchaToken) setError(t.auth_captcha_failed);
-      return;
-    }
-
+  // Step 2: After captcha success → auto-submit reset request
+  const processReset = async (token: string) => {
     setIsLoading(true);
     setError("");
+    setShowCaptchaModal(false);
 
     try {
       const result = await requestPasswordReset({
         email: email.trim(),
-        captchaToken,
+        captchaToken: token,
       });
 
       if (!result.success) {
@@ -66,9 +66,7 @@ export default function ForgotPassword() {
           ? t.common_rate_limit
           : translateMessageKey(result.messageKey);
         setError(message);
-        if (result.shouldResetCaptcha) {
-          setCaptchaToken("");
-        }
+        setCaptchaToken("");
         return;
       }
 
@@ -82,53 +80,54 @@ export default function ForgotPassword() {
     }
   };
 
-  const turnstileSiteKey = env.client.turnstileSiteKey || (env.isDev ? "1x00000000000000000000AA" : "");
+  // Success state
+  if (success) {
+    return (
+      <div className="h-[100dvh] bg-background flex flex-col px-6 overflow-hidden">
+        <div className="pt-[8vh] min-[500px]:pt-[10vh]" />
+        <h1 className="text-3xl font-bold text-center mb-5 min-[500px]:mb-6">
+          <span className="text-foreground">Confess</span>
+          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
+        </h1>
+        <div className="max-w-sm mx-auto w-full flex-1 flex flex-col">
+          <div className="animate-[fadeSlideIn_150ms_ease-out]">
+            <p className="text-sm text-muted-foreground text-center mb-6">
+              {t.auth_forgot_password_success}
+            </p>
+
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => navigate('/auth')}
+                className="w-full h-14 rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-base shadow-[0_0_30px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_40px_hsl(var(--primary)/0.7)] transition-all duration-300"
+              >
+                {t.auth_back_to_login}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <AnimatedCard
-        hover="glow"
-        glass
-        className="w-full max-w-md p-6 sm:p-8 border-primary/20"
-      >
-        {/* Logo & Title */}
-        <div className="text-center mb-8 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-primary via-primary-hover to-primary-pressed shadow-lg shadow-primary/25 mb-4">
-            <Heart className="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="currentColor" />
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2">
-            <GradientText variant="hero">{t.auth_forgot_password_title}</GradientText>
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {t.auth_forgot_password_desc}
-          </p>
-        </div>
+    <>
+      <div className="h-[100dvh] bg-background flex flex-col px-6 overflow-hidden">
+        <div className="pt-[8vh] min-[500px]:pt-[10vh]" />
+        <h1 className="text-3xl font-bold text-center mb-5 min-[500px]:mb-6">
+          <span className="text-foreground">Confess</span>
+          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
+        </h1>
+        <div className="max-w-sm mx-auto w-full flex-1 flex flex-col">
+          <div className="animate-[fadeSlideIn_150ms_ease-out]">
+            {/* Subtitle */}
+            <p className="text-sm text-muted-foreground text-center mb-6">
+              {t.auth_forgot_password_desc}
+            </p>
 
-        {success ? (
-          <div className="space-y-5">
-            <Alert className="border-green-500/20 bg-green-500/10 rounded-xl p-4">
-              <CheckCircle2 className="h-5 w-5 text-green-500" />
-              <AlertDescription className="text-green-600 dark:text-green-400 text-sm">
-                {t.auth_forgot_password_success}
-              </AlertDescription>
-            </Alert>
-            
-            <EnhancedButton
-              type="button"
-              onClick={() => navigate('/auth')}
-              className="w-full h-12 rounded-xl"
-              variant="outline"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              {t.auth_back_to_login}
-            </EnhancedButton>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email Field */}
-            <div className="space-y-2">
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
+            <form onSubmit={handleSubmit} className="space-y-2 min-[500px]:space-y-3">
+              {/* Email Input - Pill Style matching Login/Sign Up */}
+              <div>
                 <Input
                   type="email"
                   placeholder={t.auth_email_placeholder}
@@ -137,80 +136,94 @@ export default function ForgotPassword() {
                     setEmail(e.target.value);
                     setError("");
                   }}
-                  className="pl-10"
+                  className="h-14 rounded-full px-6 text-base bg-muted/50 border-muted-foreground/20 focus:border-primary focus:ring-primary/30"
                   disabled={isLoading}
                   autoComplete="email"
                 />
-              </div>
-              {error && (
-                <p className="text-xs text-destructive flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3" />
-                  {error}
+                <p className={cn(
+                  "text-xs px-3 h-4 leading-4 transition-opacity duration-200",
+                  error ? "text-rose-500/90 dark:text-rose-400/90 opacity-100" : "opacity-0"
+                )}>
+                  {error || "\u00A0"}
                 </p>
-              )}
+              </div>
+
+              {/* Primary Button - Gradient matching Login/Sign Up */}
+              <div className="pt-2 min-[500px]:pt-3">
+                <button
+                  type="submit"
+                  disabled={isLoading || !email}
+                  className="w-full h-14 rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-base shadow-[0_0_30px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_40px_hsl(var(--primary)/0.7)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      {t.auth_sending_reset_link}
+                    </span>
+                  ) : (
+                    t.auth_forgot_password_button
+                  )}
+                </button>
+              </div>
+            </form>
+
+            {/* Back to login link - pushed to bottom like Login/Sign Up */}
+            <div className="flex-1" />
+            <div className="py-4 min-[500px]:py-6 text-center">
+              <button
+                onClick={() => navigate('/auth')}
+                className="text-sm text-muted-foreground"
+                disabled={isLoading}
+              >
+                {t.auth_back_to_login}
+              </button>
             </div>
+          </div>
+        </div>
+      </div>
 
-            {/* CAPTCHA */}
-            <div className="space-y-2">
-              {turnstileSiteKey ? (
-                <Turnstile
-                  siteKey={turnstileSiteKey}
-                  onSuccess={(token) => {
-                    setCaptchaToken(token);
-                    setError("");
-                  }}
-                  onError={() => {
-                    setCaptchaToken("");
-                    setError(t.auth_captcha_failed);
-                  }}
-                  onExpire={() => {
-                    setCaptchaToken("");
-                    setError(t.auth_captcha_failed);
-                  }}
-                  options={{
-                    theme: 'auto',
-                    size: 'normal',
-                  }}
-                />
-              ) : (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{t.auth_error_generic}</AlertDescription>
-                </Alert>
-              )}
+      {/* Captcha Modal - same approach as Sign Up */}
+      {showCaptchaModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <div className="bg-card border border-border rounded-2xl p-6 shadow-xl max-w-sm w-full mx-4">
+            <h3 className="text-lg font-semibold text-center mb-4">Verify you're human</h3>
+            <div className="flex justify-center mb-4">
+              <Turnstile
+                siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
+                onSuccess={(token) => {
+                  setCaptchaToken(token);
+                  setTurnstileError(false);
+                  // Auto-continue after captcha success
+                  setTimeout(() => processReset(token), 100);
+                }}
+                onError={() => {
+                  setCaptchaToken("");
+                  setTurnstileError(true);
+                }}
+                onExpire={() => {
+                  setCaptchaToken("");
+                  setTurnstileError(true);
+                }}
+                options={{ theme: 'auto', size: 'normal' }}
+              />
             </div>
-
-            {/* Submit Button */}
-            <EnhancedButton
-              type="submit"
-              className="w-full h-12 rounded-xl font-medium"
-              disabled={isLoading || !email || !captchaToken}
-              glow
-              lift
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {t.auth_sending_reset_link}
-                </>
-              ) : (
-                t.auth_forgot_password_button
-              )}
-            </EnhancedButton>
-
-            {/* Back to Login */}
+            {turnstileError && (
+              <p className="text-sm text-destructive text-center mb-4">{t.auth_captcha_failed}</p>
+            )}
             <button
               type="button"
-              onClick={() => navigate('/auth')}
-              className="w-full text-sm text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-2"
-              disabled={isLoading}
+              onClick={() => {
+                setShowCaptchaModal(false);
+                setCaptchaToken("");
+                setTurnstileError(false);
+              }}
+              className="w-full h-10 rounded-full border border-muted-foreground/20 text-muted-foreground text-sm hover:bg-muted/50 transition-colors"
             >
-              <ArrowLeft className="w-3 h-3" />
-              {t.auth_back_to_login}
+              Cancel
             </button>
-          </form>
-        )}
-      </AnimatedCard>
-    </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
