@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Check, Crown, Zap, Star } from "lucide-react";
+import { Crown } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Badge } from "@/components/ui/badge";
 import { getPlansForInterval } from "@/lib/subscription-plans";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -63,12 +61,7 @@ export const SubscriptionPlansGrid = ({
   };
 
   const getPlanIcon = (planId: string) => {
-    switch (planId) {
-      case 'vip':
-        return <Crown className="w-6 h-6" />;
-      default:
-        return <Star className="w-6 h-6" />;
-    }
+    return <Crown className="w-5 h-5 text-primary" />;
   };
 
   const getButtonText = (plan: any) => {
@@ -158,61 +151,49 @@ export const SubscriptionPlansGrid = ({
   const filteredPlans = plans.filter(plan => plan.id !== 'free');
 
   return (
-    <div className="space-y-4">
-      {/* Current Plan Card */}
-      <Card className="p-4 rounded-2xl glass-card border border-border/50">
-        <h3 className="text-base font-bold text-foreground">
+    <div className="space-y-3">
+      {/* Current Plan Card — iOS system settings style */}
+      <div className="rounded-xl bg-card/80 backdrop-blur-sm border border-border/40 p-4">
+        <h3 className="text-[15px] font-semibold text-foreground">
           {t.manage_sub_current_plan_free}
         </h3>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="text-[13px] text-muted-foreground mt-0.5 leading-snug">
           {t.manage_sub_current_plan_desc}
         </p>
-      </Card>
+      </div>
 
-      {/* VIP Plan Card */}
+      {/* VIP Plan Card — iOS system style, no glow/gradient */}
       {filteredPlans.map((plan: any) => (
-        <Card
+        <div
           key={`${plan.id}-${plan.interval}`}
-          className="relative rounded-2xl overflow-hidden border border-primary/40 bg-gradient-to-br from-primary/10 via-card to-primary/5"
-          style={{ boxShadow: '0 0 20px hsl(var(--primary) / 0.15), inset 0 1px 0 hsl(var(--primary) / 0.1)' }}
+          className="rounded-xl bg-card/80 backdrop-blur-sm border border-border/40"
         >
-          {/* Inner content */}
           <div className="p-4">
-            {/* Top row: VIP Plan label + crown icon */}
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <h3 className="text-lg font-bold text-foreground">{t.manage_sub_vip_plan}</h3>
-                {/* Pricing */}
-                <div className="mt-1">
-                  <span className="text-3xl font-bold text-foreground">
-                    €{interval === 'yearly' ? (plan.price / 12).toFixed(2) : plan.price.toFixed(2)}
-                  </span>
-                  <span className="text-muted-foreground text-sm ml-1">/month</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {interval === 'yearly' 
-                    ? `€${plan.price.toFixed(2)}/year`
-                    : ''
-                  }
-                </p>
-              </div>
-              {/* Crown VIP badge */}
-              <div className="flex flex-col items-center gap-0.5 mt-1">
-                <Crown className="w-7 h-7 text-primary" />
-                <span className="text-[10px] font-bold text-primary tracking-wide">VIP</span>
-              </div>
+            {/* Header row */}
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-[15px] font-semibold text-foreground">{t.manage_sub_vip_plan}</h3>
+              <Crown className="w-5 h-5 text-primary" />
             </div>
 
-            {/* Benefits label */}
-            <p className="text-sm font-semibold text-muted-foreground mb-2">{t.manage_sub_benefits}</p>
+            {/* Pricing — clean, no color */}
+            <div className="mb-3">
+              <span className="text-2xl font-bold text-foreground">
+                €{interval === 'yearly' ? (plan.price / 12).toFixed(2) : plan.price.toFixed(2)}
+              </span>
+              <span className="text-muted-foreground text-[13px] ml-1">/ month</span>
+              {interval === 'yearly' && (
+                <p className="text-[12px] text-muted-foreground mt-0.5">
+                  €{plan.price.toFixed(2)} / year
+                </p>
+              )}
+            </div>
 
-            {/* Benefits list — compact */}
-            <div className="space-y-1.5 mb-4">
+            {/* Benefits — plain text list, iOS description style */}
+            <div className="space-y-1 mb-4">
               {plan.benefits.map((benefit: string, index: number) => (
-                <div key={index} className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                  <span className="text-sm text-foreground/90 leading-tight">{getStringTranslation(t, benefit) || benefit}</span>
-                </div>
+                <p key={index} className="text-[13px] text-muted-foreground leading-snug">
+                  {getStringTranslation(t, benefit) || benefit}
+                </p>
               ))}
             </div>
 
@@ -224,10 +205,8 @@ export const SubscriptionPlansGrid = ({
                 </p>
               </div>
             )}
-          </div>
 
-          {/* Upgrade Button — full width, outside inner padding for edge-to-edge feel */}
-          <div className="px-4 pb-4">
+            {/* CTA — only element with brand accent */}
             <Button
               onClick={() => {
                 if (currentPlan === 'vip' && plan.id === 'vip') {
@@ -247,16 +226,16 @@ export const SubscriptionPlansGrid = ({
                 (isLoading || !canChangePlan || (plan.id !== 'free' && !plan.priceId)) && !(currentPlan === 'vip' && plan.id === 'vip') || 
                 portalLoading
               }
-              className="w-full py-3 rounded-full font-semibold transition-all duration-300 bg-gradient-to-r from-primary to-primary/70 hover:from-primary/90 hover:to-primary/60 text-primary-foreground disabled:opacity-50"
+              className="w-full h-11 rounded-full font-semibold text-[15px] bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50"
             >
               {(currentPlan === 'vip' && plan.id === 'vip')
-                ? (portalLoading ? '...' : 'Manage Subscription') 
+                ? (portalLoading ? '...' : t.manage_subscription_title) 
                 : isCurrentPlan(plan) 
-                  ? (portalLoading ? '...' : 'Manage Subscription') 
+                  ? (portalLoading ? '...' : t.manage_subscription_title) 
                   : t.manage_sub_upgrade_to_vip}
             </Button>
           </div>
-        </Card>
+        </div>
       ))}
     </div>
   );
