@@ -46,7 +46,7 @@ export async function requestPasswordReset(
       ?? (body?.retryAfter as number | undefined)
       ?? (retryAfterHeader ? Number(retryAfterHeader) : undefined);
 
-    if (response.status === 429 || body?.rate_limited) {
+    if (response.status === 429 || body?.rate_limited || body?.rateLimited) {
       return {
         success: false,
         rateLimited: true,
@@ -55,18 +55,23 @@ export async function requestPasswordReset(
       };
     }
 
-    if (body?.captcha_required) {
+    const captchaRequired = body?.captcha_required ?? body?.captchaRequired;
+    if (captchaRequired) {
       return {
         success: false,
         captchaRequired: true,
+        messageKey: typeof body?.messageKey === "string" ? body.messageKey : "auth.captcha_required",
+        shouldResetCaptcha: body?.shouldResetCaptcha === true ? true : false,
       };
     }
 
-    if (body?.captcha_failed) {
+    const captchaFailed = body?.captcha_failed ?? body?.captchaFailed;
+    if (captchaFailed) {
       return {
         success: false,
         captchaFailed: true,
         messageKey: typeof body?.messageKey === "string" ? body.messageKey : "auth.captcha_failed",
+        shouldResetCaptcha: body?.shouldResetCaptcha !== false,
       };
     }
 

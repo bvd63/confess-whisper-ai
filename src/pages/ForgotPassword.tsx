@@ -46,7 +46,6 @@ export default function ForgotPassword() {
     setIsLoading(true);
     setError("");
     setTurnstileError(false);
-    setShowCaptchaModal(false);
 
     try {
       const result = await requestPasswordReset({

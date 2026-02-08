@@ -886,9 +886,9 @@ serve(async (req) => {
         if (captchaRequired && !captchaToken) {
           return new Response(
             JSON.stringify({
+              captchaRequired: true,
               captcha_required: true,
               messageKey: 'auth.captcha_required',
-              shouldResetCaptcha: false,
             }),
             { status: 200, headers: responseHeaders }
           );
@@ -900,11 +900,12 @@ serve(async (req) => {
             if (!passwordResetCaptchaResult.success) {
               return new Response(
                 JSON.stringify({
+                  captchaFailed: true,
                   captcha_failed: true,
                   messageKey: passwordResetCaptchaResult.error ?? 'auth.captcha_failed',
                   shouldResetCaptcha: true,
                 }),
-                { status: 403, headers: responseHeaders }
+                { status: 200, headers: responseHeaders }
               );
             }
           } else {
