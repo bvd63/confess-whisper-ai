@@ -9,6 +9,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { translations } from "@/i18n/translations";
 import * as LanguageContext from "@/contexts/LanguageContext";
 import { BrowserRouter } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const VALID_EMAIL = "user@example.com";
 const TURNSTILE_TOKEN = "turnstile-token";
@@ -16,8 +17,6 @@ const STRONG_PASSWORD = "StrongPassw0rd!";
 
 const successText = translations.en.auth_reset_password_success;
 const mismatchText = translations.en.auth_password_match_fail;
-
-const originalFetch = globalThis.fetch;
 
 const createJsonResponse = (body: Record<string, unknown>, init?: ResponseInit) =>
   new Response(JSON.stringify(body), {
@@ -29,15 +28,15 @@ const createJsonResponse = (body: Record<string, unknown>, init?: ResponseInit) 
   });
 
 describe("requestPasswordReset", () => {
-  let fetchMock: Mock;
+  const fetchMock = vi.fn();
 
   beforeEach(() => {
-    fetchMock = vi.fn();
-    globalThis.fetch = fetchMock as unknown as typeof fetch;
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
   });
 
   afterEach(() => {
-    globalThis.fetch = originalFetch;
+    vi.unstubAllGlobals();
   });
 
   it("returns success when the edge function accepts the request", async () => {
@@ -79,15 +78,12 @@ describe("requestPasswordReset", () => {
 });
 
 describe("ResetPassword page", () => {
-  let validateResetTokenMock: ReturnType<typeof vi.spyOn>;
-  let completePasswordResetMock: ReturnType<typeof vi.spyOn>;
   let languageSpy: ReturnType<typeof vi.spyOn>;
+  const mockUnsubscribe = vi.fn();
 
   beforeEach(() => {
-    validateResetTokenMock = vi.spyOn(PasswordResetService, "validateResetToken");
-    completePasswordResetMock = vi.spyOn(PasswordResetService, "completePasswordReset");
-    validateResetTokenMock.mockResolvedValue({ valid: true });
-    completePasswordResetMock.mockResolvedValue({ success: true });
+    // Clear all mock call histories before each test
+    vi.clearAllMocks();
 
     languageSpy = vi.spyOn(LanguageContext, "useLanguage").mockReturnValue({
       language: "en",
@@ -95,12 +91,21 @@ describe("ResetPassword page", () => {
       t: translations.en,
     });
 
-    window.history.pushState({}, "Test", "/reset-password?token=valid-token");
+    // Default: getSession returns a valid session (component will transition to "ready")
+    (supabase.auth.getSession as Mock).mockResolvedValue({
+      data: { session: { user: { id: "test-user" }, access_token: "mock-token" } },
+    });
+
+    // Default: onAuthStateChange does not fire PASSWORD_RECOVERY (session check handles it)
+    (supabase.auth.onAuthStateChange as Mock).mockImplementation(() => ({
+      data: { subscription: { unsubscribe: mockUnsubscribe } },
+    }));
+
+    // Default: updateUser succeeds
+    (supabase.auth.updateUser as Mock).mockResolvedValue({ error: null });
   });
 
   afterEach(() => {
-    validateResetTokenMock.mockRestore();
-    completePasswordResetMock.mockRestore();
     languageSpy.mockRestore();
   });
 
@@ -111,10 +116,31 @@ describe("ResetPassword page", () => {
       </BrowserRouter>
     );
 
-  it("updates the password when the inputs satisfy all requirements", async () => {
-    validateResetTokenMock.mockResolvedValue({ valid: true });
-    completePasswordResetMock.mockResolvedValue({ success: true });
+  it("shows validating state initially then shows the form after session is detected", async () => {
+    renderResetPassword();
 
+    // Should show validating text initially
+    expect(screen.getByText(translations.en.auth_validating_reset_link)).toBeInTheDocument();
+
+    // After getSession resolves, form should appear
+    const newPasswordInput = await screen.findByPlaceholderText(translations.en.auth_reset_password_new);
+    expect(newPasswordInput).toBeInTheDocument();
+  });
+
+  it("transitions to ready on PASSWORD_RECOVERY event", async () => {
+    (supabase.auth.getSession as Mock).mockResolvedValue({ data: { session: null } });
+    (supabase.auth.onAuthStateChange as Mock).mockImplementation((cb: Function) => {
+      setTimeout(() => cb("PASSWORD_RECOVERY", {}), 10);
+      return { data: { subscription: { unsubscribe: mockUnsubscribe } } };
+    });
+
+    renderResetPassword();
+
+    const newPasswordInput = await screen.findByPlaceholderText(translations.en.auth_reset_password_new);
+    expect(newPasswordInput).toBeInTheDocument();
+  });
+
+  it("updates the password when the inputs satisfy all requirements", async () => {
     renderResetPassword();
 
     const newPasswordInput = await screen.findByPlaceholderText(translations.en.auth_reset_password_new);
@@ -131,7 +157,7 @@ describe("ResetPassword page", () => {
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(completePasswordResetMock).toHaveBeenCalledWith({ token: "valid-token", password: STRONG_PASSWORD });
+      expect(supabase.auth.updateUser).toHaveBeenCalledWith({ password: STRONG_PASSWORD });
     });
 
     expect(await screen.findByText(successText)).toBeInTheDocument();
@@ -149,22 +175,31 @@ describe("ResetPassword page", () => {
     fireEvent.click(submitButton);
 
     expect(await screen.findByText(mismatchText)).toBeInTheDocument();
-    expect(completePasswordResetMock).not.toHaveBeenCalled();
+    expect(supabase.auth.updateUser).not.toHaveBeenCalled();
   });
 
-  it("shows the invalid link UI when recovery parameters are missing", async () => {
-    window.history.pushState({}, "Test", "/reset-password");
-    validateResetTokenMock.mockResolvedValue({ valid: false });
+  it("shows the invalid link UI when no recovery session is detected within timeout", async () => {
+    // No PASSWORD_RECOVERY event, no session
+    (supabase.auth.getSession as Mock).mockResolvedValue({ data: { session: null } });
 
     renderResetPassword();
 
-    expect(await screen.findByText(translations.en.auth_reset_token_invalid)).toBeInTheDocument();
+    // Initially shows validating
+    expect(screen.getByText(translations.en.auth_validating_reset_link)).toBeInTheDocument();
+
+    // After timeout, should show invalid
+    expect(await screen.findByText(translations.en.auth_reset_token_invalid, {}, { timeout: 3000 })).toBeInTheDocument();
     expect(screen.getByText(translations.en.auth_reset_token_expired)).toBeInTheDocument();
   });
 
-  it("treats Supabase expired-session errors as invalid reset links", async () => {
-    validateResetTokenMock.mockResolvedValue({ valid: true });
-    completePasswordResetMock.mockResolvedValue({ success: false, invalidToken: true });
+  it("treats session errors as invalid reset links", async () => {
+    (supabase.auth.onAuthStateChange as Mock).mockImplementation((cb: Function) => {
+      setTimeout(() => cb("PASSWORD_RECOVERY", {}), 10);
+      return { data: { subscription: { unsubscribe: mockUnsubscribe } } };
+    });
+    (supabase.auth.updateUser as Mock).mockResolvedValue({
+      error: { message: "session expired", status: 401 },
+    });
 
     renderResetPassword();
 

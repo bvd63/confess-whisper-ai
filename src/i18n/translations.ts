@@ -486,6 +486,7 @@ type Translations = {
   auth_reset_password_confirm: string;
   auth_reset_token_invalid: string;
   auth_reset_token_expired: string;
+  auth_validating_reset_link: string;
   auth_back_to_login: string;
   
   // Email Verification
@@ -2808,6 +2809,7 @@ export const translations: Record<Language, Translations> = {
   auth_reset_password_confirm: "Confirm new password",
   auth_reset_token_invalid: "Invalid or expired reset link",
   auth_reset_token_expired: "This reset link has expired. Please request a new one.",
+  auth_validating_reset_link: "Validating reset link…",
   auth_back_to_login: "Back to login",
   
   // Email Verification
@@ -4545,6 +4547,7 @@ export const translations: Record<Language, Translations> = {
     auth_reset_password_confirm: "Confirmar nueva contraseña",
     auth_reset_token_invalid: "Enlace de restablecimiento inválido o expirado",
     auth_reset_token_expired: "Este enlace de restablecimiento ha expirado. Solicita uno nuevo.",
+    auth_validating_reset_link: "Validando enlace de restablecimiento…",
     auth_back_to_login: "Volver al inicio de sesión",
     
     // Email Verification
@@ -6539,6 +6542,7 @@ export const translations: Record<Language, Translations> = {
     auth_reset_password_confirm: "Neues Passwort bestätigen",
     auth_reset_token_invalid: "Ungültiger oder abgelaufener Zurücksetzungs-Link",
     auth_reset_token_expired: "Dieser Zurücksetzungs-Link ist abgelaufen. Bitte fordere einen neuen an.",
+    auth_validating_reset_link: "Zurücksetzungs-Link wird überprüft…",
     auth_back_to_login: "Zurück zur Anmeldung",
     
     // Email Verification
