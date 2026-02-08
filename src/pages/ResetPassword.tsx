@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Loader2, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { validatePasswordStrength } from "@/hooks/usePasswordValidation";
 import { logError } from "@/lib/logger";
-import { completePasswordReset, validateResetToken } from "@/services/passwordReset";
+import { supabase } from "@/integrations/supabase/client";
+
+type ResetStatus = "checking" | "ready" | "invalid";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const [searchParams] = useSearchParams();
+  const [status, setStatus] = useState<ResetStatus>("checking");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -18,52 +20,51 @@ export default function ResetPassword() {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({ password: "", confirmPassword: "" });
   const [success, setSuccess] = useState(false);
-  const [tokenValid, setTokenValid] = useState(false);
-  const [validatingToken, setValidatingToken] = useState(true);
-  const [tokenValue, setTokenValue] = useState("");
 
   const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
 
-  const markResetLinkInvalid = () => {
-    setTokenValid(false);
-    setSuccess(false);
-  };
-
-  const translateMessageKey = (messageKey?: string): string => {
-    if (!messageKey) return t.auth_error_generic;
-    const normalizedKey = messageKey.replace(/\./g, "_");
-    const translated = t[normalizedKey as keyof typeof t];
-    return typeof translated === "string" ? translated : t.auth_error_generic;
-  };
-
+  // Listen for Supabase PASSWORD_RECOVERY event and session
   useEffect(() => {
     let isMounted = true;
-    const tokenParam = searchParams.get('token')?.trim() || '';
-    setTokenValue(tokenParam);
+    let resolved = false;
 
-    if (!tokenParam) {
-      setTokenValid(false);
-      setValidatingToken(false);
-      return () => { isMounted = false; };
-    }
-
-    const validate = async () => {
-      try {
-        const result = await validateResetToken(tokenParam);
-        if (!isMounted) return;
-        setTokenValid(result.valid);
-      } catch (err) {
-        logError('Reset token validation failed', err as Error);
-        if (isMounted) setTokenValid(false);
-      } finally {
-        if (isMounted) setValidatingToken(false);
-      }
+    const resolve = (nextStatus: ResetStatus) => {
+      if (!isMounted || resolved) return;
+      resolved = true;
+      setStatus(nextStatus);
     };
 
-    validate();
+    // 1) Subscribe to auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        resolve("ready");
+      }
+    });
 
-    return () => { isMounted = false; };
-  }, [searchParams, t]);
+    // 2) Also check existing session after a microtask (Supabase may have already processed the fragment)
+    const sessionCheck = setTimeout(async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          resolve("ready");
+        }
+      } catch (err) {
+        logError("Session check failed during reset", err as Error);
+      }
+    }, 100);
+
+    // 3) Timeout fallback: if neither event nor session after 2s, mark invalid
+    const timeout = setTimeout(() => {
+      resolve("invalid");
+    }, 2000);
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+      clearTimeout(sessionCheck);
+      clearTimeout(timeout);
+    };
+  }, []);
 
   const validateForm = (): boolean => {
     const newErrors = { password: "", confirmPassword: "" };
@@ -83,25 +84,19 @@ export default function ResetPassword() {
     e.preventDefault();
     if (!validateForm()) return;
 
-    if (!tokenValid || !tokenValue) {
-      markResetLinkInvalid();
-      return;
-    }
-
     setIsLoading(true);
     setErrors({ password: "", confirmPassword: "" });
 
     try {
-      const result = await completePasswordReset({ token: tokenValue, password });
+      const { error } = await supabase.auth.updateUser({ password });
 
-      if (!result.success) {
-        if (result.invalidToken) {
-          markResetLinkInvalid();
+      if (error) {
+        // If the session has expired during the form fill
+        if (error.message?.toLowerCase().includes("session") || error.status === 401) {
+          setStatus("invalid");
           return;
         }
-
-        const message = translateMessageKey(result.messageKey);
-        setErrors(prev => ({ ...prev, password: message }));
+        setErrors(prev => ({ ...prev, password: error.message || t.auth_reset_password_error || t.auth_error_generic }));
         return;
       }
 
@@ -115,7 +110,8 @@ export default function ResetPassword() {
     }
   };
 
-  if (validatingToken) {
+  // --- Checking / Validating state ---
+  if (status === "checking") {
     return (
       <div className="h-[100dvh] bg-background flex flex-col px-6 overflow-hidden">
         <div className="pt-[8vh] min-[500px]:pt-[10vh]" />
@@ -128,15 +124,15 @@ export default function ResetPassword() {
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-4">
               <Loader2 className="w-6 h-6 animate-spin" />
             </div>
-            <p className="text-sm text-muted-foreground">{t.ui_loading}</p>
+            <p className="text-sm text-muted-foreground">{t.auth_validating_reset_link}</p>
           </div>
         </div>
       </div>
     );
   }
 
-  // Invalid/expired token state
-  if (!tokenValid) {
+  // --- Invalid / expired token state ---
+  if (status === "invalid") {
     return (
       <div className="h-[100dvh] bg-background flex flex-col px-6 overflow-hidden">
         <div className="pt-[8vh] min-[500px]:pt-[10vh]" />
@@ -150,10 +146,10 @@ export default function ResetPassword() {
               <AlertCircle className="w-8 h-8 text-destructive" />
             </div>
             <h2 className="text-lg font-semibold text-foreground mb-2">
-              {t.auth_reset_token_invalid || "Invalid or Expired Reset Link"}
+              {t.auth_reset_token_invalid}
             </h2>
             <p className="text-sm text-muted-foreground mb-6">
-              {t.auth_reset_token_expired || "This reset link has expired. Please request a new one."}
+              {t.auth_reset_token_expired}
             </p>
 
             <div className="space-y-3">
@@ -161,13 +157,13 @@ export default function ResetPassword() {
                 onClick={() => navigate('/forgot-password')}
                 className="w-full h-14 rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold text-base shadow-[0_0_30px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_40px_hsl(var(--primary)/0.7)] transition-all duration-300"
               >
-                {t.auth_forgot_password || "Request New Link"}
+                {t.auth_forgot_password}
               </button>
               <button
                 onClick={() => navigate('/auth')}
                 className="w-full h-14 rounded-full bg-muted/50 border border-muted-foreground/20 text-foreground font-medium text-base hover:bg-muted/70 transition-colors"
               >
-                {t.auth_back_to_login || "Back to Login"}
+                {t.auth_back_to_login}
               </button>
             </div>
           </div>
@@ -176,7 +172,7 @@ export default function ResetPassword() {
     );
   }
 
-  // Success state
+  // --- Success state ---
   if (success) {
     return (
       <div className="h-[100dvh] bg-background flex flex-col px-6 overflow-hidden">
@@ -205,7 +201,7 @@ export default function ResetPassword() {
     );
   }
 
-  // Main reset form
+  // --- Main reset form (status === "ready") ---
   return (
     <div className="h-[100dvh] bg-background flex flex-col px-6 overflow-hidden">
       <div className="pt-[8vh] min-[500px]:pt-[10vh]" />
@@ -215,13 +211,12 @@ export default function ResetPassword() {
       </h1>
       <div className="max-w-sm mx-auto w-full flex-1 flex flex-col">
         <div className="animate-[fadeSlideIn_150ms_ease-out]">
-          {/* Subtitle */}
           <p className="text-sm text-muted-foreground text-center mb-6">
             {t.auth_reset_password_desc}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-1">
-            {/* New Password Input - Pill Style matching Sign Up */}
+            {/* New Password Input */}
             <div>
               <div className="relative">
                 <Input
@@ -246,7 +241,6 @@ export default function ResetPassword() {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              {/* Error only on submit - Instagram style */}
               <div className="min-h-[1rem] mt-1 px-6">
                 {errors.password && (
                   <p className="text-xs leading-4 text-rose-500/80 dark:text-rose-400/70">{errors.password}</p>
@@ -254,7 +248,7 @@ export default function ResetPassword() {
               </div>
             </div>
 
-            {/* Confirm Password Input - Pill Style matching Sign Up */}
+            {/* Confirm Password Input */}
             <div>
               <div className="relative">
                 <Input
@@ -280,7 +274,6 @@ export default function ResetPassword() {
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              {/* Error only on submit - Instagram style */}
               <div className="min-h-[1rem] mt-1 px-6">
                 {errors.confirmPassword && (
                   <p className="text-xs leading-4 text-rose-500/80 dark:text-rose-400/70">{errors.confirmPassword}</p>
@@ -288,7 +281,7 @@ export default function ResetPassword() {
               </div>
             </div>
 
-            {/* Primary Button - Gradient matching Login/Sign Up */}
+            {/* Submit Button */}
             <div className="pt-2">
               <button
                 type="submit"
@@ -307,7 +300,7 @@ export default function ResetPassword() {
             </div>
           </form>
 
-          {/* Back to login link - pushed to bottom like Login/Sign Up */}
+          {/* Back to login */}
           <div className="flex-1" />
           <div className="py-4 min-[500px]:py-6 text-center">
             <button
