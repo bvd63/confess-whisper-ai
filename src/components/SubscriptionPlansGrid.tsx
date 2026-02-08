@@ -158,112 +158,76 @@ export const SubscriptionPlansGrid = ({
   const filteredPlans = plans.filter(plan => plan.id !== 'free');
 
   return (
-    <div className="space-y-8">
-      {/* Interval Tabs */}
-      {onIntervalChange && (
-        <div className="flex justify-center">
-          <div className="inline-flex rounded-2xl bg-secondary p-1.5 gap-2">
-            <button
-              onClick={() => onIntervalChange('monthly')}
-              className={`px-10 py-3.5 rounded-xl transition-all font-semibold text-base ${
-                interval === 'monthly'
-                  ? 'bg-background text-foreground shadow-md'
-                  : 'text-foreground-secondary hover:text-foreground'
-              }`}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => onIntervalChange('yearly')}
-              className={`px-10 py-3.5 rounded-xl transition-all font-semibold text-base relative ${
-                interval === 'yearly'
-                  ? 'bg-background text-foreground shadow-md'
-                  : 'text-foreground-secondary hover:text-foreground'
-              }`}
-            >
-              Yearly
-              <span className="absolute -top-3 -right-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs px-3 py-1 rounded-full font-bold shadow-lg">
-                -34%
-              </span>
-            </button>
-          </div>
-        </div>
-      )}
+    <div className="space-y-4">
+      {/* Current Plan Card */}
+      <Card className="p-4 rounded-2xl glass-card border border-border/50">
+        <h3 className="text-base font-bold text-foreground">
+          {t.manage_sub_current_plan_free}
+        </h3>
+        <p className="text-sm text-muted-foreground mt-1">
+          {t.manage_sub_current_plan_desc}
+        </p>
+      </Card>
 
-      {/* Plans Grid - Centered for single VIP plan */}
-      <div className="flex justify-center">
-        <div className="w-full max-w-md">
-          {filteredPlans.map((plan: any) => (
-            <Card
-              key={`${plan.id}-${plan.interval}`}
-              className={`p-5 relative bg-card border-2 transition-all duration-300 hover:scale-[1.01] rounded-2xl ${
-                plan.id === 'vip'
-                  ? 'border-primary/30 hover:border-primary/50 shadow-elegant bg-gradient-to-br from-primary/5 to-primary/10'
-                  : 'border-border hover:border-primary/30'
-              }`}
-            >
-            {/* Active Badge for VIP if current plan */}
-            {isCurrentPlan(plan) && (
-              <Badge className="absolute -top-3 left-6 bg-gradient-to-r from-primary to-primary-hover text-white px-3 py-1 font-semibold rounded-full shadow-lg text-xs">
-                Active
-              </Badge>
-            )}
-
-            {/* Savings Badge with glow */}
-            {interval === 'yearly' && (
-              <div className="absolute -top-3 -right-3">
-                <div className="absolute inset-0 bg-primary/30 blur-xl rounded-full"></div>
-                <Badge className="relative bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1 font-bold rounded-full shadow-lg text-xs">
-                  Save 34%
-                </Badge>
+      {/* VIP Plan Card */}
+      {filteredPlans.map((plan: any) => (
+        <Card
+          key={`${plan.id}-${plan.interval}`}
+          className="relative rounded-2xl overflow-hidden border border-primary/40 bg-gradient-to-br from-primary/10 via-card to-primary/5"
+          style={{ boxShadow: '0 0 20px hsl(var(--primary) / 0.15), inset 0 1px 0 hsl(var(--primary) / 0.1)' }}
+        >
+          {/* Inner content */}
+          <div className="p-4">
+            {/* Top row: VIP Plan label + crown icon */}
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <h3 className="text-lg font-bold text-foreground">{t.manage_sub_vip_plan}</h3>
+                {/* Pricing */}
+                <div className="mt-1">
+                  <span className="text-3xl font-bold text-foreground">
+                    €{interval === 'yearly' ? (plan.price / 12).toFixed(2) : plan.price.toFixed(2)}
+                  </span>
+                  <span className="text-muted-foreground text-sm ml-1">/month</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {interval === 'yearly' 
+                    ? `€${plan.price.toFixed(2)}/year`
+                    : ''
+                  }
+                </p>
               </div>
-            )}
-
-            {/* Plan Header */}
-            <div className="mb-4">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-2xl">{plan.id === 'vip' ? '👑' : '✨'}</span>
-                <h3 className="text-xl font-bold">{plan.name}</h3>
+              {/* Crown VIP badge */}
+              <div className="flex flex-col items-center gap-0.5 mt-1">
+                <Crown className="w-7 h-7 text-primary" />
+                <span className="text-[10px] font-bold text-primary tracking-wide">VIP</span>
               </div>
-              <div className="mb-1">
-                <span className="text-3xl font-bold">
-                  ${interval === 'yearly' ? (plan.price / 12).toFixed(2) : plan.price}
-                </span>
-                <span className="text-muted-foreground text-base ml-1.5">/month</span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {interval === 'yearly' 
-                  ? `$${plan.price.toFixed(2)}/year (billed annually)`
-                  : 'Billed monthly'
-                }
-              </p>
             </div>
 
-            {/* Benefits List — compact */}
-            <div className="space-y-2 mb-5">
+            {/* Benefits label */}
+            <p className="text-sm font-semibold text-muted-foreground mb-2">{t.manage_sub_benefits}</p>
+
+            {/* Benefits list — compact */}
+            <div className="space-y-1.5 mb-4">
               {plan.benefits.map((benefit: string, index: number) => (
-                <div key={index} className="flex items-center gap-2.5">
-                  <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-3 h-3 text-primary" />
-                  </div>
+                <div key={index} className="flex items-center gap-2">
+                  <Check className="w-3.5 h-3.5 text-primary flex-shrink-0" />
                   <span className="text-sm text-foreground/90 leading-tight">{getStringTranslation(t, benefit) || benefit}</span>
                 </div>
               ))}
             </div>
 
-            {/* Debug Warning - visible only when price ID is missing */}
+            {/* Debug Warning */}
             {!plan.priceId && plan.id !== 'free' && (
               <div className="mb-3 p-2 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
                 <p className="text-yellow-500 text-xs font-medium">
-                  ⚠️ Configuration Issue: Price ID missing
-                </p>
-                <p className="text-yellow-400/70 text-xs mt-1">
-                  Expected: price_1XXX... | Got: "{plan.priceId}"
+                  ⚠️ Price ID missing
                 </p>
               </div>
             )}
+          </div>
 
-            {/* Action Button */}
+          {/* Upgrade Button — full width, outside inner padding for edge-to-edge feel */}
+          <div className="px-4 pb-4">
             <Button
               onClick={() => {
                 if (currentPlan === 'vip' && plan.id === 'vip') {
@@ -283,18 +247,17 @@ export const SubscriptionPlansGrid = ({
                 (isLoading || !canChangePlan || (plan.id !== 'free' && !plan.priceId)) && !(currentPlan === 'vip' && plan.id === 'vip') || 
                 portalLoading
               }
-              className="w-full py-3.5 rounded-xl font-semibold transition-all duration-300 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground hover:scale-[1.02] disabled:opacity-50 disabled:scale-100"
+              className="w-full py-3 rounded-full font-semibold transition-all duration-300 bg-gradient-to-r from-primary to-primary/70 hover:from-primary/90 hover:to-primary/60 text-primary-foreground disabled:opacity-50"
             >
               {(currentPlan === 'vip' && plan.id === 'vip')
-                ? (portalLoading ? 'Opening Portal...' : 'Manage Subscription') 
+                ? (portalLoading ? '...' : 'Manage Subscription') 
                 : isCurrentPlan(plan) 
-                  ? (portalLoading ? 'Opening Portal...' : 'Manage Subscription') 
-                  : getButtonText(plan)}
+                  ? (portalLoading ? '...' : 'Manage Subscription') 
+                  : t.manage_sub_upgrade_to_vip}
             </Button>
-          </Card>
-        ))}
-        </div>
-      </div>
+          </div>
+        </Card>
+      ))}
     </div>
   );
 };
