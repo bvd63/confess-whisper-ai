@@ -1,44 +1,67 @@
 
 
-## Center Auth Content Vertically on the Page
+## Move "ConfessAI" Title to the Top of the Page
 
 **What will change:**
-The Login and Sign Up screens will have their content (title, form fields, buttons) perfectly centered in the middle of the screen instead of being anchored near the top.
+The "ConfessAI" title will be pinned to the top of the screen (with a small adaptive top margin), while the form content (inputs, buttons) stays centered in the remaining space below it.
 
-**How:**
-- Update the `AuthLayout` wrapper to use `justify-center` and `items-center` instead of the current top-spacer approach.
-- Remove the fixed top spacer `div` that pushes content down from the top.
-- The title ("ConfessAI") and the form block will be grouped together and centered as a unit in the viewport.
-- Keep `h-[100dvh]`, `overflow-hidden`, and `px-6` so nothing scrolls and safe areas are respected.
-- All responsive `clamp()` sizing on inputs, buttons, and gaps stays exactly as-is.
+**How (single file change: `src/pages/Auth.tsx`):**
 
-**Technical detail (single file change: `src/pages/Auth.tsx`):**
+- Keep the outer container as `h-[100dvh] flex flex-col overflow-hidden` but remove `justify-center` and `items-center` from it.
+- Re-add an adaptive top spacer before the title (like before, e.g. `clamp(12px, 3.5vh, 48px)`), so the title sits near the top with safe-area breathing room.
+- The title stays `shrink-0` and centered horizontally via `text-center`.
+- The form container below gets `flex-1 flex flex-col items-center justify-center` so the form block itself remains vertically centered in the remaining space.
+- No other files touched. No text, translations, copy, or design changes.
 
-Current `AuthLayout`:
+**Current layout:**
+```text
++---------------------------+
+|                           |
+|        (empty)            |
+|       ConfessAI           |
+|       [form block]        |
+|        (empty)            |
+|                           |
++---------------------------+
+  (everything centered as a group)
 ```
-<div className="h-[100dvh] bg-background flex flex-col px-6 overflow-hidden">
-  <div className="shrink-0" style={{ height: 'clamp(12px, 3.5vh, 48px)' }} />  <!-- top spacer -->
-  <h1 ...>ConfessAI</h1>
-  <div className="max-w-sm mx-auto w-full flex-1 flex flex-col min-h-0">
-    {children}
+
+**Updated layout:**
+```text
++---------------------------+
+|    (small top margin)     |
+|       ConfessAI           |
+|                           |
+|       [form block]        |
+|     (centered in rest)    |
+|                           |
++---------------------------+
+  (title at top, form centered in remaining space)
+```
+
+**Technical detail:**
+
+```tsx
+const AuthLayout = ({ children }: { children: React.ReactNode }) => (
+  <div className="h-[100dvh] bg-background flex flex-col px-6 overflow-hidden">
+    {/* Adaptive top spacing */}
+    <div className="shrink-0" style={{ height: 'clamp(12px, 3.5vh, 48px)' }} />
+
+    {/* Title pinned near top */}
+    <h1 className="text-3xl font-bold text-center shrink-0" style={{ marginBottom: 'clamp(8px, 2vh, 24px)' }}>
+      <span className="text-foreground">Confess</span>
+      <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
+    </h1>
+
+    {/* Form content - centered in remaining space */}
+    <div className="max-w-sm mx-auto w-full flex-1 flex flex-col justify-center min-h-0">
+      {children}
+    </div>
   </div>
-</div>
+);
 ```
 
-Updated `AuthLayout`:
-```
-<div className="h-[100dvh] bg-background flex flex-col items-center justify-center px-6 overflow-hidden">
-  <h1 ...>ConfessAI</h1>
-  <div className="max-w-sm w-full flex flex-col min-h-0">
-    {children}
-  </div>
-</div>
-```
-
-Key differences:
-- Add `justify-center` and `items-center` to vertically and horizontally center everything.
-- Remove the top spacer `div` entirely — no longer needed since flexbox centering handles it.
-- Remove `flex-1` from the form container (it no longer needs to grow; centering handles positioning).
-- Keep `mx-auto` or use parent's `items-center` for horizontal centering.
-- No other files touched. No text, translations, or design changes.
+- Title stays at top with small breathing room.
+- Form block is vertically centered in whatever space remains below the title.
+- No scroll, no layout jump, no other changes.
 
