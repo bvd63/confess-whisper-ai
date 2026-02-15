@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { toast } from "sonner";
-import { Loader2, Infinity as InfinityIcon, Heart, MessageSquare } from "lucide-react";
+import { Loader2, Infinity as InfinityIcon, Crown, Coins, Award } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { logError, logDebug } from "@/lib/logger";
 import { STRIPE_PRICE } from '@/lib/stripe-config';
@@ -530,19 +530,19 @@ export const UnifiedShopDialog = ({
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                           <BenefitRow
                             icon={<InfinityIcon style={{ width: '17px', height: '17px', strokeWidth: 2 }} />}
-                            label="unlimited confessions"
+                            label="Unlimited daily confessions"
                           />
                           <BenefitRow
-                            icon={<Heart style={{ width: '17px', height: '17px', strokeWidth: 2 }} />}
-                            label="exclusive reactions"
-                          />
-                          <BenefitRow
-                            icon={<SmallCrownIcon size={17} />}
+                            icon={<Crown style={{ width: '17px', height: '17px', strokeWidth: 2 }} />}
                             label="VIP crown badge"
                           />
                           <BenefitRow
-                            icon={<MessageSquare style={{ width: '17px', height: '17px', strokeWidth: 2 }} />}
-                            label="priority comments"
+                            icon={<Coins style={{ width: '17px', height: '17px', strokeWidth: 2 }} />}
+                            label="250 coins bonus on signup"
+                          />
+                          <BenefitRow
+                            icon={<Award style={{ width: '17px', height: '17px', strokeWidth: 2 }} />}
+                            label="Exclusive VIP badges & flairs"
                           />
                         </div>
                       </div>
