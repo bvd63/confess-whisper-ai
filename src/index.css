@@ -722,3 +722,54 @@ html {
     @apply max-w-screen-lg mx-auto px-4;
   }
 }
+
+/* ── Manage Subscription modal height-based tokens ── */
+:root {
+  --ms-header-pt: 14px;
+  --ms-content-pt: 16px;
+  --ms-section-gap: 16px;
+  --ms-vip-pad: 18px;
+  --ms-title-mb: 10px;
+  --ms-toggle-mb: 16px;
+  --ms-price-mb: 10px;
+  --ms-benefits-label-mb: 10px;
+  --ms-benefits-gap: 12px;
+  --ms-cta-height: 52px;
+  --ms-cta-pad: 10px;
+  --ms-cta-pb: 12px;
+  --ms-free-pad: 14px;
+}
+@media (max-height: 740px) {
+  :root {
+    --ms-header-pt: 8px;
+    --ms-content-pt: 6px;
+    --ms-section-gap: 8px;
+    --ms-vip-pad: 14px;
+    --ms-title-mb: 6px;
+    --ms-toggle-mb: 10px;
+    --ms-price-mb: 6px;
+    --ms-benefits-label-mb: 6px;
+    --ms-benefits-gap: 8px;
+    --ms-cta-height: 46px;
+    --ms-cta-pad: 4px;
+    --ms-cta-pb: 6px;
+    --ms-free-pad: 10px;
+  }
+}
+@media (min-height: 861px) {
+  :root {
+    --ms-header-pt: 20px;
+    --ms-content-pt: 24px;
+    --ms-section-gap: 22px;
+    --ms-vip-pad: 24px;
+    --ms-title-mb: 14px;
+    --ms-toggle-mb: 20px;
+    --ms-price-mb: 14px;
+    --ms-benefits-label-mb: 12px;
+    --ms-benefits-gap: 14px;
+    --ms-cta-height: 56px;
+    --ms-cta-pad: 14px;
+    --ms-cta-pb: 16px;
+    --ms-free-pad: 18px;
+  }
+}
