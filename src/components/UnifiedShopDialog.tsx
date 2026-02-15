@@ -4,10 +4,25 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { toast } from "sonner";
-import { Loader2, Crown, Infinity as InfinityIcon, Heart, MessageSquare } from "lucide-react";
+import { Loader2, Infinity as InfinityIcon, Heart, MessageSquare } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { logError, logDebug } from "@/lib/logger";
 import { STRIPE_PRICE } from '@/lib/stripe-config';
+
+/* ── SVG Crown Icon (modern, minimal, gold) ── */
+const CrownIcon = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M3 18H21V20H3V18ZM3.5 14L2 7L7 10L12 4L17 10L22 7L20.5 14H3.5Z"
+      fill="currentColor"
+    />
+  </svg>
+);
 
 interface UnifiedShopDialogProps {
   open: boolean;
@@ -66,7 +81,7 @@ export const UnifiedShopDialog = ({
           },
           (payload) => {
             logDebug('Real-time subscription update received', payload);
-const newProfile = payload.new as { subscription_tier?: string; subscription_cadence?: string };
+            const newProfile = payload.new as { subscription_tier?: string; subscription_cadence?: string };
             if (newProfile.subscription_tier) {
               setCurrentPlan(newProfile.subscription_tier);
             }
@@ -123,182 +138,176 @@ const newProfile = payload.new as { subscription_tier?: string; subscription_cad
     }
   };
 
+  const isVip = currentPlan === 'vip';
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      {/* VERIFICATION: This is the REAL Manage Subscription modal - UnifiedShopDialog.tsx */}
       <DialogContent 
         data-testid="manage-subscription-modal"
-        className="max-w-md max-h-[min(86vh,640px)] overflow-hidden bg-gradient-to-b from-background to-background/95 border border-border/40 rounded-2xl p-0 shadow-2xl"
+        className="max-w-[420px] overflow-hidden border-0 rounded-[24px] p-0 gap-0"
+        style={{
+          background: 'linear-gradient(180deg, hsl(235 45% 8%) 0%, hsl(235 40% 5%) 100%)',
+          boxShadow: '0 25px 60px rgba(0,0,0,0.6), 0 0 80px rgba(139,92,246,0.08)',
+        }}
       >
-        <DialogHeader className="sticky top-0 z-10 bg-gradient-to-b from-background via-background to-background/80 border-b border-border/30 px-5 py-3.5 shadow-sm">
-          <DialogTitle className="text-base font-semibold text-foreground text-center">
-            Manage Subscription
+        {/* Header */}
+        <DialogHeader className="px-5 pt-5 pb-2">
+          <DialogTitle className="text-xl font-bold tracking-tight" style={{ color: '#f0f0f5' }}>
+            {t.manage_subscription_title || 'Manage Subscription'}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="px-4 py-3.5 space-y-3">
+        <div className="px-5 pb-5 space-y-3.5">
           {loading ? (
             <div className="flex items-center justify-center py-16">
-              <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+              <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'hsl(265 80% 70%)' }} />
             </div>
           ) : (
             <>
-              {/* Current Plan Card - Glass-like with subtle depth */}
-              <div className="relative rounded-xl bg-gradient-to-br from-muted/40 to-muted/20 border border-border/30 p-3 shadow-[0_2px_8px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.03)]">
-                <p className="text-[14px] font-semibold text-foreground/90">
-                  {t.manage_sub_current_plan_free}
+              {/* ─── Current Plan Card ─── */}
+              <div
+                className="relative overflow-hidden p-5"
+                style={{
+                  borderRadius: '20px',
+                  background: 'linear-gradient(135deg, rgba(139,92,246,0.12) 0%, rgba(96,165,250,0.08) 60%, rgba(139,92,246,0.06) 100%)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(139,92,246,0.15)',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.04)',
+                }}
+              >
+                <p className="text-[15px] font-bold" style={{ color: '#e8e8f0' }}>
+                  {isVip
+                    ? (t.subs_manage_currentPlan || 'Current plan') + ' – VIP'
+                    : t.manage_sub_current_plan_free}
                 </p>
-                <p className="text-[12px] text-foreground/70 mt-0.5 leading-tight">
-                  {t.manage_sub_current_plan_desc}
+                <p className="text-[13px] mt-1 leading-relaxed" style={{ color: 'rgba(200,200,220,0.6)' }}>
+                  {isVip
+                    ? (t.subscription_cancel_anytime || 'You can manage or cancel anytime.')
+                    : t.manage_sub_current_plan_desc}
                 </p>
               </div>
 
-              {/* Billing Cycle Selector - Premium segmented control */}
-              {currentPlan === 'free' && (
-                <div className="rounded-full bg-muted/30 border border-border/20 p-0.5 flex shadow-inner">
-                  <button
-                    onClick={() => setSelectedInterval('monthly')}
-                    className={`flex-1 py-2 rounded-full text-[12px] font-semibold transition-all ${
-                      selectedInterval === 'monthly'
-                        ? 'bg-gradient-to-b from-primary/20 to-primary/10 text-primary shadow-sm'
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    {t.subscription_monthly}
-                  </button>
-                  <button
-                    onClick={() => setSelectedInterval('yearly')}
-                    className={`flex-1 py-2 rounded-full text-[12px] font-semibold transition-all ${
-                      selectedInterval === 'yearly'
-                        ? 'bg-gradient-to-b from-primary/20 to-primary/10 text-primary shadow-sm'
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    {t.subscription_yearly}
-                  </button>
-                </div>
-              )}
-
-              {/* VIP Plan Card - 3-Layer Premium Frame System with INLINE STYLES */}
-              {currentPlan === 'free' && (
-                <div 
-                  className="relative" 
-                  style={{
-                    borderRadius: '24px',
-                    overflow: 'visible'
-                  }}
-                >
-                  {/* GlowLayer - Outer blurred gradient (INLINE STYLE PROOF) */}
-                  <div 
+              {/* ─── VIP Plan Card (only for free users) ─── */}
+              {!isVip && (
+                <div className="relative" style={{ borderRadius: '24px' }}>
+                  {/* Neon glow layer */}
+                  <div
                     className="absolute pointer-events-none"
                     style={{
-                      inset: '-10px',
-                      borderRadius: '24px',
-                      background: 'linear-gradient(135deg, rgba(170,120,255,0.95), rgba(120,210,255,0.55), rgba(170,120,255,0.95))',
-                      filter: 'blur(14px)',
-                      opacity: 0.9,
-                      zIndex: 0
+                      inset: '-6px',
+                      borderRadius: '28px',
+                      background: 'linear-gradient(135deg, rgba(168,85,247,0.7), rgba(96,165,250,0.4), rgba(168,85,247,0.7))',
+                      filter: 'blur(16px)',
+                      opacity: 0.55,
+                      zIndex: 0,
                     }}
                   />
-                  
-                  {/* StrokeLayer - 1px border with inner highlight (INLINE STYLE PROOF) */}
-                  <div 
+
+                  {/* Border stroke */}
+                  <div
                     className="absolute inset-0 pointer-events-none"
                     style={{
                       borderRadius: '24px',
-                      border: '1px solid rgba(190,150,255,0.55)',
-                      boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06)',
-                      zIndex: 1
+                      border: '1px solid rgba(168,85,247,0.4)',
+                      boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.04)',
+                      zIndex: 1,
                     }}
                   />
-                  
-                  {/* PanelLayer - Dark glass content background (INLINE STYLE PROOF) */}
-                  <div 
-                    className="relative p-4 space-y-3"
+
+                  {/* Card content */}
+                  <div
+                    className="relative p-5 space-y-4"
                     style={{
                       borderRadius: '24px',
-                      background: 'linear-gradient(135deg, rgba(160,110,255,0.18) 0%, rgba(60,180,255,0.12) 45%, rgba(10,12,18,0.86) 100%)',
-                      backdropFilter: 'blur(10px)',
-                      boxShadow: '0 18px 60px rgba(0,0,0,0.55), 0 6px 18px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05)',
-                      zIndex: 2
+                      background: 'linear-gradient(135deg, rgba(168,85,247,0.14) 0%, rgba(96,165,250,0.08) 40%, rgba(12,14,22,0.88) 100%)',
+                      backdropFilter: 'blur(12px)',
+                      boxShadow: '0 20px 50px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.04)',
+                      zIndex: 2,
                     }}
                   >
-                    {/* Title Row with Crown + VIP Badge */}
+                    {/* Title Row */}
                     <div className="flex items-center justify-between">
-                      <span className="text-base font-semibold text-white">{t.manage_sub_vip_plan}</span>
+                      <span className="text-[16px] font-bold" style={{ color: '#f0f0f5' }}>
+                        {t.manage_sub_vip_plan}
+                      </span>
                       <div className="flex items-center gap-1.5">
-                        <Crown className="w-5 h-5 text-amber-400" strokeWidth={2} />
-                        <span className="text-[10px] font-bold text-amber-400/90 uppercase tracking-wide">VIP</span>
+                        <CrownIcon className="w-5 h-5" style={{ color: '#f5c842' }} />
+                        <span
+                          className="text-[10px] font-extrabold uppercase tracking-widest"
+                          style={{ color: 'rgba(245,200,66,0.85)' }}
+                        >
+                          VIP
+                        </span>
                       </div>
                     </div>
 
                     {/* Pricing */}
                     <div>
-                      {selectedInterval === 'monthly' ? (
-                        <div>
-                          <span className="text-2xl font-bold text-white">€6.99</span>
-                          <span className="text-sm font-normal text-muted-foreground/70 ml-1">/month</span>
-                        </div>
-                      ) : (
-                        <div className="space-y-0.5">
-                          <div>
-                            <span className="text-2xl font-bold text-white">€54.99</span>
-                            <span className="text-sm font-normal text-muted-foreground/70 ml-1">/year</span>
-                          </div>
-                          <p className="text-xs text-muted-foreground/60">
-                            €{(54.99 / 12).toFixed(2)} / month
-                          </p>
-                        </div>
-                      )}
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-[28px] font-extrabold leading-none" style={{ color: '#ffffff' }}>
+                          {'€6.99'}
+                        </span>
+                        <span className="text-[14px] font-normal" style={{ color: 'rgba(200,200,220,0.5)' }}>
+                          {'/'}
+                          {t.subscription_monthly?.toLowerCase() || 'month'}
+                        </span>
+                      </div>
+                      <p className="text-[13px] mt-0.5" style={{ color: 'rgba(200,200,220,0.4)' }}>
+                        {t.manage_sub_yearly_price}
+                      </p>
                     </div>
 
-                    {/* Benefits with Icons */}
-                    <div className="space-y-2 pt-1">
-                      <p className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider">Benefits</p>
-                      
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary/10 border border-primary/20">
-                          <InfinityIcon className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
-                        </div>
-                        <span className="text-[13px] text-foreground/90 leading-tight">unlimited confessions</span>
-                      </div>
+                    {/* Benefits */}
+                    <div className="space-y-3 pt-1">
+                      <p
+                        className="text-[11px] font-bold uppercase tracking-widest"
+                        style={{ color: 'rgba(200,200,220,0.45)' }}
+                      >
+                        {t.manage_sub_benefits}
+                      </p>
 
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary/10 border border-primary/20">
-                          <Heart className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
-                        </div>
-                        <span className="text-[13px] text-foreground/90 leading-tight">exclusive reactions</span>
-                      </div>
-
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary/10 border border-primary/20">
-                          <Crown className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
-                        </div>
-                        <span className="text-[13px] text-foreground/90 leading-tight">VIP crown badge</span>
-                      </div>
-
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary/10 border border-primary/20">
-                          <MessageSquare className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
-                        </div>
-                        <span className="text-[13px] text-foreground/90 leading-tight">priority comments</span>
-                      </div>
+                      {/* Benefit rows */}
+                      <BenefitRow
+                        icon={<InfinityIcon className="w-4 h-4" strokeWidth={2} />}
+                        label={t.manage_sub_benefit_unlimited}
+                      />
+                      <BenefitRow
+                        icon={<Heart className="w-4 h-4" strokeWidth={2} />}
+                        label={t.manage_sub_benefit_reactions}
+                      />
+                      <BenefitRow
+                        icon={<CrownIcon className="w-4 h-4" />}
+                        label={t.manage_sub_benefit_badge}
+                      />
+                      <BenefitRow
+                        icon={<MessageSquare className="w-4 h-4" strokeWidth={2} />}
+                        label={t.manage_sub_benefit_comments}
+                      />
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* CTA Button with depth */}
-              {currentPlan === 'free' ? (
+              {/* ─── CTA Button ─── */}
+              {!isVip ? (
                 <Button
                   onClick={handleUpgrade}
                   disabled={isProcessing}
-                  className="relative w-full rounded-full h-11 bg-gradient-to-r from-primary via-primary to-primary/90 hover:from-primary/90 hover:via-primary hover:to-primary text-white font-semibold text-sm shadow-[0_4px_16px_rgba(168,85,247,0.3),0_2px_4px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all duration-200 hover:shadow-[0_6px_20px_rgba(168,85,247,0.4),0_2px_4px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.15)]"
+                  className="relative w-full h-[52px] rounded-full font-bold text-[15px] border-0 transition-all duration-200"
+                  style={{
+                    background: 'linear-gradient(135deg, hsl(265 85% 58%), hsl(280 80% 52%))',
+                    color: '#ffffff',
+                    boxShadow: '0 6px 24px rgba(168,85,247,0.35), 0 2px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12)',
+                  }}
                 >
-                  {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : t.manage_sub_upgrade_to_vip}
+                  {isProcessing ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    t.manage_sub_upgrade_to_vip
+                  )}
                 </Button>
               ) : (
-                <p className="text-center text-xs text-muted-foreground/70 py-3">
+                <p className="text-center text-[12px] py-3" style={{ color: 'rgba(200,200,220,0.45)' }}>
                   {t.subscription_cancel_anytime}
                 </p>
               )}
@@ -309,3 +318,25 @@ const newProfile = payload.new as { subscription_tier?: string; subscription_cad
     </Dialog>
   );
 };
+
+/* ── Benefit Row Component ── */
+function BenefitRow({ icon, label }: { icon: React.ReactNode; label: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      <div
+        className="flex items-center justify-center w-7 h-7 shrink-0"
+        style={{
+          borderRadius: '8px',
+          background: 'rgba(168,85,247,0.12)',
+          border: '1px solid rgba(168,85,247,0.2)',
+          color: 'hsl(265 85% 72%)',
+        }}
+      >
+        {icon}
+      </div>
+      <span className="text-[13px] leading-tight" style={{ color: 'rgba(230,230,240,0.85)' }}>
+        {label}
+      </span>
+    </div>
+  );
+}

@@ -1581,6 +1581,11 @@ type Translations = {
   manage_sub_vip_plan: string;
   manage_sub_benefits: string;
   manage_sub_upgrade_to_vip: string;
+  manage_sub_benefit_unlimited: string;
+  manage_sub_benefit_reactions: string;
+  manage_sub_benefit_badge: string;
+  manage_sub_benefit_comments: string;
+  manage_sub_yearly_price: string;
   
   // Subscription Benefits - Free
   subscription_benefits_free_confessions: string;
@@ -3019,6 +3024,11 @@ export const translations: Record<Language, Translations> = {
     manage_sub_vip_plan: "VIP Plan",
     manage_sub_benefits: "Benefits",
     manage_sub_upgrade_to_vip: "Upgrade to VIP",
+    manage_sub_benefit_unlimited: "unlimited confessions",
+    manage_sub_benefit_reactions: "exclusive reactions",
+    manage_sub_benefit_badge: "VIP crown badge",
+    manage_sub_benefit_comments: "priority comments",
+    manage_sub_yearly_price: "€54.99/year",
     
     // Subscription Benefits - Free
     subscription_benefits_free_confessions: "Limited confessions per day",
@@ -5392,6 +5402,11 @@ export const translations: Record<Language, Translations> = {
     manage_sub_vip_plan: "Plan VIP",
     manage_sub_benefits: "Beneficios",
     manage_sub_upgrade_to_vip: "Mejorar a VIP",
+    manage_sub_benefit_unlimited: "confesiones ilimitadas",
+    manage_sub_benefit_reactions: "reacciones exclusivas",
+    manage_sub_benefit_badge: "insignia VIP corona",
+    manage_sub_benefit_comments: "comentarios prioritarios",
+    manage_sub_yearly_price: "€54,99/año",
     
     // Subscription Benefits - Free
     subscription_benefits_free_confessions: "Confesiones limitadas por día",
@@ -7395,6 +7410,11 @@ export const translations: Record<Language, Translations> = {
     manage_sub_vip_plan: "VIP Plan",
     manage_sub_benefits: "Vorteile",
     manage_sub_upgrade_to_vip: "Auf VIP upgraden",
+    manage_sub_benefit_unlimited: "unbegrenzte Beichten",
+    manage_sub_benefit_reactions: "exklusive Reaktionen",
+    manage_sub_benefit_badge: "VIP-Kronen-Abzeichen",
+    manage_sub_benefit_comments: "priorisierte Kommentare",
+    manage_sub_yearly_price: "€54,99/Jahr",
     
     // Subscription Benefits - Free
     subscription_benefits_free_confessions: "Begrenzte Geständnisse pro Tag",
