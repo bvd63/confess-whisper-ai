@@ -590,9 +590,20 @@ export const UnifiedShopDialog = ({
                 <Button
                   onClick={handleUpgrade}
                   disabled={isProcessing}
-                  variant="ghost"
-                  className="w-full h-[54px] rounded-full text-base font-semibold text-white/90 hover:bg-white/10 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                   style={{
+                    height: '54px',
+                    borderRadius: '999px',
+                    background: 'linear-gradient(90deg, #7C3AED 0%, #A855F7 50%, #9333EA 100%)',
+                    color: '#FFFFFF',
+                    fontSize: '16px',
+                    fontWeight: 600,
+                    border: 'none',
+                    letterSpacing: '-0.1px',
+                    boxShadow:
+                      '0 8px 32px rgba(148,70,240,0.45),' +
+                      '0 2px 8px rgba(0,0,0,0.3),' +
+                      'inset 0 1px 0 rgba(255,255,255,0.20)',
                     cursor: isProcessing ? 'wait' : 'pointer',
                   }}
                 >
