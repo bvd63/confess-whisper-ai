@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { toast } from "sonner";
-import { Loader2, Crown } from "lucide-react";
+import { Loader2, Crown, X } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { logError, logDebug } from "@/lib/logger";
 import { STRIPE_PRICE } from '@/lib/stripe-config';
@@ -129,10 +129,17 @@ const newProfile = payload.new as { subscription_tier?: string; subscription_cad
         data-testid="manage-subscription-modal"
         className="max-w-md max-h-[90vh] overflow-y-auto bg-background border-border rounded-2xl p-0"
       >
-        <DialogHeader className="sticky top-0 z-10 bg-background border-b border-border/50 px-6 py-4">
+        <DialogHeader className="sticky top-0 z-10 bg-background border-b border-border/50 px-6 py-4 relative">
           <DialogTitle className="text-lg font-semibold text-foreground text-center">
             Manage Subscription
           </DialogTitle>
+          <button
+            onClick={() => onOpenChange(false)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </DialogHeader>
 
         <div className="px-5 py-5 space-y-3">
