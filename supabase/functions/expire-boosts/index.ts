@@ -1,15 +1,18 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders, jsonResponse, requireInternalSecret } from "../_shared/edge-auth.ts";
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  if (req.method !== "POST") {
+    return jsonResponse({ error: "METHOD_NOT_ALLOWED" }, 405);
+  }
+
+  const internal = requireInternalSecret(req);
+  if (!internal.ok) return internal.response;
 
   try {
     const supabaseAdmin = createClient(
@@ -22,23 +25,14 @@ serve(async (req) => {
 
     if (error) {
       console.error('Error expiring boosts:', error);
-      return new Response(
-        JSON.stringify({ error: 'Failed to expire boosts', details: error.message }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ error: 'Failed to expire boosts', details: error.message }, 500);
     }
 
     console.log('Successfully expired active boosts');
-    return new Response(
-      JSON.stringify({ success: true, message: 'Boosts expired successfully' }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return jsonResponse({ success: true, message: 'Boosts expired successfully' }, 200);
 
   } catch (error) {
     console.error('Error in expire-boosts:', error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return jsonResponse({ error: error instanceof Error ? error.message : 'Unknown error' }, 500);
   }
 });
