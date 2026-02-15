@@ -296,14 +296,17 @@ export const UnifiedShopDialog = ({
                 <div
                   style={{
                     position: 'relative',
-                    /* Subtle muted version of CONFIRM_GRADIENT as background tint */
-                    background: 'linear-gradient(90deg, rgba(192,132,252,0.10) 0%, rgba(167,139,250,0.07) 50%, rgba(129,140,248,0.10) 100%)',
+                    background:
+                      'linear-gradient(145deg, #110E20 0%, #0C0B18 35%, #0E0A1A 65%, #100D1F 100%)',
                     backdropFilter: 'blur(24px)',
                     WebkitBackdropFilter: 'blur(24px)',
-                    border: '1px solid rgba(255,255,255,0.08)',
+                    border: '1px solid rgba(167,139,250,0.25)',
                     boxShadow:
-                      'inset 0 1px 0 rgba(255,255,255,0.10),' +
-                      '0 8px 32px rgba(0,0,0,0.35)',
+                      'inset 0 1px 0 rgba(255,255,255,0.07),' +
+                      'inset 0 0 30px rgba(0,0,0,0.40),' +
+                      '0 4px 16px rgba(167,139,250,0.15),' +
+                      '0 12px 40px rgba(167,139,250,0.10),' +
+                      '0 20px 60px rgba(0,0,0,0.35)',
                     borderRadius: '20px',
                     padding: '20px 22px',
                     overflow: 'hidden',
