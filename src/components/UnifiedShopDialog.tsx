@@ -74,12 +74,12 @@ const SmallCrownIcon = ({ size = 16 }: { size?: number }) => (
 /*  Reusable benefit row                                               */
 /* ------------------------------------------------------------------ */
 const BenefitRow = ({ icon, label }: { icon: React.ReactNode; label: string }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
     <div
       style={{
-        width: '36px',
-        height: '36px',
-        borderRadius: '12px',
+        width: '32px',
+        height: '32px',
+        borderRadius: '10px',
         background: CONFIRM_GRADIENT,
         display: 'flex',
         alignItems: 'center',
@@ -93,10 +93,10 @@ const BenefitRow = ({ icon, label }: { icon: React.ReactNode; label: string }) =
     </div>
     <span
       style={{
-        fontSize: '15px',
+        fontSize: '14px',
         color: 'rgba(255,255,255,0.85)',
         fontWeight: 500,
-        lineHeight: 1.3,
+        lineHeight: 1.2,
       }}
     >
       {label}
@@ -257,7 +257,7 @@ export const UnifiedShopDialog = ({
           style={{
             zIndex: 10,
             background: 'transparent',
-            paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)',
+            paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)',
             paddingBottom: '4px',
             paddingLeft: '24px',
             paddingRight: '24px',
@@ -276,15 +276,15 @@ export const UnifiedShopDialog = ({
           </DialogTitle>
         </DialogHeader>
 
-        {/* ── SCROLLABLE CONTENT ── */}
+        {/* ── CONTENT (no scroll) ── */}
         <div
-          className="relative flex-1 overflow-y-auto"
+          className="relative flex-1 overflow-hidden"
           style={{
             zIndex: 10,
-            paddingTop: 'clamp(8px, 1.5vh, 16px)',
+            paddingTop: '8px',
             paddingLeft: '20px',
             paddingRight: '20px',
-            paddingBottom: '8px',
+            paddingBottom: '0',
           }}
         >
           {loading ? (
@@ -296,7 +296,7 @@ export const UnifiedShopDialog = ({
               {/* ════════════════════════════════════════════ */}
               {/*  CURRENT PLAN CARD                           */}
               {/* ════════════════════════════════════════════ */}
-              <div style={{ position: 'relative', marginBottom: 'clamp(12px, 2vh, 20px)' }}>
+              <div style={{ position: 'relative', marginBottom: '12px' }}>
                 <div
                   style={{
                     position: 'relative',
@@ -307,7 +307,7 @@ export const UnifiedShopDialog = ({
                       '0 2px 8px rgba(0,0,0,0.25),' +
                       'inset 0 1px 0 rgba(255,255,255,0.22)',
                     borderRadius: '20px',
-                    padding: 'clamp(14px, 2vh, 20px) 22px',
+                    padding: '12px 22px',
                     overflow: 'hidden',
                   }}
                 >
@@ -329,17 +329,6 @@ export const UnifiedShopDialog = ({
                     }}
                   >
                     {t.manage_sub_current_plan_free}
-                  </p>
-                  <p
-                    style={{
-                      position: 'relative',
-                      fontSize: '13px',
-                      color: 'rgba(255,255,255,0.45)',
-                      marginTop: '4px',
-                      lineHeight: 1.4,
-                    }}
-                  >
-                    {t.manage_sub_current_plan_desc}
                   </p>
                 </div>
               </div>
@@ -371,7 +360,7 @@ export const UnifiedShopDialog = ({
                     style={{
                       position: 'relative',
                       borderRadius: '24px',
-                      padding: 'clamp(18px, 3vh, 28px) clamp(18px, 2vw, 26px) clamp(18px, 2.5vh, 26px)',
+                      padding: '16px 20px 16px',
                       overflow: 'hidden',
                       zIndex: 3,
                       background:
@@ -444,7 +433,7 @@ export const UnifiedShopDialog = ({
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
-                          marginBottom: 'clamp(8px, 1.5vh, 14px)',
+                          marginBottom: '10px',
                         }}
                       >
                         <span
@@ -481,7 +470,7 @@ export const UnifiedShopDialog = ({
                           borderRadius: '12px',
                           background: 'rgba(255,255,255,0.06)',
                           padding: '3px',
-                          marginBottom: 'clamp(14px, 2.5vh, 24px)',
+                          marginBottom: '14px',
                           border: '1px solid rgba(255,255,255,0.08)',
                           position: 'relative',
                         }}
@@ -494,7 +483,7 @@ export const UnifiedShopDialog = ({
                               onClick={() => setSelectedInterval(interval)}
                               style={{
                                 flex: 1,
-                                padding: 'clamp(7px, 1vh, 10px) 0',
+                                padding: '7px 0',
                                 borderRadius: '10px',
                                 fontSize: '13px',
                                 fontWeight: 600,
@@ -541,11 +530,11 @@ export const UnifiedShopDialog = ({
                       </div>
 
                       {/* Pricing */}
-                      <div style={{ marginBottom: 'clamp(12px, 2vh, 20px)' }}>
+                      <div style={{ marginBottom: '8px' }}>
                         <div style={{ display: 'flex', alignItems: 'baseline' }}>
                           <span
                             style={{
-                              fontSize: 'clamp(26px, 4vh, 32px)',
+                              fontSize: '28px',
                               fontWeight: 700,
                               color: '#FFFFFF',
                               letterSpacing: '-0.5px',
@@ -602,26 +591,26 @@ export const UnifiedShopDialog = ({
                             color: 'rgba(255,255,255,0.40)',
                             textTransform: 'uppercase' as const,
                             letterSpacing: '1.1px',
-                            marginBottom: 'clamp(8px, 1.5vh, 14px)',
+                            marginBottom: '8px',
                           }}
                         >
                           Benefits
                         </p>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.5vh, 16px)' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                           <BenefitRow
-                            icon={<InfinityIcon style={{ width: '17px', height: '17px', strokeWidth: 2 }} />}
+                            icon={<InfinityIcon style={{ width: '15px', height: '15px', strokeWidth: 2 }} />}
                             label="Unlimited daily confessions"
                           />
                           <BenefitRow
-                            icon={<Crown style={{ width: '17px', height: '17px', strokeWidth: 2 }} />}
+                            icon={<Crown style={{ width: '15px', height: '15px', strokeWidth: 2 }} />}
                             label="VIP crown badge"
                           />
                           <BenefitRow
-                            icon={<Coins style={{ width: '17px', height: '17px', strokeWidth: 2 }} />}
+                            icon={<Coins style={{ width: '15px', height: '15px', strokeWidth: 2 }} />}
                             label="250 coins bonus on signup"
                           />
                           <BenefitRow
-                            icon={<Award style={{ width: '17px', height: '17px', strokeWidth: 2 }} />}
+                            icon={<Award style={{ width: '15px', height: '15px', strokeWidth: 2 }} />}
                             label="Exclusive VIP badges & flairs"
                           />
                         </div>
@@ -640,8 +629,8 @@ export const UnifiedShopDialog = ({
             className="relative shrink-0"
             style={{
               zIndex: 10,
-              padding: '12px 20px',
-              paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)',
+              padding: '8px 20px',
+              paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 10px)',
               background: 'linear-gradient(to top, #08090F 60%, transparent)',
             }}
           >
@@ -651,7 +640,7 @@ export const UnifiedShopDialog = ({
                 disabled={isProcessing}
                 className="w-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                 style={{
-                  height: '54px',
+                  height: '48px',
                   borderRadius: '999px',
                   background: CONFIRM_GRADIENT,
                   color: '#FFFFFF',
