@@ -257,8 +257,8 @@ export const UnifiedShopDialog = ({
           style={{
             zIndex: 10,
             background: 'transparent',
-            paddingTop: 'calc(env(safe-area-inset-top, 0px) + clamp(10px, 1.5vh, 18px))',
-            paddingBottom: 'clamp(2px, 0.5vh, 6px)',
+            paddingTop: 'calc(env(safe-area-inset-top, 0px) + var(--ms-header-pt))',
+            paddingBottom: '4px',
             paddingLeft: '24px',
             paddingRight: '24px',
           }}
@@ -281,7 +281,7 @@ export const UnifiedShopDialog = ({
           className="relative flex-1 overflow-hidden"
           style={{
             zIndex: 10,
-            paddingTop: 'clamp(8px, 1.5vh, 24px)',
+            paddingTop: 'var(--ms-content-pt)',
             paddingLeft: '20px',
             paddingRight: '20px',
             paddingBottom: '0',
@@ -298,7 +298,7 @@ export const UnifiedShopDialog = ({
               {/* ════════════════════════════════════════════ */}
               {/*  CURRENT PLAN CARD                           */}
               {/* ════════════════════════════════════════════ */}
-              <div style={{ position: 'relative', marginBottom: 'clamp(8px, 1.5vh, 18px)' }}>
+              <div style={{ position: 'relative', marginBottom: 'var(--ms-section-gap)' }}>
                 <div
                   style={{
                     position: 'relative',
@@ -309,7 +309,7 @@ export const UnifiedShopDialog = ({
                       '0 2px 8px rgba(0,0,0,0.25),' +
                       'inset 0 1px 0 rgba(255,255,255,0.22)',
                     borderRadius: '20px',
-                    padding: 'clamp(10px, 1.5vh, 16px) 22px',
+                    padding: 'var(--ms-free-pad) 22px',
                     overflow: 'hidden',
                   }}
                 >
@@ -362,7 +362,7 @@ export const UnifiedShopDialog = ({
                     style={{
                       position: 'relative',
                       borderRadius: '24px',
-                      padding: 'clamp(14px, 2.5vh, 24px) 22px clamp(14px, 2.5vh, 24px)',
+                      padding: 'var(--ms-vip-pad) 22px var(--ms-vip-pad)',
                       overflow: 'hidden',
                       zIndex: 3,
                       background:
@@ -435,7 +435,7 @@ export const UnifiedShopDialog = ({
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
-                          marginBottom: 'clamp(8px, 1.2vh, 14px)',
+                          marginBottom: 'var(--ms-title-mb)',
                         }}
                       >
                         <span
@@ -472,7 +472,7 @@ export const UnifiedShopDialog = ({
                           borderRadius: '12px',
                           background: 'rgba(255,255,255,0.06)',
                           padding: '3px',
-                          marginBottom: 'clamp(10px, 1.8vh, 20px)',
+                          marginBottom: 'var(--ms-toggle-mb)',
                           border: '1px solid rgba(255,255,255,0.08)',
                           position: 'relative',
                         }}
@@ -532,7 +532,7 @@ export const UnifiedShopDialog = ({
                       </div>
 
                       {/* Pricing */}
-                      <div style={{ marginBottom: 'clamp(6px, 1vh, 12px)' }}>
+                      <div style={{ marginBottom: 'var(--ms-price-mb)' }}>
                         <div style={{ display: 'flex', alignItems: 'baseline' }}>
                           <span
                             style={{
@@ -594,12 +594,12 @@ export const UnifiedShopDialog = ({
                             color: 'rgba(255,255,255,0.40)',
                             textTransform: 'uppercase' as const,
                             letterSpacing: '1.1px',
-                            marginBottom: 'clamp(6px, 1vh, 12px)',
+                            marginBottom: 'var(--ms-benefits-label-mb)',
                           }}
                         >
                           Benefits
                         </p>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.2vh, 14px)' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ms-benefits-gap)' }}>
                           <BenefitRow
                             icon={<InfinityIcon style={{ width: '15px', height: '15px', strokeWidth: 2 }} />}
                             label="Unlimited daily confessions"
@@ -632,8 +632,8 @@ export const UnifiedShopDialog = ({
             className="relative shrink-0"
             style={{
               zIndex: 10,
-            padding: 'clamp(4px, 1vh, 12px) 20px',
-            paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + clamp(6px, 1vh, 14px))',
+            padding: 'var(--ms-cta-pad) 20px',
+            paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + var(--ms-cta-pb))',
               background: 'linear-gradient(to top, #08090F 60%, transparent)',
             }}
           >
@@ -643,7 +643,7 @@ export const UnifiedShopDialog = ({
                 disabled={isProcessing}
                 className="w-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                 style={{
-                  height: 'clamp(46px, 6vh, 56px)',
+                  height: 'var(--ms-cta-height)',
                   borderRadius: '999px',
                   background: CONFIRM_GRADIENT,
                   color: '#FFFFFF',
