@@ -469,8 +469,9 @@ export const UnifiedShopDialog = ({
                           borderRadius: '12px',
                           background: 'rgba(255,255,255,0.06)',
                           padding: '3px',
-                          marginBottom: '16px',
+                          marginBottom: '24px',
                           border: '1px solid rgba(255,255,255,0.08)',
+                          position: 'relative',
                         }}
                       >
                         {(['monthly', 'yearly'] as const).map((interval) => {
@@ -481,7 +482,7 @@ export const UnifiedShopDialog = ({
                               onClick={() => setSelectedInterval(interval)}
                               style={{
                                 flex: 1,
-                                padding: '8px 0',
+                                padding: '10px 0',
                                 borderRadius: '10px',
                                 fontSize: '13px',
                                 fontWeight: 600,
@@ -494,34 +495,37 @@ export const UnifiedShopDialog = ({
                                   ? '0 2px 8px rgba(167,139,250,0.3)'
                                   : 'none',
                                 position: 'relative',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '5px',
                               }}
                             >
                               {interval === 'monthly'
                                 ? (t.manage_sub_monthly || 'Monthly')
                                 : (t.manage_sub_yearly || 'Yearly')}
-                              {interval === 'yearly' && (
-                                <span
-                                  style={{
-                                    fontSize: '9px',
-                                    fontWeight: 700,
-                                    color: '#34D399',
-                                    background: 'rgba(52,211,153,0.15)',
-                                    padding: '1px 5px',
-                                    borderRadius: '4px',
-                                    letterSpacing: '0.2px',
-                                    lineHeight: '14px',
-                                  }}
-                                >
-                                  {t.manage_sub_save_percent || 'Save 34%'}
-                                </span>
-                              )}
                             </button>
                           );
                         })}
+                        {/* Save badge – absolute, top-right of toggle */}
+                        <span
+                          className="animate-pulse"
+                          style={{
+                            position: 'absolute',
+                            top: '-10px',
+                            right: '-4px',
+                            fontSize: '10px',
+                            fontWeight: 800,
+                            color: '#fff',
+                            background: 'linear-gradient(135deg, #22C55E, #16A34A)',
+                            padding: '2px 8px',
+                            borderRadius: '999px',
+                            letterSpacing: '0.3px',
+                            lineHeight: '16px',
+                            boxShadow: '0 2px 8px rgba(34,197,94,0.4), 0 1px 2px rgba(0,0,0,0.3)',
+                            zIndex: 5,
+                            whiteSpace: 'nowrap',
+                            animationDuration: '2.5s',
+                          }}
+                        >
+                          {t.manage_sub_save_percent || 'Save 34%'} 🔥
+                        </span>
                       </div>
 
                       {/* Pricing */}
