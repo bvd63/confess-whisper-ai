@@ -10,6 +10,12 @@ import { logError, logDebug } from "@/lib/logger";
 import { STRIPE_PRICE } from '@/lib/stripe-config';
 
 /* ------------------------------------------------------------------ */
+/*  Reusable gradient token – extracted from "Confirm" button image    */
+/*  Warm lavender → mid violet → cool blue-purple, 90deg LTR          */
+/* ------------------------------------------------------------------ */
+const CONFIRM_GRADIENT = 'linear-gradient(90deg, #C084FC 0%, #A78BFA 50%, #818CF8 100%)';
+
+/* ------------------------------------------------------------------ */
 /*  Inline SVG noise pattern used as card texture overlay              */
 /* ------------------------------------------------------------------ */
 const NOISE_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
@@ -24,18 +30,18 @@ const GoldCrownIcon = ({ size = 22 }: { size?: number }) => (
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    style={{ filter: "drop-shadow(0 0 8px rgba(251,191,36,0.55))" }}
+    style={{ filter: "drop-shadow(0 0 5px rgba(251,191,36,0.35))" }}
   >
     <defs>
       <linearGradient id="crownGoldMain" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stopColor="#FDE68A" />
-        <stop offset="100%" stopColor="#FBBF24" />
+        <stop offset="100%" stopColor="#F5C842" />
       </linearGradient>
     </defs>
     <path
-      d="M3 18H21V20H3V18ZM3.5 16L2 7L7 10L12 4L17 10L22 7L20.5 16H3.5Z"
+      d="M4 17H20V19H4V17ZM4.5 15.5L3 8L7.5 10.5L12 5L16.5 10.5L21 8L19.5 15.5H4.5Z"
       stroke="url(#crownGoldMain)"
-      strokeWidth="1.5"
+      strokeWidth="1.2"
       strokeLinecap="round"
       strokeLinejoin="round"
       fill="none"
@@ -75,14 +81,14 @@ const BenefitRow = ({ icon, label }: { icon: React.ReactNode; label: string }) =
         width: '36px',
         height: '36px',
         borderRadius: '12px',
-        background: 'rgba(168,85,247,0.12)',
-        border: '1px solid rgba(168,85,247,0.10)',
+        background: 'rgba(167,139,250,0.10)',
+        border: '1px solid rgba(167,139,250,0.08)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        boxShadow: 'inset 0 0 10px rgba(168,85,247,0.08)',
+        boxShadow: 'inset 0 0 8px rgba(167,139,250,0.06)',
         flexShrink: 0,
-        color: 'rgba(168,85,247,0.9)',
+        color: 'rgba(192,132,252,0.85)',
       }}
     >
       {icon}
@@ -290,7 +296,8 @@ export const UnifiedShopDialog = ({
                 <div
                   style={{
                     position: 'relative',
-                    background: 'rgba(255,255,255,0.05)',
+                    /* Subtle muted version of CONFIRM_GRADIENT as background tint */
+                    background: 'linear-gradient(90deg, rgba(192,132,252,0.10) 0%, rgba(167,139,250,0.07) 50%, rgba(129,140,248,0.10) 100%)',
                     backdropFilter: 'blur(24px)',
                     WebkitBackdropFilter: 'blur(24px)',
                     border: '1px solid rgba(255,255,255,0.08)',
@@ -353,60 +360,43 @@ export const UnifiedShopDialog = ({
               {currentPlan === 'free' && (
                 <div style={{ position: 'relative', marginBottom: '24px' }}>
 
-                  {/* ── Layer 1: Wide ambient glow (left + bottom emphasis) ── */}
+                  {/* ── Soft diffused outer glow (wide, faint spread) ── */}
                   <div
                     className="absolute pointer-events-none"
                     style={{
-                      inset: '-12px',
-                      borderRadius: '34px',
+                      inset: '-16px',
+                      borderRadius: '38px',
+                      /* Uses CONFIRM_GRADIENT color family for glow, not random purple */
                       background:
-                        'radial-gradient(ellipse at 10% 70%, rgba(160,80,255,0.30) 0%, transparent 55%),' +
-                        'radial-gradient(ellipse at 30% 100%, rgba(140,60,240,0.25) 0%, transparent 50%),' +
-                        'radial-gradient(ellipse at 90% 20%, rgba(100,160,255,0.12) 0%, transparent 50%)',
-                      filter: 'blur(18px)',
+                        'radial-gradient(ellipse at 15% 75%, rgba(192,132,252,0.18) 0%, transparent 55%),' +
+                        'radial-gradient(ellipse at 50% 105%, rgba(167,139,250,0.14) 0%, transparent 50%),' +
+                        'radial-gradient(ellipse at 85% 15%, rgba(129,140,248,0.08) 0%, transparent 50%)',
+                      filter: 'blur(24px)',
                       zIndex: 0,
                     }}
                   />
 
-                  {/* ── Layer 2: Tight neon border glow ── */}
-                  <div
-                    className="absolute pointer-events-none"
-                    style={{
-                      inset: '-2px',
-                      borderRadius: '26px',
-                      background:
-                        'linear-gradient(160deg, rgba(160,100,255,0.50) 0%, rgba(130,60,240,0.60) 30%, rgba(180,100,255,0.45) 60%, rgba(120,80,255,0.50) 100%)',
-                      filter: 'blur(3px)',
-                      zIndex: 1,
-                    }}
-                  />
-
-                  {/* ── Layer 3: Visible 1px neon border ── */}
-                  <div
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                      borderRadius: '24px',
-                      border: '1.5px solid rgba(168,100,255,0.55)',
-                      zIndex: 4,
-                    }}
-                  />
-
-                  {/* ── Layer 4: The panel itself (dark center) ── */}
+                  {/* ── The panel itself (dark center, soft iOS glow) ── */}
                   <div
                     className="relative"
                     style={{
                       position: 'relative',
                       borderRadius: '24px',
-                      padding: '26px 24px 24px',
+                      padding: '28px 26px 26px',
                       overflow: 'hidden',
                       zIndex: 3,
                       /* Deep dark base — near-black center */
                       background:
                         'linear-gradient(145deg, #110E20 0%, #0C0B18 35%, #0E0A1A 65%, #100D1F 100%)',
+                      /* Soft 1px border from CONFIRM_GRADIENT family */
+                      border: '1px solid rgba(167,139,250,0.25)',
+                      /* iOS-style multi-layer shadow: inner highlight + soft outer + faint spread */
                       boxShadow:
-                        'inset 0 0 60px rgba(0,0,0,0.55),' +
-                        'inset 0 1px 0 rgba(255,255,255,0.06),' +
-                        '0 20px 60px rgba(0,0,0,0.4)',
+                        'inset 0 1px 0 rgba(255,255,255,0.07),' +
+                        'inset 0 0 30px rgba(0,0,0,0.40),' +
+                        '0 4px 16px rgba(167,139,250,0.15),' +
+                        '0 12px 40px rgba(167,139,250,0.10),' +
+                        '0 20px 60px rgba(0,0,0,0.35)',
                     }}
                   >
                     {/* Inner vignette — darkens center further */}
@@ -420,26 +410,16 @@ export const UnifiedShopDialog = ({
                       }}
                     />
 
-                    {/* Purple accent illumination from left/bottom edge */}
+                    {/* Accent illumination from CONFIRM_GRADIENT family */}
                     <div
                       className="absolute pointer-events-none"
                       style={{
                         inset: 0,
                         borderRadius: '24px',
                         background:
-                          'radial-gradient(ellipse at 0% 80%, rgba(140,60,235,0.18) 0%, transparent 50%),' +
-                          'radial-gradient(ellipse at 20% 100%, rgba(160,80,255,0.12) 0%, transparent 45%)',
-                        zIndex: 0,
-                      }}
-                    />
-
-                    {/* Cool blue highlight from top-right */}
-                    <div
-                      className="absolute pointer-events-none"
-                      style={{
-                        inset: 0,
-                        borderRadius: '24px',
-                        background: 'radial-gradient(ellipse at 85% 10%, rgba(100,160,255,0.08) 0%, transparent 50%)',
+                          'radial-gradient(ellipse at 0% 80%, rgba(192,132,252,0.12) 0%, transparent 50%),' +
+                          'radial-gradient(ellipse at 20% 100%, rgba(167,139,250,0.08) 0%, transparent 45%),' +
+                          'radial-gradient(ellipse at 85% 10%, rgba(129,140,248,0.06) 0%, transparent 50%)',
                         zIndex: 0,
                       }}
                     />
@@ -509,12 +489,12 @@ export const UnifiedShopDialog = ({
                       </div>
 
                       {/* Pricing */}
-                      <div style={{ marginBottom: '18px' }}>
+                      <div style={{ marginBottom: '20px' }}>
                         <div style={{ display: 'flex', alignItems: 'baseline' }}>
                           <span
                             style={{
                               fontSize: '32px',
-                              fontWeight: 800,
+                              fontWeight: 700,
                               color: '#FFFFFF',
                               letterSpacing: '-0.5px',
                               lineHeight: 1,
@@ -526,7 +506,7 @@ export const UnifiedShopDialog = ({
                             style={{
                               fontSize: '14px',
                               fontWeight: 400,
-                              color: 'rgba(255,255,255,0.40)',
+                              color: 'rgba(255,255,255,0.45)',
                               marginLeft: '3px',
                             }}
                           >
@@ -536,8 +516,8 @@ export const UnifiedShopDialog = ({
                         <p
                           style={{
                             fontSize: '13px',
-                            color: 'rgba(255,255,255,0.30)',
-                            marginTop: '5px',
+                            color: 'rgba(255,255,255,0.32)',
+                            marginTop: '6px',
                             letterSpacing: '0.1px',
                           }}
                         >
@@ -594,16 +574,17 @@ export const UnifiedShopDialog = ({
                   style={{
                     height: '54px',
                     borderRadius: '999px',
-                    background: 'linear-gradient(90deg, #7C3AED 0%, #A855F7 50%, #9333EA 100%)',
+                    /* Exact CONFIRM_GRADIENT */
+                    background: CONFIRM_GRADIENT,
                     color: '#FFFFFF',
                     fontSize: '16px',
                     fontWeight: 600,
                     border: 'none',
                     letterSpacing: '-0.1px',
                     boxShadow:
-                      '0 8px 32px rgba(148,70,240,0.45),' +
-                      '0 2px 8px rgba(0,0,0,0.3),' +
-                      'inset 0 1px 0 rgba(255,255,255,0.20)',
+                      '0 8px 28px rgba(167,139,250,0.35),' +
+                      '0 2px 8px rgba(0,0,0,0.25),' +
+                      'inset 0 1px 0 rgba(255,255,255,0.22)',
                     cursor: isProcessing ? 'wait' : 'pointer',
                   }}
                 >
