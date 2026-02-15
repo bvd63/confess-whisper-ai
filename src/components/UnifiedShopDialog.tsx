@@ -180,21 +180,24 @@ const newProfile = payload.new as { subscription_tier?: string; subscription_cad
 
               {/* VIP Plan Card - Ambient glow + edge lighting */}
               {currentPlan === 'free' && (
-                <div className="relative rounded-xl p-4" style={{
-                  background: 'linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02))',
-                  border: '1px solid rgba(156,106,255,0.18)',
-                  boxShadow: '0 18px 50px rgba(0,0,0,0.55), 0 6px 18px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05)',
-                }}>
-                  {/* Ambient glow pseudo-element */}
-                  <div className="absolute pointer-events-none" style={{
-                    inset: '-14px',
-                    borderRadius: 'inherit',
-                    background: 'radial-gradient(circle at 30% 20%, rgba(156,106,255,0.20), transparent 60%), radial-gradient(circle at 80% 60%, rgba(156,106,255,0.14), transparent 65%)',
-                    filter: 'blur(18px)',
-                    opacity: 0.55,
-                    zIndex: 0,
-                  }} />
-                  
+                <div
+                  className="relative overflow-hidden rounded-xl border border-[rgba(156,106,255,0.18)] bg-white/[0.04] p-4"
+                  style={{
+                    boxShadow: '0 18px 50px rgba(0,0,0,0.55), 0 6px 18px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05)',
+                  }}
+                >
+                  {/* Ambient glow overlay */}
+                  <div
+                    className="absolute -inset-6 rounded-[inherit] blur-2xl opacity-60 pointer-events-none"
+                    style={{
+                      background: 'radial-gradient(circle at 30% 20%, rgba(156,106,255,0.22), transparent 60%), radial-gradient(circle at 80% 60%, rgba(156,106,255,0.14), transparent 65%)',
+                      zIndex: 0,
+                    }}
+                  />
+
+                  {/* Neutral glass surface overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/[0.06] to-white/[0.03] pointer-events-none" style={{ zIndex: 1 }} />
+
                   {/* Content */}
                   <div className="relative z-10 space-y-3">
                     {/* Title + Crown */}
@@ -221,11 +224,11 @@ const newProfile = payload.new as { subscription_tier?: string; subscription_cad
                       )}
                     </div>
 
-                    {/* Benefits - compact plain text */}
+                    {/* Benefits - compact plain text, NO emoji */}
                     <div className="space-y-1 pt-1">
                       <p className="text-[11px] text-muted-foreground/60 uppercase tracking-wider font-medium">Benefits</p>
                       <p className="text-[13px] text-foreground/80 leading-tight">• Unlimited daily confessions</p>
-                      <p className="text-[13px] text-foreground/80 leading-tight">• VIP crown badge 👑</p>
+                      <p className="text-[13px] text-foreground/80 leading-tight">• VIP crown badge</p>
                       <p className="text-[13px] text-foreground/80 leading-tight">• 250 coins bonus on signup</p>
                       <p className="text-[13px] text-foreground/80 leading-tight">• Exclusive VIP badges & flairs</p>
                     </div>
