@@ -276,17 +276,17 @@ export const UnifiedShopDialog = ({
           </DialogTitle>
         </DialogHeader>
 
-        {/* ── CONTENT (no scroll) ── */}
+        {/* ── CONTENT (no scroll, single centered stack) ── */}
         <div
           className="relative flex-1 overflow-hidden"
           style={{
             zIndex: 10,
-            paddingTop: 'var(--ms-content-pt)',
             paddingLeft: '20px',
             paddingRight: '20px',
-            paddingBottom: '0',
+            paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + var(--ms-cta-pb))',
             display: 'flex',
             flexDirection: 'column',
+            justifyContent: 'center',
           }}
         >
           {loading ? (
@@ -294,11 +294,11 @@ export const UnifiedShopDialog = ({
               <Loader2 className="w-7 h-7 animate-spin" style={{ color: 'rgba(168,85,247,0.5)' }} />
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ms-section-gap)' }}>
               {/* ── TOP: FREE card (shrink) ── */}
               {/*  CURRENT PLAN CARD                           */}
               {/* ════════════════════════════════════════════ */}
-              <div style={{ position: 'relative', marginBottom: 'var(--ms-section-gap)' }}>
+              <div style={{ position: 'relative' }}>
                 <div
                   style={{
                     position: 'relative',
@@ -338,9 +338,7 @@ export const UnifiedShopDialog = ({
                 </div>
               </div>
 
-              {/* ── MIDDLE: VIP card (flex-1 to absorb extra space, centered) ── */}
               {currentPlan === 'free' && (
-                <div style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: 0 }}>
                 <div style={{ position: 'relative' }}>
 
                   {/* ── Soft diffused outer glow ── */}
@@ -623,63 +621,51 @@ export const UnifiedShopDialog = ({
                     </div>
                   </div>
                 </div>
-                </div>
+              )}
+
+              {/* ── CTA ── */}
+              {currentPlan === 'free' ? (
+                <Button
+                  onClick={handleUpgrade}
+                  disabled={isProcessing}
+                  className="w-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                  style={{
+                    height: 'var(--ms-cta-height)',
+                    borderRadius: '999px',
+                    background: CONFIRM_GRADIENT,
+                    color: '#FFFFFF',
+                    fontSize: '16px',
+                    fontWeight: 600,
+                    border: 'none',
+                    letterSpacing: '-0.1px',
+                    paddingLeft: '32px',
+                    paddingRight: '32px',
+                    flexShrink: 0,
+                    boxShadow:
+                      '0 8px 28px rgba(167,139,250,0.40),' +
+                      '0 2px 8px rgba(0,0,0,0.25),' +
+                      '0 16px 48px rgba(167,139,250,0.15),' +
+                      'inset 0 1px 0 rgba(255,255,255,0.22)',
+                    cursor: isProcessing ? 'wait' : 'pointer',
+                  }}
+                >
+                  {isProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : t.manage_sub_upgrade_to_vip}
+                </Button>
+              ) : (
+                <p
+                  style={{
+                    textAlign: 'center',
+                    fontSize: '13px',
+                    color: 'rgba(255,255,255,0.30)',
+                    padding: '12px 0',
+                  }}
+                >
+                  {t.subscription_cancel_anytime}
+                </p>
               )}
             </div>
           )}
         </div>
-
-        {/* ── STICKY CTA (always visible at bottom) ── */}
-        {!loading && (
-          <div
-            className="relative shrink-0"
-            style={{
-              zIndex: 10,
-            padding: 'var(--ms-cta-pad) 20px',
-            paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + var(--ms-cta-pb))',
-              background: 'linear-gradient(to top, #08090F 60%, transparent)',
-            }}
-          >
-            {currentPlan === 'free' ? (
-              <Button
-                onClick={handleUpgrade}
-                disabled={isProcessing}
-                className="w-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                style={{
-                  height: 'var(--ms-cta-height)',
-                  borderRadius: '999px',
-                  background: CONFIRM_GRADIENT,
-                  color: '#FFFFFF',
-                  fontSize: '16px',
-                  fontWeight: 600,
-                  border: 'none',
-                  letterSpacing: '-0.1px',
-                  paddingLeft: '32px',
-                  paddingRight: '32px',
-                  boxShadow:
-                    '0 8px 28px rgba(167,139,250,0.40),' +
-                    '0 2px 8px rgba(0,0,0,0.25),' +
-                    '0 16px 48px rgba(167,139,250,0.15),' +
-                    'inset 0 1px 0 rgba(255,255,255,0.22)',
-                  cursor: isProcessing ? 'wait' : 'pointer',
-                }}
-              >
-                {isProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : t.manage_sub_upgrade_to_vip}
-              </Button>
-            ) : (
-              <p
-                style={{
-                  textAlign: 'center',
-                  fontSize: '13px',
-                  color: 'rgba(255,255,255,0.30)',
-                  padding: '12px 0',
-                }}
-              >
-                {t.subscription_cancel_anytime}
-              </p>
-            )}
-          </div>
-        )}
       </DialogContent>
     </Dialog>
   );
