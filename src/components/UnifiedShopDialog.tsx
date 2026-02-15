@@ -10,27 +10,31 @@ import { logError, logDebug } from "@/lib/logger";
 import { STRIPE_PRICE } from '@/lib/stripe-config';
 
 /* ------------------------------------------------------------------ */
-/*  SVG Crown Icon with gold gradient                                  */
+/*  Inline SVG noise pattern used as card texture overlay              */
 /* ------------------------------------------------------------------ */
-const GoldCrownIcon = ({ size = 22, className = "" }: { size?: number; className?: string }) => (
+const NOISE_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
+
+/* ------------------------------------------------------------------ */
+/*  Gold crown SVG – clean line icon with gradient + glow              */
+/* ------------------------------------------------------------------ */
+const GoldCrownIcon = ({ size = 22 }: { size?: number }) => (
   <svg
     width={size}
     height={size}
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    className={className}
-    style={{ filter: "drop-shadow(0 0 10px rgba(251,191,36,0.5))" }}
+    style={{ filter: "drop-shadow(0 0 8px rgba(251,191,36,0.55))" }}
   >
     <defs>
-      <linearGradient id="crownGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <linearGradient id="crownGoldMain" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stopColor="#FDE68A" />
         <stop offset="100%" stopColor="#FBBF24" />
       </linearGradient>
     </defs>
     <path
       d="M3 18H21V20H3V18ZM3.5 16L2 7L7 10L12 4L17 10L22 7L20.5 16H3.5Z"
-      stroke="url(#crownGold)"
+      stroke="url(#crownGoldMain)"
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -40,16 +44,15 @@ const GoldCrownIcon = ({ size = 22, className = "" }: { size?: number; className
 );
 
 /* ------------------------------------------------------------------ */
-/*  Small Crown SVG for benefit row                                    */
+/*  Small crown for benefit rows – uses currentColor                   */
 /* ------------------------------------------------------------------ */
-const SmallCrownIcon = ({ size = 16, className = "" }: { size?: number; className?: string }) => (
+const SmallCrownIcon = ({ size = 16 }: { size?: number }) => (
   <svg
     width={size}
     height={size}
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    className={className}
   >
     <path
       d="M3 18H21V20H3V18ZM3.5 16L2 7L7 10L12 4L17 10L22 7L20.5 16H3.5Z"
@@ -62,6 +65,45 @@ const SmallCrownIcon = ({ size = 16, className = "" }: { size?: number; classNam
   </svg>
 );
 
+/* ------------------------------------------------------------------ */
+/*  Reusable benefit row                                               */
+/* ------------------------------------------------------------------ */
+const BenefitRow = ({ icon, label }: { icon: React.ReactNode; label: string }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+    <div
+      style={{
+        width: '36px',
+        height: '36px',
+        borderRadius: '12px',
+        background: 'rgba(168,85,247,0.12)',
+        border: '1px solid rgba(168,85,247,0.10)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: 'inset 0 0 10px rgba(168,85,247,0.08)',
+        flexShrink: 0,
+        color: 'rgba(168,85,247,0.9)',
+      }}
+    >
+      {icon}
+    </div>
+    <span
+      style={{
+        fontSize: '15px',
+        color: 'rgba(255,255,255,0.85)',
+        fontWeight: 500,
+        lineHeight: 1.3,
+      }}
+    >
+      {label}
+    </span>
+  </div>
+);
+
+/* ================================================================== */
+/*  Component                                                          */
+/* ================================================================== */
+
 interface UnifiedShopDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -69,11 +111,11 @@ interface UnifiedShopDialogProps {
   defaultTab?: 'subscriptions' | 'coins';
 }
 
-export const UnifiedShopDialog = ({ 
-  open, 
-  onOpenChange, 
+export const UnifiedShopDialog = ({
+  open,
+  onOpenChange,
   onSubscriptionUpdated,
-  defaultTab = 'subscriptions' 
+  defaultTab = 'subscriptions'
 }: UnifiedShopDialogProps) => {
   const { t } = useLanguage();
   const { user } = useCurrentUser();
@@ -82,6 +124,8 @@ export const UnifiedShopDialog = ({
   const [selectedInterval, setSelectedInterval] = useState<'monthly' | 'yearly'>('monthly');
   const [loading, setLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  /* ── data loading (unchanged) ─────────────────────────────────── */
 
   const loadSubscriptionStatus = useCallback(async () => {
     try {
@@ -119,7 +163,7 @@ export const UnifiedShopDialog = ({
           },
           (payload) => {
             logDebug('Real-time subscription update received', payload);
-const newProfile = payload.new as { subscription_tier?: string; subscription_cadence?: string };
+            const newProfile = payload.new as { subscription_tier?: string; subscription_cadence?: string };
             if (newProfile.subscription_tier) {
               setCurrentPlan(newProfile.subscription_tier);
             }
@@ -155,13 +199,13 @@ const newProfile = payload.new as { subscription_tier?: string; subscription_cad
     setIsProcessing(true);
     try {
       const priceId = selectedInterval === 'yearly' ? STRIPE_PRICE.VIP_YEARLY : STRIPE_PRICE.VIP_MONTHLY;
-      
+
       const { data, error } = await supabase.functions.invoke('billing-buy', {
         body: { tier: 'vip', cycle: selectedInterval },
       });
-      
+
       if (error) throw error;
-      
+
       if (data?.url) {
         await goToStripeCheckout(data.url);
         toast.success('Redirecting to checkout...');
@@ -176,35 +220,33 @@ const newProfile = payload.new as { subscription_tier?: string; subscription_cad
     }
   };
 
+  /* ── render ───────────────────────────────────────────────────── */
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {/* VERIFICATION: This is the REAL Manage Subscription modal - UnifiedShopDialog.tsx */}
-      <DialogContent 
+      <DialogContent
         data-testid="manage-subscription-modal"
-        className="max-w-md max-h-[min(90vh,720px)] overflow-hidden border-0 rounded-3xl p-0 shadow-2xl"
+        className="max-w-md max-h-[min(90vh,720px)] overflow-hidden rounded-3xl p-0 shadow-2xl"
         style={{
-          background: 'radial-gradient(ellipse at top center, #12142B 0%, #0F1020 40%, #0A0B16 100%)',
-          border: '1px solid rgba(255,255,255,0.06)',
+          background: 'radial-gradient(ellipse at 50% 0%, #12142B 0%, #0D0E1C 45%, #08090F 100%)',
+          border: '1px solid rgba(255,255,255,0.05)',
+          boxShadow: '0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04)',
         }}
       >
-        {/* Noise overlay for realism */}
+        {/* ── Global noise texture ── */}
         <div
-          className="absolute inset-0 pointer-events-none z-0 rounded-3xl"
+          className="absolute inset-0 pointer-events-none rounded-3xl"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+            backgroundImage: NOISE_SVG,
             opacity: 0.025,
-            mixBlendMode: 'overlay',
+            mixBlendMode: 'overlay' as const,
+            zIndex: 0,
           }}
         />
 
-        {/* ─── HEADER ─── */}
-        <DialogHeader
-          className="relative z-10 px-6 pt-6 pb-2"
-          style={{
-            background: 'transparent',
-            borderBottom: 'none',
-          }}
-        >
+        {/* ── HEADER ── */}
+        <DialogHeader className="relative px-6 pt-6 pb-1" style={{ zIndex: 10, background: 'transparent' }}>
           <DialogTitle
             className="text-center"
             style={{
@@ -218,179 +260,230 @@ const newProfile = payload.new as { subscription_tier?: string; subscription_cad
           </DialogTitle>
         </DialogHeader>
 
-        {/* ─── CONTENT ─── */}
-        <div className="relative z-10 px-6 pb-6 space-y-6" style={{ paddingTop: '8px' }}>
+        {/* ── SCROLLABLE CONTENT ── */}
+        <div className="relative px-5 pb-6" style={{ zIndex: 10, paddingTop: '12px' }}>
           {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'rgba(168,85,247,0.6)' }} />
+            <div className="flex items-center justify-center" style={{ padding: '72px 0' }}>
+              <Loader2 className="w-7 h-7 animate-spin" style={{ color: 'rgba(168,85,247,0.5)' }} />
             </div>
           ) : (
             <>
-              {/* ═══════════════════════════════════════════ */}
-              {/*  CURRENT PLAN CARD – Glassmorphism          */}
-              {/* ═══════════════════════════════════════════ */}
-              <div
-                style={{
-                  background: 'rgba(255,255,255,0.06)',
-                  backdropFilter: 'blur(20px)',
-                  WebkitBackdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), 0 10px 40px rgba(0,0,0,0.45)',
-                  borderRadius: '24px',
-                  padding: '24px',
-                }}
-              >
-                <p
+              {/* ════════════════════════════════════════════ */}
+              {/*  CURRENT PLAN CARD                           */}
+              {/*  Glass card with subtle gradient left edge    */}
+              {/* ════════════════════════════════════════════ */}
+              <div style={{ position: 'relative', marginBottom: '20px' }}>
+                {/* Subtle gradient shimmer on left edge (like reference) */}
+                <div
+                  className="absolute pointer-events-none"
                   style={{
-                    fontSize: '17px',
-                    fontWeight: 600,
-                    color: currentPlan === 'vip' ? 'transparent' : 'rgba(255,255,255,0.92)',
-                    ...(currentPlan === 'vip'
-                      ? {
-                          background: 'linear-gradient(135deg, #A855F7, #7C3AED)',
-                          WebkitBackgroundClip: 'text',
-                          WebkitTextFillColor: 'transparent',
-                        }
-                      : {}),
-                    margin: 0,
-                    lineHeight: 1.3,
+                    top: '8px',
+                    bottom: '8px',
+                    left: '-1px',
+                    width: '3px',
+                    borderRadius: '2px',
+                    background: 'linear-gradient(180deg, rgba(168,120,255,0.6) 0%, rgba(100,200,255,0.4) 50%, rgba(168,120,255,0.3) 100%)',
+                    filter: 'blur(1px)',
+                    zIndex: 3,
                   }}
-                >
-                  {t.manage_sub_current_plan_free}
-                </p>
-                <p
-                  style={{
-                    fontSize: '14px',
-                    color: 'rgba(255,255,255,0.50)',
-                    marginTop: '6px',
-                    lineHeight: 1.45,
-                  }}
-                >
-                  {t.manage_sub_current_plan_desc}
-                </p>
-              </div>
-
-              {/* ═══════════════════════════════════════════ */}
-              {/*  BILLING CYCLE SELECTOR                     */}
-              {/* ═══════════════════════════════════════════ */}
-              {currentPlan === 'free' && (
+                />
                 <div
                   style={{
-                    display: 'flex',
-                    borderRadius: '999px',
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.06)',
-                    padding: '3px',
-                    boxShadow: 'inset 0 1px 4px rgba(0,0,0,0.3)',
+                    position: 'relative',
+                    background: 'rgba(255,255,255,0.05)',
+                    backdropFilter: 'blur(24px)',
+                    WebkitBackdropFilter: 'blur(24px)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    boxShadow:
+                      'inset 0 1px 0 rgba(255,255,255,0.10),' +
+                      '0 8px 32px rgba(0,0,0,0.35)',
+                    borderRadius: '20px',
+                    padding: '20px 22px',
+                    overflow: 'hidden',
                   }}
                 >
-                  <button
-                    onClick={() => setSelectedInterval('monthly')}
+                  {/* Card noise */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
                     style={{
-                      flex: 1,
-                      padding: '10px 0',
-                      borderRadius: '999px',
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      transition: 'all 0.25s ease',
-                      border: 'none',
-                      cursor: 'pointer',
-                      background: selectedInterval === 'monthly'
-                        ? 'linear-gradient(135deg, rgba(124,58,237,0.35), rgba(168,85,247,0.2))'
-                        : 'transparent',
-                      color: selectedInterval === 'monthly'
-                        ? 'rgba(168,85,247,1)'
-                        : 'rgba(255,255,255,0.4)',
-                      boxShadow: selectedInterval === 'monthly'
-                        ? '0 2px 8px rgba(168,85,247,0.2), inset 0 1px 0 rgba(255,255,255,0.08)'
-                        : 'none',
+                      backgroundImage: NOISE_SVG,
+                      opacity: 0.03,
+                      mixBlendMode: 'overlay' as const,
+                      borderRadius: '20px',
+                    }}
+                  />
+                  <p
+                    style={{
+                      position: 'relative',
+                      fontSize: '16px',
+                      fontWeight: 700,
+                      color: currentPlan === 'vip' ? 'transparent' : 'rgba(255,255,255,0.92)',
+                      ...(currentPlan === 'vip'
+                        ? {
+                            background: 'linear-gradient(135deg, #A855F7, #7C3AED)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                          }
+                        : {}),
+                      margin: 0,
+                      lineHeight: 1.35,
                     }}
                   >
-                    {t.subscription_monthly}
-                  </button>
-                  <button
-                    onClick={() => setSelectedInterval('yearly')}
+                    {t.manage_sub_current_plan_free}
+                  </p>
+                  <p
                     style={{
-                      flex: 1,
-                      padding: '10px 0',
-                      borderRadius: '999px',
+                      position: 'relative',
                       fontSize: '13px',
-                      fontWeight: 600,
-                      transition: 'all 0.25s ease',
-                      border: 'none',
-                      cursor: 'pointer',
-                      background: selectedInterval === 'yearly'
-                        ? 'linear-gradient(135deg, rgba(124,58,237,0.35), rgba(168,85,247,0.2))'
-                        : 'transparent',
-                      color: selectedInterval === 'yearly'
-                        ? 'rgba(168,85,247,1)'
-                        : 'rgba(255,255,255,0.4)',
-                      boxShadow: selectedInterval === 'yearly'
-                        ? '0 2px 8px rgba(168,85,247,0.2), inset 0 1px 0 rgba(255,255,255,0.08)'
-                        : 'none',
+                      color: 'rgba(255,255,255,0.45)',
+                      marginTop: '5px',
+                      lineHeight: 1.4,
                     }}
                   >
-                    {t.subscription_yearly}
-                  </button>
+                    {t.manage_sub_current_plan_desc}
+                  </p>
                 </div>
-              )}
+              </div>
 
-              {/* ═══════════════════════════════════════════ */}
-              {/*  VIP PLAN CARD – PREMIUM LAYERED             */}
-              {/* ═══════════════════════════════════════════ */}
+              {/* ════════════════════════════════════════════ */}
+              {/*  VIP PLAN CARD                               */}
+              {/*  Dark center + neon purple edge glow          */}
+              {/*  Multi-layer: wide ambient + tight border     */}
+              {/* ════════════════════════════════════════════ */}
               {currentPlan === 'free' && (
-                <div className="relative" style={{ borderRadius: '28px', overflow: 'visible' }}>
-                  {/* Outer glow */}
+                <div style={{ position: 'relative', marginBottom: '24px' }}>
+
+                  {/* ── Layer 1: Wide ambient glow (left + bottom emphasis) ── */}
                   <div
                     className="absolute pointer-events-none"
                     style={{
-                      inset: '-4px',
-                      borderRadius: '32px',
-                      boxShadow: '0 0 60px rgba(168,85,247,0.35)',
+                      inset: '-12px',
+                      borderRadius: '34px',
+                      background:
+                        'radial-gradient(ellipse at 10% 70%, rgba(160,80,255,0.30) 0%, transparent 55%),' +
+                        'radial-gradient(ellipse at 30% 100%, rgba(140,60,240,0.25) 0%, transparent 50%),' +
+                        'radial-gradient(ellipse at 90% 20%, rgba(100,160,255,0.12) 0%, transparent 50%)',
+                      filter: 'blur(18px)',
                       zIndex: 0,
                     }}
                   />
 
-                  {/* Border layer */}
+                  {/* ── Layer 2: Tight neon border glow ── */}
                   <div
-                    className="absolute inset-0 pointer-events-none"
+                    className="absolute pointer-events-none"
                     style={{
-                      borderRadius: '28px',
-                      border: '1px solid rgba(168,85,247,0.35)',
+                      inset: '-2px',
+                      borderRadius: '26px',
+                      background:
+                        'linear-gradient(160deg, rgba(160,100,255,0.50) 0%, rgba(130,60,240,0.60) 30%, rgba(180,100,255,0.45) 60%, rgba(120,80,255,0.50) 100%)',
+                      filter: 'blur(3px)',
                       zIndex: 1,
                     }}
                   />
 
-                  {/* Main panel */}
+                  {/* ── Layer 3: Visible 1px neon border ── */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      borderRadius: '24px',
+                      border: '1.5px solid rgba(168,100,255,0.55)',
+                      zIndex: 4,
+                    }}
+                  />
+
+                  {/* ── Layer 4: The panel itself (dark center) ── */}
                   <div
                     className="relative"
                     style={{
-                      borderRadius: '28px',
-                      padding: '28px',
-                      background: 'linear-gradient(135deg, #1A1F3A 0%, #12162C 50%, #1B1240 100%)',
-                      boxShadow: 'inset 0 0 40px rgba(0,0,0,0.4), 0 20px 60px rgba(0,0,0,0.5)',
-                      zIndex: 2,
+                      position: 'relative',
+                      borderRadius: '24px',
+                      padding: '26px 24px 24px',
                       overflow: 'hidden',
+                      zIndex: 3,
+                      /* Deep dark base — near-black center */
+                      background:
+                        'linear-gradient(145deg, #110E20 0%, #0C0B18 35%, #0E0A1A 65%, #100D1F 100%)',
+                      boxShadow:
+                        'inset 0 0 60px rgba(0,0,0,0.55),' +
+                        'inset 0 1px 0 rgba(255,255,255,0.06),' +
+                        '0 20px 60px rgba(0,0,0,0.4)',
                     }}
                   >
-                    {/* Subtle purple glow overlay bottom-right */}
+                    {/* Inner vignette — darkens center further */}
                     <div
                       className="absolute pointer-events-none"
                       style={{
                         inset: 0,
-                        borderRadius: '28px',
-                        background: 'radial-gradient(circle at 80% 80%, rgba(138,43,226,0.25), transparent 60%)',
+                        borderRadius: '24px',
+                        background: 'radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(0,0,0,0.35) 100%)',
                         zIndex: 0,
                       }}
                     />
 
-                    {/* Content */}
-                    <div className="relative" style={{ zIndex: 1 }}>
-                      {/* ─── Title Row with Crown + VIP Badge ─── */}
-                      <div className="flex items-center justify-between" style={{ marginBottom: '16px' }}>
+                    {/* Purple accent illumination from left/bottom edge */}
+                    <div
+                      className="absolute pointer-events-none"
+                      style={{
+                        inset: 0,
+                        borderRadius: '24px',
+                        background:
+                          'radial-gradient(ellipse at 0% 80%, rgba(140,60,235,0.18) 0%, transparent 50%),' +
+                          'radial-gradient(ellipse at 20% 100%, rgba(160,80,255,0.12) 0%, transparent 45%)',
+                        zIndex: 0,
+                      }}
+                    />
+
+                    {/* Cool blue highlight from top-right */}
+                    <div
+                      className="absolute pointer-events-none"
+                      style={{
+                        inset: 0,
+                        borderRadius: '24px',
+                        background: 'radial-gradient(ellipse at 85% 10%, rgba(100,160,255,0.08) 0%, transparent 50%)',
+                        zIndex: 0,
+                      }}
+                    />
+
+                    {/* Card noise texture */}
+                    <div
+                      className="absolute inset-0 pointer-events-none"
+                      style={{
+                        backgroundImage: NOISE_SVG,
+                        opacity: 0.03,
+                        mixBlendMode: 'overlay' as const,
+                        borderRadius: '24px',
+                        zIndex: 0,
+                      }}
+                    />
+
+                    {/* Top sheen / glass highlight */}
+                    <div
+                      className="absolute pointer-events-none"
+                      style={{
+                        top: 0,
+                        left: '10%',
+                        right: '10%',
+                        height: '1px',
+                        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent)',
+                        zIndex: 1,
+                      }}
+                    />
+
+                    {/* ── CARD CONTENT ── */}
+                    <div style={{ position: 'relative', zIndex: 2 }}>
+
+                      {/* Title row */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          marginBottom: '14px',
+                        }}
+                      >
                         <span
                           style={{
-                            fontSize: '18px',
+                            fontSize: '17px',
                             fontWeight: 700,
                             color: 'rgba(255,255,255,0.95)',
                             letterSpacing: '-0.2px',
@@ -398,14 +491,13 @@ const newProfile = payload.new as { subscription_tier?: string; subscription_cad
                         >
                           {t.manage_sub_vip_plan}
                         </span>
-                        <div className="flex items-center gap-2">
-                          <GoldCrownIcon size={24} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <GoldCrownIcon size={22} />
                           <span
                             style={{
                               fontSize: '11px',
                               fontWeight: 800,
-                              letterSpacing: '1.5px',
-                              textTransform: 'uppercase' as const,
+                              letterSpacing: '1.2px',
                               background: 'linear-gradient(135deg, #FDE68A, #FBBF24)',
                               WebkitBackgroundClip: 'text',
                               WebkitTextFillColor: 'transparent',
@@ -416,215 +508,74 @@ const newProfile = payload.new as { subscription_tier?: string; subscription_cad
                         </div>
                       </div>
 
-                      {/* ─── Pricing ─── */}
-                      <div style={{ marginBottom: '20px' }}>
-                        {selectedInterval === 'monthly' ? (
-                          <div>
-                            <div style={{ display: 'flex', alignItems: 'baseline' }}>
-                              <span
-                                style={{
-                                  fontSize: '34px',
-                                  fontWeight: 800,
-                                  color: '#FFFFFF',
-                                  letterSpacing: '-0.5px',
-                                  lineHeight: 1,
-                                }}
-                              >
-                                &euro;6.99
-                              </span>
-                              <span
-                                style={{
-                                  fontSize: '14px',
-                                  fontWeight: 400,
-                                  color: 'rgba(255,255,255,0.45)',
-                                  marginLeft: '4px',
-                                }}
-                              >
-                                /month
-                              </span>
-                            </div>
-                            <p
-                              style={{
-                                fontSize: '14px',
-                                color: 'rgba(255,255,255,0.35)',
-                                marginTop: '6px',
-                              }}
-                            >
-                              &euro;54.99/year
-                            </p>
-                          </div>
-                        ) : (
-                          <div>
-                            <div style={{ display: 'flex', alignItems: 'baseline' }}>
-                              <span
-                                style={{
-                                  fontSize: '34px',
-                                  fontWeight: 800,
-                                  color: '#FFFFFF',
-                                  letterSpacing: '-0.5px',
-                                  lineHeight: 1,
-                                }}
-                              >
-                                &euro;54.99
-                              </span>
-                              <span
-                                style={{
-                                  fontSize: '14px',
-                                  fontWeight: 400,
-                                  color: 'rgba(255,255,255,0.45)',
-                                  marginLeft: '4px',
-                                }}
-                              >
-                                /year
-                              </span>
-                            </div>
-                            <p
-                              style={{
-                                fontSize: '14px',
-                                color: 'rgba(255,255,255,0.35)',
-                                marginTop: '6px',
-                              }}
-                            >
-                              &euro;{(54.99 / 12).toFixed(2)} / month
-                            </p>
-                          </div>
-                        )}
+                      {/* Pricing */}
+                      <div style={{ marginBottom: '18px' }}>
+                        <div style={{ display: 'flex', alignItems: 'baseline' }}>
+                          <span
+                            style={{
+                              fontSize: '32px',
+                              fontWeight: 800,
+                              color: '#FFFFFF',
+                              letterSpacing: '-0.5px',
+                              lineHeight: 1,
+                            }}
+                          >
+                            &euro;6.99
+                          </span>
+                          <span
+                            style={{
+                              fontSize: '14px',
+                              fontWeight: 400,
+                              color: 'rgba(255,255,255,0.40)',
+                              marginLeft: '3px',
+                            }}
+                          >
+                            /month
+                          </span>
+                        </div>
+                        <p
+                          style={{
+                            fontSize: '13px',
+                            color: 'rgba(255,255,255,0.30)',
+                            marginTop: '5px',
+                            letterSpacing: '0.1px',
+                          }}
+                        >
+                          &euro;54.99/year
+                        </p>
                       </div>
 
-                      {/* ─── Benefits ─── */}
+                      {/* Benefits */}
                       <div>
                         <p
                           style={{
                             fontSize: '11px',
                             fontWeight: 700,
-                            color: 'rgba(255,255,255,0.45)',
+                            color: 'rgba(255,255,255,0.40)',
                             textTransform: 'uppercase' as const,
-                            letterSpacing: '1.2px',
+                            letterSpacing: '1.1px',
                             marginBottom: '14px',
                           }}
                         >
                           Benefits
                         </p>
-
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-                          {/* Benefit: Unlimited confessions */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                            <div
-                              style={{
-                                width: '36px',
-                                height: '36px',
-                                borderRadius: '12px',
-                                background: 'rgba(168,85,247,0.15)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                boxShadow: 'inset 0 0 12px rgba(168,85,247,0.1)',
-                                flexShrink: 0,
-                              }}
-                            >
-                              <InfinityIcon
-                                style={{ width: '18px', height: '18px', color: 'rgba(168,85,247,0.9)', strokeWidth: 2 }}
-                              />
-                            </div>
-                            <span
-                              style={{
-                                fontSize: '15px',
-                                color: 'rgba(255,255,255,0.85)',
-                                fontWeight: 500,
-                              }}
-                            >
-                              unlimited confessions
-                            </span>
-                          </div>
-
-                          {/* Benefit: Exclusive reactions */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                            <div
-                              style={{
-                                width: '36px',
-                                height: '36px',
-                                borderRadius: '12px',
-                                background: 'rgba(168,85,247,0.15)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                boxShadow: 'inset 0 0 12px rgba(168,85,247,0.1)',
-                                flexShrink: 0,
-                              }}
-                            >
-                              <Heart
-                                style={{ width: '18px', height: '18px', color: 'rgba(168,85,247,0.9)', strokeWidth: 2 }}
-                              />
-                            </div>
-                            <span
-                              style={{
-                                fontSize: '15px',
-                                color: 'rgba(255,255,255,0.85)',
-                                fontWeight: 500,
-                              }}
-                            >
-                              exclusive reactions
-                            </span>
-                          </div>
-
-                          {/* Benefit: VIP crown badge */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                            <div
-                              style={{
-                                width: '36px',
-                                height: '36px',
-                                borderRadius: '12px',
-                                background: 'rgba(168,85,247,0.15)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                boxShadow: 'inset 0 0 12px rgba(168,85,247,0.1)',
-                                flexShrink: 0,
-                                color: 'rgba(168,85,247,0.9)',
-                              }}
-                            >
-                              <SmallCrownIcon size={18} />
-                            </div>
-                            <span
-                              style={{
-                                fontSize: '15px',
-                                color: 'rgba(255,255,255,0.85)',
-                                fontWeight: 500,
-                              }}
-                            >
-                              VIP crown badge
-                            </span>
-                          </div>
-
-                          {/* Benefit: Priority comments */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                            <div
-                              style={{
-                                width: '36px',
-                                height: '36px',
-                                borderRadius: '12px',
-                                background: 'rgba(168,85,247,0.15)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                boxShadow: 'inset 0 0 12px rgba(168,85,247,0.1)',
-                                flexShrink: 0,
-                              }}
-                            >
-                              <MessageSquare
-                                style={{ width: '18px', height: '18px', color: 'rgba(168,85,247,0.9)', strokeWidth: 2 }}
-                              />
-                            </div>
-                            <span
-                              style={{
-                                fontSize: '15px',
-                                color: 'rgba(255,255,255,0.85)',
-                                fontWeight: 500,
-                              }}
-                            >
-                              priority comments
-                            </span>
-                          </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                          <BenefitRow
+                            icon={<InfinityIcon style={{ width: '17px', height: '17px', strokeWidth: 2 }} />}
+                            label="unlimited confessions"
+                          />
+                          <BenefitRow
+                            icon={<Heart style={{ width: '17px', height: '17px', strokeWidth: 2 }} />}
+                            label="exclusive reactions"
+                          />
+                          <BenefitRow
+                            icon={<SmallCrownIcon size={17} />}
+                            label="VIP crown badge"
+                          />
+                          <BenefitRow
+                            icon={<MessageSquare style={{ width: '17px', height: '17px', strokeWidth: 2 }} />}
+                            label="priority comments"
+                          />
                         </div>
                       </div>
                     </div>
@@ -632,37 +583,38 @@ const newProfile = payload.new as { subscription_tier?: string; subscription_cad
                 </div>
               )}
 
-              {/* ═══════════════════════════════════════════ */}
-              {/*  CTA BUTTON – Premium Pill                   */}
-              {/* ═══════════════════════════════════════════ */}
+              {/* ════════════════════════════════════════════ */}
+              {/*  UPGRADE BUTTON                              */}
+              {/* ════════════════════════════════════════════ */}
               {currentPlan === 'free' ? (
-                <div style={{ paddingTop: '4px' }}>
-                  <Button
-                    onClick={handleUpgrade}
-                    disabled={isProcessing}
-                    className="w-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                    style={{
-                      height: '56px',
-                      borderRadius: '999px',
-                      background: 'linear-gradient(90deg, #7C3AED, #A855F7, #9333EA)',
-                      color: '#FFFFFF',
-                      fontSize: '16px',
-                      fontWeight: 600,
-                      border: 'none',
-                      boxShadow: '0 10px 40px rgba(168,85,247,0.45), inset 0 1px 0 rgba(255,255,255,0.25)',
-                      cursor: isProcessing ? 'wait' : 'pointer',
-                      letterSpacing: '-0.2px',
-                    }}
-                  >
-                    {isProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : t.manage_sub_upgrade_to_vip}
-                  </Button>
-                </div>
+                <Button
+                  onClick={handleUpgrade}
+                  disabled={isProcessing}
+                  className="w-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                  style={{
+                    height: '54px',
+                    borderRadius: '999px',
+                    background: 'linear-gradient(90deg, #7C3AED 0%, #A855F7 50%, #9333EA 100%)',
+                    color: '#FFFFFF',
+                    fontSize: '16px',
+                    fontWeight: 600,
+                    border: 'none',
+                    letterSpacing: '-0.1px',
+                    boxShadow:
+                      '0 8px 32px rgba(148,70,240,0.45),' +
+                      '0 2px 8px rgba(0,0,0,0.3),' +
+                      'inset 0 1px 0 rgba(255,255,255,0.20)',
+                    cursor: isProcessing ? 'wait' : 'pointer',
+                  }}
+                >
+                  {isProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : t.manage_sub_upgrade_to_vip}
+                </Button>
               ) : (
                 <p
                   style={{
                     textAlign: 'center',
                     fontSize: '13px',
-                    color: 'rgba(255,255,255,0.35)',
+                    color: 'rgba(255,255,255,0.30)',
                     padding: '12px 0',
                   }}
                 >
