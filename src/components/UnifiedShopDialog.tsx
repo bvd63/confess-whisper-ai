@@ -125,6 +125,7 @@ const newProfile = payload.new as { subscription_tier?: string; subscription_cad
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
+      {/* VERIFICATION: This is the REAL Manage Subscription modal - UnifiedShopDialog.tsx */}
       <DialogContent 
         data-testid="manage-subscription-modal"
         className="max-w-md max-h-[min(86vh,640px)] overflow-hidden bg-gradient-to-b from-background to-background/95 border border-border/40 rounded-2xl p-0 shadow-2xl"
@@ -178,36 +179,46 @@ const newProfile = payload.new as { subscription_tier?: string; subscription_cad
                 </div>
               )}
 
-              {/* VIP Plan Card - 3-Layer Premium Frame System */}
+              {/* VIP Plan Card - 3-Layer Premium Frame System with INLINE STYLES */}
               {currentPlan === 'free' && (
-                <div className="relative rounded-3xl" style={{overflow: 'visible'}}>
-                  {/* GlowFrameLayer - outer gradient blur */}
+                <div 
+                  className="relative" 
+                  style={{
+                    borderRadius: '24px',
+                    overflow: 'visible'
+                  }}
+                >
+                  {/* GlowLayer - Outer blurred gradient (INLINE STYLE PROOF) */}
                   <div 
-                    className="absolute rounded-3xl pointer-events-none"
+                    className="absolute pointer-events-none"
                     style={{
-                      inset: '-8px',
+                      inset: '-10px',
+                      borderRadius: '24px',
                       background: 'linear-gradient(135deg, rgba(170,120,255,0.95), rgba(120,210,255,0.55), rgba(170,120,255,0.95))',
-                      filter: 'blur(12px)',
-                      opacity: 0.85,
+                      filter: 'blur(14px)',
+                      opacity: 0.9,
                       zIndex: 0
                     }}
                   />
                   
-                  {/* StrokeLayer - 1px border with inner highlight */}
+                  {/* StrokeLayer - 1px border with inner highlight (INLINE STYLE PROOF) */}
                   <div 
-                    className="absolute inset-0 rounded-3xl pointer-events-none"
+                    className="absolute inset-0 pointer-events-none"
                     style={{
+                      borderRadius: '24px',
                       border: '1px solid rgba(190,150,255,0.55)',
                       boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06)',
                       zIndex: 1
                     }}
                   />
                   
-                  {/* InnerPanel - dark glass content background */}
+                  {/* PanelLayer - Dark glass content background (INLINE STYLE PROOF) */}
                   <div 
-                    className="relative rounded-3xl p-4 space-y-3"
+                    className="relative p-4 space-y-3"
                     style={{
+                      borderRadius: '24px',
                       background: 'linear-gradient(135deg, rgba(160,110,255,0.18) 0%, rgba(60,180,255,0.12) 45%, rgba(10,12,18,0.86) 100%)',
+                      backdropFilter: 'blur(10px)',
                       boxShadow: '0 18px 60px rgba(0,0,0,0.55), 0 6px 18px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05)',
                       zIndex: 2
                     }}
