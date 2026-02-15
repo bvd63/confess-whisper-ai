@@ -3027,7 +3027,7 @@ export const translations: Record<Language, Translations> = {
     manage_sub_yearly: "Yearly",
     manage_sub_month: "month",
     manage_sub_year: "year",
-    manage_sub_save_percent: "Save 34%",
+    manage_sub_save_percent: "34% off",
     manage_sub_upgrade_to_vip: "Upgrade to VIP",
     
     // Subscription Benefits - Free
@@ -5405,7 +5405,7 @@ export const translations: Record<Language, Translations> = {
     manage_sub_yearly: "Anual",
     manage_sub_month: "mes",
     manage_sub_year: "año",
-    manage_sub_save_percent: "Ahorra 34%",
+    manage_sub_save_percent: "34% off",
     manage_sub_upgrade_to_vip: "Mejorar a VIP",
     
     // Subscription Benefits - Free
@@ -7413,7 +7413,7 @@ export const translations: Record<Language, Translations> = {
     manage_sub_yearly: "Jährlich",
     manage_sub_month: "Monat",
     manage_sub_year: "Jahr",
-    manage_sub_save_percent: "34% sparen",
+    manage_sub_save_percent: "34% off",
     manage_sub_upgrade_to_vip: "Auf VIP upgraden",
     
     // Subscription Benefits - Free
