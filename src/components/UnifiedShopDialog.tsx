@@ -294,8 +294,8 @@ export const UnifiedShopDialog = ({
               <Loader2 className="w-7 h-7 animate-spin" style={{ color: 'rgba(168,85,247,0.5)' }} />
             </div>
           ) : (
-            <>
-              {/* ════════════════════════════════════════════ */}
+            <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+              {/* ── TOP: FREE card (shrink) ── */}
               {/*  CURRENT PLAN CARD                           */}
               {/* ════════════════════════════════════════════ */}
               <div style={{ position: 'relative', marginBottom: 'var(--ms-section-gap)' }}>
@@ -335,11 +335,10 @@ export const UnifiedShopDialog = ({
                 </div>
               </div>
 
-              {/* ════════════════════════════════════════════ */}
-              {/*  VIP PLAN CARD                               */}
-              {/* ════════════════════════════════════════════ */}
+              {/* ── MIDDLE: VIP card (flex-1 to absorb extra space, centered) ── */}
               {currentPlan === 'free' && (
-                <div style={{ position: 'relative', marginBottom: '0' }}>
+                <div style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: 0 }}>
+                <div style={{ position: 'relative' }}>
 
                   {/* ── Soft diffused outer glow ── */}
                   <div
@@ -621,8 +620,9 @@ export const UnifiedShopDialog = ({
                     </div>
                   </div>
                 </div>
+                </div>
               )}
-            </>
+            </div>
           )}
         </div>
 
