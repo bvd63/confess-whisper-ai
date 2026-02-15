@@ -9,6 +9,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useStreakManager } from '@/hooks/useStreakManager';
 import { useCoins } from '@/hooks/useCoins';
 import { FlairsShop } from '@/components/FlairsShop';
+import { UnifiedShopDialog } from '@/components/UnifiedShopDialog';
 import { useSubscription } from '@/state/SubscriptionProvider';
 import { useState, useEffect } from 'react';
 import { logError } from '@/lib/logger';
@@ -38,6 +39,7 @@ const Rewards = () => {
   const [featuredFlairs, setFeaturedFlairs] = useState<Flair[]>([]);
   const [userFlairs, setUserFlairs] = useState<UserFlair[]>([]);
   const [showCoinsHistory, setShowCoinsHistory] = useState(false);
+  const [coinShopOpen, setCoinShopOpen] = useState(false);
 
   // Navigate to auth if no user
   useEffect(() => {
@@ -132,7 +134,12 @@ const Rewards = () => {
             <h3 className="text-center text-white/80 font-medium mb-4">Coins Overview</h3>
             <div className="flex items-center justify-center gap-3 mb-2">
               <div className="text-4xl">🪙</div>
-              <span className="text-4xl font-bold text-white">{coinsBalance.toLocaleString()}</span>
+              <span 
+                className="text-4xl font-bold text-white cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={(e) => { e.stopPropagation(); setCoinShopOpen(true); }}
+              >
+                {coinsBalance.toLocaleString()}
+              </span>
             </div>
             <p className="text-center text-white/50 text-sm">Tap to see history</p>
           </div>
@@ -252,6 +259,11 @@ const Rewards = () => {
             onOpenChange={setFlairsShopOpen} 
           />
         )}
+        <UnifiedShopDialog
+          open={coinShopOpen}
+          onOpenChange={setCoinShopOpen}
+          defaultTab="coins"
+        />
       </div>
     </AppLayout>
   );
