@@ -34,13 +34,13 @@ export const ClickableNickname = ({
   if (!nickname) return null;
 
   return (
-    <div className="inline-flex items-center gap-1 max-w-full overflow-hidden">
+    <div className="inline-flex items-center gap-1">
       <Button
         variant="ghost"
         size="sm"
         onClick={handleClick}
         className={cn(
-          "h-auto p-1 font-semibold hover:text-primary transition-colors max-w-full overflow-hidden text-ellipsis whitespace-nowrap",
+          "h-auto p-1 font-semibold hover:text-primary transition-colors",
           className
         )}
       >
