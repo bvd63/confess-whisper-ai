@@ -178,59 +178,72 @@ const newProfile = payload.new as { subscription_tier?: string; subscription_cad
                 </div>
               )}
 
-              {/* VIP Plan Card - Ambient glow + edge lighting */}
+              {/* VIP Plan Card - Neon edge glow + dark inner panel */}
               {currentPlan === 'free' && (
-                <div
-                  className="relative overflow-hidden rounded-xl border border-[rgba(156,106,255,0.18)] bg-white/[0.04] p-4"
-                  style={{
-                    boxShadow: '0 18px 50px rgba(0,0,0,0.55), 0 6px 18px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05)',
-                  }}
-                >
-                  {/* Ambient glow overlay */}
+                <div className="relative rounded-xl p-0">
+                  {/* A) Outer neon edge glow */}
                   <div
-                    className="absolute -inset-6 rounded-[inherit] blur-2xl opacity-60 pointer-events-none"
+                    className="absolute pointer-events-none rounded-[inherit]"
                     style={{
-                      background: 'radial-gradient(circle at 30% 20%, rgba(156,106,255,0.22), transparent 60%), radial-gradient(circle at 80% 60%, rgba(156,106,255,0.14), transparent 65%)',
+                      inset: '-2px',
+                      background: 'linear-gradient(135deg, rgba(168,120,255,0.95), rgba(120,200,255,0.55), rgba(168,120,255,0.95))',
+                      filter: 'blur(6px)',
+                      opacity: 0.75,
                       zIndex: 0,
                     }}
                   />
+                  {/* Crisp edge line */}
+                  <div
+                    className="absolute pointer-events-none rounded-[inherit]"
+                    style={{
+                      inset: 0,
+                      border: '1px solid rgba(180,140,255,0.45)',
+                      opacity: 0.9,
+                      zIndex: 1,
+                    }}
+                  />
 
-                  {/* Neutral glass surface overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-white/[0.06] to-white/[0.03] pointer-events-none" style={{ zIndex: 1 }} />
+                  {/* B) Dark inner panel */}
+                  <div
+                    className="relative rounded-[inherit] px-3.5 py-3"
+                    style={{
+                      background: 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)), rgba(10,12,20,0.78)',
+                      zIndex: 2,
+                    }}
+                  >
+                    <div className="space-y-2.5">
+                      {/* Title + Crown */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-base font-semibold text-white">{t.manage_sub_vip_plan}</span>
+                        <Crown className="w-5 h-5 text-amber-400/85" strokeWidth={2} />
+                      </div>
 
-                  {/* Content */}
-                  <div className="relative z-10 space-y-3">
-                    {/* Title + Crown */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-base font-semibold text-white">{t.manage_sub_vip_plan}</span>
-                      <Crown className="w-5 h-5 text-primary/85" strokeWidth={2} />
-                    </div>
+                      {/* Pricing */}
+                      <div>
+                        {selectedInterval === 'monthly' ? (
+                          <div>
+                            <span className="text-2xl font-bold text-white">€6.99</span>
+                            <span className="text-sm font-normal text-muted-foreground/80 ml-1">/ {t.subscription_per_month}</span>
+                          </div>
+                        ) : (
+                          <div>
+                            <span className="text-2xl font-bold text-white">€54.99</span>
+                            <span className="text-sm font-normal text-muted-foreground/80 ml-1">/ {t.subscription_per_year}</span>
+                            <p className="text-xs text-muted-foreground/70 mt-0.5">
+                              €{(54.99 / 12).toFixed(2)} / {t.subscription_per_month}
+                            </p>
+                          </div>
+                        )}
+                      </div>
 
-                    {/* Pricing */}
-                    <div>
-                      {selectedInterval === 'monthly' ? (
-                        <div>
-                          <span className="text-2xl font-bold text-white">€6.99</span>
-                          <span className="text-sm font-normal text-muted-foreground/80 ml-1">/ {t.subscription_per_month}</span>
-                        </div>
-                      ) : (
-                        <div>
-                          <span className="text-2xl font-bold text-white">€54.99</span>
-                          <span className="text-sm font-normal text-muted-foreground/80 ml-1">/ {t.subscription_per_year}</span>
-                          <p className="text-xs text-muted-foreground/70 mt-0.5">
-                            €{(54.99 / 12).toFixed(2)} / {t.subscription_per_month}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Benefits - compact plain text, NO emoji */}
-                    <div className="space-y-1 pt-1">
-                      <p className="text-[11px] text-muted-foreground/60 uppercase tracking-wider font-medium">Benefits</p>
-                      <p className="text-[13px] text-foreground/80 leading-tight">• Unlimited daily confessions</p>
-                      <p className="text-[13px] text-foreground/80 leading-tight">• VIP crown badge</p>
-                      <p className="text-[13px] text-foreground/80 leading-tight">• 250 coins bonus on signup</p>
-                      <p className="text-[13px] text-foreground/80 leading-tight">• Exclusive VIP badges & flairs</p>
+                      {/* Benefits - compact, NO emoji */}
+                      <div className="space-y-0.5 pt-0.5">
+                        <p className="text-[11px] text-muted-foreground/60 uppercase tracking-wider font-medium">Benefits</p>
+                        <p className="text-[13px] text-foreground/80 leading-snug">• Unlimited daily confessions</p>
+                        <p className="text-[13px] text-foreground/80 leading-snug">• VIP crown badge</p>
+                        <p className="text-[13px] text-foreground/80 leading-snug">• 250 coins bonus on signup</p>
+                        <p className="text-[13px] text-foreground/80 leading-snug">• Exclusive VIP badges & flairs</p>
+                      </div>
                     </div>
                   </div>
                 </div>
