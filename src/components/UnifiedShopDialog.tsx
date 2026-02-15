@@ -309,8 +309,11 @@ export const UnifiedShopDialog = ({
                       '0 2px 8px rgba(0,0,0,0.25),' +
                       'inset 0 1px 0 rgba(255,255,255,0.22)',
                     borderRadius: '20px',
-                    padding: 'var(--ms-free-pad) 22px',
+                    height: 'var(--ms-cta-height)',
+                    padding: '0 22px',
                     overflow: 'hidden',
+                    display: 'flex',
+                    alignItems: 'center',
                   }}
                 >
                   <p
