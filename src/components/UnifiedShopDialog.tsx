@@ -231,11 +231,12 @@ export const UnifiedShopDialog = ({
       {/* VERIFICATION: This is the REAL Manage Subscription modal - UnifiedShopDialog.tsx */}
       <DialogContent
         data-testid="manage-subscription-modal"
-        className="fixed inset-0 max-w-none w-screen h-screen translate-x-0 translate-y-0 left-0 top-0 rounded-none p-0 shadow-none border-0 overflow-y-auto"
+        className="fixed inset-0 max-w-none w-screen translate-x-0 translate-y-0 left-0 top-0 rounded-none p-0 shadow-none border-0"
         style={{
           background: 'radial-gradient(ellipse at 50% 0%, #12142B 0%, #0D0E1C 45%, #08090F 100%)',
-          paddingTop: 'env(safe-area-inset-top)',
-          paddingBottom: 'env(safe-area-inset-bottom)',
+          height: '100dvh',
+          display: 'flex',
+          flexDirection: 'column',
           opacity: 1,
         }}
       >
@@ -250,8 +251,18 @@ export const UnifiedShopDialog = ({
           }}
         />
 
-        {/* ── HEADER ── */}
-        <DialogHeader className="relative px-6 pt-6 pb-1" style={{ zIndex: 10, background: 'transparent' }}>
+        {/* ── HEADER (fixed top) ── */}
+        <DialogHeader
+          className="relative shrink-0"
+          style={{
+            zIndex: 10,
+            background: 'transparent',
+            paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)',
+            paddingBottom: '4px',
+            paddingLeft: '24px',
+            paddingRight: '24px',
+          }}
+        >
           <DialogTitle
             className="text-center"
             style={{
@@ -266,7 +277,16 @@ export const UnifiedShopDialog = ({
         </DialogHeader>
 
         {/* ── SCROLLABLE CONTENT ── */}
-        <div className="relative px-5 pb-6" style={{ zIndex: 10, paddingTop: '12px' }}>
+        <div
+          className="relative flex-1 overflow-y-auto"
+          style={{
+            zIndex: 10,
+            paddingTop: 'clamp(8px, 1.5vh, 16px)',
+            paddingLeft: '20px',
+            paddingRight: '20px',
+            paddingBottom: '8px',
+          }}
+        >
           {loading ? (
             <div className="flex items-center justify-center" style={{ padding: '72px 0' }}>
               <Loader2 className="w-7 h-7 animate-spin" style={{ color: 'rgba(168,85,247,0.5)' }} />
@@ -275,9 +295,8 @@ export const UnifiedShopDialog = ({
             <>
               {/* ════════════════════════════════════════════ */}
               {/*  CURRENT PLAN CARD                           */}
-              {/*  Glass card with subtle gradient left edge    */}
               {/* ════════════════════════════════════════════ */}
-              <div style={{ position: 'relative', marginBottom: '20px' }}>
+              <div style={{ position: 'relative', marginBottom: 'clamp(12px, 2vh, 20px)' }}>
                 <div
                   style={{
                     position: 'relative',
@@ -288,11 +307,10 @@ export const UnifiedShopDialog = ({
                       '0 2px 8px rgba(0,0,0,0.25),' +
                       'inset 0 1px 0 rgba(255,255,255,0.22)',
                     borderRadius: '20px',
-                    padding: '20px 22px',
+                    padding: 'clamp(14px, 2vh, 20px) 22px',
                     overflow: 'hidden',
                   }}
                 >
-                  {/* No overlay – matches Upgrade button exactly */}
                   <p
                     style={{
                       position: 'relative',
@@ -317,7 +335,7 @@ export const UnifiedShopDialog = ({
                       position: 'relative',
                       fontSize: '13px',
                       color: 'rgba(255,255,255,0.45)',
-                      marginTop: '5px',
+                      marginTop: '4px',
                       lineHeight: 1.4,
                     }}
                   >
@@ -328,19 +346,16 @@ export const UnifiedShopDialog = ({
 
               {/* ════════════════════════════════════════════ */}
               {/*  VIP PLAN CARD                               */}
-              {/*  Dark center + neon purple edge glow          */}
-              {/*  Multi-layer: wide ambient + tight border     */}
               {/* ════════════════════════════════════════════ */}
               {currentPlan === 'free' && (
-                <div style={{ position: 'relative', marginBottom: '24px' }}>
+                <div style={{ position: 'relative', marginBottom: '0' }}>
 
-                  {/* ── Soft diffused outer glow (wide, faint spread) ── */}
+                  {/* ── Soft diffused outer glow ── */}
                   <div
                     className="absolute pointer-events-none"
                     style={{
                       inset: '-16px',
                       borderRadius: '38px',
-                      /* Uses CONFIRM_GRADIENT color family for glow, not random purple */
                       background:
                         'radial-gradient(ellipse at 15% 75%, rgba(192,132,252,0.18) 0%, transparent 55%),' +
                         'radial-gradient(ellipse at 50% 105%, rgba(167,139,250,0.14) 0%, transparent 50%),' +
@@ -350,21 +365,18 @@ export const UnifiedShopDialog = ({
                     }}
                   />
 
-                  {/* ── The panel itself (dark center, soft iOS glow) ── */}
+                  {/* ── The panel itself ── */}
                   <div
                     className="relative"
                     style={{
                       position: 'relative',
                       borderRadius: '24px',
-                      padding: '28px 26px 26px',
+                      padding: 'clamp(18px, 3vh, 28px) clamp(18px, 2vw, 26px) clamp(18px, 2.5vh, 26px)',
                       overflow: 'hidden',
                       zIndex: 3,
-                      /* Deep dark base — near-black center */
                       background:
                         'linear-gradient(145deg, #110E20 0%, #0C0B18 35%, #0E0A1A 65%, #100D1F 100%)',
-                      /* Soft 1px border from CONFIRM_GRADIENT family */
                       border: '1px solid rgba(167,139,250,0.25)',
-                      /* iOS-style multi-layer shadow: inner highlight + soft outer + faint spread */
                       boxShadow:
                         'inset 0 1px 0 rgba(255,255,255,0.07),' +
                         'inset 0 0 30px rgba(0,0,0,0.40),' +
@@ -373,7 +385,7 @@ export const UnifiedShopDialog = ({
                         '0 20px 60px rgba(0,0,0,0.35)',
                     }}
                   >
-                    {/* Inner vignette — darkens center further */}
+                    {/* Inner vignette */}
                     <div
                       className="absolute pointer-events-none"
                       style={{
@@ -384,7 +396,7 @@ export const UnifiedShopDialog = ({
                       }}
                     />
 
-                    {/* Accent illumination from CONFIRM_GRADIENT family */}
+                    {/* Accent illumination */}
                     <div
                       className="absolute pointer-events-none"
                       style={{
@@ -410,7 +422,7 @@ export const UnifiedShopDialog = ({
                       }}
                     />
 
-                    {/* Top sheen / glass highlight */}
+                    {/* Top sheen */}
                     <div
                       className="absolute pointer-events-none"
                       style={{
@@ -432,7 +444,7 @@ export const UnifiedShopDialog = ({
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
-                          marginBottom: '14px',
+                          marginBottom: 'clamp(8px, 1.5vh, 14px)',
                         }}
                       >
                         <span
@@ -469,7 +481,7 @@ export const UnifiedShopDialog = ({
                           borderRadius: '12px',
                           background: 'rgba(255,255,255,0.06)',
                           padding: '3px',
-                          marginBottom: '24px',
+                          marginBottom: 'clamp(14px, 2.5vh, 24px)',
                           border: '1px solid rgba(255,255,255,0.08)',
                           position: 'relative',
                         }}
@@ -482,7 +494,7 @@ export const UnifiedShopDialog = ({
                               onClick={() => setSelectedInterval(interval)}
                               style={{
                                 flex: 1,
-                                padding: '10px 0',
+                                padding: 'clamp(7px, 1vh, 10px) 0',
                                 borderRadius: '10px',
                                 fontSize: '13px',
                                 fontWeight: 600,
@@ -503,7 +515,7 @@ export const UnifiedShopDialog = ({
                             </button>
                           );
                         })}
-                        {/* Save badge – absolute, top-right of toggle */}
+                        {/* Save badge */}
                         <span
                           className="animate-pulse"
                           style={{
@@ -518,22 +530,22 @@ export const UnifiedShopDialog = ({
                             borderRadius: '999px',
                             letterSpacing: '0.3px',
                             lineHeight: '16px',
-                            boxShadow: '0 2px 8px rgba(34,197,94,0.4), 0 1px 2px rgba(0,0,0,0.3)',
+                            boxShadow: '0 2px 8px rgba(245,158,11,0.4), 0 1px 2px rgba(0,0,0,0.3)',
                             zIndex: 5,
                             whiteSpace: 'nowrap',
                             animationDuration: '2.5s',
                           }}
                         >
-                          {t.manage_sub_save_percent || 'Save 34%'} 🔥
+                          {t.manage_sub_save_percent || '34% off'} 🔥
                         </span>
                       </div>
 
                       {/* Pricing */}
-                      <div style={{ marginBottom: '20px' }}>
+                      <div style={{ marginBottom: 'clamp(12px, 2vh, 20px)' }}>
                         <div style={{ display: 'flex', alignItems: 'baseline' }}>
                           <span
                             style={{
-                              fontSize: '32px',
+                              fontSize: 'clamp(26px, 4vh, 32px)',
                               fontWeight: 700,
                               color: '#FFFFFF',
                               letterSpacing: '-0.5px',
@@ -560,7 +572,7 @@ export const UnifiedShopDialog = ({
                             style={{
                               fontSize: '13px',
                               color: 'rgba(255,255,255,0.32)',
-                              marginTop: '6px',
+                              marginTop: '4px',
                               letterSpacing: '0.1px',
                             }}
                           >
@@ -572,7 +584,7 @@ export const UnifiedShopDialog = ({
                             style={{
                               fontSize: '13px',
                               color: 'rgba(255,255,255,0.32)',
-                              marginTop: '6px',
+                              marginTop: '4px',
                               letterSpacing: '0.1px',
                             }}
                           >
@@ -590,12 +602,12 @@ export const UnifiedShopDialog = ({
                             color: 'rgba(255,255,255,0.40)',
                             textTransform: 'uppercase' as const,
                             letterSpacing: '1.1px',
-                            marginBottom: '14px',
+                            marginBottom: 'clamp(8px, 1.5vh, 14px)',
                           }}
                         >
                           Benefits
                         </p>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.5vh, 16px)' }}>
                           <BenefitRow
                             icon={<InfinityIcon style={{ width: '17px', height: '17px', strokeWidth: 2 }} />}
                             label="Unlimited daily confessions"
@@ -618,49 +630,58 @@ export const UnifiedShopDialog = ({
                   </div>
                 </div>
               )}
-
-              {/* ════════════════════════════════════════════ */}
-              {/*  UPGRADE BUTTON                              */}
-              {/* ════════════════════════════════════════════ */}
-              {currentPlan === 'free' ? (
-                <Button
-                  onClick={handleUpgrade}
-                  disabled={isProcessing}
-                  className="w-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                  style={{
-                    height: '54px',
-                    borderRadius: '999px',
-                    /* Exact CONFIRM_GRADIENT */
-                    background: CONFIRM_GRADIENT,
-                    color: '#FFFFFF',
-                    fontSize: '16px',
-                    fontWeight: 600,
-                    border: 'none',
-                    letterSpacing: '-0.1px',
-                    boxShadow:
-                      '0 8px 28px rgba(167,139,250,0.35),' +
-                      '0 2px 8px rgba(0,0,0,0.25),' +
-                      'inset 0 1px 0 rgba(255,255,255,0.22)',
-                    cursor: isProcessing ? 'wait' : 'pointer',
-                  }}
-                >
-                  {isProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : t.manage_sub_upgrade_to_vip}
-                </Button>
-              ) : (
-                <p
-                  style={{
-                    textAlign: 'center',
-                    fontSize: '13px',
-                    color: 'rgba(255,255,255,0.30)',
-                    padding: '12px 0',
-                  }}
-                >
-                  {t.subscription_cancel_anytime}
-                </p>
-              )}
             </>
           )}
         </div>
+
+        {/* ── STICKY CTA (always visible at bottom) ── */}
+        {!loading && (
+          <div
+            className="relative shrink-0"
+            style={{
+              zIndex: 10,
+              padding: '12px 20px',
+              paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)',
+              background: 'linear-gradient(to top, #08090F 60%, transparent)',
+            }}
+          >
+            {currentPlan === 'free' ? (
+              <Button
+                onClick={handleUpgrade}
+                disabled={isProcessing}
+                className="w-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                style={{
+                  height: '54px',
+                  borderRadius: '999px',
+                  background: CONFIRM_GRADIENT,
+                  color: '#FFFFFF',
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  border: 'none',
+                  letterSpacing: '-0.1px',
+                  boxShadow:
+                    '0 8px 28px rgba(167,139,250,0.35),' +
+                    '0 2px 8px rgba(0,0,0,0.25),' +
+                    'inset 0 1px 0 rgba(255,255,255,0.22)',
+                  cursor: isProcessing ? 'wait' : 'pointer',
+                }}
+              >
+                {isProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : t.manage_sub_upgrade_to_vip}
+              </Button>
+            ) : (
+              <p
+                style={{
+                  textAlign: 'center',
+                  fontSize: '13px',
+                  color: 'rgba(255,255,255,0.30)',
+                  padding: '12px 0',
+                }}
+              >
+                {t.subscription_cancel_anytime}
+              </p>
+            )}
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
