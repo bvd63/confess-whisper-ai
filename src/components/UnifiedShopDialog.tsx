@@ -236,7 +236,7 @@ export const UnifiedShopDialog = ({
           background: 'radial-gradient(ellipse at 50% 0%, #12142B 0%, #0D0E1C 45%, #08090F 100%)',
           paddingTop: 'env(safe-area-inset-top)',
           paddingBottom: 'env(safe-area-inset-bottom)',
-          zIndex: 60,
+          opacity: 1,
         }}
       >
         {/* ── Global noise texture ── */}
