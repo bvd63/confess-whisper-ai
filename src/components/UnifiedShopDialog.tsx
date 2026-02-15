@@ -10,10 +10,9 @@ import { logError, logDebug } from "@/lib/logger";
 import { STRIPE_PRICE } from '@/lib/stripe-config';
 
 /* ------------------------------------------------------------------ */
-/*  Reusable gradient token – extracted from "Confirm" button image    */
-/*  Warm lavender → mid violet → cool blue-purple, 90deg LTR          */
+/*  Reusable gradient token – matches Login button (primary → accent)  */
 /* ------------------------------------------------------------------ */
-const CONFIRM_GRADIENT = 'linear-gradient(90deg, #C084FC 0%, #A78BFA 50%, #818CF8 100%)';
+const CONFIRM_GRADIENT = 'linear-gradient(to right, hsl(265 88% 72%), hsl(217 92% 68%))';
 
 /* ------------------------------------------------------------------ */
 /*  Inline SVG noise pattern used as card texture overlay              */
