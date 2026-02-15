@@ -34,7 +34,7 @@ export const ClickableNickname = ({
   if (!nickname) return null;
 
   return (
-    <div className="inline-flex items-center gap-1">
+    <div className="inline-flex items-center gap-1 max-w-full overflow-hidden">
       <Button
         variant="ghost"
         size="sm"
