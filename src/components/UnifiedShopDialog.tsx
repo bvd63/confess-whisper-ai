@@ -296,8 +296,7 @@ export const UnifiedShopDialog = ({
                 <div
                   style={{
                     position: 'relative',
-                    background:
-                      'linear-gradient(145deg, #110E20 0%, #0C0B18 35%, #0E0A1A 65%, #100D1F 100%)',
+                    background: CONFIRM_GRADIENT,
                     backdropFilter: 'blur(24px)',
                     WebkitBackdropFilter: 'blur(24px)',
                     border: '1px solid rgba(167,139,250,0.25)',
