@@ -40,7 +40,7 @@ export const ClickableNickname = ({
         size="sm"
         onClick={handleClick}
         className={cn(
-          "h-auto p-1 font-semibold hover:text-primary transition-colors",
+          "h-auto p-1 font-semibold hover:text-primary transition-colors max-w-full overflow-hidden text-ellipsis whitespace-nowrap",
           className
         )}
       >
