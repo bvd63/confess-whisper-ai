@@ -231,7 +231,7 @@ export const UnifiedShopDialog = ({
       {/* VERIFICATION: This is the REAL Manage Subscription modal - UnifiedShopDialog.tsx */}
       <DialogContent
         data-testid="manage-subscription-modal"
-        className="fixed inset-0 max-w-none w-screen translate-x-0 translate-y-0 left-0 top-0 rounded-none p-0 shadow-none border-0"
+        className="fixed inset-0 max-w-none w-screen translate-x-0 translate-y-0 left-0 top-0 rounded-none p-0 shadow-none border-0 [&>button[data-radix-collection-item]]:hidden [&>.absolute.right-2.top-2]:hidden"
         style={{
           background: 'radial-gradient(ellipse at 50% 0%, #12142B 0%, #0D0E1C 45%, #08090F 100%)',
           height: '100dvh',
@@ -251,30 +251,80 @@ export const UnifiedShopDialog = ({
           }}
         />
 
-        {/* ── HEADER (fixed top) ── */}
-        <DialogHeader
+        {/* ── HEADER (App Store sheet style) ── */}
+        <div
           className="relative shrink-0"
           style={{
             zIndex: 10,
-            background: 'transparent',
-            paddingTop: 'calc(env(safe-area-inset-top, 0px) + var(--ms-header-pt))',
-            paddingBottom: '4px',
-            paddingLeft: '24px',
-            paddingRight: '24px',
+            paddingTop: 'calc(env(safe-area-inset-top, 0px) + clamp(10px, 2vh, 18px))',
           }}
         >
-          <DialogTitle
-            className="text-center"
+          {/* Header row: title centered, X right-aligned */}
+          <DialogHeader
+            className="relative"
             style={{
-              fontSize: '20px',
-              fontWeight: 700,
-              color: 'rgba(255,255,255,0.95)',
-              letterSpacing: '-0.3px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative',
+              paddingLeft: '24px',
+              paddingRight: '24px',
+              paddingBottom: 'clamp(10px, 1.5vh, 16px)',
             }}
           >
-            Manage Subscription
-          </DialogTitle>
-        </DialogHeader>
+            <DialogTitle
+              style={{
+                fontSize: '20px',
+                fontWeight: 700,
+                color: 'rgba(255,255,255,0.95)',
+                letterSpacing: '-0.3px',
+                textAlign: 'center',
+              }}
+            >
+              Manage Subscription
+            </DialogTitle>
+
+            {/* Close X – 44×44 touch target, right-aligned */}
+            <button
+              onClick={() => onOpenChange(false)}
+              aria-label="Close"
+              style={{
+                position: 'absolute',
+                right: '16px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                width: '44px',
+                height: '44px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,0.08)',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'rgba(255,255,255,0.55)',
+                fontSize: '18px',
+                fontWeight: 300,
+                lineHeight: 1,
+                transition: 'background 0.15s',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.14)')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')}
+            >
+              ✕
+            </button>
+          </DialogHeader>
+
+          {/* iOS-style separator / divider */}
+          <div
+            style={{
+              height: '1px',
+              background: 'linear-gradient(90deg, transparent 5%, rgba(255,255,255,0.10) 30%, rgba(255,255,255,0.10) 70%, transparent 95%)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+            }}
+          />
+        </div>
 
         {/* ── CONTENT (no scroll, single centered stack) ── */}
         <div
