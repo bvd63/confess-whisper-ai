@@ -80,7 +80,7 @@ const BenefitRow = ({ icon, label }: { icon: React.ReactNode; label: string }) =
         width: '36px',
         height: '36px',
         borderRadius: '12px',
-        background: 'hsl(265, 60%, 45%)',
+        background: CONFIRM_GRADIENT,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
