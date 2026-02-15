@@ -513,7 +513,7 @@ export const UnifiedShopDialog = ({
                             fontSize: '10px',
                             fontWeight: 800,
                             color: '#fff',
-                            background: 'linear-gradient(135deg, #22C55E, #16A34A)',
+                            background: 'linear-gradient(135deg, #F59E0B, #FFB703)',
                             padding: '2px 8px',
                             borderRadius: '999px',
                             letterSpacing: '0.3px',
