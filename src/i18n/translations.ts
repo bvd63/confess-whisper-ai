@@ -1580,6 +1580,11 @@ type Translations = {
   manage_sub_current_plan_desc: string;
   manage_sub_vip_plan: string;
   manage_sub_benefits: string;
+  manage_sub_monthly: string;
+  manage_sub_yearly: string;
+  manage_sub_month: string;
+  manage_sub_year: string;
+  manage_sub_save_percent: string;
   manage_sub_upgrade_to_vip: string;
   
   // Subscription Benefits - Free
@@ -3018,6 +3023,11 @@ export const translations: Record<Language, Translations> = {
     manage_sub_current_plan_desc: "Basic access to your confessions.",
     manage_sub_vip_plan: "VIP Plan",
     manage_sub_benefits: "Benefits",
+    manage_sub_monthly: "Monthly",
+    manage_sub_yearly: "Yearly",
+    manage_sub_month: "month",
+    manage_sub_year: "year",
+    manage_sub_save_percent: "Save 34%",
     manage_sub_upgrade_to_vip: "Upgrade to VIP",
     
     // Subscription Benefits - Free
@@ -5391,6 +5401,11 @@ export const translations: Record<Language, Translations> = {
     manage_sub_current_plan_desc: "Acceso básico a tus confesiones.",
     manage_sub_vip_plan: "Plan VIP",
     manage_sub_benefits: "Beneficios",
+    manage_sub_monthly: "Mensual",
+    manage_sub_yearly: "Anual",
+    manage_sub_month: "mes",
+    manage_sub_year: "año",
+    manage_sub_save_percent: "Ahorra 34%",
     manage_sub_upgrade_to_vip: "Mejorar a VIP",
     
     // Subscription Benefits - Free
@@ -7394,6 +7409,11 @@ export const translations: Record<Language, Translations> = {
     manage_sub_current_plan_desc: "Grundlegender Zugang zu deinen Beichten.",
     manage_sub_vip_plan: "VIP Plan",
     manage_sub_benefits: "Vorteile",
+    manage_sub_monthly: "Monatlich",
+    manage_sub_yearly: "Jährlich",
+    manage_sub_month: "Monat",
+    manage_sub_year: "Jahr",
+    manage_sub_save_percent: "34% sparen",
     manage_sub_upgrade_to_vip: "Auf VIP upgraden",
     
     // Subscription Benefits - Free
