@@ -80,14 +80,13 @@ const BenefitRow = ({ icon, label }: { icon: React.ReactNode; label: string }) =
         width: '36px',
         height: '36px',
         borderRadius: '12px',
-        background: 'rgba(167,139,250,0.10)',
-        border: '1px solid rgba(167,139,250,0.08)',
+        background: 'hsl(265, 60%, 45%)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        boxShadow: 'inset 0 0 8px rgba(167,139,250,0.06)',
+        boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.12)',
         flexShrink: 0,
-        color: 'rgba(192,132,252,0.85)',
+        color: 'rgba(255,255,255,0.92)',
       }}
     >
       {icon}
