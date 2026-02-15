@@ -277,20 +277,6 @@ export const UnifiedShopDialog = ({
               {/*  Glass card with subtle gradient left edge    */}
               {/* ════════════════════════════════════════════ */}
               <div style={{ position: 'relative', marginBottom: '20px' }}>
-                {/* Subtle gradient shimmer on left edge (like reference) */}
-                <div
-                  className="absolute pointer-events-none"
-                  style={{
-                    top: '8px',
-                    bottom: '8px',
-                    left: '-1px',
-                    width: '3px',
-                    borderRadius: '2px',
-                    background: 'linear-gradient(180deg, rgba(168,120,255,0.6) 0%, rgba(100,200,255,0.4) 50%, rgba(168,120,255,0.3) 100%)',
-                    filter: 'blur(1px)',
-                    zIndex: 3,
-                  }}
-                />
                 <div
                   style={{
                     position: 'relative',
