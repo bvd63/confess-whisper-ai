@@ -9,8 +9,7 @@ import Inspect from 'vite-plugin-inspect';
 export default defineConfig(({ mode }) => ({
   server: {
     host: true,
-    port: 8080,
-    strictPort: true,
+    port: 3000,
   },
   plugins: [
     react(),
