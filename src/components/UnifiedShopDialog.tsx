@@ -493,11 +493,32 @@ export const UnifiedShopDialog = ({
                                 boxShadow: isActive
                                   ? '0 2px 8px rgba(167,139,250,0.3)'
                                   : 'none',
+                                position: 'relative',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '5px',
                               }}
                             >
                               {interval === 'monthly'
                                 ? (t.manage_sub_monthly || 'Monthly')
                                 : (t.manage_sub_yearly || 'Yearly')}
+                              {interval === 'yearly' && (
+                                <span
+                                  style={{
+                                    fontSize: '9px',
+                                    fontWeight: 700,
+                                    color: '#34D399',
+                                    background: 'rgba(52,211,153,0.15)',
+                                    padding: '1px 5px',
+                                    borderRadius: '4px',
+                                    letterSpacing: '0.2px',
+                                    lineHeight: '14px',
+                                  }}
+                                >
+                                  {t.manage_sub_save_percent || 'Save 34%'}
+                                </span>
+                              )}
                             </button>
                           );
                         })}
@@ -529,22 +550,6 @@ export const UnifiedShopDialog = ({
                               ? `/${t.manage_sub_year || 'year'}`
                               : `/${t.manage_sub_month || 'month'}`}
                           </span>
-                          {selectedInterval === 'yearly' && (
-                            <span
-                              style={{
-                                marginLeft: '10px',
-                                fontSize: '11px',
-                                fontWeight: 700,
-                                color: '#34D399',
-                                background: 'rgba(52,211,153,0.12)',
-                                padding: '2px 8px',
-                                borderRadius: '6px',
-                                letterSpacing: '0.3px',
-                              }}
-                            >
-                              {t.manage_sub_save_percent || 'Save 34%'}
-                            </span>
-                          )}
                         </div>
                         {selectedInterval === 'yearly' && (
                           <p
