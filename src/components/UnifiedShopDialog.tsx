@@ -462,6 +462,47 @@ export const UnifiedShopDialog = ({
                         </div>
                       </div>
 
+                      {/* Monthly / Yearly toggle */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          borderRadius: '12px',
+                          background: 'rgba(255,255,255,0.06)',
+                          padding: '3px',
+                          marginBottom: '16px',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                        }}
+                      >
+                        {(['monthly', 'yearly'] as const).map((interval) => {
+                          const isActive = selectedInterval === interval;
+                          return (
+                            <button
+                              key={interval}
+                              onClick={() => setSelectedInterval(interval)}
+                              style={{
+                                flex: 1,
+                                padding: '8px 0',
+                                borderRadius: '10px',
+                                fontSize: '13px',
+                                fontWeight: 600,
+                                border: 'none',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s',
+                                background: isActive ? CONFIRM_GRADIENT : 'transparent',
+                                color: isActive ? '#fff' : 'rgba(255,255,255,0.45)',
+                                boxShadow: isActive
+                                  ? '0 2px 8px rgba(167,139,250,0.3)'
+                                  : 'none',
+                              }}
+                            >
+                              {interval === 'monthly'
+                                ? (t.manage_sub_monthly || 'Monthly')
+                                : (t.manage_sub_yearly || 'Yearly')}
+                            </button>
+                          );
+                        })}
+                      </div>
+
                       {/* Pricing */}
                       <div style={{ marginBottom: '20px' }}>
                         <div style={{ display: 'flex', alignItems: 'baseline' }}>
@@ -474,7 +515,7 @@ export const UnifiedShopDialog = ({
                               lineHeight: 1,
                             }}
                           >
-                            &euro;6.99
+                            {selectedInterval === 'yearly' ? '€54.99' : '€6.99'}
                           </span>
                           <span
                             style={{
@@ -484,19 +525,51 @@ export const UnifiedShopDialog = ({
                               marginLeft: '3px',
                             }}
                           >
-                            /month
+                            {selectedInterval === 'yearly'
+                              ? `/${t.manage_sub_year || 'year'}`
+                              : `/${t.manage_sub_month || 'month'}`}
                           </span>
+                          {selectedInterval === 'yearly' && (
+                            <span
+                              style={{
+                                marginLeft: '10px',
+                                fontSize: '11px',
+                                fontWeight: 700,
+                                color: '#34D399',
+                                background: 'rgba(52,211,153,0.12)',
+                                padding: '2px 8px',
+                                borderRadius: '6px',
+                                letterSpacing: '0.3px',
+                              }}
+                            >
+                              {t.manage_sub_save_percent || 'Save 34%'}
+                            </span>
+                          )}
                         </div>
-                        <p
-                          style={{
-                            fontSize: '13px',
-                            color: 'rgba(255,255,255,0.32)',
-                            marginTop: '6px',
-                            letterSpacing: '0.1px',
-                          }}
-                        >
-                          &euro;54.99/year
-                        </p>
+                        {selectedInterval === 'yearly' && (
+                          <p
+                            style={{
+                              fontSize: '13px',
+                              color: 'rgba(255,255,255,0.32)',
+                              marginTop: '6px',
+                              letterSpacing: '0.1px',
+                            }}
+                          >
+                            €4.58/{t.manage_sub_month || 'month'}
+                          </p>
+                        )}
+                        {selectedInterval === 'monthly' && (
+                          <p
+                            style={{
+                              fontSize: '13px',
+                              color: 'rgba(255,255,255,0.32)',
+                              marginTop: '6px',
+                              letterSpacing: '0.1px',
+                            }}
+                          >
+                            €54.99/{t.manage_sub_year || 'year'}
+                          </p>
+                        )}
                       </div>
 
                       {/* Benefits */}
