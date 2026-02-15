@@ -178,22 +178,29 @@ const newProfile = payload.new as { subscription_tier?: string; subscription_cad
                 </div>
               )}
 
-              {/* VIP Plan Card - Premium atmospheric depth */}
+              {/* VIP Plan Card - Ambient glow + edge lighting */}
               {currentPlan === 'free' && (
-                <div className="relative rounded-xl overflow-hidden p-4">
-                  {/* Layered background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-slate-800/90 via-slate-900/95 to-slate-950/95"></div>
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-primary/5 opacity-60"></div>
-                  <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-primary/10"></div>
+                <div className="relative rounded-xl p-4" style={{
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02))',
+                  border: '1px solid rgba(156,106,255,0.18)',
+                  boxShadow: '0 18px 50px rgba(0,0,0,0.55), 0 6px 18px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05)',
+                }}>
+                  {/* Ambient glow pseudo-element */}
+                  <div className="absolute pointer-events-none" style={{
+                    inset: '-14px',
+                    borderRadius: 'inherit',
+                    background: 'radial-gradient(circle at 30% 20%, rgba(156,106,255,0.20), transparent 60%), radial-gradient(circle at 80% 60%, rgba(156,106,255,0.14), transparent 65%)',
+                    filter: 'blur(18px)',
+                    opacity: 0.55,
+                    zIndex: 0,
+                  }} />
                   
                   {/* Content */}
                   <div className="relative z-10 space-y-3">
                     {/* Title + Crown */}
                     <div className="flex items-center justify-between">
                       <span className="text-base font-semibold text-white">{t.manage_sub_vip_plan}</span>
-                      <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20">
-                        <Crown className="w-5 h-5 text-primary" strokeWidth={2} />
-                      </div>
+                      <Crown className="w-5 h-5 text-primary/85" strokeWidth={2} />
                     </div>
 
                     {/* Pricing */}
