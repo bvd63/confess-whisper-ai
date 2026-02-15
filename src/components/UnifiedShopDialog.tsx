@@ -297,30 +297,17 @@ export const UnifiedShopDialog = ({
                   style={{
                     position: 'relative',
                     background: CONFIRM_GRADIENT,
-                    backdropFilter: 'blur(24px)',
-                    WebkitBackdropFilter: 'blur(24px)',
                     border: '1px solid rgba(167,139,250,0.25)',
                     boxShadow:
-                      'inset 0 1px 0 rgba(255,255,255,0.07),' +
-                      'inset 0 0 30px rgba(0,0,0,0.40),' +
-                      '0 4px 16px rgba(167,139,250,0.15),' +
-                      '0 12px 40px rgba(167,139,250,0.10),' +
-                      '0 20px 60px rgba(0,0,0,0.35)',
+                      '0 8px 28px rgba(167,139,250,0.35),' +
+                      '0 2px 8px rgba(0,0,0,0.25),' +
+                      'inset 0 1px 0 rgba(255,255,255,0.22)',
                     borderRadius: '20px',
                     padding: '20px 22px',
                     overflow: 'hidden',
                   }}
                 >
-                  {/* Card noise */}
-                  <div
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                      backgroundImage: NOISE_SVG,
-                      opacity: 0.03,
-                      mixBlendMode: 'overlay' as const,
-                      borderRadius: '20px',
-                    }}
-                  />
+                  {/* No overlay – matches Upgrade button exactly */}
                   <p
                     style={{
                       position: 'relative',
