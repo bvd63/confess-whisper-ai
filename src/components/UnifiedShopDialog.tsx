@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { toast } from "sonner";
-import { Loader2, Crown } from "lucide-react";
+import { Loader2, Crown, Infinity, Coins, Sparkles } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { logError, logDebug } from "@/lib/logger";
 import { STRIPE_PRICE } from '@/lib/stripe-config';
@@ -205,22 +205,24 @@ const newProfile = payload.new as { subscription_tier?: string; subscription_cad
                       zIndex: 1,
                     }}
                   />
-                  {/* Layer 3 — INNER DARK PANEL */}
+                  {/* Layer 3 — INNER PANEL with atmospheric gradient */}
                   <div
                     className="relative px-3.5 py-2.5"
                     style={{
                       zIndex: 2,
                       borderRadius: 'inherit',
-                      background: 'rgba(10,12,18,0.82)',
+                      background: 'linear-gradient(135deg, rgba(160,110,255,0.22) 0%, rgba(60,180,255,0.14) 45%, rgba(10,12,18,0.85) 100%)',
                       backdropFilter: 'blur(10px)',
-                      backgroundImage: 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))',
                     }}
                   >
                     <div className="space-y-2">
-                      {/* Title + Crown */}
+                      {/* Title + Crown/VIP badge */}
                       <div className="flex items-center justify-between">
                         <span className="text-base font-semibold text-white">{t.manage_sub_vip_plan}</span>
-                        <Crown className="w-5 h-5 text-amber-400/85" strokeWidth={2} />
+                        <div className="flex flex-col items-center gap-0.5">
+                          <Crown className="w-5 h-5 text-amber-400/85" strokeWidth={1.5} />
+                          <span className="text-[10px] font-bold text-amber-400/80 tracking-wide">VIP</span>
+                        </div>
                       </div>
 
                       {/* Pricing */}
@@ -241,13 +243,25 @@ const newProfile = payload.new as { subscription_tier?: string; subscription_cad
                         )}
                       </div>
 
-                      {/* Benefits — compact, NO emoji */}
-                      <div className="space-y-0.5">
+                      {/* Benefits — line icons, NO emoji, NO bullets */}
+                      <div className="space-y-1">
                         <p className="text-[11px] text-muted-foreground/60 uppercase tracking-wider font-medium">Benefits</p>
-                        <p className="text-[13px] text-foreground/80 leading-snug">• Unlimited daily confessions</p>
-                        <p className="text-[13px] text-foreground/80 leading-snug">• VIP crown badge</p>
-                        <p className="text-[13px] text-foreground/80 leading-snug">• 250 coins bonus on signup</p>
-                        <p className="text-[13px] text-foreground/80 leading-snug">• Exclusive VIP badges & flairs</p>
+                        <div className="flex items-center gap-2">
+                          <Infinity className="w-4 h-4 text-foreground/60 shrink-0" strokeWidth={1.5} />
+                          <span className="text-[13px] text-foreground/80 leading-snug">Unlimited daily confessions</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Crown className="w-4 h-4 text-foreground/60 shrink-0" strokeWidth={1.5} />
+                          <span className="text-[13px] text-foreground/80 leading-snug">VIP crown badge</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Coins className="w-4 h-4 text-foreground/60 shrink-0" strokeWidth={1.5} />
+                          <span className="text-[13px] text-foreground/80 leading-snug">250 coins bonus on signup</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-foreground/60 shrink-0" strokeWidth={1.5} />
+                          <span className="text-[13px] text-foreground/80 leading-snug">Exclusive VIP badges & flairs</span>
+                        </div>
                       </div>
                     </div>
                   </div>
