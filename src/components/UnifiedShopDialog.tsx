@@ -256,7 +256,7 @@ export const UnifiedShopDialog = ({
           className="relative shrink-0"
           style={{
             zIndex: 10,
-            paddingTop: 'calc(env(safe-area-inset-top, 0px) + clamp(10px, 2vh, 18px))',
+            paddingTop: 'calc(env(safe-area-inset-top, 0px) + clamp(18px, 3vh, 28px))',
           }}
         >
           {/* Header row: title centered, X right-aligned */}
