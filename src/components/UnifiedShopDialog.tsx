@@ -281,7 +281,7 @@ export const UnifiedShopDialog = ({
           className="relative flex-1 overflow-hidden"
           style={{
             zIndex: 10,
-            paddingTop: '8px',
+            paddingTop: 'clamp(12px, 2vh, 20px)',
             paddingLeft: '20px',
             paddingRight: '20px',
             paddingBottom: '0',
@@ -360,7 +360,7 @@ export const UnifiedShopDialog = ({
                     style={{
                       position: 'relative',
                       borderRadius: '24px',
-                      padding: '16px 20px 16px',
+                      padding: '18px 22px 18px',
                       overflow: 'hidden',
                       zIndex: 3,
                       background:
@@ -489,7 +489,7 @@ export const UnifiedShopDialog = ({
                                 fontWeight: 600,
                                 border: 'none',
                                 cursor: 'pointer',
-                                transition: 'all 0.2s',
+                                transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                                 background: isActive ? CONFIRM_GRADIENT : 'transparent',
                                 color: isActive ? '#fff' : 'rgba(255,255,255,0.45)',
                                 boxShadow: isActive
@@ -509,8 +509,8 @@ export const UnifiedShopDialog = ({
                           className="animate-pulse"
                           style={{
                             position: 'absolute',
-                            top: '-10px',
-                            right: '-4px',
+                            top: '-9px',
+                            right: '6px',
                             fontSize: '10px',
                             fontWeight: 800,
                             color: '#fff',
@@ -534,11 +534,12 @@ export const UnifiedShopDialog = ({
                         <div style={{ display: 'flex', alignItems: 'baseline' }}>
                           <span
                             style={{
-                              fontSize: '28px',
-                              fontWeight: 700,
+                              fontSize: '30px',
+                              fontWeight: 800,
                               color: '#FFFFFF',
                               letterSpacing: '-0.5px',
                               lineHeight: 1,
+                              textShadow: '0 0 40px rgba(192,132,252,0.25), 0 0 80px rgba(167,139,250,0.12)',
                             }}
                           >
                             {selectedInterval === 'yearly' ? '€54.99' : '€6.99'}
@@ -629,8 +630,8 @@ export const UnifiedShopDialog = ({
             className="relative shrink-0"
             style={{
               zIndex: 10,
-              padding: '8px 20px',
-              paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 10px)',
+            padding: '6px 20px',
+            paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)',
               background: 'linear-gradient(to top, #08090F 60%, transparent)',
             }}
           >
@@ -648,9 +649,12 @@ export const UnifiedShopDialog = ({
                   fontWeight: 600,
                   border: 'none',
                   letterSpacing: '-0.1px',
+                  paddingLeft: '32px',
+                  paddingRight: '32px',
                   boxShadow:
-                    '0 8px 28px rgba(167,139,250,0.35),' +
+                    '0 8px 28px rgba(167,139,250,0.40),' +
                     '0 2px 8px rgba(0,0,0,0.25),' +
+                    '0 16px 48px rgba(167,139,250,0.15),' +
                     'inset 0 1px 0 rgba(255,255,255,0.22)',
                   cursor: isProcessing ? 'wait' : 'pointer',
                 }}
