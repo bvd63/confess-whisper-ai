@@ -281,7 +281,7 @@ export const UnifiedShopDialog = ({
                   style={{
                     position: 'relative',
                     background: CONFIRM_GRADIENT,
-                    border: '1px solid rgba(167,139,250,0.25)',
+                    border: 'none',
                     boxShadow:
                       '0 8px 28px rgba(167,139,250,0.35),' +
                       '0 2px 8px rgba(0,0,0,0.25),' +
