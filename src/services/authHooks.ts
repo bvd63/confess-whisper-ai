@@ -2,7 +2,7 @@
  * Authentication-related hooks and utilities
  * Handles streak bonuses and other daily login rewards
  */
-import { env } from '@/lib/env';
+import { supabase } from '@/integrations/supabase/client';
 import { logError } from '@/lib/logger';
 
 export async function onDailyLogin({
@@ -13,11 +13,8 @@ export async function onDailyLogin({
   currentStreak: number;
 }): Promise<void> {
   try {
-    const url = `${env.client.supabaseUrl}/functions/v1/award-streak-bonus`;
-    await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, currentStreak }),
+    await supabase.functions.invoke('award-streak-bonus', {
+      body: { userId, currentStreak },
     });
   } catch (error) {
     logError('Failed to check streak bonus', error as Error);

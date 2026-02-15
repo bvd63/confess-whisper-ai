@@ -1,34 +1,31 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders, getAuthenticatedRequestContext, jsonResponse } from '../_shared/edge-auth.ts';
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  if (req.method !== "POST") {
+    return jsonResponse({ error: "METHOD_NOT_ALLOWED" }, 405);
+  }
+
   try {
+    const auth = await getAuthenticatedRequestContext(req);
+    if (!auth.ok) return auth.response;
+
     const { content, confessionId } = await req.json();
     
     if (!content) {
-      return new Response(
-        JSON.stringify({ error: 'Content is required' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      );
+      return jsonResponse({ error: 'Content is required' }, 400);
     }
 
     // Get Lovable AI API key
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
       console.error('LOVABLE_API_KEY not configured');
-      return new Response(
-        JSON.stringify({ error: 'AI service not configured' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-      );
+      return jsonResponse({ error: 'AI service not configured' }, 500);
     }
 
     // Call Lovable AI for tone analysis using Gemini
@@ -60,10 +57,7 @@ Just the word, nothing else.`
     if (!response.ok) {
       const errorText = await response.text();
       console.error('AI Gateway error:', response.status, errorText);
-      return new Response(
-        JSON.stringify({ error: 'Failed to analyze tone' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-      );
+      return jsonResponse({ error: 'Failed to analyze tone' }, 500);
     }
 
     const data = await response.json();
@@ -80,6 +74,20 @@ Just the word, nothing else.`
         Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
       );
 
+      const { data: confessionRow, error: confessionLookupError } = await supabase
+        .from('confessions')
+        .select('id, user_id')
+        .eq('id', confessionId)
+        .maybeSingle();
+
+      if (confessionLookupError) {
+        console.error('Error loading confession for tone update:', confessionLookupError);
+        return jsonResponse({ error: 'Failed to analyze tone' }, 500);
+      }
+      if (!confessionRow || confessionRow.user_id !== auth.context.userId) {
+        return jsonResponse({ error: 'FORBIDDEN_USER_MISMATCH' }, 403);
+      }
+
       const { error: updateError } = await supabase
         .from('confessions')
         .update({ emotional_tone: finalTone })
@@ -90,16 +98,10 @@ Just the word, nothing else.`
       }
     }
 
-    return new Response(
-      JSON.stringify({ tone: finalTone }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return jsonResponse({ tone: finalTone }, 200);
   } catch (error) {
     console.error('Error in analyze-tone function:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-    );
+    return jsonResponse({ error: errorMessage }, 500);
   }
 });

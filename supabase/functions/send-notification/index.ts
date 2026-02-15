@@ -1,11 +1,12 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import {
+  corsHeaders,
+  getAuthenticatedRequestContext,
+  jsonResponse,
+  requireInternalSecret,
+} from "../_shared/edge-auth.ts";
 
 const ONESIGNAL_APP_ID = Deno.env.get("ONESIGNAL_APP_ID") || Deno.env.get("VITE_ONESIGNAL_APP_ID");
 const ONESIGNAL_REST_API_KEY = Deno.env.get("ONESIGNAL_REST_API_KEY");
@@ -69,6 +70,10 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  if (req.method !== "POST") {
+    return jsonResponse({ error: "METHOD_NOT_ALLOWED" }, 405);
+  }
+
   try {
     logStep("Function started");
 
@@ -78,6 +83,17 @@ serve(async (req) => {
 
     const payload: NotificationPayload = await req.json();
     logStep("Received payload", { type: payload.type, userId: payload.userId });
+
+    const internal = requireInternalSecret(req);
+    if (!internal.ok) {
+      const auth = await getAuthenticatedRequestContext(req);
+      if (!auth.ok) return auth.response;
+
+      // Non-internal callers can only send notifications for themselves.
+      if (payload.userId !== auth.context.userId || payload.triggeredBy !== auth.context.userId) {
+        return jsonResponse({ error: "FORBIDDEN_USER_MISMATCH" }, 403);
+      }
+    }
 
     // Create Supabase client
     const supabaseClient = createClient(
@@ -95,18 +111,12 @@ serve(async (req) => {
 
     if (profileError || !recipientProfile) {
       logStep("Recipient profile not found", { error: profileError });
-      return new Response(
-        JSON.stringify({ error: "Recipient not found" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 404 }
-      );
+      return jsonResponse({ error: "Recipient not found" }, 404);
     }
 
     if (!recipientProfile.onesignal_player_id) {
       logStep("User does not have OneSignal player ID");
-      return new Response(
-        JSON.stringify({ message: "User has not enabled push notifications" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
-      );
+      return jsonResponse({ message: "User has not enabled push notifications" }, 200);
     }
 
     // Check user notification preferences
@@ -129,10 +139,7 @@ serve(async (req) => {
       
       if (isEnabled === false) {
         logStep("User has disabled this notification type", { type: payload.type });
-        return new Response(
-          JSON.stringify({ message: "Notification type disabled by user preferences" }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
-        );
+        return jsonResponse({ message: "Notification type disabled by user preferences" }, 200);
       }
     }
 
@@ -199,15 +206,12 @@ serve(async (req) => {
     // Skip sending push notification if batching (already sent one recently)
     if (batchCheck.shouldBatch && batchCheck.count > 2) {
       logStep("Skipping push notification due to batching", { count: batchCheck.count });
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: "Notification batched, push skipped",
-          batched: true,
-          count: batchCheck.count
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
-      );
+      return jsonResponse({
+        success: true,
+        message: "Notification batched, push skipped",
+        batched: true,
+        count: batchCheck.count,
+      }, 200);
     }
 
     logStep("Sending OneSignal notification", { heading, playerId: recipientProfile.onesignal_player_id });
@@ -258,20 +262,14 @@ serve(async (req) => {
       // Don't fail the whole request if analytics fails
     }
 
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        recipients: oneSignalData.recipients,
-        id: oneSignalData.id 
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
-    );
+    return jsonResponse({
+      success: true,
+      recipients: oneSignalData.recipients,
+      id: oneSignalData.id,
+    }, 200);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR", { message: errorMessage });
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
-    );
+    return jsonResponse({ error: errorMessage }, 500);
   }
 });
