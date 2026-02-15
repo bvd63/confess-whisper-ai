@@ -231,16 +231,17 @@ export const UnifiedShopDialog = ({
       {/* VERIFICATION: This is the REAL Manage Subscription modal - UnifiedShopDialog.tsx */}
       <DialogContent
         data-testid="manage-subscription-modal"
-        className="max-w-md max-h-[min(90vh,720px)] overflow-hidden rounded-3xl p-0 shadow-2xl"
+        className="fixed inset-0 max-w-none w-screen h-screen translate-x-0 translate-y-0 left-0 top-0 rounded-none p-0 shadow-none border-0 overflow-y-auto"
         style={{
           background: 'radial-gradient(ellipse at 50% 0%, #12142B 0%, #0D0E1C 45%, #08090F 100%)',
-          border: '1px solid rgba(255,255,255,0.05)',
-          boxShadow: '0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04)',
+          paddingTop: 'env(safe-area-inset-top)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+          zIndex: 60,
         }}
       >
         {/* ── Global noise texture ── */}
         <div
-          className="absolute inset-0 pointer-events-none rounded-3xl"
+          className="absolute inset-0 pointer-events-none"
           style={{
             backgroundImage: NOISE_SVG,
             opacity: 0.025,
