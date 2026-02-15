@@ -178,40 +178,45 @@ const newProfile = payload.new as { subscription_tier?: string; subscription_cad
                 </div>
               )}
 
-              {/* VIP Plan Card - Neon edge glow + dark inner panel */}
+              {/* VIP Plan Card — 3 layers: glow frame + stroke + inner panel */}
               {currentPlan === 'free' && (
-                <div className="relative rounded-xl p-0">
-                  {/* A) Outer neon edge glow */}
+                <div className="relative" style={{ borderRadius: '16px', overflow: 'visible' }}>
+                  {/* Layer 1 — OUTER GLOW FRAME */}
                   <div
-                    className="absolute pointer-events-none rounded-[inherit]"
+                    className="absolute pointer-events-none"
                     style={{
-                      inset: '-2px',
-                      background: 'linear-gradient(135deg, rgba(168,120,255,0.95), rgba(120,200,255,0.55), rgba(168,120,255,0.95))',
-                      filter: 'blur(6px)',
-                      opacity: 0.75,
+                      inset: '-6px',
+                      borderRadius: 'inherit',
+                      background: 'linear-gradient(135deg, rgba(170,120,255,0.95), rgba(120,210,255,0.55), rgba(170,120,255,0.95))',
+                      filter: 'blur(10px)',
+                      opacity: 0.85,
                       zIndex: 0,
                     }}
                   />
-                  {/* Crisp edge line */}
+                  {/* Layer 2 — CRISP STROKE */}
                   <div
-                    className="absolute pointer-events-none rounded-[inherit]"
+                    className="absolute pointer-events-none"
                     style={{
                       inset: 0,
-                      border: '1px solid rgba(180,140,255,0.45)',
-                      opacity: 0.9,
+                      borderRadius: 'inherit',
+                      border: '1px solid rgba(185,145,255,0.55)',
+                      boxShadow: '0 0 0 1px rgba(255,255,255,0.06) inset',
+                      opacity: 1,
                       zIndex: 1,
                     }}
                   />
-
-                  {/* B) Dark inner panel */}
+                  {/* Layer 3 — INNER DARK PANEL */}
                   <div
-                    className="relative rounded-[inherit] px-3.5 py-3"
+                    className="relative px-3.5 py-2.5"
                     style={{
-                      background: 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)), rgba(10,12,20,0.78)',
                       zIndex: 2,
+                      borderRadius: 'inherit',
+                      background: 'rgba(10,12,18,0.82)',
+                      backdropFilter: 'blur(10px)',
+                      backgroundImage: 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))',
                     }}
                   >
-                    <div className="space-y-2.5">
+                    <div className="space-y-2">
                       {/* Title + Crown */}
                       <div className="flex items-center justify-between">
                         <span className="text-base font-semibold text-white">{t.manage_sub_vip_plan}</span>
@@ -236,8 +241,8 @@ const newProfile = payload.new as { subscription_tier?: string; subscription_cad
                         )}
                       </div>
 
-                      {/* Benefits - compact, NO emoji */}
-                      <div className="space-y-0.5 pt-0.5">
+                      {/* Benefits — compact, NO emoji */}
+                      <div className="space-y-0.5">
                         <p className="text-[11px] text-muted-foreground/60 uppercase tracking-wider font-medium">Benefits</p>
                         <p className="text-[13px] text-foreground/80 leading-snug">• Unlimited daily confessions</p>
                         <p className="text-[13px] text-foreground/80 leading-snug">• VIP crown badge</p>
