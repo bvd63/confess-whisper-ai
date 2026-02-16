@@ -39,7 +39,7 @@ describe("edge function security helpers", () => {
     );
 
     expect(result.ok).toBe(false);
-    if (!result.ok) {
+    if (result.ok === false) {
       expect(result.error).toBe("FORBIDDEN_USER_MISMATCH");
     }
   });
