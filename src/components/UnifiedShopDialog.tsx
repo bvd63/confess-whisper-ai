@@ -231,7 +231,7 @@ export const UnifiedShopDialog = ({
       {/* VERIFICATION: This is the REAL Manage Subscription modal - UnifiedShopDialog.tsx */}
       <DialogContent
         data-testid="manage-subscription-modal"
-        className="fixed inset-0 max-w-none w-screen translate-x-0 translate-y-0 left-0 top-0 rounded-none p-0 shadow-none border-0 [&>button[data-radix-collection-item]]:hidden [&>.absolute.right-2.top-2]:hidden"
+        className="fixed inset-0 max-w-none w-screen translate-x-0 translate-y-0 left-0 top-0 rounded-none p-0 shadow-none border-0 [&>button[data-radix-collection-item]]:hidden [&>.absolute.right-2.top-2]:hidden data-[state=open]:animate-sheet-up data-[state=closed]:animate-sheet-down data-[state=open]:!slide-in-from-top-0 data-[state=open]:!zoom-in-100 data-[state=closed]:!slide-out-to-top-0 data-[state=closed]:!zoom-out-100"
         style={{
           background: 'radial-gradient(ellipse at 50% 0%, #12142B 0%, #0D0E1C 45%, #08090F 100%)',
           height: '100dvh',
