@@ -35,8 +35,14 @@ export default function ResetPassword() {
     };
 
     // 1) Subscribe to auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY") {
+        resolve("ready");
+        return;
+      }
+
+      // Recovery links can also establish a session before PASSWORD_RECOVERY is handled.
+      if (session) {
         resolve("ready");
       }
     });
@@ -53,10 +59,10 @@ export default function ResetPassword() {
       }
     }, 100);
 
-    // 3) Timeout fallback: if neither event nor session after 2s, mark invalid
+    // 3) Timeout fallback: if neither event nor session after 4s, mark invalid
     const timeout = setTimeout(() => {
       resolve("invalid");
-    }, 2000);
+    }, 4000);
 
     return () => {
       isMounted = false;

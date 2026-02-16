@@ -183,7 +183,7 @@ describe("ResetPassword page", () => {
     expect(screen.getByText(translations.en.auth_validating_reset_link)).toBeInTheDocument();
 
     // After timeout, should show invalid
-    expect(await screen.findByText(translations.en.auth_reset_token_invalid, {}, { timeout: 3000 })).toBeInTheDocument();
+    expect(await screen.findByText(translations.en.auth_reset_token_invalid, {}, { timeout: 5000 })).toBeInTheDocument();
     expect(screen.getByText(translations.en.auth_reset_token_expired)).toBeInTheDocument();
   });
 
