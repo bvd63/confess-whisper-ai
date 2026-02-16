@@ -251,48 +251,20 @@ export const UnifiedShopDialog = ({
           }}
         />
 
-        {/* ── HEADER (App Store sheet style) ── */}
+        {/* ── HEADER (App Store sheet style – 2 rows) ── */}
         <div
           className="relative shrink-0"
           style={{
             zIndex: 10,
-            paddingTop: 'calc(env(safe-area-inset-top, 0px) + clamp(18px, 3vh, 28px))',
+            paddingTop: 'calc(env(safe-area-inset-top, 0px) + clamp(10px, 1.5vh, 16px))',
           }}
         >
-          {/* Header row: title centered, X right-aligned */}
-          <DialogHeader
-            className="relative"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              position: 'relative',
-              paddingLeft: '24px',
-              paddingRight: '24px',
-              paddingBottom: 'clamp(10px, 1.5vh, 16px)',
-            }}
-          >
-            <DialogTitle
-              style={{
-                fontSize: '20px',
-                fontWeight: 700,
-                color: 'rgba(255,255,255,0.95)',
-                letterSpacing: '-0.3px',
-                textAlign: 'center',
-              }}
-            >
-              Manage Subscription
-            </DialogTitle>
-
-            {/* Close X – 44×44 touch target, right-aligned */}
+          {/* Row 1: X button alone, top-right */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', paddingRight: '12px' }}>
             <button
               onClick={() => onOpenChange(false)}
               aria-label="Close"
               style={{
-                position: 'absolute',
-                right: '16px',
-                top: '50%',
-                transform: 'translateY(-50%)',
                 width: '44px',
                 height: '44px',
                 display: 'flex',
@@ -313,6 +285,28 @@ export const UnifiedShopDialog = ({
             >
               ✕
             </button>
+          </div>
+
+          {/* Row 2: Title centered, below X */}
+          <DialogHeader
+            style={{
+              paddingTop: 'clamp(4px, 1vh, 14px)',
+              paddingBottom: 'clamp(10px, 1.5vh, 16px)',
+              paddingLeft: '24px',
+              paddingRight: '24px',
+            }}
+          >
+            <DialogTitle
+              style={{
+                fontSize: '20px',
+                fontWeight: 700,
+                color: 'rgba(255,255,255,0.95)',
+                letterSpacing: '-0.3px',
+                textAlign: 'center',
+              }}
+            >
+              Manage Subscription
+            </DialogTitle>
           </DialogHeader>
 
           {/* iOS-style separator / divider */}
@@ -344,7 +338,7 @@ export const UnifiedShopDialog = ({
               <Loader2 className="w-7 h-7 animate-spin" style={{ color: 'rgba(168,85,247,0.5)' }} />
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ms-section-gap)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(22px, 3.2vh, 34px)' }}>
               {/* ── TOP: FREE card (shrink) ── */}
               {/*  CURRENT PLAN CARD                           */}
               {/* ════════════════════════════════════════════ */}
