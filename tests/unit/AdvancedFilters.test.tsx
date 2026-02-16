@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeAll } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { AdvancedFilters } from '@/components/AdvancedFilters';
 
@@ -39,6 +39,9 @@ describe('AdvancedFilters', () => {
     // Provide scrollIntoView stub for Radix Select in jsdom
     (Element.prototype as any).scrollIntoView = vi.fn();
   });
+  beforeEach(() => {
+    mockOnFilterChange.mockClear();
+  });
 
   it('renders all filter sections', () => {
     render(<AdvancedFilters onFilterChange={mockOnFilterChange} communities={[{id:'1', name:'Community 1'}]} />);
@@ -77,6 +80,26 @@ describe('AdvancedFilters', () => {
     expect(document.body).toContainElement(document.querySelector('[data-radix-popper-content-wrapper]'));
   });
 
-  // Communities feature disabled - test documented for future re-enable
-  it.todo('displays community options when community filters are available');
+  it('displays community options when community filters are available', async () => {
+    render(
+      <AdvancedFilters
+        onFilterChange={mockOnFilterChange}
+        communities={[
+          { id: '1', name: 'Community 1' },
+          { id: '2', name: 'Community 2' },
+        ]}
+      />
+    );
+    fireEvent.click(screen.getByText('Filters'));
+
+    expect(screen.getByText('Community')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('All Communities'));
+
+    const option = await screen.findByText('Community 2');
+    fireEvent.click(option);
+
+    expect(mockOnFilterChange).toHaveBeenCalledWith(
+      expect.objectContaining({ communityId: '2' })
+    );
+  });
 });
