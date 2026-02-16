@@ -217,8 +217,18 @@ export const UnifiedShopDialog = ({
       }
     } catch (error: unknown) {
       logError('Error processing upgrade', error as Error);
-      const msg = (error as { message?: string })?.message || t.subscription_errors_generic || 'An error occurred';
-      toast.error(msg);
+      const rawMsg = (error as any)?.message || '';
+      const bodyMsg = (error as any)?.context?.body?.error || '';
+      const code = (error as any)?.context?.body?.code || '';
+      const msg = bodyMsg || rawMsg || t.subscription_errors_generic || 'An error occurred';
+
+      // Show dev-only warning for Stripe mode mismatch
+      const isDev = window.location.hostname === 'localhost' || window.location.hostname.includes('preview');
+      if ((code === 'STRIPE_MODE_MISMATCH' || msg.includes('mode mismatch')) && isDev) {
+        toast.warning(msg, { duration: 8000 });
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setIsProcessing(false);
     }
