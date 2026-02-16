@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import type { Mock } from "vitest";
 import * as PasswordResetService from "@/services/passwordReset";
 import ResetPassword from "@/pages/ResetPassword";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import { translations } from "@/i18n/translations";
 import * as LanguageContext from "@/contexts/LanguageContext";
 import { BrowserRouter } from "react-router-dom";
@@ -173,17 +173,26 @@ describe("ResetPassword page", () => {
   });
 
   it("shows the invalid link UI when no recovery session is detected within timeout", async () => {
-    // No PASSWORD_RECOVERY event, no session
-    (supabase.auth.getSession as Mock).mockResolvedValue({ data: { session: null } });
+    vi.useFakeTimers();
+    try {
+      // No PASSWORD_RECOVERY event, no session
+      (supabase.auth.getSession as Mock).mockResolvedValue({ data: { session: null } });
 
-    renderResetPassword();
+      renderResetPassword();
 
-    // Initially shows validating
-    expect(screen.getByText(translations.en.auth_validating_reset_link)).toBeInTheDocument();
+      // Initially shows validating
+      expect(screen.getByText(translations.en.auth_validating_reset_link)).toBeInTheDocument();
 
-    // After timeout, should show invalid
-    expect(await screen.findByText(translations.en.auth_reset_token_invalid, {}, { timeout: 5000 })).toBeInTheDocument();
-    expect(screen.getByText(translations.en.auth_reset_token_expired)).toBeInTheDocument();
+      await act(async () => {
+        vi.advanceTimersByTime(10_000);
+      });
+
+      // After timeout, should show invalid
+      expect(screen.getByText(translations.en.auth_reset_token_invalid)).toBeInTheDocument();
+      expect(screen.getByText(translations.en.auth_reset_token_expired)).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("treats session errors as invalid reset links", async () => {
