@@ -41,6 +41,9 @@ serve(async (req) => {
       throw new Error("STRIPE_SECRET_KEY is not set");
     }
 
+    const stripeMode = stripeKey.startsWith("sk_live_") ? "live" : stripeKey.startsWith("sk_test_") ? "test" : "unknown";
+    log('info', '[BILLING-BUY] Stripe mode detected', { requestId, stripeMode });
+
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
@@ -138,6 +141,22 @@ serve(async (req) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     log('error', '[BILLING-BUY] Error occurred', { requestId, error: errorMessage });
+
+    // Detect Stripe live/test mode mismatch
+    const isMismatch = errorMessage.includes("exist in live mode") || errorMessage.includes("No such price") || errorMessage.includes("resource_missing");
+    if (isMismatch) {
+      const stripeKey = Deno.env.get("STRIPE_SECRET_KEY") || "";
+      const stripeMode = stripeKey.startsWith("sk_live_") ? "live" : "test";
+      log('error', '[BILLING-BUY] Stripe mode mismatch suspected', { requestId, stripeMode });
+      return new Response(JSON.stringify({
+        error: `Stripe mode mismatch: your STRIPE_SECRET_KEY is in ${stripeMode} mode but the price ID belongs to the other mode. Set STRIPE_SECRET_KEY to sk_live_... to use LIVE prices.`,
+        code: "STRIPE_MODE_MISMATCH",
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+
     return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
