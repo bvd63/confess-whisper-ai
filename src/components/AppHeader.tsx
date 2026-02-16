@@ -24,6 +24,7 @@ import { useVipStatus } from "@/hooks/usePremiumStatus";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
+import { GiftCoinsDialog } from "@/components/coins/GiftCoinsDialog";
 
 interface AppHeaderProps {
   onNewConfession?: () => void;
@@ -55,6 +56,7 @@ const AppHeader = ({
   } = useToast();
   const isMobile = useIsMobile();
   const { balance: coinBalance } = useCoins(user?.id || null);
+  const [isCoinShopOpen, setIsCoinShopOpen] = useState(false);
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate('/');
@@ -147,8 +149,9 @@ const AppHeader = ({
                 
                 <button
                   onClick={(e) => {
+                    e.preventDefault();
                     e.stopPropagation();
-                    navigate('/rewards');
+                    setIsCoinShopOpen(true);
                   }}
                   className="flex items-center gap-1.5 h-9 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
                 >
@@ -164,6 +167,7 @@ const AppHeader = ({
           </div>
         </div>
       </div>
+      <GiftCoinsDialog open={isCoinShopOpen} onOpenChange={setIsCoinShopOpen} />
     </header>;
 };
 export default AppHeader;
