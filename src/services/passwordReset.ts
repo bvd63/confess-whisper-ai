@@ -28,12 +28,12 @@ export async function requestPasswordReset(
       body: {
         action: "request-password-reset",
         email,
-        captchaToken: captchaToken ?? null,
+        captchaToken,
       },
     });
 
     const body = (data as Record<string, unknown>) ?? {};
-    const status = (error as any)?.status ?? 200;
+    const status = (error as { status?: number } | null)?.status ?? 200;
     const retryAfterHeader = (error as any)?.headers?.["Retry-After"] ?? undefined;
     const retryAfter = (body?.retry_after as number | undefined)
       ?? (body?.retryAfter as number | undefined)
@@ -69,15 +69,29 @@ export async function requestPasswordReset(
     }
 
     if (error) {
-      const messageFromBody = typeof body?.messageKey === "string"
-        ? body.messageKey
-        : typeof body?.error === "string"
-          ? body.error
-          : (error as any)?.message ?? "auth.reset_password_failed";
+      if (status === 400) {
+        return {
+          success: false,
+          messageKey: "auth.captcha_failed",
+          retryAfter: Number.isFinite(retryAfter) ? Number(retryAfter) : undefined,
+          status,
+          shouldResetCaptcha: true,
+        };
+      }
+
+      if (status >= 500) {
+        return {
+          success: false,
+          messageKey: "auth.reset_password_failed",
+          retryAfter: Number.isFinite(retryAfter) ? Number(retryAfter) : undefined,
+          status,
+          shouldResetCaptcha: false,
+        };
+      }
 
       return {
         success: false,
-        messageKey: messageFromBody,
+        messageKey: typeof body?.messageKey === "string" ? body.messageKey : "auth.reset_password_failed",
         retryAfter: Number.isFinite(retryAfter) ? Number(retryAfter) : undefined,
         status,
         shouldResetCaptcha: true,
