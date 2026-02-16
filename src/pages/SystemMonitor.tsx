@@ -14,16 +14,21 @@ const SystemMonitor = () => {
   const { user, isLoading: userLoading } = useCurrentUser();
   const { isAdmin, loading: roleLoading } = useUserRole(user?.id || '');
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
+  const [dialogDefaultTab, setDialogDefaultTab] = useState<'subscriptions' | 'coins'>('subscriptions');
+  const manageSubHandler = (defaultTab: 'subscriptions' | 'coins' = 'subscriptions') => {
+    setDialogDefaultTab(defaultTab);
+    setManageSubDialogOpen(true);
+  };
 
   if (userLoading || roleLoading) {
     return (
       <>
-      <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
+      <AppLayout onManageSubscription={manageSubHandler}>
         <div className="container mx-auto p-6">
           <div className="text-center">Loading...</div>
         </div>
       </AppLayout>
-      <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+      <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} defaultTab={dialogDefaultTab} />
       </>
     );
   }
@@ -35,7 +40,7 @@ const SystemMonitor = () => {
   if (!isAdmin) {
     return (
       <>
-      <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
+      <AppLayout onManageSubscription={manageSubHandler}>
         <div className="container mx-auto p-6">
           <Alert variant="destructive">
             <Shield className="h-4 w-4" />
@@ -45,14 +50,14 @@ const SystemMonitor = () => {
           </Alert>
         </div>
       </AppLayout>
-      <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+      <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} defaultTab={dialogDefaultTab} />
       </>
     );
   }
 
   return (
     <>
-    <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
+    <AppLayout onManageSubscription={manageSubHandler}>
       <div className="container mx-auto p-6">
         <h1 className="text-2xl font-bold mb-6">System Monitor</h1>
         <Tabs defaultValue="persistence" className="w-full">
@@ -69,7 +74,7 @@ const SystemMonitor = () => {
         </Tabs>
       </div>
     </AppLayout>
-    <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} defaultTab={dialogDefaultTab} />
     </>
   );
 };

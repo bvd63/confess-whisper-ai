@@ -58,6 +58,7 @@ const Profile = () => {
   useMessageNotifications({ userId: user?.id });
   const { stats: followStats } = useFollowSystem(user?.id || null, user?.id || null);
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
+  const [dialogDefaultTab, setDialogDefaultTab] = useState<'subscriptions' | 'coins'>('subscriptions');
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   const [flairsDialogOpen, setFlairsDialogOpen] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
@@ -298,7 +299,10 @@ const Profile = () => {
   if (!user) return null;
 
   return (
-    <AppLayout onNewConfession={() => setIsNewConfessionOpen(true)} onManageSubscription={() => setManageSubDialogOpen(true)}>
+    <AppLayout onNewConfession={() => setIsNewConfessionOpen(true)} onManageSubscription={(defaultTab = 'subscriptions') => {
+      setDialogDefaultTab(defaultTab);
+      setManageSubDialogOpen(true);
+    }}>
       <AchievementToast userId={user.id} />
       <ReferralRewardNotification userId={user.id} />
       
@@ -395,6 +399,7 @@ const Profile = () => {
         open={manageSubDialogOpen} 
         onOpenChange={setManageSubDialogOpen}
         onSubscriptionUpdated={checkSubscription}
+        defaultTab={dialogDefaultTab}
       />
 
       <FlairsShop open={flairsDialogOpen} onOpenChange={setFlairsDialogOpen} userId={user.id} />

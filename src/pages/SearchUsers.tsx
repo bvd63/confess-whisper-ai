@@ -12,6 +12,7 @@ const SearchUsers = () => {
   const { user, isLoading } = useCurrentUser();
   const { t } = useLanguage();
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
+  const [dialogDefaultTab, setDialogDefaultTab] = useState<'subscriptions' | 'coins'>('subscriptions');
 
   useEffect(() => {
     if (isLoading) return;
@@ -25,7 +26,10 @@ const SearchUsers = () => {
 
   return (
     <>
-    <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
+    <AppLayout onManageSubscription={(defaultTab = 'subscriptions') => {
+      setDialogDefaultTab(defaultTab);
+      setManageSubDialogOpen(true);
+    }}>
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-2xl pb-24">
         <div className="flex items-center gap-1.5 sm:gap-2 mb-4 sm:mb-6">
           <Search className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-primary" />
@@ -35,7 +39,7 @@ const SearchUsers = () => {
         <UserSearch currentUserId={user.id} />
       </div>
     </AppLayout>
-    <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} defaultTab={dialogDefaultTab} />
     </>
   );
 };

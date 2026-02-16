@@ -131,6 +131,7 @@ const SettingsActivity = () => {
   const [passwordChangedAt, setPasswordChangedAt] = useState<string | null>(null);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [shopDialogOpen, setShopDialogOpen] = useState(false);
+  const [dialogDefaultTab, setDialogDefaultTab] = useState<'subscriptions' | 'coins'>('subscriptions');
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -197,7 +198,10 @@ const SettingsActivity = () => {
   }
 
   return (
-    <AppLayout>
+    <AppLayout onManageSubscription={(defaultTab = 'subscriptions') => {
+      setDialogDefaultTab(defaultTab);
+      setShopDialogOpen(true);
+    }}>
       <div className="max-w-2xl mx-auto pb-24 pt-4">
         {/* Back Button Header */}
         <div className="px-4 py-2">
@@ -347,6 +351,7 @@ const SettingsActivity = () => {
       <UnifiedShopDialog 
         open={shopDialogOpen} 
         onOpenChange={setShopDialogOpen}
+        defaultTab={dialogDefaultTab}
       />
     </AppLayout>
   );
