@@ -24,10 +24,14 @@ const NearbyConfessions = () => {
   const { isVip } = useVipStatus(user?.id);
   const { t } = useLanguage();
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
+  const [dialogDefaultTab, setDialogDefaultTab] = useState<'subscriptions' | 'coins'>('subscriptions');
 
   return (
     <>
-    <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
+    <AppLayout onManageSubscription={(defaultTab = 'subscriptions') => {
+      setDialogDefaultTab(defaultTab);
+      setManageSubDialogOpen(true);
+    }}>
       <div className="max-w-4xl mx-auto px-4 py-6 md:py-8 pb-24">
         {/* Header */}
         <div className="mb-8 text-center">
@@ -134,7 +138,7 @@ const NearbyConfessions = () => {
         )}
       </div>
     </AppLayout>
-    <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} defaultTab={dialogDefaultTab} />
     </>
   );
 };

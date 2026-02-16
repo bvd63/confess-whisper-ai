@@ -29,6 +29,7 @@ const UserProfile = () => {
   const [isLoading, setIsLoading] = useState(true);
   
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
+  const [dialogDefaultTab, setDialogDefaultTab] = useState<'subscriptions' | 'coins'>('subscriptions');
   const [giftCoinsOpen, setGiftCoinsOpen] = useState(false);
   const isOwnProfile = currentUser?.id === userId;
   const profileSource: "public_profiles" = "public_profiles";
@@ -90,13 +91,16 @@ const UserProfile = () => {
   if (isLoading) {
     return (
       <>
-      <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
+      <AppLayout onManageSubscription={(defaultTab = 'subscriptions') => {
+        setDialogDefaultTab(defaultTab);
+        setManageSubDialogOpen(true);
+      }}>
         <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
           <Skeleton className="h-32 w-full mb-4 sm:mb-6" />
           <Skeleton className="h-64 w-full" />
         </div>
       </AppLayout>
-      <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+      <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} defaultTab={dialogDefaultTab} />
       </>
     );
   }
@@ -104,19 +108,25 @@ const UserProfile = () => {
   if (!profile) {
     return (
       <>
-      <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
+      <AppLayout onManageSubscription={(defaultTab = 'subscriptions') => {
+        setDialogDefaultTab(defaultTab);
+        setManageSubDialogOpen(true);
+      }}>
         <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 text-center pb-24">
           <p className="text-sm sm:text-base text-muted-foreground">User not found</p>
         </div>
       </AppLayout>
-      <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+      <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} defaultTab={dialogDefaultTab} />
       </>
     );
   }
 
   return (
     <>
-    <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
+    <AppLayout onManageSubscription={(defaultTab = 'subscriptions') => {
+      setDialogDefaultTab(defaultTab);
+      setManageSubDialogOpen(true);
+    }}>
       <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
         <TierProfileCard tier={subscriptionTier as "free" | "vip"} className="mb-6">
           <ProfileHeader
@@ -153,7 +163,7 @@ const UserProfile = () => {
         </div>
       </div>
     </AppLayout>
-    <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} defaultTab={dialogDefaultTab} />
     <GiftCoinsDialog 
       open={giftCoinsOpen} 
       onOpenChange={setGiftCoinsOpen}

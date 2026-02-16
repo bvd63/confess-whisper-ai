@@ -21,6 +21,7 @@ export default function Admin() {
   const queryClient = useQueryClient();
   const [selectedTab, setSelectedTab] = useState('queue');
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
+  const [dialogDefaultTab, setDialogDefaultTab] = useState<'subscriptions' | 'coins'>('subscriptions');
   
   const translations: any = {
     en: {
@@ -247,7 +248,10 @@ export default function Admin() {
 
   return (
     <>
-    <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
+    <AppLayout onManageSubscription={(defaultTab = 'subscriptions') => {
+      setDialogDefaultTab(defaultTab);
+      setManageSubDialogOpen(true);
+    }}>
       <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-5">
         <div className="flex items-center gap-2 mb-4 sm:mb-5">
           <Shield className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
@@ -386,7 +390,7 @@ export default function Admin() {
         </Tabs>
       </div>
     </AppLayout>
-    <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} defaultTab={dialogDefaultTab} />
     </>
   );
 }

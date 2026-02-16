@@ -38,6 +38,7 @@ const Explore = () => {
   useAnalyticsTracking(user?.id || null);
   const { isVip } = useVipStatus(user?.id);
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
+  const [dialogDefaultTab, setDialogDefaultTab] = useState<'subscriptions' | 'coins'>('subscriptions');
   const [showPullToRefresh, setShowPullToRefresh] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
   const [showLoginPrompt, setShowLoginPrompt] = useState(!isAuthed);
@@ -311,7 +312,10 @@ const Explore = () => {
 
   return (
     <>
-      <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
+      <AppLayout onManageSubscription={(defaultTab = 'subscriptions') => {
+        setDialogDefaultTab(defaultTab);
+        setManageSubDialogOpen(true);
+      }}>
         {/* Pull to Refresh Indicator */}
         {pullDistance > 0 && (
           <div
@@ -397,7 +401,7 @@ const Explore = () => {
         </div>
       </AppLayout>
 
-      <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+      <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} defaultTab={dialogDefaultTab} />
     </>
   );
 };

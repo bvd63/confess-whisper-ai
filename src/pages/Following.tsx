@@ -26,6 +26,7 @@ const Following = () => {
   const [isNewConfessionOpen, setIsNewConfessionOpen] = useState(false);
   
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
+  const [dialogDefaultTab, setDialogDefaultTab] = useState<'subscriptions' | 'coins'>('subscriptions');
 
   // Pull to refresh
   const { containerRef, isRefreshing, pullDistance, isTriggered } = usePullToRefresh({
@@ -52,7 +53,10 @@ const Following = () => {
   return (
     <AppLayout 
       onNewConfession={() => setIsNewConfessionOpen(true)}
-      onManageSubscription={() => setManageSubDialogOpen(true)}
+      onManageSubscription={(defaultTab = 'subscriptions') => {
+        setDialogDefaultTab(defaultTab);
+        setManageSubDialogOpen(true);
+      }}
     >
       {/* Pull to Refresh Indicator */}
       {pullDistance > 0 && (
@@ -106,6 +110,7 @@ const Following = () => {
       <UnifiedShopDialog
         open={manageSubDialogOpen}
         onOpenChange={setManageSubDialogOpen}
+        defaultTab={dialogDefaultTab}
       />
     </AppLayout>
   );
