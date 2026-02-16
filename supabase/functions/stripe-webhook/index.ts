@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@18.5.0";
+import type Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import {
   resolveTier,
@@ -14,6 +14,8 @@ import {
   type SubscriptionTier,
 } from "./utils.ts";
 import { getVipMonthlyPriceId, getVipYearlyPriceId } from "../_shared/stripe-config.ts";
+import { createStripeClient } from "../_shared/stripe.ts";
+import { validateStripeWebhookEvent } from "../_shared/webhook-security.ts";
 
 const REQUIRED_ENV = [
   "SUPABASE_URL",
@@ -28,7 +30,7 @@ if (missingEnv.length > 0) {
   throw new Error(`stripe-webhook configuration error: missing ${missingEnv.join(", ")}`);
 }
 
-const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, { apiVersion: "2024-06-20" });
+const stripe = createStripeClient(Deno.env.get("STRIPE_SECRET_KEY")!);
 const stripeWebhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET")!;
 
 const jsonResponse = (body: unknown, status = 200) =>
@@ -195,14 +197,17 @@ serve(async (req: Request) => {
     return jsonResponse({ error: "empty_body" }, 400);
   }
 
-  let event: Stripe.Event;
-  try {
-    event = await stripe.webhooks.constructEventAsync(new Uint8Array(rawBody), signature, stripeWebhookSecret);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
-    logError({ msg: "Signature verification failed", error: message });
-    return jsonResponse({ error: "signature_verification_failed" }, 400);
+  const validation = await validateStripeWebhookEvent<Stripe.Event>({
+    signature,
+    webhookSecret: stripeWebhookSecret,
+    rawBody: new TextDecoder().decode(rawBody),
+    constructEvent: (raw, sig, secret) => stripe.webhooks.constructEventAsync(raw, sig, secret),
+  });
+  if (!validation.ok) {
+    logError({ msg: "Signature verification failed", error: validation.error });
+    return jsonResponse({ error: "signature_verification_failed" }, validation.status);
   }
+  const event = validation.event;
 
   // Idempotency guard
   const { error: idempotencyError } = await supabase

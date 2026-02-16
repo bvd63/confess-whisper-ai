@@ -1,12 +1,9 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { getVipMonthlyPriceId, getVipYearlyPriceId } from "../_shared/stripe-config.ts";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders, getAuthenticatedRequestContext, jsonResponse } from "../_shared/edge-auth.ts";
+import { syncSubscriptionFromCheckoutSession } from "../_shared/subscription-payments.ts";
+import { createStripeClient } from "../_shared/stripe.ts";
 
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
@@ -18,147 +15,58 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  if (req.method !== "POST") {
+    return jsonResponse({ error: "METHOD_NOT_ALLOWED" }, 405);
+  }
+
   try {
     logStep("Function started");
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
+    if (!stripeKey) return jsonResponse({ error: "CONFIGURATION_ERROR" }, 500);
 
-    const supabaseClient = createClient(
+    const auth = await getAuthenticatedRequestContext(req);
+    if (!auth.ok) return auth.response;
+
+    const body = await req.json().catch(() => ({} as Record<string, unknown>));
+    const sessionId = typeof body.sessionId === "string" ? body.sessionId.trim() : "";
+    if (!sessionId) return jsonResponse({ error: "INVALID_REQUEST" }, 400);
+
+    const stripe = createStripeClient(stripeKey);
+    const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { auth: { persistSession: false } }
+      { auth: { persistSession: false } },
     );
 
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header");
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
-    if (userError) throw userError;
-    const user = userData.user;
-    if (!user?.email) throw new Error("User not authenticated");
-
-    logStep("User authenticated", { userId: user.id, email: user.email });
-
-    const { sessionId } = await req.json();
-    if (!sessionId) throw new Error("Session ID required");
-
-    logStep("Checking session", { sessionId });
-
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-    
-    // Retrieve the checkout session
-    const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ['subscription']
-    });
-    
-    logStep("Session retrieved", { 
-      status: session.payment_status,
-      subscriptionId: session.subscription 
+    const result = await syncSubscriptionFromCheckoutSession({
+      stripe,
+      supabaseAdmin,
+      sessionId,
+      userId: auth.context.userId,
+      vipMonthlyPriceId: getVipMonthlyPriceId(),
+      vipYearlyPriceId: getVipYearlyPriceId(),
     });
 
-    // Check if payment was successful and subscription was created
-    if (session.payment_status === 'paid' && session.subscription) {
-      const subscriptionId = typeof session.subscription === 'string' 
-        ? session.subscription 
-        : session.subscription.id;
-
-      logStep("Retrieving subscription details", { subscriptionId });
-
-      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-      const priceId = subscription.items.data[0].price.id;
-      const currentPeriodEnd = new Date(subscription.current_period_end * 1000).toISOString();
-
-      // Determine tier based on price ID
-      let tier = 'free';
-      let cadence = 'monthly';
-      
-      const monthlyPriceId = getVipMonthlyPriceId();
-      const yearlyPriceId = getVipYearlyPriceId();
-
-      if (priceId === monthlyPriceId) {
-        tier = 'vip';
-        cadence = 'monthly';
-      } else if (priceId === yearlyPriceId) {
-        tier = 'vip';
-        cadence = 'yearly';
-      }
-
-      // Check if subscription was already updated (idempotency)
-      const { data: currentProfile } = await supabaseClient
-        .from('profiles')
-        .select('stripe_subscription_id, subscription_tier')
-        .eq('user_id', user.id)
-        .single();
-
-      if (currentProfile?.stripe_subscription_id === subscriptionId && currentProfile?.subscription_tier === tier) {
-        logStep("Subscription already updated", { subscriptionId, tier });
-        return new Response(
-          JSON.stringify({ 
-            success: true,
-            tier,
-            cadence,
-            subscriptionEnd: currentPeriodEnd,
-            alreadyUpdated: true
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-        );
-      }
-
-      logStep("Updating profile", { tier, cadence, subscriptionId });
-
-      // Update user profile with subscription info
-      const { error: updateError } = await supabaseClient
-        .from('profiles')
-        .update({
-          subscription_tier: tier,
-          subscription_cadence: cadence,
-          subscription_status: subscription.status,
-          subscription_ends_at: currentPeriodEnd,
-          stripe_subscription_id: subscriptionId,
-          stripe_customer_id: typeof session.customer === 'string' ? session.customer : session.customer?.id,
-          is_premium: tier === 'vip',
-        })
-        .eq('user_id', user.id);
-
-      if (updateError) {
-        logStep("Error updating profile", { error: updateError });
-        throw updateError;
-      }
-
-      logStep("Profile updated successfully");
-
-      return new Response(
-        JSON.stringify({ 
-          success: true,
-          tier,
-          cadence,
-          subscriptionEnd: currentPeriodEnd
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-      );
-    } else {
-      logStep("Payment not completed or no subscription", { 
-        status: session.payment_status,
-        hasSubscription: !!session.subscription 
-      });
-      
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          status: session.payment_status 
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-      );
+    if (!result.success && result.processing) {
+      return jsonResponse({ success: false, status: result.status }, 200);
     }
 
+    if (!result.success) {
+      logStep("Subscription verification failed", { userId: auth.context.userId, sessionId, error: result.error });
+      return jsonResponse({ error: result.error ?? "SUBSCRIPTION_VERIFY_FAILED" }, 400);
+    }
+
+    return jsonResponse({
+      success: true,
+      tier: result.tier,
+      cadence: result.cadence,
+      subscriptionEnd: result.subscriptionEnd,
+      alreadyUpdated: result.alreadyUpdated ?? false,
+    }, 200);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR", { message: errorMessage });
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-    );
+    return jsonResponse({ error: "VERIFY_SUBSCRIPTION_PAYMENT_FAILED" }, 400);
   }
 });

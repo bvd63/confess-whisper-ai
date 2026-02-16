@@ -24,7 +24,7 @@ BEGIN
       url := current_setting('app.settings.supabase_url', true) || '/functions/v1/send-notification',
       headers := jsonb_build_object(
         'Content-Type', 'application/json',
-        'Authorization', 'Bearer ' || current_setting('app.settings.supabase_service_role_key', true)
+        'x-internal-secret', current_setting('app.settings.internal_job_secret', true)
       ),
       body := notification_payload
     );

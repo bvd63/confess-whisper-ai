@@ -8,8 +8,11 @@ SELECT cron.schedule(
   $$
   SELECT
     net.http_post(
-        url:='https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/rotate-qotd',
-        headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4d3ZsYm9wdm5qampyenNocXZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1Mjg3ODQsImV4cCI6MjA3NjEwNDc4NH0.BXOtdXXS8PvqZSVcksyCuqNW0ebJ7nE58-CKSnSPk4Q"}'::jsonb,
+        url := current_setting('app.settings.supabase_url', true) || '/functions/v1/rotate-qotd',
+        headers := jsonb_build_object(
+          'Content-Type', 'application/json',
+          'x-internal-secret', current_setting('app.settings.internal_job_secret', true)
+        ),
         body:='{"trigger": "cron"}'::jsonb
     ) as request_id;
   $$
@@ -22,8 +25,11 @@ SELECT cron.schedule(
   $$
   SELECT
     net.http_post(
-        url:='https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/cleanup-soft-deletes',
-        headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4d3ZsYm9wdm5qampyenNocXZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1Mjg3ODQsImV4cCI6MjA3NjEwNDc4NH0.BXOtdXXS8PvqZSVcksyCuqNW0ebJ7nE58-CKSnSPk4Q"}'::jsonb,
+        url := current_setting('app.settings.supabase_url', true) || '/functions/v1/cleanup-soft-deletes',
+        headers := jsonb_build_object(
+          'Content-Type', 'application/json',
+          'x-internal-secret', current_setting('app.settings.internal_job_secret', true)
+        ),
         body:='{"trigger": "cron"}'::jsonb
     ) as request_id;
   $$

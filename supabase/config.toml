@@ -41,9 +41,69 @@ enable_confirmations = false
 verify_jwt = true
 
 [functions.ai-moderation]
-verify_jwt = false
+verify_jwt = true
+
+[functions.activate-trial]
+verify_jwt = true
+
+[functions.analytics-event]
+verify_jwt = true
+
+[functions.analyze-tone]
+verify_jwt = true
+
+[functions.award-streak-bonus]
+verify_jwt = true
+
+[functions.award-subscription-coins]
+verify_jwt = true
+
+[functions.billing-buy]
+verify_jwt = true
+
+[functions.billing-cancel]
+verify_jwt = true
+
+[functions.billing-change]
+verify_jwt = true
+
+[functions.billing-confirm]
+verify_jwt = true
+
+[functions.billing-downgrade]
+verify_jwt = true
+
+[functions.billing-preview]
+verify_jwt = true
+
+[functions.billing-reactivate]
+verify_jwt = true
+
+[functions.billing-resume]
+verify_jwt = true
+
+[functions.billing-status]
+verify_jwt = true
+
+[functions.billing-upgrade]
+verify_jwt = true
+
+[functions.boost-confession]
+verify_jwt = true
 
 [functions.check-subscription]
+verify_jwt = true
+
+[functions.check-trial-expiry]
+verify_jwt = true
+
+[functions.cleanup-auth-data]
+verify_jwt = false
+
+[functions.cleanup-soft-deletes]
+verify_jwt = false
+
+[functions.contact-support]
 verify_jwt = true
 
 [functions.create-checkout]
@@ -52,17 +112,71 @@ verify_jwt = true
 [functions.create-checkout-session]
 verify_jwt = true
 
-[functions.create-trial-checkout]
+[functions.create-coin-checkout]
 verify_jwt = true
 
-[functions.get-subscription-status]
+[functions.create-confession]
+verify_jwt = true
+
+[functions.create-trial-checkout]
 verify_jwt = true
 
 [functions.customer-portal]
 verify_jwt = true
 
+[functions.deactivate-expired-flairs]
+verify_jwt = false
+
+[functions.deep-insight]
+verify_jwt = true
+
+[functions.debug-find-profile]
+verify_jwt = true
+
+[functions.debug-read-webhook-events]
+verify_jwt = true
+
 [functions.enhanced-moderation]
 verify_jwt = true
+
+[functions.enhanced-auth]
+verify_jwt = false
+
+[functions.expire-boosts]
+verify_jwt = false
+
+[functions.fix-subscription-sync]
+verify_jwt = true
+
+[functions.get-subscription-status]
+verify_jwt = true
+
+[functions.health]
+verify_jwt = false
+
+[functions.manage-notifications]
+verify_jwt = true
+
+[functions.manage-reactions]
+verify_jwt = true
+
+[functions.manage-subscription]
+verify_jwt = true
+
+[functions.manage-subscription-v2]
+verify_jwt = true
+
+[functions.mark-message-delivered]
+verify_jwt = true
+
+[functions.mark-message-seen]
+verify_jwt = true
+
+[functions.mark-messages-read]
+verify_jwt = true
+
+[functions.metrics]
+verify_jwt = false
 
 [functions.process-referral]
 verify_jwt = true
@@ -73,92 +187,50 @@ verify_jwt = false
 [functions.rotate-qotd]
 verify_jwt = false
 
-[functions.health]
-verify_jwt = false
-
-[functions.metrics]
-verify_jwt = false
-
 [functions.polish-confession]
-verify_jwt = true
-
-[functions.boost-confession]
 verify_jwt = true
 
 [functions.purchase-flair]
 verify_jwt = true
 
-[functions.deactivate-expired-flairs]
-verify_jwt = false
+[functions.report-confession]
+verify_jwt = true
 
 [functions.search-users]
 verify_jwt = true
 
-[functions.mark-messages-read]
-verify_jwt = true
-
-[functions.expire-boosts]
+[functions.send-notification]
 verify_jwt = false
 
-[functions.deep-insight]
+[functions.soft-delete-conversation]
 verify_jwt = true
 
-[functions.check-trial-expiry]
+[functions.stripe-webhook]
 verify_jwt = false
 
-[functions.cleanup-soft-deletes]
+[functions.stripe-webhook-coins]
 verify_jwt = false
 
-[functions.enhanced-auth]
+[functions.stripe-webhook-subscriptions]
 verify_jwt = false
 
-[functions.cleanup-auth-data]
-verify_jwt = false
-
-[functions.sync-user-data]
-verify_jwt = true
-
-[functions.analytics-event]
-verify_jwt = true
-
-[functions.manage-subscription-v2]
-verify_jwt = true
-
-[functions.award-subscription-coins]
-verify_jwt = false
-
-[functions.manage-subscription]
-verify_jwt = true
-
-[functions.billing-buy]
-verify_jwt = true
-
-[functions.billing-change]
-verify_jwt = true
-
-[functions.billing-cancel]
-verify_jwt = true
-
-[functions.billing-reactivate]
-verify_jwt = true
-
-[functions.billing-status]
+[functions.subscription-downgrade]
 verify_jwt = true
 
 [functions.subscription-manage]
 verify_jwt = true
 
-[functions.award-streak-bonus]
-verify_jwt = false
+[functions.subscription-upgrade]
+verify_jwt = true
 
-[functions.send-notification]
-verify_jwt = false
-
-[functions.create-coin-checkout]
+[functions.sync-user-data]
 verify_jwt = true
 
 [functions.verify-coin-payment]
-verify_jwt = false
+verify_jwt = true
+
+[functions.verify-coin-purchase]
+verify_jwt = true
 
 [functions.verify-subscription-payment]
-verify_jwt = false
+verify_jwt = true

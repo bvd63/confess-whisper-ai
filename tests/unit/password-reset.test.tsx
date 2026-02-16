@@ -3,7 +3,6 @@ import "../helpers/testUtils";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import type { Mock } from "vitest";
 import * as PasswordResetService from "@/services/passwordReset";
-import { env } from "@/lib/env";
 import ResetPassword from "@/pages/ResetPassword";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { translations } from "@/i18n/translations";
@@ -18,45 +17,38 @@ const STRONG_PASSWORD = "StrongPassw0rd!";
 const successText = translations.en.auth_reset_password_success;
 const mismatchText = translations.en.auth_password_match_fail;
 
-const createJsonResponse = (body: Record<string, unknown>, init?: ResponseInit) =>
-  new Response(JSON.stringify(body), {
-    status: init?.status ?? 200,
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers || {}),
-    },
-  });
-
 describe("requestPasswordReset", () => {
-  const fetchMock = vi.fn();
-
   beforeEach(() => {
-    fetchMock.mockReset();
-    vi.stubGlobal("fetch", fetchMock);
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
+    (supabase.functions.invoke as Mock).mockReset();
   });
 
   it("returns success when the edge function accepts the request", async () => {
-    fetchMock.mockResolvedValue(createJsonResponse({ success: true, messageKey: "auth.forgot_password_success" }));
+    (supabase.functions.invoke as Mock).mockResolvedValue({
+      data: { success: true, messageKey: "auth.forgot_password_success" },
+      error: null,
+    });
 
     const result = await PasswordResetService.requestPasswordReset({ email: VALID_EMAIL, captchaToken: TURNSTILE_TOKEN });
 
     expect(result.success).toBe(true);
     expect(result.messageKey).toBe("auth.forgot_password_success");
-    expect(fetchMock).toHaveBeenCalledWith(
-      `${env.client.supabaseUrl.replace(/\/$/, "")}/functions/v1/enhanced-auth?action=request-password-reset`,
+    expect(supabase.functions.invoke).toHaveBeenCalledWith(
+      "enhanced-auth",
       expect.objectContaining({
-        method: "POST",
-        body: JSON.stringify({ email: VALID_EMAIL, captchaToken: TURNSTILE_TOKEN }),
+        body: {
+          action: "request-password-reset",
+          email: VALID_EMAIL,
+          captchaToken: TURNSTILE_TOKEN,
+        },
       }),
     );
   });
 
   it("captures Turnstile verification failures", async () => {
-    fetchMock.mockResolvedValue(createJsonResponse({ error: "CAPTCHA_FAILED", messageKey: "auth.captcha_failed" }, { status: 400 }));
+    (supabase.functions.invoke as Mock).mockResolvedValue({
+      data: { error: "CAPTCHA_FAILED", messageKey: "auth.captcha_failed" },
+      error: { status: 400 },
+    });
 
     const result = await PasswordResetService.requestPasswordReset({ email: VALID_EMAIL, captchaToken: TURNSTILE_TOKEN });
 
@@ -67,7 +59,10 @@ describe("requestPasswordReset", () => {
   });
 
   it("propagates Supabase errors when the email cannot be sent", async () => {
-    fetchMock.mockResolvedValue(createJsonResponse({ error: "RESET_FAILED", messageKey: "auth.reset_password_failed" }, { status: 500 }));
+    (supabase.functions.invoke as Mock).mockResolvedValue({
+      data: { error: "RESET_FAILED", messageKey: "auth.reset_password_failed" },
+      error: { status: 500 },
+    });
 
     const result = await PasswordResetService.requestPasswordReset({ email: VALID_EMAIL, captchaToken: TURNSTILE_TOKEN });
 

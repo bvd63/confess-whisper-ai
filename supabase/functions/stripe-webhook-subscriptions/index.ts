@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { createStripeClient } from "../_shared/stripe.ts";
+import { validateStripeWebhookEvent } from "../_shared/webhook-security.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -22,23 +23,24 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const signature = req.headers.get("stripe-signature");
-  const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
-
-  if (!signature || !webhookSecret) {
-    log("error", "Missing signature or webhook secret");
-    return new Response(JSON.stringify({ error: "Webhook configuration error" }), { 
-      status: 400, 
-      headers: corsHeaders 
-    });
-  }
-
   try {
     const body = await req.text();
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { 
-      apiVersion: "2025-08-27.basil" 
+    const signature = req.headers.get("stripe-signature");
+    const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
+    const stripe = createStripeClient(Deno.env.get("STRIPE_SECRET_KEY") || "");
+    const validation = await validateStripeWebhookEvent({
+      signature,
+      webhookSecret,
+      rawBody: body,
+      constructEvent: (raw, sig, secret) => stripe.webhooks.constructEvent(raw, sig, secret),
     });
-    const event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    if (!validation.ok) {
+      return new Response(JSON.stringify({ error: validation.error }), {
+        status: validation.status,
+        headers: corsHeaders,
+      });
+    }
+    const event = validation.event;
 
     log("info", "Webhook event received", { type: event.type, id: event.id });
 
@@ -50,7 +52,7 @@ serve(async (req) => {
     switch (event.type) {
       case "customer.subscription.created":
       case "customer.subscription.updated": {
-        const subscription = event.data.object as Stripe.Subscription;
+        const subscription = event.data.object as any;
         const customerId = typeof subscription.customer === 'string' 
           ? subscription.customer 
           : subscription.customer.id;
@@ -107,7 +109,7 @@ serve(async (req) => {
       }
 
       case "customer.subscription.deleted": {
-        const subscription = event.data.object as Stripe.Subscription;
+        const subscription = event.data.object as any;
         const customerId = typeof subscription.customer === 'string' 
           ? subscription.customer 
           : subscription.customer.id;

@@ -1,11 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders, getAuthenticatedRequestContext, jsonResponse } from "../_shared/edge-auth.ts";
+import {
+  awardPurchasedCoins,
+  hasExistingCoinAward,
+  parseCoinPurchaseFromSession,
+} from "../_shared/coin-payments.ts";
+import { createStripeClient } from "../_shared/stripe.ts";
 
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
@@ -17,110 +18,88 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  if (req.method !== "POST") {
+    return jsonResponse({ error: "METHOD_NOT_ALLOWED" }, 405);
+  }
+
   try {
-    logStep("Function started");
-
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
-
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { auth: { persistSession: false } }
-    );
-
-    const { sessionId } = await req.json();
-    if (!sessionId) throw new Error("Session ID required");
-
-    logStep("Checking session", { sessionId });
-
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-    
-    // Retrieve the checkout session
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
-    
-    logStep("Session retrieved", { 
-      status: session.payment_status,
-      customerId: session.customer 
-    });
-
-    // Check if payment was successful
-    if (session.payment_status === 'paid') {
-      const userId = session.metadata?.user_id;
-      const coins = parseInt(session.metadata?.coins || '0');
-
-      if (!userId || !coins) {
-        throw new Error('Missing metadata in session');
-      }
-
-      logStep("Payment successful, checking if coins already awarded", { userId, coins });
-
-      // Check if coins were already awarded by looking for existing transaction
-      const { data: existingTransaction, error: checkError } = await supabaseClient
-        .from('coin_transactions')
-        .select('id, amount')
-        .eq('user_id', userId)
-        .like('description', `%Session: ${sessionId}%`)
-        .limit(1)
-        .maybeSingle();
-
-      if (checkError) {
-        logStep("Error checking for duplicate", { error: checkError });
-      }
-
-      if (existingTransaction) {
-        logStep("Coins already awarded", { transactionId: existingTransaction.id });
-        return new Response(
-          JSON.stringify({ 
-            success: true, 
-            alreadyAwarded: true,
-            coins 
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-        );
-      }
-
-      // Award coins if not already awarded
-      logStep("Awarding coins", { coins });
-      const { data: awardResult, error: awardError } = await supabaseClient.rpc('award_coins', {
-        p_user_id: userId,
-        p_amount: coins,
-        p_session_id: sessionId,
-        p_description: `Purchased ${coins} coins`
-      });
-
-      if (awardError) {
-        logStep("Error awarding coins", { error: awardError });
-        throw awardError;
-      }
-
-      logStep("Coins awarded successfully", { result: awardResult });
-
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          awarded: true,
-          coins 
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-      );
-    } else {
-      logStep("Payment not completed", { status: session.payment_status });
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          status: session.payment_status 
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-      );
+    const auth = await getAuthenticatedRequestContext(req);
+    if (!auth.ok) {
+      return auth.response;
     }
 
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) return jsonResponse({ error: "CONFIGURATION_ERROR" }, 500);
+
+    let sessionId = "";
+    try {
+      const body = await req.json();
+      sessionId = typeof body?.sessionId === "string" ? body.sessionId.trim() : "";
+    } catch {
+      sessionId = "";
+    }
+    if (!sessionId) return jsonResponse({ error: "INVALID_REQUEST" }, 400);
+
+    logStep("Verifying coin payment session", { userId: auth.context.userId, sessionId });
+
+    const stripe = createStripeClient(stripeKey);
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    const parsed = parseCoinPurchaseFromSession(session, auth.context.userId);
+    if (!parsed.ok) {
+      if (parsed.error === "FORBIDDEN_USER_MISMATCH") {
+        return jsonResponse({ error: parsed.error }, 403);
+      }
+      if (parsed.error === "PAYMENT_NOT_COMPLETED") {
+        return jsonResponse({ success: false, status: session.payment_status }, 200);
+      }
+      return jsonResponse({ error: parsed.error }, 400);
+    }
+
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } },
+    );
+
+    const duplicateCheck = await hasExistingCoinAward(
+      supabaseAdmin,
+      parsed.data.userId,
+      sessionId,
+    );
+    if (duplicateCheck.error) {
+      logStep("Duplicate check failed", { error: duplicateCheck.error });
+      return jsonResponse({ error: "DUPLICATE_CHECK_FAILED" }, 500);
+    }
+
+    if (duplicateCheck.exists) {
+      return jsonResponse({
+        success: true,
+        alreadyAwarded: true,
+        coins: parsed.data.coins,
+      }, 200);
+    }
+
+    const { error: awardError } = await awardPurchasedCoins(supabaseAdmin, {
+      userId: parsed.data.userId,
+      coins: parsed.data.coins,
+      sessionId,
+      description: `Purchased ${parsed.data.coins} coins`,
+    });
+
+    if (awardError) {
+      logStep("Error awarding purchased coins", { error: awardError });
+      return jsonResponse({ error: "AWARD_FAILED" }, 500);
+    }
+
+    return jsonResponse({
+      success: true,
+      awarded: true,
+      coins: parsed.data.coins,
+    }, 200);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR", { message: errorMessage });
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-    );
+    return jsonResponse({ error: "VERIFY_COIN_PAYMENT_FAILED" }, 400);
   }
 });

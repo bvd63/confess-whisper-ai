@@ -1,63 +1,53 @@
 import { serve } from 'https://deno.land/std@0.190.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import Stripe from 'https://esm.sh/stripe@18.5.0'
+import {
+  awardPurchasedCoins,
+  hasExistingCoinAward,
+  parseCoinPurchaseFromSession,
+} from '../_shared/coin-payments.ts';
+import { corsHeaders, jsonResponse } from '../_shared/edge-auth.ts';
+import { createStripeClient } from '../_shared/stripe.ts';
+import { validateStripeWebhookEvent } from '../_shared/webhook-security.ts';
 
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
-  apiVersion: '2025-08-27.basil',
-})
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, stripe-signature',
-}
+const stripe = createStripeClient(Deno.env.get('STRIPE_SECRET_KEY') || '');
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  if (req.method !== "POST") {
+    return jsonResponse({ error: "METHOD_NOT_ALLOWED" }, 405);
+  }
+
   try {
     console.log('[STRIPE-WEBHOOK-COINS] Webhook received')
     
-    const signature = req.headers.get('stripe-signature')
-    if (!signature) {
-      console.error('[STRIPE-WEBHOOK-COINS] Missing signature')
-      throw new Error('No signature')
-    }
-
-    const body = await req.text()
-    const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')
-
-    if (!webhookSecret) {
-      console.error('[STRIPE-WEBHOOK-COINS] STRIPE_WEBHOOK_SECRET not configured')
-      throw new Error('Webhook secret not configured')
-    }
-
-    console.log('[STRIPE-WEBHOOK-COINS] Verifying webhook signature...')
-    const event = await stripe.webhooks.constructEventAsync(
-      body,
+    const signature = req.headers.get('stripe-signature');
+    const body = await req.text();
+    const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
+    const validation = await validateStripeWebhookEvent({
       signature,
-      webhookSecret
-    )
+      webhookSecret,
+      rawBody: body,
+      constructEvent: (raw, sig, secret) => stripe.webhooks.constructEventAsync(raw, sig, secret),
+    });
+    if (!validation.ok) {
+      console.error('[STRIPE-WEBHOOK-COINS] Webhook validation failed', validation.error);
+      return jsonResponse({ error: validation.error }, validation.status);
+    }
+    const event = validation.event;
 
     console.log('[STRIPE-WEBHOOK-COINS] Event type:', event.type)
 
     if (event.type === 'checkout.session.completed') {
-      const session = event.data.object as Stripe.Checkout.Session
+      const session = event.data.object as any
 
-      console.log('[STRIPE-WEBHOOK-COINS] Session completed:', session.id)
-      console.log('[STRIPE-WEBHOOK-COINS] Metadata:', session.metadata)
-
-      const userId = session.metadata?.user_id
-      const packageId = session.metadata?.package_id
-      const coins = parseInt(session.metadata?.coins || '0')
-
-      if (!userId || !coins) {
-        console.error('[STRIPE-WEBHOOK-COINS] Missing metadata - userId:', userId, 'coins:', coins)
-        throw new Error('Missing user_id or coins in metadata')
+      const parsed = parseCoinPurchaseFromSession(session);
+      if (!parsed.ok) {
+        console.error('[STRIPE-WEBHOOK-COINS] Invalid purchase metadata', parsed.error);
+        throw new Error(parsed.error);
       }
-
-      console.log('[STRIPE-WEBHOOK-COINS] Awarding', coins, 'coins to user', userId)
 
       // Create admin client (bypasses RLS)
       const supabaseAdmin = createClient(
@@ -65,60 +55,34 @@ serve(async (req) => {
         Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
       )
 
-      // Check for duplicate by looking for existing transaction
-      const { data: existingTransaction, error: checkError } = await supabaseAdmin
-        .from('coin_transactions')
-        .select('id, amount')
-        .eq('user_id', userId)
-        .like('description', `%Session: ${session.id}%`)
-        .limit(1)
-        .maybeSingle();
-
-      if (existingTransaction) {
-        console.log('[STRIPE-WEBHOOK-COINS] Coins already awarded for session:', session.id)
-        return new Response(
-          JSON.stringify({ received: true, already_awarded: true }),
-          {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 200,
-          }
-        )
+      const duplicate = await hasExistingCoinAward(supabaseAdmin, parsed.data.userId, session.id);
+      if (duplicate.error) {
+        throw new Error(`DUPLICATE_CHECK_FAILED:${duplicate.error}`);
       }
 
-      // Use the award_coins database function
-      const { data: awardResult, error: awardError } = await supabaseAdmin.rpc('award_coins', {
-        p_user_id: userId,
-        p_amount: coins,
-        p_session_id: session.id,
-        p_description: `Purchased ${coins} coins`
-      });
+      if (duplicate.exists) {
+        console.log('[STRIPE-WEBHOOK-COINS] Coins already awarded for session:', session.id)
+        return jsonResponse({ received: true, already_awarded: true }, 200);
+      }
 
+      const { error: awardError } = await awardPurchasedCoins(supabaseAdmin, {
+        userId: parsed.data.userId,
+        coins: parsed.data.coins,
+        sessionId: session.id,
+        description: `Purchased ${parsed.data.coins} coins`,
+      });
       if (awardError) {
         console.error('[STRIPE-WEBHOOK-COINS] Error awarding coins:', awardError)
         throw awardError
       }
 
-      console.log('[STRIPE-WEBHOOK-COINS] Award result:', awardResult)
-
-      console.log('[STRIPE-WEBHOOK-COINS] Successfully awarded', coins, 'coins to user', userId)
+      console.log('[STRIPE-WEBHOOK-COINS] Successfully awarded', parsed.data.coins, 'coins to user', parsed.data.userId)
     }
 
-    return new Response(
-      JSON.stringify({ received: true }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      }
-    )
+    return jsonResponse({ received: true }, 200);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     console.error('[STRIPE-WEBHOOK-COINS] Error:', errorMessage, error)
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
-      }
-    )
+    return jsonResponse({ error: errorMessage }, 400);
   }
 })

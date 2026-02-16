@@ -1,12 +1,9 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
-import { getVipPriceIds, isVipPriceId } from "../_shared/stripe-config.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { getVipPriceIds } from "../_shared/stripe-config.ts";
+import { corsHeaders, getAuthenticatedRequestContext, jsonResponse } from "../_shared/edge-auth.ts";
+import { syncSubscriptionFromCheckoutSession } from "../_shared/subscription-payments.ts";
+import { createStripeClient } from "../_shared/stripe.ts";
 
 const log = (level: string, message: string, data?: any) => {
   console.log(JSON.stringify({ level, message, data, timestamp: new Date().toISOString() }));
@@ -19,9 +16,13 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  if (req.method !== "POST") {
+    return jsonResponse({ error: "METHOD_NOT_ALLOWED" }, 405);
+  }
+
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header");
+    const auth = await getAuthenticatedRequestContext(req);
+    if (!auth.ok) return auth.response;
 
     // Accept session_id from body OR query string
     let sessionId: string | null = null;
@@ -38,107 +39,45 @@ serve(async (req) => {
       const url = new URL(req.url);
       sessionId = url.searchParams.get("session_id");
     }
-    if (!sessionId) throw new Error("session_id parameter is required");
+    if (!sessionId) return jsonResponse({ error: "INVALID_REQUEST" }, 400);
 
-    // Authenticated user client
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
-    );
+    log("info", "Billing confirmation request", { userId: auth.context.userId, sessionId });
 
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-    if (userError || !user) throw new Error("Unauthorized");
-
-    log("info", "Billing confirmation request", { userId: user.id, sessionId });
-
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-      apiVersion: "2025-08-27.basil",
-    });
+    const stripe = createStripeClient(Deno.env.get("STRIPE_SECRET_KEY") || "");
 
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Retrieve the checkout session
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const result = await syncSubscriptionFromCheckoutSession({
+      stripe,
+      supabaseAdmin,
+      sessionId,
+      userId: auth.context.userId,
+      vipMonthlyPriceId: VIP_PRICE_IDS.monthly,
+      vipYearlyPriceId: VIP_PRICE_IDS.yearly,
+    });
 
-    if (session.payment_status !== "paid") {
-      log("info", "Payment not yet completed", { sessionId, status: session.payment_status });
-      return new Response(
-        JSON.stringify({ processing: true, status: session.payment_status, message: "payment_processing" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
-      );
+    if (!result.success && result.processing) {
+      return jsonResponse({ processing: true, status: result.status, message: "payment_processing" }, 200);
     }
 
-    // If not a subscription, nothing to activate here
-    if (session.mode !== "subscription") {
-      log("info", "Checkout completed but not a subscription", { sessionId, mode: session.mode });
-      return new Response(
-        JSON.stringify({ processing: false, active: false, message: "not_a_subscription" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
-      );
+    if (!result.success) {
+      log("error", "Failed to confirm billing", { userId: auth.context.userId, error: result.error });
+      return jsonResponse({ processing: true, message: "update_failed" }, 200);
     }
 
-    const subscriptionId = (session.subscription as string) || null;
-    if (!subscriptionId) {
-      log("error", "No subscription id on session", { sessionId });
-      return new Response(
-        JSON.stringify({ processing: true, message: "subscription_pending" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
-      );
-    }
-
-    // Load subscription to determine tier and end date
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-    const priceId = subscription.items.data[0]?.price?.id || "";
-    const tier = priceId && isVipPriceId(priceId) ? "vip" : "free";
-    const endEpoch = (subscription as any)?.current_period_end;
-    const endsAtISO = typeof endEpoch === 'number' && !Number.isNaN(endEpoch)
-      ? new Date(endEpoch * 1000).toISOString()
-      : null;
-
-    // Determine cadence from price ID
-    let cadence = 'monthly';
-    if (priceId === VIP_PRICE_IDS.yearly) {
-      cadence = 'yearly';
-    }
-    
-    // Persist on profile
-    const { error: updateError } = await supabaseAdmin
-      .from("profiles")
-      .update({
-        is_premium: tier === "vip",
-        subscription_tier: tier,
-        subscription_cadence: cadence,
-        subscription_status: "active",
-        subscription_ends_at: endsAtISO,
-        stripe_customer_id: (session.customer as string) || null,
-        stripe_subscription_id: subscriptionId,
-      })
-      .eq("user_id", user.id);
-
-    if (updateError) {
-      log("error", "Failed to update profile after billing confirm", { userId: user.id, updateError });
-      return new Response(
-        JSON.stringify({ processing: true, message: "update_failed" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
-      );
-    }
-
-    log("info", "Subscription activated via billing-confirm", { userId: user.id, tier, subscriptionId });
-
-    return new Response(
-      JSON.stringify({ processing: false, active: true, tier, subscription_end: endsAtISO }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
-    );
+    return jsonResponse({
+      processing: false,
+      active: result.tier === "vip",
+      tier: result.tier,
+      subscription_end: result.subscriptionEnd ?? null,
+      alreadyUpdated: result.alreadyUpdated ?? false,
+    }, 200);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     log("error", "Billing confirmation error", { error: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 400,
-    });
+    return jsonResponse({ error: errorMessage }, 400);
   }
 });
