@@ -4,6 +4,43 @@
 
 ConfessAI takes security seriously. This document outlines our security practices, implemented protections, and how to report vulnerabilities.
 
+## Edge Function Access Matrix (Backend Hardening 2026-02)
+
+This section is the source of truth for Edge Function exposure, auth mode, and allowed callers.
+
+### Sensitive Functions
+
+| Function | verify_jwt | Allowed Caller | Required Guard | Sensitive Writes |
+|---|---|---|---|---|
+| `verify-coin-payment` | `true` | Authenticated end-user | JWT + owner check (`session.metadata.user_id == auth user`) | `coin_transactions`, `user_coins` via `award_coins` |
+| `verify-coin-purchase` | `true` | Authenticated end-user | JWT + owner check (`session.metadata.user_id == auth user`) | `coin_transactions`, `user_coins` via `award_coins` |
+| `verify-subscription-payment` | `true` | Authenticated end-user | JWT + profile owner-only updates | `profiles.subscription_*` |
+| `billing-confirm` | `true` | Authenticated end-user | JWT + profile owner-only updates | `profiles.subscription_*` |
+| `award-subscription-coins` | `true` | Authenticated user (self) or internal caller | JWT self-check OR `x-internal-secret`; tier/amount computed server-side | `coin_transactions`, `user_coins` via `award_coins` |
+| `award-streak-bonus` | `true` | Authenticated user (self) or internal caller | JWT self-check OR `x-internal-secret`; fixed server-side streak reward map | `coin_transactions`, `user_coins` via `award_coins` |
+| `send-notification` | `false` | Internal trigger (preferred) or authenticated self-call | `x-internal-secret` OR strict self-ownership check | `analytics_events`, reads notification/profile data |
+| `stripe-webhook` | `false` | Stripe only | `stripe-signature` validation + event idempotency (`stripe_events`) | `subscriptions`, `coin_transactions`, `profiles` |
+| `stripe-webhook-coins` | `false` | Stripe only | `stripe-signature` validation + coin idempotency check | `coin_transactions`, `user_coins` via `award_coins` |
+| `stripe-webhook-subscriptions` | `false` | Stripe only | `stripe-signature` validation | `profiles.subscription_*` |
+
+### Internal/Cron Functions
+
+| Function | verify_jwt | Allowed Caller | Required Guard |
+|---|---|---|---|
+| `rotate-qotd` | `false` | Internal cron/job | `x-internal-secret` |
+| `cleanup-soft-deletes` | `false` | Internal cron/job | `x-internal-secret` |
+| `cleanup-auth-data` | `false` | Internal cron/job | `x-internal-secret` |
+| `deactivate-expired-flairs` | `false` | Internal cron/job | `x-internal-secret` |
+| `expire-boosts` | `false` | Internal cron/job | `x-internal-secret` |
+
+### Global Invariants (Non-Negotiable)
+
+1. No anonymous/public caller can directly modify money/coins/subscriptions for any user.
+2. `user_id` is derived from JWT (or from verified Stripe event metadata), never trusted from client body.
+3. Coin amounts/tier eligibility are computed server-side.
+4. Webhook-only flows must validate Stripe signature before business logic.
+5. Internal cron/server jobs must use `x-internal-secret` and never hardcode bearer tokens in SQL.
+
 ## Implemented Security Features
 
 ### 1. XSS Protection ✅
@@ -79,10 +116,20 @@ VITE_STRIPE_PRICE_VIP_YEARLY=price_...
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
+INTERNAL_JOB_SECRET=long-random-secret-for-cron-internal-calls
 OPENAI_API_KEY=sk-...
 TURNSTILE_SECRET=...
 MAPBOX_TOKEN=...
 ```
+
+### Database Settings used by SQL cron jobs
+
+The hardened SQL migrations call Edge Functions via:
+
+- `current_setting('app.settings.supabase_url', true)` for project URL
+- `current_setting('app.settings.internal_job_secret', true)` for the `x-internal-secret` header
+
+Configure these settings in each environment (dev/staging/prod) before enabling jobs.
 
 ## Security Best Practices
 
@@ -147,6 +194,9 @@ npm run test tests/integration/
 
 # E2E tests
 npm run test:e2e
+
+# Edge function hardening tests added in 2026-02
+npm run test:integration -- tests/integration/edge-function-security.test.ts tests/integration/webhook-security.test.ts tests/integration/rls-invariants.test.ts
 ```
 
 ### Manual Testing Checklist
@@ -234,5 +284,5 @@ We thank the security research community for responsible disclosure practices an
 
 ---
 
-**Last Updated**: 2025-01-26
-**Version**: 2.0.0
+**Last Updated**: 2026-02-15
+**Version**: 2.1.0
