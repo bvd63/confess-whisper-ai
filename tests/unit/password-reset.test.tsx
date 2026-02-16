@@ -18,12 +18,14 @@ const successText = translations.en.auth_reset_password_success;
 const mismatchText = translations.en.auth_password_match_fail;
 
 describe("requestPasswordReset", () => {
+  const invokeMock = supabase.functions.invoke as Mock;
+
   beforeEach(() => {
-    (supabase.functions.invoke as Mock).mockReset();
+    invokeMock.mockReset();
   });
 
   it("returns success when the edge function accepts the request", async () => {
-    (supabase.functions.invoke as Mock).mockResolvedValue({
+    invokeMock.mockResolvedValue({
       data: { success: true, messageKey: "auth.forgot_password_success" },
       error: null,
     });
@@ -32,20 +34,17 @@ describe("requestPasswordReset", () => {
 
     expect(result.success).toBe(true);
     expect(result.messageKey).toBe("auth.forgot_password_success");
-    expect(supabase.functions.invoke).toHaveBeenCalledWith(
-      "enhanced-auth",
-      expect.objectContaining({
-        body: {
-          action: "request-password-reset",
-          email: VALID_EMAIL,
-          captchaToken: TURNSTILE_TOKEN,
-        },
-      }),
-    );
+    expect(invokeMock).toHaveBeenCalledWith("enhanced-auth", {
+      body: {
+        action: "request-password-reset",
+        email: VALID_EMAIL,
+        captchaToken: TURNSTILE_TOKEN,
+      },
+    });
   });
 
   it("captures Turnstile verification failures", async () => {
-    (supabase.functions.invoke as Mock).mockResolvedValue({
+    invokeMock.mockResolvedValue({
       data: { error: "CAPTCHA_FAILED", messageKey: "auth.captcha_failed" },
       error: { status: 400 },
     });
@@ -59,7 +58,7 @@ describe("requestPasswordReset", () => {
   });
 
   it("propagates Supabase errors when the email cannot be sent", async () => {
-    (supabase.functions.invoke as Mock).mockResolvedValue({
+    invokeMock.mockResolvedValue({
       data: { error: "RESET_FAILED", messageKey: "auth.reset_password_failed" },
       error: { status: 500 },
     });

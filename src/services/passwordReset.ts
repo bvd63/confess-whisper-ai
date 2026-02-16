@@ -21,6 +21,7 @@ interface PasswordResetRequestPayload {
 export async function requestPasswordReset(
   payload: PasswordResetRequestPayload,
 ): Promise<PasswordResetRequestResult> {
+  const isTestEnv = import.meta?.env?.MODE === "test";
   const { email, captchaToken } = payload;
 
   try {
@@ -45,6 +46,23 @@ export async function requestPasswordReset(
         rateLimited: true,
         retryAfter: Number.isFinite(retryAfter) ? Number(retryAfter) : undefined,
         messageKey: typeof body?.messageKey === "string" ? body.messageKey : undefined,
+      };
+    }
+
+    if (error?.status === 400) {
+      return {
+        success: false,
+        messageKey: "auth.captcha_failed",
+        status: 400,
+        shouldResetCaptcha: true,
+      };
+    }
+
+    if ((error?.status ?? 0) >= 500) {
+      return {
+        success: false,
+        messageKey: "auth.reset_password_failed",
+        status: 500,
       };
     }
 
@@ -98,11 +116,9 @@ export async function requestPasswordReset(
       };
     }
 
-    const successMessageKey = typeof body?.messageKey === "string" ? body.messageKey : "auth.forgot_password_success";
-
     return {
       success: true,
-      messageKey: successMessageKey,
+      messageKey: "auth.forgot_password_success",
     };
   } catch (error) {
     logError("Password reset request failed", error as Error);
