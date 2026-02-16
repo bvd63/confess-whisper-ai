@@ -32,6 +32,7 @@ const Messages = () => {
   const [otherUserId, setOtherUserId] = useState<string | null>(null);
   const [otherUserNickname, setOtherUserNickname] = useState<string | null>(null);
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
+  const [dialogDefaultTab, setDialogDefaultTab] = useState<'subscriptions' | 'coins'>('subscriptions');
   const startedRef = useRef(false);
   
   // Pull to refresh (only for conversation list)
@@ -173,7 +174,10 @@ const Messages = () => {
 
   return (
     <>
-    <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
+    <AppLayout onManageSubscription={(defaultTab = 'subscriptions') => {
+      setDialogDefaultTab(defaultTab);
+      setManageSubDialogOpen(true);
+    }}>
       <NetworkStatusIndicator />
       {/* Pull to Refresh Indicator */}
       {pullDistance > 0 && !selectedConversation && (
@@ -222,7 +226,7 @@ const Messages = () => {
       
       
     </AppLayout>
-    <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} defaultTab={dialogDefaultTab} />
     </>
   );
 };

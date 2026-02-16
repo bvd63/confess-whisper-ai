@@ -33,6 +33,11 @@ const CommunityDetail = () => {
   const { isVip } = useVipStatus(user?.id);
   const { t } = useLanguage();
   const [manageSubDialogOpen, setManageSubDialogOpen] = useState(false);
+  const [dialogDefaultTab, setDialogDefaultTab] = useState<'subscriptions' | 'coins'>('subscriptions');
+  const manageSubHandler = (defaultTab: 'subscriptions' | 'coins' = 'subscriptions') => {
+    setDialogDefaultTab(defaultTab);
+    setManageSubDialogOpen(true);
+  };
   const [manageCommunityOpen, setManageCommunityOpen] = useState(false);
 
   const openCompose = () => {
@@ -126,10 +131,10 @@ const CommunityDetail = () => {
   if (loadingCommunity) {
     return (
       <>
-      <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
+      <AppLayout onManageSubscription={manageSubHandler}>
         <LoadingQuotes />
       </AppLayout>
-      <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+      <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} defaultTab={dialogDefaultTab} />
       </>
     );
   }
@@ -137,7 +142,7 @@ const CommunityDetail = () => {
   if (!community) {
     return (
       <>
-      <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
+      <AppLayout onManageSubscription={manageSubHandler}>
         <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 text-center pb-24">
           <p className="text-sm sm:text-base text-muted-foreground">{t.communities_not_found}</p>
           <Button onClick={() => navigate('/')} className="mt-4">
@@ -145,14 +150,14 @@ const CommunityDetail = () => {
           </Button>
         </div>
       </AppLayout>
-      <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+      <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} defaultTab={dialogDefaultTab} />
       </>
     );
   }
 
   return (
     <>
-    <AppLayout onManageSubscription={() => setManageSubDialogOpen(true)}>
+    <AppLayout onManageSubscription={manageSubHandler}>
       <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 pb-24">
         {/* Header */}
         <Button
@@ -300,7 +305,7 @@ const CommunityDetail = () => {
         </div>
       </div>
     </AppLayout>
-    <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} />
+    <UnifiedShopDialog open={manageSubDialogOpen} onOpenChange={setManageSubDialogOpen} defaultTab={dialogDefaultTab} />
     <CommunityManagement 
       open={manageCommunityOpen} 
       onOpenChange={setManageCommunityOpen}

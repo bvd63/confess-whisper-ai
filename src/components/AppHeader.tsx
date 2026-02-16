@@ -134,7 +134,10 @@ const AppHeader = ({
                 
                 <Button 
                   data-testid="manage-subscription-btn"
-                  onClick={() => onManageSubscription?.()} 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onManageSubscription?.();
+                  }}
                   variant="ghost"
                   size="sm" 
                   className="h-9 w-9 p-0 rounded-xl hover:bg-white/10 transition-all"
@@ -143,7 +146,10 @@ const AppHeader = ({
                 </Button>
                 
                 <button
-                  onClick={() => onManageSubscription?.('coins')}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate('/rewards');
+                  }}
                   className="flex items-center gap-1.5 h-9 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
                 >
                   <Coins className="w-3.5 h-3.5 text-amber-400" />
