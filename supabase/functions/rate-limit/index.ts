@@ -127,7 +127,7 @@ serve(async (req: Request) => {
       );
     }
 
-    const { action, identifiers, config } = normalized.data;
+    const { action, identifiers: normalizedIdentifiers, config } = normalized.data;
 
     const authContext = await getAuthenticatedRequestContext(req);
     if (!authContext.ok) {
@@ -142,6 +142,37 @@ serve(async (req: Request) => {
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
+
+    const authSupabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: {
+            Authorization: req.headers.get('Authorization') ?? '',
+          },
+        },
+      }
+    );
+
+    const {
+      data: { user },
+    } = await authSupabase.auth.getUser();
+
+    let identifiers: RateLimitIdentifier[];
+    if (user?.id) {
+      identifiers = [{ value: user.id, type: 'user' }];
+    } else {
+      const ipIdentifier = normalizedIdentifiers.find((identifier) => identifier.type === 'ip');
+      if (!ipIdentifier) {
+        return new Response(
+          JSON.stringify({ error: 'MISSING_IDENTIFIER' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        );
+      }
+      identifiers = [ipIdentifier];
+    }
+
     const checks: RateLimitCheckResult[] = [];
     for (const identifier of identifiers) {
       const result = await applyRateLimit(supabaseClient, action, identifier, config);
