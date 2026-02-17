@@ -182,7 +182,7 @@ verify_jwt = false
 verify_jwt = true
 
 [functions.rate-limit]
-verify_jwt = false
+verify_jwt = true
 
 [functions.rotate-qotd]
 verify_jwt = false
