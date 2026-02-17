@@ -1,4 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { getAuthenticatedRequestContext } from "../_shared/edge-auth.ts";
+import { resolveServerAiAccess } from "./utils.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -6,12 +9,21 @@ const corsHeaders = {
 };
 
 type Payload = {
-  userId: string;
-  confessionId: string;
+  userId?: string;
+  confessionId?: string;
   text: string;
-  isVip: boolean;
+  isVip?: boolean;
+  tier?: string;
   locale?: 'en' | 'es' | 'de';
 };
+
+interface RateLimitResponse {
+  allowed?: boolean;
+  remaining?: number;
+  retryAfter?: number;
+  resetAt?: string;
+  identifierType?: 'user' | 'ip';
+}
 
 const systemPrompts = {
   en: "You are ConfessAI – empathetic, concise, helpful. Offer a humane, supportive view in 2-3 short paragraphs.",
@@ -31,6 +43,26 @@ serve(async (req) => {
 
   try {
     logStep("Function started");
+
+    const authContext = await getAuthenticatedRequestContext(req);
+    if (!authContext.ok) {
+      return new Response(
+        JSON.stringify({ ok: false, error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceKey) {
+      throw new Error("Supabase configuration is missing");
+    }
+
+    const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
+    const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+      || req.headers.get('x-real-ip')
+      || 'unknown';
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -41,18 +73,84 @@ serve(async (req) => {
     const locale = body.locale ?? 'en';
     const sys = systemPrompts[locale] ?? systemPrompts.en;
 
+    const { data: profile, error: profileError } = await serviceClient
+      .from('profiles')
+      .select('subscription_tier, is_premium, trial_active, trial_premium_ends_at')
+      .eq('user_id', authContext.context.userId)
+      .maybeSingle();
+
+    if (profileError) {
+      logStep("Profile lookup failed", { error: profileError.message });
+      throw new Error("Profile lookup failed");
+    }
+
+    const subscriptionTier = (profile?.subscription_tier ?? 'free').toLowerCase();
+    const { isVipServer, model, rateLimitAction } = resolveServerAiAccess(profile, body.isVip);
+    const authHeader = req.headers.get('Authorization') ?? '';
+    const rateLimitResult = await serviceClient.functions.invoke<RateLimitResponse>('rate-limit', {
+      body: {
+        action: rateLimitAction,
+        userId: authContext.context.userId,
+        ip: clientIp,
+      },
+      headers: {
+        Authorization: authHeader,
+      },
+    });
+
+    if (!rateLimitResult.error && rateLimitResult.data?.allowed === false) {
+      const responseHeaders: Record<string, string> = {
+        ...corsHeaders,
+        'Content-Type': 'application/json',
+      };
+
+      if (rateLimitResult.data.retryAfter) {
+        responseHeaders['Retry-After'] = rateLimitResult.data.retryAfter.toString();
+      }
+
+      return new Response(
+        JSON.stringify({ ok: false, error: "Rate limit exceeded. Please try again later." }),
+        { status: 429, headers: responseHeaders }
+      );
+    }
+
+    if (rateLimitResult.error) {
+      const errorContext = (rateLimitResult.error as { context?: unknown })?.context;
+      const status = (errorContext as { status?: number })?.status;
+      if (status === 429) {
+        const retryAfter =
+          errorContext instanceof Response
+            ? errorContext.headers.get('Retry-After')
+            : null;
+
+        const responseHeaders: Record<string, string> = {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        };
+
+        if (retryAfter) {
+          responseHeaders['Retry-After'] = retryAfter;
+        }
+
+        return new Response(
+          JSON.stringify({ ok: false, error: "Rate limit exceeded. Please try again later." }),
+          { status: 429, headers: responseHeaders }
+        );
+      }
+      logStep("Rate limit invocation failed", { error: rateLimitResult.error.message ?? String(rateLimitResult.error) });
+    }
+
     logStep("Request received", { 
-      userId: body.userId, 
+      userId: authContext.context.userId,
       confessionId: body.confessionId,
-      isVip: body.isVip,
+      clientIsVip: body.isVip,
+      isVipServer,
+      tier: subscriptionTier,
       locale,
       textLength: body.text?.length 
     });
 
-    // VIP priority: use more capable model for VIP users
-    const model = body.isVip ? 'google/gemini-2.5-flash' : 'google/gemini-2.5-flash-lite';
-    
-    logStep("Calling AI", { model, isVip: body.isVip });
+    logStep("Calling AI", { model, isVip: isVipServer });
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: 'POST',

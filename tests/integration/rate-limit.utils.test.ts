@@ -78,6 +78,32 @@ describe("rate-limit utils", () => {
       });
     });
 
+    it("applies dedicated free AI response config", () => {
+      const result = normalizeRateLimitRequest({
+        action: "ai_response_free",
+        userId: "user-1",
+      });
+
+      expect(result).toEqual({
+        ok: true,
+        data: {
+          action: "ai_response_free",
+          identifiers: [{ value: "user-1", type: "user" }],
+          config: RATE_LIMIT_CONFIGS.ai_response_free,
+        },
+      });
+    });
+
+    it("keeps VIP AI limit higher than free for the same burst", () => {
+      const freeLimit = RATE_LIMIT_CONFIGS.ai_response_free.maxAttempts;
+      const vipLimit = RATE_LIMIT_CONFIGS.ai_response_vip.maxAttempts;
+      const sameBurst = freeLimit + 1;
+
+      expect(sameBurst > freeLimit).toBe(true);
+      expect(sameBurst > vipLimit).toBe(false);
+      expect(vipLimit).toBeGreaterThan(freeLimit);
+    });
+
     it("rejects requests with no action", () => {
       const result = normalizeRateLimitRequest({ userId: "abc" });
       expect(result).toEqual({ ok: false, error: "MISSING_ACTION" });

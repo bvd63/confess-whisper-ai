@@ -213,6 +213,9 @@ serve(async (req: Request) => {
         userId: user.id,
         ip: clientIp,
       },
+      headers: {
+        Authorization: authHeader,
+      },
     });
 
     if (!rateLimitResult.error && rateLimitResult.data && rateLimitResult.data.allowed === false) {

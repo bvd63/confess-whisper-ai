@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { getAuthenticatedRequestContext, requireInternalSecret } from "../_shared/edge-auth.ts";
 import {
   normalizeRateLimitRequest,
   type RateLimitIdentifier,
@@ -8,7 +9,7 @@ import {
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-internal-secret',
 };
 
 interface RateLimitCheckResult {
@@ -127,6 +128,14 @@ serve(async (req: Request) => {
     }
 
     const { action, identifiers, config } = normalized.data;
+
+    const authContext = await getAuthenticatedRequestContext(req);
+    if (!authContext.ok) {
+      const internal = requireInternalSecret(req);
+      if (!internal.ok) {
+        return internal.response;
+      }
+    }
 
     // Initialize Supabase client with service role for database access
     const supabaseClient = createClient(

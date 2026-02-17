@@ -17,6 +17,7 @@ const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')
   ?? '';
 
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+const INTERNAL_JOB_SECRET = Deno.env.get('INTERNAL_JOB_SECRET') ?? '';
 const APP_URL = (Deno.env.get('NEXT_PUBLIC_APP_URL') ?? '').trim();
 const SKIP_TURNSTILE_FOR_PASSWORD_RESET = Deno.env.get('SKIP_TURNSTILE_FOR_PASSWORD_RESET') === 'true';
 const TURNSTILE_SECRET = Deno.env.get('TURNSTILE_SECRET') ?? '';
@@ -79,6 +80,9 @@ async function enforceRateLimit(
         userId: userId ?? undefined,
         ip: ip ?? undefined,
       },
+      headers: INTERNAL_JOB_SECRET
+        ? { 'x-internal-secret': INTERNAL_JOB_SECRET }
+        : undefined,
     });
 
     if (!result.error && result.data && (result.data as any).allowed === false) {
@@ -926,8 +930,8 @@ serve(async (req) => {
         if (!SUPABASE_SERVICE_ROLE_KEY) {
           console.error('[enhanced-auth] Missing SUPABASE_SERVICE_ROLE_KEY for password reset');
           return new Response(
-            JSON.stringify({ success: true, messageKey: 'auth.forgot_password_success' }),
-            { status: 200, headers: responseHeaders }
+            JSON.stringify({ success: false, messageKey: 'auth.reset_password_failed' }),
+            { status: 500, headers: responseHeaders }
           );
         }
 
