@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
@@ -15,6 +15,23 @@ export default function ForgotPassword() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+
+  // Lock document scroll – identical to Auth.tsx (iOS Safari fallback)
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+    const prevBodyHeight = body.style.height;
+    html.style.overflow = 'hidden';
+    body.style.overflow = 'hidden';
+    body.style.height = '100dvh';
+    return () => {
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
+      body.style.height = prevBodyHeight;
+    };
+  }, []);
 
   const emailSchema = z.string().email(t.auth_invalid_email);
 
@@ -61,16 +78,17 @@ export default function ForgotPassword() {
     handleResetRequest();
   };
 
-  // Success state
+  // Success state — uses same AuthLayout pattern as Login/Signup
   if (success) {
     return (
       <div className="h-[100dvh] bg-background flex flex-col px-6 overflow-hidden">
-        <div className="pt-[8vh] min-[500px]:pt-[10vh]" />
-        <h1 className="text-3xl font-bold text-center mb-5 min-[500px]:mb-6">
-          <span className="text-foreground">Confess</span>
-          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
-        </h1>
-        <div className="max-w-sm mx-auto w-full flex-1 flex flex-col">
+        <div className="flex-1 flex items-center justify-center min-h-0">
+          <h1 className="text-3xl font-bold text-center shrink-0">
+            <span className="text-foreground">Confess</span>
+            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
+          </h1>
+        </div>
+        <div className="max-w-sm mx-auto w-full shrink-0">
           <div className="animate-[fadeSlideIn_150ms_ease-out]">
             <p className="text-sm text-muted-foreground text-center mb-6">
               {t.auth_forgot_password_success}
@@ -87,18 +105,24 @@ export default function ForgotPassword() {
             </div>
           </div>
         </div>
+        <div className="flex-1 min-h-0" />
       </div>
     );
   }
 
+  // Form state — uses same AuthLayout pattern as Login/Signup
   return (
     <div className="h-[100dvh] bg-background flex flex-col px-6 overflow-hidden">
-      <div className="pt-[8vh] min-[500px]:pt-[10vh]" />
-      <h1 className="text-3xl font-bold text-center mb-5 min-[500px]:mb-6">
-        <span className="text-foreground">Confess</span>
-        <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
-      </h1>
-      <div className="max-w-sm mx-auto w-full flex-1 flex flex-col">
+      {/* Top spacer with centered title — mirrors AuthLayout */}
+      <div className="flex-1 flex items-center justify-center min-h-0">
+        <h1 className="text-3xl font-bold text-center shrink-0">
+          <span className="text-foreground">Confess</span>
+          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">AI</span>
+        </h1>
+      </div>
+
+      {/* Form content — shrink-0 to stay within viewport */}
+      <div className="max-w-sm mx-auto w-full shrink-0">
         <div className="animate-[fadeSlideIn_150ms_ease-out]">
           {/* Subtitle */}
           <p className="text-sm text-muted-foreground text-center mb-6">
@@ -148,8 +172,7 @@ export default function ForgotPassword() {
           </form>
 
           {/* Back to login link */}
-          <div className="flex-1" />
-          <div className="py-4 min-[500px]:py-6 text-center">
+          <div style={{ padding: 'clamp(8px, 1.5vh, 24px) 0' }} className="text-center shrink-0">
             <button
               onClick={() => navigate('/auth')}
               className="text-sm text-muted-foreground"
@@ -160,6 +183,9 @@ export default function ForgotPassword() {
           </div>
         </div>
       </div>
+
+      {/* Bottom spacer — mirrors top area so form sits at vertical center */}
+      <div className="flex-1 min-h-0" />
     </div>
   );
 }
