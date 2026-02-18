@@ -59,12 +59,13 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: "trial_already_used",
+          error: "TRIAL_ALREADY_USED",
+          messageKey: "trial.already_used",
           message: "You have already used your free trial" 
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 400,
+          status: 409,
         }
       );
     }
