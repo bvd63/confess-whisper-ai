@@ -82,6 +82,47 @@ serve(async (req) => {
     }
 
     // Handle run action - generate insight using Lovable AI
+    const serviceClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      {
+        global: {
+          headers: {
+            Authorization: req.headers.get('Authorization') ?? '',
+          },
+        },
+      }
+    );
+
+    const clientIp =
+      req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+      || req.headers.get('x-real-ip')
+      || 'unknown';
+
+    const rateLimitResult = await serviceClient.functions.invoke('rate-limit', {
+      body: {
+        action: 'ai_request',
+        ip: clientIp,
+      },
+      headers: {
+        Authorization: req.headers.get('Authorization') ?? '',
+      },
+    });
+
+    if (rateLimitResult.error) {
+      return new Response(
+        JSON.stringify({ error: 'Rate limit unavailable. Please try again.' }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (rateLimitResult.data?.allowed === false) {
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
       return new Response(

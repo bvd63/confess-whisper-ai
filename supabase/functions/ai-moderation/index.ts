@@ -90,10 +90,12 @@ IMPORTANT: Confessions can contain negative emotions, frustrations or sadness - 
       const errorText = await response.text();
       console.error('AI Gateway error:', response.status, errorText);
       
-      // If moderation fails, default to safe (don't block content)
       return new Response(
-        JSON.stringify({ is_safe: true, reason: null }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ is_safe: false, reason: 'moderation_unavailable' }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
       );
     }
 
@@ -108,12 +110,11 @@ IMPORTANT: Confessions can contain negative emotions, frustrations or sadness - 
       if (toolCall?.function?.arguments) {
         moderationResult = JSON.parse(toolCall.function.arguments);
       } else {
-        // Fallback to safe if no tool call
-        moderationResult = { is_safe: true, reason: null };
+        moderationResult = { is_safe: false, reason: 'moderation_invalid_response' };
       }
     } catch (parseError) {
       console.error('Error parsing moderation result:', parseError);
-      moderationResult = { is_safe: true, reason: null };
+      moderationResult = { is_safe: false, reason: 'moderation_parse_error' };
     }
 
     console.log('Moderation result:', moderationResult);
@@ -127,9 +128,8 @@ IMPORTANT: Confessions can contain negative emotions, frustrations or sadness - 
     console.error('Error in ai-moderation:', error);
     const errorMessage = error instanceof Error ? error.message : 'An error occurred.';
     
-    // In case of error, default to safe (don't block content)
     return new Response(
-      JSON.stringify({ is_safe: true, reason: null }),
+      JSON.stringify({ is_safe: false, reason: 'moderation_error' }),
       { 
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

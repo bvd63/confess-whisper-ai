@@ -2,6 +2,11 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders, getAuthenticatedRequestContext, jsonResponse } from '../_shared/edge-auth.ts';
 
+interface RateLimitResponse {
+  allowed?: boolean;
+  retryAfter?: number;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -19,6 +24,44 @@ serve(async (req) => {
     
     if (!content) {
       return jsonResponse({ error: 'Content is required' }, 400);
+    }
+
+    const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+      || req.headers.get('x-real-ip')
+      || 'unknown';
+
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    if (!supabaseUrl || !serviceRoleKey) {
+      console.error('Supabase service role configuration missing for rate limit check');
+      return jsonResponse({ error: 'Rate limit unavailable. Please try again.' }, 503);
+    }
+
+    const authHeader = req.headers.get('Authorization') ?? '';
+    const rateLimitClient = createClient(
+      supabaseUrl,
+      serviceRoleKey,
+      {
+        global: {
+          headers: {
+            Authorization: authHeader,
+          },
+        },
+      }
+    );
+
+    const rateLimitResult = await rateLimitClient.functions.invoke<RateLimitResponse>('rate-limit', {
+      body: { action: 'ai_request', ip: clientIp },
+      headers: { Authorization: authHeader },
+    });
+
+    if (rateLimitResult.error) {
+      console.error('Rate limit invocation failed:', rateLimitResult.error);
+      return jsonResponse({ error: 'Rate limit unavailable. Please try again.' }, 503);
+    }
+
+    if (rateLimitResult.data?.allowed === false) {
+      return jsonResponse({ error: 'Rate limit exceeded. Please try again later.' }, 429);
     }
 
     // Get Lovable AI API key

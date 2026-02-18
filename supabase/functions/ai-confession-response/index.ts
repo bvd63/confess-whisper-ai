@@ -90,7 +90,6 @@ serve(async (req) => {
     const rateLimitResult = await serviceClient.functions.invoke<RateLimitResponse>('rate-limit', {
       body: {
         action: rateLimitAction,
-        userId: authContext.context.userId,
         ip: clientIp,
       },
       headers: {
@@ -138,6 +137,13 @@ serve(async (req) => {
         );
       }
       logStep("Rate limit invocation failed", { error: rateLimitResult.error.message ?? String(rateLimitResult.error) });
+      return new Response(
+        JSON.stringify({ ok: false, error: "Rate limit unavailable. Please try again." }),
+        {
+          status: 503,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     logStep("Request received", { 

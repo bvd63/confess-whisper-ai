@@ -3,85 +3,95 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-internal-secret',
+    };
 
-interface Metric {
-  name: string;
-  value: number;
-  type: 'counter' | 'gauge' | 'histogram';
-  labels?: Record<string, string>;
-  timestamp: number;
-}
+    interface Metric {
+      name: string;
+        value: number;
+          type: 'counter' | 'gauge' | 'histogram';
+            labels?: Record<string, string>;
+              timestamp: number;
+              }
 
-const metrics: Metric[] = [];
-const MAX_METRICS = 10000;
+              const metrics: Metric[] = [];
+              const MAX_METRICS = 10000;
 
-// Structured logging helper
-function log(level: 'info' | 'warn' | 'error', message: string, metadata?: any) {
-  console.log(JSON.stringify({
-    timestamp: new Date().toISOString(),
-    level,
-    message,
-    function: 'metrics',
-    metadata,
-  }));
-}
+              // Structured logging helper
+              function log(level: 'info' | 'warn' | 'error', message: string, metadata?: any) {
+                console.log(JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                        level,
+                            message,
+                                function: 'metrics',
+                                    metadata,
+                                      }));
+                                      }
 
-serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
+                                      serve(async (req) => {
+                                        if (req.method === 'OPTIONS') {
+                                            return new Response(null, { headers: corsHeaders });
+                                              }
 
-  const url = new URL(req.url);
+                                                const url = new URL(req.url);
 
-  try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
-    );
+                                                  try {
+                                                      const internalSecret = req.headers.get('x-internal-secret');
+                                                          const expectedSecret = Deno.env.get('INTERNAL_JOB_SECRET');
 
-    // POST - Record metrics
-    if (req.method === 'POST') {
-      log('info', 'Metrics POST request received');
-      
-      const authHeader = req.headers.get('Authorization');
-      if (!authHeader) {
-        log('warn', 'Unauthorized metrics POST attempt');
-        return new Response(
-          JSON.stringify({ error: 'Unauthorized' }),
-          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
+                                                              if (!internalSecret || !expectedSecret || internalSecret !== expectedSecret) {
+                                                                    return new Response(
+                                                                            JSON.stringify({ error: 'Unauthorized' }),
+                                                                                    { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+                                                                                          );
+                                                                                              }
 
-      const token = authHeader.replace('Bearer ', '');
-      const { data: { user } } = await supabaseClient.auth.getUser(token);
+                                                                                                  const supabaseClient = createClient(
+                                                                                                        Deno.env.get('SUPABASE_URL') ?? '',
+                                                                                                              Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+                                                                                                                  );
 
-      if (!user) {
-        return new Response(
-          JSON.stringify({ error: 'Unauthorized' }),
-          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
+                                                                                                                      // POST - Record metrics
+                                                                                                                          if (req.method === 'POST') {
+                                                                                                                                log('info', 'Metrics POST request received');
+                                                                                                                                      
+                                                                                                                                            const authHeader = req.headers.get('Authorization');
+                                                                                                                                                  if (!authHeader) {
+                                                                                                                                                          log('warn', 'Unauthorized metrics POST attempt');
+                                                                                                                                                                  return new Response(
+                                                                                                                                                                            JSON.stringify({ error: 'Unauthorized' }),
+                                                                                                                                                                                      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+                                                                                                                                                                                              );
+                                                                                                                                                                                                    }
 
-      const body = await req.json();
-      const { name, value, type = 'counter', labels = {} } = body;
+                                                                                                                                                                                                          const token = authHeader.replace('Bearer ', '');
+                                                                                                                                                                                                                const { data: { user } } = await supabaseClient.auth.getUser(token);
 
-      if (!name || value === undefined) {
-        return new Response(
-          JSON.stringify({ error: 'name and value are required' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
+                                                                                                                                                                                                                      if (!user) {
+                                                                                                                                                                                                                              return new Response(
+                                                                                                                                                                                                                                        JSON.stringify({ error: 'Unauthorized' }),
+                                                                                                                                                                                                                                                  { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+                                                                                                                                                                                                                                                          );
+                                                                                                                                                                                                                                                                }
 
-      const metric: Metric = {
-        name,
-        value,
-        type,
-        labels: { ...labels, user_id: user.id },
-        timestamp: Date.now(),
-      };
+                                                                                                                                                                                                                                                                      const body = await req.json();
+                                                                                                                                                                                                                                                                            const { name, value, type = 'counter', labels = {} } = body;
 
+                                                                                                                                                                                                                                                                                  if (!name || value === undefined) {
+                                                                                                                                                                                                                                                                                          return new Response(
+                                                                                                                                                                                                                                                                                                    JSON.stringify({ error: 'name and value are required' }),
+                                                                                                                                                                                                                                                                                                              { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+                                                                                                                                                                                                                                                                                                                      );
+                                                                                                                                                                                                                                                                                                                            }
+
+                                                                                                                                                                                                                                                                                                                                  const metric: Metric = {
+                                                                                                                                                                                                                                                                                                                                          name,
+                                                                                                                                                                                                                                                                                                                                                  value,
+                                                                                                                                                                                                                                                                                                                                                          type,
+                                                                                                                                                                                                                                                                                                                                                                  labels: { ...labels },
+                                                                                                                                                                                                                                                                                                                                                                          timestamp: Date.now(),
+                                                                                                                                                                                                                                                                                                                                                                                };
+                                                                                                                                                                                                                                                                                                                                                                                
       metrics.push(metric);
 
       // Keep only last MAX_METRICS

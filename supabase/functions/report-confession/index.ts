@@ -119,9 +119,9 @@ serve(async (req: Request) => {
     const rateLimitResult = await serviceClient.functions.invoke<RateLimitResponse>("rate-limit", {
       body: {
         action: "report_confession",
-        userId: user.id,
         ip: clientIp,
       },
+      headers: { Authorization: authHeader },
     });
 
     if (!rateLimitResult.error && rateLimitResult.data && rateLimitResult.data.allowed === false) {
@@ -142,6 +142,13 @@ serve(async (req: Request) => {
         messageKey: "common.rate_limit",
         retryAfter: rateLimitResult.data.retryAfter ?? null,
       }, 429);
+    }
+
+    if (rateLimitResult.error) {
+      return jsonResponse({
+        error: "RATE_LIMIT_UNAVAILABLE",
+        messageKey: "common.something_went_wrong",
+      }, 503);
     }
 
     const { data: existingReport, error: existingError } = await serviceClient

@@ -20,7 +20,9 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '
 const INTERNAL_JOB_SECRET = Deno.env.get('INTERNAL_JOB_SECRET') ?? '';
 const APP_URL = (Deno.env.get('NEXT_PUBLIC_APP_URL') ?? '').trim();
 const SKIP_TURNSTILE_FOR_PASSWORD_RESET = Deno.env.get('SKIP_TURNSTILE_FOR_PASSWORD_RESET') === 'true';
-const TURNSTILE_SECRET = Deno.env.get('TURNSTILE_SECRET') ?? '';
+const TURNSTILE_SECRET = Deno.env.get('TURNSTILE_SECRET')
+  ?? Deno.env.get('TURNSTILE_SECRET_KEY')
+  ?? '';
 
 // Environment configuration
 const SESSION_MAX_PER_USER = 5;
@@ -57,27 +59,27 @@ async function enforceRateLimit(
   client: any,
   {
     action,
-    userId,
     ip,
   }: {
     action: string;
-    userId?: string | null;
     ip?: string | null;
   },
+  options: { failClosed?: boolean } = {},
 ): Promise<RateLimitCheckResult> {
+  const { failClosed = false } = options;
+
   if (!client) {
-    return { allowed: true };
+    return failClosed ? { allowed: false } : { allowed: true };
   }
 
-  if (!userId && !ip) {
-    return { allowed: true };
+  if (!ip) {
+    return failClosed ? { allowed: false } : { allowed: true };
   }
 
   try {
     const result = await client.functions.invoke('rate-limit', {
       body: {
         action,
-        userId: userId ?? undefined,
         ip: ip ?? undefined,
       },
       headers: INTERNAL_JOB_SECRET
@@ -96,9 +98,15 @@ async function enforceRateLimit(
 
     if (result.error) {
       console.warn(`[enhanced-auth] Rate limit error for ${action}`, result.error);
+      if (failClosed) {
+        return { allowed: false };
+      }
     }
   } catch (error) {
     console.error(`[enhanced-auth] Rate limit invocation failed for ${action}`, error);
+    if (failClosed) {
+      return { allowed: false };
+    }
   }
 
   return { allowed: true };
@@ -154,13 +162,10 @@ async function verifyCaptcha(
   remoteIp?: string,
   options: { requireSecret?: boolean } = {}
 ): Promise<{ success: boolean; error?: string }> {
+  void options;
   if (!TURNSTILE_SECRET) {
-    if (options.requireSecret) {
-      console.error('[enhanced-auth] TURNSTILE_SECRET missing but required for CAPTCHA verification');
-      return { success: false, error: 'auth.captcha_failed' };
-    }
-    console.warn('TURNSTILE_SECRET not configured - CAPTCHA verification disabled');
-    return { success: true }; // Allow in dev if not configured
+    console.error('[enhanced-auth] TURNSTILE_SECRET missing for CAPTCHA verification');
+    return { success: false, error: 'auth.captcha_failed' };
   }
 
   try {
@@ -263,11 +268,20 @@ serve(async (req) => {
 
         const loginRateLimit = await enforceRateLimit(supabaseClient, {
           action: 'auth_login',
-          userId: normalizedEmail,
           ip: clientIp,
-        });
+        }, { failClosed: true });
 
         if (!loginRateLimit.allowed) {
+          if (loginRateLimit.retryAfter == null && loginRateLimit.remaining === undefined) {
+            return new Response(
+              JSON.stringify({
+                error: 'RATE_LIMIT_UNAVAILABLE',
+                messageKey: 'common.something_went_wrong',
+              }),
+              { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+
           await logSecurityEvent(
             supabaseClient,
             null,
@@ -367,7 +381,7 @@ serve(async (req) => {
             );
           }
 
-          const captchaResult = await verifyCaptcha(captchaToken, clientIp);
+          const captchaResult = await verifyCaptcha(captchaToken, clientIp, { requireSecret: true });
           if (!captchaResult.success) {
             return new Response(
               JSON.stringify({
@@ -587,11 +601,20 @@ serve(async (req) => {
 
         const refreshRateLimit = await enforceRateLimit(supabaseClient, {
           action: 'auth_refresh',
-          userId: sessionRecord.user_id,
           ip: sessionMetadata?.ipAddress || clientIp,
-        });
+        }, { failClosed: true });
 
         if (!refreshRateLimit.allowed) {
+          if (refreshRateLimit.retryAfter == null && refreshRateLimit.remaining === undefined) {
+            return new Response(
+              JSON.stringify({
+                error: 'RATE_LIMIT_UNAVAILABLE',
+                messageKey: 'common.something_went_wrong',
+              }),
+              { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+
           await logSecurityEvent(
             supabaseClient,
             sessionRecord.user_id,
@@ -721,11 +744,20 @@ serve(async (req) => {
 
         const signupRateLimit = await enforceRateLimit(supabaseClient, {
           action: 'auth_signup',
-          userId: normalizedEmail,
           ip: clientIp,
-        });
+        }, { failClosed: true });
 
         if (!signupRateLimit.allowed) {
+          if (signupRateLimit.retryAfter == null && signupRateLimit.remaining === undefined) {
+            return new Response(
+              JSON.stringify({
+                error: 'RATE_LIMIT_UNAVAILABLE',
+                messageKey: 'common.something_went_wrong',
+              }),
+              { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+
           await logSecurityEvent(
             supabaseClient,
             null,
@@ -784,7 +816,7 @@ serve(async (req) => {
         }
 
         // Verify CAPTCHA
-        const captchaResult = await verifyCaptcha(captchaToken, clientIp);
+        const captchaResult = await verifyCaptcha(captchaToken, clientIp, { requireSecret: true });
         if (!captchaResult.success) {
           return new Response(
             JSON.stringify({ 
@@ -849,11 +881,20 @@ serve(async (req) => {
 
         const passwordResetRateLimit = await enforceRateLimit(supabaseClient, {
           action: 'auth_password_reset',
-          userId: normalizedEmail,
           ip: clientIp,
-        });
+        }, { failClosed: true });
 
         if (!passwordResetRateLimit.allowed) {
+          if (passwordResetRateLimit.retryAfter == null && passwordResetRateLimit.remaining === undefined) {
+            return new Response(
+              JSON.stringify({
+                error: 'RATE_LIMIT_UNAVAILABLE',
+                messageKey: 'common.something_went_wrong',
+              }),
+              { status: 503, headers: responseHeaders }
+            );
+          }
+
           await logSecurityEvent(
             supabaseClient,
             null,
@@ -901,15 +942,6 @@ serve(async (req) => {
         }
 
         if (captchaRequired && captchaTokenFromBody) {
-          const turnstileSecret = Deno.env.get('TURNSTILE_SECRET_KEY');
-          if (!turnstileSecret) {
-            console.error('[enhanced-auth] TURNSTILE_SECRET_KEY_MISSING');
-            return new Response(
-              JSON.stringify({ success: false, messageKey: 'auth.reset_password_failed' }),
-              { status: 500, headers: responseHeaders }
-            );
-          }
-
           if (!SKIP_TURNSTILE_FOR_PASSWORD_RESET) {
             const passwordResetCaptchaResult = await verifyCaptcha(captchaTokenFromBody, clientIp, { requireSecret: true });
             if (!passwordResetCaptchaResult.success) {
