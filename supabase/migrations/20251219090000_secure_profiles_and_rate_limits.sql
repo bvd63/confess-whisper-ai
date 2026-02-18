@@ -19,9 +19,6 @@ alter table if exists public.profiles enable row level security;
 alter table if exists public.profiles force row level security;
 
 -- clean up potential legacy policies
-comment on policy "Profiles select own" on public.profiles is null;
-comment on policy "Profiles insert own" on public.profiles is null;
-comment on policy "Profiles update own" on public.profiles is null;
 drop policy if exists "Profiles select own" on public.profiles;
 drop policy if exists "Profiles insert own" on public.profiles;
 drop policy if exists "Profiles update own" on public.profiles;
