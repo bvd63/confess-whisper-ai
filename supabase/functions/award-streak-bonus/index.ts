@@ -33,7 +33,7 @@ serve(async (req) => {
       return jsonResponse({
         ok: false,
         reason: 'invalid-input',
-        details: 'Expected JSON body with currentStreak (number).',
+        details: 'Expected JSON body.',
       }, 400);
     }
 
@@ -58,21 +58,27 @@ serve(async (req) => {
       }
     }
 
-    const currentStreak = body.currentStreak;
-    if (typeof currentStreak !== 'number') {
-      return jsonResponse({
-        ok: false,
-        reason: 'invalid-input',
-        details: 'Missing or invalid: currentStreak',
-      }, 400);
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    const { data: streakRow, error: streakError } = await supabase
+      .from("user_streaks")
+      .select("current_streak")
+      .eq("user_id", effectiveUserId)
+      .maybeSingle();
+    if (streakError) {
+      return jsonResponse({ ok: false, reason: "streak-lookup-failed" }, 500);
     }
 
-    const bonus = BONUSES.find(b => b.days === currentStreak);
+    const currentStreak = Number(streakRow?.current_streak ?? 0);
+    if (!Number.isFinite(currentStreak) || currentStreak <= 0) {
+      return jsonResponse({ ok: false, reason: "no-bonus" }, 200);
+    }
+
+    const bonus = BONUSES.find((b) => b.days === currentStreak);
     if (!bonus) {
       return jsonResponse({ ok: false, reason: 'no-bonus' }, 200);
     }
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const idempotencySessionId = `streak_${effectiveUserId}_${currentStreak}_${new Date().toISOString().split('T')[0]}`;
     
     // Call award_coins RPC with idempotent reason key
