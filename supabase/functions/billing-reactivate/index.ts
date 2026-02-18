@@ -118,7 +118,7 @@ serve(async (req) => {
     await supabaseClient
       .from('profiles')
       .update(updateData)
-      .eq('id', user.id);
+      .eq('user_id', user.id);
 
     logStep("Database updated", { tier });
 

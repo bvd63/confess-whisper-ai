@@ -111,25 +111,15 @@ export const Onboarding = ({ userId, onComplete }: OnboardingProps) => {
 
     setIsSubmitting(true);
     try {
-      // Save confession
-      const { error: confessionError } = await supabase
-        .from("confessions")
-        .insert({
-          user_id: userId,
+      // Route onboarding confession through the hardened backend flow.
+      const creationResponse = await supabase.functions.invoke("create-confession", {
+        body: {
           content: confession,
           category: "other",
-          moderation_status: "approved"
-        });
-
-      if (confessionError) throw confessionError;
-
-      // Award coins
-      await supabase.rpc("award_coins", {
-        p_user_id: userId,
-        p_amount: 10,
-        p_description: "First confession bonus",
-        p_session_id: "onboarding_" + Date.now()
+          isAnonymous: false,
+        },
       });
+      if (creationResponse.error) throw creationResponse.error;
 
       // Mark first confession as claimed
       await supabase

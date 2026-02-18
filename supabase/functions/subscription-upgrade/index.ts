@@ -18,17 +18,8 @@ const log = (level: string, message: string, data?: any) => {
   }));
 };
 
-const PREMIUM_PRICE_IDS = new Set(
-  ["STRIPE_PRICE_PREMIUM_MONTHLY", "STRIPE_PRICE_PREMIUM_YEARLY"]
-    .map((key) => Deno.env.get(key))
-    .filter((value): value is string => Boolean(value))
-);
-
-const resolveTierFromPriceId = (priceId?: string | null): "premium" | "vip" => {
-  if (priceId && isVipPriceId(priceId)) return "vip";
-  if (priceId && PREMIUM_PRICE_IDS.has(priceId)) return "premium";
-  return "premium";
-};
+const resolveTierFromPriceId = (priceId?: string | null): "free" | "vip" =>
+  priceId && isVipPriceId(priceId) ? "vip" : "free";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -55,6 +46,9 @@ serve(async (req) => {
     const { targetPriceId } = await req.json();
     if (!targetPriceId) {
       throw new Error("targetPriceId is required");
+    }
+    if (!isVipPriceId(targetPriceId)) {
+      throw new Error("Invalid target price for upgrade");
     }
 
     log("info", "Upgrade request", { userId: user.id, targetPriceId });

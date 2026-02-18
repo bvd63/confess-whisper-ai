@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { isVipPriceId } from "../_shared/stripe-config.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,6 +12,14 @@ const corsHeaders = {
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CREATE-CHECKOUT-SESSION] ${step}${detailsStr}`);
+};
+
+const getAppBaseUrl = (): string => {
+  const configuredUrl = (Deno.env.get("APP_URL") ?? Deno.env.get("NEXT_PUBLIC_APP_URL") ?? "").trim();
+  if (!configuredUrl) {
+    throw new Error("APP_URL is not configured");
+  }
+  return new URL(configuredUrl).origin;
 };
 
 serve(async (req) => {
@@ -48,6 +57,9 @@ serve(async (req) => {
     const { priceId, planName, billingCycle } = await req.json();
     if (!priceId) {
       throw new Error("priceId is required");
+    }
+    if (!isVipPriceId(priceId)) {
+      throw new Error("Invalid subscription price");
     }
     logStep("Request body parsed", { priceId, planName, billingCycle });
 
@@ -108,7 +120,7 @@ serve(async (req) => {
       logStep("Existing customer found", { customerId });
     }
 
-    const origin = req.headers.get("origin") || "http://localhost:8080";
+    const origin = getAppBaseUrl();
     
     // Create checkout session
     const session = await stripe.checkout.sessions.create({

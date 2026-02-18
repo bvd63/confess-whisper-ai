@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { createStripeClient } from "../_shared/stripe.ts";
+import { isVipPriceId } from "../_shared/stripe-config.ts";
 import { validateStripeWebhookEvent } from "../_shared/webhook-security.ts";
 
 const corsHeaders = {
@@ -54,13 +55,26 @@ const getStableUserReference = (payloadObject: any): string | null => {
   return null;
 };
 
-const shouldGrantVip = (subscription: any): boolean => {
+const isVipPriceSafely = (priceId: string): boolean => {
+  try {
+    return isVipPriceId(priceId);
+  } catch (error) {
+    log("error", "Failed to resolve VIP price configuration", {
+      priceId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return false;
+  }
+};
+
+const shouldGrantVip = (subscription: any, priceId: string | null): boolean => {
   const status = String(subscription?.status ?? "");
   const currentPeriodEndUnix = typeof subscription?.current_period_end === "number"
     ? subscription.current_period_end
     : null;
   const hasPeriodEnded = currentPeriodEndUnix !== null && (currentPeriodEndUnix * 1000) <= Date.now();
 
+  if (!priceId || !isVipPriceSafely(priceId)) return false;
   if (hasPeriodEnded) return false;
   if (FREE_STATUSES.has(status)) return false;
   if (VIP_ACTIVE_STATUSES.has(status)) return true;
@@ -192,7 +206,7 @@ const updateProfileFromSubscription = async (
   const price = subscription?.items?.data?.[0]?.price;
   const priceId = typeof price?.id === "string" ? price.id : null;
   const interval = toSubscriptionInterval(price?.recurring?.interval);
-  const grantVip = shouldGrantVip(subscription);
+  const grantVip = shouldGrantVip(subscription, priceId);
 
   const updatePayload = {
     stripe_customer_id: customerId,

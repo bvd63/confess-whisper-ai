@@ -67,4 +67,23 @@ describe("edge function security helpers", () => {
       },
     });
   });
+
+  it("rejects non-positive coin metadata values", () => {
+    const result = parseCoinPurchaseFromSession(
+      {
+        id: "cs_test_789",
+        payment_status: "paid",
+        metadata: {
+          user_id: "user-a",
+          coins: "-1",
+        },
+      },
+      "user-a",
+    );
+
+    expect(result).toEqual({
+      ok: false,
+      error: "INVALID_PURCHASE_METADATA",
+    });
+  });
 });

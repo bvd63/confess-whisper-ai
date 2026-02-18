@@ -1283,8 +1283,17 @@ serve(async (req) => {
           );
         }
 
-        await supabaseClient
+        const authedClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+          global: { headers: { Authorization: authHeader } },
+        });
+        const { error: revokeAllError } = await authedClient
           .rpc('revoke_all_user_sessions', { _user_id: user.id });
+        if (revokeAllError) {
+          return new Response(
+            JSON.stringify({ error: 'INTERNAL_ERROR', messageKey: 'common.something_went_wrong' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
 
         await supabaseClient
           .rpc('log_security_event', {

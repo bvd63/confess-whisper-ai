@@ -23,15 +23,15 @@ const PREMIUM_PRICE_IDS = new Set(
     .filter((value): value is string => Boolean(value))
 );
 
-const resolveTierFromPriceId = (priceId?: string | null): "premium" | "vip" => {
+const resolveTierFromPriceId = (priceId?: string | null): "free" | "vip" => {
   if (priceId && isVipPriceId(priceId)) return "vip";
-  if (priceId && PREMIUM_PRICE_IDS.has(priceId)) return "premium";
-  return "premium";
+  if (priceId && PREMIUM_PRICE_IDS.has(priceId)) return "free";
+  return "free";
 };
 
 const tierHierarchy: Record<string, number> = {
   free: 0,
-  premium: 1,
+  premium: 1, // legacy compatibility in existing rows
   vip: 2,
 };
 

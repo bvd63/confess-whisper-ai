@@ -23,6 +23,14 @@ function log(level: string, message: string, context?: any) {
   console.log(JSON.stringify(logEntry));
 }
 
+function getAppBaseUrl(): string {
+  const configuredUrl = (Deno.env.get("APP_URL") ?? Deno.env.get("NEXT_PUBLIC_APP_URL") ?? "").trim();
+  if (!configuredUrl) {
+    throw new Error("APP_URL is not configured");
+  }
+  return new URL(configuredUrl).origin;
+}
+
 const VIP_PRICE_IDS = getVipPriceIds();
 
 serve(async (req) => {
@@ -104,7 +112,7 @@ serve(async (req) => {
       }
     }
 
-    const origin = req.headers.get("origin") || "http://localhost:8080";
+    const origin = getAppBaseUrl();
     
     const session = await stripe.checkout.sessions.create({
       customer: customerId,

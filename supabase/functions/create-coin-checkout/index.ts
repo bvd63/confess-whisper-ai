@@ -12,6 +12,14 @@ const logStep = (step: string, details?: any) => {
   console.log(`[CREATE-COIN-CHECKOUT] ${step}${detailsStr}`);
 };
 
+const getAppBaseUrl = (): string => {
+  const configuredUrl = (Deno.env.get("APP_URL") ?? Deno.env.get("NEXT_PUBLIC_APP_URL") ?? "").trim();
+  if (!configuredUrl) {
+    throw new Error("APP_URL is not configured");
+  }
+  return new URL(configuredUrl).origin;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -68,7 +76,7 @@ serve(async (req) => {
       logStep("Found existing customer", { customerId });
     }
 
-    const origin = req.headers.get("origin") || "";
+    const origin = getAppBaseUrl();
     
     // Create one-time payment session for coins
     const session = await stripe.checkout.sessions.create({

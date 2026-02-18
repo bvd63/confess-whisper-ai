@@ -39,6 +39,9 @@ serve(async (req) => {
     if (!newPriceId) {
       return new Response(JSON.stringify({ error: "Missing newPriceId" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
+    if (!isVipPriceId(newPriceId)) {
+      return new Response(JSON.stringify({ error: "Invalid newPriceId" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
     // 1) Try read current subscription row
     let { data: sub, error: subErr } = await supabase

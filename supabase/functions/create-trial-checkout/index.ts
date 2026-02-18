@@ -8,6 +8,23 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const resolveAppBaseUrl = (): string => {
+  const configuredUrl = (
+    Deno.env.get("APP_URL")
+      ?? Deno.env.get("NEXT_PUBLIC_APP_URL")
+      ?? Deno.env.get("VITE_APP_URL")
+      ?? Deno.env.get("PUBLIC_APP_URL")
+      ?? ""
+  ).trim();
+
+  if (!configuredUrl) {
+    throw new Error("APP_URL is not configured");
+  }
+
+  const parsed = new URL(configuredUrl);
+  return `${parsed.protocol}//${parsed.host}`;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -76,8 +93,9 @@ serve(async (req) => {
     const customers = await stripe.customers.list({ email: user.email!, limit: 1 });
     const customerId = customers.data.length > 0 ? customers.data[0].id : undefined;
 
-    // Create Stripe checkout session with 3-day trial
-    const origin = req.headers.get("origin") || "http://localhost:3000";
+    // Create Stripe checkout session with 3-day trial.
+    // Never trust request Origin for redirect URLs in billing flows.
+    const appBaseUrl = resolveAppBaseUrl();
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email!,
@@ -91,39 +109,26 @@ serve(async (req) => {
         metadata: {
           appTier: "VIP",
           userId: user.id,
+          user_id: user.id,
         },
+      },
+      metadata: {
+        user_id: user.id,
+        trial_checkout: "true",
       },
       payment_method_collection: "always",
       allow_promotion_codes: false,
-      success_url: `${origin}/payment-success`,
-      cancel_url: `${origin}/payment-canceled`,
+      success_url: `${appBaseUrl}/payment-success`,
+      cancel_url: `${appBaseUrl}/payment-canceled`,
     });
 
-    // Mark trial as used and set timestamps
-    const trialStartsAt = new Date();
-    const trialEndsAt = new Date(trialStartsAt.getTime() + 3 * 24 * 60 * 60 * 1000); // +3 days
-
-    const { error: updateError } = await supabaseClient
-      .from("profiles")
-      .update({
-        trial_used: true,
-        trial_premium_started_at: trialStartsAt.toISOString(),
-        trial_premium_ends_at: trialEndsAt.toISOString(),
-        subscription_tier: "vip",
-        is_premium: true,
-        trial_active: true,
-        trial_end_date: trialEndsAt.toISOString(),
-      })
-      .eq("user_id", user.id);
-
-    if (updateError) throw updateError;
-
-    console.log(`[TRIAL-CHECKOUT] VIP trial activated for user ${user.id} until ${trialEndsAt.toISOString()}`);
+    // Entitlements are granted only after Stripe lifecycle confirmation (webhook/verification).
+    console.log(`[TRIAL-CHECKOUT] Trial checkout session created for user ${user.id}: ${session.id}`);
 
     return new Response(
       JSON.stringify({ 
         url: session.url,
-        trialEndsAt: trialEndsAt.toISOString()
+        trialStartsAfterCheckout: true,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );

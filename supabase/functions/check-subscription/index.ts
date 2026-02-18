@@ -155,20 +155,17 @@ serve(async (req) => {
         : null;
       logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
       
-      // Map price IDs to tiers - dynamically built from environment
+      // Only Stripe prices configured as VIP can grant VIP entitlements.
+      // Unknown or legacy prices must never auto-elevate privileges.
       const priceId = subscription.items.data[0]?.price.id as string | undefined;
-      if (priceId && isVipPriceId(priceId)) {
-        subscriptionTier = 'vip';
-      } else {
-        subscriptionTier = subscription.metadata?.plan_name?.toLowerCase() || 'vip';
-      }
+      subscriptionTier = priceId && isVipPriceId(priceId) ? 'vip' : 'free';
       logStep("Determined subscription tier", { priceId, tier: subscriptionTier });
       
       // Update profile with subscription info
       await supabaseClient
         .from('profiles')
         .update({ 
-          is_premium: true,
+          is_premium: subscriptionTier === 'vip',
           subscription_tier: subscriptionTier,
           subscription_ends_at: subscriptionEnd,
           stripe_subscription_id: subscription.id

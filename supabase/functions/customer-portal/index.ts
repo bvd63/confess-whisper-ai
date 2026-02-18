@@ -22,6 +22,14 @@ function log(level: string, message: string, context?: any) {
   console.log(JSON.stringify(logEntry));
 }
 
+function getAppBaseUrl(): string {
+  const configuredUrl = (Deno.env.get("APP_URL") ?? Deno.env.get("NEXT_PUBLIC_APP_URL") ?? "").trim();
+  if (!configuredUrl) {
+    throw new Error("APP_URL is not configured");
+  }
+  return new URL(configuredUrl).origin;
+}
+
 serve(async (req) => {
   const requestId = generateRequestId();
   
@@ -78,7 +86,7 @@ serve(async (req) => {
       log('info', '[CUSTOMER-PORTAL] Customer found', { requestId, customerId });
     }
 
-    const origin = req.headers.get("origin") || "http://localhost:8080";
+    const origin = getAppBaseUrl();
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customerId,
       return_url: `${origin}/profile`,

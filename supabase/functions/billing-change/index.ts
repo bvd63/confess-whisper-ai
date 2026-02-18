@@ -107,7 +107,7 @@ serve(async (req) => {
         current_plan: targetTier,
         last_sync_at: new Date().toISOString(),
       })
-      .eq('id', user.id);
+      .eq('user_id', user.id);
 
     if (updateError) {
       logStep("Database update error", { error: updateError });
