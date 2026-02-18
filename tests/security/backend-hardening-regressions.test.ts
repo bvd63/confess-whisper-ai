@@ -47,4 +47,10 @@ describe("backend hardening regression checks", () => {
     const source = read("supabase/functions/stripe-webhook-subscriptions/index.ts");
     expect(source).toContain("if (!priceId || !isVipPriceSafely(priceId)) return false;");
   });
+
+  it("serializes coin purchase awards per session id", () => {
+    const sql = read("supabase/migrations/20260218131500_coin_purchase_idempotency_lock.sql");
+    expect(sql).toContain("perform pg_advisory_xact_lock(hashtext(v_session_marker));");
+    expect(sql).toContain("and description ilike '%' || v_session_marker || '%'");
+  });
 });
