@@ -58,15 +58,19 @@ export const normalizeRateLimitRequest = (
     return { ok: false, error: "INVALID_JSON" };
   }
 
-  const body = value as { action?: unknown; ip?: unknown };
+  const body = value as { action?: unknown; userId?: unknown; ip?: unknown };
   const action = sanitizeAction(body.action);
   if (!action) {
     return { ok: false, error: "MISSING_ACTION" };
   }
 
+  const userId = sanitizeIdentifier(body.userId);
   const ip = sanitizeIdentifier(body.ip);
 
   const identifiers: RateLimitIdentifier[] = [];
+  if (userId) {
+    identifiers.push({ value: userId, type: "user" });
+  }
   if (ip) {
     identifiers.push({ value: ip, type: "ip" });
   }

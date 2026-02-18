@@ -163,14 +163,15 @@ serve(async (req: Request) => {
     if (user?.id) {
       identifiers = [{ value: user.id, type: 'user' }];
     } else {
+      const userIdentifier = normalizedIdentifiers.find((identifier) => identifier.type === 'user');
       const ipIdentifier = normalizedIdentifiers.find((identifier) => identifier.type === 'ip');
-      if (!ipIdentifier) {
+      if (!userIdentifier && !ipIdentifier) {
         return new Response(
           JSON.stringify({ error: 'MISSING_IDENTIFIER' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
         );
       }
-      identifiers = [ipIdentifier];
+      identifiers = [userIdentifier ?? ipIdentifier!];
     }
 
     const checks: RateLimitCheckResult[] = [];
