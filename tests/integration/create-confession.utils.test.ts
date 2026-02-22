@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import {
+  evaluateCreateConfessionRateLimit,
   sanitizeBasic,
   sanitizeDisplayName,
   clampIntensity,
@@ -8,6 +11,9 @@ import {
   SUPPORTED_CATEGORIES,
   normalizeCreateConfessionPayload,
 } from "../../supabase/functions/create-confession/utils";
+
+const read = (relativePath: string) =>
+  readFileSync(resolve(process.cwd(), relativePath), "utf8");
 
 describe("create-confession utils", () => {
   describe("sanitizeBasic", () => {
@@ -154,6 +160,52 @@ describe("create-confession utils", () => {
       expect(normalized.ok).toBe(true);
       if (!normalized.ok) return;
       expect(normalized.data.communityId).toBeNull();
+    });
+  });
+
+  describe("evaluateCreateConfessionRateLimit", () => {
+    it("fails closed when rate-limit invocation errors", () => {
+      const decision = evaluateCreateConfessionRateLimit({
+        data: null,
+        error: { message: "network failure" },
+      });
+
+      expect(decision).toEqual({
+        kind: "unavailable",
+        canCreate: false,
+        status: 503,
+        error: "RATE_LIMIT_UNAVAILABLE",
+      });
+    });
+
+    it("allows confession creation when rate-limit responds with allowed=true", () => {
+      const decision = evaluateCreateConfessionRateLimit({
+        data: {
+          allowed: true,
+          remaining: 3,
+          retryAfter: undefined,
+        },
+        error: null,
+      });
+
+      expect(decision.kind).toBe("allow");
+      expect(decision.canCreate).toBe(true);
+      expect(decision.status).toBe(200);
+      if (decision.kind === "allow") {
+        expect(decision.data.remaining).toBe(3);
+      }
+    });
+  });
+
+  describe("create-confession fail-closed control flow", () => {
+    it("checks rate-limit decision before attempting confession insert", () => {
+      const source = read("supabase/functions/create-confession/index.ts");
+      const decisionCheckIndex = source.indexOf("if (!rateLimitDecision.canCreate");
+      const insertIndex = source.indexOf('.from("confessions")');
+
+      expect(decisionCheckIndex).toBeGreaterThan(-1);
+      expect(insertIndex).toBeGreaterThan(-1);
+      expect(decisionCheckIndex).toBeLessThan(insertIndex);
     });
   });
 });

@@ -152,3 +152,79 @@ export const guardCommunitiesDisabled = (value: unknown): CommunitiesDisabledGua
   }
   return { ok: true };
 };
+
+export interface CreateConfessionRateLimitResponse {
+  allowed?: boolean;
+  remaining?: number;
+  retryAfter?: number;
+  resetAt?: string;
+  identifierType?: "user" | "ip";
+}
+
+export interface CreateConfessionRateLimitInvokeResult {
+  data?: CreateConfessionRateLimitResponse | null;
+  error?: unknown;
+}
+
+export type CreateConfessionRateLimitDecision =
+  | {
+    kind: "allow";
+    canCreate: true;
+    status: 200;
+    data: CreateConfessionRateLimitResponse;
+  }
+  | {
+    kind: "limited";
+    canCreate: false;
+    status: 429;
+    error: "RATE_LIMIT";
+    retryAfter?: number;
+    data: CreateConfessionRateLimitResponse;
+  }
+  | {
+    kind: "unavailable";
+    canCreate: false;
+    status: 503;
+    error: "RATE_LIMIT_UNAVAILABLE";
+  };
+
+export const evaluateCreateConfessionRateLimit = (
+  result: CreateConfessionRateLimitInvokeResult,
+): CreateConfessionRateLimitDecision => {
+  if (result.error) {
+    return {
+      kind: "unavailable",
+      canCreate: false,
+      status: 503,
+      error: "RATE_LIMIT_UNAVAILABLE",
+    };
+  }
+
+  const data = result.data;
+  if (!data || typeof data.allowed !== "boolean") {
+    return {
+      kind: "unavailable",
+      canCreate: false,
+      status: 503,
+      error: "RATE_LIMIT_UNAVAILABLE",
+    };
+  }
+
+  if (!data.allowed) {
+    return {
+      kind: "limited",
+      canCreate: false,
+      status: 429,
+      error: "RATE_LIMIT",
+      retryAfter: data.retryAfter,
+      data,
+    };
+  }
+
+  return {
+    kind: "allow",
+    canCreate: true,
+    status: 200,
+    data,
+  };
+};

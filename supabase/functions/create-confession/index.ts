@@ -1,22 +1,18 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import {
+  evaluateCreateConfessionRateLimit,
   guardCommunitiesDisabled,
   normalizeCreateConfessionPayload,
+  type CreateConfessionRateLimitInvokeResult,
+  type CreateConfessionRateLimitResponse,
 } from "./utils.ts";
+import { getClientIp } from "../_shared/request-ip.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-
-interface RateLimitResponse {
-  allowed?: boolean;
-  remaining?: number;
-  retryAfter?: number;
-  resetAt?: string;
-  identifierType?: "user" | "ip";
-}
 
 async function verifyCaptcha(token: string, remoteIp?: string): Promise<{ success: boolean; error?: string }> {
   const turnstileSecret = Deno.env.get("TURNSTILE_SECRET");
@@ -114,9 +110,7 @@ serve(async (req: Request) => {
     return jsonResponse({ error: "UNAUTHORIZED", messageKey: "common.unauthorized" }, 401);
   }
 
-  const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
-    || req.headers.get("x-real-ip")
-    || "unknown";
+  const clientIp = getClientIp(req);
   const userAgent = req.headers.get("user-agent") ?? "unknown";
 
   try {
@@ -216,7 +210,7 @@ serve(async (req: Request) => {
       await verifyCaptcha(payload.captchaToken, clientIp);
     }
 
-    const rateLimitResult = await serviceClient.functions.invoke<RateLimitResponse>("rate-limit", {
+    const rateLimitResult = await serviceClient.functions.invoke<CreateConfessionRateLimitResponse>("rate-limit", {
       body: {
         action: "confession_create",
         userId: user.id,
@@ -227,13 +221,17 @@ serve(async (req: Request) => {
       },
     });
 
-    if (!rateLimitResult.error && rateLimitResult.data && rateLimitResult.data.allowed === false) {
+    const rateLimitDecision = evaluateCreateConfessionRateLimit(
+      rateLimitResult as CreateConfessionRateLimitInvokeResult,
+    );
+
+    if (!rateLimitDecision.canCreate && rateLimitDecision.kind === "limited") {
       await logSecurityEvent(serviceClient, {
         userId: user.id,
         eventType: "confession_rate_limited",
         eventData: {
-          retryAfter: rateLimitResult.data.retryAfter ?? null,
-          remaining: rateLimitResult.data.remaining ?? null,
+          retryAfter: rateLimitDecision.retryAfter ?? null,
+          remaining: rateLimitDecision.data.remaining ?? null,
         },
         ipAddress: clientIp,
         userAgent,
@@ -241,18 +239,29 @@ serve(async (req: Request) => {
       return jsonResponse({
         error: "RATE_LIMIT",
         messageKey: "common.rate_limit",
-        retryAfter: rateLimitResult.data.retryAfter,
+        retryAfter: rateLimitDecision.retryAfter,
       }, 429);
     }
 
-    if (rateLimitResult.error) {
+    if (!rateLimitDecision.canCreate && rateLimitDecision.kind === "unavailable") {
       await logSecurityEvent(serviceClient, {
         userId: user.id,
         eventType: "confession_rate_limit_error",
-        eventData: { error: rateLimitResult.error.message ?? rateLimitResult.error },
+        eventData: {
+          reason: "rate_limit_unavailable",
+          invokeError: rateLimitResult.error
+            ? String((rateLimitResult.error as { message?: unknown }).message ?? rateLimitResult.error)
+            : null,
+        },
         ipAddress: clientIp,
         userAgent,
       });
+
+      // Fail closed: never create confession if rate-limit storage/invoke is unavailable.
+      return jsonResponse({
+        error: "RATE_LIMIT_UNAVAILABLE",
+        messageKey: "common.something_went_wrong",
+      }, 503);
     }
 
     const { data: confessionInsert, error: insertError } = await serviceClient
@@ -309,7 +318,7 @@ serve(async (req: Request) => {
 
     return jsonResponse({
       confession: confessionInsert,
-      rateLimit: rateLimitResult.data ?? null,
+      rateLimit: rateLimitDecision.data,
     }, 201);
   } catch (error) {
     console.error("[create-confession] Unexpected error", error);
