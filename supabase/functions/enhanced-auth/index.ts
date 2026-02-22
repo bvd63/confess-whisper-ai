@@ -57,6 +57,69 @@ interface RateLimitCheckResult {
   identifierType?: 'user' | 'ip';
 }
 
+interface RateLimitInvokeErrorDetails {
+  status?: number;
+  code?: string;
+  body?: string;
+  message?: string;
+}
+
+function extractRateLimitInvokeErrorDetails(result: any): RateLimitInvokeErrorDetails {
+  const error = result?.error as any;
+  const context = error?.context as any;
+
+  const status = typeof context?.status === 'number'
+    ? context.status
+    : undefined;
+
+  let body: string | undefined;
+  if (typeof context?.body === 'string') {
+    body = context.body;
+  } else if (context?.body != null) {
+    try {
+      body = JSON.stringify(context.body);
+    } catch {
+      body = String(context.body);
+    }
+  }
+
+  let code: string | undefined;
+  if (result?.data && typeof result.data === 'object' && typeof (result.data as any).error === 'string') {
+    code = (result.data as any).error;
+  }
+
+  if (!code && body) {
+    try {
+      const parsed = JSON.parse(body);
+      if (typeof parsed?.error === 'string') {
+        code = parsed.error;
+      }
+    } catch {
+      // no-op
+    }
+  }
+
+  return {
+    status,
+    code,
+    body,
+    message: typeof error?.message === 'string' ? error.message : undefined,
+  };
+}
+
+function isRateLimitUnavailableError(details: RateLimitInvokeErrorDetails): boolean {
+  if (details.status === 503 || details.code === 'RATE_LIMIT_UNAVAILABLE') {
+    return true;
+  }
+
+  const combined = `${details.message ?? ''} ${details.body ?? ''}`.toLowerCase();
+  return combined.includes('timeout')
+    || combined.includes('timed out')
+    || combined.includes('unavailable')
+    || combined.includes('failed to fetch')
+    || combined.includes('network');
+}
+
 async function enforceRateLimit(
   client: any,
   {
@@ -66,9 +129,9 @@ async function enforceRateLimit(
     action: string;
     ip?: string | null;
   },
-  options: { failClosed?: boolean } = {},
+  options: { failClosed?: boolean; failOpenOnUnavailable?: boolean } = {},
 ): Promise<RateLimitCheckResult> {
-  const { failClosed = false } = options;
+  const { failClosed = false, failOpenOnUnavailable = false } = options;
 
   if (!client) {
     return failClosed ? { allowed: false } : { allowed: true };
@@ -99,12 +162,37 @@ async function enforceRateLimit(
     }
 
     if (result.error) {
-      console.warn(`[enhanced-auth] Rate limit error for ${action}`, result.error);
+      const details = extractRateLimitInvokeErrorDetails(result);
+      const isUnavailable = isRateLimitUnavailableError(details);
+
+      if (failOpenOnUnavailable && isUnavailable) {
+        console.error(`[enhanced-auth] Rate limit unavailable for ${action}; allowing request`, {
+          status: details.status,
+          code: details.code,
+          body: details.body,
+          message: details.message,
+        });
+        return { allowed: true };
+      }
+
+      console.warn(`[enhanced-auth] Rate limit error for ${action}`, {
+        status: details.status,
+        code: details.code,
+        body: details.body,
+        message: details.message,
+      });
       if (failClosed) {
         return { allowed: false };
       }
     }
   } catch (error) {
+    if (failOpenOnUnavailable) {
+      console.error(`[enhanced-auth] Rate limit invocation failed for ${action}; allowing request`, {
+        message: error instanceof Error ? error.message : String(error),
+      });
+      return { allowed: true };
+    }
+
     console.error(`[enhanced-auth] Rate limit invocation failed for ${action}`, error);
     if (failClosed) {
       return { allowed: false };
@@ -269,7 +357,7 @@ serve(async (req) => {
         const loginRateLimit = await enforceRateLimit(supabaseClient, {
           action: 'auth_login',
           ip: clientIp,
-        }, { failClosed: true });
+        }, { failClosed: true, failOpenOnUnavailable: true });
 
         if (!loginRateLimit.allowed) {
           if (loginRateLimit.retryAfter == null && loginRateLimit.remaining === undefined) {
