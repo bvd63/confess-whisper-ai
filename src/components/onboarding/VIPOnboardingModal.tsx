@@ -121,23 +121,78 @@ export const VIPOnboardingModal = ({
   const lang = (navigator.language || "en").slice(0, 2);
   const t = translations[lang] || translations.en;
 
+  const parseInvokeError = async (invokeError: unknown): Promise<{ code: string | null; message: string | null }> => {
+    const fallbackMessage = invokeError instanceof Error ? invokeError.message : null;
+
+    if (!invokeError || typeof invokeError !== "object") {
+      return { code: null, message: fallbackMessage };
+    }
+
+    const context = (invokeError as { context?: unknown }).context;
+
+    if (context instanceof Response) {
+      try {
+        const payload = await context.clone().json() as Record<string, unknown>;
+        return {
+          code: typeof payload.error === "string" ? payload.error : null,
+          message: typeof payload.message === "string" ? payload.message : fallbackMessage,
+        };
+      } catch {
+        const textBody = await context.text().catch(() => "");
+        return { code: null, message: textBody || fallbackMessage };
+      }
+    }
+
+    if (context && typeof context === "object") {
+      const body = (context as { body?: unknown }).body;
+      if (typeof body === "string" && body) {
+        try {
+          const payload = JSON.parse(body) as Record<string, unknown>;
+          return {
+            code: typeof payload.error === "string" ? payload.error : null,
+            message: typeof payload.message === "string" ? payload.message : fallbackMessage,
+          };
+        } catch {
+          return { code: null, message: body };
+        }
+      }
+    }
+
+    const directCode = typeof (invokeError as { code?: unknown }).code === "string"
+      ? (invokeError as { code: string }).code
+      : null;
+
+    return { code: directCode, message: fallbackMessage };
+  };
+
   const handleActivateTrial = async () => {
     setIsActivating(true);
     logInfo("Activating VIP trial");
 
     try {
-      const { data, error } = await supabase.functions.invoke("activate-trial");
+      const { data, error } = await supabase.functions.invoke("start-trial");
 
       if (error) {
-        logError("Trial activation failed", { error });
-        throw error;
+        const parsedError = await parseInvokeError(error);
+        const normalizedErrorCode = String(parsedError.code ?? "").toUpperCase();
+
+        if (normalizedErrorCode === "TRIAL_ALREADY_USED") {
+          toast.error(t.errorAlreadyUsed, { description: t.errorAlreadyUsedDesc });
+          return;
+        }
+
+        logError("Trial activation failed", { error, parsedError });
+        toast.error(t.errorActivation, { description: parsedError.message || t.errorActivationDesc });
+        return;
       }
 
-      if (!data.success) {
-        if (data.error === "trial_already_used") {
+      const normalizedErrorCode = String(data?.error ?? "").toUpperCase();
+      if (!data?.success) {
+        if (normalizedErrorCode === "TRIAL_ALREADY_USED") {
           toast.error(t.errorAlreadyUsed, { description: t.errorAlreadyUsedDesc });
         } else {
-          toast.error(t.errorActivation, { description: data.message || t.errorActivationDesc });
+          const fallbackMessage = typeof data?.message === "string" ? data.message : t.errorActivationDesc;
+          toast.error(t.errorActivation, { description: fallbackMessage });
         }
         return;
       }
@@ -146,7 +201,6 @@ export const VIPOnboardingModal = ({
       toast.success(t.successTitle, { description: t.successDesc, duration: 5000 });
       onOpenChange(false);
       onTrialActivated?.();
-      setTimeout(() => window.location.reload(), 1000);
     } catch (error) {
       logError("Trial activation error", { error });
       toast.error(t.errorActivation, { description: t.errorActivationDesc });
