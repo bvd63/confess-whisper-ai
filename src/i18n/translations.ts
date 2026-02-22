@@ -1576,6 +1576,7 @@ type Translations = {
   subscription_free: string;
   subscription_trial_available: string;
   manage_subscription_title: string;
+  manage_sub_current_plan_label: string;
   manage_sub_current_plan_free: string;
   manage_sub_current_plan_desc: string;
   manage_sub_vip_plan: string;
@@ -3019,6 +3020,7 @@ export const translations: Record<Language, Translations> = {
     subscription_free: "Free",
     subscription_trial_available: "3-Day Free Trial Available",
     manage_subscription_title: "Manage Subscription",
+    manage_sub_current_plan_label: "Current plan",
     manage_sub_current_plan_free: "Current plan – FREE",
     manage_sub_current_plan_desc: "Basic access to your confessions.",
     manage_sub_vip_plan: "VIP Plan",
@@ -5397,6 +5399,7 @@ export const translations: Record<Language, Translations> = {
     subscription_free: "Gratis",
     subscription_trial_available: "Prueba Gratis de 3 Días Disponible",
     manage_subscription_title: "Gestionar Suscripción",
+    manage_sub_current_plan_label: "Plan actual",
     manage_sub_current_plan_free: "Plan actual – GRATIS",
     manage_sub_current_plan_desc: "Acceso básico a tus confesiones.",
     manage_sub_vip_plan: "Plan VIP",
@@ -7405,6 +7408,7 @@ export const translations: Record<Language, Translations> = {
     subscription_free: "Kostenlos",
     subscription_trial_available: "3-Tägige Testversion Verfügbar",
     manage_subscription_title: "Abo verwalten",
+    manage_sub_current_plan_label: "Aktueller Plan",
     manage_sub_current_plan_free: "Aktueller Plan – KOSTENLOS",
     manage_sub_current_plan_desc: "Grundlegender Zugang zu deinen Beichten.",
     manage_sub_vip_plan: "VIP Plan",

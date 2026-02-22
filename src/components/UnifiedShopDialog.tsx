@@ -2,12 +2,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useSubscriptionTier } from "@/hooks/useSubscriptionTier";
 import { toast } from "sonner";
 import { Loader2, Infinity as InfinityIcon, Crown, Coins, Award } from "lucide-react";
 import { Button } from '@/components/ui/button';
-import { logError, logDebug } from "@/lib/logger";
+import { logError } from "@/lib/logger";
 import { STRIPE_PRICE } from '@/lib/stripe-config';
+import { AppleCrown } from "@/components/icons/AppleCrown";
 
 /* ------------------------------------------------------------------ */
 /*  Reusable gradient token – matches Login button (primary → accent)  */
@@ -122,68 +123,53 @@ export const UnifiedShopDialog = ({
   defaultTab = 'subscriptions'
 }: UnifiedShopDialogProps) => {
   const { t } = useLanguage();
-  const { user } = useCurrentUser();
-  const [currentPlan, setCurrentPlan] = useState<string>('free');
+  const { tier, isVip, loading } = useSubscriptionTier(open);
   const [currentInterval, setCurrentInterval] = useState<'monthly' | 'yearly'>('monthly');
   const [selectedInterval, setSelectedInterval] = useState<'monthly' | 'yearly'>('monthly');
-  const [loading, setLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showPlanText, setShowPlanText] = useState(false);
+
+  const currentPlan = isVip ? 'vip' : 'free';
 
   /* ── data loading (unchanged) ─────────────────────────────────── */
 
-  const loadSubscriptionStatus = useCallback(async () => {
+  const loadSubscriptionCadence = useCallback(async () => {
     try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) return;
+
       const { data: profile } = await supabase
         .from('profiles')
-        .select('subscription_tier, stripe_subscription_id, subscription_cadence')
-        .eq('user_id', user?.id)
+        .select('subscription_cadence')
+        .eq('user_id', user.id)
         .maybeSingle();
 
       if (profile) {
-        setCurrentPlan(profile.subscription_tier || 'free');
         const detectedInterval = (profile.subscription_cadence as 'monthly' | 'yearly') || 'monthly';
         setCurrentInterval(detectedInterval);
       }
     } catch (error) {
       logError('Error loading subscription', error as Error);
-    } finally {
-      setLoading(false);
     }
-  }, [user?.id]);
+  }, []);
 
   useEffect(() => {
-    if (open && user) {
-      loadSubscriptionStatus();
-
-      const channel = supabase
-        .channel('profile-subscription-changes')
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'profiles',
-            filter: `user_id=eq.${user.id}`,
-          },
-          (payload) => {
-            logDebug('Real-time subscription update received', payload);
-            const newProfile = payload.new as { subscription_tier?: string; subscription_cadence?: string };
-            if (newProfile.subscription_tier) {
-              setCurrentPlan(newProfile.subscription_tier);
-            }
-            if (newProfile.subscription_cadence) {
-              const newInterval = newProfile.subscription_cadence as 'monthly' | 'yearly';
-              setCurrentInterval(newInterval);
-            }
-          }
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
+    if (open) {
+      void loadSubscriptionCadence();
     }
-  }, [open, user, loadSubscriptionStatus]);
+  }, [open, loadSubscriptionCadence]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    setShowPlanText(false);
+    const frame = requestAnimationFrame(() => setShowPlanText(true));
+
+    return () => cancelAnimationFrame(frame);
+  }, [open, tier]);
 
   const goToStripeCheckout = async (url: string) => {
     try {
@@ -229,6 +215,26 @@ export const UnifiedShopDialog = ({
       } else {
         toast.error(msg);
       }
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleManageBilling = async () => {
+    setIsProcessing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('customer-portal');
+
+      if (error) throw error;
+
+      if (data?.url) {
+        await goToStripeCheckout(data.url);
+      } else {
+        toast.error(t.subscription_portal_error || 'Failed to open subscription portal');
+      }
+    } catch (error) {
+      logError('Error opening customer portal', error as Error);
+      toast.error(t.subscription_portal_error || 'Failed to open subscription portal');
     } finally {
       setIsProcessing(false);
     }
@@ -375,19 +381,26 @@ export const UnifiedShopDialog = ({
                       position: 'relative',
                       fontSize: '16px',
                       fontWeight: 700,
-                      color: currentPlan === 'vip' ? 'transparent' : 'rgba(255,255,255,0.92)',
-                      ...(currentPlan === 'vip'
+                      color: isVip ? 'transparent' : 'rgba(255,255,255,0.92)',
+                      ...(isVip
                         ? {
                             background: 'linear-gradient(135deg, #A855F7, #7C3AED)',
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent',
                           }
                         : {}),
+                      opacity: showPlanText ? 1 : 0,
+                      transform: showPlanText ? 'scale(1)' : 'scale(0.98)',
+                      transition: 'opacity 300ms ease, transform 300ms ease',
                       margin: 0,
                       lineHeight: 1.35,
+                      display: 'inline-flex',
+                      alignItems: 'baseline',
+                      gap: '6px',
                     }}
                   >
-                    {t.manage_sub_current_plan_free}
+                    <span>{t.manage_sub_current_plan_label} — {isVip ? 'VIP' : 'FREE'}</span>
+                    {isVip && <AppleCrown />}
                   </p>
                 </div>
               </div>
@@ -706,16 +719,24 @@ export const UnifiedShopDialog = ({
                   {isProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : t.manage_sub_upgrade_to_vip}
                 </Button>
               ) : (
-                <p
+                <Button
+                  onClick={handleManageBilling}
+                  disabled={isProcessing}
+                  variant="outline"
+                  className="w-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                   style={{
-                    textAlign: 'center',
-                    fontSize: '13px',
-                    color: 'rgba(255,255,255,0.30)',
-                    padding: '12px 0',
+                    height: 'var(--ms-cta-height)',
+                    borderRadius: '999px',
+                    fontSize: '16px',
+                    fontWeight: 600,
+                    letterSpacing: '-0.1px',
+                    paddingLeft: '32px',
+                    paddingRight: '32px',
+                    flexShrink: 0,
                   }}
                 >
-                  {t.subscription_cancel_anytime}
-                </p>
+                  {isProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : t.subscription_manage_billing}
+                </Button>
               )}
             </div>
           )}
