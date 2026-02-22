@@ -49,14 +49,14 @@ serve(async (req) => {
     // Check trial eligibility
     const { data: profile, error: profileError } = await supabaseClient
       .from("profiles")
-      .select("trial_used, subscription_tier, is_premium")
+      .select("trial_used, trial_premium_used, subscription_tier, is_premium")
       .eq("user_id", user.id)
       .single();
 
     if (profileError) throw profileError;
 
     // Block if trial already used
-    if (profile.trial_used) {
+    if (profile.trial_used || profile.trial_premium_used) {
       console.log(`[TRIAL-CHECKOUT] User ${user.id} already used trial`);
       return new Response(
         JSON.stringify({ 

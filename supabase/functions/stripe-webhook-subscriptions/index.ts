@@ -207,6 +207,12 @@ const updateProfileFromSubscription = async (
   const priceId = typeof price?.id === "string" ? price.id : null;
   const interval = toSubscriptionInterval(price?.recurring?.interval);
   const grantVip = shouldGrantVip(subscription, priceId);
+  const trialStartIso = toIsoFromUnix(subscription?.trial_start);
+  const trialEndIso = toIsoFromUnix(subscription?.trial_end);
+  const hasConfirmedTrial = trialStartIso !== null || trialEndIso !== null;
+  const isTrialActive = status === "trialing" &&
+    trialEndIso !== null &&
+    new Date(trialEndIso).getTime() > Date.now();
 
   const updatePayload = {
     stripe_customer_id: customerId,
@@ -218,6 +224,26 @@ const updateProfileFromSubscription = async (
     subscription_price_id: priceId,
     subscription_interval: interval,
     is_premium: grantVip,
+    ...(hasConfirmedTrial
+      ? {
+        // Trial usage must be persisted server-side after Stripe confirms lifecycle.
+        trial_used: true,
+        trial_premium_used: true,
+        trial_active: isTrialActive,
+        ...(trialStartIso
+          ? {
+            trial_activated_at: trialStartIso,
+            trial_premium_started_at: trialStartIso,
+          }
+          : {}),
+        ...(trialEndIso
+          ? {
+            trial_premium_ends_at: trialEndIso,
+            trial_end_date: trialEndIso,
+          }
+          : {}),
+      }
+      : {}),
   };
 
   const { error: updateError } = await supabase
@@ -247,6 +273,9 @@ const updateProfileFromSubscription = async (
     currentPeriodEnd: updatePayload.subscription_ends_at,
     priceId,
     interval,
+    hasConfirmedTrial,
+    trialStart: trialStartIso,
+    trialEnd: trialEndIso,
     sourceEventType,
   });
 };
