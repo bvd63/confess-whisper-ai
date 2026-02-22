@@ -61,6 +61,11 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     );
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } },
+    );
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
@@ -99,7 +104,9 @@ serve(async (req) => {
     const origin = getAppBaseUrl();
     const lifecycle = await resolveSubscriptionLifecycleState({
       stripe,
-      email: user.email,
+      supabase: supabaseAdmin,
+      profileUserId: user.id,
+      profileEmail: user.email,
       customerIdHint: null,
     });
     const lifecycleBlock = getCheckoutLifecycleBlock(lifecycle);
@@ -127,11 +134,13 @@ serve(async (req) => {
       );
     }
 
-    const customerId = lifecycle.customerId ?? undefined;
+    const customerId = lifecycle.customerId;
+    if (!customerId) {
+      throw new Error("Failed to resolve Stripe customer");
+    }
     
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      customer_email: customerId ? undefined : user.email,
       line_items: [
         {
           price: priceId,

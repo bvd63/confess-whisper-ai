@@ -72,7 +72,9 @@ serve(async (req) => {
 
     const lifecycle = await resolveSubscriptionLifecycleState({
       stripe,
-      email: user.email,
+      supabase: supabaseClient,
+      profileUserId: user.id,
+      profileEmail: user.email,
       customerIdHint: profile?.stripe_customer_id ?? null,
     });
     const lifecycleBlock = getCheckoutLifecycleBlock(lifecycle);
@@ -100,11 +102,13 @@ serve(async (req) => {
       );
     }
 
-    const customerId = lifecycle.customerId ?? undefined;
+    const customerId = lifecycle.customerId;
+    if (!customerId) {
+      throw new Error("Failed to resolve Stripe customer");
+    }
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      customer_email: customerId ? undefined : user.email,
       line_items: [
         {
           price: priceId,

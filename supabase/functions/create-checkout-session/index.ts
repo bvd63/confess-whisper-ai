@@ -87,7 +87,9 @@ serve(async (req) => {
     const origin = getAppBaseUrl();
     const lifecycle = await resolveSubscriptionLifecycleState({
       stripe,
-      email: user.email,
+      supabase: supabaseAdmin,
+      profileUserId: user.id,
+      profileEmail: user.email,
       customerIdHint: profile?.stripe_customer_id ?? null,
     });
     const lifecycleBlock = getCheckoutLifecycleBlock(lifecycle);
@@ -115,25 +117,9 @@ serve(async (req) => {
       );
     }
 
-    let customerId = lifecycle.customerId ?? profile?.stripe_customer_id;
-
+    const customerId = lifecycle.customerId ?? profile?.stripe_customer_id;
     if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: user.email,
-        metadata: {
-          supabase_user_id: user.id,
-        },
-      });
-      customerId = customer.id;
-
-      await supabaseAdmin
-        .from("profiles")
-        .update({ stripe_customer_id: customerId })
-        .eq("user_id", user.id);
-
-      logStep("Created new Stripe customer", { customerId, userId: user.id });
-    } else {
-      logStep("Existing customer found", { customerId });
+      throw new Error("Failed to resolve Stripe customer");
     }
 
     // Create checkout session

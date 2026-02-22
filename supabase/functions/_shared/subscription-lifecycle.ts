@@ -43,6 +43,14 @@ export interface SubscriptionLifecycleBlock {
   requiresPortal: boolean;
 }
 
+interface EnsureStripeCustomerIdInput {
+  stripe: any;
+  supabase: any;
+  profileUserId: string;
+  profileEmail?: string | null;
+  customerIdHint?: string | null;
+}
+
 const normalizeStatus = (value: unknown): string | null => {
   if (typeof value !== "string") return null;
   const normalized = value.trim().toLowerCase();
@@ -82,34 +90,102 @@ const pickPrimarySubscription = (subscriptions: any[]): any | null => {
   return chosen;
 };
 
-export const resolveSubscriptionLifecycleState = async ({
+const loadProfileCustomerId = async (
+  supabase: any,
+  profileUserId: string,
+): Promise<string | null> => {
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("stripe_customer_id")
+    .eq("user_id", profileUserId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`PROFILE_LOOKUP_FAILED:${error.message}`);
+  }
+
+  const value = typeof profile?.stripe_customer_id === "string"
+    ? profile.stripe_customer_id.trim()
+    : "";
+  return value || null;
+};
+
+const persistProfileCustomerIdIfMissing = async (
+  supabase: any,
+  profileUserId: string,
+  customerId: string,
+): Promise<void> => {
+  const { error } = await supabase
+    .from("profiles")
+    .update({ stripe_customer_id: customerId })
+    .eq("user_id", profileUserId)
+    .is("stripe_customer_id", null);
+
+  if (error) {
+    throw new Error(`PROFILE_CUSTOMER_PERSIST_FAILED:${error.message}`);
+  }
+};
+
+export const ensureStripeCustomerId = async ({
   stripe,
-  email,
+  supabase,
+  profileUserId,
+  profileEmail,
   customerIdHint,
-}: {
-  stripe: any;
-  email?: string | null;
-  customerIdHint?: string | null;
-}): Promise<SubscriptionLifecycleState> => {
+}: EnsureStripeCustomerIdInput): Promise<string> => {
   let customerId = customerIdHint?.trim() || null;
 
-  if (!customerId && email) {
-    const customers = await stripe.customers.list({ email, limit: 1 });
-    if (customers.data.length > 0) {
-      customerId = customers.data[0].id;
-    }
+  if (!customerId) {
+    customerId = await loadProfileCustomerId(supabase, profileUserId);
   }
 
   if (!customerId) {
-    return {
-      customerId: null,
-      subscriptionId: null,
-      subscriptionStatus: null,
-      category: "none",
-      checkoutEligible: true,
-      shouldUsePortal: false,
-    };
+    const createdCustomer = await stripe.customers.create({
+      email: profileEmail ?? undefined,
+      metadata: {
+        user_id: profileUserId,
+        supabase_user_id: profileUserId,
+      },
+    });
+
+    const createdCustomerId = typeof createdCustomer?.id === "string" ? createdCustomer.id : null;
+    if (!createdCustomerId) {
+      throw new Error("STRIPE_CUSTOMER_CREATE_FAILED");
+    }
+
+    await persistProfileCustomerIdIfMissing(supabase, profileUserId, createdCustomerId);
+
+    // Resolve race conditions by re-reading source-of-truth from profile.
+    const persistedCustomerId = await loadProfileCustomerId(supabase, profileUserId);
+    if (!persistedCustomerId) {
+      throw new Error("PROFILE_CUSTOMER_PERSIST_VERIFICATION_FAILED");
+    }
+    customerId = persistedCustomerId;
   }
+
+  return customerId;
+};
+
+export const resolveSubscriptionLifecycleState = async ({
+  stripe,
+  supabase,
+  profileUserId,
+  profileEmail,
+  customerIdHint,
+}: {
+  stripe: any;
+  supabase: any;
+  profileUserId: string;
+  profileEmail?: string | null;
+  customerIdHint?: string | null;
+}): Promise<SubscriptionLifecycleState> => {
+  const customerId = await ensureStripeCustomerId({
+    stripe,
+    supabase,
+    profileUserId,
+    profileEmail,
+    customerIdHint,
+  });
 
   const subscriptions = await stripe.subscriptions.list({
     customer: customerId,

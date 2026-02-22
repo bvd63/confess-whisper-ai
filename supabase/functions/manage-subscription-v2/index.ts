@@ -59,7 +59,9 @@ serve(async (req) => {
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const lifecycle = await resolveSubscriptionLifecycleState({
       stripe,
-      email: user.email,
+      supabase: supabaseClient,
+      profileUserId: user.id,
+      profileEmail: user.email,
       customerIdHint: null,
     });
     const portalUrl = lifecycle.shouldUsePortal

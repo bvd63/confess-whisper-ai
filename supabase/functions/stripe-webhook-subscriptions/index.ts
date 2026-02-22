@@ -84,7 +84,6 @@ const shouldGrantVip = (subscription: any, priceId: string | null): boolean => {
 
 const resolveProfileByCustomer = async (
   supabase: any,
-  stripe: any,
   payloadObject: any,
   customerId: string,
 ) => {
@@ -117,6 +116,18 @@ const resolveProfileByCustomer = async (
     }
 
     if (profileByStableRef) {
+      if (
+        profileByStableRef.stripe_customer_id &&
+        profileByStableRef.stripe_customer_id !== customerId
+      ) {
+        log("warn", "Stable reference customer mismatch; refusing ownership reassignment", {
+          userId: profileByStableRef.user_id,
+          existingCustomerId: profileByStableRef.stripe_customer_id,
+          incomingCustomerId: customerId,
+        });
+        return null;
+      }
+
       if (!profileByStableRef.stripe_customer_id) {
         const { error: backfillError } = await supabase
           .from("profiles")
@@ -130,6 +141,7 @@ const resolveProfileByCustomer = async (
             customerId,
             error: backfillError.message,
           });
+          return null;
         }
       }
 
@@ -137,63 +149,7 @@ const resolveProfileByCustomer = async (
     }
   }
 
-  let customerEmail = typeof payloadObject?.customer_email === "string" ? payloadObject.customer_email : null;
-  if (!customerEmail) {
-    try {
-      const customer = await stripe.customers.retrieve(customerId);
-      if (!customer.deleted && typeof customer.email === "string") {
-        customerEmail = customer.email;
-      }
-    } catch (customerFetchError) {
-      log("error", "Failed to retrieve Stripe customer for fallback email lookup", {
-        customerId,
-        error: customerFetchError instanceof Error ? customerFetchError.message : String(customerFetchError),
-      });
-      return null;
-    }
-  }
-
-  if (!customerEmail) {
-    return null;
-  }
-
-  const normalizedEmail = customerEmail.toLowerCase();
-  const { data: profileByEmail, error: emailLookupError } = await supabase
-    .from("profiles")
-    .select("user_id, email, stripe_customer_id")
-    .eq("email", normalizedEmail)
-    .maybeSingle();
-
-  if (emailLookupError) {
-    log("error", "Failed fallback lookup by exact lowercase email", {
-      customerId,
-      email: normalizedEmail,
-      error: emailLookupError.message,
-    });
-    return null;
-  }
-
-  if (!profileByEmail) {
-    return null;
-  }
-
-  if (!profileByEmail.stripe_customer_id) {
-    const { error: backfillError } = await supabase
-      .from("profiles")
-      .update({ stripe_customer_id: customerId })
-      .eq("user_id", profileByEmail.user_id)
-      .is("stripe_customer_id", null);
-
-    if (backfillError) {
-      log("error", "Failed backfill stripe_customer_id from email fallback", {
-        userId: profileByEmail.user_id,
-        customerId,
-        error: backfillError.message,
-      });
-    }
-  }
-
-  return profileByEmail;
+  return null;
 };
 
 const updateProfileFromSubscription = async (
@@ -342,7 +298,7 @@ serve(async (req) => {
           break;
         }
 
-        const profile = await resolveProfileByCustomer(supabase, stripe, session, customerId);
+        const profile = await resolveProfileByCustomer(supabase, session, customerId);
         if (!profile) {
           log("warn", "No profile found for checkout session customer", { customerId, eventId: event.id });
           break;
@@ -376,7 +332,7 @@ serve(async (req) => {
           break;
         }
 
-        const profile = await resolveProfileByCustomer(supabase, stripe, subscription, customerId);
+        const profile = await resolveProfileByCustomer(supabase, subscription, customerId);
         if (!profile) {
           log("warn", "No profile found for subscription customer", { customerId, subscriptionId: subscription?.id });
           break;
@@ -403,7 +359,7 @@ serve(async (req) => {
 
         try {
           const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-          const profile = await resolveProfileByCustomer(supabase, stripe, invoice, customerId);
+          const profile = await resolveProfileByCustomer(supabase, invoice, customerId);
           if (!profile) {
             log("warn", "No profile found for invoice.paid customer", { customerId, subscriptionId });
             break;
@@ -430,7 +386,7 @@ serve(async (req) => {
           break;
         }
 
-        const profile = await resolveProfileByCustomer(supabase, stripe, invoice, customerId);
+        const profile = await resolveProfileByCustomer(supabase, invoice, customerId);
         if (!profile) {
           log("warn", "No profile found for invoice.payment_failed customer", { customerId, eventId: event.id });
           break;

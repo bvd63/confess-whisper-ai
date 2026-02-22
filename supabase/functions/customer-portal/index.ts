@@ -54,6 +54,11 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     );
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } },
+    );
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
@@ -77,21 +82,16 @@ serve(async (req) => {
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const lifecycle = await resolveSubscriptionLifecycleState({
       stripe,
-      email: user.email,
+      supabase: supabaseAdmin,
+      profileUserId: user.id,
+      profileEmail: user.email,
       customerIdHint: null,
     });
-    let customerId = lifecycle.customerId;
+    const customerId = lifecycle.customerId;
     if (!customerId) {
-      log('warn', '[CUSTOMER-PORTAL] No customer found, creating one', { requestId, email: user.email });
-      const created = await stripe.customers.create({
-        email: user.email,
-        metadata: { userId: user.id },
-      });
-      customerId = created.id;
-      log('info', '[CUSTOMER-PORTAL] Customer created', { requestId, customerId });
-    } else {
-      log('info', '[CUSTOMER-PORTAL] Customer found', { requestId, customerId });
+      throw new Error("Failed to resolve Stripe customer");
     }
+    log('info', '[CUSTOMER-PORTAL] Customer resolved', { requestId, customerId });
 
     const origin = getAppBaseUrl();
     const portalUrl = await createBillingPortalUrl({

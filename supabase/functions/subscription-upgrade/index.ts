@@ -80,7 +80,9 @@ serve(async (req) => {
 
     const lifecycle = await resolveSubscriptionLifecycleState({
       stripe,
-      email: user.email ?? null,
+      supabase: supabaseAdmin,
+      profileUserId: user.id,
+      profileEmail: user.email ?? null,
       customerIdHint: profile?.stripe_customer_id ?? null,
     });
     const lifecycleBlock = getManageLifecycleBlock(lifecycle);
