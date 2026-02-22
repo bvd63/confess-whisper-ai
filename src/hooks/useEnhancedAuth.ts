@@ -68,9 +68,47 @@ export const useEnhancedAuth = () => {
 
       // Handle authentication errors (401 is expected for invalid credentials)
       if (error || data?.error) {
-        const errorMessage = data?.messageKey 
-          ? t[data.messageKey.replace(/\./g, '_') as keyof typeof t] as string 
-          : t.auth_invalid_credentials;
+        const invokeError = error as { context?: { status?: number; body?: string } } | null;
+        const payload = (data && typeof data === 'object') ? (data as Record<string, unknown>) : undefined;
+        const errorStatus = invokeError?.context?.status;
+        const rawBody = invokeError?.context?.body;
+
+        let parsedErrorBody: Record<string, unknown> | undefined;
+        if (rawBody) {
+          try {
+            const parsed = JSON.parse(rawBody);
+            parsedErrorBody = parsed && typeof parsed === 'object'
+              ? parsed as Record<string, unknown>
+              : undefined;
+          } catch {
+            parsedErrorBody = undefined;
+          }
+        }
+
+        const serverCode =
+          (typeof payload?.error === 'string' ? payload.error : undefined)
+          || (typeof parsedErrorBody?.error === 'string' ? parsedErrorBody.error : undefined);
+        const serverMessageKey =
+          (typeof payload?.messageKey === 'string' ? payload.messageKey : undefined)
+          || (typeof parsedErrorBody?.messageKey === 'string' ? parsedErrorBody.messageKey : undefined);
+
+        const isInvalidCredentials =
+          serverCode === 'INVALID_CREDENTIALS' ||
+          errorStatus === 400 ||
+          errorStatus === 401;
+
+        let errorMessage = t.common_something_went_wrong;
+
+        if (isInvalidCredentials) {
+          errorMessage = t.auth_invalid_credentials;
+        } else if (errorStatus === 429 || serverCode === 'RATE_LIMIT') {
+          errorMessage = t.common_rate_limit;
+        } else if (errorStatus === 503 || serverCode === 'RATE_LIMIT_UNAVAILABLE') {
+          errorMessage = t.common_something_went_wrong;
+        } else if (serverMessageKey) {
+          const translated = t[serverMessageKey.replace(/\./g, '_') as keyof typeof t] as string | undefined;
+          errorMessage = translated || t.common_something_went_wrong;
+        }
         
         toast({
           title: t.common_error,
@@ -79,7 +117,14 @@ export const useEnhancedAuth = () => {
         });
         
         // Return error object without throwing to prevent error boundary activation
-        return { data: null, error: { message: errorMessage, code: data?.error || 'INVALID_CREDENTIALS' } };
+        return {
+          data: null,
+          error: {
+            message: errorMessage,
+            code: serverCode || 'AUTH_ERROR',
+            status: errorStatus,
+          },
+        };
       }
 
       // Ensure browser auth session is set so the app recognizes the login
