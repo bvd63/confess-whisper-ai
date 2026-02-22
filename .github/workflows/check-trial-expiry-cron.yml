@@ -1,0 +1,31 @@
+name: Trial Expiry Reconciliation Cron
+
+on:
+  schedule:
+    # Daily at 03:15 UTC
+    - cron: "15 3 * * *"
+  workflow_dispatch:
+
+jobs:
+  check-trial-expiry:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger internal check-trial-expiry function
+        env:
+          # Configure in GitHub: Settings -> Secrets and variables -> Actions
+          # SUPABASE_URL example: https://<project-ref>.supabase.co
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          # Must match INTERNAL_JOB_SECRET in Supabase Edge Functions environment
+          SUPABASE_INTERNAL_SECRET: ${{ secrets.SUPABASE_INTERNAL_SECRET }}
+        run: |
+          if [ -z "${SUPABASE_URL}" ] || [ -z "${SUPABASE_INTERNAL_SECRET}" ]; then
+            echo "Missing required secrets: SUPABASE_URL and/or SUPABASE_INTERNAL_SECRET"
+            exit 1
+          fi
+
+          curl --fail --show-error --silent \
+            --request POST \
+            "${SUPABASE_URL%/}/functions/v1/check-trial-expiry" \
+            --header "Content-Type: application/json" \
+            --header "x-internal-secret: ${SUPABASE_INTERNAL_SECRET}" \
+            --data '{}'

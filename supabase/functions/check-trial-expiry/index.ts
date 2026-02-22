@@ -12,6 +12,63 @@ const resolveTargetUserId = async (req: Request): Promise<string | null> => {
   return fromBody || null;
 };
 
+interface TrialProfileRow {
+  user_id: string;
+  trial_active: boolean | null;
+  trial_end_date: string | null;
+  trial_premium_ends_at: string | null;
+}
+
+const resolveExpiryState = (profile: Pick<TrialProfileRow, "trial_active" | "trial_end_date" | "trial_premium_ends_at">, now: Date) => {
+  const premiumExpired = Boolean(
+    profile.trial_premium_ends_at &&
+    now > new Date(profile.trial_premium_ends_at),
+  );
+  const legacyExpired = Boolean(
+    profile.trial_active &&
+    profile.trial_end_date &&
+    now > new Date(profile.trial_end_date),
+  );
+
+  return { premiumExpired, legacyExpired };
+};
+
+const deactivateTrialForUser = async (
+  supabaseClient: any,
+  {
+    userId,
+    premiumExpired,
+  }: {
+    userId: string;
+    premiumExpired: boolean;
+  },
+): Promise<{ revokeError: boolean; updateError?: string }> => {
+  const { error: revokeError } = await supabaseClient.rpc("revoke_trial_purchases", {
+    _user_id: userId,
+  });
+  if (revokeError) {
+    console.error("[CHECK-TRIAL-EXPIRY] Error revoking trial purchases:", revokeError);
+  }
+
+  const updatePayload: Record<string, unknown> = {
+    trial_active: false,
+  };
+  if (premiumExpired) {
+    updatePayload.trial_premium_ends_at = null;
+  }
+
+  const { error: updateError } = await supabaseClient
+    .from("profiles")
+    .update(updatePayload)
+    .eq("user_id", userId);
+
+  if (updateError) {
+    return { revokeError: Boolean(revokeError), updateError: updateError.message };
+  }
+
+  return { revokeError: Boolean(revokeError) };
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -21,16 +78,62 @@ serve(async (req) => {
   if (!internal.ok) return internal.response;
 
   try {
-    const targetUserId = await resolveTargetUserId(req);
-    if (!targetUserId) {
-      return jsonResponse({ error: "INVALID_REQUEST" }, 400);
-    }
-
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       { auth: { persistSession: false } },
     );
+
+    const targetUserId = await resolveTargetUserId(req);
+    if (!targetUserId) {
+      const now = new Date();
+      const nowIso = now.toISOString();
+
+      const { data: activeProfiles, error: activeProfilesError } = await supabaseClient
+        .from("profiles")
+        .select("user_id, trial_active, trial_end_date, trial_premium_ends_at")
+        .eq("trial_active", true)
+        .or(`trial_end_date.lt.${nowIso},trial_premium_ends_at.lt.${nowIso}`);
+
+      if (activeProfilesError) throw activeProfilesError;
+
+      let expiredCount = 0;
+      let deactivatedCount = 0;
+      let failedCount = 0;
+      let revokedCount = 0;
+
+      for (const profile of (activeProfiles ?? []) as TrialProfileRow[]) {
+        const { premiumExpired, legacyExpired } = resolveExpiryState(profile, now);
+        if (!premiumExpired && !legacyExpired) continue;
+
+        expiredCount += 1;
+        const result = await deactivateTrialForUser(supabaseClient, {
+          userId: profile.user_id,
+          premiumExpired,
+        });
+        if (result.updateError) {
+          failedCount += 1;
+          console.error("[CHECK-TRIAL-EXPIRY] Failed to deactivate expired trial", {
+            userId: profile.user_id,
+            error: result.updateError,
+          });
+          continue;
+        }
+
+        deactivatedCount += 1;
+        if (!result.revokeError) revokedCount += 1;
+      }
+
+      return jsonResponse({
+        success: true,
+        mode: "batch",
+        scanned: (activeProfiles ?? []).length,
+        expired: expiredCount,
+        deactivated: deactivatedCount,
+        trialPurchasesRevoked: revokedCount,
+        failed: failedCount,
+      }, 200);
+    }
 
     console.log(`[CHECK-TRIAL-EXPIRY] Checking trial for user ${targetUserId}`);
 
@@ -44,15 +147,7 @@ serve(async (req) => {
     if (!profile) return jsonResponse({ error: "PROFILE_NOT_FOUND" }, 404);
 
     const now = new Date();
-    const premiumExpired = Boolean(
-      profile.trial_premium_ends_at &&
-      now > new Date(profile.trial_premium_ends_at),
-    );
-    const legacyExpired = Boolean(
-      profile.trial_active &&
-      profile.trial_end_date &&
-      now > new Date(profile.trial_end_date),
-    );
+    const { premiumExpired, legacyExpired } = resolveExpiryState(profile, now);
 
     if (!premiumExpired && !legacyExpired) {
       return jsonResponse({
@@ -62,30 +157,16 @@ serve(async (req) => {
       }, 200);
     }
 
-    const { error: revokeError } = await supabaseClient.rpc("revoke_trial_purchases", {
-      _user_id: targetUserId,
+    const deactivateResult = await deactivateTrialForUser(supabaseClient, {
+      userId: targetUserId,
+      premiumExpired,
     });
-    if (revokeError) {
-      console.error("[CHECK-TRIAL-EXPIRY] Error revoking trial purchases:", revokeError);
-    }
-
-    const updatePayload: Record<string, unknown> = {
-      trial_active: false,
-    };
-    if (premiumExpired) {
-      updatePayload.trial_premium_ends_at = null;
-    }
-
-    const { error: updateError } = await supabaseClient
-      .from("profiles")
-      .update(updatePayload)
-      .eq("user_id", targetUserId);
-    if (updateError) throw updateError;
+    if (deactivateResult.updateError) throw new Error(deactivateResult.updateError);
 
     return jsonResponse({
       trialExpired: true,
       message: "Trial expired; awaiting webhook reconciliation",
-      trialPurchasesRevoked: !revokeError,
+      trialPurchasesRevoked: !deactivateResult.revokeError,
       trialActive: false,
     }, 200);
   } catch (error) {
