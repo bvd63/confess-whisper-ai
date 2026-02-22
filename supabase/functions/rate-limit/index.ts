@@ -42,10 +42,9 @@ const applyRateLimit = async (
   if (rpcError) {
     console.error('[rate-limit] Atomic counter RPC failed:', rpcError);
     return {
-      allowed: false,
-      remaining: 0,
+      allowed: true,
+      remaining: config.maxAttempts,
       resetAt: fallbackResetAt,
-      retryAfter: Math.ceil(config.windowMs / 1000),
       identifierType: identifier.type,
       error: 'RATE_LIMIT_STORAGE_ERROR',
     };
@@ -61,10 +60,9 @@ const applyRateLimit = async (
   if (!Number.isFinite(currentCount) || currentCount < 1) {
     console.error('[rate-limit] Invalid atomic counter response:', { key, row });
     return {
-      allowed: false,
-      remaining: 0,
+      allowed: true,
+      remaining: config.maxAttempts,
       resetAt,
-      retryAfter: Math.ceil(config.windowMs / 1000),
       identifierType: identifier.type,
       error: 'RATE_LIMIT_STORAGE_ERROR',
     };
