@@ -7,10 +7,10 @@ export const useSubscriptionCheck = (userId: string | undefined) => {
     if (!userId) return null;
 
     try {
-      // 1) Check for valid session before calling edge function
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) {
-        // No valid session, skip edge function call
+      // 1) Verify we have a real authenticated user (not just a cached session)
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        // No valid authenticated user, skip edge function call
         return null;
       }
 
