@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getClientIp } from "../_shared/request-ip.ts";
 import { fetchWithTimeout } from "../_shared/fetch-with-timeout.ts";
+import { checkLoginRateLimitFailOpen } from "./login-rate-limit.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -358,21 +359,18 @@ serve(async (req) => {
         const metadataIp = sessionMetadata?.ipAddress || clientIp;
         const stayConnectedPreference = sessionMetadata?.stayConnected ?? false;
 
-        const loginRateLimit = await enforceRateLimit(supabaseClient, {
+        const loginRateLimit = await checkLoginRateLimitFailOpen({
+          supabaseUrl: SUPABASE_URL,
+          internalJobSecret: INTERNAL_JOB_SECRET,
+          authorizationHeader: req.headers.get('Authorization'),
           action: 'auth_login',
           ip: clientIp,
-        }, { failClosed: true, failOpenOnUnavailable: true });
+          timeoutMs: 1200,
+        });
 
-        if (!loginRateLimit.allowed) {
-          if (loginRateLimit.retryAfter == null && loginRateLimit.remaining === undefined) {
-            return new Response(
-              JSON.stringify({
-                error: 'RATE_LIMIT_UNAVAILABLE',
-                messageKey: 'common.something_went_wrong',
-              }),
-              { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-            );
-          }
+        if (loginRateLimit.unavailable) {
+          console.warn("[enhanced-auth] rate-limit unavailable; proceeding fail-open");
+        } else if (loginRateLimit.denied) {
 
           await logSecurityEvent(
             supabaseClient,

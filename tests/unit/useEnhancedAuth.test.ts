@@ -167,4 +167,43 @@ describe("useEnhancedAuth", () => {
     );
     expect(result.current.loading).toBe(false);
   });
+
+  it("returns friendly rate-limit error for login 429 without throwing", async () => {
+    functionsInvokeMock.mockResolvedValue({
+      data: null,
+      error: {
+        message: "Edge Function returned a non-2xx status code",
+        context: {
+          status: 429,
+          body: JSON.stringify({
+            error: "RATE_LIMIT",
+            messageKey: "common.rate_limit",
+          }),
+        },
+      },
+    });
+
+    const { result } = renderHook(() => useEnhancedAuth());
+
+    let response: Awaited<ReturnType<typeof result.current.enhancedLogin>> | undefined;
+    await act(async () => {
+      response = await result.current.enhancedLogin(
+        "test@example.com",
+        "StrongPassw0rd!",
+        "captcha-token",
+        { stayConnected: false },
+      );
+    });
+
+    expect(response?.error).toBeTruthy();
+    expect(response?.error?.code).toBe("RATE_LIMIT");
+    expect(toastMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: TOAST_TITLE_ERROR,
+        description: translations.en.common_rate_limit,
+        variant: "destructive",
+      }),
+    );
+    expect(result.current.loading).toBe(false);
+  });
 });
