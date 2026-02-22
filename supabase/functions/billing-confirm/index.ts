@@ -59,6 +59,14 @@ serve(async (req) => {
       vipYearlyPriceId: VIP_PRICE_IDS.yearly,
     });
 
+    if (!result.success && result.error === "FORBIDDEN_SESSION_OWNERSHIP") {
+      log("warn", "Rejected billing confirmation due to session ownership mismatch", {
+        userId: auth.context.userId,
+        sessionId,
+      });
+      return jsonResponse({ error: "FORBIDDEN_SESSION_OWNERSHIP" }, 403);
+    }
+
     if (!result.success && result.processing) {
       return jsonResponse({ processing: true, status: result.status, message: "payment_processing" }, 200);
     }
@@ -68,12 +76,23 @@ serve(async (req) => {
       return jsonResponse({ processing: true, message: "update_failed" }, 200);
     }
 
+    if (!result.alreadyUpdated) {
+      // Webhook reconciliation is the only source of truth for entitlements.
+      return jsonResponse({
+        processing: true,
+        status: result.status ?? null,
+        message: "awaiting_webhook_reconciliation",
+        applied: "webhook",
+      }, 200);
+    }
+
     return jsonResponse({
       processing: false,
       active: result.tier === "vip",
       tier: result.tier,
       subscription_end: result.subscriptionEnd ?? null,
-      alreadyUpdated: result.alreadyUpdated ?? false,
+      alreadyUpdated: true,
+      applied: "webhook",
     }, 200);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
