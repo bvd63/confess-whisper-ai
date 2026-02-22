@@ -15,8 +15,8 @@ export const validateStripeWebhookEvent = async <TEvent>({
   rawBody,
   constructEvent,
 }: {
-  signature: string | null;
-  webhookSecret: string | null;
+  signature: string | null | undefined;
+  webhookSecret: string | null | undefined;
   rawBody: string;
   constructEvent: (body: string, signature: string, webhookSecret: string) => Promise<TEvent> | TEvent;
 }): Promise<StripeWebhookValidationSuccess<TEvent> | StripeWebhookValidationFailure> => {
