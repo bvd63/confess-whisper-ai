@@ -57,25 +57,20 @@ serve(async (req) => {
 
     logStep("Found subscription", { subscriptionId: profile.stripe_subscription_id });
 
-    // Cancel subscription at period end
-    await stripe.subscriptions.update(profile.stripe_subscription_id, {
+    // Schedule cancellation in Stripe; webhook will reconcile profile state.
+    const updatedSubscription = await stripe.subscriptions.update(profile.stripe_subscription_id, {
       cancel_at_period_end: true,
     });
 
     logStep("Subscription set to cancel at period end");
 
-    // Update profile
-    await supabaseClient
-      .from("profiles")
-      .update({
-        subscription_status: "canceled_pending",
-      })
-      .eq("user_id", user.id);
-
     return new Response(
       JSON.stringify({
         success: true,
-        message: "cancel_scheduled",
+        applied: "webhook",
+        message: "awaiting_webhook_reconciliation",
+        cancelAtPeriodEnd: Boolean(updatedSubscription.cancel_at_period_end),
+        subscriptionStatus: updatedSubscription.status ?? null,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     );

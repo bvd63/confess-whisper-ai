@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.75.0";
+import { fetchWithTimeout } from "../_shared/fetch-with-timeout.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -72,7 +73,7 @@ serve(async (req) => {
       ? 'Du bist ein Experte darin, Texte zu verbessern. Verbessere das folgende Geständnis, indem du es klarer, emotionaler und besser formuliert machst. Behalte den persönlichen und aufrichtigen Ton bei. Füge KEINE zusätzlichen Kommentare hinzu, sondern gib nur den verbesserten Text zurück.'
       : 'You are an expert at improving text. Enhance the following confession by making it clearer, more emotive, and better written. Maintain the personal and sincere tone. Do NOT add additional comments, just return the improved text.';
 
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const aiResponse = await fetchWithTimeout('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${lovableApiKey}`,
@@ -87,7 +88,7 @@ serve(async (req) => {
         temperature: 0.7,
         max_tokens: 500,
       }),
-    });
+    }, 20_000);
 
     if (!aiResponse.ok) {
       const errorText = await aiResponse.text();

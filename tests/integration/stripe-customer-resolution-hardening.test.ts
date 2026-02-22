@@ -9,6 +9,13 @@ import {
 const read = (relativePath: string) =>
   readFileSync(resolve(process.cwd(), relativePath), "utf8");
 
+const ENDPOINTS_REQUIRING_PROFILE_CUSTOMER_SOURCE = [
+  "supabase/functions/create-trial-checkout/index.ts",
+  "supabase/functions/get-subscription-status/index.ts",
+  "supabase/functions/create-coin-checkout/index.ts",
+  "supabase/functions/billing-preview/index.ts",
+];
+
 const createProfileStore = (initialCustomerId: string | null) => {
   const state = {
     stripeCustomerId: initialCustomerId,
@@ -122,5 +129,14 @@ describe("stripe customer resolution hardening", () => {
     expect(webhookSource).not.toContain("customer_email");
     expect(webhookSource).toContain('.is("stripe_customer_id", null)');
     expect(webhookSource).toContain("Stable reference customer mismatch; refusing ownership reassignment");
+  });
+
+  it("ensures remaining checkout/status endpoints do not use email-based customer lookup", () => {
+    for (const file of ENDPOINTS_REQUIRING_PROFILE_CUSTOMER_SOURCE) {
+      const source = read(file);
+
+      expect(source).toContain("ensureStripeCustomerId");
+      expect(source).not.toContain("customers.list({ email");
+    }
   });
 });

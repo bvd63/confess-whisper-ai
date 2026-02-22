@@ -9,7 +9,7 @@ describe("trial lifecycle hardening", () => {
   it("rejects trial checkout when profile already marks trial as used", () => {
     const source = read("supabase/functions/create-trial-checkout/index.ts");
 
-    expect(source).toContain('.select("trial_used, trial_premium_used, subscription_tier, is_premium")');
+    expect(source).toContain('.select("trial_used, trial_premium_used, subscription_tier, is_premium, stripe_customer_id")');
     expect(source).toContain("if (profile.trial_used || profile.trial_premium_used)");
     expect(source).toContain('error: "TRIAL_ALREADY_USED"');
     expect(source).toContain("status: 409");

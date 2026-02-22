@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { fetchWithTimeout } from "../_shared/fetch-with-timeout.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -150,7 +151,7 @@ serve(async (req) => {
     }
 
     // Call Lovable AI
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const aiResponse = await fetchWithTimeout('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${LOVABLE_API_KEY}`,
@@ -166,7 +167,7 @@ serve(async (req) => {
           { role: 'user', content: userContent }
         ],
       }),
-    });
+    }, 20_000);
 
     if (!aiResponse.ok) {
       const errorText = await aiResponse.text();

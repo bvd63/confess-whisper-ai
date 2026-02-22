@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getClientIp } from "../_shared/request-ip.ts";
+import { fetchWithTimeout } from "../_shared/fetch-with-timeout.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -170,7 +171,7 @@ async function verifyCaptcha(
   }
 
   try {
-    const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+    const response = await fetchWithTimeout('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -178,7 +179,7 @@ async function verifyCaptcha(
         response: token,
         remoteip: remoteIp,
       }),
-    });
+    }, 10_000);
 
     const data = await response.json();
     
@@ -977,13 +978,13 @@ serve(async (req) => {
 
         try {
           const adminUrl = `${SUPABASE_URL.replace(/\/$/, '')}/auth/v1/admin/users?email=${encodeURIComponent(normalizedEmail)}`;
-          const adminResponse = await fetch(adminUrl, {
+          const adminResponse = await fetchWithTimeout(adminUrl, {
             headers: {
               apikey: SUPABASE_SERVICE_ROLE_KEY,
               Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
               'Content-Type': 'application/json',
             },
-          });
+          }, 10_000);
 
           if (adminResponse.ok) {
             const adminBody = await adminResponse.json();
@@ -1043,7 +1044,7 @@ serve(async (req) => {
                 <p>If you didn’t request this, you can ignore this email.</p>
               </body></html>`;
 
-              const emailResponse = await fetch('https://api.resend.com/emails', {
+              const emailResponse = await fetchWithTimeout('https://api.resend.com/emails', {
                 method: 'POST',
                 headers: {
                   Authorization: `Bearer ${resendApiKey}`,
@@ -1059,7 +1060,7 @@ serve(async (req) => {
                     { name: 'source', value: 'password-reset' },
                   ],
                 }),
-              });
+              }, 10_000);
 
               if (!emailResponse.ok) {
                 console.error('[enhanced-auth] Failed to send password reset email', await emailResponse.text());

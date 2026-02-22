@@ -69,36 +69,24 @@ serve(async (req) => {
       tier
     });
 
-    // Update profile
-    const updateData: any = {
-      subscription_tier: tier,
-      subscription_status: subscription.status,
-      is_premium: tier !== 'free',
-      subscription_cancel_at_period_end: subscription.cancel_at_period_end || false,
-    };
-
-    if (subscription.current_period_end) {
-      updateData.subscription_ends_at = new Date(subscription.current_period_end * 1000).toISOString();
-    }
-
-    const { error: updateError } = await supabaseAdmin
-      .from("profiles")
-      .update(updateData)
-      .eq("user_id", user.id);
-
-    if (updateError) {
-      console.error("Update error:", updateError);
-      throw updateError;
-    }
-
-    console.log("✅ Subscription synced successfully!");
+    // Webhook remains the only source of truth for entitlement/profile writes.
+    console.log("ℹ️ Subscription sync diagnostic completed; awaiting webhook reconciliation");
 
     return new Response(
       JSON.stringify({
         success: true,
-        tier,
-        status: subscription.status,
-        message: `Subscription synced: ${tier} (${subscription.status})`
+        applied: "webhook",
+        message: "awaiting_webhook_reconciliation",
+        diagnostic: {
+          tier,
+          status: subscription.status,
+          cancel_at_period_end: Boolean(subscription.cancel_at_period_end),
+          current_period_end: subscription.current_period_end
+            ? new Date(subscription.current_period_end * 1000).toISOString()
+            : null,
+          stripe_subscription_id: subscription.id,
+          stripe_customer_id: profile?.stripe_customer_id ?? null,
+        },
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );

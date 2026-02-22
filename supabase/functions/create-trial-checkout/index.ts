@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { getVipMonthlyPriceId } from "../_shared/stripe-config.ts";
+import { ensureStripeCustomerId } from "../_shared/subscription-lifecycle.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -49,7 +50,7 @@ serve(async (req) => {
     // Check trial eligibility
     const { data: profile, error: profileError } = await supabaseClient
       .from("profiles")
-      .select("trial_used, trial_premium_used, subscription_tier, is_premium")
+      .select("trial_used, trial_premium_used, subscription_tier, is_premium, stripe_customer_id")
       .eq("user_id", user.id)
       .single();
 
@@ -89,16 +90,19 @@ serve(async (req) => {
     // Get VIP price ID - ALWAYS use VIP for trial
     const vipPriceId = getVipMonthlyPriceId();
 
-    // Check for existing customer
-    const customers = await stripe.customers.list({ email: user.email!, limit: 1 });
-    const customerId = customers.data.length > 0 ? customers.data[0].id : undefined;
+    const customerId = await ensureStripeCustomerId({
+      stripe,
+      supabase: supabaseClient,
+      profileUserId: user.id,
+      profileEmail: user.email ?? null,
+      customerIdHint: profile?.stripe_customer_id ?? null,
+    });
 
     // Create Stripe checkout session with 3-day trial.
     // Never trust request Origin for redirect URLs in billing flows.
     const appBaseUrl = resolveAppBaseUrl();
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      customer_email: customerId ? undefined : user.email!,
       line_items: [{
         price: vipPriceId,
         quantity: 1,

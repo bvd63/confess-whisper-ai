@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { isVipPriceId } from "../_shared/stripe-config.ts";
+import { ensureStripeCustomerId } from "../_shared/subscription-lifecycle.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -33,7 +34,7 @@ serve(async (req) => {
     // Get profile with trial info
     const { data: profile, error: profileError } = await supabaseClient
       .from("profiles")
-      .select("subscription_tier, trial_premium_used, trial_premium_started_at, trial_premium_ends_at, trial_active, trial_end_date, is_premium")
+      .select("subscription_tier, trial_premium_used, trial_premium_started_at, trial_premium_ends_at, trial_active, trial_end_date, is_premium, stripe_customer_id")
       .eq("user_id", user.id)
       .single();
 
@@ -57,19 +58,21 @@ serve(async (req) => {
 
     // Check Stripe for active subscription
     let stripeSubscription = null;
-    const customers = await stripe.customers.list({ email: user.email!, limit: 1 });
-    
-    if (customers.data.length > 0) {
-      const customerId = customers.data[0].id;
-      const subscriptions = await stripe.subscriptions.list({
-        customer: customerId,
-        status: "active",
-        limit: 1,
-      });
+    const customerId = await ensureStripeCustomerId({
+      stripe,
+      supabase: supabaseClient,
+      profileUserId: user.id,
+      profileEmail: user.email ?? null,
+      customerIdHint: profile?.stripe_customer_id ?? null,
+    });
+    const subscriptions = await stripe.subscriptions.list({
+      customer: customerId,
+      status: "active",
+      limit: 1,
+    });
 
-      if (subscriptions.data.length > 0) {
-        stripeSubscription = subscriptions.data[0];
-      }
+    if (subscriptions.data.length > 0) {
+      stripeSubscription = subscriptions.data[0];
     }
 
     // Determine final tier

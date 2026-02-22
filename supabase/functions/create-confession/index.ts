@@ -8,6 +8,7 @@ import {
   type CreateConfessionRateLimitResponse,
 } from "./utils.ts";
 import { getClientIp } from "../_shared/request-ip.ts";
+import { fetchWithTimeout } from "../_shared/fetch-with-timeout.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -23,7 +24,7 @@ async function verifyCaptcha(token: string, remoteIp?: string): Promise<{ succes
   }
 
   try {
-    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+    const response = await fetchWithTimeout("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -31,7 +32,7 @@ async function verifyCaptcha(token: string, remoteIp?: string): Promise<{ succes
         response: token,
         remoteip: remoteIp,
       }),
-    });
+    }, 10_000);
 
     const data = await response.json();
 

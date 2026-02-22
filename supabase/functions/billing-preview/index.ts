@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { ensureStripeCustomerId } from "../_shared/subscription-lifecycle.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -48,14 +49,23 @@ serve(async (req) => {
     logStep("Preview request", { targetPriceId });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-
-    // Get customer
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    if (customers.data.length === 0) {
-      throw new Error("No Stripe customer found");
+    const { data: profile, error: profileError } = await supabaseClient
+      .from("profiles")
+      .select("stripe_customer_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (profileError) {
+      throw new Error(`Failed to load profile: ${profileError.message}`);
     }
-    const customerId = customers.data[0].id;
-    logStep("Found customer", { customerId });
+
+    const customerId = await ensureStripeCustomerId({
+      stripe,
+      supabase: supabaseClient,
+      profileUserId: user.id,
+      profileEmail: user.email,
+      customerIdHint: profile?.stripe_customer_id ?? null,
+    });
+    logStep("Resolved customer", { customerId });
 
     // Get active subscription
     const subscriptions = await stripe.subscriptions.list({
