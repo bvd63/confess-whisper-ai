@@ -262,7 +262,7 @@ serve(async (req) => {
       });
     }
 
-    const event = validation.event;
+    const event = validation.event as any;
     log("info", "Webhook event received", { type: event.type, id: event.id });
 
     const supabase = createClient(

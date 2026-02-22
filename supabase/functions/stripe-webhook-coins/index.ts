@@ -36,7 +36,7 @@ serve(async (req) => {
       console.error('[STRIPE-WEBHOOK-COINS] Webhook validation failed', validation.error);
       return jsonResponse({ error: validation.error }, validation.status);
     }
-    const event = validation.event;
+    const event = validation.event as any;
 
     console.log('[STRIPE-WEBHOOK-COINS] Event type:', event.type)
 
