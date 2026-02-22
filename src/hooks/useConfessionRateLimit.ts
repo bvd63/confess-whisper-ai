@@ -34,10 +34,15 @@ export const useConfessionRateLimit = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
+      // Skip rate limit check if no authenticated user (no identifier to check against)
+      if (!user?.id) {
+        return true;
+      }
+      
       const { data, error } = await supabase.functions.invoke('rate-limit', {
         body: {
           action,
-          userId: user?.id,
+          userId: user.id,
         },
       });
 
