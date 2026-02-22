@@ -2,6 +2,11 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { isVipPriceId } from "../_shared/stripe-config.ts";
+import {
+  createBillingPortalUrl,
+  getManageLifecycleBlock,
+  resolveSubscriptionLifecycleState,
+} from "../_shared/subscription-lifecycle.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -18,8 +23,13 @@ const log = (level: string, message: string, data?: any) => {
   }));
 };
 
-const resolveTierFromPriceId = (priceId?: string | null): "free" | "vip" =>
-  priceId && isVipPriceId(priceId) ? "vip" : "free";
+const getAppBaseUrl = (): string => {
+  const configuredUrl = (Deno.env.get("APP_URL") ?? Deno.env.get("NEXT_PUBLIC_APP_URL") ?? "").trim();
+  if (!configuredUrl) {
+    throw new Error("APP_URL is not configured");
+  }
+  return new URL(configuredUrl).origin;
+};
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -62,23 +72,56 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Get user's profile
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("stripe_customer_id, stripe_subscription_id")
+      .select("stripe_customer_id")
       .eq("user_id", user.id)
-      .single();
+      .maybeSingle();
 
-    if (!profile?.stripe_subscription_id) {
-      throw new Error("No active subscription found");
+    const lifecycle = await resolveSubscriptionLifecycleState({
+      stripe,
+      email: user.email ?? null,
+      customerIdHint: profile?.stripe_customer_id ?? null,
+    });
+    const lifecycleBlock = getManageLifecycleBlock(lifecycle);
+    if (lifecycleBlock) {
+      const portalUrl = await createBillingPortalUrl({
+        stripe,
+        customerId: lifecycle.customerId,
+        returnUrl: `${getAppBaseUrl()}/profile`,
+      }).catch(() => null);
+
+      return new Response(
+        JSON.stringify({
+          error: lifecycleBlock.message,
+          code: lifecycleBlock.code,
+          subscriptionStatus: lifecycle.subscriptionStatus,
+          useCustomerPortal: lifecycleBlock.requiresPortal,
+          portalUrl,
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: lifecycleBlock.status,
+        },
+      );
+    }
+
+    if (!lifecycle.subscriptionId || lifecycle.category !== "active_or_trialing") {
+      return new Response(
+        JSON.stringify({ error: "No active subscription found", code: "NO_ACTIVE_SUBSCRIPTION" }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 409,
+        },
+      );
     }
 
     // Get current subscription
-    const subscription = await stripe.subscriptions.retrieve(profile.stripe_subscription_id);
+    const subscription = await stripe.subscriptions.retrieve(lifecycle.subscriptionId);
     const currentItemId = subscription.items.data[0].id;
 
     // Update subscription with immediate proration
-    const updatedSubscription = await stripe.subscriptions.update(profile.stripe_subscription_id, {
+    const updatedSubscription = await stripe.subscriptions.update(lifecycle.subscriptionId, {
       items: [
         {
           id: currentItemId,
@@ -89,30 +132,18 @@ serve(async (req) => {
       billing_cycle_anchor: "now",
     });
 
-    // Ensure we have a valid current_period_end (some API responses may omit it on immediate proration)
-    const refreshedSubscription = await stripe.subscriptions.retrieve(profile.stripe_subscription_id);
-    const periodEnd = refreshedSubscription.current_period_end || updatedSubscription.current_period_end || null;
-
-    const newTier = resolveTierFromPriceId(targetPriceId);
-
-    // Update profiles table
-    await supabaseAdmin
-      .from("profiles")
-      .update({
-        is_premium: true,
-        subscription_tier: newTier,
-        subscription_status: "active",
-        subscription_ends_at: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
-      })
-      .eq("user_id", user.id);
-
-    log("info", "Upgrade successful", { userId: user.id, newTier });
+    log("info", "Upgrade sent to Stripe, awaiting webhook reconciliation", {
+      userId: user.id,
+      subscriptionId: updatedSubscription.id,
+      status: updatedSubscription.status,
+    });
 
     return new Response(
       JSON.stringify({
         success: true,
         message: "upgrade_processing",
-        tier: newTier,
+        applied: "webhook",
+        subscriptionStatus: updatedSubscription.status,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

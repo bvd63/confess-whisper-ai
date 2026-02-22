@@ -2,6 +2,10 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { createStripeClient } from "../_shared/stripe.ts";
 import { isVipPriceId } from "../_shared/stripe-config.ts";
+import {
+  ACTIVE_OR_TRIALING_STATUSES as VIP_ACTIVE_STATUSES,
+  FREE_SUBSCRIPTION_STATUSES as FREE_STATUSES,
+} from "../_shared/subscription-lifecycle.ts";
 import { validateStripeWebhookEvent } from "../_shared/webhook-security.ts";
 
 const corsHeaders = {
@@ -20,9 +24,6 @@ const log = (level: string, message: string, data?: any) => {
     }),
   );
 };
-
-const VIP_ACTIVE_STATUSES = new Set(["active", "trialing"]);
-const FREE_STATUSES = new Set(["canceled", "unpaid", "past_due", "incomplete", "incomplete_expired"]);
 
 const toIsoFromUnix = (value: unknown): string | null => {
   if (typeof value !== "number") return null;

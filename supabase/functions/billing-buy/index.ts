@@ -2,6 +2,11 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { getVipPriceIds } from "../_shared/stripe-config.ts";
+import {
+  createBillingPortalUrl,
+  getCheckoutLifecycleBlock,
+  resolveSubscriptionLifecycleState,
+} from "../_shared/subscription-lifecycle.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -90,29 +95,39 @@ serve(async (req) => {
     log('info', '[BILLING-BUY] Creating checkout session', { requestId, tier, cycle, priceId });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-    
-    // Check for existing customer
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    let customerId: string | undefined;
-    
-    if (customers.data.length > 0) {
-      customerId = customers.data[0].id;
-      log('info', '[BILLING-BUY] Existing customer found', { requestId, customerId });
-      
-      // Check for active subscription
-      const subscriptions = await stripe.subscriptions.list({
-        customer: customerId,
-        status: 'active',
-        limit: 1,
-      });
-      
-      if (subscriptions.data.length > 0) {
-        log('warn', '[BILLING-BUY] User already has active subscription', { requestId });
-        throw new Error("You already have an active subscription. Please manage it instead.");
-      }
-    }
 
     const origin = getAppBaseUrl();
+    const lifecycle = await resolveSubscriptionLifecycleState({
+      stripe,
+      email: user.email,
+      customerIdHint: null,
+    });
+    const lifecycleBlock = getCheckoutLifecycleBlock(lifecycle);
+    if (lifecycleBlock) {
+      const portalUrl = lifecycleBlock.requiresPortal
+        ? await createBillingPortalUrl({
+          stripe,
+          customerId: lifecycle.customerId,
+          returnUrl: `${origin}/profile`,
+        }).catch(() => null)
+        : null;
+
+      return new Response(
+        JSON.stringify({
+          error: lifecycleBlock.message,
+          code: lifecycleBlock.code,
+          subscriptionStatus: lifecycle.subscriptionStatus,
+          useCustomerPortal: lifecycleBlock.requiresPortal,
+          portalUrl,
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: lifecycleBlock.status,
+        },
+      );
+    }
+
+    const customerId = lifecycle.customerId ?? undefined;
     
     const session = await stripe.checkout.sessions.create({
       customer: customerId,

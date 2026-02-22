@@ -1,6 +1,10 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import {
+  createBillingPortalUrl,
+  resolveSubscriptionLifecycleState,
+} from "../_shared/subscription-lifecycle.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -71,9 +75,13 @@ serve(async (req) => {
     log('info', '[CUSTOMER-PORTAL] User authenticated', { requestId, userId: user.id });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    let customerId: string;
-    if (customers.data.length === 0) {
+    const lifecycle = await resolveSubscriptionLifecycleState({
+      stripe,
+      email: user.email,
+      customerIdHint: null,
+    });
+    let customerId = lifecycle.customerId;
+    if (!customerId) {
       log('warn', '[CUSTOMER-PORTAL] No customer found, creating one', { requestId, email: user.email });
       const created = await stripe.customers.create({
         email: user.email,
@@ -82,18 +90,21 @@ serve(async (req) => {
       customerId = created.id;
       log('info', '[CUSTOMER-PORTAL] Customer created', { requestId, customerId });
     } else {
-      customerId = customers.data[0].id;
       log('info', '[CUSTOMER-PORTAL] Customer found', { requestId, customerId });
     }
 
     const origin = getAppBaseUrl();
-    const portalSession = await stripe.billingPortal.sessions.create({
-      customer: customerId,
-      return_url: `${origin}/profile`,
+    const portalUrl = await createBillingPortalUrl({
+      stripe,
+      customerId,
+      returnUrl: `${origin}/profile`,
     });
-    log('info', '[CUSTOMER-PORTAL] Portal session created', { requestId, sessionId: portalSession.id });
+    if (!portalUrl) {
+      throw new Error("Failed to create billing portal session");
+    }
+    log('info', '[CUSTOMER-PORTAL] Portal session created', { requestId, customerId });
 
-    return new Response(JSON.stringify({ url: portalSession.url }), {
+    return new Response(JSON.stringify({ url: portalUrl }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });

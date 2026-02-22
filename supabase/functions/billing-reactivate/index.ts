@@ -2,6 +2,11 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { isVipPriceId } from "../_shared/stripe-config.ts";
+import {
+  createBillingPortalUrl,
+  getManageLifecycleBlock,
+  resolveSubscriptionLifecycleState,
+} from "../_shared/subscription-lifecycle.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,6 +16,14 @@ const corsHeaders = {
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[BILLING-REACTIVATE] ${step}${detailsStr}`);
+};
+
+const getAppBaseUrl = (): string => {
+  const configuredUrl = (Deno.env.get("APP_URL") ?? Deno.env.get("NEXT_PUBLIC_APP_URL") ?? "").trim();
+  if (!configuredUrl) {
+    throw new Error("APP_URL is not configured");
+  }
+  return new URL(configuredUrl).origin;
 };
 
 serve(async (req) => {
@@ -42,26 +55,46 @@ serve(async (req) => {
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+    const { data: profile } = await supabaseClient
+      .from("profiles")
+      .select("stripe_customer_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
 
-    // Get customer
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    if (customers.data.length === 0) {
-      throw new Error("No Stripe customer found");
-    }
-    const customerId = customers.data[0].id;
-    logStep("Found customer", { customerId });
-
-    // Get subscription (active or recently canceled)
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      limit: 1,
+    const lifecycle = await resolveSubscriptionLifecycleState({
+      stripe,
+      email: user.email,
+      customerIdHint: profile?.stripe_customer_id ?? null,
     });
+    const lifecycleBlock = getManageLifecycleBlock(lifecycle);
+    if (lifecycleBlock) {
+      const portalUrl = await createBillingPortalUrl({
+        stripe,
+        customerId: lifecycle.customerId,
+        returnUrl: `${getAppBaseUrl()}/profile`,
+      }).catch(() => null);
 
-    if (subscriptions.data.length === 0) {
+      return new Response(
+        JSON.stringify({
+          error: lifecycleBlock.message,
+          code: lifecycleBlock.code,
+          subscriptionStatus: lifecycle.subscriptionStatus,
+          useCustomerPortal: lifecycleBlock.requiresPortal,
+          portalUrl,
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: lifecycleBlock.status,
+        },
+      );
+    }
+
+    if (!lifecycle.customerId || !lifecycle.subscriptionId) {
       throw new Error("No subscription found to reactivate");
     }
 
-    const subscription = subscriptions.data[0];
+    const customerId = lifecycle.customerId;
+    const subscription = await stripe.subscriptions.retrieve(lifecycle.subscriptionId);
     logStep("Found subscription", { 
       subscriptionId: subscription.id,
       status: subscription.status,
@@ -98,33 +131,17 @@ serve(async (req) => {
       throw new Error("Subscription is not in a state that can be reactivated");
     }
 
-    // Determine tier from price using centralized config
     const priceId = updatedSubscription.items.data[0].price.id;
-    const tier = isVipPriceId(priceId) ? 'vip' : 'free';
-
-    // Update local database
-    const updateData: any = {
-      current_plan: tier,
-      status: 'active',
-      cancel_at_period_end: false,
-      stripe_subscription_id: updatedSubscription.id,
-      last_sync_at: new Date().toISOString(),
-    };
-
-    if (updatedSubscription.current_period_end) {
-      updateData.current_period_end = new Date(updatedSubscription.current_period_end * 1000).toISOString();
-    }
-
-    await supabaseClient
-      .from('profiles')
-      .update(updateData)
-      .eq('user_id', user.id);
-
-    logStep("Database updated", { tier });
+    const tier = isVipPriceId(priceId) ? "vip" : "free";
+    logStep("Reactivation sent to Stripe, awaiting webhook reconciliation", {
+      subscriptionId: updatedSubscription.id,
+      tier,
+    });
 
     return new Response(
       JSON.stringify({ 
         success: true,
+        applied: "webhook",
         subscription: {
           id: updatedSubscription.id,
           status: updatedSubscription.status,

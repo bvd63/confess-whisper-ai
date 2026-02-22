@@ -2,6 +2,11 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { isVipPriceId } from "../_shared/stripe-config.ts";
+import {
+  createBillingPortalUrl,
+  getCheckoutLifecycleBlock,
+  resolveSubscriptionLifecycleState,
+} from "../_shared/subscription-lifecycle.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -75,31 +80,42 @@ serve(async (req) => {
     // Get or create Stripe customer
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("stripe_customer_id, stripe_subscription_id, subscription_status")
+      .select("stripe_customer_id")
       .eq("user_id", user.id)
       .single();
 
-    // CHECKOUT GUARD: Block if user already has active subscription
-    const blockStatuses = ['active', 'trialing', 'incomplete', 'past_due', 'unpaid'];
-    if (profile?.stripe_subscription_id && blockStatuses.includes(profile.subscription_status || '')) {
-      logStep("ERROR: User already has active subscription", {
-        userId: user.id,
-        subscriptionId: profile.stripe_subscription_id,
-        status: profile.subscription_status
-      });
+    const origin = getAppBaseUrl();
+    const lifecycle = await resolveSubscriptionLifecycleState({
+      stripe,
+      email: user.email,
+      customerIdHint: profile?.stripe_customer_id ?? null,
+    });
+    const lifecycleBlock = getCheckoutLifecycleBlock(lifecycle);
+    if (lifecycleBlock) {
+      const portalUrl = lifecycleBlock.requiresPortal
+        ? await createBillingPortalUrl({
+          stripe,
+          customerId: lifecycle.customerId,
+          returnUrl: `${origin}/profile`,
+        }).catch(() => null)
+        : null;
+
       return new Response(
-        JSON.stringify({ 
-          error: "You already have an active subscription. Use Upgrade, Downgrade, or Cancel instead.",
-          code: "ALREADY_SUBSCRIBED"
+        JSON.stringify({
+          error: lifecycleBlock.message,
+          code: lifecycleBlock.code,
+          subscriptionStatus: lifecycle.subscriptionStatus,
+          useCustomerPortal: lifecycleBlock.requiresPortal,
+          portalUrl,
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 409,
-        }
+          status: lifecycleBlock.status,
+        },
       );
     }
 
-    let customerId = profile?.stripe_customer_id;
+    let customerId = lifecycle.customerId ?? profile?.stripe_customer_id;
 
     if (!customerId) {
       const customer = await stripe.customers.create({
@@ -120,8 +136,6 @@ serve(async (req) => {
       logStep("Existing customer found", { customerId });
     }
 
-    const origin = getAppBaseUrl();
-    
     // Create checkout session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,

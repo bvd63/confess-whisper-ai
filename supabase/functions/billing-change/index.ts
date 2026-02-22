@@ -2,6 +2,11 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { getVipPriceIds } from "../_shared/stripe-config.ts";
+import {
+  createBillingPortalUrl,
+  getManageLifecycleBlock,
+  resolveSubscriptionLifecycleState,
+} from "../_shared/subscription-lifecycle.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,6 +16,14 @@ const corsHeaders = {
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[BILLING-CHANGE] ${step}${detailsStr}`);
+};
+
+const getAppBaseUrl = (): string => {
+  const configuredUrl = (Deno.env.get("APP_URL") ?? Deno.env.get("NEXT_PUBLIC_APP_URL") ?? "").trim();
+  if (!configuredUrl) {
+    throw new Error("APP_URL is not configured");
+  }
+  return new URL(configuredUrl).origin;
 };
 
 // Shared helper keeps monthly/yearly IDs in sync across environments
@@ -56,28 +69,53 @@ serve(async (req) => {
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-    // Get customer
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    if (customers.data.length === 0) {
-      throw new Error("No Stripe customer found");
-    }
-    const customerId = customers.data[0].id;
-    logStep("Found customer", { customerId });
+    const { data: profile } = await supabaseClient
+      .from("profiles")
+      .select("stripe_customer_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
 
-    // Get active subscription
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      status: 'active',
-      limit: 1,
+    const lifecycle = await resolveSubscriptionLifecycleState({
+      stripe,
+      email: user.email,
+      customerIdHint: profile?.stripe_customer_id ?? null,
     });
+    const lifecycleBlock = getManageLifecycleBlock(lifecycle);
+    if (lifecycleBlock) {
+      const portalUrl = await createBillingPortalUrl({
+        stripe,
+        customerId: lifecycle.customerId,
+        returnUrl: `${getAppBaseUrl()}/profile`,
+      }).catch(() => null);
 
-    if (subscriptions.data.length === 0) {
-      throw new Error("No active subscription found");
+      return new Response(
+        JSON.stringify({
+          error: lifecycleBlock.message,
+          code: lifecycleBlock.code,
+          subscriptionStatus: lifecycle.subscriptionStatus,
+          useCustomerPortal: lifecycleBlock.requiresPortal,
+          portalUrl,
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: lifecycleBlock.status,
+        },
+      );
     }
 
-    const subscription = subscriptions.data[0];
+    if (!lifecycle.subscriptionId || lifecycle.category !== "active_or_trialing") {
+      return new Response(
+        JSON.stringify({ error: "No active subscription found", code: "NO_ACTIVE_SUBSCRIPTION" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 409 },
+      );
+    }
+
+    const subscription = await stripe.subscriptions.retrieve(lifecycle.subscriptionId);
     const subscriptionItemId = subscription.items.data[0].id;
-    logStep("Found active subscription", { subscriptionId: subscription.id });
+    logStep("Found active subscription", {
+      subscriptionId: subscription.id,
+      customerId: lifecycle.customerId,
+    });
 
     // Get target price ID based on cycle
     const targetPriceId = cycle === 'yearly'
@@ -100,22 +138,10 @@ serve(async (req) => {
 
     logStep("Subscription updated", { subscriptionId: updatedSubscription.id });
 
-    // Update local database
-    const { error: updateError } = await supabaseClient
-      .from('profiles')
-      .update({
-        current_plan: targetTier,
-        last_sync_at: new Date().toISOString(),
-      })
-      .eq('user_id', user.id);
-
-    if (updateError) {
-      logStep("Database update error", { error: updateError });
-    }
-
     return new Response(
       JSON.stringify({ 
         success: true,
+        applied: "webhook",
         subscription: {
           id: updatedSubscription.id,
           current_tier: targetTier,
