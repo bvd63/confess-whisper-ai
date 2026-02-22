@@ -108,7 +108,11 @@ function extractRateLimitInvokeErrorDetails(result: any): RateLimitInvokeErrorDe
 }
 
 function isRateLimitUnavailableError(details: RateLimitInvokeErrorDetails): boolean {
-  if (details.status === 503 || details.code === 'RATE_LIMIT_UNAVAILABLE') {
+  if (details.code === 'RATE_LIMIT_UNAVAILABLE') {
+    return true;
+  }
+
+  if (typeof details.status === 'number' && details.status >= 400) {
     return true;
   }
 
@@ -166,7 +170,7 @@ async function enforceRateLimit(
       const isUnavailable = isRateLimitUnavailableError(details);
 
       if (failOpenOnUnavailable && isUnavailable) {
-        console.error(`[enhanced-auth] Rate limit unavailable for ${action}; allowing request`, {
+        console.warn(`[enhanced-auth] Rate limit unavailable for ${action}; allowing request`, {
           status: details.status,
           code: details.code,
           body: details.body,
