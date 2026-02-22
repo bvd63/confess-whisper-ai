@@ -359,16 +359,28 @@ serve(async (req) => {
         const metadataIp = sessionMetadata?.ipAddress || clientIp;
         const stayConnectedPreference = sessionMetadata?.stayConnected ?? false;
 
-        const loginRateLimit = await checkLoginRateLimitFailOpen({
-          supabaseUrl: SUPABASE_URL,
-          internalJobSecret: INTERNAL_JOB_SECRET,
-          authorizationHeader: req.headers.get('Authorization'),
-          action: 'auth_login',
-          ip: clientIp,
-          timeoutMs: 1200,
-        });
+        let loginRateLimit: Awaited<ReturnType<typeof checkLoginRateLimitFailOpen>> = {
+          denied: false,
+          unavailable: true,
+        };
+        let rateLimitCheckThrew = false;
 
-        if (loginRateLimit.unavailable) {
+        try {
+          loginRateLimit = await checkLoginRateLimitFailOpen({
+            supabaseUrl: SUPABASE_URL,
+            internalJobSecret: INTERNAL_JOB_SECRET,
+            authorizationHeader: req.headers.get('Authorization'),
+            action: 'auth_login',
+            ip: clientIp,
+            timeoutMs: 1200,
+          });
+        } catch {
+          rateLimitCheckThrew = true;
+          console.warn("[enhanced-auth] rate-limit check threw; proceeding fail-open");
+          loginRateLimit = { denied: false, unavailable: true };
+        }
+
+        if (loginRateLimit.unavailable && !rateLimitCheckThrew) {
           console.warn("[enhanced-auth] rate-limit unavailable; proceeding fail-open");
         } else if (loginRateLimit.denied) {
 

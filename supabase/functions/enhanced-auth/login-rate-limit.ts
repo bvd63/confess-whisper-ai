@@ -1,5 +1,3 @@
-import { fetchWithTimeout } from "../_shared/fetch-with-timeout.ts";
-
 type IdentifierType = "user" | "ip";
 
 export interface LoginRateLimitDecision {
@@ -18,19 +16,64 @@ interface RateLimitPayload {
   error?: string;
 }
 
-type FetchWithTimeoutLike = (
+type FetchLike = (
   input: RequestInfo | URL,
   init?: RequestInit,
-  timeoutMs?: number,
 ) => Promise<Response>;
 
-const parseRateLimitPayload = async (response: Response): Promise<RateLimitPayload | null> => {
+const parseRateLimitPayload = async (
+  response: Response,
+): Promise<{ payload: RateLimitPayload | null; validJson: boolean }> => {
   try {
     const payload = await response.json();
-    if (!payload || typeof payload !== "object") return null;
-    return payload as RateLimitPayload;
+    if (!payload || typeof payload !== "object") {
+      return { payload: null, validJson: false };
+    }
+    return { payload: payload as RateLimitPayload, validJson: true };
   } catch {
-    return null;
+    return { payload: null, validJson: false };
+  }
+};
+
+const parseRetryAfter = (response: Response, payload: RateLimitPayload | null): number | undefined => {
+  if (typeof payload?.retryAfter === "number" && Number.isFinite(payload.retryAfter)) {
+    return payload.retryAfter;
+  }
+
+  const retryAfterHeader = response.headers.get("Retry-After");
+  if (!retryAfterHeader) {
+    return undefined;
+  }
+
+  const parsed = Number.parseInt(retryAfterHeader, 10);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return undefined;
+  }
+
+  return parsed;
+};
+
+const fetchWithAbortTimeout = async ({
+  fetchImpl,
+  input,
+  init,
+  timeoutMs,
+}: {
+  fetchImpl: FetchLike;
+  input: RequestInfo | URL;
+  init?: RequestInit;
+  timeoutMs: number;
+}): Promise<Response> => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetchImpl(input, {
+      ...init,
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeoutId);
   }
 };
 
@@ -41,7 +84,7 @@ export const checkLoginRateLimitFailOpen = async ({
   action,
   ip,
   timeoutMs = 1200,
-  fetchWithTimeoutImpl = fetchWithTimeout,
+  fetchImpl = fetch,
 }: {
   supabaseUrl: string;
   internalJobSecret: string;
@@ -49,58 +92,77 @@ export const checkLoginRateLimitFailOpen = async ({
   action: string;
   ip?: string | null;
   timeoutMs?: number;
-  fetchWithTimeoutImpl?: FetchWithTimeoutLike;
+  fetchImpl?: FetchLike;
 }): Promise<LoginRateLimitDecision> => {
-  const trimmedSupabaseUrl = supabaseUrl.trim();
-  const trimmedSecret = internalJobSecret.trim();
-
-  if (!trimmedSupabaseUrl || !trimmedSecret) {
-    return { denied: false, unavailable: true };
-  }
-
-  const endpoint = `${trimmedSupabaseUrl.replace(/\/$/, "")}/functions/v1/rate-limit`;
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    "x-internal-secret": trimmedSecret,
-  };
-  const normalizedAuthorization = authorizationHeader?.trim();
-  if (normalizedAuthorization) {
-    headers.Authorization = normalizedAuthorization;
-  }
-
   try {
-    const response = await fetchWithTimeoutImpl(
-      endpoint,
-      {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          action,
-          ip: ip ?? undefined,
-        }),
-      },
-      timeoutMs,
-    );
+    const trimmedSupabaseUrl = typeof supabaseUrl === "string" ? supabaseUrl.trim() : "";
+    const trimmedSecret = typeof internalJobSecret === "string" ? internalJobSecret.trim() : "";
 
-    const payload = await parseRateLimitPayload(response);
+    if (!trimmedSupabaseUrl || !trimmedSecret) {
+      return { denied: false, unavailable: true };
+    }
+
+    const endpoint = `${trimmedSupabaseUrl.replace(/\/$/, "")}/functions/v1/rate-limit`;
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "x-internal-secret": trimmedSecret,
+    };
+    const normalizedAuthorization = authorizationHeader?.trim();
+    if (normalizedAuthorization) {
+      headers.Authorization = normalizedAuthorization;
+    }
+
+    let response: Response;
+    try {
+      response = await fetchWithAbortTimeout({
+        fetchImpl,
+        input: endpoint,
+        init: {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            action,
+            ip: ip ?? undefined,
+          }),
+        },
+        timeoutMs,
+      });
+    } catch {
+      return { denied: false, unavailable: true };
+    }
+
+    const { payload, validJson } = await parseRateLimitPayload(response);
     const code = typeof payload?.error === "string" ? payload.error.toUpperCase() : "";
 
-    if (response.status === 429 || payload?.allowed === false || code === "RATE_LIMIT") {
+    if (response.status === 429) {
       return {
         denied: true,
         unavailable: false,
-        retryAfter: typeof payload?.retryAfter === "number" ? payload.retryAfter : undefined,
+        retryAfter: parseRetryAfter(response, payload),
         remaining: typeof payload?.remaining === "number" ? payload.remaining : 0,
         identifierType: payload?.identifierType,
       };
     }
 
-    if (
-      response.status === 404 ||
-      response.status >= 500 ||
-      code === "RATE_LIMIT_UNAVAILABLE" ||
-      !response.ok
-    ) {
+    if (!response.ok) {
+      return { denied: false, unavailable: true };
+    }
+
+    if (!validJson || !payload) {
+      return { denied: false, unavailable: true };
+    }
+
+    if (payload.allowed === false || code === "RATE_LIMIT") {
+      return {
+        denied: true,
+        unavailable: false,
+        retryAfter: parseRetryAfter(response, payload),
+        remaining: typeof payload.remaining === "number" ? payload.remaining : 0,
+        identifierType: payload.identifierType,
+      };
+    }
+
+    if (code === "RATE_LIMIT_UNAVAILABLE") {
       return { denied: false, unavailable: true };
     }
 

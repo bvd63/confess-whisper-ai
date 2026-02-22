@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { checkLoginRateLimitFailOpen } from "../../supabase/functions/enhanced-auth/login-rate-limit";
 
 describe("enhanced-auth login rate-limit fail-open", () => {
@@ -12,7 +14,7 @@ describe("enhanced-auth login rate-limit fail-open", () => {
       action: "auth_login",
       ip: "203.0.113.10",
       timeoutMs: 1200,
-      fetchWithTimeoutImpl: mockFetch,
+      fetchImpl: mockFetch,
     });
 
     expect(decision).toEqual({ denied: false, unavailable: true });
@@ -36,7 +38,7 @@ describe("enhanced-auth login rate-limit fail-open", () => {
       internalJobSecret: "secret",
       action: "auth_login",
       ip: "203.0.113.10",
-      fetchWithTimeoutImpl: mockFetch,
+      fetchImpl: mockFetch,
     });
 
     expect(decision).toEqual({
@@ -64,9 +66,26 @@ describe("enhanced-auth login rate-limit fail-open", () => {
       internalJobSecret: "secret",
       action: "auth_login",
       ip: "203.0.113.10",
-      fetchWithTimeoutImpl: mockFetch,
+      fetchImpl: mockFetch,
     });
 
     expect(decision).toEqual({ denied: false, unavailable: true });
+  });
+
+  it("keeps enhanced-login fail-open without RATE_LIMIT_UNAVAILABLE fallback", () => {
+    const source = readFileSync(
+      resolve(process.cwd(), "supabase/functions/enhanced-auth/index.ts"),
+      "utf8",
+    );
+
+    const loginCaseStart = source.indexOf("case 'enhanced-login':");
+    const refreshCaseStart = source.indexOf("case 'refresh-session':");
+    expect(loginCaseStart).toBeGreaterThan(-1);
+    expect(refreshCaseStart).toBeGreaterThan(loginCaseStart);
+
+    const enhancedLoginBlock = source.slice(loginCaseStart, refreshCaseStart);
+    expect(enhancedLoginBlock).toContain("rate-limit check threw; proceeding fail-open");
+    expect(enhancedLoginBlock).not.toContain("RATE_LIMIT_UNAVAILABLE");
+    expect(enhancedLoginBlock).not.toContain("status: 503");
   });
 });
