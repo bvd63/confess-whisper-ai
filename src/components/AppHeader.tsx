@@ -106,21 +106,23 @@ const AppHeader = ({
   )}>
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between h-14 px-4 sm:px-6 rounded-full bg-gradient-to-br from-[#1a1a2e]/95 via-[#16213e]/95 to-[#0f1419]/95 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(139,92,246,0.15)]">
-          {backNav.show && (
+          {backNav.show ? (
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate(backNav.target)}
-              className="h-9 w-9 rounded-xl hover:bg-white/10 absolute left-2"
+              className="h-9 w-9 rounded-xl hover:bg-white/10"
             >
               <ArrowLeft className="h-4 w-4 text-white/70" />
             </Button>
+          ) : (
+            <div className="w-9" />
           )}
           
-          <h1 className={cn(
-            "text-lg font-bold text-white cursor-pointer flex-1 text-center",
-            backNav.show && "ml-8"
-          )} onClick={() => navigate('/')}>
+          <h1
+            className="absolute left-1/2 -translate-x-1/2 text-lg font-bold text-white cursor-pointer"
+            onClick={() => navigate('/')}
+          >
             <AppLogo />
           </h1>
           
