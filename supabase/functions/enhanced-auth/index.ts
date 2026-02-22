@@ -314,14 +314,23 @@ function validatePasswordStrength(password: string): { valid: boolean; error?: s
   return { valid: true };
 }
 
+const buildSafeThrottleResponse = (status: 429 | 403 = 429) =>
+  new Response(
+    JSON.stringify({
+      error: 'RATE_LIMIT',
+      messageKey: 'common.rate_limit',
+    }),
+    { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+  );
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-      console.error('[enhanced-auth] Missing Supabase URL or anon key');
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('[enhanced-auth] Missing Supabase URL, anon key, or service role key');
       return new Response(
         JSON.stringify({ error: 'CONFIGURATION_ERROR', messageKey: 'common.something_went_wrong' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -329,6 +338,11 @@ serve(async (req) => {
     }
 
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Security-critical auth telemetry/session tables are service-role scoped by DB policy hardening.
+    // Use service client for all reads/writes on those tables to avoid silent RLS failures.
+    const supabaseAdminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { persistSession: false },
+    });
 
     const url = new URL(req.url);
     const action = url.searchParams.get('action');
@@ -363,7 +377,6 @@ serve(async (req) => {
           denied: false,
           unavailable: true,
         };
-        let rateLimitCheckThrew = false;
 
         try {
           loginRateLimit = await checkLoginRateLimitFailOpen({
@@ -375,17 +388,17 @@ serve(async (req) => {
             timeoutMs: 1200,
           });
         } catch {
-          rateLimitCheckThrew = true;
-          console.warn("[enhanced-auth] rate-limit check threw; proceeding fail-open");
-          loginRateLimit = { denied: false, unavailable: true };
+          console.warn('[enhanced-auth] rate-limit check failed; blocking login safely');
+          return buildSafeThrottleResponse(429);
         }
 
-        if (loginRateLimit.unavailable && !rateLimitCheckThrew) {
-          console.warn("[enhanced-auth] rate-limit unavailable; proceeding fail-open");
+        if (loginRateLimit.unavailable) {
+          console.warn('[enhanced-auth] rate-limit unavailable; blocking login safely');
+          return buildSafeThrottleResponse(429);
         } else if (loginRateLimit.denied) {
 
           await logSecurityEvent(
-            supabaseClient,
+            supabaseAdminClient,
             null,
             'login_rate_limited',
             {
@@ -422,21 +435,21 @@ serve(async (req) => {
         const attemptWindowStartIso = new Date(Date.now() - FAILED_ATTEMPT_WINDOW * 60 * 1000).toISOString();
 
         const [
-          { count: ipFailureCount },
-          { count: deviceFailureCount },
-          { count: comboFailureCount },
+          { count: ipFailureCount, error: ipFailureCountError },
+          { count: deviceFailureCount, error: deviceFailureCountError },
+          { count: comboFailureCount, error: comboFailureCountError },
         ] = await Promise.all([
-          supabaseClient
+          supabaseAdminClient
             .from('failed_login_attempts')
             .select('id', { count: 'exact', head: true })
             .eq('ip_address', clientIp)
             .gte('attempted_at', attemptWindowStartIso),
-          supabaseClient
+          supabaseAdminClient
             .from('failed_login_attempts')
             .select('id', { count: 'exact', head: true })
             .eq('device_id', metadataDeviceId)
             .gte('attempted_at', attemptWindowStartIso),
-          supabaseClient
+          supabaseAdminClient
             .from('failed_login_attempts')
             .select('id', { count: 'exact', head: true })
             .eq('email', normalizedEmail)
@@ -445,6 +458,15 @@ serve(async (req) => {
             .gte('attempted_at', attemptWindowStartIso),
         ]);
 
+        if (ipFailureCountError || deviceFailureCountError || comboFailureCountError) {
+          console.error('[enhanced-auth] failed to read failed_login_attempts counters', {
+            ipFailureCountError,
+            deviceFailureCountError,
+            comboFailureCountError,
+          });
+          return buildSafeThrottleResponse(429);
+        }
+
         const combinedFailureCount = Math.max(
           ipFailureCount ?? 0,
           deviceFailureCount ?? 0,
@@ -452,13 +474,18 @@ serve(async (req) => {
         );
 
         if (combinedFailureCount >= MAX_FAILED_ATTEMPTS) {
-          await supabaseClient
+          const { error: captchaStateWriteError } = await supabaseAdminClient
             .from('captcha_requirements')
             .upsert({
               email: normalizedEmail,
               required_until: new Date(Date.now() + CAPTCHA_LOCKOUT_DURATION * 60 * 1000).toISOString(),
               reason: 'rate_limit_vector',
             }, { onConflict: 'email' });
+
+          if (captchaStateWriteError) {
+            console.error('[enhanced-auth] failed to persist captcha lockout state', captchaStateWriteError);
+            return buildSafeThrottleResponse(429);
+          }
 
           return new Response(
             JSON.stringify({
@@ -501,7 +528,7 @@ serve(async (req) => {
         });
 
         if (authError) {
-          await supabaseClient
+          const { error: failedAttemptPersistError } = await supabaseAdminClient
             .from('failed_login_attempts')
             .insert({
               email: normalizedEmail,
@@ -512,25 +539,35 @@ serve(async (req) => {
               attempted_at: new Date().toISOString(),
             });
 
-          const { data: emailFailureCount } = await supabaseClient
+          if (failedAttemptPersistError) {
+            console.error('[enhanced-auth] failed to persist failed login attempt', failedAttemptPersistError);
+            return buildSafeThrottleResponse(429);
+          }
+
+          const { data: emailFailureCount, error: emailFailureCountError } = await supabaseAdminClient
             .rpc('get_failed_login_count', { _email: normalizedEmail, _minutes: FAILED_ATTEMPT_WINDOW });
 
+          if (emailFailureCountError) {
+            console.error('[enhanced-auth] failed to load email failure count', emailFailureCountError);
+            return buildSafeThrottleResponse(429);
+          }
+
           const [
-            { count: updatedIpFailures },
-            { count: updatedDeviceFailures },
-            { count: updatedComboFailures },
+            { count: updatedIpFailures, error: updatedIpFailuresError },
+            { count: updatedDeviceFailures, error: updatedDeviceFailuresError },
+            { count: updatedComboFailures, error: updatedComboFailuresError },
           ] = await Promise.all([
-            supabaseClient
+            supabaseAdminClient
               .from('failed_login_attempts')
               .select('id', { count: 'exact', head: true })
               .eq('ip_address', clientIp)
               .gte('attempted_at', attemptWindowStartIso),
-            supabaseClient
+            supabaseAdminClient
               .from('failed_login_attempts')
               .select('id', { count: 'exact', head: true })
               .eq('device_id', metadataDeviceId)
               .gte('attempted_at', attemptWindowStartIso),
-            supabaseClient
+            supabaseAdminClient
               .from('failed_login_attempts')
               .select('id', { count: 'exact', head: true })
               .eq('email', normalizedEmail)
@@ -538,6 +575,15 @@ serve(async (req) => {
               .eq('device_id', metadataDeviceId)
               .gte('attempted_at', attemptWindowStartIso),
           ]);
+
+          if (updatedIpFailuresError || updatedDeviceFailuresError || updatedComboFailuresError) {
+            console.error('[enhanced-auth] failed to refresh failed_login_attempt counters', {
+              updatedIpFailuresError,
+              updatedDeviceFailuresError,
+              updatedComboFailuresError,
+            });
+            return buildSafeThrottleResponse(429);
+          }
 
           const exceededThreshold = [
             emailFailureCount ?? 0,
@@ -547,13 +593,18 @@ serve(async (req) => {
           ].some((count) => count >= MAX_FAILED_ATTEMPTS);
 
           if (exceededThreshold) {
-            await supabaseClient
+            const { error: captchaStateWriteError } = await supabaseAdminClient
               .from('captcha_requirements')
               .upsert({
                 email: normalizedEmail,
                 required_until: new Date(Date.now() + CAPTCHA_LOCKOUT_DURATION * 60 * 1000).toISOString(),
                 reason: 'multiple_failed_attempts',
               }, { onConflict: 'email' });
+
+            if (captchaStateWriteError) {
+              console.error('[enhanced-auth] failed to persist captcha escalation state', captchaStateWriteError);
+              return buildSafeThrottleResponse(429);
+            }
 
             // Return logical error but with 200 status so the frontend can handle it
             return new Response(
@@ -589,14 +640,14 @@ serve(async (req) => {
         const tokenHash = await hashToken(refreshToken);
         const sessionExpiresAt = new Date(Date.now() + (stayConnectedPreference ? REFRESH_TTL_LONG : REFRESH_TTL_SHORT));
 
-        const { count: sessionCount } = await supabaseClient
+        const { count: sessionCount } = await supabaseAdminClient
           .from('auth_sessions')
           .select('id', { count: 'exact', head: true })
           .eq('user_id', authData.user.id)
           .is('revoked_at', null);
 
         if (sessionCount && sessionCount >= SESSION_MAX_PER_USER) {
-          const { data: oldestSession } = await supabaseClient
+          const { data: oldestSession } = await supabaseAdminClient
             .from('auth_sessions')
             .select('id')
             .eq('user_id', authData.user.id)
@@ -606,7 +657,7 @@ serve(async (req) => {
             .single();
 
           if (oldestSession) {
-            await supabaseClient
+            await supabaseAdminClient
               .from('auth_sessions')
               .update({ revoked_at: new Date().toISOString() })
               .eq('id', oldestSession.id);
@@ -614,14 +665,14 @@ serve(async (req) => {
         }
 
         const sessionWindowStartIso = new Date(Date.now() - SESSION_CREATION_WINDOW_MINUTES * 60 * 1000).toISOString();
-        const { count: recentSessionCount } = await supabaseClient
+        const { count: recentSessionCount } = await supabaseAdminClient
           .from('auth_sessions')
           .select('id', { count: 'exact', head: true })
           .eq('user_id', authData.user.id)
           .gte('created_at', sessionWindowStartIso);
 
         if ((recentSessionCount ?? 0) >= SESSION_CREATION_MAX_PER_WINDOW) {
-          await supabaseClient
+          await supabaseAdminClient
             .rpc('log_security_event', {
               _user_id: authData.user.id,
               _event_type: 'session_rate_limited',
@@ -640,7 +691,7 @@ serve(async (req) => {
         }
 
         const now = new Date();
-        await supabaseClient
+        await supabaseAdminClient
           .from('auth_sessions')
           .insert({
             user_id: authData.user.id,
@@ -654,7 +705,7 @@ serve(async (req) => {
             stay_connected: stayConnectedPreference,
           });
 
-        await supabaseClient
+        await supabaseAdminClient
           .rpc('log_security_event', {
             _user_id: authData.user.id,
             _event_type: 'login_success',
@@ -686,7 +737,7 @@ serve(async (req) => {
         }
 
         const tokenHash = await hashToken(refreshToken);
-        const { data: sessionRecord } = await supabaseClient
+        const { data: sessionRecord } = await supabaseAdminClient
           .from('auth_sessions')
           .select('id, user_id, device_id, user_agent, ip_address, expires_at, revoked_at, last_refreshed_at, stay_connected')
           .eq('token_hash', tokenHash)
@@ -718,7 +769,7 @@ serve(async (req) => {
           }
 
           await logSecurityEvent(
-            supabaseClient,
+            supabaseAdminClient,
             sessionRecord.user_id,
             'refresh_rate_limited',
             {
@@ -756,12 +807,12 @@ serve(async (req) => {
         const sessionExpiry = new Date(sessionRecord.expires_at);
 
         if (sessionExpiry.getTime() <= now.getTime()) {
-          await supabaseClient
+          await supabaseAdminClient
             .from('auth_sessions')
             .update({ revoked_at: now.toISOString() })
             .eq('id', sessionRecord.id);
 
-          await supabaseClient
+          await supabaseAdminClient
             .rpc('log_security_event', {
               _user_id: sessionRecord.user_id,
               _event_type: 'refresh_token_expired',
@@ -805,7 +856,7 @@ serve(async (req) => {
         const newTokenHash = await hashToken(newRefreshToken);
         const newExpiryDate = new Date(now.getTime() + (stayConnected ? REFRESH_TTL_LONG : REFRESH_TTL_SHORT));
 
-        await supabaseClient
+        await supabaseAdminClient
           .from('auth_sessions')
           .update({
             token_hash: newTokenHash,
@@ -818,7 +869,7 @@ serve(async (req) => {
           })
           .eq('id', sessionRecord.id);
 
-        await supabaseClient
+        await supabaseAdminClient
           .rpc('log_security_event', {
             _user_id: sessionRecord.user_id,
             _event_type: 'refresh_token_rotated',
@@ -861,7 +912,7 @@ serve(async (req) => {
           }
 
           await logSecurityEvent(
-            supabaseClient,
+            supabaseAdminClient,
             null,
             'signup_rate_limited',
             {
@@ -930,7 +981,7 @@ serve(async (req) => {
         }
 
         // Check rate limiting for signup attempts from this IP
-        const { data: recentSignups } = await supabaseClient
+        const { data: recentSignups } = await supabaseAdminClient
           .from('failed_login_attempts')
           .select('*')
           .eq('ip_address', clientIp)
@@ -948,7 +999,7 @@ serve(async (req) => {
         }
         
         // Log security event for signup validation
-        await supabaseClient
+        await supabaseAdminClient
           .from('security_events')
           .insert({
             event_type: 'signup_validation',
@@ -998,7 +1049,7 @@ serve(async (req) => {
           }
 
           await logSecurityEvent(
-            supabaseClient,
+            supabaseAdminClient,
             null,
             'password_reset_rate_limited',
             {
@@ -1176,7 +1227,7 @@ serve(async (req) => {
         }
 
         await logSecurityEvent(
-          supabaseClient,
+            supabaseAdminClient,
           userId,
           'password_reset_requested',
           { email: normalizedEmail },
@@ -1342,13 +1393,13 @@ serve(async (req) => {
 
         const { sessionId } = await req.json();
 
-        await supabaseClient
+        await supabaseAdminClient
           .from('auth_sessions')
           .update({ revoked_at: new Date().toISOString() })
           .eq('id', sessionId)
           .eq('user_id', user.id);
 
-        await supabaseClient
+        await supabaseAdminClient
           .rpc('log_security_event', {
             _user_id: user.id,
             _event_type: 'session_revoked',
@@ -1397,7 +1448,7 @@ serve(async (req) => {
           );
         }
 
-        await supabaseClient
+        await supabaseAdminClient
           .rpc('log_security_event', {
             _user_id: user.id,
             _event_type: 'all_sessions_revoked',
@@ -1433,7 +1484,7 @@ serve(async (req) => {
           );
         }
 
-        const { data: sessions } = await supabaseClient
+        const { data: sessions } = await supabaseAdminClient
           .from('auth_sessions')
           .select('id, device_id, user_agent, ip_address, created_at, expires_at, last_refreshed_at, stay_connected')
           .eq('user_id', user.id)
