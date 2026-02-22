@@ -1,7 +1,10 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
-import { isVipPriceId } from "../_shared/stripe-config.ts";
+import {
+  createBillingPortalUrl,
+  resolveSubscriptionLifecycleState,
+} from "../_shared/subscription-lifecycle.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -65,134 +68,59 @@ serve(async (req) => {
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-    
-    // First check for trial status in profiles
-    const { data: profile, error: profileError } = await supabaseClient
-      .from('profiles')
-      .select('trial_premium_ends_at, trial_active, subscription_tier, is_premium, subscription_ends_at, stripe_subscription_id')
-      .eq('user_id', user.id)
-      .single();
-    
-    if (profileError) {
-      logStep("Error fetching profile", { error: profileError.message });
-    }
-    
-    // Check if user has active trial (map to VIP for backwards compatibility)
-    if (profile?.trial_premium_ends_at) {
-      const trialEndDate = new Date(profile.trial_premium_ends_at);
-      const now = new Date();
-      
-      if (now < trialEndDate) {
-        logStep("User has active trial", { endsAt: trialEndDate.toISOString() });
-        
-        // Map trial to VIP tier
-        await supabaseClient
-          .from('profiles')
-          .update({ 
-            subscription_tier: 'vip',
-            is_premium: true,
-            trial_active: true
-          })
-          .eq('user_id', user.id);
-        
-        return new Response(JSON.stringify({
-          subscribed: true,
-          subscription_tier: 'vip',
-          subscription_end: trialEndDate.toISOString(),
-          onTrial: true
-        }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        });
-      }
-    }
-    
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    
-    if (customers.data.length === 0) {
-      logStep("No customer found, updating unsubscribed state");
-      
-      // Update profile to free tier
-      await supabaseClient
-        .from('profiles')
-        .update({ 
-          subscription_tier: 'free',
-          is_premium: false,
-          subscription_ends_at: null,
-          stripe_subscription_id: null
-        })
-        .eq('user_id', user.id);
-      
-      return new Response(JSON.stringify({ subscribed: false }), {
+    const appBaseUrl = (Deno.env.get("APP_URL") ?? Deno.env.get("NEXT_PUBLIC_APP_URL") ?? "").trim();
+    const returnUrl = appBaseUrl ? `${new URL(appBaseUrl).origin}/profile` : null;
+
+    const lifecycle = await resolveSubscriptionLifecycleState({
+      stripe,
+      email: user.email,
+      customerIdHint: null,
+    });
+
+    const portalUrl = lifecycle.shouldUsePortal && returnUrl
+      ? await createBillingPortalUrl({
+        stripe,
+        customerId: lifecycle.customerId,
+        returnUrl,
+      }).catch(() => null)
+      : null;
+
+    if (lifecycle.category === "active_or_trialing") {
+      return new Response(JSON.stringify({
+        subscribed: true,
+        code: "ALREADY_SUBSCRIBED",
+        subscription_status: lifecycle.subscriptionStatus,
+        useCustomerPortal: true,
+        portalUrl,
+        recommendedAction: "OPEN_CUSTOMER_PORTAL",
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });
     }
 
-    const customerId = customers.data[0].id;
-    logStep("Found Stripe customer", { customerId });
-
-    // Update profile with Stripe customer ID
-    await supabaseClient
-      .from('profiles')
-      .update({ stripe_customer_id: customerId })
-      .eq('user_id', user.id);
-
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      status: "active",
-      limit: 1,
-    });
-    const hasActiveSub = subscriptions.data.length > 0;
-    let subscriptionEnd = null;
-    let subscriptionTier = 'free';
-
-    if (hasActiveSub) {
-      const subscription = subscriptions.data[0];
-      const endEpoch = (subscription as any)?.current_period_end;
-      subscriptionEnd = typeof endEpoch === 'number' && !Number.isNaN(endEpoch)
-        ? new Date(endEpoch * 1000).toISOString()
-        : null;
-      logStep("Active subscription found", { subscriptionId: subscription.id, endDate: subscriptionEnd });
-      
-      // Only Stripe prices configured as VIP can grant VIP entitlements.
-      // Unknown or legacy prices must never auto-elevate privileges.
-      const priceId = subscription.items.data[0]?.price.id as string | undefined;
-      subscriptionTier = priceId && isVipPriceId(priceId) ? 'vip' : 'free';
-      logStep("Determined subscription tier", { priceId, tier: subscriptionTier });
-      
-      // Update profile with subscription info
-      await supabaseClient
-        .from('profiles')
-        .update({ 
-          is_premium: subscriptionTier === 'vip',
-          subscription_tier: subscriptionTier,
-          subscription_ends_at: subscriptionEnd,
-          stripe_subscription_id: subscription.id
-        })
-        .eq('user_id', user.id);
-    } else {
-      logStep("No active subscription found");
-      
-      // Only update to free if not on trial
-      if (!profile?.trial_premium_ends_at || new Date(profile.trial_premium_ends_at) < new Date()) {
-        await supabaseClient
-          .from('profiles')
-          .update({ 
-            subscription_tier: 'free',
-            is_premium: false,
-            subscription_ends_at: null,
-            stripe_subscription_id: null,
-            trial_active: false
-          })
-          .eq('user_id', user.id);
-      }
+    if (lifecycle.category === "payment_action_required") {
+      return new Response(JSON.stringify({
+        subscribed: false,
+        code: "PAYMENT_ACTION_REQUIRED",
+        subscription_status: lifecycle.subscriptionStatus,
+        useCustomerPortal: true,
+        portalUrl,
+        recommendedAction: "OPEN_CUSTOMER_PORTAL",
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
     }
 
     return new Response(JSON.stringify({
-      subscribed: hasActiveSub,
-      subscription_tier: subscriptionTier,
-      subscription_end: subscriptionEnd
+      subscribed: false,
+      code: "NEEDS_WEBHOOK_RECONCILIATION",
+      subscription_status: lifecycle.subscriptionStatus,
+      eligibleForCheckout: true,
+      useCustomerPortal: false,
+      portalUrl: null,
+      recommendedAction: "START_CHECKOUT_AND_WAIT_FOR_WEBHOOK",
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

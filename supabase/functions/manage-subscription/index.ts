@@ -1,7 +1,10 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
-import { getVipMonthlyPriceId } from "../_shared/stripe-config.ts";
+import {
+  createBillingPortalUrl,
+  resolveSubscriptionLifecycleState,
+} from "../_shared/subscription-lifecycle.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,8 +12,16 @@ const corsHeaders = {
 };
 
 const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : "";
   console.log(`[MANAGE-SUBSCRIPTION] ${step}${detailsStr}`);
+};
+
+const getAppBaseUrl = (): string => {
+  const configuredUrl = (Deno.env.get("APP_URL") ?? Deno.env.get("NEXT_PUBLIC_APP_URL") ?? "").trim();
+  if (!configuredUrl) {
+    throw new Error("APP_URL is not configured");
+  }
+  return new URL(configuredUrl).origin;
 };
 
 serve(async (req) => {
@@ -21,12 +32,10 @@ serve(async (req) => {
   const supabaseClient = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-    { auth: { persistSession: false } }
+    { auth: { persistSession: false } },
   );
 
   try {
-    logStep("Function started");
-
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
 
@@ -36,101 +45,70 @@ serve(async (req) => {
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
     if (userError) throw new Error(`Authentication error: ${userError.message}`);
-    
     const user = userData.user;
     if (!user?.email) throw new Error("User not authenticated or email not available");
-    logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const { action, newTier } = await req.json();
-    if (!action || !['cancel', 'upgrade', 'downgrade'].includes(action)) {
-      throw new Error("Invalid action specified");
-    }
-    logStep("Action requested", { action, newTier });
-
+    const { action } = await req.json().catch(() => ({ action: null }));
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+    const appBaseUrl = getAppBaseUrl();
 
-    // Find customer
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    if (customers.data.length === 0) {
-      throw new Error("No Stripe customer found");
-    }
-    const customerId = customers.data[0].id;
-    logStep("Customer found", { customerId });
-
-    // Find active subscription
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      status: "active",
-      limit: 1,
+    const lifecycle = await resolveSubscriptionLifecycleState({
+      stripe,
+      email: user.email,
+      customerIdHint: null,
     });
+    const portalUrl = lifecycle.shouldUsePortal
+      ? await createBillingPortalUrl({
+        stripe,
+        customerId: lifecycle.customerId,
+        returnUrl: `${appBaseUrl}/profile`,
+      }).catch(() => null)
+      : null;
 
-    if (subscriptions.data.length === 0) {
-      throw new Error("No active subscription found");
-    }
-
-    const subscription = subscriptions.data[0];
-    logStep("Active subscription found", { subscriptionId: subscription.id });
-
-    if (action === 'cancel') {
-      // Cancel at period end
-      await stripe.subscriptions.update(subscription.id, {
-        cancel_at_period_end: true,
-      });
-
-      await supabaseClient
-        .from('profiles')
-        .update({ subscription_cancel_at_period_end: true })
-        .eq('user_id', user.id);
-
-      logStep("Subscription cancelled at period end");
-
-      return new Response(JSON.stringify({ 
-        success: true, 
-        message: "Subscription will cancel at period end" 
+    if (lifecycle.category === "active_or_trialing") {
+      return new Response(JSON.stringify({
+        success: false,
+        code: "ALREADY_SUBSCRIBED",
+        subscriptionStatus: lifecycle.subscriptionStatus,
+        requestedAction: action ?? null,
+        useCustomerPortal: true,
+        portalUrl,
+        recommendedAction: "OPEN_CUSTOMER_PORTAL",
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
+        status: 409,
       });
     }
 
-    if (action === 'upgrade' || action === 'downgrade') {
-      if (!newTier || newTier !== 'vip') {
-        throw new Error("Invalid tier - only VIP tier is supported");
-      }
-
-      const priceIds = {
-        vip: getVipMonthlyPriceId(),
-      } as const;
-
-      const newPriceId = priceIds[newTier as keyof typeof priceIds];
-
-      // Update subscription
-      await stripe.subscriptions.update(subscription.id, {
-        items: [{
-          id: subscription.items.data[0].id,
-          price: newPriceId,
-        }],
-        proration_behavior: 'create_prorations',
-      });
-
-      await supabaseClient
-        .from('profiles')
-        .update({ subscription_tier: newTier })
-        .eq('user_id', user.id);
-
-      logStep("Subscription updated", { newTier });
-
-      return new Response(JSON.stringify({ 
-        success: true, 
-        message: `Subscription ${action}d to ${newTier}` 
+    if (lifecycle.category === "payment_action_required") {
+      return new Response(JSON.stringify({
+        success: false,
+        code: "PAYMENT_ACTION_REQUIRED",
+        subscriptionStatus: lifecycle.subscriptionStatus,
+        requestedAction: action ?? null,
+        useCustomerPortal: true,
+        portalUrl,
+        recommendedAction: "OPEN_CUSTOMER_PORTAL",
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
+        status: 409,
       });
     }
 
-    throw new Error("Unhandled action");
-
+    // Legacy endpoint is now read-only: entitlements are webhook-driven only.
+    return new Response(JSON.stringify({
+      success: false,
+      code: "NEEDS_WEBHOOK_RECONCILIATION",
+      subscriptionStatus: lifecycle.subscriptionStatus,
+      requestedAction: action ?? null,
+      eligibleForCheckout: true,
+      useCustomerPortal: false,
+      portalUrl: null,
+      recommendedAction: "START_CHECKOUT_AND_WAIT_FOR_WEBHOOK",
+    }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
+    });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR", { message: errorMessage });

@@ -17,6 +17,14 @@ const MANAGE_ENDPOINTS = [
   "supabase/functions/billing-reactivate/index.ts",
 ];
 
+const LEGACY_READ_ONLY_ENDPOINTS = [
+  "supabase/functions/manage-subscription/index.ts",
+  "supabase/functions/manage-subscription-v2/index.ts",
+  "supabase/functions/subscription-manage/index.ts",
+  "supabase/functions/check-subscription/index.ts",
+  "supabase/functions/billing-status/index.ts",
+];
+
 describe("subscription lifecycle consistency", () => {
   it("uses one shared lifecycle resolver across checkout/billing endpoints", () => {
     const files = [
@@ -78,5 +86,26 @@ describe("subscription lifecycle consistency", () => {
     expect(webhook).toContain("FREE_SUBSCRIPTION_STATUSES as FREE_STATUSES");
     expect(webhook).toContain("if (FREE_STATUSES.has(status)) return false;");
     expect(webhook).toContain("if (VIP_ACTIVE_STATUSES.has(status)) return true;");
+  });
+
+  it("keeps legacy subscription endpoints read-only with resolver-based lifecycle responses", () => {
+    for (const file of LEGACY_READ_ONLY_ENDPOINTS) {
+      const source = read(file);
+
+      expect(source).toContain("resolveSubscriptionLifecycleState");
+      expect(source).toContain("code: \"ALREADY_SUBSCRIBED\"");
+      expect(source).toContain("code: \"PAYMENT_ACTION_REQUIRED\"");
+      expect(source).toContain("code: \"NEEDS_WEBHOOK_RECONCILIATION\"");
+
+      // Legacy endpoints must not mutate local entitlement state directly.
+      expect(source).not.toContain(".from('profiles')");
+      expect(source).not.toContain('.from("profiles")');
+      expect(source).not.toContain(".update({");
+
+      // Legacy endpoints must not mutate Stripe subscriptions directly either.
+      expect(source).not.toContain("stripe.subscriptions.update");
+      expect(source).not.toContain("stripe.subscriptions.cancel");
+      expect(source).not.toContain("stripe.subscriptions.create");
+    }
   });
 });

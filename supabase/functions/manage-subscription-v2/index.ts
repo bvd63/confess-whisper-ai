@@ -1,7 +1,10 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
-import { getVipPriceIds } from "../_shared/stripe-config.ts";
+import {
+  createBillingPortalUrl,
+  resolveSubscriptionLifecycleState,
+} from "../_shared/subscription-lifecycle.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -18,7 +21,13 @@ function log(level: string, message: string, context?: any) {
   console.log(JSON.stringify(logEntry));
 }
 
-const VIP_PRICE_IDS = getVipPriceIds();
+const getAppBaseUrl = (): string => {
+  const configuredUrl = (Deno.env.get("APP_URL") ?? Deno.env.get("NEXT_PUBLIC_APP_URL") ?? "").trim();
+  if (!configuredUrl) {
+    throw new Error("APP_URL is not configured");
+  }
+  return new URL(configuredUrl).origin;
+};
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -26,8 +35,6 @@ serve(async (req) => {
   }
 
   try {
-    log('info', '[MANAGE-SUBSCRIPTION-V2] Function started');
-
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
 
@@ -46,188 +53,66 @@ serve(async (req) => {
     const user = userData.user;
     if (!user?.email) throw new Error("User not authenticated");
     
-    log('info', '[MANAGE-SUBSCRIPTION-V2] User authenticated', { userId: user.id });
-
-    const body = await req.json();
-    const { action, targetTier, when } = body;
-    
-    log('info', '[MANAGE-SUBSCRIPTION-V2] Request body parsed', { action, targetTier, when, fullBody: body });
+    const body = await req.json().catch(() => ({} as Record<string, unknown>));
+    const { action } = body as { action?: string };
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-
-    // Handle trial cancellation
-    if (action === 'cancel_now') {
-      log('info', '[MANAGE-SUBSCRIPTION-V2] Canceling trial immediately');
-      
-      await supabaseClient
-        .from('profiles')
-        .update({
-          trial_active: false,
-          subscription_tier: 'free',
-        })
-        .eq('user_id', user.id);
-
-      return new Response(JSON.stringify({
-        message: "Trial canceled successfully",
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
-    }
-
-    // For all other actions, need to check if user is on trial first
-    const { data: profile } = await supabaseClient
-      .from('profiles')
-      .select('trial_active, trial_premium_ends_at')
-      .eq('user_id', user.id)
-      .single();
-
-    // Check if on active trial
-    if (profile?.trial_active && profile?.trial_premium_ends_at) {
-      const trialEndsAt = new Date(profile.trial_premium_ends_at);
-      if (trialEndsAt > new Date()) {
-        return new Response(JSON.stringify({
-          error: "Cannot modify trial subscription. Please wait until trial ends or cancel it first.",
-        }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 400,
-        });
-      }
-    }
-
-    // For all other actions, need Stripe customer
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    if (customers.data.length === 0) {
-      return new Response(JSON.stringify({
-        error: "No Stripe customer found. Please subscribe first.",
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      });
-    }
-
-    const customerId = customers.data[0].id;
-    log('info', '[MANAGE-SUBSCRIPTION-V2] Customer found', { customerId });
-
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      status: "active",
-      limit: 1,
+    const lifecycle = await resolveSubscriptionLifecycleState({
+      stripe,
+      email: user.email,
+      customerIdHint: null,
     });
+    const portalUrl = lifecycle.shouldUsePortal
+      ? await createBillingPortalUrl({
+        stripe,
+        customerId: lifecycle.customerId,
+        returnUrl: `${getAppBaseUrl()}/profile`,
+      }).catch(() => null)
+      : null;
 
-    if (subscriptions.data.length === 0) {
+    if (lifecycle.category === "active_or_trialing") {
       return new Response(JSON.stringify({
-        error: "No active subscription found. Please subscribe first.",
+        success: false,
+        code: "ALREADY_SUBSCRIBED",
+        subscriptionStatus: lifecycle.subscriptionStatus,
+        requestedAction: action ?? null,
+        useCustomerPortal: true,
+        portalUrl,
+        recommendedAction: "OPEN_CUSTOMER_PORTAL",
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
+        status: 409,
       });
     }
 
-    const subscription = subscriptions.data[0];
-    const currentItem = subscription.items.data[0];
-    
-    log('info', '[MANAGE-SUBSCRIPTION-V2] Current subscription', { 
-      subscriptionId: subscription.id,
-      currentPrice: currentItem.price.id 
+    if (lifecycle.category === "payment_action_required") {
+      return new Response(JSON.stringify({
+        success: false,
+        code: "PAYMENT_ACTION_REQUIRED",
+        subscriptionStatus: lifecycle.subscriptionStatus,
+        requestedAction: action ?? null,
+        useCustomerPortal: true,
+        portalUrl,
+        recommendedAction: "OPEN_CUSTOMER_PORTAL",
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 409,
+      });
+    }
+
+    return new Response(JSON.stringify({
+      success: false,
+      code: "NEEDS_WEBHOOK_RECONCILIATION",
+      subscriptionStatus: lifecycle.subscriptionStatus,
+      requestedAction: action ?? null,
+      eligibleForCheckout: true,
+      useCustomerPortal: false,
+      portalUrl: null,
+      recommendedAction: "START_CHECKOUT_AND_WAIT_FOR_WEBHOOK",
+    }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
     });
-
-    // Handle actions
-    if (action === 'upgrade' || action === 'downgrade') {
-      log('info', '[MANAGE-SUBSCRIPTION-V2] Entering upgrade/downgrade block', { action, targetTier });
-      
-      // Determine target price
-      const currentInterval = currentItem.price.recurring?.interval || 'month';
-      let targetPrice: string;
-      
-      if (targetTier === 'vip') {
-        targetPrice = currentInterval === 'year' ? VIP_PRICE_IDS.yearly : VIP_PRICE_IDS.monthly;
-      } else {
-        throw new Error(`Only VIP tier is supported. Received: ${targetTier}`);
-      }
-
-      if (!targetPrice) {
-        log('error', '[MANAGE-SUBSCRIPTION-V2] Target price not found', { targetTier, currentInterval, VIP_PRICE_IDS });
-        throw new Error(`Price ID not configured for ${targetTier} ${currentInterval}`);
-      }
-
-      log('info', '[MANAGE-SUBSCRIPTION-V2] Changing plan', { targetPrice, currentInterval });
-
-      await stripe.subscriptions.update(subscription.id, {
-        items: [
-          {
-            id: currentItem.id,
-            price: targetPrice,
-          },
-        ],
-        proration_behavior: 'create_prorations',
-      });
-
-      await supabaseClient
-        .from('profiles')
-        .update({
-          subscription_tier: targetTier,
-        })
-        .eq('user_id', user.id);
-
-      log('info', '[MANAGE-SUBSCRIPTION-V2] Plan changed successfully', { newTier: targetTier });
-
-      return new Response(JSON.stringify({
-        message: action === 'upgrade' ? "Upgraded successfully" : "Downgraded successfully",
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
-    }
-
-    if (action === 'cancel') {
-      log('info', '[MANAGE-SUBSCRIPTION-V2] Entering cancel block');
-      log('info', '[MANAGE-SUBSCRIPTION-V2] Canceling at period end');
-      
-      await stripe.subscriptions.update(subscription.id, {
-        cancel_at_period_end: true,
-      });
-
-      await supabaseClient
-        .from('profiles')
-        .update({
-          subscription_cancel_at_period_end: true,
-        })
-        .eq('user_id', user.id);
-
-      return new Response(JSON.stringify({
-        message: "Subscription will cancel at period end",
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
-    }
-
-    if (action === 'reactivate') {
-      log('info', '[MANAGE-SUBSCRIPTION-V2] Entering reactivate block');
-      log('info', '[MANAGE-SUBSCRIPTION-V2] Reactivating subscription');
-      
-      await stripe.subscriptions.update(subscription.id, {
-        cancel_at_period_end: false,
-      });
-
-      await supabaseClient
-        .from('profiles')
-        .update({
-          subscription_cancel_at_period_end: false,
-        })
-        .eq('user_id', user.id);
-
-      return new Response(JSON.stringify({
-        message: "Subscription reactivated successfully",
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
-    }
-
-    log('error', '[MANAGE-SUBSCRIPTION-V2] No action matched', { action, receivedActions: { upgrade: action === 'upgrade', downgrade: action === 'downgrade', cancel: action === 'cancel', reactivate: action === 'reactivate' } });
-    throw new Error("Invalid action");
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     log('error', '[MANAGE-SUBSCRIPTION-V2] Error occurred', { error: errorMessage });
