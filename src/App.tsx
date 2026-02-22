@@ -33,8 +33,9 @@ import { dataValidator } from '@/lib/dataValidator';
 import { syncScheduler } from '@/lib/syncScheduler';
 import { Onboarding } from "./components/Onboarding";
 import { VIPOnboardingModal } from "./components/onboarding/VIPOnboardingModal";
-import { TrialBanner } from "./components/onboarding/TrialBanner";
+import { UpgradeBanner } from "./components/onboarding/TrialBanner";
 import { useTrialStatus } from "./hooks/useTrialStatus";
+import { useVipStatus } from "./hooks/usePremiumStatus";
 import { useNavigate } from "react-router-dom";
 import { PageLoading } from "./components/LoadingStates";
 import { logError, logWarn } from '@/lib/logger';
@@ -80,6 +81,7 @@ const AppContent = () => {
   const [onboardingChecked, setOnboardingChecked] = useState(false);
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
   const { trialStatus } = useTrialStatus();
+  const { isVip, isOnTrial } = useVipStatus(user?.id);
 
   // Detect PASSWORD_RECOVERY auth event and suppress modals
   useEffect(() => {
@@ -228,9 +230,10 @@ const AppContent = () => {
       
       
       {/* Trial banner - hidden during password recovery */}
-      {!isPasswordRecovery && trialStatus.isActive && trialStatus.daysRemaining !== null && trialStatus.daysRemaining <= 3 && (
-        <TrialBanner 
-          daysRemaining={trialStatus.daysRemaining} 
+      {!isPasswordRecovery && user && !isVip && (
+        <UpgradeBanner 
+          daysRemaining={isOnTrial && trialStatus.daysRemaining !== null ? trialStatus.daysRemaining : null}
+          isOnTrial={isOnTrial}
           onUpgrade={() => navigate('/profile?section=subscription')}
         />
       )}
