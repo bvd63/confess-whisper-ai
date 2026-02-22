@@ -15,7 +15,7 @@ export const fetchWithTimeout = async (
   timeoutMs = 10_000,
 ): Promise<Response> => {
   const controller = new AbortController();
-  linkAbortSignals(init.signal, controller);
+  linkAbortSignals(init.signal ?? undefined, controller);
 
   const timeoutId = setTimeout(() => {
     controller.abort();

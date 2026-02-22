@@ -1,78 +1,108 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Crown, Sparkles, X } from "lucide-react";
-import { VIPFeatureComparison } from "./VIPFeatureComparison";
+import { Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
 import { logInfo, logError } from "@/lib/logger";
 
 interface OnboardingTranslations {
   title: string;
   subtitle: string;
-  description: string;
+  trialBadge: string;
   startTrial: string;
   activating: string;
   continueFree: string;
-  trialNote: string;
-  trialBadge: string;
   successTitle: string;
   successDesc: string;
   errorAlreadyUsed: string;
   errorAlreadyUsedDesc: string;
   errorActivation: string;
   errorActivationDesc: string;
+  colFree: string;
+  colVip: string;
+  rowConfessions: string;
+  rowConfessionsFree: string;
+  rowConfessionsVip: string;
+  rowCoins: string;
+  rowCoinsFree: string;
+  rowCoinsVip: string;
+  rowBadge: string;
+  rowFlairs: string;
 }
 
 const translations: Record<string, OnboardingTranslations> = {
   en: {
     title: "Welcome to ConfessAI",
-    subtitle: "Experience VIP Features Risk-Free",
-    description: "Unlock unlimited confessions, exclusive badges, and priority support. No credit card required.",
+    subtitle: "Unlock VIP perks — no credit card required.",
+    trialBadge: "3-Day Free Trial",
     startTrial: "Start Free Trial",
     activating: "Activating...",
     continueFree: "Continue with Free",
-    trialNote: "Your trial will automatically convert to the free plan after 7 days. You can upgrade to VIP anytime.",
-    trialBadge: "7-Day Free Trial",
     successTitle: "Welcome to VIP! 🎉",
-    successDesc: "Your 7-day free trial is now active. Enjoy all VIP features!",
+    successDesc: "Your 3-day free trial is now active. Enjoy all VIP features!",
     errorAlreadyUsed: "Trial Already Used",
     errorAlreadyUsedDesc: "You've already used your free trial. Upgrade to VIP for full access.",
     errorActivation: "Activation Failed",
     errorActivationDesc: "Something went wrong. Please try again later.",
+    colFree: "Free",
+    colVip: "VIP",
+    rowConfessions: "Daily confessions",
+    rowConfessionsFree: "5/day",
+    rowConfessionsVip: "Unlimited",
+    rowCoins: "250 Bonus Coins",
+    rowCoinsFree: "—",
+    rowCoinsVip: "250 coins\n(one-time)",
+    rowBadge: "VIP Badge",
+    rowFlairs: "Special Flairs",
   },
   es: {
     title: "Bienvenido a ConfessAI",
-    subtitle: "Experimenta las funciones VIP sin riesgo",
-    description: "Desbloquea confesiones ilimitadas, insignias exclusivas y soporte prioritario. Sin tarjeta de crédito.",
+    subtitle: "Desbloquea ventajas VIP — sin tarjeta de crédito.",
+    trialBadge: "Prueba gratuita de 3 días",
     startTrial: "Comenzar prueba gratuita",
     activating: "Activando...",
     continueFree: "Continuar gratis",
-    trialNote: "Tu prueba se convertirá automáticamente al plan gratuito después de 7 días. Puedes actualizar a VIP en cualquier momento.",
-    trialBadge: "Prueba gratuita de 7 días",
     successTitle: "¡Bienvenido a VIP! 🎉",
-    successDesc: "Tu prueba gratuita de 7 días está activa. ¡Disfruta de todas las funciones VIP!",
+    successDesc: "Tu prueba gratuita de 3 días está activa. ¡Disfruta de todas las funciones VIP!",
     errorAlreadyUsed: "Prueba ya usada",
     errorAlreadyUsedDesc: "Ya has usado tu prueba gratuita. Actualiza a VIP para acceso completo.",
     errorActivation: "Activación fallida",
     errorActivationDesc: "Algo salió mal. Por favor, inténtalo más tarde.",
+    colFree: "Gratis",
+    colVip: "VIP",
+    rowConfessions: "Confesiones diarias",
+    rowConfessionsFree: "5/día",
+    rowConfessionsVip: "Ilimitadas",
+    rowCoins: "250 Monedas Bonus",
+    rowCoinsFree: "—",
+    rowCoinsVip: "250 monedas\n(una vez)",
+    rowBadge: "Insignia VIP",
+    rowFlairs: "Flairs Especiales",
   },
   de: {
     title: "Willkommen bei ConfessAI",
-    subtitle: "Erlebe VIP-Funktionen risikofrei",
-    description: "Unbegrenzte Geständnisse, exklusive Abzeichen und prioritären Support freischalten. Keine Kreditkarte erforderlich.",
+    subtitle: "VIP-Vorteile freischalten — keine Kreditkarte nötig.",
+    trialBadge: "3-Tage kostenlose Testversion",
     startTrial: "Kostenlose Testversion starten",
     activating: "Wird aktiviert...",
     continueFree: "Kostenlos fortfahren",
-    trialNote: "Deine Testversion wird nach 7 Tagen automatisch in den kostenlosen Plan umgewandelt. Du kannst jederzeit auf VIP upgraden.",
-    trialBadge: "7-Tage kostenlose Testversion",
     successTitle: "Willkommen bei VIP! 🎉",
-    successDesc: "Deine 7-Tage-Testversion ist jetzt aktiv. Genieße alle VIP-Funktionen!",
+    successDesc: "Deine 3-Tage-Testversion ist jetzt aktiv. Genieße alle VIP-Funktionen!",
     errorAlreadyUsed: "Testversion bereits genutzt",
     errorAlreadyUsedDesc: "Du hast deine kostenlose Testversion bereits genutzt. Upgrade auf VIP für vollen Zugriff.",
     errorActivation: "Aktivierung fehlgeschlagen",
     errorActivationDesc: "Etwas ist schiefgelaufen. Bitte versuche es später erneut.",
+    colFree: "Kostenlos",
+    colVip: "VIP",
+    rowConfessions: "Tägliche Geständnisse",
+    rowConfessionsFree: "5/Tag",
+    rowConfessionsVip: "Unbegrenzt",
+    rowCoins: "250 Bonus-Münzen",
+    rowCoinsFree: "—",
+    rowCoinsVip: "250 Münzen\n(einmalig)",
+    rowBadge: "VIP-Abzeichen",
+    rowFlairs: "Spezielle Flairs",
   },
 };
 
@@ -82,14 +112,13 @@ interface VIPOnboardingModalProps {
   onTrialActivated?: () => void;
 }
 
-export const VIPOnboardingModal = ({ 
-  open, 
-  onOpenChange, 
-  onTrialActivated 
+export const VIPOnboardingModal = ({
+  open,
+  onOpenChange,
+  onTrialActivated,
 }: VIPOnboardingModalProps) => {
   const [isActivating, setIsActivating] = useState(false);
-  const navigate = useNavigate();
-  const lang = (navigator.language || 'en').slice(0, 2);
+  const lang = (navigator.language || "en").slice(0, 2);
   const t = translations[lang] || translations.en;
 
   const handleActivateTrial = async () => {
@@ -106,36 +135,21 @@ export const VIPOnboardingModal = ({
 
       if (!data.success) {
         if (data.error === "trial_already_used") {
-          toast.error(t.errorAlreadyUsed, {
-            description: t.errorAlreadyUsedDesc,
-          });
+          toast.error(t.errorAlreadyUsed, { description: t.errorAlreadyUsedDesc });
         } else {
-          toast.error(t.errorActivation, {
-            description: data.message || t.errorActivationDesc,
-          });
+          toast.error(t.errorActivation, { description: data.message || t.errorActivationDesc });
         }
         return;
       }
 
       logInfo("Trial activated successfully", { trialEndsAt: data.trial_ends_at });
-
-      toast.success(t.successTitle, {
-        description: t.successDesc,
-        duration: 5000,
-      });
-
+      toast.success(t.successTitle, { description: t.successDesc, duration: 5000 });
       onOpenChange(false);
       onTrialActivated?.();
-
-      // Refresh page to update subscription state
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      setTimeout(() => window.location.reload(), 1000);
     } catch (error) {
       logError("Trial activation error", { error });
-      toast.error(t.errorActivation, {
-        description: t.errorActivationDesc,
-      });
+      toast.error(t.errorActivation, { description: t.errorActivationDesc });
     } finally {
       setIsActivating(false);
     }
@@ -146,74 +160,106 @@ export const VIPOnboardingModal = ({
     onOpenChange(false);
   };
 
+  const rows = [
+    { label: t.rowConfessions, free: t.rowConfessionsFree, vip: t.rowConfessionsVip, isCheck: false },
+    { label: t.rowCoins, free: t.rowCoinsFree, vip: t.rowCoinsVip, isCheck: false },
+    { label: t.rowBadge, free: "—", vip: "check", isCheck: true },
+    { label: t.rowFlairs, free: "—", vip: "check", isCheck: true },
+  ];
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl">
-        <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="flex items-center gap-2 text-2xl">
-              <Crown className="w-6 h-6 text-primary" />
-              {t.title}
-            </DialogTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleSkip}
-              className="h-10 w-10 rounded-xl"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-        </DialogHeader>
+      <DialogContent
+        className="max-w-[min(92vw,400px)] rounded-3xl border border-white/[0.08] p-0 overflow-hidden shadow-[0_0_80px_rgba(139,92,246,0.15)]"
+        style={{
+          background: "linear-gradient(180deg, hsl(260 20% 12%) 0%, hsl(260 15% 8%) 100%)",
+          backdropFilter: "blur(40px)",
+        }}
+      >
+        <DialogTitle className="sr-only">{t.title}</DialogTitle>
 
-        <div className="space-y-6 py-4">
-          <div className="text-center space-y-3">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold">
-              <Sparkles className="w-4 h-4" />
-              {t.trialBadge}
-            </div>
-            <h3 className="text-xl font-bold text-foreground">
-              {t.subtitle}
-            </h3>
-            <p className="text-base text-muted-foreground">
-              {t.description}
-            </p>
+        <div className="flex flex-col items-center px-5 pt-7 pb-5 gap-3">
+          {/* Title */}
+          <h2 className="text-[clamp(1.25rem,5vw,1.5rem)] font-bold text-white tracking-tight text-center">
+            {t.title}
+          </h2>
+
+          {/* Trial Badge */}
+          <div
+            className="px-4 py-1.5 rounded-full text-xs font-semibold text-white/90"
+            style={{
+              background: "linear-gradient(135deg, hsl(265 60% 45% / 0.5), hsl(265 60% 35% / 0.3))",
+              border: "1px solid hsl(265 60% 50% / 0.3)",
+              boxShadow: "0 0 12px hsl(265 60% 50% / 0.2)",
+            }}
+          >
+            {t.trialBadge}
           </div>
 
-          <VIPFeatureComparison lang={lang} />
-
-          <div className="flex flex-col sm:flex-row gap-3 pt-4">
-            <Button
-              size="lg"
-              className="flex-1 gap-2 font-semibold rounded-xl h-12"
-              onClick={handleActivateTrial}
-              disabled={isActivating}
-            >
-              {isActivating ? (
-                <>
-                  <span className="animate-spin">⏳</span>
-                  {t.activating}
-                </>
-              ) : (
-                <>
-                  <Crown className="w-5 h-5" />
-                  {t.startTrial}
-                </>
-              )}
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="flex-1 rounded-xl h-12"
-              onClick={handleSkip}
-            >
-              {t.continueFree}
-            </Button>
-          </div>
-
-          <p className="text-sm text-center text-muted-foreground px-4">
-            {t.trialNote}
+          {/* Subtitle */}
+          <p className="text-[clamp(0.8rem,3.5vw,0.875rem)] text-white/50 text-center font-light leading-snug">
+            {t.subtitle}
           </p>
+
+          {/* Comparison Table */}
+          <div
+            className="w-full rounded-2xl overflow-hidden mt-1"
+            style={{
+              background: "hsl(260 15% 14% / 0.6)",
+              border: "1px solid hsl(0 0% 100% / 0.06)",
+            }}
+          >
+            {/* Table Header */}
+            <div className="grid grid-cols-[1fr_70px_70px] items-center px-3 py-2.5">
+              <div />
+              <span className="text-center text-xs font-semibold text-white/40">{t.colFree}</span>
+              <span className="text-center text-xs font-semibold text-primary">{t.colVip}</span>
+            </div>
+
+            {/* Rows */}
+            {rows.map((row, i) => (
+              <div
+                key={i}
+                className="grid grid-cols-[1fr_70px_70px] items-center px-3 py-2.5"
+                style={{
+                  borderTop: "1px solid hsl(0 0% 100% / 0.05)",
+                }}
+              >
+                <span className="text-[0.8rem] font-medium text-white/70">{row.label}</span>
+                <span className="text-center text-[0.75rem] text-white/30">{row.free}</span>
+                <div className="flex items-center justify-center">
+                  {row.isCheck ? (
+                    <Check className="w-4 h-4 text-primary" />
+                  ) : (
+                    <span className="text-[0.75rem] text-primary font-medium whitespace-pre-line text-center">
+                      {row.vip}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Primary CTA */}
+          <Button
+            onClick={handleActivateTrial}
+            disabled={isActivating}
+            className="w-full h-12 rounded-2xl text-base font-semibold text-white border-0 mt-1"
+            style={{
+              background: "linear-gradient(to right, hsl(265 88% 72%), hsl(217 92% 68%))",
+              boxShadow: "0 0 20px hsl(265 88% 72% / 0.3)",
+            }}
+          >
+            {isActivating ? t.activating : t.startTrial}
+          </Button>
+
+          {/* Secondary */}
+          <button
+            onClick={handleSkip}
+            className="text-sm text-white/35 hover:text-white/50 transition-colors py-1"
+          >
+            {t.continueFree}
+          </button>
         </div>
       </DialogContent>
     </Dialog>
