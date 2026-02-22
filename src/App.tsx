@@ -229,14 +229,6 @@ const AppContent = () => {
       <div data-testid="app-ready" style={{ display: 'none' }} />
       
       
-      {/* Trial banner - hidden during password recovery */}
-      {!isPasswordRecovery && user && !isVip && (
-        <UpgradeBanner 
-          daysRemaining={isOnTrial && trialStatus.daysRemaining !== null ? trialStatus.daysRemaining : null}
-          isOnTrial={isOnTrial}
-          onUpgrade={() => navigate('/profile?section=subscription')}
-        />
-      )}
       
       {/* VIP Onboarding modal for new users - hidden during password recovery */}
       {!isPasswordRecovery && onboardingChecked && showVIPOnboarding && user && (
