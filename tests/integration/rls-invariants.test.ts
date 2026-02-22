@@ -32,4 +32,18 @@ describe("RLS and migration security invariants", () => {
     expect(allMigrationContent).not.toMatch(/Authorization"\s*:\s*"Bearer/i);
     expect(allMigrationContent).not.toMatch(/eyJ[a-zA-Z0-9_\-\.]{20,}/);
   });
+
+  it("blocks streak write tampering and removes badge-driven auto-approval", () => {
+    const sql = readMigration("20260218136000_streak_moderation_bypass_guard.sql");
+
+    // Authenticated users must not be able to mutate streak rows directly.
+    expect(sql).toContain('drop policy if exists "Users can update their streak" on public.user_streaks;');
+    expect(sql).toContain('drop policy if exists "Users can insert their streak" on public.user_streaks;');
+    expect(sql).toContain('create policy "user_streaks_service_role_write"');
+    expect(sql).toContain("to service_role");
+
+    // Badge ownership must not auto-approve confession moderation.
+    expect(sql).toContain("create or replace function public.auto_moderate_confession()");
+    expect(sql).not.toContain("from user_badges");
+  });
 });
