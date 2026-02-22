@@ -31,73 +31,57 @@ const applyRateLimit = async (
   const now = new Date();
   const fallbackResetAt = new Date(now.getTime() + config.windowMs).toISOString();
 
-  const { data: existing, error: fetchError } = await supabaseClient
-    .from('rate_limits')
-    .select('*')
-    .eq('key', key)
-    .maybeSingle();
+  const { data: atomicData, error: rpcError } = await supabaseClient.rpc(
+    'increment_rate_limit_counter',
+    { _key: key, _window_ms: config.windowMs },
+  );
 
-  if (fetchError) {
-    console.error('[rate-limit] Error fetching rate limit:', fetchError);
+  if (rpcError) {
+    console.error('[rate-limit] Atomic counter RPC failed:', rpcError);
     return {
-      allowed: true,
-      remaining: config.maxAttempts,
+      allowed: false,
+      remaining: 0,
       resetAt: fallbackResetAt,
+      retryAfter: Math.ceil(config.windowMs / 1000),
       identifierType: identifier.type,
-      error: 'Rate limit check failed',
+      error: 'RATE_LIMIT_STORAGE_ERROR',
     };
   }
 
-  if (existing && new Date(existing.reset_at) > now) {
-    if (existing.count >= config.maxAttempts) {
-      const retryAfter = Math.ceil((new Date(existing.reset_at).getTime() - now.getTime()) / 1000);
-      return {
-        allowed: false,
-        remaining: 0,
-        resetAt: existing.reset_at,
-        retryAfter,
-        identifierType: identifier.type,
-      };
-    }
+  const row = Array.isArray(atomicData) ? atomicData[0] : atomicData;
+  const currentCount = Number(row?.current_count);
+  const parsedResetAt = row?.reset_at ? new Date(row.reset_at) : null;
+  const resetAt = parsedResetAt && !Number.isNaN(parsedResetAt.getTime())
+    ? parsedResetAt.toISOString()
+    : fallbackResetAt;
 
-    const newCount = existing.count + 1;
-    const { error: updateError } = await supabaseClient
-      .from('rate_limits')
-      .update({ count: newCount })
-      .eq('key', key);
-
-    if (updateError) {
-      console.error('[rate-limit] Error updating rate limit:', updateError);
-    }
-
+  if (!Number.isFinite(currentCount) || currentCount < 1) {
+    console.error('[rate-limit] Invalid atomic counter response:', { key, row });
     return {
-      allowed: true,
-      remaining: config.maxAttempts - newCount,
-      resetAt: existing.reset_at,
+      allowed: false,
+      remaining: 0,
+      resetAt,
+      retryAfter: Math.ceil(config.windowMs / 1000),
       identifierType: identifier.type,
+      error: 'RATE_LIMIT_STORAGE_ERROR',
     };
   }
 
-  const newResetAt = new Date(now.getTime() + config.windowMs).toISOString();
-  const { error: upsertError } = await supabaseClient
-    .from('rate_limits')
-    .upsert({ key, count: 1, reset_at: newResetAt });
-
-  if (upsertError) {
-    console.error('[rate-limit] Error creating rate limit:', upsertError);
+  if (currentCount > config.maxAttempts) {
+    const retryAfter = Math.max(1, Math.ceil((new Date(resetAt).getTime() - now.getTime()) / 1000));
     return {
-      allowed: true,
-      remaining: config.maxAttempts - 1,
-      resetAt: newResetAt,
+      allowed: false,
+      remaining: 0,
+      resetAt,
+      retryAfter,
       identifierType: identifier.type,
-      error: 'Rate limit creation failed',
     };
   }
 
   return {
     allowed: true,
-    remaining: config.maxAttempts - 1,
-    resetAt: newResetAt,
+    remaining: Math.max(0, config.maxAttempts - currentCount),
+    resetAt,
     identifierType: identifier.type,
   };
 };
