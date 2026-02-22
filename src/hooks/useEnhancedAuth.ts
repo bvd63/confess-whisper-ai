@@ -11,6 +11,13 @@ interface SessionMetadata {
   stayConnected?: boolean;
 }
 
+interface InvokeErrorWithContext {
+  context?: {
+    status?: number;
+    body?: string;
+  };
+}
+
 interface EnhancedAuthSession {
   id: string;
   device_id: string | null;
@@ -56,6 +63,65 @@ export const useEnhancedAuth = () => {
         stayConnected: sessionMetadata?.stayConnected || false,
         ...sessionMetadata,
       };
+
+      try {
+        const { data: rateLimitData, error: rateLimitError } = await supabase.functions.invoke('rate-limit', {
+          body: { action: 'login' },
+        });
+
+        const rateLimitPayload = (rateLimitData && typeof rateLimitData === 'object')
+          ? (rateLimitData as Record<string, unknown>)
+          : undefined;
+
+        const invokeError = rateLimitError as InvokeErrorWithContext | null;
+        const rateLimitStatus = invokeError?.context?.status;
+        const rawRateLimitBody = invokeError?.context?.body;
+        let parsedRateLimitBody: Record<string, unknown> | undefined;
+        if (rawRateLimitBody) {
+          try {
+            const parsed = JSON.parse(rawRateLimitBody);
+            parsedRateLimitBody = parsed && typeof parsed === 'object'
+              ? parsed as Record<string, unknown>
+              : undefined;
+          } catch {
+            parsedRateLimitBody = undefined;
+          }
+        }
+
+        const isRateLimited = rateLimitStatus === 429
+          || rateLimitPayload?.allowed === false
+          || parsedRateLimitBody?.allowed === false;
+
+        if (isRateLimited) {
+          const retryAfterSeconds =
+            (typeof rateLimitPayload?.retryAfterSeconds === 'number' ? rateLimitPayload.retryAfterSeconds : undefined)
+            ?? (typeof rateLimitPayload?.retryAfter === 'number' ? rateLimitPayload.retryAfter : undefined)
+            ?? (typeof parsedRateLimitBody?.retryAfterSeconds === 'number' ? parsedRateLimitBody.retryAfterSeconds : undefined)
+            ?? (typeof parsedRateLimitBody?.retryAfter === 'number' ? parsedRateLimitBody.retryAfter : undefined);
+
+          const retryMessage = retryAfterSeconds && retryAfterSeconds > 0
+            ? ` (${retryAfterSeconds}s)`
+            : '';
+          const errorMessage = `${t.common_rate_limit}${retryMessage}`;
+
+          toast({
+            title: t.common_error,
+            description: errorMessage,
+            variant: 'destructive',
+          });
+
+          return {
+            data: null,
+            error: {
+              message: errorMessage,
+              code: 'RATE_LIMIT',
+              status: 429,
+            },
+          };
+        }
+      } catch {
+        // Rate-limit check is fail-open for availability issues.
+      }
 
       const { data, error } = await supabase.functions.invoke('enhanced-auth?action=enhanced-login', {
         body: {

@@ -7,6 +7,7 @@ export const RATE_LIMIT_CONFIGS: Record<string, RateLimitConfig> = {
   confession_create: { maxAttempts: 10, windowMs: 60_000 },
   comment_create: { maxAttempts: 20, windowMs: 60_000 },
   message_send: { maxAttempts: 30, windowMs: 60_000 },
+  login: { maxAttempts: 8, windowMs: 60_000 },
   ai_request: { maxAttempts: 5, windowMs: 60_000 },
   ai_response_free: { maxAttempts: 3, windowMs: 60_000 },
   ai_response_vip: { maxAttempts: 10, windowMs: 60_000 },

@@ -168,19 +168,31 @@ describe("useEnhancedAuth", () => {
     expect(result.current.loading).toBe(false);
   });
 
-  it("returns friendly rate-limit error for login 429 without throwing", async () => {
-    functionsInvokeMock.mockResolvedValue({
-      data: null,
-      error: {
-        message: "Edge Function returned a non-2xx status code",
-        context: {
-          status: 429,
-          body: JSON.stringify({
-            error: "RATE_LIMIT",
-            messageKey: "common.rate_limit",
-          }),
-        },
-      },
+  it("blocks login when pre-login rate-limit denies and skips auth call", async () => {
+    functionsInvokeMock.mockImplementation(async (name: string) => {
+      if (name === "rate-limit") {
+        return {
+          data: {
+            allowed: false,
+            retryAfterSeconds: 45,
+            error: "RATE_LIMITED",
+            messageKey: "auth.too_many_attempts",
+          },
+          error: null,
+        };
+      }
+
+      if (name === "enhanced-auth?action=enhanced-login") {
+        return {
+          data: {
+            user: { id: "test-user" },
+            session: { access_token: "access", refresh_token: "refresh" },
+          },
+          error: null,
+        };
+      }
+
+      return { data: null, error: null };
     });
 
     const { result } = renderHook(() => useEnhancedAuth());
@@ -197,12 +209,72 @@ describe("useEnhancedAuth", () => {
 
     expect(response?.error).toBeTruthy();
     expect(response?.error?.code).toBe("RATE_LIMIT");
+    expect(functionsInvokeMock).toHaveBeenCalledWith(
+      "rate-limit",
+      expect.objectContaining({
+        body: { action: "login" },
+      }),
+    );
+    expect(functionsInvokeMock).not.toHaveBeenCalledWith(
+      "enhanced-auth?action=enhanced-login",
+      expect.anything(),
+    );
     expect(toastMock).toHaveBeenCalledWith(
       expect.objectContaining({
         title: TOAST_TITLE_ERROR,
-        description: translations.en.common_rate_limit,
+        description: expect.stringContaining(translations.en.common_rate_limit),
         variant: "destructive",
       }),
+    );
+    expect(result.current.loading).toBe(false);
+  });
+
+  it("fails open when pre-login rate-limit is unavailable", async () => {
+    functionsInvokeMock.mockImplementation(async (name: string) => {
+      if (name === "rate-limit") {
+        return {
+          data: null,
+          error: {
+            message: "Edge Function returned a non-2xx status code",
+            context: {
+              status: 503,
+              body: JSON.stringify({
+                error: "RATE_LIMIT_UNAVAILABLE",
+              }),
+            },
+          },
+        };
+      }
+
+      if (name === "enhanced-auth?action=enhanced-login") {
+        return {
+          data: {
+            user: { id: "test-user" },
+            session: { access_token: "access", refresh_token: "refresh" },
+          },
+          error: null,
+        };
+      }
+
+      return { data: null, error: null };
+    });
+
+    const { result } = renderHook(() => useEnhancedAuth());
+
+    let response: Awaited<ReturnType<typeof result.current.enhancedLogin>> | undefined;
+    await act(async () => {
+      response = await result.current.enhancedLogin(
+        "test@example.com",
+        "StrongPassw0rd!",
+        "captcha-token",
+        { stayConnected: false },
+      );
+    });
+
+    expect(response?.error).toBeNull();
+    expect(functionsInvokeMock).toHaveBeenCalledWith(
+      "enhanced-auth?action=enhanced-login",
+      expect.any(Object),
     );
     expect(result.current.loading).toBe(false);
   });

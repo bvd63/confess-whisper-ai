@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { getAuthenticatedRequestContext, requireInternalSecret } from "../_shared/edge-auth.ts";
+import { getClientIp } from "../_shared/request-ip.ts";
 import {
   normalizeRateLimitRequest,
   type RateLimitIdentifier,
@@ -20,6 +21,8 @@ interface RateLimitCheckResult {
   identifierType: "user" | "ip";
   error?: string;
 }
+
+const LOGIN_ACTION = "login";
 
 const applyRateLimit = async (
   supabaseClient: any,
@@ -103,7 +106,30 @@ serve(async (req: Request) => {
       );
     }
 
-    const normalized = normalizeRateLimitRequest(rawBody);
+    const bodyForNormalization =
+      rawBody && typeof rawBody === "object"
+        ? { ...(rawBody as Record<string, unknown>) }
+        : {};
+
+    const requestedAction = typeof bodyForNormalization.action === "string"
+      ? bodyForNormalization.action.trim().toLowerCase()
+      : "";
+
+    if (requestedAction === LOGIN_ACTION) {
+      const hasUserId = typeof bodyForNormalization.userId === "string"
+        && bodyForNormalization.userId.trim().length > 0;
+      const hasIp = typeof bodyForNormalization.ip === "string"
+        && bodyForNormalization.ip.trim().length > 0;
+
+      if (!hasUserId && !hasIp) {
+        const inferredIp = getClientIp(req);
+        if (inferredIp && inferredIp !== "unknown") {
+          bodyForNormalization.ip = inferredIp;
+        }
+      }
+    }
+
+    const normalized = normalizeRateLimitRequest(bodyForNormalization);
     if (!normalized.ok) {
       return new Response(
         JSON.stringify({ error: normalized.error }),
@@ -112,12 +138,15 @@ serve(async (req: Request) => {
     }
 
     const { action, identifiers: normalizedIdentifiers, config } = normalized.data;
+    const isLoginAction = action === LOGIN_ACTION;
 
     const authContext = await getAuthenticatedRequestContext(req);
     if (!authContext.ok) {
-      const internal = requireInternalSecret(req);
-      if (!internal.ok) {
-        return internal.response;
+      if (!isLoginAction) {
+        const internal = requireInternalSecret(req);
+        if (!internal.ok) {
+          return internal.response;
+        }
       }
     }
 
@@ -149,19 +178,59 @@ serve(async (req: Request) => {
     } else {
       const userIdentifier = normalizedIdentifiers.find((identifier) => identifier.type === 'user');
       const ipIdentifier = normalizedIdentifiers.find((identifier) => identifier.type === 'ip');
-      if (!userIdentifier && !ipIdentifier) {
+      let resolvedIpIdentifier = ipIdentifier;
+
+      if (isLoginAction && !resolvedIpIdentifier) {
+        const inferredIp = getClientIp(req);
+        if (inferredIp && inferredIp !== "unknown") {
+          resolvedIpIdentifier = { value: inferredIp, type: "ip" };
+        }
+      }
+
+      if (!userIdentifier && !resolvedIpIdentifier) {
+        if (isLoginAction) {
+          return new Response(
+            JSON.stringify({ allowed: true }),
+            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+          );
+        }
+
         return new Response(
           JSON.stringify({ error: 'MISSING_IDENTIFIER' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
         );
       }
-      identifiers = [userIdentifier ?? ipIdentifier!];
+      identifiers = [userIdentifier ?? resolvedIpIdentifier!];
     }
 
     const checks: RateLimitCheckResult[] = [];
     for (const identifier of identifiers) {
       const result = await applyRateLimit(supabaseClient, action, identifier, config);
       if (!result.allowed) {
+        const retryAfterSeconds = result.retryAfter ?? Math.ceil(config.windowMs / 1000);
+        if (isLoginAction) {
+          return new Response(
+            JSON.stringify({
+              allowed: false,
+              retryAfterSeconds,
+              retryAfter: retryAfterSeconds,
+              error: "RATE_LIMITED",
+              messageKey: "auth.too_many_attempts",
+              identifierType: result.identifierType,
+            }),
+            {
+              status: 429,
+              headers: {
+                ...corsHeaders,
+                'Content-Type': 'application/json',
+                'Retry-After': retryAfterSeconds.toString(),
+                'X-RateLimit-Limit': config.maxAttempts.toString(),
+                'X-RateLimit-Remaining': '0',
+              },
+            },
+          );
+        }
+
         return new Response(
           JSON.stringify({
             allowed: false,
@@ -200,6 +269,13 @@ serve(async (req: Request) => {
     }, null);
 
     const fallbackType = identifiers[0]?.type ?? 'ip';
+    if (isLoginAction) {
+      return new Response(
+        JSON.stringify({ allowed: true }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+
     const responseBody: Record<string, unknown> = {
       allowed: true,
       remaining: summary?.remaining ?? config.maxAttempts,

@@ -78,6 +78,22 @@ describe("rate-limit utils", () => {
       });
     });
 
+    it("applies login pre-check rate limit config", () => {
+      const result = normalizeRateLimitRequest({
+        action: "login",
+        ip: "198.51.100.42",
+      });
+
+      expect(result).toEqual({
+        ok: true,
+        data: {
+          action: "login",
+          identifiers: [{ value: "198.51.100.42", type: "ip" }],
+          config: RATE_LIMIT_CONFIGS.login,
+        },
+      });
+    });
+
     it("applies dedicated free AI response config", () => {
       const result = normalizeRateLimitRequest({
         action: "ai_response_free",
