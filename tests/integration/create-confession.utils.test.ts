@@ -3,6 +3,7 @@ import {
   sanitizeBasic,
   sanitizeDisplayName,
   clampIntensity,
+  guardCommunitiesDisabled,
   normalizeCategory,
   SUPPORTED_CATEGORIES,
   normalizeCreateConfessionPayload,
@@ -124,6 +125,35 @@ describe("create-confession utils", () => {
 
       if (!withoutToken.ok) throw new Error("expected success");
       expect(withoutToken.data.captchaToken).toBeNull();
+    });
+  });
+
+  describe("guardCommunitiesDisabled", () => {
+    it("rejects requests that include communityId with 400 COMMUNITIES_DISABLED", () => {
+      const result = guardCommunitiesDisabled({
+        content: "This should be blocked even if content is valid",
+        communityId: "community-123",
+      });
+
+      expect(result).toEqual({
+        ok: false,
+        status: 400,
+        error: "COMMUNITIES_DISABLED",
+      });
+    });
+
+    it("allows requests when communityId is absent and payload still normalizes", () => {
+      const body = {
+        content: "This confession should continue to work without a community id",
+        category: "work",
+      };
+      const guardResult = guardCommunitiesDisabled(body);
+      const normalized = normalizeCreateConfessionPayload(body);
+
+      expect(guardResult).toEqual({ ok: true });
+      expect(normalized.ok).toBe(true);
+      if (!normalized.ok) return;
+      expect(normalized.data.communityId).toBeNull();
     });
   });
 });

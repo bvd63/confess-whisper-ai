@@ -6,6 +6,11 @@ import {
   jsonResponse,
   requireInternalSecret,
 } from "../_shared/edge-auth.ts";
+import {
+  buildSubscriptionBonusIdempotencyKey,
+  isDuplicateCoinTransactionError,
+  stableUuidFromString,
+} from "./utils.ts";
 
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
@@ -22,13 +27,16 @@ const awardBonusCoins = async (
     userId,
     amount,
     tier,
+    referenceId,
+    idempotencyKey,
   }: {
     userId: string;
     amount: number;
     tier: string;
+    referenceId: string;
+    idempotencyKey: string;
   },
 ) => {
-  const referenceId = crypto.randomUUID();
   let result = await supabaseClient.rpc('award_coins', {
     _user_id: userId,
     _amount: amount,
@@ -43,7 +51,7 @@ const awardBonusCoins = async (
   result = await supabaseClient.rpc('award_coins', {
     p_user_id: userId,
     p_amount: amount,
-    p_session_id: `subscription_bonus_${tier}_${userId}`,
+    p_session_id: idempotencyKey,
     p_description: `Welcome bonus for activating ${tier.toUpperCase()} subscription`,
   });
 
@@ -92,7 +100,7 @@ serve(async (req) => {
 
     const { data: profile, error: profileError } = await supabaseClient
       .from("profiles")
-      .select("subscription_tier, subscription_status, stripe_subscription_id")
+      .select("subscription_tier, subscription_status, stripe_subscription_id, subscription_ends_at")
       .eq("user_id", userId)
       .maybeSingle();
     if (profileError) {
@@ -124,16 +132,30 @@ serve(async (req) => {
 
     logStep("Processing subscription bonus", { userId, effectiveTier, effectiveStatus });
 
-    // Check if coins already awarded for this tier
-    const { data: existingTransaction } = await supabaseClient
+    const idempotencyKey = buildSubscriptionBonusIdempotencyKey({
+      userId,
+      tier: effectiveTier,
+      subscriptionId: profile?.stripe_subscription_id ?? null,
+      subscriptionEndsAt: profile?.subscription_ends_at ?? null,
+    });
+    const referenceId = await stableUuidFromString(idempotencyKey);
+
+    // Check if this specific subscription period bonus already exists.
+    const { data: existingTransaction, error: existingTransactionError } = await supabaseClient
       .from('coin_transactions')
       .select('id')
       .eq('user_id', userId)
       .eq('type', `subscription_${effectiveTier}_bonus`)
+      .eq('reference_id', referenceId)
+      .limit(1)
       .maybeSingle();
+    if (existingTransactionError) {
+      logStep("Failed checking bonus idempotency", { userId, error: existingTransactionError.message });
+      return jsonResponse({ error: "IDEMPOTENCY_CHECK_FAILED" }, 500);
+    }
 
     if (existingTransaction) {
-      logStep("Coins already awarded for this tier");
+      logStep("Coins already awarded for this subscription period", { userId, idempotencyKey });
       return new Response(JSON.stringify({ success: true, awarded: false }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
@@ -146,15 +168,30 @@ serve(async (req) => {
       throw new Error("Invalid tier for coin award");
     }
 
-    const { error: awardError } = await awardBonusCoins(supabaseClient, {
+    const { data: awardData, error: awardError } = await awardBonusCoins(supabaseClient, {
       userId,
       amount: coinsToAward,
       tier: effectiveTier,
+      referenceId,
+      idempotencyKey,
     });
 
     if (awardError) {
+      if (isDuplicateCoinTransactionError(awardError)) {
+        logStep("Duplicate subscription bonus prevented by DB constraint", { userId, idempotencyKey });
+        return jsonResponse({ success: true, awarded: false }, 200);
+      }
       logStep("Error awarding coins", { error: awardError });
       throw awardError;
+    }
+
+    if (
+      awardData &&
+      typeof awardData === "object" &&
+      (awardData as { success?: boolean }).success === false
+    ) {
+      logStep("Award RPC reported no-op for duplicate request", { userId, idempotencyKey, awardData });
+      return jsonResponse({ success: true, awarded: false }, 200);
     }
 
     logStep("Coins awarded successfully", { amount: coinsToAward });

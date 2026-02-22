@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import {
+  guardCommunitiesDisabled,
   normalizeCreateConfessionPayload,
 } from "./utils.ts";
 
@@ -139,6 +140,14 @@ serve(async (req: Request) => {
     } catch (parseError) {
       console.warn("[create-confession] Failed to parse request body", parseError);
       return jsonResponse({ error: "INVALID_JSON", messageKey: "common.invalid_request" }, 400);
+    }
+
+    const communityGuard = guardCommunitiesDisabled(rawBody);
+    if (!communityGuard.ok) {
+      return jsonResponse({
+        error: communityGuard.error,
+        messageKey: "confession.communities_disabled",
+      }, communityGuard.status);
     }
 
     const normalizedBody = normalizeCreateConfessionPayload(rawBody);

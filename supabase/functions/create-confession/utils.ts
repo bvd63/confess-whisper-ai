@@ -139,3 +139,16 @@ export const normalizeCreateConfessionPayload = (
     },
   };
 };
+
+export type CommunitiesDisabledGuard =
+  | { ok: true }
+  | { ok: false; status: 400; error: "COMMUNITIES_DISABLED" };
+
+export const guardCommunitiesDisabled = (value: unknown): CommunitiesDisabledGuard => {
+  if (!value || typeof value !== "object") return { ok: true };
+  const communityId = (value as Record<string, unknown>).communityId;
+  if (communityId !== null && communityId !== undefined) {
+    return { ok: false, status: 400, error: "COMMUNITIES_DISABLED" };
+  }
+  return { ok: true };
+};
