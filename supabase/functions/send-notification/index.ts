@@ -7,6 +7,7 @@ import {
   jsonResponse,
   requireInternalSecret,
 } from "../_shared/edge-auth.ts";
+import { fetchWithTimeout } from "../_shared/fetch-with-timeout.ts";
 
 const ONESIGNAL_APP_ID = Deno.env.get("ONESIGNAL_APP_ID") || Deno.env.get("VITE_ONESIGNAL_APP_ID");
 const ONESIGNAL_REST_API_KEY = Deno.env.get("ONESIGNAL_REST_API_KEY");
@@ -217,7 +218,7 @@ serve(async (req) => {
     logStep("Sending OneSignal notification", { heading, playerId: recipientProfile.onesignal_player_id });
 
     // Send OneSignal notification
-    const oneSignalResponse = await fetch("https://onesignal.com/api/v1/notifications", {
+    const oneSignalResponse = await fetchWithTimeout("https://onesignal.com/api/v1/notifications", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -235,7 +236,7 @@ serve(async (req) => {
           triggeredBy: payload.triggeredBy,
         },
       }),
-    });
+    }, 10_000);
 
     const oneSignalData = await oneSignalResponse.json();
 

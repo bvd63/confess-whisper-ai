@@ -2,6 +2,11 @@
 // @ts-nocheck
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.75.0";
+import { fetchWithTimeout } from "../_shared/fetch-with-timeout.ts";
+import {
+  buildSupportEmailBodies,
+  sanitizeSupportField,
+} from "./utils.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,12 +19,6 @@ interface ContactSupportPayload {
   issue?: string;
   language?: string;
 }
-
-// Basic sanitization since this flows into emails
-const sanitize = (value?: string, fallback = "-") => {
-  if (!value) return fallback;
-  return value.toString().trim().slice(0, 2000) || fallback;
-};
 
 const SUPPORTED_LANGS = new Set(["en", "es", "de"]);
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -65,9 +64,9 @@ serve(async (req) => {
       );
     }
 
-    const name = sanitize(rawName);
-    const email = sanitize(rawEmail);
-    const issue = sanitize(rawIssue, "(empty)");
+    const name = sanitizeSupportField(rawName);
+    const email = sanitizeSupportField(rawEmail);
+    const issue = sanitizeSupportField(rawIssue, "(empty)");
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
@@ -96,27 +95,15 @@ serve(async (req) => {
     const supportInbox = Deno.env.get("SUPPORT_EMAIL") ?? "confess.supp@gmail.com";
     const fromAddress = Deno.env.get("SUPPORT_FROM_EMAIL") ?? "ConfessAI Support <support@confess.ai>";
 
-    const subject = `Support request from ${name}`;
-    const textBody = [
-      `Language: ${language}`,
-      `User ID: ${user.id}`,
-      `Email: ${email}`,
-      `Name: ${name}`,
-      `Issue:`,
+    const { subject, textBody, htmlBody } = buildSupportEmailBodies({
+      language,
+      userId: user.id,
+      name,
+      email,
       issue,
-    ].join("\n\n");
+    });
 
-    const htmlBody = `<!doctype html><html><body style="font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.5; color: #0f172a;">
-      <h2 style="margin: 0 0 12px; font-size: 18px;">New ConfessAI support request</h2>
-      <p><strong>Language:</strong> ${language}</p>
-      <p><strong>User ID:</strong> ${user.id}</p>
-      <p><strong>Name:</strong> ${name}</p>
-      <p><strong>Email:</strong> ${email}</p>
-      <p><strong>Issue:</strong></p>
-      <pre style="white-space: pre-wrap; background: #f8fafc; padding: 12px; border-radius: 8px;">${issue}</pre>
-    </body></html>`;
-
-    const resendResponse = await fetch("https://api.resend.com/emails", {
+    const resendResponse = await fetchWithTimeout("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${resendApiKey}`,
@@ -134,7 +121,7 @@ serve(async (req) => {
           { name: "language", value: language },
         ],
       }),
-    });
+    }, 10_000);
 
     if (!resendResponse.ok) {
       const errorPayload = await resendResponse.json().catch(() => ({}));

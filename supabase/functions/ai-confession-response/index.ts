@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { getAuthenticatedRequestContext } from "../_shared/edge-auth.ts";
+import { fetchWithTimeout } from "../_shared/fetch-with-timeout.ts";
 import { resolveServerAiAccess } from "./utils.ts";
 
 const corsHeaders = {
@@ -158,7 +159,7 @@ serve(async (req) => {
 
     logStep("Calling AI", { model, isVip: isVipServer });
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetchWithTimeout("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${LOVABLE_API_KEY}`,
@@ -171,7 +172,7 @@ serve(async (req) => {
           { role: 'user', content: body.text }
         ],
       }),
-    });
+    }, 20_000);
 
     if (!response.ok) {
       const errorText = await response.text();
