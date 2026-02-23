@@ -113,10 +113,7 @@ describe("rate-limit utils", () => {
     it("keeps VIP AI limit higher than free for the same burst", () => {
       const freeLimit = RATE_LIMIT_CONFIGS.ai_response_free.maxAttempts;
       const vipLimit = RATE_LIMIT_CONFIGS.ai_response_vip.maxAttempts;
-      const sameBurst = freeLimit + 1;
 
-      expect(sameBurst > freeLimit).toBe(true);
-      expect(sameBurst > vipLimit).toBe(false);
       expect(vipLimit).toBeGreaterThan(freeLimit);
     });
 
