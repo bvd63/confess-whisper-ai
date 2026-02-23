@@ -831,9 +831,10 @@ serve(async (req) => {
         if (sessionRecord.last_refreshed_at) {
           const lastRefreshedAt = new Date(sessionRecord.last_refreshed_at);
           if (now.getTime() - lastRefreshedAt.getTime() < REFRESH_MIN_ROTATION_INTERVAL) {
+            // Return 200 with error object to avoid runtime error overlay / blank screen
             return new Response(
               JSON.stringify({ error: 'RATE_LIMIT', messageKey: 'common.rate_limit' }),
-              { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+              { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
             );
           }
         }
