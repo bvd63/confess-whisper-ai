@@ -4,19 +4,19 @@ export interface RateLimitConfig {
 }
 
 export const RATE_LIMIT_CONFIGS: Record<string, RateLimitConfig> = {
-  confession_create: { maxAttempts: 10, windowMs: 60_000 },
-  comment_create: { maxAttempts: 20, windowMs: 60_000 },
-  message_send: { maxAttempts: 30, windowMs: 60_000 },
-  login: { maxAttempts: 8, windowMs: 60_000 },
-  ai_request: { maxAttempts: 5, windowMs: 60_000 },
-  ai_response_free: { maxAttempts: 3, windowMs: 60_000 },
-  ai_response_vip: { maxAttempts: 10, windowMs: 60_000 },
-  report_confession: { maxAttempts: 3, windowMs: 5 * 60_000 },
-  auth_login: { maxAttempts: 8, windowMs: 60_000 },
-  auth_signup: { maxAttempts: 5, windowMs: 5 * 60_000 },
-  auth_refresh: { maxAttempts: 30, windowMs: 60_000 },
-  auth_password_reset: { maxAttempts: 5, windowMs: 5 * 60_000 },
-  default: { maxAttempts: 50, windowMs: 60_000 },
+  confession_create: { maxAttempts: 20, windowMs: 60_000 },
+  comment_create: { maxAttempts: 40, windowMs: 60_000 },
+  message_send: { maxAttempts: 60, windowMs: 60_000 },
+  login: { maxAttempts: 20, windowMs: 60_000 },
+  ai_request: { maxAttempts: 15, windowMs: 60_000 },
+  ai_response_free: { maxAttempts: 10, windowMs: 60_000 },
+  ai_response_vip: { maxAttempts: 30, windowMs: 60_000 },
+  report_confession: { maxAttempts: 5, windowMs: 5 * 60_000 },
+  auth_login: { maxAttempts: 20, windowMs: 60_000 },
+  auth_signup: { maxAttempts: 10, windowMs: 5 * 60_000 },
+  auth_refresh: { maxAttempts: 60, windowMs: 60_000 },
+  auth_password_reset: { maxAttempts: 10, windowMs: 5 * 60_000 },
+  default: { maxAttempts: 100, windowMs: 60_000 },
 };
 
 const ACTION_REGEX = /[^a-z0-9_:-]/g;
