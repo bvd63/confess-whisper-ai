@@ -388,13 +388,12 @@ serve(async (req) => {
             timeoutMs: 1200,
           });
         } catch {
-          console.warn('[enhanced-auth] rate-limit check failed; blocking login safely');
-          return buildSafeThrottleResponse(429);
+          console.warn('[enhanced-auth] rate-limit check threw; proceeding fail-open');
+          loginRateLimit = { denied: false, unavailable: true };
         }
 
         if (loginRateLimit.unavailable) {
-          console.warn('[enhanced-auth] rate-limit unavailable; blocking login safely');
-          return buildSafeThrottleResponse(429);
+          console.warn('[enhanced-auth] rate-limit unavailable; proceeding fail-open');
         } else if (loginRateLimit.denied) {
 
           await logSecurityEvent(
