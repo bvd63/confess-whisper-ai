@@ -1,6 +1,23 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { corsHeaders, jsonResponse, requireInternalSecret } from "../_shared/edge-auth.ts";
+import { extractBearerToken } from "../_shared/security.ts";
+
+const requireInternalSecretOrServiceRole = (
+  req: Request,
+): { ok: true } | { ok: false; response: Response } => {
+  const internal = requireInternalSecret(req);
+  if (internal.ok) return internal;
+
+  const bearerToken = extractBearerToken(req.headers.get("authorization"));
+  const serviceRoleKey = (Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "").trim();
+
+  if (bearerToken && serviceRoleKey && bearerToken === serviceRoleKey) {
+    return { ok: true };
+  }
+
+  return { ok: false, response: jsonResponse({ error: "UNAUTHORIZED" }, 401) };
+};
 
 const resolveTargetUserId = async (req: Request): Promise<string | null> => {
   const url = new URL(req.url);
@@ -74,7 +91,7 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const internal = requireInternalSecret(req);
+  const internal = requireInternalSecretOrServiceRole(req);
   if (!internal.ok) return internal.response;
 
   try {

@@ -98,7 +98,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.check-trial-expiry]
-verify_jwt = true
+verify_jwt = false
 
 [functions.cleanup-auth-data]
 verify_jwt = false
