@@ -23,14 +23,39 @@ interface RateLimitCheckResult {
 }
 
 const LOGIN_ACTION = "login";
+const AUTH_LOGIN_ACTION = "auth_login";
+
+const isLoginRateLimitAction = (action: string): boolean =>
+  action === LOGIN_ACTION || action === AUTH_LOGIN_ACTION;
+
+const hashRateLimitKey = async (value: string): Promise<string> => {
+  const encoded = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest('SHA-256', encoded);
+  return Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, '0')).join('');
+};
+
+const pruneExpiredRateLimits = async (supabaseClient: any): Promise<void> => {
+  const nowIso = new Date().toISOString();
+  const { error } = await supabaseClient
+    .from('rate_limits')
+    .delete()
+    .lt('reset_at', nowIso);
+
+  if (error) {
+    console.warn('[rate-limit] Failed to prune expired rate-limit rows', error);
+  }
+};
 
 const applyRateLimit = async (
   supabaseClient: any,
   action: string,
   identifier: RateLimitIdentifier,
   config: RateLimitConfig,
+  options: { failClosed?: boolean } = {},
 ): Promise<RateLimitCheckResult> => {
-  const key = `${action}:${identifier.value}`;
+  const { failClosed = false } = options;
+  const keyMaterial = `${action}:${identifier.type}:${identifier.value}`;
+  const key = await hashRateLimitKey(keyMaterial);
   const now = new Date();
   const fallbackResetAt = new Date(now.getTime() + config.windowMs).toISOString();
 
@@ -41,6 +66,17 @@ const applyRateLimit = async (
 
   if (rpcError) {
     console.error('[rate-limit] Atomic counter RPC failed:', rpcError);
+    if (failClosed) {
+      return {
+        allowed: false,
+        remaining: 0,
+        resetAt: fallbackResetAt,
+        retryAfter: Math.max(1, Math.ceil(config.windowMs / 1000)),
+        identifierType: identifier.type,
+        error: 'RATE_LIMIT_UNAVAILABLE',
+      };
+    }
+
     return {
       allowed: true,
       remaining: config.maxAttempts,
@@ -59,6 +95,17 @@ const applyRateLimit = async (
 
   if (!Number.isFinite(currentCount) || currentCount < 1) {
     console.error('[rate-limit] Invalid atomic counter response:', { key, row });
+    if (failClosed) {
+      return {
+        allowed: false,
+        remaining: 0,
+        resetAt,
+        retryAfter: Math.max(1, Math.ceil((new Date(resetAt).getTime() - now.getTime()) / 1000)),
+        identifierType: identifier.type,
+        error: 'RATE_LIMIT_UNAVAILABLE',
+      };
+    }
+
     return {
       allowed: true,
       remaining: config.maxAttempts,
@@ -112,23 +159,37 @@ serve(async (req: Request) => {
     const requestedAction = typeof bodyForNormalization.action === "string"
       ? bodyForNormalization.action.trim().toLowerCase()
       : "";
+    const isRequestedLoginAction = isLoginRateLimitAction(requestedAction);
 
-    if (requestedAction === LOGIN_ACTION) {
-      const hasUserId = typeof bodyForNormalization.userId === "string"
-        && bodyForNormalization.userId.trim().length > 0;
-      const hasIp = typeof bodyForNormalization.ip === "string"
-        && bodyForNormalization.ip.trim().length > 0;
+    if (isRequestedLoginAction) {
+      const inferredIp = getClientIp(req);
+      if (inferredIp && inferredIp !== "unknown") {
+        bodyForNormalization.ip = inferredIp;
+      } else {
+        delete bodyForNormalization.ip;
+      }
 
-      if (!hasUserId && !hasIp) {
-        const inferredIp = getClientIp(req);
-        if (inferredIp && inferredIp !== "unknown") {
-          bodyForNormalization.ip = inferredIp;
-        }
+      delete bodyForNormalization.userId;
+
+      const internal = requireInternalSecret(req);
+      if (!internal.ok) {
+        delete bodyForNormalization.loginIdentifierHash;
       }
     }
 
     const normalized = normalizeRateLimitRequest(bodyForNormalization);
     if (!normalized.ok) {
+      if (isRequestedLoginAction) {
+        return new Response(
+          JSON.stringify({
+            allowed: false,
+            error: 'RATE_LIMIT_UNAVAILABLE',
+            messageKey: 'common.rate_limit',
+          }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        );
+      }
+
       return new Response(
         JSON.stringify({ error: normalized.error }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
@@ -136,7 +197,7 @@ serve(async (req: Request) => {
     }
 
     const { action, identifiers: normalizedIdentifiers, config } = normalized.data;
-    const isLoginAction = action === LOGIN_ACTION;
+    const isLoginAction = isLoginRateLimitAction(action);
 
     const authContext = await getAuthenticatedRequestContext(req);
     if (!authContext.ok) {
@@ -153,6 +214,10 @@ serve(async (req: Request) => {
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
+
+    if (isLoginAction || Math.random() < 0.02) {
+      await pruneExpiredRateLimits(supabaseClient);
+    }
 
     const authSupabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -171,7 +236,7 @@ serve(async (req: Request) => {
     } = await authSupabase.auth.getUser();
 
     let identifiers: RateLimitIdentifier[];
-    if (user?.id) {
+    if (user?.id && !isLoginAction) {
       identifiers = [{ value: user.id, type: 'user' }];
     } else {
       const userIdentifier = normalizedIdentifiers.find((identifier) => identifier.type === 'user');
@@ -188,8 +253,12 @@ serve(async (req: Request) => {
       if (!userIdentifier && !resolvedIpIdentifier) {
         if (isLoginAction) {
           return new Response(
-            JSON.stringify({ allowed: true }),
-            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+            JSON.stringify({
+              allowed: false,
+              error: 'RATE_LIMIT_UNAVAILABLE',
+              messageKey: 'common.rate_limit',
+            }),
+            { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
           );
         }
 
@@ -198,12 +267,16 @@ serve(async (req: Request) => {
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
         );
       }
-      identifiers = [userIdentifier ?? resolvedIpIdentifier!];
+      identifiers = isLoginAction
+        ? [userIdentifier, resolvedIpIdentifier].filter(Boolean) as RateLimitIdentifier[]
+        : [userIdentifier ?? resolvedIpIdentifier!];
     }
 
     const checks: RateLimitCheckResult[] = [];
     for (const identifier of identifiers) {
-      const result = await applyRateLimit(supabaseClient, action, identifier, config);
+      const result = await applyRateLimit(supabaseClient, action, identifier, config, {
+        failClosed: isLoginAction,
+      });
       if (!result.allowed) {
         const retryAfterSeconds = result.retryAfter ?? Math.ceil(config.windowMs / 1000);
         if (isLoginAction) {
@@ -212,8 +285,8 @@ serve(async (req: Request) => {
               allowed: false,
               retryAfterSeconds,
               retryAfter: retryAfterSeconds,
-              error: "RATE_LIMITED",
-              messageKey: "auth.too_many_attempts",
+              error: result.error === 'RATE_LIMIT_UNAVAILABLE' ? 'RATE_LIMIT_UNAVAILABLE' : 'RATE_LIMITED',
+              messageKey: "common.rate_limit",
               identifierType: result.identifierType,
             }),
             {

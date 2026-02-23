@@ -21,6 +21,8 @@ export const RATE_LIMIT_CONFIGS: Record<string, RateLimitConfig> = {
 
 const ACTION_REGEX = /[^a-z0-9_:-]/g;
 const IDENTIFIER_REGEX = /[^a-zA-Z0-9:._-]/g;
+const HASH_IDENTIFIER_REGEX = /[^a-f0-9]/g;
+const LOGIN_ACTIONS = new Set(["login", "auth_login"]);
 
 export type NormalizeRateLimitError =
   | "INVALID_JSON"
@@ -52,6 +54,15 @@ const sanitizeIdentifier = (value: unknown): string | null => {
   return trimmed.replace(IDENTIFIER_REGEX, "").slice(0, 128) || null;
 };
 
+const sanitizeHashIdentifier = (value: unknown): string | null => {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim().toLowerCase();
+  if (!trimmed) return null;
+  const sanitized = trimmed.replace(HASH_IDENTIFIER_REGEX, "");
+  if (sanitized.length !== 64) return null;
+  return sanitized;
+};
+
 export const normalizeRateLimitRequest = (
   value: unknown,
 ): { ok: true; data: NormalizedRateLimitRequest } | { ok: false; error: NormalizeRateLimitError } => {
@@ -59,16 +70,24 @@ export const normalizeRateLimitRequest = (
     return { ok: false, error: "INVALID_JSON" };
   }
 
-  const body = value as { action?: unknown; userId?: unknown; ip?: unknown };
+  const body = value as { action?: unknown; userId?: unknown; ip?: unknown; loginIdentifierHash?: unknown };
   const action = sanitizeAction(body.action);
   if (!action) {
     return { ok: false, error: "MISSING_ACTION" };
   }
 
-  const userId = sanitizeIdentifier(body.userId);
+  const userId = LOGIN_ACTIONS.has(action)
+    ? null
+    : sanitizeIdentifier(body.userId);
   const ip = sanitizeIdentifier(body.ip);
+  const loginIdentifierHash = LOGIN_ACTIONS.has(action)
+    ? sanitizeHashIdentifier(body.loginIdentifierHash)
+    : null;
 
   const identifiers: RateLimitIdentifier[] = [];
+  if (loginIdentifierHash) {
+    identifiers.push({ value: loginIdentifierHash, type: "user" });
+  }
   if (userId) {
     identifiers.push({ value: userId, type: "user" });
   }

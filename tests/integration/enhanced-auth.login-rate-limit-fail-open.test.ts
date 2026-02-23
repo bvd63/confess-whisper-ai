@@ -3,8 +3,8 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { checkLoginRateLimitFailOpen } from "../../supabase/functions/enhanced-auth/login-rate-limit";
 
-describe("enhanced-auth login rate-limit fail-open", () => {
-  it("treats transport failures as unavailable and fail-open", async () => {
+describe("enhanced-auth login rate-limit fail-closed", () => {
+  it("treats transport failures as unavailable and blocks login", async () => {
     const mockFetch = vi.fn().mockRejectedValue(new Error("network down"));
 
     const decision = await checkLoginRateLimitFailOpen({
@@ -17,7 +17,49 @@ describe("enhanced-auth login rate-limit fail-open", () => {
       fetchImpl: mockFetch,
     });
 
-    expect(decision).toEqual({ denied: false, unavailable: true });
+    expect(decision).toMatchObject({ denied: true, unavailable: true });
+  });
+
+  it("denies by the third rapid response when backend starts returning 429", async () => {
+    const responses = [
+      new Response(JSON.stringify({ allowed: true }), { status: 200, headers: { "Content-Type": "application/json" } }),
+      new Response(JSON.stringify({ allowed: true }), { status: 200, headers: { "Content-Type": "application/json" } }),
+      new Response(
+        JSON.stringify({ error: "RATE_LIMIT", retryAfter: 30, remaining: 0, identifierType: "ip" }),
+        { status: 429, headers: { "Content-Type": "application/json", "Retry-After": "30" } },
+      ),
+    ];
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValueOnce(responses[0])
+      .mockResolvedValueOnce(responses[1])
+      .mockResolvedValueOnce(responses[2]);
+
+    const first = await checkLoginRateLimitFailOpen({
+      supabaseUrl: "https://example.supabase.co",
+      internalJobSecret: "secret",
+      action: "auth_login",
+      ip: "203.0.113.10",
+      fetchImpl: mockFetch,
+    });
+    const second = await checkLoginRateLimitFailOpen({
+      supabaseUrl: "https://example.supabase.co",
+      internalJobSecret: "secret",
+      action: "auth_login",
+      ip: "203.0.113.10",
+      fetchImpl: mockFetch,
+    });
+    const third = await checkLoginRateLimitFailOpen({
+      supabaseUrl: "https://example.supabase.co",
+      internalJobSecret: "secret",
+      action: "auth_login",
+      ip: "203.0.113.10",
+      fetchImpl: mockFetch,
+    });
+
+    expect(first).toMatchObject({ denied: false, unavailable: false });
+    expect(second).toMatchObject({ denied: false, unavailable: false });
+    expect(third).toMatchObject({ denied: true, unavailable: false, retryAfter: 30, remaining: 0 });
   });
 
   it("keeps explicit rate-limit denial blocking login", async () => {
@@ -50,7 +92,7 @@ describe("enhanced-auth login rate-limit fail-open", () => {
     });
   });
 
-  it("treats RATE_LIMIT_UNAVAILABLE responses as unavailable and fail-open", async () => {
+  it("treats RATE_LIMIT_UNAVAILABLE responses as unavailable and blocks login", async () => {
     const mockFetch = vi.fn().mockResolvedValue(
       new Response(
         JSON.stringify({
@@ -69,10 +111,10 @@ describe("enhanced-auth login rate-limit fail-open", () => {
       fetchImpl: mockFetch,
     });
 
-    expect(decision).toEqual({ denied: false, unavailable: true });
+    expect(decision).toMatchObject({ denied: true, unavailable: true });
   });
 
-  it("keeps enhanced-login fail-open without RATE_LIMIT_UNAVAILABLE fallback", () => {
+  it("keeps enhanced-login fail-closed without fail-open bypass logs", () => {
     const source = readFileSync(
       resolve(process.cwd(), "supabase/functions/enhanced-auth/index.ts"),
       "utf8",
@@ -84,8 +126,8 @@ describe("enhanced-auth login rate-limit fail-open", () => {
     expect(refreshCaseStart).toBeGreaterThan(loginCaseStart);
 
     const enhancedLoginBlock = source.slice(loginCaseStart, refreshCaseStart);
-    expect(enhancedLoginBlock).toContain("rate-limit check threw; proceeding fail-open");
-    expect(enhancedLoginBlock).not.toContain("RATE_LIMIT_UNAVAILABLE");
-    expect(enhancedLoginBlock).not.toContain("status: 503");
+    expect(enhancedLoginBlock).toContain("blocking login fail-closed");
+    expect(enhancedLoginBlock).toContain("RATE_LIMIT_UNAVAILABLE");
+    expect(enhancedLoginBlock).not.toContain("proceeding fail-open");
   });
 });

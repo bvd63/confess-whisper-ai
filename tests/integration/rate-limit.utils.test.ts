@@ -58,11 +58,12 @@ describe("rate-limit utils", () => {
       });
     });
 
-    it("applies auth-specific rate limit config", () => {
+    it("applies auth-specific rate limit config using hashed login identifier and ip", () => {
       const result = normalizeRateLimitRequest({
         action: "auth_login",
         ip: "198.51.100.42",
-        userId: "user@example.com",
+        userId: "attacker-controlled-user-id",
+        loginIdentifierHash: "a".repeat(64),
       });
 
       expect(result).toEqual({
@@ -70,7 +71,7 @@ describe("rate-limit utils", () => {
         data: {
           action: "auth_login",
           identifiers: [
-            { value: "userexample.com", type: "user" },
+            { value: "a".repeat(64), type: "user" },
             { value: "198.51.100.42", type: "ip" },
           ],
           config: RATE_LIMIT_CONFIGS.auth_login,

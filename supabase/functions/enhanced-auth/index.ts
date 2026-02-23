@@ -372,9 +372,10 @@ serve(async (req) => {
         const metadataUserAgent = sessionMetadata?.userAgent || userAgent;
         const metadataIp = sessionMetadata?.ipAddress || clientIp;
         const stayConnectedPreference = sessionMetadata?.stayConnected ?? false;
+        const loginIdentifierHash = await hashToken(normalizedEmail);
 
         let loginRateLimit: Awaited<ReturnType<typeof checkLoginRateLimitFailOpen>> = {
-          denied: false,
+          denied: true,
           unavailable: true,
         };
 
@@ -385,16 +386,15 @@ serve(async (req) => {
             authorizationHeader: req.headers.get('Authorization'),
             action: 'auth_login',
             ip: clientIp,
+            loginIdentifierHash,
             timeoutMs: 1200,
           });
         } catch {
-          console.warn('[enhanced-auth] rate-limit check threw; proceeding fail-open');
-          loginRateLimit = { denied: false, unavailable: true };
+          console.warn('[enhanced-auth] rate-limit check threw; blocking login fail-closed');
+          loginRateLimit = { denied: true, unavailable: true };
         }
 
-        if (loginRateLimit.unavailable) {
-          console.warn('[enhanced-auth] rate-limit unavailable; proceeding fail-open');
-        } else if (loginRateLimit.denied) {
+        if (loginRateLimit.denied) {
 
           await logSecurityEvent(
             supabaseAdminClient,
@@ -420,7 +420,7 @@ serve(async (req) => {
 
           return new Response(
             JSON.stringify({
-              error: 'RATE_LIMIT',
+              error: loginRateLimit.unavailable ? 'RATE_LIMIT_UNAVAILABLE' : 'RATE_LIMIT',
               messageKey: 'common.rate_limit',
               retryAfter: loginRateLimit.retryAfter,
             }),

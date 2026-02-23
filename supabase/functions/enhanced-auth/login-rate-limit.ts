@@ -83,6 +83,7 @@ export const checkLoginRateLimitFailOpen = async ({
   authorizationHeader,
   action,
   ip,
+  loginIdentifierHash,
   timeoutMs = 1200,
   fetchImpl = fetch,
 }: {
@@ -91,15 +92,20 @@ export const checkLoginRateLimitFailOpen = async ({
   authorizationHeader?: string | null;
   action: string;
   ip?: string | null;
+  loginIdentifierHash?: string | null;
   timeoutMs?: number;
   fetchImpl?: FetchLike;
 }): Promise<LoginRateLimitDecision> => {
   try {
     const trimmedSupabaseUrl = typeof supabaseUrl === "string" ? supabaseUrl.trim() : "";
     const trimmedSecret = typeof internalJobSecret === "string" ? internalJobSecret.trim() : "";
+    const normalizedLoginIdentifierHash = typeof loginIdentifierHash === "string"
+      ? loginIdentifierHash.trim().toLowerCase()
+      : "";
+    const hasValidLoginIdentifierHash = /^[a-f0-9]{64}$/.test(normalizedLoginIdentifierHash);
 
     if (!trimmedSupabaseUrl || !trimmedSecret) {
-      return { denied: false, unavailable: true };
+      return { denied: true, unavailable: true };
     }
 
     const endpoint = `${trimmedSupabaseUrl.replace(/\/$/, "")}/functions/v1/rate-limit`;
@@ -123,12 +129,15 @@ export const checkLoginRateLimitFailOpen = async ({
           body: JSON.stringify({
             action,
             ip: ip ?? undefined,
+            loginIdentifierHash: hasValidLoginIdentifierHash
+              ? normalizedLoginIdentifierHash
+              : undefined,
           }),
         },
         timeoutMs,
       });
     } catch {
-      return { denied: false, unavailable: true };
+      return { denied: true, unavailable: true };
     }
 
     const { payload, validJson } = await parseRateLimitPayload(response);
@@ -145,11 +154,17 @@ export const checkLoginRateLimitFailOpen = async ({
     }
 
     if (!response.ok) {
-      return { denied: false, unavailable: true };
+      return {
+        denied: true,
+        unavailable: true,
+        retryAfter: parseRetryAfter(response, payload),
+        remaining: typeof payload?.remaining === "number" ? payload.remaining : 0,
+        identifierType: payload?.identifierType,
+      };
     }
 
     if (!validJson || !payload) {
-      return { denied: false, unavailable: true };
+      return { denied: true, unavailable: true };
     }
 
     if (payload.allowed === false || code === "RATE_LIMIT") {
@@ -163,11 +178,11 @@ export const checkLoginRateLimitFailOpen = async ({
     }
 
     if (code === "RATE_LIMIT_UNAVAILABLE") {
-      return { denied: false, unavailable: true };
+      return { denied: true, unavailable: true };
     }
 
     return { denied: false, unavailable: false };
   } catch {
-    return { denied: false, unavailable: true };
+    return { denied: true, unavailable: true };
   }
 };
