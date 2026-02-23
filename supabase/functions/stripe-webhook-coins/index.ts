@@ -30,7 +30,7 @@ serve(async (req) => {
       signature,
       webhookSecret,
       rawBody: body,
-      constructEvent: (raw, sig, secret) => stripe.webhooks.constructEventAsync(raw, sig, secret),
+      constructEvent: (raw, sig, secret) => stripe.webhooks.constructEvent(raw, sig, secret),
     });
     if (!validation.ok) {
       console.error('[STRIPE-WEBHOOK-COINS] Webhook validation failed', validation.error);
