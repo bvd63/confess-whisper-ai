@@ -38,6 +38,37 @@ serve(async (req) => {
     }
     const event = validation.event as any;
 
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
+
+    const { data: idempotencyInsert, error: idempotencyError } = await supabaseAdmin
+      .from('stripe_webhook_events')
+      .upsert(
+        { stripe_event_id: event.id },
+        { onConflict: 'stripe_event_id', ignoreDuplicates: true }
+      )
+      .select('stripe_event_id')
+      .maybeSingle();
+
+    if (idempotencyError) {
+      console.error('[STRIPE-WEBHOOK-COINS] Failed to record webhook idempotency event', {
+        eventId: event.id,
+        type: event.type,
+        error: idempotencyError.message,
+      });
+      return jsonResponse({ error: 'WEBHOOK_IDEMPOTENCY_UNAVAILABLE' }, 503);
+    }
+
+    if (!idempotencyInsert?.stripe_event_id) {
+      console.log('[STRIPE-WEBHOOK-COINS] Duplicate webhook event received; skipping side effects', {
+        eventId: event.id,
+        type: event.type,
+      });
+      return jsonResponse({ received: true }, 200);
+    }
+
     console.log('[STRIPE-WEBHOOK-COINS] Event type:', event.type)
 
     if (event.type === 'checkout.session.completed') {
@@ -48,12 +79,6 @@ serve(async (req) => {
         console.error('[STRIPE-WEBHOOK-COINS] Invalid purchase metadata', parsed.error);
         throw new Error(parsed.error);
       }
-
-      // Create admin client (bypasses RLS)
-      const supabaseAdmin = createClient(
-        Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-      )
 
       const duplicate = await hasExistingCoinAward(supabaseAdmin, parsed.data.userId, session.id);
       if (duplicate.error) {

@@ -19,9 +19,9 @@ This section is the source of truth for Edge Function exposure, auth mode, and a
 | `award-subscription-coins` | `true` | Authenticated user (self) or internal caller | JWT self-check OR `x-internal-secret`; tier/amount computed server-side | `coin_transactions`, `user_coins` via `award_coins` |
 | `award-streak-bonus` | `true` | Authenticated user (self) or internal caller | JWT self-check OR `x-internal-secret`; fixed server-side streak reward map | `coin_transactions`, `user_coins` via `award_coins` |
 | `send-notification` | `false` | Internal trigger (preferred) or authenticated self-call | `x-internal-secret` OR strict self-ownership check | `analytics_events`, reads notification/profile data |
-| `stripe-webhook` | `false` | Stripe only | `stripe-signature` validation + event idempotency (`stripe_events`) | `subscriptions`, `coin_transactions`, `profiles` |
-| `stripe-webhook-coins` | `false` | Stripe only | `stripe-signature` validation + coin idempotency check | `coin_transactions`, `user_coins` via `award_coins` |
-| `stripe-webhook-subscriptions` | `false` | Stripe only | `stripe-signature` validation | `profiles.subscription_*` |
+| `stripe-webhook` | `false` | None (deprecated endpoint) | Returns `410 WEBHOOK_ENDPOINT_DEPRECATED` (no business logic) | None |
+| `stripe-webhook-coins` | `false` | Stripe only | `stripe-signature` validation + event idempotency (`stripe_webhook_events`) + purchase duplicate guard | `coin_transactions`, `user_coins` via `award_coins` |
+| `stripe-webhook-subscriptions` | `false` | Stripe only | `stripe-signature` validation + event idempotency (`stripe_webhook_events`) | `profiles.subscription_*` |
 
 ### Internal/Cron Functions
 
