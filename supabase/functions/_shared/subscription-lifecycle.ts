@@ -115,14 +115,26 @@ const persistProfileCustomerIdIfMissing = async (
   profileUserId: string,
   customerId: string,
 ): Promise<void> => {
-  const { error } = await supabase
+  // Try null first (most common case)
+  const { error: nullError } = await supabase
     .from("profiles")
     .update({ stripe_customer_id: customerId })
     .eq("user_id", profileUserId)
     .is("stripe_customer_id", null);
 
-  if (error) {
-    throw new Error(`PROFILE_CUSTOMER_PERSIST_FAILED:${error.message}`);
+  if (nullError) {
+    throw new Error(`PROFILE_CUSTOMER_PERSIST_FAILED:${nullError.message}`);
+  }
+
+  // Also handle empty string case
+  const { error: emptyError } = await supabase
+    .from("profiles")
+    .update({ stripe_customer_id: customerId })
+    .eq("user_id", profileUserId)
+    .eq("stripe_customer_id", "");
+
+  if (emptyError) {
+    throw new Error(`PROFILE_CUSTOMER_PERSIST_FAILED:${emptyError.message}`);
   }
 };
 

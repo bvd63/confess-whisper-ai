@@ -42,15 +42,20 @@ const createProfileStore = (initialCustomerId: string | null) => {
           }),
         }),
         update: (payload: { stripe_customer_id: string }) => ({
-          eq: (_column: string, _value: string) => ({
-            is: async (_columnName: string, _nullValue: null) => {
+          eq: (_column: string, _value: string) => {
+            // Support both .is() and .eq() chains
+            const handler = async () => {
               state.updateCalls += 1;
-              if (state.stripeCustomerId === null) {
+              if (state.stripeCustomerId === null || state.stripeCustomerId === "") {
                 state.stripeCustomerId = payload.stripe_customer_id;
               }
               return { error: null };
-            },
-          }),
+            };
+            return {
+              is: async (_columnName: string, _nullValue: null) => handler(),
+              eq: async (_columnName: string, _value: string) => handler(),
+            };
+          },
         }),
       };
     },
