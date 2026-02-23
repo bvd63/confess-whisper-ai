@@ -463,36 +463,36 @@ serve(async (req) => {
             deviceFailureCountError,
             comboFailureCountError,
           });
-          return buildSafeThrottleResponse(429);
-        }
-
-        const combinedFailureCount = Math.max(
-          ipFailureCount ?? 0,
-          deviceFailureCount ?? 0,
-          comboFailureCount ?? 0,
-        );
-
-        if (combinedFailureCount >= MAX_FAILED_ATTEMPTS) {
-          const { error: captchaStateWriteError } = await supabaseAdminClient
-            .from('captcha_requirements')
-            .upsert({
-              email: normalizedEmail,
-              required_until: new Date(Date.now() + CAPTCHA_LOCKOUT_DURATION * 60 * 1000).toISOString(),
-              reason: 'rate_limit_vector',
-            }, { onConflict: 'email' });
-
-          if (captchaStateWriteError) {
-            console.error('[enhanced-auth] failed to persist captcha lockout state', captchaStateWriteError);
-            return buildSafeThrottleResponse(429);
-          }
-
-          return new Response(
-            JSON.stringify({
-              error: 'RATE_LIMIT',
-              messageKey: 'common.rate_limit',
-            }),
-            { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          // Fail-open: proceed with login if we can't read counters
+        } else {
+          const combinedFailureCount = Math.max(
+            ipFailureCount ?? 0,
+            deviceFailureCount ?? 0,
+            comboFailureCount ?? 0,
           );
+
+          if (combinedFailureCount >= MAX_FAILED_ATTEMPTS) {
+            const { error: captchaStateWriteError } = await supabaseAdminClient
+              .from('captcha_requirements')
+              .upsert({
+                email: normalizedEmail,
+                required_until: new Date(Date.now() + CAPTCHA_LOCKOUT_DURATION * 60 * 1000).toISOString(),
+                reason: 'rate_limit_vector',
+              }, { onConflict: 'email' });
+
+            if (captchaStateWriteError) {
+              console.error('[enhanced-auth] failed to persist captcha lockout state', captchaStateWriteError);
+              // Fail-open: proceed with login
+            } else {
+              return new Response(
+                JSON.stringify({
+                  error: 'RATE_LIMIT',
+                  messageKey: 'common.rate_limit',
+                }),
+                { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+              );
+            }
+          }
         }
 
         const { data: captchaRequired } = await supabaseClient
