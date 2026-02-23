@@ -270,22 +270,27 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
-    const { error: idempotencyError } = await supabase
+    const { data: idempotencyInsert, error: idempotencyError } = await supabase
       .from("stripe_webhook_events")
-      .insert({ event_id: event.id });
+      .upsert(
+        { stripe_event_id: event.id },
+        { onConflict: "stripe_event_id", ignoreDuplicates: true },
+      )
+      .select("stripe_event_id")
+      .maybeSingle();
 
     if (idempotencyError) {
-      if (idempotencyError.code === "23505") {
-        log("info", "Duplicate webhook event received; skipping side effects", { eventId: event.id, type: event.type });
-        return new Response(JSON.stringify({ received: true }), { status: 200, headers: corsHeaders });
-      }
-
       log("error", "Failed to record webhook idempotency event", {
         eventId: event.id,
         type: event.type,
         error: idempotencyError.message,
       });
       return new Response(JSON.stringify({ received: false }), { status: 503, headers: corsHeaders });
+    }
+
+    if (!idempotencyInsert?.stripe_event_id) {
+      log("info", "Duplicate webhook event received; skipping side effects", { eventId: event.id, type: event.type });
+      return new Response(JSON.stringify({ received: true }), { status: 200, headers: corsHeaders });
     }
 
     switch (event.type) {
