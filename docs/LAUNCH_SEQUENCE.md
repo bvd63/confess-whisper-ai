@@ -200,7 +200,7 @@ If you have a custom domain:
 1. **Sign up** at https://uptimerobot.com
 2. **Create Monitor:**
    - Type: `HTTP(s)`
-   - URL: `https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/health`
+   - URL: `https://maurqhwkhmmfigzdatsm.supabase.co/functions/v1/health`
    - Interval: `5 minutes`
    - Alert Contacts: Your email
 

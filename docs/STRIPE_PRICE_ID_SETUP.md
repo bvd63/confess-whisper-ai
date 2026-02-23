@@ -263,7 +263,7 @@ CVC: 123
 ZIP: 12345
 
 # Webhook URL (replace PROJECT_ID)
-https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/stripe-webhook
+https://maurqhwkhmmfigzdatsm.supabase.co/functions/v1/stripe-webhook
 
 # Events to Listen For
 ✓ checkout.session.completed

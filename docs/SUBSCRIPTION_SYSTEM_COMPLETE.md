@@ -618,7 +618,7 @@ All tables have RLS enabled with policies:
 
 **Webhook Endpoint**:
 ```
-https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/stripe-webhook
+https://maurqhwkhmmfigzdatsm.supabase.co/functions/v1/stripe-webhook
 ```
 
 **Test Page**:

@@ -18,7 +18,7 @@ ConfessAI uses a multi-layered monitoring approach:
 
 ### Endpoint URL
 ```
-GET https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/health
+GET https://maurqhwkhmmfigzdatsm.supabase.co/functions/v1/health
 ```
 
 ### Response Format
@@ -63,7 +63,7 @@ GET https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/health
 1. Sign up at https://uptimerobot.com
 2. Create new monitor:
    - **Monitor Type:** HTTP(s)
-   - **URL:** `https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/health`
+  - **URL:** `https://maurqhwkhmmfigzdatsm.supabase.co/functions/v1/health`
    - **Interval:** 5 minutes
    - **Alert Contacts:** Your email/Slack/Discord
 3. Set alert conditions:
@@ -87,7 +87,7 @@ GET https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/health
 **Setup Steps:**
 1. Sign up at https://betterstack.com
 2. Create new uptime monitor:
-   - **URL:** `https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/health`
+  - **URL:** `https://maurqhwkhmmfigzdatsm.supabase.co/functions/v1/health`
    - **Interval:** 30 seconds
    - **Regions:** Multiple (US, EU, Asia)
 3. Configure incident management:
@@ -115,7 +115,7 @@ For advanced users who want full control:
 // monitoring-script.ts
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const HEALTH_URL = "https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/health";
+const HEALTH_URL = "https://maurqhwkhmmfigzdatsm.supabase.co/functions/v1/health";
 const SLACK_WEBHOOK_URL = Deno.env.get("SLACK_WEBHOOK_URL");
 const CHECK_INTERVAL = 60000; // 1 minute
 
@@ -322,7 +322,7 @@ LIMIT 100;
 #### Step 1: Verify Alert (30 seconds)
 ```bash
 # Check health endpoint
-curl https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/health
+curl https://maurqhwkhmmfigzdatsm.supabase.co/functions/v1/health
 
 # Expected response:
 # { "status": "healthy", ... }

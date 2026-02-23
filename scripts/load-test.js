@@ -30,7 +30,7 @@ export const options = {
 };
 
 const BASE_URL = __ENV.BASE_URL || 'https://80017639-50ef-40b6-8cd6-ddf69928bd44.lovableproject.com';
-const SUPABASE_URL = __ENV.SUPABASE_URL || 'https://fxwvlbopvnjjjrzshqvw.supabase.co';
+const SUPABASE_URL = __ENV.SUPABASE_URL || 'https://maurqhwkhmmfigzdatsm.supabase.co';
 const ANON_KEY = __ENV.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4d3ZsYm9wdm5qampyenNocXZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1Mjg3ODQsImV4cCI6MjA3NjEwNDc4NH0.BXOtdXXS8PvqZSVcksyCuqNW0ebJ7nE58-CKSnSPk4Q';
 
 // Test scenarios

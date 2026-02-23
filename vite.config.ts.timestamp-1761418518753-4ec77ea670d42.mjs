@@ -41,7 +41,7 @@ var vite_config_default = defineConfig(({ mode }) => ({
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/fxwvlbopvnjjjrzshqvw\.supabase\.co\/.*/i,
+            urlPattern: /^https:\/\/maurqhwkhmmfigzdatsm\.supabase\.co\/.*/i,
             handler: "NetworkFirst",
             options: {
               cacheName: "supabase-cache",

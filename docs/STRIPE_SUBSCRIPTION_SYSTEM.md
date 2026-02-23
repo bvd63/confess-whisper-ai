@@ -78,7 +78,7 @@ Configure in Stripe Dashboard → Developers → Webhooks:
 
 **Endpoint URL:**
 ```
-https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/stripe-webhook
+https://maurqhwkhmmfigzdatsm.supabase.co/functions/v1/stripe-webhook
 ```
 
 **Events to Listen For:**
@@ -109,7 +109,7 @@ Use Stripe test cards for testing:
 ### Testing Webhooks Locally
 Use Stripe CLI to forward webhooks:
 ```bash
-stripe listen --forward-to https://fxwvlbopvnjjjrzshqvw.supabase.co/functions/v1/stripe-webhook
+stripe listen --forward-to https://maurqhwkhmmfigzdatsm.supabase.co/functions/v1/stripe-webhook
 ```
 
 ## Security Features
