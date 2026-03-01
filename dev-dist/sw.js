@@ -70,7 +70,7 @@ if (!self.define) {
 define(['./workbox-243ec091'], (function (workbox) { 'use strict';
 
   workbox.setCacheNameDetails({
-    prefix: "confessai-1771804405087"
+    prefix: "confessai-1772397180498"
   });
   self.skipWaiting();
   workbox.clientsClaim();
@@ -82,7 +82,7 @@ define(['./workbox-243ec091'], (function (workbox) { 'use strict';
    */
   workbox.precacheAndRoute([{
     "url": "index.html",
-    "revision": "0.o6r1hr6u5d8"
+    "revision": "0.734ejg0rlc8"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
