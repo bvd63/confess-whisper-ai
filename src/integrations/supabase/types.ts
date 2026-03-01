@@ -322,6 +322,7 @@ export type Database = {
           id: string
           is_anonymous: boolean
           is_highlighted: boolean | null
+          parent_comment_id: string | null
           updated_at: string
           user_id: string
         }
@@ -334,6 +335,7 @@ export type Database = {
           id?: string
           is_anonymous?: boolean
           is_highlighted?: boolean | null
+          parent_comment_id?: string | null
           updated_at?: string
           user_id: string
         }
@@ -346,6 +348,7 @@ export type Database = {
           id?: string
           is_anonymous?: boolean
           is_highlighted?: boolean | null
+          parent_comment_id?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -369,6 +372,13 @@ export type Database = {
             columns: ["confession_id"]
             isOneToOne: false
             referencedRelation: "trending_confessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
             referencedColumns: ["id"]
           },
         ]
