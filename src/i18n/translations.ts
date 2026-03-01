@@ -980,6 +980,8 @@ type Translations = {
   comments_send_button: string;
   comments_reply_added_desc: string;
   comments_too_long_error: string;
+  comments_invalid_data: string;
+  comments_post_error: string;
   
   // Follow
   follow_cannot_self_desc: string;
@@ -2511,6 +2513,8 @@ export const translations: Record<Language, Translations> = {
     comments_send_button: "Send",
     comments_reply_added_desc: "Reply was added",
     comments_too_long_error: "Comment too long (max 500 characters)",
+    comments_invalid_data: "Invalid comment data. Please refresh and try again.",
+    comments_post_error: "Couldn't post comment. Please try again.",
     
     follow_cannot_self_desc: "You cannot follow yourself",
     follow_unfollowed_title: "Unfollowed",
@@ -4928,6 +4932,8 @@ export const translations: Record<Language, Translations> = {
     comments_send_button: "Enviar",
     comments_reply_added_desc: "Respuesta añadida",
     comments_too_long_error: "Comentario demasiado largo (máx. 500 caracteres)",
+    comments_invalid_data: "Datos de comentario inválidos. Actualiza e inténtalo de nuevo.",
+    comments_post_error: "No se pudo publicar el comentario. Inténtalo de nuevo.",
     
     follow_cannot_self_desc: "No puedes seguirte a ti mismo",
     follow_unfollowed_title: "Dejaste de seguir",
@@ -6938,6 +6944,8 @@ export const translations: Record<Language, Translations> = {
     comments_send_button: "Senden",
     comments_reply_added_desc: "Antwort hinzugefügt",
     comments_too_long_error: "Kommentar zu lang (max. 500 Zeichen)",
+    comments_invalid_data: "Ungültige Kommentardaten. Bitte aktualisieren und erneut versuchen.",
+    comments_post_error: "Kommentar konnte nicht gepostet werden. Bitte versuche es erneut.",
     
     follow_cannot_self_desc: "Du kannst dir nicht selbst folgen",
     follow_unfollowed_title: "Nicht mehr gefolgt",

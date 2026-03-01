@@ -334,92 +334,123 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
   };
 
   const handleSubmit = async () => {
-    if (!newComment.trim() || !user) return;
+    // ── GUARD: user must be authenticated ────────────────────────────────────
+    if (!user) return;
 
-    if (newComment.length > 500) {
-      toast({
-        title: t.error_generic,
-        description: t.comments_too_long_error,
-        variant: "destructive",
-      });
+    // ── GUARD: confession context must be valid ───────────────────────────────
+    if (!confessionId || typeof confessionId !== 'string' || !confessionId.trim()) {
+      console.error('COMMENT INSERT ABORTED: missing or invalid confessionId', { confessionId });
+      toast({ title: t.error_generic, description: t.comments_invalid_data, variant: 'destructive' });
       return;
     }
 
-    // Check anti-spam rules
+    // ── GUARD: content must be non-empty (pre-trim) ───────────────────────────
+    const trimmedContent = newComment.trim();
+    if (!trimmedContent) return;
+
+    if (trimmedContent.length > 500) {
+      toast({ title: t.error_generic, description: t.comments_too_long_error, variant: 'destructive' });
+      return;
+    }
+
+    // ── GUARD: if reply mode, parent_comment_id must be a valid UUID ──────────
+    const parentId: string | null = replyTarget?.id ?? null;
+    if (parentId !== null) {
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(parentId)) {
+        console.error('COMMENT INSERT ABORTED: invalid parent_comment_id', { parentId });
+        toast({ title: t.error_generic, description: t.comments_invalid_data, variant: 'destructive' });
+        return;
+      }
+    }
+
+    // ── ANTI-SPAM ─────────────────────────────────────────────────────────────
     const spamCheck = await checkAntiSpamRules();
     if (!spamCheck.allowed) {
-      toast({
-        title: t.error_generic,
-        description: spamCheck.error || t.error_generic,
-        variant: "destructive",
-      });
+      toast({ title: t.error_generic, description: spamCheck.error || t.error_generic, variant: 'destructive' });
       return;
     }
 
     setIsSubmitting(true);
     try {
-      // Sanitize comment content before submission
-      const sanitizedContent = sanitizeComment(newComment.trim());
-      
-      // Generate stable alias for this user on this confession
+      // Sanitize content
+      const sanitizedContent = sanitizeComment(trimmedContent);
+      if (!sanitizedContent) {
+        toast({ title: t.error_generic, description: t.comments_invalid_data, variant: 'destructive' });
+        return;
+      }
+
+      // Generate stable alias
       const { data: aliasData } = await supabase
         .rpc('generate_comment_alias', {
           p_user_id: user.id,
-          p_confession_id: confessionId
+          p_confession_id: confessionId,
         });
-      
       const alias = aliasData || 'Anonymous';
-      
+
+      // ── CLEAN PAYLOAD — no spreads, no undefined fields ──────────────────────
+      const payload: {
+        confession_id: string;
+        user_id: string;
+        content: string;
+        is_anonymous: boolean;
+        alias: string | null;
+        parent_comment_id: string | null;
+      } = {
+        confession_id: confessionId,
+        user_id: user.id,
+        content: sanitizedContent,
+        is_anonymous: isAnonymous,
+        alias: isAnonymous ? alias : null,
+        parent_comment_id: parentId,
+      };
+
       const { data: insertedComment, error } = await supabase
         .from('comments')
-        .insert({
-          confession_id: confessionId,
-          user_id: user.id,
-          content: sanitizedContent,
-          alias: isAnonymous ? alias : null,
-          is_anonymous: isAnonymous,
-          parent_comment_id: replyTarget?.id ?? null,
-        })
+        .insert(payload)
         .select()
         .maybeSingle();
 
       if (error) {
-        logError('Error inserting comment', error);
+        console.error('COMMENT INSERT ERROR:', {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint,
+        });
         throw error;
       }
 
-      // Optimistic update - add comment immediately to UI
+      // Optimistic update
       if (insertedComment) {
         const optimisticComment: Comment = {
-          ...insertedComment,
+          id: insertedComment.id,
+          content: insertedComment.content,
+          user_id: insertedComment.user_id,
+          created_at: insertedComment.created_at,
+          is_highlighted: insertedComment.is_highlighted,
+          highlight_expires_at: insertedComment.highlight_expires_at ?? null,
           alias: isAnonymous ? alias : null,
+          is_anonymous: isAnonymous,
+          parent_comment_id: parentId,
           profiles: !isAnonymous && currentUserProfile ? currentUserProfile : undefined,
         };
-        
-        setComments(prev => [optimisticComment, ...prev]);
+        setComments(prev => {
+          if (prev.some(c => c.id === optimisticComment.id)) return prev;
+          return [optimisticComment, ...prev];
+        });
         onCommentChange?.(1);
         emitCommentDelta(1);
       }
 
-      // Clear input and reset state
-      setNewComment("");
+      // Clear state
+      setNewComment('');
       setReplyTarget(null);
-      
-      toast({
-        title: t.success_sent,
-        description: t.comments_submit,
-      });
+
+      toast({ title: t.success_sent, description: t.comments_submit });
     } catch (error) {
       logError('Error posting comment', error instanceof Error ? error : undefined);
-      
-      // Check if it's a specific error we can handle better
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      
-      toast({
-        title: t.error_generic,
-        description: t.error_submit,
-        variant: "destructive",
-      });
+      toast({ title: t.error_generic, description: t.comments_post_error, variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }
