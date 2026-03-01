@@ -88,11 +88,26 @@ const Profile = () => {
       if (error) throw error;
       setProfileData(data);
     } catch (error) {
-      if (import.meta.env.DEV) {
-        logError('Error loading profile data', error as Error);
-      }
+      const supabaseError = (typeof error === 'object' && error !== null)
+        ? (error as { message?: string; code?: string; details?: string; hint?: string })
+        : null;
+
+      console.error('PROFILE FETCH ERROR:', {
+        userId: user.id,
+        message: supabaseError?.message ?? String(error),
+        code: supabaseError?.code,
+        details: supabaseError?.details,
+        hint: supabaseError?.hint,
+      });
+
+      logError('Error loading profile data', error as Error);
+      toast({
+        title: t.error_generic,
+        description: t.profile_update_error,
+        variant: 'destructive',
+      });
     }
-  }, [user?.id]);
+  }, [user?.id, t.error_generic, t.profile_update_error, toast]);
 
   const fetchUserStats = useCallback(async () => {
     if (!user?.id) return;

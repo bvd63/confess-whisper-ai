@@ -6,6 +6,7 @@ const booleanString = z.enum(["true", "false"]).optional();
 const RawEnv = z.object({
   VITE_SUPABASE_URL: z.string().url(),
   VITE_SUPABASE_PUBLISHABLE_KEY: z.string().min(20),
+  VITE_SUPABASE_PROJECT_ID: z.string().optional(),
   VITE_TURNSTILE_SITE_KEY: z.string().optional(),
   VITE_STRIPE_PRICE_VIP_MONTHLY: z.string().optional(),
   VITE_STRIPE_PRICE_VIP_YEARLY: z.string().optional(),
@@ -39,6 +40,10 @@ const resolvedSupabaseAnonKey = _raw.VITE_SUPABASE_PUBLISHABLE_KEY
   || _raw.NEXT_PUBLIC_SUPABASE_ANON_KEY
   || _raw.SUPABASE_ANON_KEY;
 
+const resolvedSupabaseProjectId = _raw.VITE_SUPABASE_PROJECT_ID
+  || _raw.NEXT_PUBLIC_SUPABASE_PROJECT_ID
+  || _raw.SUPABASE_PROJECT_ID;
+
 const resolvedTurnstileSiteKey = _raw.VITE_TURNSTILE_SITE_KEY
   || _raw.NEXT_PUBLIC_TURNSTILE_SITE_KEY
   || "";
@@ -46,6 +51,7 @@ const resolvedTurnstileSiteKey = _raw.VITE_TURNSTILE_SITE_KEY
 const parsed = RawEnv.safeParse({
   VITE_SUPABASE_URL: resolvedSupabaseUrl,
   VITE_SUPABASE_PUBLISHABLE_KEY: resolvedSupabaseAnonKey,
+  VITE_SUPABASE_PROJECT_ID: resolvedSupabaseProjectId,
   VITE_TURNSTILE_SITE_KEY: resolvedTurnstileSiteKey || undefined,
   VITE_STRIPE_PRICE_VIP_MONTHLY: _raw.VITE_STRIPE_PRICE_VIP_MONTHLY,
   VITE_STRIPE_PRICE_VIP_YEARLY: _raw.VITE_STRIPE_PRICE_VIP_YEARLY,
@@ -77,6 +83,7 @@ export const env = {
   client: {
     supabaseUrl: parsed.data?.VITE_SUPABASE_URL || resolvedSupabaseUrl,
     supabaseAnonKey: parsed.data?.VITE_SUPABASE_PUBLISHABLE_KEY || resolvedSupabaseAnonKey,
+    supabaseProjectId: parsed.data?.VITE_SUPABASE_PROJECT_ID || resolvedSupabaseProjectId,
     turnstileSiteKey: parsed.data?.VITE_TURNSTILE_SITE_KEY || resolvedTurnstileSiteKey,
     stripePriceVipMonthly: parsed.data?.VITE_STRIPE_PRICE_VIP_MONTHLY || _raw.VITE_STRIPE_PRICE_VIP_MONTHLY,
     stripePriceVipYearly: parsed.data?.VITE_STRIPE_PRICE_VIP_YEARLY || _raw.VITE_STRIPE_PRICE_VIP_YEARLY,

@@ -6,6 +6,34 @@ import { env } from '@/lib/env';
 const SUPABASE_URL = env.client.supabaseUrl;
 const SUPABASE_PUBLISHABLE_KEY = env.client.supabaseAnonKey;
 
+function extractProjectRefFromUrl(url: string): string | null {
+  try {
+    return new URL(url).hostname.split('.')[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function assertSupabaseProjectConfig() {
+  if (!env.isDev) return;
+
+  const expectedProjectRef = env.client.supabaseProjectId?.trim();
+  if (!expectedProjectRef) return;
+
+  const actualProjectRef = extractProjectRefFromUrl(SUPABASE_URL);
+  if (!actualProjectRef) {
+    throw new Error('[Supabase config] Invalid VITE_SUPABASE_URL; cannot extract project ref.');
+  }
+
+  if (actualProjectRef !== expectedProjectRef) {
+    throw new Error(
+      `[Supabase config] Project ref mismatch: VITE_SUPABASE_PROJECT_ID="${expectedProjectRef}" but URL ref is "${actualProjectRef}" in VITE_SUPABASE_URL="${SUPABASE_URL}".`
+    );
+  }
+}
+
+assertSupabaseProjectConfig();
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 

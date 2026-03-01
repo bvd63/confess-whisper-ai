@@ -449,8 +449,25 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
 
       toast({ title: t.success_sent, description: t.comments_submit });
     } catch (error) {
+      const supabaseError = (typeof error === 'object' && error !== null)
+        ? (error as { message?: string; code?: string; details?: string; hint?: string })
+        : null;
+
+      console.error('COMMENT SUBMIT FAILED:', {
+        confessionId,
+        parent_comment_id: parentId,
+        message: supabaseError?.message ?? String(error),
+        code: supabaseError?.code,
+        details: supabaseError?.details,
+        hint: supabaseError?.hint,
+      });
+
       logError('Error posting comment', error instanceof Error ? error : undefined);
-      toast({ title: t.error_generic, description: t.comments_post_error, variant: 'destructive' });
+      toast({
+        title: t.error_generic,
+        description: parentId ? t.comment_reply_error : t.comments_post_error,
+        variant: 'destructive',
+      });
     } finally {
       setIsSubmitting(false);
     }
