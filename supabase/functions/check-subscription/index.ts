@@ -17,6 +17,27 @@ const logStep = (step: string, details?: any) => {
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
 };
 
+const freeFallbackResponse = (code: string, details?: string) => {
+  return new Response(
+    JSON.stringify({
+      subscribed: false,
+      is_vip: false,
+      tier: "free",
+      code,
+      subscription_status: "free",
+      eligibleForCheckout: true,
+      useCustomerPortal: false,
+      portalUrl: null,
+      recommendedAction: "START_CHECKOUT",
+      details,
+    }),
+    {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
+    }
+  );
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -71,21 +92,35 @@ serve(async (req) => {
     const appBaseUrl = (Deno.env.get("APP_URL") ?? Deno.env.get("NEXT_PUBLIC_APP_URL") ?? "").trim();
     const returnUrl = appBaseUrl ? `${new URL(appBaseUrl).origin}/profile` : null;
 
-    const lifecycle = await resolveSubscriptionLifecycleState({
-      stripe,
-      supabase: supabaseClient,
-      profileUserId: user.id,
-      profileEmail: user.email,
-      customerIdHint: null,
-    });
-
-    const portalUrl = lifecycle.shouldUsePortal && returnUrl
-      ? await createBillingPortalUrl({
+    let lifecycle;
+    try {
+      lifecycle = await resolveSubscriptionLifecycleState({
         stripe,
-        customerId: lifecycle.customerId,
-        returnUrl,
-      }).catch(() => null)
-      : null;
+        supabase: supabaseClient,
+        profileUserId: user.id,
+        profileEmail: user.email,
+        customerIdHint: null,
+      });
+    } catch (verificationError) {
+      const message = verificationError instanceof Error ? verificationError.message : String(verificationError);
+      logStep("Subscription verification failed, returning FREE fallback", { message, userId: user.id });
+      return freeFallbackResponse("FREE_FALLBACK_VERIFICATION_FAILED", message);
+    }
+
+    let portalUrl: string | null = null;
+    if (lifecycle.shouldUsePortal && returnUrl) {
+      try {
+        portalUrl = await createBillingPortalUrl({
+          stripe,
+          customerId: lifecycle.customerId,
+          returnUrl,
+        });
+      } catch (portalError) {
+        const message = portalError instanceof Error ? portalError.message : String(portalError);
+        logStep("Portal URL creation failed, returning FREE fallback", { message, userId: user.id });
+        return freeFallbackResponse("FREE_FALLBACK_PORTAL_FAILED", message);
+      }
+    }
 
     if (lifecycle.category === "active_or_trialing") {
       return new Response(JSON.stringify({

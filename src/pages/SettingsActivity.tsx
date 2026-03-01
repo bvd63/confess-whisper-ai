@@ -133,6 +133,49 @@ const SettingsActivity = () => {
   const [shopDialogOpen, setShopDialogOpen] = useState(false);
   const [dialogDefaultTab, setDialogDefaultTab] = useState<'subscriptions' | 'coins'>('subscriptions');
 
+  const createProfileRowIfMissing = async (userId: string) => {
+    const { error } = await supabase
+      .from('profiles')
+      .upsert({ id: userId, user_id: userId }, { onConflict: 'user_id' });
+
+    if (error) {
+      throw error;
+    }
+  };
+
+  const fetchProfileData = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('nickname, bio, handle, privacy_mode, nickname_updated_at, password_changed_at')
+      .or(`user_id.eq.${userId},id.eq.${userId}`)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data;
+  };
+
+  const loadProfileWithBootstrap = async (userId: string) => {
+    let data = await fetchProfileData(userId);
+
+    if (!data) {
+      await createProfileRowIfMissing(userId);
+      data = await fetchProfileData(userId);
+    }
+
+    if (!data) {
+      return;
+    }
+
+    setProfileData({
+      nickname: data.nickname,
+      bio: data.bio,
+      handle: data.handle,
+      privacy_mode: data.privacy_mode,
+      nickname_updated_at: data.nickname_updated_at,
+    });
+    setPasswordChangedAt(data.password_changed_at || null);
+  };
+
   useEffect(() => {
     if (!isLoading && !user) {
       navigate('/auth');
@@ -143,20 +186,7 @@ const SettingsActivity = () => {
     const loadProfileData = async () => {
       if (!user?.id) return;
       try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('nickname, bio, handle, privacy_mode, nickname_updated_at, password_changed_at')
-          .or(`user_id.eq.${user.id},id.eq.${user.id}`)
-          .single();
-        if (error) throw error;
-        setProfileData({
-          nickname: data.nickname,
-          bio: data.bio,
-          handle: data.handle,
-          privacy_mode: data.privacy_mode,
-          nickname_updated_at: data.nickname_updated_at,
-        });
-        setPasswordChangedAt(data.password_changed_at || null);
+        await loadProfileWithBootstrap(user.id);
       } catch (error) {
         logError('Error loading profile data', error as Error);
       }
@@ -174,20 +204,7 @@ const SettingsActivity = () => {
   const reloadProfileData = async () => {
     if (!user?.id) return;
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('nickname, bio, handle, privacy_mode, nickname_updated_at, password_changed_at')
-        .or(`user_id.eq.${user.id},id.eq.${user.id}`)
-        .single();
-      if (error) throw error;
-      setProfileData({
-        nickname: data.nickname,
-        bio: data.bio,
-        handle: data.handle,
-        privacy_mode: data.privacy_mode,
-        nickname_updated_at: data.nickname_updated_at,
-      });
-      setPasswordChangedAt(data.password_changed_at || null);
+      await loadProfileWithBootstrap(user.id);
     } catch (error) {
       logError('Error reloading profile data', error as Error);
     }
@@ -239,8 +256,7 @@ const SettingsActivity = () => {
             expanded={expandedSection === 'account'}
             onClick={() => toggleSection('account')}
           >
-            {profileData && (
-              <div className="space-y-3">
+            <div className="space-y-3">
                 <SubMenuItem 
                   icon={User} 
                   title="Change Username"
@@ -248,7 +264,13 @@ const SettingsActivity = () => {
                 />
                 <ProfileEditor 
                   userId={user.id} 
-                  currentProfile={profileData} 
+                  currentProfile={profileData ?? {
+                    nickname: null,
+                    bio: null,
+                    handle: null,
+                    privacy_mode: 'public',
+                    nickname_updated_at: null,
+                  }} 
                   onUpdate={reloadProfileData} 
                 />
                 
@@ -268,8 +290,7 @@ const SettingsActivity = () => {
 
                 {/* Delete Account */}
                 <DeleteAccountSection userId={user.id} userEmail={user.email || ''} />
-              </div>
-            )}
+            </div>
           </GlassMenuItem>
 
           {/* Display & Language */}

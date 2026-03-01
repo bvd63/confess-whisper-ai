@@ -28,6 +28,8 @@ export const ProfileEditor = ({
   currentProfile,
   onUpdate
 }: ProfileEditorProps) => {
+  const NICKNAME_MAX_LENGTH = 50;
+  const BIO_MAX_LENGTH = 200;
   const [nickname, setNickname] = useState(currentProfile.nickname || '');
   const [bio, setBio] = useState(currentProfile.bio || '');
   const [privacyMode, setPrivacyMode] = useState(currentProfile.privacy_mode || 'public');
@@ -43,6 +45,12 @@ export const ProfileEditor = ({
     const id = setInterval(() => setNow(Date.now()), 3600 * 1000);
     return () => clearInterval(id);
   }, []);
+
+  useEffect(() => {
+    setNickname(currentProfile.nickname || '');
+    setBio(currentProfile.bio || '');
+    setPrivacyMode(currentProfile.privacy_mode || 'public');
+  }, [currentProfile.nickname, currentProfile.bio, currentProfile.privacy_mode]);
   const COOLDOWN_DAYS = 21;
   const daysRemaining = useMemo(() => {
     if (!currentProfile.nickname_updated_at) return 0;
@@ -51,10 +59,21 @@ export const ProfileEditor = ({
     return Math.max(COOLDOWN_DAYS - diffDays, 0);
   }, [currentProfile.nickname_updated_at, now]);
   const handleNicknameUpdate = async () => {
-    if (!nickname.trim()) {
+    const trimmedNickname = nickname.trim();
+
+    if (!trimmedNickname) {
       toast({
         title: t.common_error,
         description: t.profile_nickname_empty_error,
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    if (trimmedNickname.length > NICKNAME_MAX_LENGTH) {
+      toast({
+        title: t.common_error,
+        description: t.profile_update_error,
         variant: 'destructive'
       });
       return;
@@ -83,27 +102,28 @@ export const ProfileEditor = ({
     try {
       // Generate handle if nickname changed
       let handleToUse = currentProfile.handle;
-      if (!handleToUse || nickname !== currentProfile.nickname) {
-        const newHandle = await generateHandle(nickname);
+      if (!handleToUse || trimmedNickname !== currentProfile.nickname) {
+        const newHandle = await generateHandle(trimmedNickname);
         if (newHandle) {
           handleToUse = newHandle;
         }
       }
 
       const updateData: any = {
+        id: userId,
+        user_id: userId,
         handle: handleToUse
       };
 
       // Only update nickname and timestamp if nickname changed
-      if (nickname !== currentProfile.nickname) {
-        updateData.nickname = nickname.trim();
+      if (trimmedNickname !== currentProfile.nickname) {
+        updateData.nickname = trimmedNickname;
         updateData.nickname_updated_at = new Date().toISOString();
       }
 
       const { error } = await supabase
         .from('profiles')
-        .update(updateData)
-        .or(`user_id.eq.${userId},id.eq.${userId}`);
+        .upsert(updateData, { onConflict: 'user_id' });
       
       if (error) {
         logError('Profile update error', error);
@@ -114,7 +134,7 @@ export const ProfileEditor = ({
         title: t.profile_nickname_updated,
         description: t.profile_nickname_update_success
       });
-      window.dispatchEvent(new CustomEvent('profile-nickname-updated', { detail: { nickname: updateData.nickname ?? nickname.trim() } }));
+      window.dispatchEvent(new CustomEvent('profile-nickname-updated', { detail: { nickname: updateData.nickname ?? trimmedNickname } }));
       onUpdate();
     } catch (error) {
       logError('Error updating profile', error as Error);
@@ -129,17 +149,28 @@ export const ProfileEditor = ({
   };
 
   const handleBioPrivacyUpdate = async () => {
+    const trimmedBio = bio.trim();
+    if (trimmedBio.length > BIO_MAX_LENGTH) {
+      toast({
+        title: t.common_error,
+        description: t.profile_update_error,
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setIsUpdating(true);
     try {
       const updateData: any = {
-        bio: bio.trim() || null,
+        id: userId,
+        user_id: userId,
+        bio: trimmedBio || null,
         privacy_mode: privacyMode
       };
 
       const { error } = await supabase
         .from('profiles')
-        .update(updateData)
-        .or(`user_id.eq.${userId},id.eq.${userId}`);
+        .upsert(updateData, { onConflict: 'user_id' });
       
       if (error) {
         logError('Profile update error', error);
@@ -182,12 +213,12 @@ export const ProfileEditor = ({
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
                 placeholder={t.nickname_placeholder}
-                maxLength={50}
+                maxLength={NICKNAME_MAX_LENGTH}
                 className="flex-1"
               />
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {nickname.length}/50
+              {nickname.length}/{NICKNAME_MAX_LENGTH}
             </p>
             <div className="mt-1 text-xs text-muted-foreground flex items-center gap-1" aria-live="polite">
               <Clock className="h-3 w-3" />
@@ -212,7 +243,7 @@ export const ProfileEditor = ({
             {isUpdating || isGenerating ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Saving...
+                {t.preferences_saving}
               </>
             ) : (
               'Save Nickname'
@@ -236,11 +267,11 @@ export const ProfileEditor = ({
               value={bio} 
               onChange={e => setBio(e.target.value)} 
               placeholder={t.profile_bio_placeholder}
-              maxLength={200} 
+              maxLength={BIO_MAX_LENGTH}
               rows={3} 
             />
             <p className="text-xs text-muted-foreground mt-1">
-              {bio.length}/200
+              {bio.length}/{BIO_MAX_LENGTH}
             </p>
           </div>
 
@@ -266,7 +297,7 @@ export const ProfileEditor = ({
             {isUpdating ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Saving...
+                {t.preferences_saving}
               </>
             ) : (
               'Save Changes'
