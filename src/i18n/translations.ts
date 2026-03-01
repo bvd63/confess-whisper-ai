@@ -976,6 +976,7 @@ type Translations = {
   // Comment Thread
   comments_reply_placeholder: string;
   comments_reply_button: string;
+  comments_replying_to: string;
   comments_send_button: string;
   comments_reply_added_desc: string;
   comments_too_long_error: string;
@@ -2506,6 +2507,7 @@ export const translations: Record<Language, Translations> = {
     
     comments_reply_placeholder: "Write a reply...",
     comments_reply_button: "Reply",
+    comments_replying_to: "Replying to",
     comments_send_button: "Send",
     comments_reply_added_desc: "Reply was added",
     comments_too_long_error: "Comment too long (max 500 characters)",
@@ -4922,6 +4924,7 @@ export const translations: Record<Language, Translations> = {
     
     comments_reply_placeholder: "Escribe una respuesta...",
     comments_reply_button: "Responder",
+    comments_replying_to: "Respondiendo a",
     comments_send_button: "Enviar",
     comments_reply_added_desc: "Respuesta añadida",
     comments_too_long_error: "Comentario demasiado largo (máx. 500 caracteres)",
@@ -6931,6 +6934,7 @@ export const translations: Record<Language, Translations> = {
     
     comments_reply_placeholder: "Schreibe eine Antwort...",
     comments_reply_button: "Antworten",
+    comments_replying_to: "Antwort an",
     comments_send_button: "Senden",
     comments_reply_added_desc: "Antwort hinzugefügt",
     comments_too_long_error: "Kommentar zu lang (max. 500 Zeichen)",

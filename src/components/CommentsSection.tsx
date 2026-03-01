@@ -1,7 +1,8 @@
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, useRef, memo } from "react";
 import { useCachePurgeOnDelete } from "@/hooks/useCachePurgeOnDelete";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Trash2, Send, Shield, User as UserIcon } from "lucide-react";
+import { MessageSquare, Trash2, Send, Shield, User as UserIcon, Reply } from "lucide-react";
+import CommentThread from "./CommentThread";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -23,6 +24,7 @@ interface Comment {
   highlight_expires_at?: string | null;
   alias?: string | null;
   is_anonymous?: boolean;
+  parent_comment_id?: string | null;
   profiles?: {
     nickname?: string | null;
     avatar_url?: string | null;
@@ -45,6 +47,8 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
   const [isAnonymous, setIsAnonymous] = useState(true);
   const [currentUserProfile, setCurrentUserProfile] = useState<{ nickname?: string | null } | null>(null);
   const [now, setNow] = useState(() => Date.now());
+  const [replyTarget, setReplyTarget] = useState<{ id: string; displayName: string } | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const { user } = useCurrentUser();
   const { toast } = useToast();
   const { t, language } = useLanguage();
@@ -85,6 +89,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
             highlight_expires_at: comment.highlight_expires_at,
             alias: comment.alias,
             is_anonymous: comment.is_anonymous,
+            parent_comment_id: comment.parent_comment_id,
           };
 
           if (comment.highlight_expires_at) {
@@ -373,6 +378,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
           content: sanitizedContent,
           alias: isAnonymous ? alias : null,
           is_anonymous: isAnonymous,
+          parent_comment_id: replyTarget?.id ?? null,
         })
         .select()
         .maybeSingle();
@@ -397,6 +403,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
 
       // Clear input and reset state
       setNewComment("");
+      setReplyTarget(null);
       
       toast({
         title: t.success_sent,
@@ -481,6 +488,17 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
     }
   });
   const orderedComments = [...highlightComments, ...regularComments];
+
+  // Thread grouping: separate top-level from replies
+  const topLevelComments = orderedComments.filter(c => !c.parent_comment_id);
+  const repliesMap: Record<string, Comment[]> = {};
+  orderedComments.forEach(c => {
+    if (c.parent_comment_id) {
+      if (!repliesMap[c.parent_comment_id]) repliesMap[c.parent_comment_id] = [];
+      repliesMap[c.parent_comment_id].push(c);
+    }
+  });
+
   const highlightCost = 15;
   const postAsPreview = isAnonymous
     ? t.comments_post_as_preview.replace('{name}', t.user_anonymous)
@@ -500,7 +518,7 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
             {t.comments_empty}
           </p>
         ) : (
-          orderedComments.map((comment) => {
+          topLevelComments.map((comment) => {
             const highlightExpiresAt = comment.highlight_expires_at || null;
             const isHighlightActive = Boolean(
               comment.is_highlighted &&
@@ -509,93 +527,119 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
             );
             const isCommentOwner = user?.id === comment.user_id;
             const isAnonymousComment = comment.is_anonymous !== false;
-            const displayName = isAnonymousComment 
+            const displayName = isAnonymousComment
               ? (comment.alias || 'Anonymous')
               : `@${comment.profiles?.nickname || 'User'}`;
             const isVipAuthor = !isAnonymousComment && (comment.profiles?.subscription_tier || '').toLowerCase() === 'vip';
+            const threadReplies = repliesMap[comment.id] || [];
 
             return (
-              <div
-                key={comment.id}
-                className={cn(
-                  "group relative p-4 sm:p-5 rounded-2xl transition-all duration-300 backdrop-blur-md",
-                  isHighlightActive
-                    ? "bg-gradient-to-br from-vip-gold/18 via-vip-gold/10 to-transparent border border-vip-gold/30 shadow-[0_12px_28px_rgba(255,215,0,0.18)]"
-                    : "bg-white/5 border border-white/10"
-                )}
-              >
-                {isHighlightActive && (
-                  <div className="absolute top-3 right-3 text-yellow-300">
-                    ⭐
-                  </div>
-                )}
-
-                {isHighlightActive && (
-                  <div className="inline-flex items-center gap-2 mb-3 px-3 py-1.5 bg-vip-gold/18 border border-vip-gold/35 rounded-full shadow-sm">
-                    <span className="text-xs font-semibold text-vip-gold">
-                      {t.highlight_comment_active_badge}
-                    </span>
-                    <span className="text-xs text-vip-gold/80">·</span>
-                    <ExpiryTimer 
-                      expiresAt={highlightExpiresAt || undefined}
-                      className="text-xs text-vip-gold"
-                      showIcon={false}
-                    />
-                  </div>
-                )}
-
-                <p className="text-sm text-white/90 leading-relaxed mb-3 pr-8">
-                  {sanitizeComment(comment.content)}
-                </p>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold shadow-inner",
-                      isAnonymousComment 
-                        ? "bg-white/10 text-white" 
-                        : "bg-primary/20 text-primary-foreground"
-                    )}>
-                      {isAnonymousComment ? <Shield className="w-4 h-4" /> : <UserIcon className="w-4 h-4" />}
+              <div key={comment.id}>
+                <div
+                  className={cn(
+                    "group relative p-4 sm:p-5 rounded-2xl transition-all duration-300 backdrop-blur-md",
+                    isHighlightActive
+                      ? "bg-gradient-to-br from-vip-gold/18 via-vip-gold/10 to-transparent border border-vip-gold/30 shadow-[0_12px_28px_rgba(255,215,0,0.18)]"
+                      : "bg-white/5 border border-white/10"
+                  )}
+                >
+                  {isHighlightActive && (
+                    <div className="absolute top-3 right-3 text-yellow-300">
+                      ⭐
                     </div>
-                    <span className="text-sm font-semibold text-white">
-                      {displayName}
-                    </span>
-                    {isVipAuthor && (
-                      <span className="text-sm drop-shadow-[0_0_4px_rgba(234,179,8,0.6)]" title="VIP">👑</span>
-                    )}
-                    <span className="text-xs text-white/70">
-                      · {timeAgo(comment.created_at)}
-                    </span>
-                  </div>
+                  )}
 
-                  <div className="flex items-center gap-1">
-                    {isCommentOwner && (
-                      <HighlightCommentButton
-                        commentId={comment.id}
-                        isOwner={isCommentOwner}
-                        highlightExpiresAt={highlightExpiresAt}
-                        onHighlightActivated={(expiresAt) => {
-                          setComments(prev => prev.map(existing =>
-                            existing.id === comment.id
-                              ? { ...existing, is_highlighted: true, highlight_expires_at: expiresAt }
-                              : existing
-                          ));
-                        }}
+                  {isHighlightActive && (
+                    <div className="inline-flex items-center gap-2 mb-3 px-3 py-1.5 bg-vip-gold/18 border border-vip-gold/35 rounded-full shadow-sm">
+                      <span className="text-xs font-semibold text-vip-gold">
+                        {t.highlight_comment_active_badge}
+                      </span>
+                      <span className="text-xs text-vip-gold/80">·</span>
+                      <ExpiryTimer
+                        expiresAt={highlightExpiresAt || undefined}
+                        className="text-xs text-vip-gold"
+                        showIcon={false}
                       />
-                    )}
-                    {(user?.id === comment.user_id || user?.id === confessionOwnerId) && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(comment.id)}
-                        className="h-8 w-8 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-full"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
-                    )}
+                    </div>
+                  )}
+
+                  <p className="text-sm text-white/90 leading-relaxed mb-3 pr-8">
+                    {sanitizeComment(comment.content)}
+                  </p>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className={cn(
+                        "w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold shadow-inner",
+                        isAnonymousComment
+                          ? "bg-white/10 text-white"
+                          : "bg-primary/20 text-primary-foreground"
+                      )}>
+                        {isAnonymousComment ? <Shield className="w-4 h-4" /> : <UserIcon className="w-4 h-4" />}
+                      </div>
+                      <span className="text-sm font-semibold text-white">
+                        {displayName}
+                      </span>
+                      {isVipAuthor && (
+                        <span className="text-sm drop-shadow-[0_0_4px_rgba(234,179,8,0.6)]" title="VIP">👑</span>
+                      )}
+                      <span className="text-xs text-white/70">
+                        · {timeAgo(comment.created_at)}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      {user && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setReplyTarget({ id: comment.id, displayName });
+                            setTimeout(() => inputRef.current?.focus(), 80);
+                          }}
+                          className="h-7 px-2.5 text-xs text-white/50 hover:text-white/80 hover:bg-white/5 rounded-full gap-1 transition-all"
+                        >
+                          <Reply className="w-3 h-3" />
+                          {t.comments_reply_button}
+                        </Button>
+                      )}
+                      {isCommentOwner && (
+                        <HighlightCommentButton
+                          commentId={comment.id}
+                          isOwner={isCommentOwner}
+                          highlightExpiresAt={highlightExpiresAt}
+                          onHighlightActivated={(expiresAt) => {
+                            setComments(prev => prev.map(existing =>
+                              existing.id === comment.id
+                                ? { ...existing, is_highlighted: true, highlight_expires_at: expiresAt }
+                                : existing
+                            ));
+                          }}
+                        />
+                      )}
+                      {(user?.id === comment.user_id || user?.id === confessionOwnerId) && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(comment.id)}
+                          className="h-8 w-8 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-full"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
+
+                {threadReplies.length > 0 && (
+                  <CommentThread
+                    replies={threadReplies}
+                    currentUserId={user?.id ?? null}
+                    parentCommentId={comment.id}
+                    onSetReplyTarget={setReplyTarget}
+                    timeAgo={timeAgo}
+                  />
+                )}
               </div>
             );
           })
@@ -642,11 +686,29 @@ const CommentsSection = ({ confessionId, commentsCount, confessionOwnerId, onCom
             </Button>
           </div>
 
+          {replyTarget && (
+            <div className="flex items-center justify-between px-3 py-2 bg-primary/10 border border-primary/20 rounded-xl animate-in fade-in duration-150">
+              <span className="text-xs text-white/70">
+                {t.comments_replying_to}{" "}
+                <span className="font-semibold text-primary">{replyTarget.displayName}</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => setReplyTarget(null)}
+                className="ml-2 text-white/40 hover:text-white/70 transition-colors text-sm leading-none"
+                aria-label="Cancel reply"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
           <div className="flex items-center gap-3">
             <div className="flex-1 relative">
               <input
+                ref={inputRef}
                 type="text"
-                placeholder={isAnonymous ? t.comments_anonymous_placeholder : t.comment_placeholder_public}
+                placeholder={replyTarget ? t.comments_reply_placeholder : (isAnonymous ? t.comments_anonymous_placeholder : t.comment_placeholder_public)}
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 onKeyDown={(e) => {
